@@ -6,17 +6,17 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.carlspring.repositoryunit</groupId>
-        <artifactId>repository-unit-parent</artifactId>
+        <groupId>org.carlspring.strongbox</groupId>
+        <artifactId>strongbox-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
-        <relativePath>../repository-unit-parent</relativePath>
+        <relativePath>../strongbox-parent</relativePath>
     </parent>
 
-    <artifactId>repository-unit-storage</artifactId>
+    <artifactId>strongbox-storage</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>Repository Unit: Storage</name>
+    <name>Strongbox: Storage</name>
 
     <build>
         <plugins>
@@ -34,7 +34,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>repository-unit-annotations</artifactId>
+            <artifactId>strongbox-annotations</artifactId>
             <version>${project.version}</version>
         </dependency>
 
