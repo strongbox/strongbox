@@ -1,6 +1,5 @@
 package org.carlspring.repositoryunit.storage.resolvers;
 
-import org.apache.maven.artifact.Artifact;
 import org.carlspring.repositoryunit.configuration.Configuration;
 import org.carlspring.repositoryunit.configuration.ConfigurationManager;
 
@@ -88,14 +87,14 @@ public class ArtifactResolutionService
         }
     }
 
-    public InputStream getInputStreamForArtifact(String repository, Artifact artifact)
-            throws ArtifactResolutionException
+    public InputStream getInputStream(String repository, String artifactPath)
+            throws ArtifactResolutionException, IOException
     {
         InputStream is = null;
 
         for (LocationResolver resolver : resolvers)
         {
-            is = resolver.getInputStreamForArtifact(repository, artifact);
+            is = resolver.getInputStream(repository, artifactPath);
             if (is != null)
             {
                 break;
@@ -104,7 +103,7 @@ public class ArtifactResolutionService
 
         if (is == null)
         {
-            throw new ArtifactResolutionException("Artifact " + artifact.toString() + " not found.");
+            throw new ArtifactResolutionException("Artifact " + artifactPath + " not found.");
         }
 
         return is;

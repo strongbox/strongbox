@@ -1,11 +1,8 @@
 package org.carlspring.repositoryunit.rest;
 
-import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.repositoryunit.storage.resolvers.ArtifactResolutionException;
 import org.carlspring.repositoryunit.storage.resolvers.ArtifactResolutionService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -13,6 +10,9 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Martin Todorov
@@ -26,8 +26,9 @@ public class NexusArtifactRestlet
 
 
     @PUT
-    @Path("/{path:.*}")
-    public void upload(@PathParam("path") String path,
+    @Path("/{repository}/{path:.*}")
+    public void upload(@PathParam("repository") String repository,
+                       @PathParam("path") String path,
                        @Context HttpHeaders headers,
                        byte[] in)
             throws IOException
@@ -47,17 +48,17 @@ public class NexusArtifactRestlet
                    IllegalAccessException,
                    ClassNotFoundException
     {
+        logger.debug(" repository = " + repository + ", path = " + artifactPath);
+
         if (!ArtifactUtils.isArtifact(artifactPath))
         {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
 
-        Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
-
         InputStream is;
         try
         {
-            is = ArtifactResolutionService.getInstance().getInputStreamForArtifact(repository, artifact);
+            is = ArtifactResolutionService.getInstance().getInputStream(repository, artifactPath);
         }
         catch (ArtifactResolutionException e)
         {

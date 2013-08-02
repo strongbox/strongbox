@@ -1,11 +1,11 @@
 package org.carlspring.repositoryunit.storage.repository;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * @author mtodorov
@@ -41,6 +41,22 @@ public class Repository
         final File artifactFile = new File(name, artifactPath);
 
         return artifactFile.exists();
+    }
+
+    public boolean containsPath(String path)
+            throws IOException
+    {
+        final File artifactFile = new File(name, path).getCanonicalFile();
+        return artifactFile.exists();
+    }
+
+    public String pathToArtifact(Artifact artifact)
+            throws IOException
+    {
+        final String artifactPath = ArtifactUtils.convertArtifactToPath(artifact);
+        final File artifactFile = new File(name, artifactPath);
+
+        return artifactFile.getCanonicalPath();
     }
 
     public boolean allowsSnapshots()

@@ -1,7 +1,6 @@
 package org.carlspring.repositoryunit.storage.resolvers;
 
-import org.apache.maven.artifact.Artifact;
-
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -10,8 +9,10 @@ import java.io.InputStream;
 public interface LocationResolver
 {
 
-    InputStream getInputStreamForArtifact(String repository, Artifact artifact);
+    InputStream getInputStream(String repository, String path)
+            throws IOException;
 
-    void initialize();
+    void initialize()
+            throws IOException;
 
 }

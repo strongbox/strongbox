@@ -1,16 +1,25 @@
 package org.carlspring.repositoryunit.storage.resolvers;
 
-import org.apache.maven.artifact.Artifact;
+import org.carlspring.repositoryunit.configuration.Configuration;
+import org.carlspring.repositoryunit.configuration.ConfigurationManager;
 import org.carlspring.repositoryunit.storage.DataCenter;
+import org.carlspring.repositoryunit.storage.Storage;
+import org.carlspring.repositoryunit.storage.repository.Repository;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
 
 /**
  * @author mtodorov
  */
-public class FSLocationResolver implements LocationResolver
+public class FSLocationResolver
+        implements LocationResolver
 {
 
     private static final Logger logger = LoggerFactory.getLogger(FSLocationResolver.class);
@@ -23,26 +32,55 @@ public class FSLocationResolver implements LocationResolver
     }
 
     @Override
-    public InputStream getInputStreamForArtifact(String repository,
-                                                 Artifact artifact)
+    public InputStream getInputStream(String repository,
+                                      String artifactPath)
+            throws IOException
     {
-        // TODO: 1) Loop over the storages in the dataCenter
+        for (Map.Entry entry : dataCenter.getStorages().entrySet())
+        {
+            Storage storage = (Storage) entry.getValue();
 
-        // TODO: 2) Check if the repositories contain the artifact
+            if (storage.containsRepository(repository))
+            {
+                logger.debug("Checking in storage " + storage.getBasedir() + "...");
 
-        // TODO: 3) Return the InputStream for the artifact
+                final Map<String, Repository> repositories = storage.getRepositories();
+
+                for (String key : repositories.keySet())
+                {
+                    Repository r = repositories.get(key);
+
+                    logger.debug("Checking in repository " + r.getName() + "...");
+
+                    final File repoPath = new File(storage.getBasedir(), r.getName());
+                    final File artifactFile = new File(repoPath, artifactPath).getCanonicalFile();
+
+                    logger.debug("Checking for " + artifactFile.getCanonicalPath() + "...");
+
+                    if (artifactFile.exists())
+                    {
+                        logger.info("Resolved " + artifactFile.getCanonicalPath() + "!");
+
+                        return new FileInputStream(artifactFile);
+                    }
+                }
+            }
+        }
 
         return null;
     }
 
     @Override
     public void initialize()
+            throws IOException
     {
-        System.out.println("");
-        System.out.println("Initialized FSLocationResolver.");
-        System.out.println("");
+        final Configuration configuration = ConfigurationManager.getInstance().getConfiguration();
 
-        logger.debug("Initialized FSLocationResolver.");
+        final Map<String, Storage> storages = configuration.getStorages();
+
+        dataCenter.setStorages(storages);
+
+        logger.info("Initialized FSLocationResolver.");
     }
 
     public DataCenter getDataCenter()

@@ -1,8 +1,6 @@
 package org.carlspring.repositoryunit.storage;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamImplicit;
-import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import org.carlspring.repositoryunit.storage.repository.Repository;
 
 import java.util.LinkedHashMap;
@@ -28,6 +26,11 @@ public class Storage
     public Storage(String basedir)
     {
         this.basedir = basedir;
+    }
+
+    public boolean containsRepository(String repository)
+    {
+        return getRepositories().containsKey(repository);
     }
 
     public String getBasedir()
