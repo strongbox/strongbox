@@ -1,0 +1,7 @@
+
+
+- Add support for local file system repositories specified as single repositories.
+- Add support for local file system repositories specified via a storage.
+- Make it possible to isolate repository setups per test.
+
+
