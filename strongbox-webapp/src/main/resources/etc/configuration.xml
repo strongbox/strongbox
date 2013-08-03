@@ -1,7 +1,7 @@
 <configuration>
     <resolvers>
-        <resolver>org.carlspring.repositoryunit.storage.resolvers.InMemoryLocationResolver</resolver>
-        <resolver>org.carlspring.repositoryunit.storage.resolvers.FSLocationResolver</resolver>
+        <resolver>org.carlspring.strongbox.storage.resolvers.InMemoryLocationResolver</resolver>
+        <resolver>org.carlspring.strongbox.storage.resolvers.FSLocationResolver</resolver>
     </resolvers>
     <storages>
         <storage>

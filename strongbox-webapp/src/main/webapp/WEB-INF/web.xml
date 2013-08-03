@@ -26,7 +26,7 @@
 
     <filter>
         <filter-name>ArtifactResolutionServiceFilter</filter-name>
-        <filter-class>org.carlspring.repositoryunit.filters.ArtifactResolutionServiceFilter</filter-class>
+        <filter-class>org.carlspring.strongbox.filters.ArtifactResolutionServiceFilter</filter-class>
     </filter>
 
     <welcome-file-list>
