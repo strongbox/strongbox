@@ -16,7 +16,6 @@
         <module>strongbox-parent</module>
         <module>strongbox-commons</module>
         <module>strongbox-client</module>
-        <module>strongbox-annotations</module>
         <module>strongbox-storage</module>
         <module>strongbox-webapp</module>
     </modules>

@@ -152,4 +152,29 @@
         </dependencies>
     </dependencyManagement>
 
+    <repositories>
+        <repository>
+            <id>carlspring-oss-snapshots</id>
+            <name>carlspring-oss-snapshots</name>
+            <url>http://dev.carlspring.org/nexus/content/repositories/carlspring-com-snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>carlspring-oss-releases</id>
+            <name>carlspring-oss-releases</name>
+            <url>http://dev.carlspring.org/nexus/content/repositories/carlspring-com-releases/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
+
 </project>
