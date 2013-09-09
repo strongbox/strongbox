@@ -2,6 +2,7 @@ package org.carlspring.strongbox.jaas;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -16,7 +17,7 @@ public class User implements Serializable
 
     private Credentials credentials = new Credentials();
 
-    private Set<Role> roles;
+    private Set<Role> roles = new LinkedHashSet<Role>();
 
 
     public User()
