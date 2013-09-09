@@ -42,13 +42,21 @@ public class CachedUserManager implements UserManager
 
     public boolean containsUser(String username)
     {
-        logger.debug("Cache contains user '" + username + "'.");
+        if (cachedUsers.containsKey(username))
+        {
+            logger.debug("Cache contains user '" + username + "'.");
+        }
+
         return cachedUsers.containsKey(username);
     }
 
     public User getUser(String username)
     {
-        logger.debug("Found user '" + username + "' in cache.");
+        if (cachedUsers.get(username) != null)
+        {
+            logger.debug("Found user '" + username + "' in cache.");
+        }
+
         return cachedUsers.get(username);
     }
 

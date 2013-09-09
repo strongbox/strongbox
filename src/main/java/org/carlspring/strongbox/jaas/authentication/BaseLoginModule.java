@@ -1,10 +1,11 @@
 package org.carlspring.strongbox.jaas.authentication;
 
-import org.carlspring.strongbox.jaas.*;
+import org.carlspring.strongbox.jaas.Credentials;
+import org.carlspring.strongbox.jaas.Role;
+import org.carlspring.strongbox.jaas.User;
 import org.carlspring.strongbox.jaas.principal.BasePrincipal;
 import org.carlspring.strongbox.jaas.principal.RolePrincipal;
 import org.carlspring.strongbox.jaas.principal.UserPrincipal;
-import org.carlspring.strongbox.util.encryption.EncryptionUtils;
 
 import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Subject;
@@ -30,12 +31,12 @@ import org.slf4j.LoggerFactory;
  * If set to true in the login Configuration,
  * debug messages will be output to the output stream, System.out.
  */
-public class BaseLoginModule
+public abstract class BaseLoginModule
         implements LoginModule
 {
 
 
-    private static Logger logger = LoggerFactory.getLogger(RDBMSLoginModule.class);
+    private static Logger logger = LoggerFactory.getLogger(BaseLoginModule.class);
 
     // initial state
     private Subject subject;
@@ -62,8 +63,6 @@ public class BaseLoginModule
 
     // TODO: This should actually be injected somehow (perhaps by a IoC).
     private UserAuthenticator userAuthenticator = new UserAuthenticator();
-
-    private UserResolver userResolver = new RDBMSUserRealm();
 
 
     /**
@@ -93,8 +92,6 @@ public class BaseLoginModule
 
         // initialize any configured options
         // debug = "true".equalsIgnoreCase((String) options.get("debug"));
-
-        logger.debug("RDBMSLoginModule initialized!");
     }
 
     /**
@@ -148,7 +145,7 @@ public class BaseLoginModule
                                      "from the user");
         }
 
-        checkUserCredentials(principal.getName(), EncryptionUtils.encryptWithMD5(credentials.getPassword()));
+        checkUserCredentials(principal.getName(), credentials.getPassword());
 
         if (user != null)
         {
@@ -170,27 +167,8 @@ public class BaseLoginModule
         }
     }
 
-    private void checkUserCredentials(String username, String encryptedPassword)
-            throws LoginException
-    {
-        try
-        {
-            logger.debug("Checking authentication for: " + principal.getName() + " / " + encryptedPassword);
-
-            user = userAuthenticator.authenticate(username, encryptedPassword, userResolver);
-        }
-        /*
-        catch (SQLException e)
-        {
-            throw new LoginException("Failed to authenticate against the database with error message: " +
-                                     e.getMessage());
-        }
-        */
-        catch (Exception e)
-        {
-            throw new LoginException(e.getMessage());
-        }
-    }
+    public abstract void checkUserCredentials(String username, String password)
+            throws LoginException;
 
     /**
      * <p> This method is called if the LoginContext's
@@ -237,7 +215,7 @@ public class BaseLoginModule
         }
     }
 
-    private void addPrincipals()
+    public void addPrincipals()
     {
         // Add a Principal (authenticated identity) to the Subject
         // Add a principal with the username
@@ -266,15 +244,6 @@ public class BaseLoginModule
 
         }
     }
-
-    /*
-    @Override
-    public UserInfo getUserInfo(String username)
-            throws Exception
-    {
-        return null;
-    }
-    */
 
     /**
      * <p> This method is called if the LoginContext's
@@ -321,7 +290,7 @@ public class BaseLoginModule
         return true;
     }
 
-    private void clearCredentials()
+    public void clearCredentials()
     {
         try
         {
@@ -359,6 +328,106 @@ public class BaseLoginModule
 
         principal = null;
         return true;
+    }
+
+    public Subject getSubject()
+    {
+        return subject;
+    }
+
+    public void setSubject(Subject subject)
+    {
+        this.subject = subject;
+    }
+
+    public CallbackHandler getCallbackHandler()
+    {
+        return callbackHandler;
+    }
+
+    public void setCallbackHandler(CallbackHandler callbackHandler)
+    {
+        this.callbackHandler = callbackHandler;
+    }
+
+    public Map getSharedState()
+    {
+        return sharedState;
+    }
+
+    public void setSharedState(Map sharedState)
+    {
+        this.sharedState = sharedState;
+    }
+
+    public Map getOptions()
+    {
+        return options;
+    }
+
+    public void setOptions(Map options)
+    {
+        this.options = options;
+    }
+
+    public boolean isSucceeded()
+    {
+        return succeeded;
+    }
+
+    public void setSucceeded(boolean succeeded)
+    {
+        this.succeeded = succeeded;
+    }
+
+    public boolean isCommitSucceeded()
+    {
+        return commitSucceeded;
+    }
+
+    public void setCommitSucceeded(boolean commitSucceeded)
+    {
+        this.commitSucceeded = commitSucceeded;
+    }
+
+    public BasePrincipal getPrincipal()
+    {
+        return principal;
+    }
+
+    public void setPrincipal(BasePrincipal principal)
+    {
+        this.principal = principal;
+    }
+
+    public Credentials getCredentials()
+    {
+        return credentials;
+    }
+
+    public void setCredentials(Credentials credentials)
+    {
+        this.credentials = credentials;
+    }
+
+    public User getUser()
+    {
+        return user;
+    }
+
+    public void setUser(User user)
+    {
+        this.user = user;
+    }
+
+    public UserAuthenticator getUserAuthenticator()
+    {
+        return userAuthenticator;
+    }
+
+    public void setUserAuthenticator(UserAuthenticator userAuthenticator)
+    {
+        this.userAuthenticator = userAuthenticator;
     }
 
 }

@@ -67,7 +67,7 @@ public class AuthenticationCallbackHandler
                 // prompt the user for a username
                 NameCallback nc = (NameCallback) callback;
 
-                // We don't really need to be printing out a prompt from within the test case.
+                // We don't really need to be printing out a prompt...
                 // System.err.println(nc.getPrompt());
 
                 nc.setName(getUsername());
@@ -77,7 +77,7 @@ public class AuthenticationCallbackHandler
                 // prompt the user for sensitive information
                 PasswordCallback pc = (PasswordCallback) callback;
 
-                // We don't really need to be printing out a prompt from within the test case.
+                // We don't really need to be printing out a prompt...
                 // System.err.println(pc.getPrompt());
 
                 pc.setPassword(getPassword().toCharArray());
