@@ -30,41 +30,13 @@
             </plugin>
 
             <plugin>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-maven-plugin</artifactId>
-                <version>${version.jetty}</version>
-
-                <configuration>
-                    <scanIntervalSeconds>10</scanIntervalSeconds>
-                    <daemon>true</daemon>
-
-                    <webApp>
-                        <contextPath>/</contextPath>
-                    </webApp>
-
-                    <httpConnector>
-                        <port>48080</port>
-                    </httpConnector>
-
-                    <stopPort>19081</stopPort>
-                    <stopKey>53AS9DS1FD8E3WEFEW9GR1ER8G2ER0WE31</stopKey>
-                </configuration>
-
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>jetty-start</id>
-
-                        <phase>test-compile</phase>
+                        <phase>package</phase>
                         <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>jetty-stop</id>
-
-                        <phase>test</phase>
-                        <goals>
-                            <goal>stop</goal>
+                            <goal>jar</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -159,5 +131,60 @@
             <artifactId>junit</artifactId>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>run-jetty</id>
+            <activation>
+                <property>
+                    <name>!skipTests</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.eclipse.jetty</groupId>
+                        <artifactId>jetty-maven-plugin</artifactId>
+                        <version>${version.jetty}</version>
+
+                        <configuration>
+                            <scanIntervalSeconds>10</scanIntervalSeconds>
+                            <daemon>true</daemon>
+
+                            <webApp>
+                                <contextPath>/</contextPath>
+                            </webApp>
+
+                            <httpConnector>
+                                <port>48080</port>
+                            </httpConnector>
+
+                            <stopPort>19081</stopPort>
+                            <stopKey>53AS9DS1FD8E3WEFEW9GR1ER8G2ER0WE31</stopKey>
+                        </configuration>
+
+                        <executions>
+                            <execution>
+                                <id>jetty-start</id>
+
+                                <phase>test-compile</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>jetty-stop</id>
+
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>stop</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
