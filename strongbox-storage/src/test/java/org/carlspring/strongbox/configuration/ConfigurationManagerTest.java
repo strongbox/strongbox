@@ -7,7 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import static org.junit.Assert.*;
@@ -62,6 +61,9 @@ public class ConfigurationManagerTest
         assertEquals("Incorrect port number!", 48080, configuration.getPort());
         assertNotNull("No resolvers found!", configuration.getResolvers());
         assertEquals("Incorrect number of resolvers found!", 2, configuration.getResolvers().size());
+        assertEquals("Repository should have required authentication!",
+                     true,
+                     configuration.getStorages().get("storages/storage0").getRepositories().get("repository1").isSecured());
     }
 
     @Test
@@ -87,7 +89,7 @@ public class ConfigurationManagerTest
         File outputFile = new File(CONFIGURATION_OUTPUT_FILE);
 
         ConfigurationParser parser = new ConfigurationParser();
-        parser.storeConfiguration(configuration, outputFile.getCanonicalPath());
+        parser.store(configuration, outputFile.getCanonicalPath());
 
         assertTrue("Failed to store the produced XML!", outputFile.length() > 0);
     }
