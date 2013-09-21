@@ -11,43 +11,10 @@ import java.util.Map;
 /**
  * @author mtodorov
  */
-public class ConfigurationParser
+public class ConfigurationParser extends GenericParser<Configuration>
 {
 
-    public Configuration parseConfiguration(String xmlFile)
-            throws FileNotFoundException
-    {
-        File file = new File(xmlFile).getAbsoluteFile();
-        FileInputStream fis = new FileInputStream(file);
-
-        XStream xstream = getXStreamInstance();
-
-        return (Configuration) xstream.fromXML(fis);
-    }
-
-    public void storeConfiguration(Configuration configuration, String file)
-            throws IOException
-    {
-        XStream xstream = getXStreamInstance();
-        final String xml = xstream.toXML(configuration);
-
-        FileOutputStream fos = null;
-        try
-        {
-            fos = new FileOutputStream(file);
-            fos.write(xml.getBytes());
-            fos.flush();
-        }
-        finally
-        {
-            if (fos != null)
-            {
-                fos.close();
-            }
-        }
-    }
-
-    private XStream getXStreamInstance()
+    public XStream getXStreamInstance()
     {
         XStream xstream = new XStream();
         xstream.autodetectAnnotations(true);
