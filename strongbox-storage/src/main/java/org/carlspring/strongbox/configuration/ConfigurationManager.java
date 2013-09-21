@@ -62,7 +62,7 @@ public class ConfigurationManager
 
         ConfigurationParser parser = new ConfigurationParser();
 
-        configuration = parser.parseConfiguration(filename);
+        configuration = parser.parse(filename);
         configuration.setFilename(filename);
         configuration.dump();
     }
@@ -71,7 +71,7 @@ public class ConfigurationManager
             throws IOException
     {
         ConfigurationParser parser = new ConfigurationParser();
-        parser.storeConfiguration(configuration, file);
+        parser.store(configuration, file);
     }
 
     public Configuration getConfiguration()
