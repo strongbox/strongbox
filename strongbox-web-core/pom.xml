@@ -12,11 +12,11 @@
         <relativePath>../strongbox-parent</relativePath>
     </parent>
 
-    <artifactId>strongbox-webapp</artifactId>
+    <artifactId>strongbox-web-core</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
 
-    <name>Strongbox: Webapp</name>
+    <name>Strongbox: Web Core</name>
 
     <build>
         <plugins>
@@ -28,13 +28,35 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>classes</classifier>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>2.5</version>
+            </plugin>
         </plugins>
     </build>
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-web-core</artifactId>
+            <artifactId>strongbox-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -119,7 +141,6 @@
         </dependency>
     </dependencies>
 
-    <!--
     <profiles>
         <profile>
             <id>run-jetty</id>
@@ -141,6 +162,7 @@
 
                             <webApp>
                                 <contextPath>/</contextPath>
+                                <descriptor>${basedir}/src/test/webapp/WEB-INF/web.xml</descriptor>
                             </webApp>
 
                             <httpConnector>
@@ -174,6 +196,5 @@
             </build>
         </profile>
     </profiles>
-    -->
 
 </project>

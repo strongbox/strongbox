@@ -79,7 +79,7 @@ public class DataCenterTest
 
         Set<Repository> repositories = new LinkedHashSet<Repository>();
         repositories.add(new Repository(new File(TEST_REPOSITORIES_DIR, "repository0").getCanonicalFile().getName()));
-        repositories.add(new Repository(new File(TEST_REPOSITORIES_DIR, "repository1").getCanonicalFile().getName()));
+        repositories.add(new Repository(new File(TEST_REPOSITORIES_DIR, "repository1").getCanonicalFile().getName(), true));
         repositories.add(new Repository(new File(TEST_REPOSITORIES_DIR, "repository2").getCanonicalFile().getName()));
 
         dataCenter.addRepositories(TEST_REPOSITORIES_DIR, repositories);
@@ -99,7 +99,7 @@ public class DataCenterTest
             for (String key : storage.getRepositories().keySet())
             {
                 Repository repository = storage.getRepositories().get(key);
-                System.out.println(" --> " + repository);
+                System.out.println(" --> " + repository + (repository.isSecured() ? " : secured" : " : anonymous"));
             }
         }
 

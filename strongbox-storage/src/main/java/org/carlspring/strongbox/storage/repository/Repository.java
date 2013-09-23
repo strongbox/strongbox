@@ -25,6 +25,9 @@ public class Repository
     @XStreamAsAttribute
     private String type = RepositoryTypeEnum.HOSTED.getType();
 
+    @XStreamAsAttribute
+    private boolean secured = false;
+
 
     public Repository()
     {
@@ -33,6 +36,12 @@ public class Repository
     public Repository(String name)
     {
         this.name = name;
+    }
+
+    public Repository(String name, boolean secured)
+    {
+        this.name = name;
+        this.secured = secured;
     }
 
     public boolean containsArtifact(Artifact artifact)
@@ -103,6 +112,16 @@ public class Repository
     public void setType(String type)
     {
         this.type = type;
+    }
+
+    public boolean isSecured()
+    {
+        return secured;
+    }
+
+    public void setSecured(boolean secured)
+    {
+        this.secured = secured;
     }
 
     @Override

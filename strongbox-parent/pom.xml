@@ -16,8 +16,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <version.grizzly>1.9.9</version.grizzly>
-        <version.jersey>1.11</version.jersey>
-        <version.jetty>9.0.0.v20130308</version.jetty>
+        <version.jersey>1.17.1</version.jersey>
+        <version.jetty>9.1.0.M0</version.jetty>
         <version.lucene>4.4.0</version.lucene>
         <version.maven>3.0.5</version.maven>
         <version.slf4j>1.6.4</version.slf4j>
@@ -56,6 +56,12 @@
                     <configuration>
                         <includeEmptyDirs>true</includeEmptyDirs>
                     </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>2.4</version>
                 </plugin>
             </plugins>
         </pluginManagement>

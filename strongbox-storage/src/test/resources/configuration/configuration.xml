@@ -8,7 +8,8 @@
             <basedir>storages/storage0</basedir>
             <repositories>
                 <repository name="repository0" basedir="/repository0" policy="snapshots" layout="maven2" type="hosted" />
-                <repository name="repository1" basedir="/repository1" policy="snapshots" layout="maven2" type="hosted" />
+                <!-- Secured repositories do not allow anonymous access -->
+                <repository name="repository1" basedir="/repository1" policy="snapshots" layout="maven2" type="hosted" secured="true"/>
             </repositories>
         </storage>
     </storages>

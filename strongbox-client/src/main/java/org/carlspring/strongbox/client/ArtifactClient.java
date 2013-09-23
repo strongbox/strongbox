@@ -73,7 +73,7 @@ public class ArtifactClient
 
         int total = 0;
         int len;
-        int size = 4096;
+        final int size = 4096;
         byte[] bytes = new byte[size];
 
         while ((len = is.read(bytes, 0, size)) != -1)
