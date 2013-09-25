@@ -15,6 +15,7 @@
     <modules>
         <module>strongbox-parent</module>
         <module>strongbox-commons</module>
+        <module>strongbox-event-api</module>
         <module>strongbox-client</module>
         <module>strongbox-storage</module>
         <module>strongbox-web-core</module>
