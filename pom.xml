@@ -19,7 +19,6 @@
         <module>strongbox-client</module>
         <module>strongbox-storage</module>
         <module>strongbox-web-core</module>
-        <module>strongbox-webapp</module>
     </modules>
 
 </project>
