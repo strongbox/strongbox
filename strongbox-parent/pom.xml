@@ -17,7 +17,7 @@
 
         <version.grizzly>1.9.9</version.grizzly>
         <version.jersey>1.17.1</version.jersey>
-        <version.jetty>9.1.0.M0</version.jetty>
+        <version.jetty>9.0.5.v20130815</version.jetty>
         <version.lucene>4.4.0</version.lucene>
         <version.maven>3.0.5</version.maven>
         <version.slf4j>1.6.4</version.slf4j>
@@ -103,6 +103,13 @@
             </dependency>
 
             <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>servlet-api</artifactId>
+                <version>2.5</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
                 <groupId>org.apache.maven</groupId>
                 <artifactId>maven-artifact</artifactId>
                 <version>${version.maven}</version>
@@ -123,17 +130,6 @@
                 <artifactId>maven-plugin-testing-harness</artifactId>
                 <version>1.3</version>
                 <scope>test</scope>
-            </dependency>
-
-            <dependency>
-               <groupId>org.eclipse.jetty</groupId>
-               <artifactId>jetty-server</artifactId>
-               <version>${version.jetty}</version>
-            </dependency>
-            <dependency>
-               <groupId>org.eclipse.jetty</groupId>
-               <artifactId>jetty-webapp</artifactId>
-               <version>${version.jetty}</version>
             </dependency>
 
             <!-- Use Log4J for logging -->
