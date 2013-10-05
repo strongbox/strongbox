@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.storage.resolvers;
 
-import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.storage.DataCenter;
 import org.carlspring.strongbox.storage.Storage;
@@ -14,15 +13,21 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * @author mtodorov
  */
+@Component
 public class FSLocationResolver
         implements LocationResolver
 {
 
     private static final Logger logger = LoggerFactory.getLogger(FSLocationResolver.class);
+
+    @Autowired
+    private ConfigurationManager configurationManager;
 
     private DataCenter dataCenter = new DataCenter();
 
@@ -74,9 +79,7 @@ public class FSLocationResolver
     public void initialize()
             throws IOException
     {
-        final Configuration configuration = ConfigurationManager.getInstance().getConfiguration();
-
-        final Map<String, Storage> storages = configuration.getStorages();
+        final Map<String, Storage> storages = configurationManager.getConfiguration().getStorages();
 
         dataCenter.setStorages(storages);
 

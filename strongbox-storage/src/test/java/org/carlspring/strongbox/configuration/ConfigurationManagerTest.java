@@ -5,21 +5,28 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.io.IOException;
 
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.*;
 
 /**
  * @author mtodorov
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations={"/META-INF/spring/strongbox-*-context.xml"})
 public class ConfigurationManagerTest
 {
 
     public static final String TEST_CLASSES = "target/test-classes";
 
-    public static final String CONFIGURATION_BASEDIR = TEST_CLASSES + "/configuration";
+    public static final String CONFIGURATION_BASEDIR = TEST_CLASSES + "/etc";
 
     public static final String CONFIGURATION_FILE = CONFIGURATION_BASEDIR + "/configuration.xml";
 
@@ -27,26 +34,16 @@ public class ConfigurationManagerTest
 
     public static final String STORAGE_BASEDIR = TEST_CLASSES + "/storages/storage0";
 
+    @Autowired
+    private ConfigurationManager configurationManager;
 
-    @Before
-    public void setUp()
-            throws Exception
-    {
-        System.setProperty("repository.config.xml", CONFIGURATION_FILE);
-    }
-
-    @After
-    public void tearDown()
-            throws Exception
-    {
-        System.getProperties().remove("repository.config.xml");
-    }
 
     @Test
     public void testParseConfiguration()
             throws IOException
     {
-        final Configuration configuration = ConfigurationManager.getInstance().getConfiguration();
+        final Configuration configuration = configurationManager.getConfiguration();
+
         assertNotNull(configuration);
         assertNotNull(configuration.getStorages());
 
@@ -63,7 +60,7 @@ public class ConfigurationManagerTest
         assertEquals("Incorrect number of resolvers found!", 2, configuration.getResolvers().size());
         assertEquals("Repository should have required authentication!",
                      true,
-                     configuration.getStorages().get("storages/storage0").getRepositories().get("repository1").isSecured());
+                     configuration.getStorages().get("storage0").getRepositories().get("repository1").isSecured());
     }
 
     @Test

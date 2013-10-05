@@ -12,6 +12,9 @@ import java.util.Map;
 public class Storage
 {
 
+    @XStreamAlias(value = "name")
+    private String name;
+
     @XStreamAlias(value = "basedir")
     private String basedir;
 
@@ -23,14 +26,25 @@ public class Storage
     {
     }
 
-    public Storage(String basedir)
+    public Storage(String name, String basedir)
     {
+        this.name = name;
         this.basedir = basedir;
     }
 
     public boolean containsRepository(String repository)
     {
         return getRepositories().containsKey(repository);
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+
+    public void setName(String name)
+    {
+        this.name = name;
     }
 
     public String getBasedir()
@@ -56,6 +70,11 @@ public class Storage
     public void addRepository(Repository repository)
     {
         repositories.put(repository.getName(), repository);
+    }
+
+    public Repository getRepository(String repository)
+    {
+        return repositories.get(repository);
     }
 
     public void removeRepository(Repository repository)

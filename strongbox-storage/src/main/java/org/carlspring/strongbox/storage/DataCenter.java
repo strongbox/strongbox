@@ -71,6 +71,11 @@ public class DataCenter
         addStorage(null, anonymousStorage);
     }
 
+    public Storage getStorage(String storage)
+    {
+        return storages.get(storage);
+    }
+
     /**
      * NOTE: This will currently not handle the case where more
      *       than one storage contains a repository with the same name.

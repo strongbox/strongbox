@@ -38,6 +38,13 @@ public class StorageMapEntryConverter
             writer.setValue(storage.getBasedir());
             writer.endNode();
 
+            if (storage.getName() != null)
+            {
+                writer.startNode("name");
+                writer.setValue(storage.getName());
+                writer.endNode();
+            }
+
             for (String repositoryKey : storage.getRepositories().keySet())
             {
                 Repository repository = storage.getRepositories().get(repositoryKey);
@@ -65,7 +72,11 @@ public class StorageMapEntryConverter
                 {
                     reader.moveDown();
 
-                    if (reader.getNodeName().equals("basedir"))
+                    if (reader.getNodeName().equals("name"))
+                    {
+                        storage.setName(reader.getValue().trim());
+                    }
+                    else if (reader.getNodeName().equals("basedir"))
                     {
                         storage.setBasedir(reader.getValue().trim());
                     }
@@ -82,7 +93,7 @@ public class StorageMapEntryConverter
                     reader.moveUp();
                 }
 
-                map.put(storage.getBasedir(), storage);
+                map.put(storage.getName(), storage);
             }
 
             reader.moveUp();

@@ -8,9 +8,13 @@ import java.io.InputStream;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 /**
  * @author mtodorov
  */
+@Component
 public class ArtifactResolutionService
 {
 
@@ -23,6 +27,9 @@ public class ArtifactResolutionService
     private Set<LocationResolver> resolvers = new LinkedHashSet<LocationResolver>();
 
     private static ArtifactResolutionService instance = new ArtifactResolutionService();
+
+    @Autowired
+    private ConfigurationManager configurationManager;
 
 
     public static ArtifactResolutionService getInstance()
@@ -53,7 +60,7 @@ public class ArtifactResolutionService
     private void initializeResolvers()
             throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException
     {
-        final Configuration configuration = ConfigurationManager.getInstance().getConfiguration();
+        final Configuration configuration = configurationManager.getConfiguration();
 
         if (configuration != null)
         {

@@ -6,6 +6,8 @@
     <storages>
         <storage>
             <basedir>storages/storage0</basedir>
+            <name>storage0</name>
+
             <repositories>
                 <repository name="repository0" basedir="/repository0" policy="snapshots" layout="maven2" type="hosted" />
                 <!-- Secured repositories do not allow anonymous access -->

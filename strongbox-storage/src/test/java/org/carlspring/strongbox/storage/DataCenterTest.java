@@ -30,13 +30,14 @@ public class DataCenterTest
 
         Storage storage2 = new Storage();
         storage2.setBasedir("/foo/bar/storage");
+        storage2.setName("storage");
 
         DataCenter dataCenter = new DataCenter();
         dataCenter.addStorage(null, storage1);
-        dataCenter.addStorage(storage2.getBasedir(), storage2);
+        dataCenter.addStorage("storage", storage2);
 
         assertEquals("Incorrect number of storages!", dataCenter.getStorages().size(), 2);
-        assertNotNull("Failed to add named storage!", dataCenter.getStorages().get("/foo/bar/storage"));
+        assertNotNull("Failed to add named storage!", dataCenter.getStorages().get("storage"));
         assertNotNull("Failed to add anonymous storage!", dataCenter.getStorages().get("anonymous-storage-1"));
 
         final List<Storage> storagesContainingRepository0 = dataCenter.getStoragesContainingRepository("repository0");
@@ -63,9 +64,9 @@ public class DataCenterTest
     public void testAddStorageAndLocateRepositories()
             throws IOException
     {
-        Storage storage0 = new Storage(new File(TEST_STORAGES_DIR, "storage0").getCanonicalPath());
-        Storage storage1 = new Storage(new File(TEST_STORAGES_DIR, "storage1").getCanonicalPath());
-        Storage storage2 = new Storage(new File(TEST_STORAGES_DIR, "storage2").getCanonicalPath());
+        Storage storage0 = new Storage("storage0", new File(TEST_STORAGES_DIR, "storage0").getCanonicalPath());
+        Storage storage1 = new Storage("storage1", new File(TEST_STORAGES_DIR, "storage1").getCanonicalPath());
+        Storage storage2 = new Storage("storage2", new File(TEST_STORAGES_DIR, "storage2").getCanonicalPath());
 
         Collection<Storage> storages = new ArrayList<Storage>();
         storages.add(storage0);
