@@ -3,7 +3,6 @@ package org.carlspring.strongbox.configuration;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
