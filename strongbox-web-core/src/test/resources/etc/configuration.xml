@@ -1,0 +1,20 @@
+<configuration>
+    <resolvers>
+        <resolver>org.carlspring.strongbox.storage.resolvers.InMemoryLocationResolver</resolver>
+        <resolver>org.carlspring.strongbox.storage.resolvers.FSLocationResolver</resolver>
+    </resolvers>
+    <storages>
+        <storage>
+            <basedir>storages/storage0</basedir>
+            <name>storage0</name>
+
+            <repositories>
+                <repository name="snapshots" basedir="/snapshots" policy="snapshots" layout="maven2" type="hosted" secured="true" />
+                <!-- Secured repositories do not allow anonymous access -->
+                <repository name="releases" basedir="/releases" policy="releases" layout="maven2" type="hosted"/>
+            </repositories>
+        </storage>
+    </storages>
+    <version>1.0</version>
+    <port>48080</port>
+</configuration>
