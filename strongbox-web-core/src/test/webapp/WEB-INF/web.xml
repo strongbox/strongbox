@@ -12,27 +12,37 @@
         <session-timeout>60</session-timeout>
     </session-config>
 
-    <servlet>
-        <servlet-name>Jersey REST Service</servlet-name>
-        <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>file://${project.build.testOutputDirectory}/META-INF/spring/strongbox-storage-context.xml</param-value>
+    </context-param>
 
+    <listener>
+           <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+
+    <servlet>
+        <servlet-name>jersey-serlvet</servlet-name>
+        <servlet-class>com.sun.jersey.spi.spring.container.servlet.SpringServlet</servlet-class>
         <init-param>
             <param-name>com.sun.jersey.config.property.packages</param-name>
-            <param-value>org.carlspring.strongbox.rest</param-value>
+            <param-value>org.carlspring.strongbox</param-value>
         </init-param>
-
+        <init-param>
+            <param-name>com.sun.jersey.spi.container.ContainerRequestFilters</param-name>
+            <param-value>com.sun.jersey.api.container.filter.LoggingFilter;org.carlspring.strongbox.jaas.authentication.basic.BasicAuthenticationHandler</param-value>
+        </init-param>
+        <init-param>
+            <param-name>com.sun.jersey.spi.container.ContainerResponseFilters</param-name>
+            <param-value>com.sun.jersey.api.container.filter.LoggingFilter</param-value>
+        </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>Jersey REST Service</servlet-name>
+        <servlet-name>jersey-serlvet</servlet-name>
         <url-pattern>/*</url-pattern>
     </servlet-mapping>
-
-    <filter>
-        <filter-name>ArtifactResolutionServiceFilter</filter-name>
-        <filter-class>org.carlspring.strongbox.filters.ArtifactResolutionServiceFilter</filter-class>
-    </filter>
 
     <welcome-file-list>
         <welcome-file>/index.jsp</welcome-file>
