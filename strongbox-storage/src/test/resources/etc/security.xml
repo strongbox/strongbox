@@ -1,0 +1,9 @@
+<security>
+    <path-rules>
+        <path-rule>
+            <basePath>com/carlspring/strongbox</basePath>
+            <name>com.carlspring.strongbox</name>
+            <description>The default rule for strongbox artifacts.</description>
+        </path-rule>
+    </path-rules>
+</security>

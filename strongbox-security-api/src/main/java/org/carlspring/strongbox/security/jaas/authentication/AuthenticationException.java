@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.jaas.authentication;
+package org.carlspring.strongbox.security.jaas.authentication;
 
 import javax.security.auth.login.LoginException;
 

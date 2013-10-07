@@ -1,8 +1,8 @@
-package org.carlspring.strongbox.jaas.authentication.basic;
+package org.carlspring.strongbox.security.jaas.authentication.basic;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.jaas.authentication.AuthenticationException;
+import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.security.auth.login.LoginException;
@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author mtodorov
  */
+@Deprecated
 public class BasicAuthenticationHandler
 {
 
@@ -73,11 +74,11 @@ public class BasicAuthenticationHandler
                 }
                 */
             }
-            else
-            {
-                // Allow anonymous mode:
-                return true;
-            }
+//            else
+//            {
+//                // Allow anonymous mode:
+//                return true;
+//            }
         }
         else
         {

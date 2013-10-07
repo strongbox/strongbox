@@ -1,9 +1,6 @@
-package org.carlspring.strongbox.jaas.authentication.basic;
+package org.carlspring.strongbox.security.jaas.authentication.basic;
 
 import javax.xml.bind.DatatypeConverter;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * HTTP Basic decoder.
