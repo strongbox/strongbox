@@ -45,6 +45,11 @@
             <username>maven</username>
             <password>password</password>
         </server>
+        <server>
+            <id>snapshots-with-invalid-user</id>
+            <username>maven</username>
+            <password>password1234</password>
+        </server>
     </servers>
 
 </settings>

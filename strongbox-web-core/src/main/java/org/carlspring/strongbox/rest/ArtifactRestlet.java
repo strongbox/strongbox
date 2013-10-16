@@ -1,9 +1,12 @@
 package org.carlspring.strongbox.rest;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.io.MultipleDigestInputStream;
+import org.carlspring.strongbox.security.authorization.AuthorizationException;
 import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
 import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionService;
+import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
@@ -12,6 +15,8 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,29 +36,57 @@ public class ArtifactRestlet
 
     @PUT
     @Path("{storage}/{repository}/{path:.*}")
-    public void upload(@PathParam("storage") String storage,
-                       @PathParam("repository") String repository,
-                       @PathParam("path") String path,
-                       @Context HttpHeaders headers,
-                       @Context HttpServletRequest request,
-                       byte[] in)
+    public Response upload(@PathParam("storage") String storage,
+                           @PathParam("repository") String repository,
+                           @PathParam("path") String path,
+                           @Context HttpHeaders headers,
+                           @Context HttpServletRequest request,
+                           InputStream is)
             throws IOException,
-                   AuthenticationException
+                   AuthenticationException,
+                   NoSuchAlgorithmException
     {
         String protocol = request.getRequestURL().toString().split(":")[0];
 
         if (requiresAuthentication(storage, repository, path, protocol))
         {
-            validateAuthentication(storage, repository, path, headers, protocol);
+            if (validateAuthentication(storage, repository, path, headers, protocol))
+            {
+
+            }
+            else
+            {
+                // Return HTTP 401
+                throw new AuthorizationException("You are not authorized to deploy artifacts to this repository.");
+            }
         }
 
-        System.out.println("getDataCenter(): " + getDataCenter());
-        System.out.println("getDataCenter.getStorages.size(): " + getDataCenter().getStorages().size());
+        MultipleDigestInputStream mdis = new MultipleDigestInputStream(is, new String[]{ "MD5", "SHA-1" });
+
+        int size = 4096;
+        byte[] bytes = new byte[size];
+
+        while (mdis.read(bytes, 0, size) != -1)
+        {
+            // TODO: Store the file
+        }
+
+        MessageDigest md5Digest = mdis.getMessageDigest("MD5");
+        MessageDigest sha1Digest = mdis.getMessageDigest("SHA-1");
+
+        String md5 = MessageDigestUtils.convertToHexadecimalString(md5Digest);
+        String sha1 = MessageDigestUtils.convertToHexadecimalString(sha1Digest);
+
+        System.out.println("md5:  " + md5);
+        System.out.println("sha1: " + sha1);
+
 
         // TODO: Do something with the artifact
         // Repository r = getDataCenter().getStorage(storage).getRepository(repository);
         // TODO: If the repository's type is In-Memory, do nothing.
         // TODO: For all other type of repositories, invoke the respective storage provider.
+
+        return Response.ok().build();
     }
 
     @GET

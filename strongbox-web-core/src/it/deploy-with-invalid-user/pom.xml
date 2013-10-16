@@ -1,0 +1,18 @@
+<project>
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.carlspring.maven</groupId>
+    <artifactId>test-project</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>snapshots-with-invalid-user</id>
+            <name>snapshots-with-invalid-user</name>
+            <url>http://localhost:48080/storages/storage0/snapshots/</url>
+            <uniqueVersion>true</uniqueVersion>
+        </snapshotRepository>
+    </distributionManagement>
+
+</project>
