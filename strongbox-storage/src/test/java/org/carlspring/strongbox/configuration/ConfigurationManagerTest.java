@@ -60,7 +60,7 @@ public class ConfigurationManagerTest
         assertEquals("Incorrect number of resolvers found!", 2, configuration.getResolvers().size());
         assertEquals("Repository should have required authentication!",
                      true,
-                     configuration.getStorages().get("storage0").getRepositories().get("repository1").isSecured());
+                     configuration.getStorages().get("storage0").getRepositories().get("snapshots").isSecured());
     }
 
     @Test
@@ -70,8 +70,8 @@ public class ConfigurationManagerTest
         String resolver1 = "org.carlspring.strongbox.storage.resolvers.InMemoryLocationResolver";
         String resolver2 = "org.carlspring.strongbox.storage.resolvers.FSLocationResolver";
 
-        Repository repository1 = new Repository("repository1");
-        Repository repository2 = new Repository("repository2");
+        Repository repository1 = new Repository("snapshots");
+        Repository repository2 = new Repository("releases");
 
         Storage storage = new Storage();
         storage.setBasedir(STORAGE_BASEDIR);

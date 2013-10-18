@@ -9,9 +9,9 @@
             <name>storage0</name>
 
             <repositories>
-                <repository name="repository0" basedir="/repository0" policy="snapshots" layout="maven2" type="hosted" />
+                <repository name="snapshots" basedir="/snapshots" policy="snapshots" layout="maven2" type="hosted" secured="true" />
                 <!-- Secured repositories do not allow anonymous access -->
-                <repository name="repository1" basedir="/repository1" policy="snapshots" layout="maven2" type="hosted" secured="true"/>
+                <repository name="releases" basedir="/releases" policy="releases" layout="maven2" type="hosted"/>
             </repositories>
         </storage>
     </storages>
