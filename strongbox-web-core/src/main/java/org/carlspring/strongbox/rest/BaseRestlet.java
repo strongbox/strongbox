@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.rest;
 
+import org.carlspring.strongbox.security.authorization.AuthorizationException;
 import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
 import org.carlspring.strongbox.security.jaas.authentication.basic.BasicAuthenticationDecoder;
 import org.carlspring.strongbox.storage.DataCenter;
@@ -70,6 +71,23 @@ public abstract class BaseRestlet
         }
 
         return false;
+    }
+
+    public void handleAuthentication(String storage,
+                                     String repository,
+                                     String path,
+                                     HttpHeaders headers,
+                                     String protocol)
+            throws AuthenticationException
+    {
+        if (requiresAuthentication(storage, repository, path, protocol) &&
+            (!validateAuthentication(storage, repository, path, headers, protocol)))
+        {
+            {
+                // Return HTTP 401
+                throw new AuthorizationException("You are not authorized to deploy artifacts to this repository.");
+            }
+        }
     }
 
     public boolean handleSSLAuthentication()

@@ -2,8 +2,8 @@ package org.carlspring.strongbox.rest;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.io.MultipleDigestInputStream;
-import org.carlspring.strongbox.security.authorization.AuthorizationException;
 import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
+import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionService;
 import org.carlspring.strongbox.util.MessageDigestUtils;
@@ -13,6 +13,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
@@ -20,6 +21,7 @@ import java.security.NoSuchAlgorithmException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -32,6 +34,9 @@ public class ArtifactRestlet
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactRestlet.class);
+
+    @Autowired
+    private ChecksumCacheManager checksumCacheManager;
 
 
     @PUT
@@ -48,45 +53,117 @@ public class ArtifactRestlet
     {
         String protocol = request.getRequestURL().toString().split(":")[0];
 
-        if (requiresAuthentication(storage, repository, path, protocol))
-        {
-            if (validateAuthentication(storage, repository, path, headers, protocol))
-            {
+        handleAuthentication(storage, repository, path, headers, protocol);
 
-            }
-            else
-            {
-                // Return HTTP 401
-                throw new AuthorizationException("You are not authorized to deploy artifacts to this repository.");
-            }
-        }
-
+        boolean fileIsChecksum = path.endsWith(".md5") || path.endsWith(".sha1");
         MultipleDigestInputStream mdis = new MultipleDigestInputStream(is, new String[]{ "MD5", "SHA-1" });
-
-        int size = 4096;
-        byte[] bytes = new byte[size];
-
-        while (mdis.read(bytes, 0, size) != -1)
-        {
-            // TODO: Store the file
-        }
-
-        MessageDigest md5Digest = mdis.getMessageDigest("MD5");
-        MessageDigest sha1Digest = mdis.getMessageDigest("SHA-1");
-
-        String md5 = MessageDigestUtils.convertToHexadecimalString(md5Digest);
-        String sha1 = MessageDigestUtils.convertToHexadecimalString(sha1Digest);
-
-        System.out.println("md5:  " + md5);
-        System.out.println("sha1: " + sha1);
-
 
         // TODO: Do something with the artifact
         // Repository r = getDataCenter().getStorage(storage).getRepository(repository);
         // TODO: If the repository's type is In-Memory, do nothing.
         // TODO: For all other type of repositories, invoke the respective storage provider.
 
+        // TODO: If this is not a checksum file, store the file.
+        // TODO: If this is a checksum file, keep the hash in a String.
+        ByteArrayOutputStream baos = null;
+        if (fileIsChecksum)
+        {
+            baos = new ByteArrayOutputStream();
+        }
+
+        int readLength;
+        byte[] bytes = new byte[4096];
+
+        while ((readLength = mdis.read(bytes, 0, bytes.length)) != -1)
+        {
+            if (fileIsChecksum)
+            {
+                // Buffer the checksum for later validation
+                baos.write(bytes, 0, readLength);
+                baos.flush();
+            }
+
+            // r.storeArtifact();
+            // Write the artifact
+        }
+
+        final String artifactPath = storage + "/" + repository + "/" + path;
+        if (!fileIsChecksum)
+        {
+            addChecksumsToCacheManager(mdis, artifactPath);
+        }
+        else
+        {
+            validateUploadedChecksumAgainstCache(baos, artifactPath);
+        }
+
         return Response.ok().build();
+    }
+
+    private void validateUploadedChecksumAgainstCache(ByteArrayOutputStream baos,
+                                                      String artifactPath)
+    {
+        logger.debug("Received checksum: " + baos.toString());
+
+        String artifactBasePath = artifactPath.substring(0, artifactPath.lastIndexOf("."));
+        String algorithm = null;
+
+        final String checksumExtension = artifactPath.substring(artifactPath.lastIndexOf(".") + 1, artifactPath.length());
+        if (checksumExtension.equals("md5"))
+        {
+            algorithm = "MD5";
+        }
+        else if (checksumExtension.equals("sha1"))
+        {
+            algorithm = "SHA-1";
+        }
+        else
+        {
+            // TODO: Should we be doing something about this case?
+            logger.warn("Unsupported checksum type: " + checksumExtension);
+        }
+
+        final boolean matchesCachedChecksum = matchesChecksum(baos, artifactBasePath, algorithm);
+        if (matchesCachedChecksum)
+        {
+            checksumCacheManager.removeArtifactChecksum(artifactBasePath, algorithm);
+        }
+        else
+        {
+            // TODO: Implement event triggering that handles checksums that don't match the upload file.
+        }
+    }
+
+    private boolean matchesChecksum(ByteArrayOutputStream baos,
+                                    String artifactBasePath,
+                                    String algorithm)
+    {
+        String checksum = baos.toString();
+        String cachedChecksum = checksumCacheManager.getArtifactChecksum(artifactBasePath, algorithm);
+
+        if (cachedChecksum.equals(checksum))
+        {
+            logger.debug("The received " + algorithm + " checksum matches cached one! " + checksum);
+            return true;
+        }
+        else
+        {
+            logger.debug("The received " + algorithm + " does not match cached one! " + checksum + "/" + cachedChecksum);
+            return false;
+        }
+    }
+
+    private void addChecksumsToCacheManager(MultipleDigestInputStream mdis,
+                                            String artifactPath)
+    {
+        MessageDigest md5Digest = mdis.getMessageDigest("MD5");
+        MessageDigest sha1Digest = mdis.getMessageDigest("SHA-1");
+
+        String md5 = MessageDigestUtils.convertToHexadecimalString(md5Digest);
+        String sha1 = MessageDigestUtils.convertToHexadecimalString(sha1Digest);
+
+        checksumCacheManager.addArtifactChecksum(artifactPath, "MD5", md5);
+        checksumCacheManager.addArtifactChecksum(artifactPath, "SHA-1", sha1);
     }
 
     @GET
@@ -130,6 +207,16 @@ public class ArtifactRestlet
 
         System.out.println("DELETE: " + path);
         logger.debug("DELETE: " + path);
+    }
+
+    public ChecksumCacheManager getChecksumCacheManager()
+    {
+        return checksumCacheManager;
+    }
+
+    public void setChecksumCacheManager(ChecksumCacheManager checksumCacheManager)
+    {
+        this.checksumCacheManager = checksumCacheManager;
     }
 
 }

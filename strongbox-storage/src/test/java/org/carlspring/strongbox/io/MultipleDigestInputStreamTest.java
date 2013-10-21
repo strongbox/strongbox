@@ -6,6 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
+import junit.framework.Assert;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
@@ -15,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 public class MultipleDigestInputStreamTest
 {
 
-    
+
     @Test
     public void testRead()
             throws IOException,
@@ -34,8 +35,8 @@ public class MultipleDigestInputStreamTest
         final String md5 = MessageDigestUtils.convertToHexadecimalString(mdis.getMessageDigest("MD5"));
         final String sha1 = MessageDigestUtils.convertToHexadecimalString(mdis.getMessageDigest("SHA-1"));
 
-        assertEquals("120ea8a25e5d487bf68b5f7096440019", md5);
-        assertEquals("afa6c8b3a2fae95785dc7d9685a57835d703ac88", sha1);
+        Assert.assertEquals("Incorrect MD5 sum!", "120ea8a25e5d487bf68b5f7096440019", md5);
+        Assert.assertEquals("Incorrect SHA-1 sum!", "afa6c8b3a2fae95785dc7d9685a57835d703ac88", sha1);
 
         System.out.println("MD5:  " + md5);
         System.out.println("SHA1: " + sha1);

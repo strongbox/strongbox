@@ -45,6 +45,7 @@ public class MultipleDigestInputStream
         return digests.get(algorithm);
     }
 
+    @Override
     public int read()
             throws IOException
     {
@@ -61,22 +62,23 @@ public class MultipleDigestInputStream
         return ch;
     }
 
-    public int read(byte[] b,
+    @Override
+    public int read(byte[] bytes,
                     int off,
                     int len)
             throws IOException
     {
-        int result = in.read(b, off, len);
-        if (result != -1)
+        int numberOfBytesRead = in.read(bytes, off, len);
+        if (numberOfBytesRead != -1)
         {
             for (Map.Entry entry : digests.entrySet())
             {
                 MessageDigest digest = (MessageDigest) entry.getValue();
-                digest.update(b, off, result);
+                digest.update(bytes, off, numberOfBytesRead);
             }
         }
 
-        return result;
+        return numberOfBytesRead;
     }
 
 }
