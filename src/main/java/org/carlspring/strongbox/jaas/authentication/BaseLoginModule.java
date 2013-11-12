@@ -321,7 +321,6 @@ public abstract class BaseLoginModule
         logger.debug("Logging out!");
 
         subject.getPrincipals().remove(principal);
-        succeeded = false;
         succeeded = commitSucceeded;
 
         clearCredentials();
