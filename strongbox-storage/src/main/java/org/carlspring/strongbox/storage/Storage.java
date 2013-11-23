@@ -84,7 +84,7 @@ public class Storage
 
     public boolean hasRepositories()
     {
-        return repositories.size() > 0;
+        return !repositories.isEmpty();
     }
 
 }
