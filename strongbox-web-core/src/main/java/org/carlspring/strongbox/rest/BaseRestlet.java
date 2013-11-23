@@ -41,7 +41,7 @@ public abstract class BaseRestlet
         logger.debug("Protocol: " + protocol);
 
         final boolean required = dataCenter.getStorage(storage).getRepository(repository).isSecured() ||
-                                 protocol.toLowerCase().equals("http");
+                                 protocol.equalsIgnoreCase("http");
 
         logger.debug("Resource: /storages/" + storage + "/" + repository + "/" + path + " requires authentication? " + required);
 
