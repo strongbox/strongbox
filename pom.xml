@@ -15,6 +15,7 @@
     <modules>
         <module>strongbox-parent</module>
         <module>strongbox-commons</module>
+        <module>strongbox-testing-resources</module>
         <module>strongbox-event-api</module>
         <module>strongbox-security-api</module>
         <module>strongbox-testing</module>

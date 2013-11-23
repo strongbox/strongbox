@@ -11,7 +11,6 @@
     <bean id="configurationManager"
           class="org.carlspring.strongbox.configuration.ConfigurationManager"
           init-method="init">
-        <property name="configurationFile" value="target/test-classes/etc/configuration.xml"/>
     </bean>
 
 </beans>
