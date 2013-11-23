@@ -2,8 +2,8 @@ package org.carlspring.strongbox.configuration;
 
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.junit.After;
-import org.junit.Before;
+import org.carlspring.strongbox.xml.parsers.ConfigurationParser;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.io.File;
 import java.io.IOException;
 
-import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.*;
@@ -26,7 +25,7 @@ public class ConfigurationManagerTest
 
     public static final String TEST_CLASSES = "target/test-classes";
 
-    public static final String CONFIGURATION_BASEDIR = TEST_CLASSES + "/etc";
+    public static final String CONFIGURATION_BASEDIR = TEST_CLASSES + "/configuration";
 
     public static final String CONFIGURATION_FILE = CONFIGURATION_BASEDIR + "/configuration.xml";
 
