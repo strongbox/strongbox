@@ -1,0 +1,7 @@
+<name>
+  <name>foo</name>
+  <aliases class="linked-hash-set">
+    <string>bar</string>
+    <string>blah</string>
+  </aliases>
+</name>
