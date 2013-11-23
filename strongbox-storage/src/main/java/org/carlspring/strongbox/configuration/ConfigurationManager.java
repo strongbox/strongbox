@@ -1,7 +1,11 @@
 package org.carlspring.strongbox.configuration;
 
+import org.carlspring.strongbox.url.ClasspathURLStreamHandler;
+import org.carlspring.strongbox.xml.parsers.ConfigurationParser;
+
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,8 +20,6 @@ public class ConfigurationManager
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationManager.class);
 
-    private static boolean initialized = false;
-
     private String configurationFile;
 
     private Configuration configuration;
@@ -30,39 +32,44 @@ public class ConfigurationManager
     public void init()
             throws IOException
     {
-        String filename;
+        URL url = null;
+        String filename =  null;
 
         if (configurationFile == null)
         {
-            filename = System.getProperty("repository.config.xml") != null ?
-                       System.getProperty("repository.config.xml") :
-                       "etc/configuration.xml";
+            if (System.getProperty("repository.config.xml") != null)
+            {
+                filename =  System.getProperty("repository.config.xml");
+                url = new File(filename).getAbsoluteFile().toURI().toURL();
+            }
+            else
+            {
+                if (new File("etc/configuration.xml").exists())
+                {
+                    filename =  "etc/configuration.xml";
+                    url = new File(filename).getAbsoluteFile().toURI().toURL();
+                }
+                else
+                {
+                    // This should only really be used for development and testing
+                    // of Strongbox and is not advised for production.
+                    String path = "classpath:etc/configuration.xml";
+                    url = new URL(null, path, new ClasspathURLStreamHandler(ClassLoader.getSystemClassLoader()));
+                }
+            }
         }
         else
         {
-            filename = configurationFile;
-        }
-
-        File file = new File(filename).getCanonicalFile();
-
-        logger.debug("Using configuration file " + file.getCanonicalPath() + "...");
-
-        if (!file.exists() && System.getProperty("repository.config.xml") == null)
-        {
-            logger.warn("A configuration will not be loaded, as no etc/configuration.xml file was found," +
-                        " nor a value for 'repository.config.xml' was defined.");
-
-            return;
-        }
-        else
-        {
-            logger.debug("Loaded configuration from " + file.getCanonicalPath() + "...");
+            url = new File(configurationFile).getAbsoluteFile().toURI().toURL();
         }
 
         ConfigurationParser parser = new ConfigurationParser();
 
-        configuration = parser.parse(filename);
-        configuration.setFilename(filename);
+        configuration = parser.parse(url);
+        if (configurationFile != null)
+        {
+            configuration.setFilename(filename);
+        }
         configuration.dump();
     }
 
