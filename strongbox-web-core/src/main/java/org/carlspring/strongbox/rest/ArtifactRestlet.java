@@ -105,10 +105,10 @@ public class ArtifactRestlet
     {
         logger.debug("Received checksum: " + baos.toString());
 
-        String artifactBasePath = artifactPath.substring(0, artifactPath.lastIndexOf("."));
+        String artifactBasePath = artifactPath.substring(0, artifactPath.lastIndexOf('.'));
         String algorithm = null;
 
-        final String checksumExtension = artifactPath.substring(artifactPath.lastIndexOf(".") + 1, artifactPath.length());
+        final String checksumExtension = artifactPath.substring(artifactPath.lastIndexOf('.') + 1, artifactPath.length());
         if (checksumExtension.equals("md5"))
         {
             algorithm = "MD5";
