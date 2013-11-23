@@ -83,10 +83,8 @@ public abstract class BaseRestlet
         if (requiresAuthentication(storage, repository, path, protocol) &&
             (!validateAuthentication(storage, repository, path, headers, protocol)))
         {
-            {
-                // Return HTTP 401
-                throw new AuthorizationException("You are not authorized to deploy artifacts to this repository.");
-            }
+            // Return HTTP 401
+            throw new AuthorizationException("You are not authorized to deploy artifacts to this repository.");
         }
     }
 
