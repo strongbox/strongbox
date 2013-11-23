@@ -49,7 +49,7 @@ public class ChecksumCacheManager
      * Specifies at what interval to check if the checksums have expired.
      * The default is to check once every minute.
      */
-    private long cachedChecksumExpiredCheckInterval = 60000l;
+    private long cachedChecksumExpiredCheckInterval = 60000L;
 
 
     public ChecksumCacheManager()
