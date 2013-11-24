@@ -6,6 +6,6 @@ package org.carlspring.strongbox.event;
 public interface ServerEventListener
 {
 
-    public void handle(ServerEvent event);
+    void handle(ServerEvent event);
 
 }

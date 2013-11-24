@@ -6,6 +6,6 @@ package org.carlspring.strongbox.event;
 public interface RepositoryEventListener
 {
 
-    public void handle(RepositoryEvent event);
+    void handle(RepositoryEvent event);
 
 }

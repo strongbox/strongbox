@@ -6,6 +6,6 @@ package org.carlspring.strongbox.event;
 public interface ArtifactEventListener
 {
 
-    public void handle(ArtifactEvent event);
+    void handle(ArtifactEvent event);
 
 }

@@ -6,6 +6,6 @@ package org.carlspring.strongbox.event;
 public interface AuthenticationEventListener
 {
 
-    public void handle(AuthenticationEvent event);
+    void handle(AuthenticationEvent event);
 
 }
