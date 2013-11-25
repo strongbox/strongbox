@@ -13,4 +13,15 @@
           init-method="init">
     </bean>
 
+    <bean id="dataCenter" class="org.carlspring.strongbox.storage.DataCenter">
+        <property name="storages" value="#{configurationManager.configuration.storages}"/>
+    </bean>
+
+    <bean id="checksumCacheManager" class="org.carlspring.strongbox.storage.checksum.ChecksumCacheManager">
+        <!-- How often to check if a checksum has expired: -->
+        <property name="cachedChecksumExpiredCheckInterval" value="300000"/>
+        <!-- The maximum time checksums should be kept in the cache: -->
+        <property name="cachedChecksumLifetime" value="60000"/>
+    </bean>
+
 </beans>

@@ -23,13 +23,12 @@
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <!-- Sonar settings. -->
 
-        <version.grizzly>1.9.9</version.grizzly>
         <version.jersey>1.17.1</version.jersey>
         <version.jetty>9.0.5.v20130815</version.jetty>
         <version.lucene>4.4.0</version.lucene>
         <version.maven>3.0.5</version.maven>
         <version.slf4j>1.6.4</version.slf4j>
-        <version.spring>3.2.4.RELEASE</version.spring>
+        <version.spring>3.2.5.RELEASE</version.spring>
     </properties>
 
     <build>

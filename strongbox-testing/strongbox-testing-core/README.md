@@ -1,12 +1,6 @@
 
 This module contains the following resources/facilities which are useful for testing:
 
-- An etc/configuration.xml.
-
-- A log4j.properties with debugging on for org.carlspring.
-
-- A META-INF/spring/strongbox-storage-context.xml.
-
 - A facility class that creates the directory structure for a simple server and copies the required
   resources from the classpath in order to provide a minimalistic environment. For more details, check:
 

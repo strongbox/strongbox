@@ -63,6 +63,8 @@ public class ConfigurationManager
             url = new File(configurationFile).getAbsoluteFile().toURI().toURL();
         }
 
+        logger.info("Loading Strongbox configuration from " + url.toString());
+
         ConfigurationParser parser = new ConfigurationParser();
 
         configuration = parser.parse(url);
