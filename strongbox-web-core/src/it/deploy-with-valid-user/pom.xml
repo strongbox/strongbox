@@ -8,13 +8,11 @@
 
     <distributionManagement>
         <repository>
-            <id>releases</id>
-            <name>releases</name>
+            <id>releases-with-valid-user</id>
             <url>http://localhost:48080/storages/storage0/releases/</url>
         </repository>
         <snapshotRepository>
-            <id>snapshots</id>
-            <name>snapshots</name>
+            <id>snapshots-with-valid-user</id>
             <url>http://localhost:48080/storages/storage0/snapshots/</url>
             <uniqueVersion>true</uniqueVersion>
         </snapshotRepository>

@@ -56,31 +56,6 @@
                 <artifactId>maven-install-plugin</artifactId>
                 <version>2.5</version>
             </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-invoker-plugin</artifactId>
-                <version>1.8</version>
-
-                <configuration>
-                    <debug>true</debug>
-                    <preBuildHookScript>clean</preBuildHookScript>
-                    <postBuildHookScript>verify</postBuildHookScript>
-                    <settingsFile>src/it/settings.xml</settingsFile>
-                    <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
-                </configuration>
-
-                <executions>
-                    <execution>
-                        <id>invoker-integration-tests</id>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-
-                        <phase>test</phase>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 
@@ -239,6 +214,33 @@
                                         </artifactItem>
                                     </artifactItems>
                                 </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!-- This plugin needs to be defined first, as the execution of the Jetty Maven plugin
+                         which shuts down Jetty overlaps with this and shuts it down before the tests are done.-->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-invoker-plugin</artifactId>
+                        <version>1.8</version>
+
+                        <configuration>
+                            <debug>true</debug>
+                            <preBuildHookScript>clean</preBuildHookScript>
+                            <postBuildHookScript>verify</postBuildHookScript>
+                            <settingsFile>src/it/settings.xml</settingsFile>
+                            <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
+                        </configuration>
+
+                        <executions>
+                            <execution>
+                                <id>invoker-integration-tests</id>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+
+                                <phase>test</phase>
                             </execution>
                         </executions>
                     </plugin>

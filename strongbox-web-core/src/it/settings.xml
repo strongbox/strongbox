@@ -36,12 +36,17 @@
 
     <servers>
         <server>
-            <id>snapshots</id>
+            <id>releases-with-valid-user</id>
             <username>maven</username>
             <password>password</password>
         </server>
         <server>
-            <id>releases</id>
+            <id>releases-with-invalid-user</id>
+            <username>maven</username>
+            <password>password1234</password>
+        </server>
+        <server>
+            <id>snapshots-with-valid-user</id>
             <username>maven</username>
             <password>password</password>
         </server>
