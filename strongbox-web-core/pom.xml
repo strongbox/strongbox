@@ -150,7 +150,7 @@
 
     <profiles>
         <profile>
-            <id>run-jetty</id>
+            <id>run-it-tests</id>
             <activation>
                 <property>
                     <name>!skipTests</name>
