@@ -10,6 +10,9 @@ import java.net.URL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 
 /**
  * @author mtodorov
@@ -20,7 +23,7 @@ public class ConfigurationManager
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationManager.class);
 
-    private String configurationFile;
+    private String configurationPath;
 
     private Configuration configuration;
 
@@ -32,46 +35,50 @@ public class ConfigurationManager
     public void init()
             throws IOException
     {
-        URL url = null;
         String filename =  null;
+        Resource resource = null;
 
-        if (configurationFile == null)
+        if (configurationPath == null)
         {
             if (System.getProperty("repository.config.xml") != null)
             {
                 filename =  System.getProperty("repository.config.xml");
-                url = new File(filename).getAbsoluteFile().toURI().toURL();
+                resource = new FileSystemResource(new File(filename).getAbsoluteFile());
             }
             else
             {
                 if (new File("etc/configuration.xml").exists())
                 {
                     filename =  "etc/configuration.xml";
-                    url = new File(filename).getAbsoluteFile().toURI().toURL();
+                    resource = new FileSystemResource(new File(filename).getAbsoluteFile());
                 }
                 else
                 {
                     // This should only really be used for development and testing
                     // of Strongbox and is not advised for production.
-                    String path = "classpath:etc/configuration.xml";
-                    url = new URL(null, path, new ClasspathURLStreamHandler(ClassLoader.getSystemClassLoader()));
+                    String path = "etc/configuration.xml";
+                    resource = new ClassPathResource(path);
                 }
             }
         }
         else
         {
-            url = new File(configurationFile).getAbsoluteFile().toURI().toURL();
+            if (!configurationPath.toLowerCase().startsWith("classpath"))
+            {
+                resource = new FileSystemResource(new File(configurationPath).getAbsoluteFile());
+            }
+            else
+            {
+                resource = new ClassPathResource(configurationPath);
+            }
         }
 
-        logger.info("Loading Strongbox configuration from " + url.toString());
+        logger.info("Loading Strongbox configuration from " + resource.toString() + "...");
 
         ConfigurationParser parser = new ConfigurationParser();
 
-        configuration = parser.parse(url);
-        if (configurationFile != null)
-        {
-            configuration.setFilename(filename);
-        }
+        configuration = parser.parse(resource.getInputStream());
+        configuration.setResource(resource);
         configuration.dump();
     }
 
@@ -92,14 +99,14 @@ public class ConfigurationManager
         this.configuration = configuration;
     }
 
-    public String getConfigurationFile()
+    public String getConfigurationPath()
     {
-        return configurationFile;
+        return configurationPath;
     }
 
-    public void setConfigurationFile(String configurationFile)
+    public void setConfigurationPath(String configurationPath)
     {
-        this.configurationFile = configurationFile;
+        this.configurationPath = configurationPath;
     }
 
 }

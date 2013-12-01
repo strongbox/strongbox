@@ -2,6 +2,8 @@ package org.carlspring.strongbox.configuration;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
+import org.springframework.core.io.Resource;
+
 import org.carlspring.strongbox.storage.Storage;
 
 import java.util.ArrayList;
@@ -28,7 +30,7 @@ public class Configuration
     private String version = "1.0";
 
     @XStreamOmitField
-    private String filename;
+    private Resource resource;
 
 
     public Configuration()
@@ -99,14 +101,14 @@ public class Configuration
         this.version = version;
     }
 
-    public String getFilename()
+    public Resource getResource()
     {
-        return filename;
+        return resource;
     }
 
-    public void setFilename(String filename)
+    public void setResource(Resource resource)
     {
-        this.filename = filename;
+        this.resource = resource;
     }
 
     public List<String> getResolvers()
