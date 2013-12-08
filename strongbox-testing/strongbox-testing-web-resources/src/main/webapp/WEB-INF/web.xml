@@ -15,7 +15,7 @@
 
     <context-param>
         <param-name>contextConfigLocation</param-name>
-        <param-value>classpath*:META-INF/spring/strongbox-storage-context.xml</param-value>
+        <param-value>classpath*:META-INF/spring/strongbox-*-context.xml</param-value>
     </context-param>
 
     <listener>
