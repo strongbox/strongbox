@@ -1,11 +1,11 @@
 package org.carlspring.strongbox.storage.resolvers;
 
-import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedHashSet;
+import java.util.ServiceLoader;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +23,6 @@ public class ArtifactResolutionService
     private boolean inMemoryModeOnly = true; //false;
 
     private boolean allowInMemory = false;
-
-    private Set<LocationResolver> resolvers = new LinkedHashSet<LocationResolver>();
 
     private static ArtifactResolutionService instance = new ArtifactResolutionService();
 
@@ -57,41 +55,29 @@ public class ArtifactResolutionService
                                // as other stuff might need to initialized here later on as well.
     }
 
-    private void initializeResolvers()
-            throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException
+    private static Set<LocationResolver> resolvers;
+
+
+    private static void initializeResolvers()
     {
-        final Configuration configuration = configurationManager.getConfiguration();
+        ServiceLoader<LocationResolver> resolversFromServiceLoader = ServiceLoader.load(LocationResolver.class);
 
-        if (configuration != null)
+        resolvers = new LinkedHashSet<LocationResolver>();
+
+        for (LocationResolver resolver : resolversFromServiceLoader)
         {
-            for (String resolverName : configuration.getResolvers())
-            {
-                Class<?> clazz = Class.forName(resolverName);
-                LocationResolver resolver = (LocationResolver) clazz.newInstance();
-                resolver.initialize();
-
-                resolvers.add(resolver);
-            }
-
-            if (configuration.getResolvers().contains(RESOLVER_INMEMORY))
-            {
-                allowInMemory = true;
-
-                if (configuration.getResolvers().size() == 1)
-                {
-                    if (configuration.getResolvers().get(0).equals(RESOLVER_INMEMORY))
-                    {
-                        inMemoryModeOnly = true;
-                    }
-                }
-            }
+            resolvers.add(resolver);
         }
-        else
+    }
+
+    public static Set<LocationResolver> getResolvers()
+    {
+        if (resolvers == null)
         {
-            resolvers.add(new InMemoryLocationResolver());
-            allowInMemory = true;
-            inMemoryModeOnly = true;
+            initializeResolvers();
         }
+
+        return resolvers;
     }
 
     public InputStream getInputStream(String repository, String artifactPath)
@@ -99,7 +85,7 @@ public class ArtifactResolutionService
     {
         InputStream is = null;
 
-        for (LocationResolver resolver : resolvers)
+        for (LocationResolver resolver : ArtifactResolutionService.getResolvers())
         {
             is = resolver.getInputStream(repository, artifactPath);
             if (is != null)
@@ -134,16 +120,6 @@ public class ArtifactResolutionService
     public void setAllowInMemory(boolean allowInMemory)
     {
         this.allowInMemory = allowInMemory;
-    }
-
-    public Set<LocationResolver> getResolvers()
-    {
-        return resolvers;
-    }
-
-    public void setResolvers(Set<LocationResolver> resolvers)
-    {
-        this.resolvers = resolvers;
     }
 
 }

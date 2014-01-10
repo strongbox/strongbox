@@ -125,7 +125,7 @@ public class StorageMapEntryConverter
     {
         writer.startNode("repository");
         writer.addAttribute("name", repository.getName());
-        writer.addAttribute("layout", repository.getLayout());
+        writer.addAttribute("implementation", repository.getImplementation());
         writer.addAttribute("policy", repository.getPolicy());
         writer.addAttribute("type", repository.getType());
         writer.endNode();

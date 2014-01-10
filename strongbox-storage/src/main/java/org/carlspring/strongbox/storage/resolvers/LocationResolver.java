@@ -15,4 +15,8 @@ public interface LocationResolver
     void initialize()
             throws IOException;
 
+    String getAlias();
+
+    void setAlias(String alias);
+
 }

@@ -2,15 +2,15 @@ package org.carlspring.strongbox.configuration;
 
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionService;
 import org.carlspring.strongbox.xml.parsers.ConfigurationParser;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.io.IOException;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.*;
@@ -55,8 +55,8 @@ public class ConfigurationManagerTest
         assertEquals("Unexpected number of storages!", 1, configuration.getStorages().size());
         assertEquals("Incorrect version!", "1.0", configuration.getVersion());
         assertEquals("Incorrect port number!", 48080, configuration.getPort());
-        assertNotNull("No resolvers found!", configuration.getResolvers());
-        assertEquals("Incorrect number of resolvers found!", 2, configuration.getResolvers().size());
+        assertNotNull("No resolvers found!", ArtifactResolutionService.getResolvers());
+        assertEquals("Incorrect number of resolvers found!", 2, ArtifactResolutionService.getResolvers().size());
         assertEquals("Repository should have required authentication!",
                      true,
                      configuration.getStorages().get("storage0").getRepositories().get("snapshots").isSecured());
@@ -66,9 +66,6 @@ public class ConfigurationManagerTest
     public void testStoreConfiguration()
             throws IOException
     {
-        String resolver1 = "org.carlspring.strongbox.storage.resolvers.InMemoryLocationResolver";
-        String resolver2 = "org.carlspring.strongbox.storage.resolvers.FSLocationResolver";
-
         Repository repository1 = new Repository("snapshots");
         Repository repository2 = new Repository("releases");
 
@@ -79,8 +76,6 @@ public class ConfigurationManagerTest
 
         Configuration configuration = new Configuration();
         configuration.addStorage(storage);
-        configuration.addResolver(resolver1);
-        configuration.addResolver(resolver2);
 
         File outputFile = new File(CONFIGURATION_OUTPUT_FILE);
 

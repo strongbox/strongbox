@@ -5,11 +5,11 @@ import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import org.springframework.core.io.Resource;
 
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionService;
+import org.carlspring.strongbox.storage.resolvers.LocationResolutionManager;
+import org.carlspring.strongbox.storage.resolvers.LocationResolver;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author mtodorov
@@ -19,9 +19,6 @@ public class Configuration
 
     @XStreamAlias(value = "storages")
     private Map<String, Storage> storages = new LinkedHashMap<String, Storage>();
-
-    @XStreamAlias (value = "resolvers")
-    private List<String> resolvers = new ArrayList<String>();
 
     @XStreamAlias(value = "port")
     private int port = 48080;
@@ -54,11 +51,10 @@ public class Configuration
         }
 
         System.out.println("Loading resolvers...");
-        for (String resolver : resolvers)
+        for (LocationResolver resolver : ArtifactResolutionService.getResolvers())
         {
-            System.out.println(" -> " + resolver);
+            System.out.println(" -> " + resolver.getClass());
         }
-
     }
 
     public Map<String, Storage> getStorages()
@@ -109,26 +105,6 @@ public class Configuration
     public void setResource(Resource resource)
     {
         this.resource = resource;
-    }
-
-    public List<String> getResolvers()
-    {
-        return resolvers;
-    }
-
-    public void setResolvers(List<String> resolvers)
-    {
-        this.resolvers = resolvers;
-    }
-
-    public void addResolver(String resolverAbsoluteClassName)
-    {
-        resolvers.add(resolverAbsoluteClassName);
-    }
-
-    public void removeResolver(String resolverAbsoluteClassName)
-    {
-        resolvers.remove(resolverAbsoluteClassName);
     }
 
 }

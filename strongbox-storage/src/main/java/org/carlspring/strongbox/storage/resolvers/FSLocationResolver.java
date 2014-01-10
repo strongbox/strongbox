@@ -26,6 +26,8 @@ public class FSLocationResolver
 
     private static final Logger logger = LoggerFactory.getLogger(FSLocationResolver.class);
 
+    private String alias = "file-system";
+
     @Autowired
     private ConfigurationManager configurationManager;
 
@@ -84,6 +86,18 @@ public class FSLocationResolver
         dataCenter.setStorages(storages);
 
         logger.info("Initialized FSLocationResolver.");
+    }
+
+    @Override
+    public String getAlias()
+    {
+        return alias;
+    }
+
+    @Override
+    public void setAlias(String alias)
+    {
+        this.alias = alias;
     }
 
     public DataCenter getDataCenter()

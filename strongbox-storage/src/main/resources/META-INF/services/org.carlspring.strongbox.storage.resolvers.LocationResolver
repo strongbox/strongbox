@@ -1,0 +1,2 @@
+org.carlspring.strongbox.storage.resolvers.FSLocationResolver
+org.carlspring.strongbox.storage.resolvers.InMemoryLocationResolver

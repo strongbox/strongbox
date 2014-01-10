@@ -20,7 +20,7 @@ public class Repository
     private String policy = RepositoryPolicyEnum.MIXED.getPolicy();
 
     @XStreamAsAttribute
-    private String layout = RepositoryLayoutEnum.MAVEN_2.getLayout();
+    private String implementation = "in-memory";
 
     @XStreamAsAttribute
     private String type = RepositoryTypeEnum.HOSTED.getType();
@@ -94,14 +94,14 @@ public class Repository
         this.policy = policy;
     }
 
-    public String getLayout()
+    public String getImplementation()
     {
-        return layout;
+        return implementation;
     }
 
-    public void setLayout(String layout)
+    public void setImplementation(String implementation)
     {
-        this.layout = layout;
+        this.implementation = implementation;
     }
 
     public String getType()

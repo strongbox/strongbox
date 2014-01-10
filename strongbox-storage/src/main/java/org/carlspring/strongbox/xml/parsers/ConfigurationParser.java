@@ -21,8 +21,6 @@ public class ConfigurationParser extends GenericParser<Configuration>
         XStream xstream = new XStream();
         xstream.autodetectAnnotations(true);
         xstream.alias("configuration", Configuration.class);
-        xstream.alias("resolvers", List.class);
-        xstream.alias("resolver", String.class);
         xstream.alias("storages", Map.class);
         xstream.alias("storage", Storage.class);
         xstream.alias("repositories", Map.class);

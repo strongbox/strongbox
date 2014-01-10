@@ -1,9 +1,11 @@
 package org.carlspring.strongbox.storage.resolvers;
 
+import java.util.*;
+
 /**
  * @author mtodorov
  */
-public class FreeStyleLocationResolver
+public class LocationResolutionManager
 {
 
 }

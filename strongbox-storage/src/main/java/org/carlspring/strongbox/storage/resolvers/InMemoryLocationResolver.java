@@ -20,6 +20,8 @@ public class InMemoryLocationResolver implements LocationResolver
 
     private static final Logger logger = LoggerFactory.getLogger(InMemoryLocationResolver.class);
 
+    private String alias = "in-memory";
+
 
     public InMemoryLocationResolver()
     {
@@ -59,6 +61,18 @@ public class InMemoryLocationResolver implements LocationResolver
         System.out.println("");
 
         logger.debug("Initialized InMemoryLocationResolver.");
+    }
+
+    @Override
+    public String getAlias()
+    {
+        return alias;
+    }
+
+    @Override
+    public void setAlias(String alias)
+    {
+        this.alias = alias;
     }
 
 }
