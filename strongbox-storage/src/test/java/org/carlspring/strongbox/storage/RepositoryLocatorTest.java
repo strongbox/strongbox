@@ -29,7 +29,9 @@ public class RepositoryLocatorTest
         new File(STORAGE_DIR, "repository3").mkdirs();
 
         new File(STORAGE_DIR, ".repository").mkdirs();
-        new File(STORAGE_DIR, "repository.").mkdirs();
+        // TODO: Investigate this at a later time.
+        // TODO: Windows is a bitch.
+        // new File(STORAGE_DIR, "repository.").mkdirs();
     }
 
     @Test
