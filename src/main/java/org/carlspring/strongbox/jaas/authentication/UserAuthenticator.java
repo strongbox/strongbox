@@ -5,13 +5,18 @@ import org.carlspring.strongbox.jaas.caching.CachedUserManager;
 
 import javax.security.auth.login.LoginException;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 /**
  * @author mtodorov
  */
+@Component
 public class UserAuthenticator
 {
 
-    private CachedUserManager cachedUserManager = new CachedUserManager();
+    @Autowired
+    private CachedUserManager cachedUserManager;
 
 
     public UserAuthenticator()
@@ -21,9 +26,17 @@ public class UserAuthenticator
     public User authenticate(String username, String password, UserResolver resolver)
             throws LoginException
     {
-        if (cachedUserManager.containsUser(username))
+        if (getCachedUserManager().containsUser(username))
         {
-            return cachedUserManager.getUser(username);
+            final User user = getCachedUserManager().getUser(username);
+            if (user.getPassword().equals(password))
+            {
+                return user;
+            }
+            else
+            {
+                return null;
+            }
         }
         else
         {
@@ -32,7 +45,7 @@ public class UserAuthenticator
                 final User user = resolver.findUser(username, password);
                 if (user != null)
                 {
-                    cachedUserManager.addUser(user);
+                    getCachedUserManager().addUser(user);
                 }
 
                 return user;
