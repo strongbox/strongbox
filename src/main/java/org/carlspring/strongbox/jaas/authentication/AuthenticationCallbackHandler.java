@@ -17,8 +17,7 @@ public class AuthenticationCallbackHandler
     private String password;
 
 
-    public AuthenticationCallbackHandler(String username,
-                                         String password)
+    public AuthenticationCallbackHandler(String username, String password)
     {
         this.username = username;
         this.password = password;
