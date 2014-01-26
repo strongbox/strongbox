@@ -19,6 +19,9 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.stereotype.Component;
 
 /**
  * <p> This LoginModule authenticates users with a password against a database.
@@ -31,12 +34,14 @@ import org.slf4j.LoggerFactory;
  * If set to true in the login Configuration,
  * debug messages will be output to the output stream, System.out.
  */
+@Component
 public abstract class BaseLoginModule
-        implements LoginModule
+        implements LoginModule, ApplicationContextAware
 {
 
-
     private static Logger logger = LoggerFactory.getLogger(BaseLoginModule.class);
+
+    private static ApplicationContext applicationContext;
 
     // initial state
     private Subject subject;
@@ -61,8 +66,7 @@ public abstract class BaseLoginModule
 
     private User user;
 
-    // TODO: This should actually be injected somehow (perhaps by a IoC).
-    private UserAuthenticator userAuthenticator = new UserAuthenticator();
+    private UserAuthenticator userAuthenticator;
 
 
     /**
@@ -92,6 +96,8 @@ public abstract class BaseLoginModule
 
         // initialize any configured options
         // debug = "true".equalsIgnoreCase((String) options.get("debug"));
+
+        userAuthenticator = (UserAuthenticator) applicationContext.getBean("userAuthenticator");
     }
 
     /**
@@ -103,7 +109,7 @@ public abstract class BaseLoginModule
      * should not be ignored.
      * @throws javax.security.auth.login.FailedLoginException if the authentication fails. <p>
      * @throws javax.security.auth.login.LoginException       if this <code>LoginModule</code>
-     *                              is unable to perform the authentication.
+     *                                                        is unable to perform the authentication.
      */
     @Override
     public boolean login()
@@ -167,7 +173,8 @@ public abstract class BaseLoginModule
         }
     }
 
-    public abstract void checkUserCredentials(String username, String password)
+    public abstract void checkUserCredentials(String username,
+                                              String password)
             throws LoginException;
 
     /**
@@ -427,6 +434,16 @@ public abstract class BaseLoginModule
     public void setUserAuthenticator(UserAuthenticator userAuthenticator)
     {
         this.userAuthenticator = userAuthenticator;
+    }
+
+    public ApplicationContext getApplicationContext()
+    {
+        return applicationContext;
+    }
+
+    public void setApplicationContext(ApplicationContext applicationContext)
+    {
+        this.applicationContext = applicationContext;
     }
 
 }
