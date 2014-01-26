@@ -6,7 +6,6 @@ import org.springframework.core.io.Resource;
 
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionService;
-import org.carlspring.strongbox.storage.resolvers.LocationResolutionManager;
 import org.carlspring.strongbox.storage.resolvers.LocationResolver;
 
 import java.util.*;
