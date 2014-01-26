@@ -37,7 +37,6 @@ public class CachedUserManager implements UserManager
 
     public CachedUserManager()
     {
-        new CachedCredentialsExpirer();
     }
 
     public boolean containsUser(String username)
@@ -75,7 +74,7 @@ public class CachedUserManager implements UserManager
     public boolean validCredentials(String username,
                                     String password)
     {
-        final Credentials credentials = cachedUsers.get(username).getCredentials();
+        final Credentials credentials = getUser(username).getCredentials();
         credentials.setLastAccessed(System.currentTimeMillis());
 
         return credentials.getPassword().equals(password);
@@ -130,6 +129,11 @@ public class CachedUserManager implements UserManager
         return cachedUsers.size();
     }
 
+    public void startMonitor()
+    {
+        new CachedCredentialsExpirer();
+    }
+
     private class CachedCredentialsExpirer
             extends Thread
     {
@@ -147,8 +151,8 @@ public class CachedUserManager implements UserManager
                 //noinspection InfiniteLoopStatement
                 while (true)
                 {
-                    removeExpiredCredentials();
                     Thread.sleep(getCredentialExpiredCheckInterval());
+                    removeExpiredCredentials();
                 }
             }
             catch (InterruptedException e)
