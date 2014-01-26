@@ -4,6 +4,7 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.LinkedHashSet;
 import java.util.ServiceLoader;
 import java.util.Set;
@@ -100,6 +101,28 @@ public class ArtifactResolutionService
         }
 
         return is;
+    }
+
+    public OutputStream getOutputStream(String repository, String artifactPath)
+            throws ArtifactResolutionException, IOException
+    {
+        OutputStream os = null;
+
+        for (LocationResolver resolver : ArtifactResolutionService.getResolvers())
+        {
+            os = resolver.getOutputStream(repository, artifactPath);
+            if (os != null)
+            {
+                break;
+            }
+        }
+
+        if (os == null)
+        {
+            throw new ArtifactResolutionException("Artifact " + artifactPath + " not found.");
+        }
+
+        return os;
     }
 
     public boolean isInMemoryModeOnly()

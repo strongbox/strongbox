@@ -3,14 +3,17 @@ package org.carlspring.strongbox.storage.resolvers;
 import org.apache.maven.artifact.Artifact;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.annotations.ArtifactExistenceState;
 import org.carlspring.strongbox.annotations.ArtifactResource;
 import org.carlspring.strongbox.annotations.ArtifactResourceMapper;
 import org.carlspring.strongbox.io.RandomInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * @author mtodorov
@@ -51,6 +54,21 @@ public class InMemoryLocationResolver implements LocationResolver
 
             return new RandomInputStream(resource.length());
         }
+    }
+
+    @Override
+    public OutputStream getOutputStream(String repository,
+                                        String artifactPath)
+            throws IOException
+    {
+        Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
+        ArtifactResourceMapper.addResource(ArtifactResourceMapper.getArtifactResourceInstance(repository,
+                                                                                              artifact,
+                                                                                              10000l, // Hard-coding to 10 KB as we can't guess
+                                                                                                      // the size at this point and we shouldn't be
+                                                                                                      // caring about this too much as it's in memory
+                                                                                              ArtifactExistenceState.EXISTS));
+        return new ByteArrayOutputStream();
     }
 
     @Override

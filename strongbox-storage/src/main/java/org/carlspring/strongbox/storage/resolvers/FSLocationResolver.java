@@ -5,10 +5,7 @@ import org.carlspring.strongbox.storage.DataCenter;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -71,6 +68,39 @@ public class FSLocationResolver
                         return new FileInputStream(artifactFile);
                     }
                 }
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public OutputStream getOutputStream(String repository,
+                                        String artifactPath)
+            throws IOException
+    {
+        for (Map.Entry entry : dataCenter.getStorages().entrySet())
+        {
+            Storage storage = (Storage) entry.getValue();
+
+            if (storage.containsRepository(repository))
+            {
+                final Map<String, Repository> repositories = storage.getRepositories();
+
+                Repository r = repositories.get(repository);
+
+                final File repoPath = new File(storage.getBasedir(), r.getName());
+                final File artifactFile = new File(repoPath, artifactPath).getCanonicalFile();
+
+                if (!artifactFile.getParentFile().exists())
+                {
+                    logger.debug("Creating base dir for artifact " + artifactFile.getCanonicalPath() + "...");
+
+                    //noinspection ResultOfMethodCallIgnored
+                    artifactFile.getParentFile().mkdirs();
+                }
+
+                return new FileOutputStream(artifactFile);
             }
         }
 
