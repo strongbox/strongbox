@@ -4,13 +4,19 @@ import org.carlspring.strongbox.jaas.Credentials;
 import org.carlspring.strongbox.jaas.User;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertEquals;
 
 /**
  * @author mtodorov
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations={"/META-INF/spring/*-context.xml"})
 public class CachedUserManagerTest
 {
+
 
     @Test
     public void testCredentialsManagement()
@@ -19,6 +25,7 @@ public class CachedUserManagerTest
         CachedUserManager manager = new CachedUserManager();
         manager.setCredentialsLifetime(5000l);
         manager.setCredentialExpiredCheckInterval(500l);
+        manager.startMonitor();
 
         manager.addUser(new User("user1", new Credentials("password")));
         manager.addUser(new User("user2", new Credentials("password")));
