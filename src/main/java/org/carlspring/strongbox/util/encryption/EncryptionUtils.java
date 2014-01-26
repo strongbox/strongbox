@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Random;
 
 /**
  * @author Martin Todorov
@@ -30,6 +29,7 @@ public class EncryptionUtils
     {
         StringBuffer hexString = new StringBuffer();
         byte[] defaultBytes = password.getBytes();
+
         try
         {
             MessageDigest algorithm = MessageDigest.getInstance(MD5);
@@ -50,29 +50,8 @@ public class EncryptionUtils
         {
             logger.error(nsae.getMessage(), nsae);
         }
+
         return hexString.toString();
-    }
-
-    public static String generateRandomKey()
-    {
-        StringBuilder key = new StringBuilder();
-
-        Random randomNumber = new Random();
-
-        for (int i = 0; i < 15;)
-        {
-            int value = randomNumber.nextInt(125);
-            if (value == 33 || (value >= 35 && value <= 122) &&
-                value != 39 && // '
-                value != 63 && // ?
-                value != 96 )  // `
-            {
-                key.append((char) value);
-                i++;
-            }
-        }
-
-        return key.toString();
     }
 
     public static String generateKeyHash(String password, String randomKey)
