@@ -6,6 +6,10 @@ import org.carlspring.strongbox.jaas.User;
  * All login modules should have an implementation of this interface.
  * The methods outlined here are as generic as possible and should be kept that way.
  *
+ * The purpose of this interface is to provide a means of resolving users.
+ * Certain authentication providers like the ones for LDAP and AD will not support write operations.
+ * These are covered by UserStorage.
+ *
  * @author mtodorov
  */
 public interface UserResolver
