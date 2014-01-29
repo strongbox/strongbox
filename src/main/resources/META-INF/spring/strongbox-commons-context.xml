@@ -13,4 +13,8 @@
         <property name="credentialsLifetime" value="300000"/>           <!-- 5 mins -->
     </bean>
 
+    <bean id="userAuthenticator" class="org.carlspring.strongbox.jaas.authentication.UserAuthenticator">
+        <property name="cachedUserManager" ref="cachedUserManager"/>
+    </bean>
+
 </beans>
