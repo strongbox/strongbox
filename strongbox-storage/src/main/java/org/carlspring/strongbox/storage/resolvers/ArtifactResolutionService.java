@@ -27,9 +27,6 @@ public class ArtifactResolutionService
 
     private static ArtifactResolutionService instance = new ArtifactResolutionService();
 
-    @Autowired
-    private ConfigurationManager configurationManager;
-
 
     public static ArtifactResolutionService getInstance()
             throws ClassNotFoundException,
