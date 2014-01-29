@@ -64,7 +64,7 @@ public class InMemoryLocationResolver implements LocationResolver
         Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
         ArtifactResourceMapper.addResource(ArtifactResourceMapper.getArtifactResourceInstance(repository,
                                                                                               artifact,
-                                                                                              10000l, // Hard-coding to 10 KB as we can't guess
+                                                                                              10000L, // Hard-coding to 10 KB as we can't guess
                                                                                                       // the size at this point and we shouldn't be
                                                                                                       // caring about this too much as it's in memory
                                                                                               ArtifactExistenceState.EXISTS));
