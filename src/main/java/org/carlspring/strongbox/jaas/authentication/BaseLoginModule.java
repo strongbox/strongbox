@@ -163,7 +163,7 @@ public abstract class BaseLoginModule
         else
         {
             // authentication failed -- clean out state
-            logger.debug("Authentication failed.");
+            logger.debug("Authentication failed for user " + principal.getName() + ".");
 
             succeeded = false;
 
