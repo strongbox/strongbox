@@ -13,6 +13,8 @@ public class Credentials implements Destroyable
 
     private long lastAccessed;
 
+    private String encryptionAlgorithm;
+
 
     public Credentials()
     {
@@ -43,6 +45,16 @@ public class Credentials implements Destroyable
     public void setLastAccessed(long lastAccessed)
     {
         this.lastAccessed = lastAccessed;
+    }
+
+    public String getEncryptionAlgorithm()
+    {
+        return encryptionAlgorithm;
+    }
+
+    public void setEncryptionAlgorithm(String encryptionAlgorithm)
+    {
+        this.encryptionAlgorithm = encryptionAlgorithm;
     }
 
     @Override
