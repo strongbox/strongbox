@@ -2,6 +2,7 @@ package org.carlspring.strongbox.rest;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.io.MultipleDigestInputStream;
+import org.carlspring.strongbox.security.EncryptionConstants;
 import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
 import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
@@ -56,7 +57,8 @@ public class ArtifactRestlet
         handleAuthentication(storage, repository, path, headers, protocol);
 
         boolean fileIsChecksum = path.endsWith(".md5") || path.endsWith(".sha1");
-        MultipleDigestInputStream mdis = new MultipleDigestInputStream(is, new String[]{ "MD5", "SHA-1" });
+        MultipleDigestInputStream mdis = new MultipleDigestInputStream(is, new String[]{ EncryptionConstants.ALGORITHM_MD5,
+                                                                                         EncryptionConstants.ALGORITHM_SHA1 });
 
         // TODO: Do something with the artifact
         // Repository r = getDataCenter().getStorage(storage).getRepository(repository);
@@ -109,13 +111,13 @@ public class ArtifactRestlet
         String algorithm = null;
 
         final String checksumExtension = artifactPath.substring(artifactPath.lastIndexOf('.') + 1, artifactPath.length());
-        if (checksumExtension.equals("md5"))
+        if (checksumExtension.equals(EncryptionConstants.ALGORITHM_MD5))
         {
-            algorithm = "MD5";
+            algorithm = EncryptionConstants.ALGORITHM_MD5;
         }
         else if (checksumExtension.equals("sha1"))
         {
-            algorithm = "SHA-1";
+            algorithm = EncryptionConstants.ALGORITHM_SHA1;
         }
         else
         {
@@ -156,14 +158,14 @@ public class ArtifactRestlet
     private void addChecksumsToCacheManager(MultipleDigestInputStream mdis,
                                             String artifactPath)
     {
-        MessageDigest md5Digest = mdis.getMessageDigest("MD5");
-        MessageDigest sha1Digest = mdis.getMessageDigest("SHA-1");
+        MessageDigest md5Digest = mdis.getMessageDigest(EncryptionConstants.ALGORITHM_MD5);
+        MessageDigest sha1Digest = mdis.getMessageDigest(EncryptionConstants.ALGORITHM_SHA1);
 
         String md5 = MessageDigestUtils.convertToHexadecimalString(md5Digest);
         String sha1 = MessageDigestUtils.convertToHexadecimalString(sha1Digest);
 
-        checksumCacheManager.addArtifactChecksum(artifactPath, "MD5", md5);
-        checksumCacheManager.addArtifactChecksum(artifactPath, "SHA-1", sha1);
+        checksumCacheManager.addArtifactChecksum(artifactPath, EncryptionConstants.ALGORITHM_MD5, md5);
+        checksumCacheManager.addArtifactChecksum(artifactPath, EncryptionConstants.ALGORITHM_SHA1, sha1);
     }
 
     @GET
