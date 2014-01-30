@@ -192,7 +192,7 @@ public class ArtifactRestlet
         }
         catch (ArtifactResolutionException e)
         {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+            throw new WebApplicationException(e, Response.Status.NOT_FOUND);
         }
 
         return Response.ok(is).build();
