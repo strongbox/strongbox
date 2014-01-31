@@ -26,13 +26,13 @@ public class CachedUserManager implements UserManager
      *
      * The default is five minutes.
      */
-    private long credentialsLifetime = 5 * 60000;
+    private long credentialsLifetime = 5 * 60000L;
 
     /**
      * Specifies at what interval to check if the credentials have expired.
      * The default is to check once every minute.
      */
-    private long credentialExpiredCheckInterval = 60000l;
+    private long credentialExpiredCheckInterval = 60000L;
 
 
     public CachedUserManager()
