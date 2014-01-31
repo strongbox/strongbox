@@ -27,7 +27,7 @@ public class EncryptionUtils
      */
     public static String encryptWithMD5(String password)
     {
-        StringBuffer hexString = new StringBuffer();
+        StringBuilder hexString = new StringBuilder();
         byte[] defaultBytes = password.getBytes();
 
         try
