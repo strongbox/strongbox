@@ -1,9 +1,6 @@
 package org.carlspring.strongbox.jaas.caching;
 
-import org.carlspring.strongbox.jaas.Credentials;
 import org.carlspring.strongbox.jaas.User;
-
-import java.util.Set;
 
 /**
  * @author mtodorov
