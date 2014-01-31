@@ -35,7 +35,7 @@ public class EncryptionUtils
             MessageDigest algorithm = MessageDigest.getInstance(MD5);
             algorithm.reset();
             algorithm.update(defaultBytes);
-            byte messageDigest[] = algorithm.digest();
+            byte[] messageDigest = algorithm.digest();
 
             for (byte digestByte : messageDigest)
             {
