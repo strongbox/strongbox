@@ -305,7 +305,7 @@ public abstract class BaseLoginModule
         }
         catch (DestroyFailedException e)
         {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
     }
 
