@@ -41,7 +41,9 @@ public class EncryptionUtils
             {
                 String hex = Integer.toHexString(0xFF & digestByte);
                 if (hex.length() == 1)
+                {
                     hexString.append('0');
+                }
 
                 hexString.append(hex);
             }
