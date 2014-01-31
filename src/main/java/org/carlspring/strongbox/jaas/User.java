@@ -86,7 +86,9 @@ public class User implements Serializable
         for (Role role : roles)
         {
             if (role.getName().equals(roleName))
+            {
                 return true;
+            }
         }
 
         return false;
