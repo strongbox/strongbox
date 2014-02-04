@@ -56,9 +56,4 @@ public class EncryptionUtils
         return hexString.toString();
     }
 
-    public static String generateKeyHash(String password, String randomKey)
-    {
-        return encryptWithMD5(password+randomKey);
-    }
-
 }
