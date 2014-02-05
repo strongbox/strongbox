@@ -111,7 +111,7 @@ public class ArtifactRestlet
         String algorithm = null;
 
         final String checksumExtension = artifactPath.substring(artifactPath.lastIndexOf('.') + 1, artifactPath.length());
-        if (checksumExtension.equals(EncryptionConstants.ALGORITHM_MD5))
+        if (checksumExtension.equalsIgnoreCase(EncryptionConstants.ALGORITHM_MD5))
         {
             algorithm = EncryptionConstants.ALGORITHM_MD5;
         }
