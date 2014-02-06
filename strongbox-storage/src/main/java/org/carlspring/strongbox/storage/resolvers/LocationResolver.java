@@ -2,6 +2,7 @@ package org.carlspring.strongbox.storage.resolvers;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * @author mtodorov
@@ -10,6 +11,9 @@ public interface LocationResolver
 {
 
     InputStream getInputStream(String repository, String path)
+            throws IOException;
+
+    OutputStream getOutputStream(String repository, String path)
             throws IOException;
 
     void initialize()
