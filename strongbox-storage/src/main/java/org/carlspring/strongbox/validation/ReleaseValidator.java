@@ -18,12 +18,10 @@ public class ReleaseValidator implements VersionValidator
      *  1.0-SNAPSHOT
      */
     @Override
-    public boolean validate(Repository repository,
-                            Artifact artifact)
+    public boolean validate(Repository repository, Artifact artifact)
     {
         String version = artifact.getVersion();
         return version.matches("^([0-9]+)(\\.([0-9]+))?$");
-
     }
 
 }

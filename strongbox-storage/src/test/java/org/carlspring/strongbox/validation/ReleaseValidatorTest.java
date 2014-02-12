@@ -20,7 +20,7 @@ public class ReleaseValidatorTest
     @Test
     public void testReleaseValidation()
     {
-        Repository repository = new Repository("Repository Name");
+        Repository repository = new Repository();
         ReleaseValidator validator = new ReleaseValidator();
 
         /**
