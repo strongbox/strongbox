@@ -21,7 +21,7 @@ public class SnapshotValidatorTest
     @Test
     public void testSnapshotValidation()
     {
-        Repository repository = new Repository("Repository Name");
+        Repository repository = new Repository();
         SnapshotValidator validator = new SnapshotValidator();
 
         Artifact validArtifact1 = generateArtifact("1.0-SNAPSHOT");

@@ -17,10 +17,11 @@ public class SnapshotValidator implements VersionValidator
      * 1.0-20131004.115330-1
      */
     @Override
-    public boolean validate(Repository repository,
-                            Artifact artifact)
+    public boolean validate(Repository repository, Artifact artifact)
     {
         String version = artifact.getVersion();
-        return version != null && version.matches("^([0-9]+)(\\.([0-9]+))(-(SNAPSHOT|([0-9]+)(\\.([0-9]+)(-([0-9]+))?)?))$");
+        return version != null &&
+               version.matches("^([0-9]+)(\\.([0-9]+))(-(SNAPSHOT|([0-9]+)(\\.([0-9]+)(-([0-9]+))?)?))$");
     }
+
 }
