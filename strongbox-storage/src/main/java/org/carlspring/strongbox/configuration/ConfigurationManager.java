@@ -1,11 +1,9 @@
 package org.carlspring.strongbox.configuration;
 
-import org.carlspring.strongbox.url.ClasspathURLStreamHandler;
 import org.carlspring.strongbox.xml.parsers.ConfigurationParser;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
