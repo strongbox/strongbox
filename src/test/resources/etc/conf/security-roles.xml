@@ -1,0 +1,29 @@
+<authorization-configuration>
+    <roles>
+        <role>
+            <name>admin</name>
+            <description>Administrative role</description>
+        </role>
+        <role>
+            <name>deploy</name>
+            <description>Deployment role</description>
+            <privileges>
+                <privilege>Deploy</privilege>
+            </privileges>
+        </role>
+    </roles>
+    <privileges>
+        <privilege>
+            <name>Read</name>
+            <description>Grants read privilege</description>
+        </privilege>
+        <privilege>
+            <name>Delete</name>
+            <description>Grants delete privilege</description>
+        </privilege>
+        <privilege>
+            <name>Deploy</name>
+            <description>Grants deployment privilege</description>
+        </privilege>
+    </privileges>
+</authorization-configuration>

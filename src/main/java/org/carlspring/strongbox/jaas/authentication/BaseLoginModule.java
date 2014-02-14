@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.jaas.authentication;
 
 import org.carlspring.strongbox.jaas.Credentials;
-import org.carlspring.strongbox.jaas.Role;
 import org.carlspring.strongbox.jaas.User;
 import org.carlspring.strongbox.jaas.principal.BasePrincipal;
 import org.carlspring.strongbox.jaas.principal.RolePrincipal;
@@ -238,9 +237,9 @@ public abstract class BaseLoginModule
         }
 
         // Add all the roles as principals:
-        for (Role role : user.getRoles())
+        for (String role : user.getRoles())
         {
-            Principal rolePrincipal = new RolePrincipal(role.getName());
+            Principal rolePrincipal = new RolePrincipal(role);
 
             subject.getPrincipals().add(rolePrincipal);
 

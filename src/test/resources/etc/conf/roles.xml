@@ -1,0 +1,15 @@
+<roles>
+    <role>
+        <name>admin</name>
+        <description>Administrative role</description>
+    </role>
+    <role>
+        <name>deploy</name>
+        <description>Deployment role</description>
+<!--
+        <privileges>
+            <privilege>Deploy</privilege>
+        </privileges>
+-->
+    </role>
+</roles>

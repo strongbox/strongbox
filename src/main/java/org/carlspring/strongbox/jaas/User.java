@@ -1,9 +1,10 @@
 package org.carlspring.strongbox.jaas;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
+
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 /**
  * @author mtodorov
@@ -11,19 +12,29 @@ import java.util.Set;
 public class User implements Serializable
 {
 
+    @XStreamOmitField
     private long userId;
 
+    @XStreamAlias(value = "username")
     private String username;
 
+    @XStreamAlias(value = "credentials")
     private Credentials credentials = new Credentials();
 
-    private Set<Role> roles = new LinkedHashSet<Role>();
+    @XStreamAlias(value = "roles")
+    private List<String> roles = new ArrayList<String>();
 
+    @XStreamAlias(value = "firstName")
     private String firstName;
 
+    @XStreamAlias(value = "lastName")
     private String lastName;
 
+    @XStreamAlias(value = "email")
     private String email;
+
+    @XStreamOmitField
+    private long seed;
 
 
     public User()
@@ -107,21 +118,31 @@ public class User implements Serializable
         this.email = email;
     }
 
-    public Set<Role> getRoles()
+    public long getSeed()
+    {
+        return seed;
+    }
+
+    public void setSeed(long seed)
+    {
+        this.seed = seed;
+    }
+
+    public List<String> getRoles()
     {
         return roles;
     }
 
-    public void setRoles(Set<Role> roles)
+    public void setRoles(List<String> roles)
     {
         this.roles = roles;
     }
 
     public boolean hasRole(String roleName)
     {
-        for (Role role : roles)
+        for (String role : roles)
         {
-            if (role.getName().equals(roleName))
+            if (role.equals(roleName))
             {
                 return true;
             }

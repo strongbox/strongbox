@@ -3,16 +3,22 @@ package org.carlspring.strongbox.jaas;
 import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Destroyable;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
+
 /**
  * @author mtodorov
  */
 public class Credentials implements Destroyable
 {
 
+    @XStreamAlias(value = "password")
     private String password;
 
+    @XStreamOmitField
     private long lastAccessed;
 
+    @XStreamAlias(value = "encryptionAlgorithm")
     private String encryptionAlgorithm;
 
 
