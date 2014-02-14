@@ -2,8 +2,6 @@ package org.carlspring.strongbox.xml.parsers;
 
 import org.carlspring.strongbox.jaas.Privilege;
 import org.carlspring.strongbox.jaas.Role;
-import org.carlspring.strongbox.jaas.User;
-import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import java.util.List;
 
