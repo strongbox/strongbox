@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.configuration;
 
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.xml.parsers.ConfigurationParser;
 
 import java.io.File;
@@ -33,43 +34,9 @@ public class ConfigurationManager
     public void init()
             throws IOException
     {
-        String filename =  null;
-        Resource resource = null;
-
-        if (configurationPath == null)
-        {
-            if (System.getProperty("repository.config.xml") != null)
-            {
-                filename =  System.getProperty("repository.config.xml");
-                resource = new FileSystemResource(new File(filename).getAbsoluteFile());
-            }
-            else
-            {
-                if (new File("etc/configuration.xml").exists())
-                {
-                    filename =  "etc/configuration.xml";
-                    resource = new FileSystemResource(new File(filename).getAbsoluteFile());
-                }
-                else
-                {
-                    // This should only really be used for development and testing
-                    // of Strongbox and is not advised for production.
-                    String path = "etc/configuration.xml";
-                    resource = new ClassPathResource(path);
-                }
-            }
-        }
-        else
-        {
-            if (!configurationPath.toLowerCase().startsWith("classpath"))
-            {
-                resource = new FileSystemResource(new File(configurationPath).getAbsoluteFile());
-            }
-            else
-            {
-                resource = new ClassPathResource(configurationPath);
-            }
-        }
+        Resource resource = ConfigurationResourceResolver.getConfigurationResource("etc/configuration.xml",
+                                                                                   "repository.config.xml",
+                                                                                   "etc/configuration.xml");
 
         logger.info("Loading Strongbox configuration from " + resource.toString() + "...");
 
