@@ -29,9 +29,9 @@ public class StorageMapEntryConverter
         //noinspection unchecked
         Map<String, Storage> map = (LinkedHashMap<String, Storage>) value;
 
-        for (String key : map.keySet())
+        for (Map.Entry<String, Storage> entry : map.entrySet())
         {
-            Storage storage = map.get(key);
+            Storage storage = entry.getValue();
 
             writer.startNode("storage");
             writer.startNode("basedir");

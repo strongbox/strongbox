@@ -50,9 +50,9 @@ public class FSLocationResolver
 
                 final Map<String, Repository> repositories = storage.getRepositories();
 
-                for (String key : repositories.keySet())
+                for (Map.Entry<String, Repository> e : repositories.entrySet())
                 {
-                    Repository r = repositories.get(key);
+                    Repository r = e.getValue();
 
                     logger.debug("Checking in repository " + r.getName() + "...");
 
