@@ -8,6 +8,8 @@
     <context:annotation-config/>
     <context:component-scan base-package="org.carlspring.strongbox"/>
 
+    <bean id="configurationResourceResolver" class="org.carlspring.strongbox.resource.ConfigurationResourceResolver" />
+
     <bean id="configurationManager"
           class="org.carlspring.strongbox.configuration.ConfigurationManager"
           init-method="init">

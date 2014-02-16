@@ -5,20 +5,24 @@ import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
 
 /**
  * @author mtodorov
  */
-@Scope("singleton")
+@Component
 public class ConfigurationResourceResolver
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationResourceResolver.class);
 
+
+    public ConfigurationResourceResolver()
+    {
+    }
 
     /**
      *
@@ -29,15 +33,34 @@ public class ConfigurationResourceResolver
      * @return
      * @throws IOException
      */
-    public static Resource getConfigurationResource(String configurationPath,
-                                                    String propertyKey,
-                                                    String propertyDefaultValue)
+    public Resource getConfigurationResource(String configurationPath,
+                                             String propertyKey,
+                                             String propertyDefaultValue)
             throws IOException
     {
         String filename = null;
         Resource resource = null;
 
-        if (configurationPath == null)
+        if (configurationPath != null &&
+            (!configurationPath.startsWith("classpath") && !(new File(configurationPath)).exists()))
+        {
+            configurationPath = null;
+        }
+
+        if (configurationPath != null)
+        {
+            if (configurationPath.toLowerCase().startsWith("classpath"))
+            {
+                // Load the resource from the classpath
+                resource = new ClassPathResource(configurationPath);
+            }
+            else
+            {
+                // Load the resource from the file system
+                resource = new FileSystemResource(new File(configurationPath).getAbsoluteFile());
+            }
+        }
+        else
         {
             if (System.getProperty(propertyKey) != null)
             {
@@ -57,17 +80,6 @@ public class ConfigurationResourceResolver
                     // of Strongbox and is not advised for production.
                     resource = new ClassPathResource(propertyDefaultValue);
                 }
-            }
-        }
-        else
-        {
-            if (!configurationPath.toLowerCase().startsWith("classpath"))
-            {
-                resource = new FileSystemResource(new File(configurationPath).getAbsoluteFile());
-            }
-            else
-            {
-                resource = new ClassPathResource(configurationPath);
             }
         }
 

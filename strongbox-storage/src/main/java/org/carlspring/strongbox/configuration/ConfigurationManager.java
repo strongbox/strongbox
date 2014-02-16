@@ -3,19 +3,19 @@ package org.carlspring.strongbox.configuration;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.xml.parsers.ConfigurationParser;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
 
 /**
  * @author mtodorov
  */
+@Component
 @Scope ("singleton")
 public class ConfigurationManager
 {
@@ -26,6 +26,9 @@ public class ConfigurationManager
 
     private Configuration configuration;
 
+    @Autowired
+    private ConfigurationResourceResolver configurationResourceResolver;
+
 
     public ConfigurationManager()
     {
@@ -34,7 +37,7 @@ public class ConfigurationManager
     public void init()
             throws IOException
     {
-        Resource resource = ConfigurationResourceResolver.getConfigurationResource("etc/configuration.xml",
+        Resource resource = configurationResourceResolver.getConfigurationResource("etc/configuration.xml",
                                                                                    "repository.config.xml",
                                                                                    "etc/configuration.xml");
 
