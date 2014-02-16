@@ -22,23 +22,8 @@ public class ArtifactResolutionService
 
     private boolean allowInMemory = false;
 
-    private static ArtifactResolutionService instance = new ArtifactResolutionService();
+    private Set<LocationResolver> resolvers = new LinkedHashSet<LocationResolver>();
 
-
-    public static ArtifactResolutionService getInstance()
-            throws ClassNotFoundException,
-                   IOException,
-                   InstantiationException,
-                   IllegalAccessException
-    {
-        if (instance == null)
-        {
-            instance = new ArtifactResolutionService();
-            instance.initialize();
-        }
-
-        return instance;
-    }
 
     public void initialize()
             throws ClassNotFoundException,
@@ -50,14 +35,9 @@ public class ArtifactResolutionService
                                // as other stuff might need to initialized here later on as well.
     }
 
-    private static Set<LocationResolver> resolvers;
-
-
-    private static void initializeResolvers()
+    private void initializeResolvers()
     {
         ServiceLoader<LocationResolver> resolversFromServiceLoader = ServiceLoader.load(LocationResolver.class);
-
-        resolvers = new LinkedHashSet<LocationResolver>();
 
         for (LocationResolver resolver : resolversFromServiceLoader)
         {
@@ -65,7 +45,7 @@ public class ArtifactResolutionService
         }
     }
 
-    public static Set<LocationResolver> getResolvers()
+    public Set<LocationResolver> getResolvers()
     {
         if (resolvers == null)
         {
@@ -80,7 +60,7 @@ public class ArtifactResolutionService
     {
         InputStream is = null;
 
-        for (LocationResolver resolver : ArtifactResolutionService.getResolvers())
+        for (LocationResolver resolver : getResolvers())
         {
             is = resolver.getInputStream(repository, artifactPath);
             if (is != null)
@@ -102,7 +82,7 @@ public class ArtifactResolutionService
     {
         OutputStream os = null;
 
-        for (LocationResolver resolver : ArtifactResolutionService.getResolvers())
+        for (LocationResolver resolver : getResolvers())
         {
             os = resolver.getOutputStream(repository, artifactPath);
             if (os != null)

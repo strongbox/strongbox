@@ -5,8 +5,6 @@ import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import org.springframework.core.io.Resource;
 
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionService;
-import org.carlspring.strongbox.storage.resolvers.LocationResolver;
 
 import java.util.*;
 
@@ -31,29 +29,6 @@ public class Configuration
 
     public Configuration()
     {
-    }
-
-    public void dump()
-    {
-        System.out.println("Configuration version: " + version);
-        System.out.println("Listening on port: " + port);
-
-        System.out.println("Loading storages...");
-        for (String storageKey : storages.keySet())
-        {
-            System.out.println(" -> Storage: " + storageKey);
-            Storage storage = storages.get(storageKey);
-            for (String repositoryKey : storage.getRepositories().keySet())
-            {
-                System.out.println("    -> Repository: " + repositoryKey);
-            }
-        }
-
-        System.out.println("Loading resolvers...");
-        for (LocationResolver resolver : ArtifactResolutionService.getResolvers())
-        {
-            System.out.println(" -> " + resolver.getClass());
-        }
     }
 
     public Map<String, Storage> getStorages()

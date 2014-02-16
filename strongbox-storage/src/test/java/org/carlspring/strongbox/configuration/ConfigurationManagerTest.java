@@ -36,6 +36,9 @@ public class ConfigurationManagerTest
     @Autowired
     private ConfigurationManager configurationManager;
 
+    @Autowired
+    private ArtifactResolutionService artifactResolutionService;
+
 
     @Test
     public void testParseConfiguration()
@@ -55,8 +58,8 @@ public class ConfigurationManagerTest
         assertEquals("Unexpected number of storages!", 1, configuration.getStorages().size());
         assertEquals("Incorrect version!", "1.0", configuration.getVersion());
         assertEquals("Incorrect port number!", 48080, configuration.getPort());
-        assertNotNull("No resolvers found!", ArtifactResolutionService.getResolvers());
-        assertEquals("Incorrect number of resolvers found!", 2, ArtifactResolutionService.getResolvers().size());
+        assertNotNull("No resolvers found!", artifactResolutionService.getResolvers());
+        assertEquals("Incorrect number of resolvers found!", 2, artifactResolutionService.getResolvers().size());
         assertEquals("Repository should have required authentication!",
                      true,
                      configuration.getStorages().get("storage0").getRepositories().get("snapshots").isSecured());

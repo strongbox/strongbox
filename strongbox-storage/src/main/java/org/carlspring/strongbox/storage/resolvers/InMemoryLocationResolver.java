@@ -9,6 +9,7 @@ import org.carlspring.strongbox.annotations.ArtifactResourceMapper;
 import org.carlspring.strongbox.io.RandomInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -18,6 +19,7 @@ import java.io.OutputStream;
 /**
  * @author mtodorov
  */
+@Component
 public class InMemoryLocationResolver implements LocationResolver
 {
 

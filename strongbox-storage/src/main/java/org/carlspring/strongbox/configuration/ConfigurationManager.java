@@ -1,6 +1,9 @@
 package org.carlspring.strongbox.configuration;
 
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionService;
+import org.carlspring.strongbox.storage.resolvers.LocationResolver;
 import org.carlspring.strongbox.xml.parsers.ConfigurationParser;
 
 import java.io.IOException;
@@ -29,6 +32,9 @@ public class ConfigurationManager
     @Autowired
     private ConfigurationResourceResolver configurationResourceResolver;
 
+    @Autowired
+    private ArtifactResolutionService artifactResolutionService;
+
 
     public ConfigurationManager()
     {
@@ -47,7 +53,31 @@ public class ConfigurationManager
 
         configuration = parser.parse(resource.getInputStream());
         configuration.setResource(resource);
-        configuration.dump();
+
+        dump();
+    }
+
+    public void dump()
+    {
+        System.out.println("Configuration version: " + configuration.getVersion());
+        System.out.println("Listening on port: " + configuration.getPort());
+
+        System.out.println("Loading storages...");
+        for (String storageKey : configuration.getStorages().keySet())
+        {
+            System.out.println(" -> Storage: " + storageKey);
+            Storage storage = configuration.getStorages().get(storageKey);
+            for (String repositoryKey : storage.getRepositories().keySet())
+            {
+                System.out.println("    -> Repository: " + repositoryKey);
+            }
+        }
+
+        System.out.println("Loading resolvers...");
+        for (LocationResolver resolver : artifactResolutionService.getResolvers())
+        {
+            System.out.println(" -> " + resolver.getClass());
+        }
     }
 
     public void storeConfiguration(Configuration configuration, String file)
@@ -75,6 +105,16 @@ public class ConfigurationManager
     public void setConfigurationPath(String configurationPath)
     {
         this.configurationPath = configurationPath;
+    }
+
+    public ArtifactResolutionService getArtifactResolutionService()
+    {
+        return artifactResolutionService;
+    }
+
+    public void setArtifactResolutionService(ArtifactResolutionService artifactResolutionService)
+    {
+        this.artifactResolutionService = artifactResolutionService;
     }
 
 }
