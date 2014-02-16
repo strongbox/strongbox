@@ -26,4 +26,6 @@
         <property name="cachedChecksumLifetime" value="60000"/>
     </bean>
 
+    <bean id="artifactResolutionService" class="org.carlspring.strongbox.storage.resolvers.ArtifactResolutionService"/>
+
 </beans>

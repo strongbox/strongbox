@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.storage.resolvers;
 
-import org.carlspring.strongbox.configuration.ConfigurationManager;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -9,7 +7,6 @@ import java.util.LinkedHashSet;
 import java.util.ServiceLoader;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**

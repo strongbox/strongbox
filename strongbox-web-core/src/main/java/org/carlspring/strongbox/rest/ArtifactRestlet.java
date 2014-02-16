@@ -39,6 +39,9 @@ public class ArtifactRestlet
     @Autowired
     private ChecksumCacheManager checksumCacheManager;
 
+    @Autowired
+    private ArtifactResolutionService artifactResolutionService;
+
 
     @PUT
     @Path("{storage}/{repository}/{path:.*}")
@@ -188,7 +191,7 @@ public class ArtifactRestlet
         InputStream is;
         try
         {
-            is = ArtifactResolutionService.getInstance().getInputStream(repository, path);
+            is = artifactResolutionService.getInputStream(repository, path);
         }
         catch (ArtifactResolutionException e)
         {
