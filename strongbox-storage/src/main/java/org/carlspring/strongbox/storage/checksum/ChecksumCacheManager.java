@@ -199,7 +199,7 @@ public class ChecksumCacheManager
             }
             catch (InterruptedException e)
             {
-                e.printStackTrace();
+                logger.error(e.getMessage(), e);
             }
         }
     }
