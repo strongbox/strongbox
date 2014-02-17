@@ -210,7 +210,6 @@ public class ArtifactRestlet
     {
         // TODO: Implement
 
-        System.out.println("DELETE: " + path);
         logger.debug("DELETE: " + path);
     }
 
