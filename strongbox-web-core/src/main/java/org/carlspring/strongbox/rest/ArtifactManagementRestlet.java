@@ -7,6 +7,7 @@ import org.carlspring.strongbox.annotations.ArtifactResourceMapper;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -16,6 +17,7 @@ import java.io.IOException;
 /**
  * @author Martin Todorov
  */
+@Component
 @Path("/manage/artifact")
 public class ArtifactManagementRestlet
         extends BaseRestlet
