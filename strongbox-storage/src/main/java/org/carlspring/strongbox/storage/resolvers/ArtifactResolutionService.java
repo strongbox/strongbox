@@ -93,7 +93,7 @@ public class ArtifactResolutionService
 
         if (os == null)
         {
-            throw new ArtifactResolutionException("Artifact " + artifactPath + " not found.");
+            throw new ArtifactResolutionException("Artifact " + artifactPath + " could not be stored.");
         }
 
         return os;
