@@ -5,6 +5,9 @@ import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
@@ -16,6 +19,9 @@ import java.util.*;
 public class StorageMapEntryConverter
         implements Converter
 {
+
+    private static final Logger logger = LoggerFactory.getLogger(StorageMapEntryConverter.class);
+
 
     public boolean canConvert(Class clazz)
     {
@@ -87,7 +93,7 @@ public class StorageMapEntryConverter
                     }
                     else
                     {
-                        System.out.println("WARN: Not parsing node " + reader.getNodeName());
+                        logger.warn("Not parsing node " + reader.getNodeName());
                     }
 
                     reader.moveUp();
