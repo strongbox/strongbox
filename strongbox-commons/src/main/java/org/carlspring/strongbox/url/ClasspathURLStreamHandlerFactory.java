@@ -12,17 +12,15 @@ public class ClasspathURLStreamHandlerFactory
         implements URLStreamHandlerFactory
 {
 
-    private final Map<String, URLStreamHandler> protocolHandlers;
+    private final Map<String, URLStreamHandler> protocolHandlers = new HashMap<String, URLStreamHandler>();
 
 
     public ClasspathURLStreamHandlerFactory(String protocol, URLStreamHandler urlHandler)
     {
-        protocolHandlers = new HashMap<String, URLStreamHandler>();
         addHandler(protocol, urlHandler);
     }
 
-    public void addHandler(String protocol,
-                           URLStreamHandler urlHandler)
+    public final void addHandler(String protocol, URLStreamHandler urlHandler)
     {
         protocolHandlers.put(protocol, urlHandler);
     }
