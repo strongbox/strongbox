@@ -39,7 +39,7 @@ public class ArtifactChecksum
         updateLastAccessedTime();
     }
 
-    public void updateLastAccessedTime()
+    private void updateLastAccessedTime()
     {
         lastAccessed = System.currentTimeMillis();
     }
