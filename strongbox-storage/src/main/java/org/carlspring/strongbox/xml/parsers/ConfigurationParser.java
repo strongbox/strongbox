@@ -1,14 +1,13 @@
 package org.carlspring.strongbox.xml.parsers;
 
-import com.thoughtworks.xstream.XStream;
-
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.StorageMapEntryConverter;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
-import java.util.List;
 import java.util.Map;
+
+import com.thoughtworks.xstream.XStream;
 
 /**
  * @author mtodorov
