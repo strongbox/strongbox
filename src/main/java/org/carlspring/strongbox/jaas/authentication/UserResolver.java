@@ -23,7 +23,7 @@ public interface UserResolver
      * @throws Exception
      */
     User findUser(long userId)
-            throws Exception;
+            throws UserResolutionException;
 
     /**
      * Find a user by their username.
@@ -33,7 +33,7 @@ public interface UserResolver
      * @throws Exception
      */
     User findUser(String username)
-            throws Exception;
+            throws UserResolutionException;
 
     /**
      * Check if a user's username and password are valid for logging in.
@@ -44,6 +44,6 @@ public interface UserResolver
      * @throws Exception
      */
     User findUser(String username, String password)
-            throws Exception;
+            throws UserResolutionException;
 
 }

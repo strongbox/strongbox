@@ -138,17 +138,19 @@ public class User implements Serializable
         this.roles = roles;
     }
 
-    public boolean hasRole(String roleName)
+    public void addRole(String role)
     {
-        for (String role : roles)
-        {
-            if (role.equals(roleName))
-            {
-                return true;
-            }
-        }
+        roles.add(role);
+    }
 
-        return false;
+    public void removeRole(String role)
+    {
+        roles.remove(role);
+    }
+
+    public boolean hasRole(String role)
+    {
+        return roles.contains(role);
     }
 
     @Override

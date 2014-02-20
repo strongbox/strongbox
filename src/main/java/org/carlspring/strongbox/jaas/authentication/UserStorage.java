@@ -3,6 +3,7 @@ package org.carlspring.strongbox.jaas.authentication;
 import org.carlspring.strongbox.jaas.Role;
 import org.carlspring.strongbox.jaas.User;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Set;
 
@@ -17,30 +18,27 @@ public interface UserStorage
 {
 
     void createUser(User user)
-            throws SQLException;
+            throws UserStorageException;
 
     void updateUser(User user)
-            throws SQLException;
+            throws UserStorageException;
 
     void removeUser(User user)
-            throws SQLException;
+            throws UserStorageException;
 
     void removeUserById(long userId)
-            throws SQLException;
+            throws UserStorageException;
 
     void assignRole(User user, Role role)
-            throws SQLException;
+            throws UserStorageException;
 
     void assignRole(User user, String roleName)
-            throws SQLException;
-
-    Set<Role> getRoles(User user)
-            throws SQLException;
+            throws UserStorageException;
 
     void removeRole(User user, Role role)
-            throws SQLException;
+            throws UserStorageException;
 
-    boolean hasRole(User user, String roleName)
-            throws SQLException;
+    long count()
+            throws UserResolutionException;
 
 }
