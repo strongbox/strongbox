@@ -58,11 +58,11 @@ public class DummyParserTest
         assertTrue("Failed to store output file!", outputFile.exists());
 
         assertEquals("<name>\n" +
-                     "  <name>foo</name>\n" +
-                     "  <aliases class=\"linked-hash-set\">\n" +
-                     "    <string>bar</string>\n" +
-                     "    <string>blah</string>\n" +
-                     "  </aliases>\n" +
+                     "    <name>foo</name>\n" +
+                     "    <aliases class=\"linked-hash-set\">\n" +
+                     "        <string>bar</string>\n" +
+                     "        <string>blah</string>\n" +
+                     "    </aliases>\n" +
                      "</name>",
                      result);
     }

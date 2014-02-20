@@ -8,6 +8,7 @@ import java.net.URL;
 import java.util.List;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 
 /**
  * @author mtodorov
@@ -95,13 +96,13 @@ public abstract class GenericParser<T>
     }
 
     public void store(T object, OutputStream outputStream)
-                throws IOException
+            throws IOException
     {
         internalStore(object, outputStream);
     }
 
     public void store(List<T> object, OutputStream outputStream)
-                throws IOException
+            throws IOException
     {
         internalStore(object, outputStream);
     }
@@ -123,30 +124,20 @@ public abstract class GenericParser<T>
             throws IOException
     {
         XStream xstream = getXStreamInstance();
-        final String xml = xstream.toXML(object);
 
-        FileOutputStream fos = null;
-        try
-        {
-            fos = new FileOutputStream(file);
-            store(xml, fos);
-        }
-        finally
-        {
-            if (fos != null)
-            {
-                fos.close();
-            }
-        }
+        char[] indent = new char[] { ' ', ' ', ' ', ' ' };
+
+        FileOutputStream fos = new FileOutputStream(file);
+        xstream.marshal(object, new PrettyPrintWriter(new OutputStreamWriter(fos), indent));
     }
 
     protected void internalStore(Object object, OutputStream outputStream)
             throws IOException
     {
-        XStream xstream = getXStreamInstance();
-        final String xml = xstream.toXML(object);
+        char[] indent = new char[] { ' ', ' ', ' ', ' ' };
 
-        store(xml, outputStream);
+        XStream xstream = getXStreamInstance();
+        xstream.marshal(object, new PrettyPrintWriter(new OutputStreamWriter(outputStream), indent));
     }
 
     public abstract XStream getXStreamInstance();
