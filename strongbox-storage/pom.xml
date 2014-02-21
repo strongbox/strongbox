@@ -43,6 +43,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-security-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.carlspring.strongbox</groupId>
             <artifactId>strongbox-testing-resources</artifactId>
             <version>${project.version}</version>

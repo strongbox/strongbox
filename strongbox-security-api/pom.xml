@@ -65,6 +65,11 @@
             <artifactId>jersey-core</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.thoughtworks.xstream</groupId>
+            <artifactId>xstream</artifactId>
+        </dependency>
+
         <!-- Use Log4J for logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
