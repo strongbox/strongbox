@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.rest;
 
-import org.carlspring.strongbox.security.authorization.AuthorizationException;
+import org.carlspring.strongbox.security.jaas.authorization.AuthorizationException;
 import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
 import org.carlspring.strongbox.security.jaas.authentication.basic.BasicAuthenticationDecoder;
 import org.carlspring.strongbox.storage.DataCenter;

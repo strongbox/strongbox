@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.security.authorization;
+package org.carlspring.strongbox.security.jaas.authorization;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
