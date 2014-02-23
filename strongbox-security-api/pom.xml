@@ -45,11 +45,6 @@
     <dependencies>
         <dependency>
             <groupId>org.carlspring.strongbox</groupId>
-            <artifactId>strongbox-storage</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.carlspring.strongbox</groupId>
             <artifactId>strongbox-testing-resources</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
