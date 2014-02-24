@@ -16,8 +16,6 @@ public class EncryptionUtils
 
     private static Logger logger = LoggerFactory.getLogger(EncryptionUtils.class);
 
-    public static final String MD5 = "MD5";
-
 
     /**
      * Encrypts a String using the MD5 algorithm.
@@ -32,7 +30,7 @@ public class EncryptionUtils
 
         try
         {
-            MessageDigest algorithm = MessageDigest.getInstance(MD5);
+            MessageDigest algorithm = MessageDigest.getInstance(EncryptionAlgorithms.MD5.toString());
             algorithm.reset();
             algorithm.update(defaultBytes);
             byte[] messageDigest = algorithm.digest();
