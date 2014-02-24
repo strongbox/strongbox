@@ -25,12 +25,19 @@ public class Credentials
 
     public Credentials()
     {
-        lastAccessed = System.currentTimeMillis();
+        this.lastAccessed = System.currentTimeMillis();
     }
 
     public Credentials(String password)
     {
         this.password = password;
+        this.lastAccessed = System.currentTimeMillis();
+    }
+
+    public Credentials(String password, String encryptionAlgorithm)
+    {
+        this.password = password;
+        this.encryptionAlgorithm = encryptionAlgorithm;
         this.lastAccessed = System.currentTimeMillis();
     }
 
