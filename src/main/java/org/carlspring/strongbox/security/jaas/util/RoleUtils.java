@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 /**
  * @author mtodorov
  */
@@ -22,6 +24,14 @@ public class RoleUtils
         }
 
         return rolesAsStrings;
+    }
+
+    public static List<Role> toList(Collection<Role> roles)
+    {
+        List<Role> rolesList = new ArrayList<Role>();
+        rolesList.addAll(roles);
+
+        return rolesList;
     }
 
 }

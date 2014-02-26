@@ -24,4 +24,12 @@ public class PrivilegeUtils
         return privilegesAsStrings;
     }
 
+    public static List<Privilege> toList(Collection<Privilege> privileges)
+    {
+        List<Privilege> privilegesList = new ArrayList<Privilege>();
+        privilegesList.addAll(privileges);
+        
+        return privilegesList;
+    }
+    
 }

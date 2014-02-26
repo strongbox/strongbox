@@ -5,10 +5,8 @@ import java.io.IOException;
 /**
  * @author mtodorov
  */
-public interface ConfigurationManager<T>
+public interface ConfigurationManager
 {
-
-    T getConfiguration();
 
     void load() throws IOException;
 

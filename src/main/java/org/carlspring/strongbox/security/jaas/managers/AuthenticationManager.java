@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope("singleton")
-public class AuthenticationManager implements ConfigurationManager<AuthenticationConfiguration>
+public class AuthenticationManager implements ConfigurationManager
 {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationManager.class);
@@ -103,7 +103,6 @@ public class AuthenticationManager implements ConfigurationManager<Authenticatio
         this.configurationResourceResolver = configurationResourceResolver;
     }
 
-    @Override
     public AuthenticationConfiguration getConfiguration()
     {
         return configuration;
