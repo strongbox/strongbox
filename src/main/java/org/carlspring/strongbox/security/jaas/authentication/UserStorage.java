@@ -22,7 +22,7 @@ public interface UserStorage
     void removeUser(User user)
             throws UserStorageException;
 
-    void removeUserById(long userId)
+    void removeUser(String username)
             throws UserStorageException;
 
     void assignRole(User user, Role role)
