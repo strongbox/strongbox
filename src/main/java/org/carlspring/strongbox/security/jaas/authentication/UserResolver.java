@@ -16,16 +16,6 @@ public interface UserResolver
 {
 
     /**
-     * Find a user by their id.
-     *
-     * @param userId
-     * @return
-     * @throws Exception
-     */
-    User findUser(long userId)
-            throws UserResolutionException;
-
-    /**
      * Find a user by their username.
      *
      * @param username

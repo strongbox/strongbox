@@ -5,16 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 /**
  * @author mtodorov
  */
 public class Role implements Serializable
 {
-
-    @XStreamOmitField
-    private long roleId;
 
     @XStreamAlias(value = "name")
     private String name;
@@ -47,16 +43,6 @@ public class Role implements Serializable
     {
         this.name = name;
         this.description = description;
-    }
-
-    public long getRoleId()
-    {
-        return roleId;
-    }
-
-    public void setRoleId(long roleId)
-    {
-        this.roleId = roleId;
     }
 
     public String getName()
@@ -143,8 +129,7 @@ public class Role implements Serializable
     public String toString()
     {
         return "Role{" +
-               "roleId=" + roleId +
-               ", name='" + name + '\'' +
+               "name='" + name + '\'' +
                ", description='" + description + '\'' +
                ", repository='" + repository + '\'' +
                ", roles=" + roles +
