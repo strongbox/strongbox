@@ -2,7 +2,7 @@ package org.carlspring.strongbox.rest;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.io.MultipleDigestInputStream;
-import org.carlspring.strongbox.security.EncryptionConstants;
+import org.carlspring.strongbox.security.encryption.EncryptionConstants;
 import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
 import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
