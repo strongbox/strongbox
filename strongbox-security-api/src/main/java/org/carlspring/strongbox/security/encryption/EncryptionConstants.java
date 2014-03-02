@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.security;
+package org.carlspring.strongbox.security.encryption;
 
 /**
  * @author mtodorov
