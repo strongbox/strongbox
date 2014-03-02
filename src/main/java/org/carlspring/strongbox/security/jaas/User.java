@@ -12,9 +12,6 @@ import com.thoughtworks.xstream.annotations.XStreamOmitField;
 public class User implements Serializable
 {
 
-    @XStreamOmitField
-    private long userId;
-
     @XStreamAlias(value = "username")
     private String username;
 
@@ -24,11 +21,8 @@ public class User implements Serializable
     @XStreamAlias(value = "roles")
     private List<String> roles = new ArrayList<String>();
 
-    @XStreamAlias(value = "firstName")
-    private String firstName;
-
-    @XStreamAlias(value = "lastName")
-    private String lastName;
+    @XStreamAlias(value = "fullName")
+    private String fullName;
 
     @XStreamAlias(value = "email")
     private String email;
@@ -46,16 +40,6 @@ public class User implements Serializable
     {
         this.username = username;
         this.credentials = credentials;
-    }
-
-    public long getUserId()
-    {
-        return userId;
-    }
-
-    public void setUserId(long userId)
-    {
-        this.userId = userId;
     }
 
     public String getUsername()
@@ -88,24 +72,14 @@ public class User implements Serializable
         this.credentials = credentials;
     }
 
-    public String getFirstName()
+    public String getFullName()
     {
-        return firstName;
+        return fullName;
     }
 
-    public void setFirstName(String firstName)
+    public void setFullName(String fullName)
     {
-        this.firstName = firstName;
-    }
-
-    public String getLastName()
-    {
-        return lastName;
-    }
-
-    public void setLastName(String lastName)
-    {
-        this.lastName = lastName;
+        this.fullName = fullName;
     }
 
     public String getEmail()
@@ -157,7 +131,7 @@ public class User implements Serializable
     public String toString()
     {
         return "User{" +
-               "userId=" + userId +
+               "fullName=" + fullName +
                ", username='" + getUsername() + '\'' +
                ", password='" + getPassword() + '\'' +
                (roles != null ? ", roles=" + Arrays.toString(roles.toArray()) : "") +
