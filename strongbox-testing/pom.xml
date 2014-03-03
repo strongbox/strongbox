@@ -22,6 +22,7 @@
     <modules>
         <module>strongbox-testing-core</module>
         <module>strongbox-testing-resources</module>
+        <module>strongbox-testing-storage-resources</module>
         <module>strongbox-testing-web-resources</module>
     </modules>
     
