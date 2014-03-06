@@ -2,7 +2,7 @@ package org.carlspring.strongbox.visitors;
 
 import org.carlspring.strongbox.security.jaas.Group;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * @author mtodorov
@@ -10,10 +10,8 @@ import java.util.List;
 public interface Visitor
 {
 
-    void visit(Group group,
-               List<Group> hierarchy);
+    void visit(Group group, Set<Group> hierarchy);
 
-    void endVisit(Group group,
-                  List<Group> hierarchy);
+    void endVisit(Group group, Set<Group> hierarchy);
 
 }

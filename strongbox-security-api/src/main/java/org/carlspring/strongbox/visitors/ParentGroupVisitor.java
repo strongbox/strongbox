@@ -2,8 +2,7 @@ package org.carlspring.strongbox.visitors;
 
 import org.carlspring.strongbox.security.jaas.Group;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author mtodorov
@@ -13,7 +12,7 @@ public class ParentGroupVisitor implements Visitor
 
 
     @Override
-    public void visit(Group group, List<Group> hierarchy)
+    public void visit(Group group, Set<Group> hierarchy)
     {
         if (group.getParent() != null)
         {
@@ -28,10 +27,14 @@ public class ParentGroupVisitor implements Visitor
     }
 
     @Override
-    public void endVisit(Group group, List<Group> hierarchy)
+    public void endVisit(Group group, Set<Group> hierarchy)
     {
         // Invert the list, so it's top to bottom instead.
-        Collections.reverse(hierarchy);
+        List<Group> list = new ArrayList<Group>(hierarchy);
+        Collections.reverse(list);
+
+        hierarchy.clear();
+        hierarchy.addAll(list);
     }
 
 }

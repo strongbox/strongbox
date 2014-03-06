@@ -2,8 +2,8 @@ package org.carlspring.strongbox.visitors;
 
 import org.carlspring.strongbox.security.jaas.Group;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.junit.Test;
 
@@ -20,7 +20,7 @@ public class ParentGroupVisitorTest
         Group group2 = createGroup("developers", "Developers", group1);
         Group group3 = createGroup("java-developers-uk", "Java Developers UK", group2);
 
-        List<Group> nestedGroups = new ArrayList<Group>();
+        Set<Group> nestedGroups = new LinkedHashSet<Group>();
         ParentGroupVisitor visitor = new ParentGroupVisitor();
         visitor.visit(group3, nestedGroups);
 
