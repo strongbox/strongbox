@@ -179,6 +179,27 @@
                                     <artifactItems>
                                         <artifactItem>
                                             <groupId>${project.groupId}</groupId>
+                                            <artifactId>strongbox-testing-resources</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>jar</type>
+
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${project.build.directory}/strongbox/etc</outputDirectory>
+                                            <includes>log4j.properties</includes>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>unpack-storage-resources</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>${project.groupId}</groupId>
                                             <artifactId>strongbox-testing-storage-resources</artifactId>
                                             <version>${project.version}</version>
                                             <type>jar</type>
