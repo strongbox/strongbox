@@ -29,4 +29,7 @@
     <bean id="artifactResolutionService" class="org.carlspring.strongbox.storage.resolvers.ArtifactResolutionService"
           init-method="initialize"/>
 
+    <!-- This storage booter should only be invoked during testing. -->
+    <bean id="storageBooter" class="org.carlspring.strongbox.storage.StorageBooter" />
+
 </beans>
