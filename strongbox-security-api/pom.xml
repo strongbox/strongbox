@@ -39,6 +39,46 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.15</version>
             </plugin>
+            
+            <plugin>
+                <groupId>org.carlspring.maven</groupId>
+                <artifactId>unboundid-maven-plugin</artifactId>
+                <version>1.0-SNAPSHOT</version>
+
+                <configuration>
+                    <baseDn>dc=carlspring,dc=com</baseDn>
+                    <portSSL>40636</portSSL>
+                    <useSSL>true</useSSL>
+                    <keyStorePassword>password</keyStorePassword>
+                    <keyStorePath>${basedir}/src/test/resources/etc/ssl/keystore.jks</keyStorePath>
+                    <trustStorePath>${basedir}/src/test/resources/etc/ssl/truststore.jks</trustStorePath>
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <id>unboundid-start</id>
+
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+
+                        <configuration>
+                            <ldifFiles>
+                                <ldifFile>${basedir}/src/test/resources/ldap/unboundid.ldif</ldifFile>
+                            </ldifFiles>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unboundid-stop</id>
+
+                        <phase>test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
