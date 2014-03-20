@@ -6,6 +6,7 @@ import org.carlspring.strongbox.url.ClasspathURLStreamHandlerFactory;
 import java.io.*;
 import java.net.URL;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
@@ -16,7 +17,10 @@ import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 public abstract class GenericParser<T>
 {
 
-    static {
+    private ReentrantLock lock = new ReentrantLock();
+
+    static
+    {
         final ClasspathURLStreamHandler handler = new ClasspathURLStreamHandler(ClassLoader.getSystemClassLoader());
         ClasspathURLStreamHandlerFactory factory = new ClasspathURLStreamHandlerFactory("classpath", handler);
         URL.setURLStreamHandlerFactory(factory);
@@ -25,26 +29,60 @@ public abstract class GenericParser<T>
     public T parse(String xmlFile)
             throws IOException
     {
-        File file = new File(xmlFile).getAbsoluteFile();
-        InputStream is = new FileInputStream(file);
+        File file = null;
+        InputStream is = null;
 
-        return parse(is);
+        try
+        {
+            lock.lock();
+
+            file = new File(xmlFile).getAbsoluteFile();
+            is = new FileInputStream(file);
+
+            return parse(is);
+        }
+        finally
+        {
+            lock.unlock();
+        }
     }
 
     public T parse(File xmlFile)
             throws IOException
     {
-        InputStream is = new FileInputStream(xmlFile.getAbsoluteFile());
+        InputStream is = null;
 
-        return parse(is);
+        try
+        {
+            lock.lock();
+
+            is = new FileInputStream(xmlFile.getAbsoluteFile());
+
+            return parse(is);
+        }
+        finally
+        {
+            lock.unlock();
+        }
     }
 
     public T parse(URL url)
             throws IOException
     {
-        InputStream is = url.openStream();
+        InputStream is = null;
 
-        return parse(is);
+        try
+        {
+            lock.lock();
+
+            is = url.openStream();
+
+            return parse(is);
+        }
+        finally
+        {
+            lock.unlock();
+        }
     }
 
     public T parse(InputStream is)
@@ -55,6 +93,8 @@ public abstract class GenericParser<T>
         T object;
         try
         {
+            lock.lock();
+
             //noinspection unchecked
             object = (T) xstream.fromXML(is);
 
@@ -66,6 +106,8 @@ public abstract class GenericParser<T>
             {
                 is.close();
             }
+
+            lock.unlock();
         }
 
         return object;
@@ -110,8 +152,17 @@ public abstract class GenericParser<T>
     private void store(String xml, OutputStream outputStream)
             throws IOException
     {
-        outputStream.write(xml.getBytes());
-        outputStream.flush();
+        try
+        {
+            lock.lock();
+
+            outputStream.write(xml.getBytes());
+            outputStream.flush();
+        }
+        finally
+        {
+            lock.unlock();
+        }
     }
 
     protected void internalStore(Object object, String path)
@@ -123,21 +174,39 @@ public abstract class GenericParser<T>
     protected void internalStore(Object object, File file)
             throws IOException
     {
-        XStream xstream = getXStreamInstance();
+        try
+        {
+            lock.lock();
 
-        char[] indent = new char[] { ' ', ' ', ' ', ' ' };
+            XStream xstream = getXStreamInstance();
 
-        FileOutputStream fos = new FileOutputStream(file);
-        xstream.marshal(object, new PrettyPrintWriter(new OutputStreamWriter(fos), indent));
+            char[] indent = new char[] { ' ', ' ', ' ', ' ' };
+
+            FileOutputStream fos = new FileOutputStream(file);
+            xstream.marshal(object, new PrettyPrintWriter(new OutputStreamWriter(fos), indent));
+        }
+        finally
+        {
+            lock.unlock();
+        }
     }
 
     protected void internalStore(Object object, OutputStream outputStream)
             throws IOException
     {
-        char[] indent = new char[] { ' ', ' ', ' ', ' ' };
+        try
+        {
+            lock.lock();
 
-        XStream xstream = getXStreamInstance();
-        xstream.marshal(object, new PrettyPrintWriter(new OutputStreamWriter(outputStream), indent));
+            char[] indent = new char[] { ' ', ' ', ' ', ' ' };
+
+            XStream xstream = getXStreamInstance();
+            xstream.marshal(object, new PrettyPrintWriter(new OutputStreamWriter(outputStream), indent));
+        }
+        finally
+        {
+            lock.unlock();
+        }
     }
 
     public abstract XStream getXStreamInstance();
