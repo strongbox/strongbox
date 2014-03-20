@@ -50,7 +50,7 @@ public class StorageBooter
             throws IOException
     {
         repositoryManager.createRepositoryStructure(storagesBaseDir.getAbsolutePath(), repositoryName);
-        logger.debug("     -> Initialized '" + storagesBaseDir.getAbsolutePath() + File.separatorChar + repositoryName + "'.");
+        logger.debug("    -> Initialized '" + storagesBaseDir.getAbsolutePath() + File.separatorChar + repositoryName + "'.");
     }
 
     public RepositoryManager getRepositoryManager()
