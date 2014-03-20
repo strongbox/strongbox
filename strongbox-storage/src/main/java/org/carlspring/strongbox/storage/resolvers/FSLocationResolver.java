@@ -28,7 +28,8 @@ public class FSLocationResolver
     @Autowired
     private ConfigurationManager configurationManager;
 
-    private DataCenter dataCenter = new DataCenter();
+    @Autowired
+    private DataCenter dataCenter;
 
 
     public FSLocationResolver()
@@ -75,7 +76,7 @@ public class FSLocationResolver
     }
 
     @Override
-    public OutputStream getOutputStream(String repository,
+    public OutputStream getOutputStream(String repositoryName,
                                         String artifactPath)
             throws IOException
     {
@@ -83,19 +84,17 @@ public class FSLocationResolver
         {
             Storage storage = (Storage) entry.getValue();
 
-            if (storage.containsRepository(repository))
+            if (storage.containsRepository(repositoryName))
             {
                 final Map<String, Repository> repositories = storage.getRepositories();
 
-                Repository r = repositories.get(repository);
+                Repository r = repositories.get(repositoryName);
 
                 final File repoPath = new File(storage.getBasedir(), r.getName());
                 final File artifactFile = new File(repoPath, artifactPath).getCanonicalFile();
 
                 if (!artifactFile.getParentFile().exists())
                 {
-                    logger.debug("Creating base dir for artifact " + artifactFile.getCanonicalPath() + "...");
-
                     //noinspection ResultOfMethodCallIgnored
                     artifactFile.getParentFile().mkdirs();
                 }
@@ -138,6 +137,16 @@ public class FSLocationResolver
     public void setDataCenter(DataCenter dataCenter)
     {
         this.dataCenter = dataCenter;
+    }
+
+    public ConfigurationManager getConfigurationManager()
+    {
+        return configurationManager;
+    }
+
+    public void setConfigurationManager(ConfigurationManager configurationManager)
+    {
+        this.configurationManager = configurationManager;
     }
 
 }
