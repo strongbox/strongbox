@@ -65,6 +65,11 @@
             <artifactId>maven-commons</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+
         <!-- Use Log4J for logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
