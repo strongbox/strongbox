@@ -6,9 +6,12 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
- /**
+import org.springframework.stereotype.Component;
+
+/**
  * @author mtodorov
  */
+@Component
 public class DataCenter
 {
 
