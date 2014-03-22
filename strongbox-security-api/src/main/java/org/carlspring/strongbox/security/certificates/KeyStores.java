@@ -3,19 +3,25 @@ package org.carlspring.strongbox.security.certificates;
 import java.io.*;
 import java.net.*;
 import java.security.*;
+import java.security.cert.Certificate;
 import java.security.cert.*;
+import java.util.*;
 import javax.net.ssl.*;
 
 public class KeyStores {
-    public static KeyStore createNewStore(final String password, final File fileName) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException
+    public static KeyStore createNewStore(final File fileName, final char [] password, final Map<String, Certificate> certificates)
+            throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException
     {
         final KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        final char [] passwordChars = password.toCharArray();
-        keyStore.load(null, passwordChars);
+        keyStore.load(null, password);
+        for (final Map.Entry<String, Certificate> entry : certificates.entrySet())
+        {
+            keyStore.setCertificateEntry(entry.getKey(), entry.getValue());
+        }
         final OutputStream os = new FileOutputStream(fileName);
         try
         {
-            keyStore.store(os, passwordChars);
+            keyStore.store(os, password);
         }
         finally
         {
@@ -24,7 +30,8 @@ public class KeyStores {
         return keyStore;
     }
 
-    public static X509Certificate [] remoteCertificateChain(final KeyStore keyStore, final InetAddress address, final int port) throws NoSuchAlgorithmException, IOException, KeyStoreException, KeyManagementException
+    public static X509Certificate [] remoteCertificateChain(final InetAddress address, final int port)
+            throws NoSuchAlgorithmException, IOException, KeyStoreException, KeyManagementException
     {
         final ChainCaptureTrustManager tm = new ChainCaptureTrustManager();
         final SSLContext ctx = SSLContext.getInstance("TLS");
