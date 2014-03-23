@@ -26,7 +26,7 @@ public class KeyStoresTest
         //noinspection ResultOfMethodCallIgnored
         new File("target/test-resources").mkdirs();
 
-        f = File.createTempFile("target/test-resources/test", ".jks");
+        f = new File("target/test-resources/test.jks");
         ks = KeyStores.createNewStore(f, "12345".toCharArray(), Collections.<String, Certificate>emptyMap());
     }
 
@@ -56,14 +56,14 @@ public class KeyStoresTest
         for (int i = 0; aliases.hasMoreElements(); i++)
         {
             String alias = aliases.nextElement();
-            System.out.println(alias);
-            assertEquals(certs[i].getSerialNumber().toString(16), alias);
+            System.out.println(" " + certs[i].getSubjectDN().getName());
+            assertEquals(certs[i].getSerialNumber().toString(16), alias);;
         }
 
         assertEquals(ks.size(), 1);
 
-        ks.deleteEntry(certs[0].getSerialNumber().toString(16));
-        assertEquals(ks.size(), 0);
+        // ks.deleteEntry(certs[0].getSerialNumber().toString(16));
+        // assertEquals(ks.size(), 0);
     }
 
     @Test
