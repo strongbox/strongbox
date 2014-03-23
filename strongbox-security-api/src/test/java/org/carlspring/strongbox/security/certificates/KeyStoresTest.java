@@ -30,12 +30,6 @@ public class KeyStoresTest
         ks = KeyStores.createNewStore(f, "12345".toCharArray(), Collections.<String, Certificate>emptyMap());
     }
 
-    @After
-    public void cleanup()
-    {
-        f.delete();
-    }
-
     @Test
     public void testAddDeleteList()
             throws IOException,
@@ -57,13 +51,13 @@ public class KeyStoresTest
         {
             String alias = aliases.nextElement();
             System.out.println(" " + certs[i].getSubjectDN().getName());
-            assertEquals(certs[i].getSerialNumber().toString(16), alias);;
+            assertEquals(certs[i].getSerialNumber().toString(16), alias);
         }
 
         assertEquals(ks.size(), 1);
 
-        // ks.deleteEntry(certs[0].getSerialNumber().toString(16));
-        // assertEquals(ks.size(), 0);
+        ks.deleteEntry(certs[0].getSerialNumber().toString(16));
+        assertEquals(ks.size(), 0);
     }
 
     @Test
