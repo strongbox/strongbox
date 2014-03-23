@@ -12,6 +12,26 @@
 
     <name>Strongbox: Masterbuild</name>
 
+    <licenses>
+        <license>
+            <name>Apache 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
+
+    <organization>
+        <name>Carlspring Consulting &amp; Development Ltd.</name>
+        <url>http://www.carlspring.org/</url>
+    </organization>
+
+    <inceptionYear>2014</inceptionYear>
+
+    <properties>
+        <license.licenseName>apache_v2</license.licenseName>
+    </properties>
+
     <modules>
         <module>strongbox-parent</module>
         <module>strongbox-commons</module>

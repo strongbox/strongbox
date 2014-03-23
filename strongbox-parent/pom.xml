@@ -12,6 +12,22 @@
 
     <name>Strongbox: Parent</name>
 
+    <licenses>
+        <license>
+            <name>Apache 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
+
+    <organization>
+        <name>Carlspring Consulting &amp; Development Ltd.</name>
+        <url>http://www.carlspring.org/</url>
+    </organization>
+
+    <inceptionYear>2014</inceptionYear>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -22,6 +38,8 @@
         <!-- Tells Sonar to use JaCoCo as the code coverage tool -->
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <!-- Sonar settings. -->
+
+        <license.licenseName>apache_v2</license.licenseName>
 
         <version.jersey>1.18</version.jersey>
         <version.jetty>9.0.5.v20130815</version.jetty>
@@ -71,6 +89,38 @@
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>2.4</version>
                 </plugin>
+
+                <!--
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <version>1.6</version>
+
+                    <configuration>
+                        <verbose>false</verbose>
+                        <includes>
+                            <includes>**/*.java</includes>
+                        </includes>
+                    </configuration>
+
+                    <executions>
+                        <execution>
+                            <id>generate-license-headers</id>
+                            <goals>
+                                <goal>update-file-header</goal>
+                            </goals>
+                            <phase>process-sources</phase>
+                            <configuration>
+                                <licenseName>Apache 2.0</licenseName>
+                                <roots>
+                                    <root>src/main/java</root>
+                                    <root>src/test/java</root>
+                                </roots>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                -->
             </plugins>
         </pluginManagement>
     </build>
@@ -81,6 +131,12 @@
                 <groupId>org.carlspring.maven</groupId>
                 <artifactId>maven-commons</artifactId>
                 <version>1.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.4</version>
             </dependency>
 
             <dependency>

@@ -7,14 +7,17 @@ import org.carlspring.strongbox.annotations.ArtifactExistenceState;
 import org.carlspring.strongbox.annotations.ArtifactResource;
 import org.carlspring.strongbox.annotations.ArtifactResourceMapper;
 import org.carlspring.strongbox.io.RandomInputStream;
+import org.carlspring.strongbox.storage.DataCenter;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
+import java.util.Map;
 
 /**
  * @author mtodorov
@@ -27,6 +30,9 @@ public class InMemoryLocationResolver implements LocationResolver
 
     private String alias = "in-memory";
 
+    @Autowired
+    private DataCenter dataCenter;
+
 
     public InMemoryLocationResolver()
     {
@@ -37,25 +43,46 @@ public class InMemoryLocationResolver implements LocationResolver
                                       String artifactPath)
             throws IOException
     {
-        Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
-
-        final ArtifactResource resource = ArtifactResourceMapper.getResource(artifact.getGroupId(),
-                                                                             artifact.getArtifactId(),
-                                                                             artifact.getVersion());
-
-        if (resource == null)
+        for (Map.Entry entry : dataCenter.getStorages().entrySet())
         {
-            logger.debug("Artifact " + artifact.toString() + " not found.");
+            Storage storage = (Storage) entry.getValue();
 
-            return null;
-        }
-        else
-        {
-            // Create random data.
-            System.out.println("Generating stream with " + resource.length() + " bytes.");
+            if (storage.containsRepository(repository))
+            {
+                logger.debug("Checking in storage " + storage.getBasedir() + "...");
 
-            return new RandomInputStream(resource.length());
+                final Map<String, Repository> repositories = storage.getRepositories();
+
+                for (Map.Entry<String, Repository> e : repositories.entrySet())
+                {
+                    Repository r = e.getValue();
+
+                    logger.debug("Checking in repository " + r.getName() + "...");
+
+                    Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
+
+                    final ArtifactResource resource = ArtifactResourceMapper.getResource(artifact.getGroupId(),
+                                                                                         artifact.getArtifactId(),
+                                                                                         artifact.getVersion());
+
+                    if (resource == null)
+                    {
+                        logger.debug("Artifact " + artifact.toString() + " not found.");
+
+                        return null;
+                    }
+                    else
+                    {
+                        // Create random data.
+                        System.out.println("Generating stream with " + resource.length() + " bytes.");
+
+                        return new RandomInputStream(resource.length());
+                    }
+                }
+            }
         }
+
+        return null;
     }
 
     @Override
@@ -63,27 +90,33 @@ public class InMemoryLocationResolver implements LocationResolver
                                         String artifactPath)
             throws IOException
     {
-        if (!artifactPath.contains("/maven-metadata."))
+        for (Map.Entry entry : dataCenter.getStorages().entrySet())
         {
-            Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
-            ArtifactResourceMapper.addResource(ArtifactResourceMapper.getArtifactResourceInstance(repository,
-                                                                                                  artifact,
-                                                                                                  10000L, // Hard-coding to 10 KB as we can't guess
-                                                                                                          // the size at this point and we shouldn't be
-                                                                                                          // caring about this too much as it's in memory
-                                                                                                  ArtifactExistenceState.EXISTS));
+            Storage storage = (Storage) entry.getValue();
+
+            if (storage.containsRepository(repository))
+            {
+                if (!artifactPath.contains("/maven-metadata."))
+                {
+                    Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
+                    ArtifactResourceMapper.addResource(ArtifactResourceMapper.getArtifactResourceInstance(repository,
+                                                                                                          artifact,
+                                                                                                          10000L, // Hard-coding to 10 KB as we can't guess
+                                                                                                                  // the size at this point and we shouldn't be
+                                                                                                                  // caring about this too much as it's in memory
+                                                                                                          ArtifactExistenceState.EXISTS));
+                }
+
+                return new ByteArrayOutputStream();
+            }
         }
 
-        return new ByteArrayOutputStream();
+        return null;
     }
 
     @Override
     public void initialize()
     {
-        System.out.println("");
-        System.out.println("Initialized InMemoryLocationResolver.");
-        System.out.println("");
-
         logger.debug("Initialized InMemoryLocationResolver.");
     }
 
@@ -97,6 +130,16 @@ public class InMemoryLocationResolver implements LocationResolver
     public void setAlias(String alias)
     {
         this.alias = alias;
+    }
+
+    public DataCenter getDataCenter()
+    {
+        return dataCenter;
+    }
+
+    public void setDataCenter(DataCenter dataCenter)
+    {
+        this.dataCenter = dataCenter;
     }
 
 }

@@ -2,6 +2,7 @@ package org.carlspring.strongbox.rest;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.io.MultipleDigestInputStream;
+import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.security.encryption.EncryptionConstants;
 import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
 import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
@@ -17,6 +18,7 @@ import javax.ws.rs.core.Response;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -76,20 +78,42 @@ public class ArtifactRestlet
             baos = new ByteArrayOutputStream();
         }
 
-        int readLength;
-        byte[] bytes = new byte[4096];
-
-        while ((readLength = mdis.read(bytes, 0, bytes.length)) != -1)
+        OutputStream os = null;
+        try
         {
-            if (fileIsChecksum)
+            os = artifactResolutionService.getOutputStream(repository, path);
+
+            int readLength;
+            byte[] bytes = new byte[4096];
+
+            while ((readLength = mdis.read(bytes, 0, bytes.length)) != -1)
             {
-                // Buffer the checksum for later validation
-                baos.write(bytes, 0, readLength);
-                baos.flush();
+                /*
+                if (fileIsChecksum)
+                {
+                    // Buffer the checksum for later validation
+                    baos.write(bytes, 0, readLength);
+                    baos.flush();
+                }
+                else
+                {
+                */
+                    os.write(bytes, 0, readLength);
+                    os.flush();
+                    // Write the artifact
+                //}
             }
 
-            // r.storeArtifact();
-            // Write the artifact
+            System.out.println("# Wrote " + readLength + " bytes.");
+        }
+        catch (ArtifactResolutionException e)
+        {
+            e.printStackTrace();
+            throw new WebApplicationException(e, Response.Status.NOT_FOUND);
+        }
+        finally
+        {
+            ResourceCloser.close(os, logger);
         }
 
         final String artifactPath = storage + "/" + repository + "/" + path;

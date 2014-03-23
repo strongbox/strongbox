@@ -2,10 +2,9 @@ package org.carlspring.strongbox.configuration;
 
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionService;
-import org.carlspring.strongbox.storage.resolvers.LocationResolver;
 import org.carlspring.strongbox.xml.parsers.ConfigurationParser;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 
 import org.slf4j.Logger;
@@ -32,14 +31,12 @@ public class ConfigurationManager
     @Autowired
     private ConfigurationResourceResolver configurationResourceResolver;
 
-    @Autowired
-    private ArtifactResolutionService artifactResolutionService;
-
 
     public ConfigurationManager()
     {
     }
 
+    @PostConstruct
     public void init()
             throws IOException
     {
@@ -72,12 +69,6 @@ public class ConfigurationManager
                 System.out.println("    -> Repository: " + repositoryKey);
             }
         }
-
-        System.out.println("Loading resolvers...");
-        for (LocationResolver resolver : artifactResolutionService.getResolvers())
-        {
-            System.out.println(" -> " + resolver.getClass());
-        }
     }
 
     public void storeConfiguration(Configuration configuration, String file)
@@ -105,16 +96,6 @@ public class ConfigurationManager
     public void setConfigurationPath(String configurationPath)
     {
         this.configurationPath = configurationPath;
-    }
-
-    public ArtifactResolutionService getArtifactResolutionService()
-    {
-        return artifactResolutionService;
-    }
-
-    public void setArtifactResolutionService(ArtifactResolutionService artifactResolutionService)
-    {
-        this.artifactResolutionService = artifactResolutionService;
     }
 
 }

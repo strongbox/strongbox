@@ -6,9 +6,12 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
- /**
+import org.springframework.stereotype.Component;
+
+/**
  * @author mtodorov
  */
+@Component
 public class DataCenter
 {
 
@@ -69,6 +72,26 @@ public class DataCenter
         anonymousStorage.addRepository(repository);
 
         addStorage(null, anonymousStorage);
+    }
+
+    public Repository getRepository(String repositoryName)
+    {
+        for (Map.Entry entry : getStorages().entrySet())
+        {
+            Storage storage = (Storage) entry.getValue();
+
+            if (storage.containsRepository(repositoryName))
+            {
+                final Map<String, Repository> repositories = storage.getRepositories();
+
+                if (repositories.containsKey(repositoryName))
+                {
+                    return repositories.get(repositoryName);
+                }
+            }
+        }
+
+        return null;
     }
 
     public Storage getStorage(String storage)

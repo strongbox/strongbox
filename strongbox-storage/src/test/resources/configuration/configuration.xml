@@ -5,13 +5,16 @@
 
     <storages>
         <storage>
-            <basedir>storages/storage0</basedir>
+            <basedir>target/storages/storage0</basedir>
             <name>storage0</name>
 
             <repositories>
                 <!-- Secured repositories do not allow anonymous access -->
                 <repository name="snapshots" basedir="/snapshots" policy="snapshots" implementation="file-system" type="hosted" secured="true" />
                 <repository name="releases" basedir="/releases" policy="releases" implementation="file-system" type="hosted"/>
+
+                <repository name="snapshots-in-memory" basedir="/snapshots-in-memory" policy="snapshots" implementation="in-memory" type="hosted" secured="true" />
+                <repository name="releases-in-memory" basedir="/releases-in-memory" policy="releases" implementation="in-memory" type="hosted"/>
             </repositories>
         </storage>
     </storages>

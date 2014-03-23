@@ -1,12 +1,16 @@
 package org.carlspring.strongbox.storage.resolvers;
 
+import org.carlspring.strongbox.storage.DataCenter;
+import org.carlspring.strongbox.storage.repository.Repository;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.LinkedHashSet;
-import java.util.ServiceLoader;
-import java.util.Set;
+import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -16,58 +20,33 @@ import org.springframework.stereotype.Component;
 public class ArtifactResolutionService
 {
 
-    public static final String RESOLVER_INMEMORY = "org.carlspring.strongbox.storage.resolvers.InMemoryLocationResolver";
+    @Resource(name = "resolvers")
+    private Map<String, LocationResolver> resolvers;
 
-    private boolean inMemoryModeOnly = true; //false;
-
-    private boolean allowInMemory = false;
-
-    private Set<LocationResolver> resolvers = new LinkedHashSet<LocationResolver>();
+    @Autowired
+    private DataCenter dataCenter;
 
 
-    public void initialize()
-            throws ClassNotFoundException,
-                   InstantiationException,
-                   IllegalAccessException,
-                   IOException
+    @PostConstruct
+    public void listResolvers()
     {
-        initializeResolvers(); // Forward the resolver handling to a separate method,
-                               // as other stuff might need to initialized here later on as well.
-    }
+        System.out.println("Loading resolvers...");
 
-    private void initializeResolvers()
-    {
-        ServiceLoader<LocationResolver> resolversFromServiceLoader = ServiceLoader.load(LocationResolver.class);
-
-        for (LocationResolver resolver : resolversFromServiceLoader)
+        for (String key : getResolvers().keySet())
         {
-            resolvers.add(resolver);
+            LocationResolver resolver = getResolvers().get(key);
+            System.out.println(" -> " + resolver.getClass());
         }
     }
 
-    public Set<LocationResolver> getResolvers()
-    {
-        if (resolvers == null)
-        {
-            initializeResolvers();
-        }
-
-        return resolvers;
-    }
-
-    public InputStream getInputStream(String repository, String artifactPath)
+    public InputStream getInputStream(String repositoryName, String artifactPath)
             throws ArtifactResolutionException, IOException
     {
-        InputStream is = null;
+        final Repository repository = dataCenter.getRepository(repositoryName);
+        checkRepositoryExists(repositoryName, repository);
 
-        for (LocationResolver resolver : getResolvers())
-        {
-            is = resolver.getInputStream(repository, artifactPath);
-            if (is != null)
-            {
-                break;
-            }
-        }
+        LocationResolver resolver = getResolvers().get(repository.getImplementation());
+        InputStream is = resolver.getInputStream(repositoryName, artifactPath);
 
         if (is == null)
         {
@@ -77,19 +56,14 @@ public class ArtifactResolutionService
         return is;
     }
 
-    public OutputStream getOutputStream(String repository, String artifactPath)
+    public OutputStream getOutputStream(String repositoryName, String artifactPath)
             throws ArtifactResolutionException, IOException
     {
-        OutputStream os = null;
+        final Repository repository = dataCenter.getRepository(repositoryName);
+        checkRepositoryExists(repositoryName, repository);
 
-        for (LocationResolver resolver : getResolvers())
-        {
-            os = resolver.getOutputStream(repository, artifactPath);
-            if (os != null)
-            {
-                break;
-            }
-        }
+        LocationResolver resolver = getResolvers().get(repository.getImplementation());
+        OutputStream os = resolver.getOutputStream(repositoryName, artifactPath);
 
         if (os == null)
         {
@@ -99,24 +73,34 @@ public class ArtifactResolutionService
         return os;
     }
 
-    public boolean isInMemoryModeOnly()
+    private void checkRepositoryExists(String repositoryName,
+                                       Repository repository)
+            throws ArtifactResolutionException
     {
-        return inMemoryModeOnly;
+        if (repository == null)
+        {
+            throw new ArtifactResolutionException("Repository " + repositoryName + " does not exist.");
+        }
     }
 
-    public void setInMemoryModeOnly(boolean inMemoryModeOnly)
+    public Map<String, LocationResolver> getResolvers()
     {
-        this.inMemoryModeOnly = inMemoryModeOnly;
+        return resolvers;
     }
 
-    public boolean allowsInMemory()
+    public void setResolvers(Map<String, LocationResolver> resolvers)
     {
-        return allowInMemory;
+        this.resolvers = resolvers;
     }
 
-    public void setAllowInMemory(boolean allowInMemory)
+    public DataCenter getDataCenter()
     {
-        this.allowInMemory = allowInMemory;
+        return dataCenter;
+    }
+
+    public void setDataCenter(DataCenter dataCenter)
+    {
+        this.dataCenter = dataCenter;
     }
 
 }
