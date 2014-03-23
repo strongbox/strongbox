@@ -1,20 +1,26 @@
 package org.carlspring.strongbox.security.certificates;
 
-import java.io.*;
-import java.net.*;
-import java.security.*;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
-import java.security.cert.*;
-import java.util.*;
-import org.junit.*;
-import static org.junit.Assert.*;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class KeyStoresTest
 {
-
     private File f;
-    private KeyStore ks;
-
 
     @Before
     public void init()
@@ -25,57 +31,30 @@ public class KeyStoresTest
     {
         //noinspection ResultOfMethodCallIgnored
         new File("target/test-resources").mkdirs();
-
         f = new File("target/test-resources/test.jks");
-        ks = KeyStores.createNewStore(f, "12345".toCharArray(), Collections.<String, Certificate>emptyMap());
     }
 
     @Test
-    public void testAddDeleteList()
+    public void testAll()
             throws IOException,
                    CertificateException,
                    NoSuchAlgorithmException,
                    KeyStoreException,
                    KeyManagementException
     {
-        final X509Certificate [] certs = KeyStores.remoteCertificateChain(InetAddress.getByName("localhost"), 40636);
-        assertEquals("localhost should have three certificates in the chain", 1, certs.length);
+        KeyStores.createNew(f, "12345".toCharArray());
+        final KeyStore ks = KeyStores.addCertificates(f, "12345".toCharArray(), InetAddress.getLocalHost(), 40636);
+        assertEquals("localhost should have three certificates in the chain", 1, ks.size());
 
-        for (final X509Certificate cert : certs)
+        Map<String, Certificate> certs = KeyStores.listCertificates(f, "12345".toCharArray());
+        for (final Map.Entry<String, Certificate> cert : certs.entrySet())
         {
-            ks.setCertificateEntry(cert.getSerialNumber().toString(16), cert);
+            System.out.println(cert.getKey() + " : " + ((X509Certificate)cert.getValue()).getSubjectDN());
         }
 
-        final Enumeration<String> aliases = ks.aliases();
-        for (int i = 0; aliases.hasMoreElements(); i++)
-        {
-            String alias = aliases.nextElement();
-            System.out.println(" " + certs[i].getSubjectDN().getName());
-            assertEquals(certs[i].getSerialNumber().toString(16), alias);
-        }
-
-        assertEquals(ks.size(), 1);
-
-        ks.deleteEntry(certs[0].getSerialNumber().toString(16));
-        assertEquals(ks.size(), 0);
+        KeyStores.changePassword(f, "12345".toCharArray(), "666".toCharArray());
+        KeyStores.removeCertificates(f, "666".toCharArray(), InetAddress.getByName("google.com"), 443);
+        certs = KeyStores.listCertificates(f, "666".toCharArray());
+        assertTrue(certs.isEmpty());
     }
-
-    @Test
-    public void testChangePwd()
-            throws IOException,
-                   CertificateException,
-                   NoSuchAlgorithmException,
-                   KeyStoreException
-    {
-        final OutputStream os = new FileOutputStream(f);
-        try
-        {
-            ks.store(os, "xxx".toCharArray());
-        }
-        finally
-        {
-            os.close();
-        }
-    }
-
 }
