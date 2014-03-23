@@ -53,7 +53,7 @@ public class KeyStoresTest
         }
 
         KeyStores.changePassword(f, "12345".toCharArray(), "666".toCharArray());
-        KeyStores.removeCertificates(f, "666".toCharArray(), InetAddress.getByName("google.com"), 443);
+        KeyStores.removeCertificates(f, "666".toCharArray(), InetAddress.getLocalHost(), 40636);
         certs = KeyStores.listCertificates(f, "666".toCharArray());
         assertTrue(certs.isEmpty());
     }
