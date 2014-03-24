@@ -46,7 +46,7 @@
         <version.lucene>4.4.0</version.lucene>
         <version.maven>3.0.5</version.maven>
         <version.slf4j>1.6.4</version.slf4j>
-        <version.spring>4.0.1.RELEASE</version.spring>
+        <version.spring>4.0.3.RELEASE</version.spring>
     </properties>
 
     <build>
