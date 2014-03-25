@@ -22,6 +22,7 @@ public class KeyStoresTest
 {
     private File f;
 
+
     @Before
     public void init()
             throws IOException,
@@ -57,4 +58,5 @@ public class KeyStoresTest
         certs = KeyStores.listCertificates(f, "666".toCharArray());
         assertTrue(certs.isEmpty());
     }
+
 }
