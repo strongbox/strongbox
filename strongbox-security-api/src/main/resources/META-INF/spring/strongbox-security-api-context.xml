@@ -13,4 +13,13 @@
     <bean name="authenticationManager" class="org.carlspring.strongbox.security.jaas.managers.AuthenticationManager"
           init-method="load" lazy-init="true"/>
 
+    <bean id="cachedUserManager" class="org.carlspring.strongbox.security.jaas.caching.CachedUserManager" init-method="startMonitor">
+        <property name="credentialExpiredCheckInterval" value="60000"/> <!-- 1 min -->
+        <property name="credentialsLifetime" value="300000"/>           <!-- 5 mins -->
+    </bean>
+
+    <bean id="userAuthenticator" class="org.carlspring.strongbox.security.jaas.authentication.UserAuthenticator">
+        <property name="cachedUserManager" ref="cachedUserManager"/>
+    </bean>
+
 </beans>
