@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:annotation-config />
+    <context:component-scan base-package="org.carlspring.strongbox" />
+
+    <bean id="cachedUserManager" class="org.carlspring.strongbox.security.jaas.caching.CachedUserManager" init-method="startMonitor">
+        <property name="credentialExpiredCheckInterval" value="60000"/> <!-- 1 min -->
+        <property name="credentialsLifetime" value="300000"/>           <!-- 5 mins -->
+    </bean>
+
+    <bean id="userAuthenticator" class="org.carlspring.strongbox.security.jaas.authentication.UserAuthenticator">
+        <property name="cachedUserManager" ref="cachedUserManager"/>
+    </bean>
+
+</beans>
