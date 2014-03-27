@@ -119,7 +119,6 @@
         <dependency>
             <groupId>org.apache.maven.indexer</groupId>
             <artifactId>indexer-core</artifactId>
-            <version>5.1.1</version>
         </dependency>
 
         <dependency>
