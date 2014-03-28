@@ -24,9 +24,6 @@
         <property name="cachedChecksumLifetime" value="60000"/>
     </bean>
 
-    <!-- This storage booter should only be invoked during testing. -->
-    <bean id="storageBooter" class="org.carlspring.strongbox.storage.StorageBooter" />
-
     <!-- Artifact LocationResolvers -->
     <bean id="memoryLocationResolver" class="org.carlspring.strongbox.storage.resolvers.InMemoryLocationResolver" />
     <bean id="fsLocationResolver" class="org.carlspring.strongbox.storage.resolvers.FSLocationResolver">

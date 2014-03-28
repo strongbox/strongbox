@@ -78,13 +78,12 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-client</artifactId>
+            <artifactId>strongbox-annotations</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-annotations</artifactId>
+            <artifactId>strongbox-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -96,6 +95,12 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-security-api</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-client</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -112,6 +117,12 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-testing-web-resources</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-testing-core</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -319,6 +330,8 @@
                                     <value>file:${project.build.directory}/strongbox/etc/log4j.properties</value>
                                 </systemProperty>
                             </systemProperties>
+
+                            <useTestScope>true</useTestScope>
                         </configuration>
 
                         <executions>
@@ -343,12 +356,22 @@
                         <dependencies>
                             <dependency>
                                 <groupId>${project.groupId}</groupId>
+                                <artifactId>strongbox-commons</artifactId>
+                                <version>${project.version}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>${project.groupId}</groupId>
                                 <artifactId>strongbox-testing-resources</artifactId>
                                 <version>${project.version}</version>
                             </dependency>
                             <dependency>
                                 <groupId>${project.groupId}</groupId>
                                 <artifactId>strongbox-testing-storage-resources</artifactId>
+                                <version>${project.version}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>${project.groupId}</groupId>
+                                <artifactId>strongbox-testing-core</artifactId>
                                 <version>${project.version}</version>
                             </dependency>
 
