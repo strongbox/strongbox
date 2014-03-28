@@ -218,6 +218,12 @@
             </dependency>
 
             <dependency>
+                <groupId>org.apache.maven.indexer</groupId>
+                <artifactId>indexer-core</artifactId>
+                <version>5.1.1</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.apache.maven.plugin-testing</groupId>
                 <artifactId>maven-plugin-testing-harness</artifactId>
                 <version>1.3</version>
