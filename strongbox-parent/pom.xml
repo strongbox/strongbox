@@ -42,7 +42,7 @@
         <license.licenseName>apache_v2</license.licenseName>
 
         <version.jersey>1.18</version.jersey>
-        <version.jetty>9.0.5.v20130815</version.jetty>
+        <version.jetty>9.1.3.v20140225</version.jetty>
         <version.lucene>4.4.0</version.lucene>
         <version.maven>3.0.5</version.maven>
         <version.slf4j>1.6.4</version.slf4j>
