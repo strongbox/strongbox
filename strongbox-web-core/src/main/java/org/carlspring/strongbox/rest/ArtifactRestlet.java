@@ -65,11 +65,6 @@ public class ArtifactRestlet
         MultipleDigestInputStream mdis = new MultipleDigestInputStream(is, new String[]{ EncryptionConstants.ALGORITHM_MD5,
                                                                                          EncryptionConstants.ALGORITHM_SHA1 });
 
-        // TODO: Do something with the artifact
-        // Repository r = getDataCenter().getStorage(storage).getRepository(repository);
-        // TODO: If the repository's type is In-Memory, do nothing.
-        // TODO: For all other type of repositories, invoke the respective storage provider.
-
         // TODO: If this is not a checksum file, store the file.
         // TODO: If this is a checksum file, keep the hash in a String.
         ByteArrayOutputStream baos = null;
@@ -88,7 +83,6 @@ public class ArtifactRestlet
 
             while ((readLength = mdis.read(bytes, 0, bytes.length)) != -1)
             {
-                /*
                 if (fileIsChecksum)
                 {
                     // Buffer the checksum for later validation
@@ -97,11 +91,10 @@ public class ArtifactRestlet
                 }
                 else
                 {
-                */
                     os.write(bytes, 0, readLength);
                     os.flush();
                     // Write the artifact
-                //}
+                }
             }
 
             System.out.println("# Wrote " + readLength + " bytes.");
