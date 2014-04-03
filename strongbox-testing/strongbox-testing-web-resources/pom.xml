@@ -22,9 +22,14 @@
         <resources>
             <resource>
                 <directory>${basedir}/src/main</directory>
-                <filtering>true</filtering>
                 <includes>
                     <include>webapp/**</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+                <includes>
+                    <include>etc/**</include>
                 </includes>
             </resource>
         </resources>

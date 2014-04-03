@@ -32,6 +32,11 @@
 
     <inceptionYear>2014</inceptionYear>
 
+    <properties>
+        <dir.strongbox>${project.build.directory}/strongbox</dir.strongbox>
+        <dir.jetty.etc>${dir.strongbox}/etc/jetty</dir.jetty.etc>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -55,7 +60,57 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.15</version>
             </plugin>
-            
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.8</version>
+                <executions>
+                    <execution>
+                        <id>unpack-resources-log4j</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>strongbox-testing-resources</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${dir.strongbox}/etc</outputDirectory>
+                                    <includes>log4j.properties</includes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unpack-resources-etc</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>strongbox-testing-resources</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${dir.strongbox}</outputDirectory>
+                                    <includes>etc/**</includes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.carlspring.maven</groupId>
                 <artifactId>unboundid-maven-plugin</artifactId>
@@ -66,8 +121,8 @@
                     <portSSL>40636</portSSL>
                     <useSSL>true</useSSL>
                     <keyStorePassword>password</keyStorePassword>
-                    <keyStorePath>${basedir}/src/test/resources/etc/ssl/keystore.jks</keyStorePath>
-                    <trustStorePath>${basedir}/src/test/resources/etc/ssl/truststore.jks</trustStorePath>
+                    <keyStorePath>${dir.strongbox}/etc/ssl/keystore.jks</keyStorePath>
+                    <trustStorePath>${dir.strongbox}/etc/ssl/truststore.jks</trustStorePath>
                 </configuration>
 
                 <executions>
