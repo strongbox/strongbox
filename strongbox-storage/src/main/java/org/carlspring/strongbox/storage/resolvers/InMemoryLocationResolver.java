@@ -115,6 +115,29 @@ public class InMemoryLocationResolver implements LocationResolver
     }
 
     @Override
+    public void delete(String repository,
+                       String path)
+            throws IOException
+    {
+        for (Map.Entry entry : dataCenter.getStorages().entrySet())
+        {
+            Storage storage = (Storage) entry.getValue();
+
+            if (storage.containsRepository(repository))
+            {
+                if (!path.contains("/maven-metadata."))
+                {
+                    Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
+                    ArtifactResourceMapper.removeResources(artifact.getGroupId(), artifact.getArtifactId(),
+                                       artifact.getVersion());
+
+                    logger.debug("Removed /" + repository + path);
+                }
+            }
+        }
+    }
+
+    @Override
     public void initialize()
     {
         logger.debug("Initialized InMemoryLocationResolver.");

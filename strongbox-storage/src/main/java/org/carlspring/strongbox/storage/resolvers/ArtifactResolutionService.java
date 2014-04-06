@@ -73,6 +73,17 @@ public class ArtifactResolutionService
         return os;
     }
 
+    public void delete(String repositoryName, String artifactPath)
+            throws ArtifactResolutionException, IOException
+    {
+        final Repository repository = dataCenter.getRepository(repositoryName);
+        checkRepositoryExists(repositoryName, repository);
+
+        LocationResolver resolver = getResolvers().get(repository.getImplementation());
+
+        resolver.delete(repositoryName, artifactPath);
+    }
+
     private void checkRepositoryExists(String repositoryName,
                                        Repository repository)
             throws ArtifactResolutionException

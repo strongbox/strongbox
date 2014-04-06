@@ -76,7 +76,7 @@ public class FSLocationResolver
     }
 
     @Override
-    public OutputStream getOutputStream(String repositoryName,
+    public OutputStream getOutputStream(String repository,
                                         String artifactPath)
             throws IOException
     {
@@ -84,11 +84,11 @@ public class FSLocationResolver
         {
             Storage storage = (Storage) entry.getValue();
 
-            if (storage.containsRepository(repositoryName))
+            if (storage.containsRepository(repository))
             {
                 final Map<String, Repository> repositories = storage.getRepositories();
 
-                Repository r = repositories.get(repositoryName);
+                Repository r = repositories.get(repository);
 
                 final File repoPath = new File(storage.getBasedir(), r.getName());
                 final File artifactFile = new File(repoPath, artifactPath).getCanonicalFile();
@@ -104,6 +104,44 @@ public class FSLocationResolver
         }
 
         return null;
+    }
+
+    @Override
+    public void delete(String repository,
+                       String path)
+            throws IOException
+    {
+        for (Map.Entry entry : dataCenter.getStorages().entrySet())
+        {
+            Storage storage = (Storage) entry.getValue();
+
+            if (storage.containsRepository(repository))
+            {
+                logger.debug("Checking in storage " + storage.getBasedir() + "...");
+
+                final Map<String, Repository> repositories = storage.getRepositories();
+
+                for (Map.Entry<String, Repository> e : repositories.entrySet())
+                {
+                    Repository r = e.getValue();
+
+                    logger.debug("Checking in repository " + r.getName() + "...");
+
+                    final File repoPath = new File(storage.getBasedir(), r.getName());
+                    final File artifactFile = new File(repoPath, path).getCanonicalFile();
+
+                    logger.debug("Checking for " + artifactFile.getCanonicalPath() + "...");
+
+                    if (artifactFile.exists())
+                    {
+                        //noinspection ResultOfMethodCallIgnored
+                        artifactFile.delete();
+
+                        logger.debug("Removed /" + repository + path);
+                    }
+                }
+            }
+        }
     }
 
     @Override

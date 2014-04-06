@@ -62,8 +62,9 @@ public class ArtifactRestlet
         handleAuthentication(storage, repository, path, headers, protocol);
 
         boolean fileIsChecksum = path.endsWith(".md5") || path.endsWith(".sha1");
-        MultipleDigestInputStream mdis = new MultipleDigestInputStream(is, new String[]{ EncryptionConstants.ALGORITHM_MD5,
-                                                                                         EncryptionConstants.ALGORITHM_SHA1 });
+        MultipleDigestInputStream mdis = new MultipleDigestInputStream(is,
+                                                                       new String[]{ EncryptionConstants.ALGORITHM_MD5,
+                                                                                     EncryptionConstants.ALGORITHM_SHA1 });
 
         // TODO: If this is not a checksum file, store the file.
         // TODO: If this is a checksum file, keep the hash in a String.
@@ -130,7 +131,8 @@ public class ArtifactRestlet
         String artifactBasePath = artifactPath.substring(0, artifactPath.lastIndexOf('.'));
         String algorithm = null;
 
-        final String checksumExtension = artifactPath.substring(artifactPath.lastIndexOf('.') + 1, artifactPath.length());
+        final String checksumExtension = artifactPath.substring(artifactPath.lastIndexOf('.') + 1,
+                                                                artifactPath.length());
         if (checksumExtension.equalsIgnoreCase(EncryptionConstants.ALGORITHM_MD5))
         {
             algorithm = EncryptionConstants.ALGORITHM_MD5;
@@ -170,7 +172,8 @@ public class ArtifactRestlet
         }
         else
         {
-            logger.debug("The received " + algorithm + " does not match cached one! " + checksum + "/" + cachedChecksum);
+            logger.debug("The received " + algorithm + " does not match cached one! " + checksum + "/" +
+                         cachedChecksum);
             return false;
         }
     }
@@ -220,14 +223,29 @@ public class ArtifactRestlet
 
     @DELETE
     @Path("{storage}/{repository}/{path:.*}")
-    public void delete(@PathParam("storage") String storage,
-                       @PathParam("repository") String repository,
-                       @PathParam("path") String path)
+    public Response delete(@PathParam("storage") String storage,
+                           @PathParam("repository") String repository,
+                           @PathParam("path") String path)
             throws IOException
     {
-        // TODO: Implement
-
         logger.debug("DELETE: " + path);
+        logger.debug(" repository = " + repository + ", path = " + path);
+
+        if (!ArtifactUtils.isArtifact(path))
+        {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+
+        try
+        {
+            artifactResolutionService.delete(repository, path);
+        }
+        catch (ArtifactResolutionException e)
+        {
+            throw new WebApplicationException(e, Response.Status.NOT_FOUND);
+        }
+
+        return Response.ok().build();
     }
 
     public ChecksumCacheManager getChecksumCacheManager()

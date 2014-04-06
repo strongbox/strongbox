@@ -6,6 +6,15 @@
     <artifactId>test-project</artifactId>
     <version>@project.version@</version>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.carlspring.strongbox</groupId>
+            <artifactId>strongbox-client</artifactId>
+            <version>@project.version@</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
     <distributionManagement>
         <repository>
             <id>releases-with-valid-user</id>
