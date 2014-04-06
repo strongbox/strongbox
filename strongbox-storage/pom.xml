@@ -123,6 +123,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.maven.indexer</groupId>
+            <artifactId>indexer-core</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
