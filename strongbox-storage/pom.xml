@@ -150,7 +150,7 @@
                         <version>5.7.0</version>
                         <configuration>
                             <configUri>xbean:file:./target/test-classes/etc/activemq/activemq.xml</configUri>
-                            <fork>false</fork>
+                            <fork>true</fork>
                             <systemProperties>
                                 <property>
                                     <name>javax.net.ssl.keyStorePassword</name>
@@ -166,7 +166,7 @@
                                 </property>
                             </systemProperties>
                         </configuration>
-                        <!--
+
                         <executions>
                             <execution>
                                 <phase>test-compile</phase>
@@ -175,7 +175,7 @@
                                 </goals>
                             </execution>
                         </executions>
-                        -->
+
                         <dependencies>
                             <dependency>
                                 <groupId>${project.groupId}</groupId>
