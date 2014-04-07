@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                           http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
+
+    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="localhost" dataDirectory="target/strongboxdata">
+        <!-- The transport connectors ActiveMQ will listen to -->
+        <transportConnectors>
+            <transportConnector name="openwire" uri="tcp://localhost:61616"/>
+        </transportConnectors>
+
+        <systemUsage>
+            <systemUsage>
+                <tempUsage>
+                    <tempUsage limit="32mb"/>
+                </tempUsage>
+                <memoryUsage>
+                    <memoryUsage limit="256mb"/>
+                </memoryUsage>
+                <storeUsage>
+                    <storeUsage limit="512mb"/>
+                </storeUsage>
+            </systemUsage>
+        </systemUsage>
+    </broker>
+
+</beans>
