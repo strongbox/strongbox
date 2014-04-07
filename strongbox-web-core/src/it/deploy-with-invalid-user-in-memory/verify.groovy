@@ -1,12 +1,14 @@
-import java.io.*;
-import java.util.*;
+import org.apache.maven.artifact.Artifact
+import org.carlspring.maven.commons.util.ArtifactUtils
+import org.carlspring.strongbox.client.ArtifactClient
 
 try
 {
-    // System.out.println("Checking whether all the artifacts with duplicate versions are correctly resolved...");
-    // TODO: Perform a proper check by checking the length of the remote file
-    
-    return true;
+    Artifact artifact = ArtifactUtils.getArtifactFromGAV("org.carlspring.maven:test-project:1.0-SNAPSHOT");
+
+    ArtifactClient client = new ArtifactClient();
+
+    return !client.artifactExists(artifact, "storage0", "snapshots-in-memory");
 }
 catch( Throwable t )
 {
