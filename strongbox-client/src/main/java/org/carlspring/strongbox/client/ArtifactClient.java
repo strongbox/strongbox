@@ -109,6 +109,18 @@ public class ArtifactClient
         webResource.delete();
     }
 
+    public void delete(String storage,
+                       String repository,
+                       String path)
+    {
+        Client client = Client.create();
+
+        String url = host + ":" + port + "/storages/" + storage + "/" + repository + "/" + path;
+
+        WebResource webResource = client.resource(url);
+        webResource.delete();
+    }
+
     public boolean artifactExists(Artifact artifact,
                                   String storage,
                                   String repository)
@@ -116,6 +128,20 @@ public class ArtifactClient
         Client client = Client.create();
 
         String url = getUrlForArtifact(artifact, storage, repository);
+
+        logger.debug("Path to artifact: " + url);
+
+        WebResource webResource = client.resource(url);
+        ClientResponse response = webResource.accept("application/xml").get(ClientResponse.class);
+
+        return response.getStatus() == 200;
+    }
+
+    public boolean pathExists(String path)
+    {
+        Client client = Client.create();
+
+        String url = host + ":" + port + (path.startsWith("/") ? path : '/' + path);
 
         logger.debug("Path to artifact: " + url);
 

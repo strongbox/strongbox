@@ -231,11 +231,6 @@ public class ArtifactRestlet
         logger.debug("DELETE: " + path);
         logger.debug(" repository = " + repository + ", path = " + path);
 
-        if (!ArtifactUtils.isArtifact(path))
-        {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
-
         try
         {
             artifactResolutionService.delete(repository, path);

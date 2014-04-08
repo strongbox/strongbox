@@ -8,6 +8,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import java.io.*;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,24 +122,28 @@ public class FSLocationResolver
 
                 final Map<String, Repository> repositories = storage.getRepositories();
 
-                for (Map.Entry<String, Repository> e : repositories.entrySet())
+                Repository r = repositories.get(repository);
+
+                logger.debug("Checking in repository " + r.getName() + "...");
+
+                final File repoPath = new File(storage.getBasedir(), r.getName());
+                final File artifactFile = new File(repoPath, path).getCanonicalFile();
+
+                logger.debug("Checking for " + artifactFile.getCanonicalPath() + "...");
+
+                if (artifactFile.exists())
                 {
-                    Repository r = e.getValue();
-
-                    logger.debug("Checking in repository " + r.getName() + "...");
-
-                    final File repoPath = new File(storage.getBasedir(), r.getName());
-                    final File artifactFile = new File(repoPath, path).getCanonicalFile();
-
-                    logger.debug("Checking for " + artifactFile.getCanonicalPath() + "...");
-
-                    if (artifactFile.exists())
+                    if (!artifactFile.isDirectory())
                     {
                         //noinspection ResultOfMethodCallIgnored
                         artifactFile.delete();
-
-                        logger.debug("Removed /" + repository + path);
                     }
+                    else
+                    {
+                        FileUtils.deleteDirectory(artifactFile);
+                    }
+
+                    logger.debug("Removed /" + repository + path);
                 }
             }
         }

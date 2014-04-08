@@ -128,8 +128,9 @@ public class InMemoryLocationResolver implements LocationResolver
                 if (!path.contains("/maven-metadata."))
                 {
                     Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
-                    ArtifactResourceMapper.removeResources(artifact.getGroupId(), artifact.getArtifactId(),
-                                       artifact.getVersion());
+                    ArtifactResourceMapper.removeResources(artifact.getGroupId(),
+                                                           artifact.getArtifactId(),
+                                                           artifact.getVersion());
 
                     logger.debug("Removed /" + repository + path);
                 }
