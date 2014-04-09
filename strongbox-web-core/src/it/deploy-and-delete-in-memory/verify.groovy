@@ -4,11 +4,12 @@ import org.carlspring.strongbox.client.ArtifactClient
 
 try
 {
-    Artifact artifact = ArtifactUtils.getArtifactFromGAV("org.carlspring.maven:test-project:1.0-SNAPSHOT");
+    Artifact artifact = ArtifactUtils.getArtifactFromGAV("org.carlspring.maven:test-project:1.0");
 
     ArtifactClient client = new ArtifactClient();
+    client.deleteArtifact(artifact, "storage0", "releases-in-memory");
 
-    return !client.artifactExists(artifact, "storage0", "snapshots-in-memory");
+    return !client.artifactExists(artifact, "storage0", "releases-in-memory");
 }
 catch( Throwable t )
 {

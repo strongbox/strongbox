@@ -6,6 +6,20 @@
     <artifactId>test-project</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.carlspring.strongbox</groupId>
+            <artifactId>strongbox-client</artifactId>
+            <version>@project.version@</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.carlspring.maven</groupId>
+            <artifactId>maven-commons</artifactId>
+            <version>@version.maven.commons@</version>
+        </dependency>
+    </dependencies>
+
     <distributionManagement>
         <snapshotRepository>
             <id>snapshots-with-invalid-user</id>

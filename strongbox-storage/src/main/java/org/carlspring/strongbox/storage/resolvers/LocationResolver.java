@@ -16,6 +16,9 @@ public interface LocationResolver
     OutputStream getOutputStream(String repository, String path)
             throws IOException;
 
+    void delete(String repository, String path)
+            throws IOException;
+
     void initialize()
             throws IOException;
 

@@ -1,16 +1,17 @@
 package org.carlspring.strongbox.client;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
-import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.InputStream;
+
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
+import org.apache.maven.artifact.Artifact;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author mtodorov
@@ -81,7 +82,7 @@ public class ArtifactClient
             total += len;
         }
 
-        logger.debug("Response code: " + response.getStatus() +". Read: " + total + " bytes.");
+        logger.debug("Response code: " + response.getStatus() + ". Read: " + total + " bytes.");
 
         int status = response.getStatus();
 
@@ -97,29 +98,66 @@ public class ArtifactClient
     }
 
     public void deleteArtifact(Artifact artifact,
+                               String storage,
                                String repository)
     {
         Client client = Client.create();
 
-        String url = host + ":" + port + "/" + MANAGEMENT_URL + "/" +
-                     repository + "/" +
-                     ArtifactUtils.convertArtifactToPath(artifact);
+        String url = getUrlForArtifact(artifact, storage, repository);
 
         WebResource webResource = client.resource(url);
-        webResource.type(MediaType.TEXT_PLAIN).delete();
+        webResource.delete();
     }
 
-    public boolean artifactExists(String repoUrl, Artifact artifact)
+    public void delete(String storage,
+                       String repository,
+                       String path)
     {
         Client client = Client.create();
-        final String pathToArtifact = repoUrl + ArtifactUtils.convertArtifactToPath(artifact);
 
-        logger.debug("Path to artifact: " + pathToArtifact);
+        String url = host + ":" + port + "/storages/" + storage + "/" + repository + "/" + path;
 
-        WebResource webResource = client.resource(pathToArtifact);
+        WebResource webResource = client.resource(url);
+        webResource.delete();
+    }
+
+    public boolean artifactExists(Artifact artifact,
+                                  String storage,
+                                  String repository)
+    {
+        Client client = Client.create();
+
+        String url = getUrlForArtifact(artifact, storage, repository);
+
+        logger.debug("Path to artifact: " + url);
+
+        WebResource webResource = client.resource(url);
         ClientResponse response = webResource.accept("application/xml").get(ClientResponse.class);
 
         return response.getStatus() == 200;
+    }
+
+    public boolean pathExists(String path)
+    {
+        Client client = Client.create();
+
+        String url = host + ":" + port + (path.startsWith("/") ? path : '/' + path);
+
+        logger.debug("Path to artifact: " + url);
+
+        WebResource webResource = client.resource(url);
+        ClientResponse response = webResource.accept("application/xml").get(ClientResponse.class);
+
+        return response.getStatus() == 200;
+    }
+
+    public String getUrlForArtifact(Artifact artifact,
+                                    String storage,
+                                    String repository)
+    {
+        return host + ":" + port + "/storages/" + storage + "/" +
+               repository + "/" +
+               ArtifactUtils.convertArtifactToPath(artifact);
     }
 
     public String getHost()

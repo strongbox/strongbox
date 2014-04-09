@@ -8,6 +8,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import java.io.*;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,7 +77,7 @@ public class FSLocationResolver
     }
 
     @Override
-    public OutputStream getOutputStream(String repositoryName,
+    public OutputStream getOutputStream(String repository,
                                         String artifactPath)
             throws IOException
     {
@@ -84,11 +85,11 @@ public class FSLocationResolver
         {
             Storage storage = (Storage) entry.getValue();
 
-            if (storage.containsRepository(repositoryName))
+            if (storage.containsRepository(repository))
             {
                 final Map<String, Repository> repositories = storage.getRepositories();
 
-                Repository r = repositories.get(repositoryName);
+                Repository r = repositories.get(repository);
 
                 final File repoPath = new File(storage.getBasedir(), r.getName());
                 final File artifactFile = new File(repoPath, artifactPath).getCanonicalFile();
@@ -104,6 +105,48 @@ public class FSLocationResolver
         }
 
         return null;
+    }
+
+    @Override
+    public void delete(String repository,
+                       String path)
+            throws IOException
+    {
+        for (Map.Entry entry : dataCenter.getStorages().entrySet())
+        {
+            Storage storage = (Storage) entry.getValue();
+
+            if (storage.containsRepository(repository))
+            {
+                logger.debug("Checking in storage " + storage.getBasedir() + "...");
+
+                final Map<String, Repository> repositories = storage.getRepositories();
+
+                Repository r = repositories.get(repository);
+
+                logger.debug("Checking in repository " + r.getName() + "...");
+
+                final File repoPath = new File(storage.getBasedir(), r.getName());
+                final File artifactFile = new File(repoPath, path).getCanonicalFile();
+
+                logger.debug("Checking for " + artifactFile.getCanonicalPath() + "...");
+
+                if (artifactFile.exists())
+                {
+                    if (!artifactFile.isDirectory())
+                    {
+                        //noinspection ResultOfMethodCallIgnored
+                        artifactFile.delete();
+                    }
+                    else
+                    {
+                        FileUtils.deleteDirectory(artifactFile);
+                    }
+
+                    logger.debug("Removed /" + repository + path);
+                }
+            }
+        }
     }
 
     @Override
