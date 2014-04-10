@@ -42,6 +42,12 @@ public class ArtifactGenerator
         this.artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
     }
 
+    public ArtifactGenerator(String basedir, Artifact artifact)
+    {
+        this.basedir = basedir;
+        this.artifact = artifact;
+    }
+
     public void generate()
             throws IOException,
                    XmlPullParserException,
