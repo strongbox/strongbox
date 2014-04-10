@@ -337,6 +337,12 @@
                                 <artifactId>maven-commons</artifactId>
                                 <version>${version.maven.commons}</version>
                             </dependency>
+
+                            <dependency>
+                                <groupId>org.sonatype.aether</groupId>
+                                <artifactId>aether-api</artifactId>
+                                <version>${version.aether}</version>
+                            </dependency>
                         </dependencies>
                     </plugin>
 
