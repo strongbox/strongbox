@@ -13,18 +13,18 @@ public class RandomInputStream
 
     private long count;
 
-    private int length;
+    private long length;
 
     private Random random = new Random();
 
 
-    public RandomInputStream(int length)
+    public RandomInputStream(long length)
     {
         super();
         this.length = length;
     }
 
-    public RandomInputStream(boolean randomSize, int sizeLimit)
+    public RandomInputStream(boolean randomSize, long sizeLimit)
     {
         super();
         if (randomSize)
@@ -47,12 +47,12 @@ public class RandomInputStream
         return random.nextInt();
     }
 
-    public int getRandomSize(int max)
+    public long getRandomSize(long max)
     {
         // nextInt is normally exclusive of the top value,
         // so add 1 to make it inclusive
 
-        return random.nextInt(max + 1);
+        return (long)(random.nextDouble() * max);
     }
 
     public long getCount()
@@ -65,12 +65,12 @@ public class RandomInputStream
         this.count = count;
     }
 
-    public int getLength()
+    public long getLength()
     {
         return length;
     }
 
-    public void setLength(int length)
+    public void setLength(long length)
     {
         this.length = length;
     }
