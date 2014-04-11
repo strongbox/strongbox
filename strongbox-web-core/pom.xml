@@ -312,6 +312,7 @@
                             <postBuildHookScript>verify</postBuildHookScript>
                             <settingsFile>src/it/settings.xml</settingsFile>
                             <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
+                            <skipInvocation>true</skipInvocation>
                         </configuration>
 
                         <executions>
