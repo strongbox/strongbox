@@ -6,6 +6,9 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.PasswordAuthentication;
+import java.net.Proxy;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -15,8 +18,8 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Map;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class KeyStoresTest
 {
@@ -43,8 +46,12 @@ public class KeyStoresTest
                    KeyManagementException
     {
         KeyStores.createNew(f, "12345".toCharArray());
-        final KeyStore ks = KeyStores.addCertificates(f, "12345".toCharArray(), InetAddress.getLocalHost(), 40636);
-        assertEquals("localhost should have three certificates in the chain", 1, ks.size());
+        //final KeyStore ks = KeyStores.addCertificates(f, "12345".toCharArray(), null, null, "localhost", 40636);
+        final KeyStore ks = KeyStores.addCertificates(f, "12345".toCharArray(),
+                new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("localhost", 9999)),
+                new PasswordAuthentication("xx", "yyy!".toCharArray()),
+                "localhost", 40636);
+        assertEquals("localhost should have one certificate in the chain", 1, ks.size());
 
         Map<String, Certificate> certs = KeyStores.listCertificates(f, "12345".toCharArray());
         for (final Map.Entry<String, Certificate> cert : certs.entrySet())
