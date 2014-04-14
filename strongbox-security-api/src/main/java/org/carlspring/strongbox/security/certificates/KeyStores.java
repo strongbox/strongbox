@@ -120,12 +120,54 @@ public class KeyStores
         return store(fileName, password, keyStore);
     }
 
-    public static KeyStore addCertificates(final File fileName,
-                                           final char[] password,
-                                           final Proxy socksProxy,
-                                           final PasswordAuthentication credentials,
-                                           final String host,
-                                           final int port)
+    public static KeyStore addHttpsCertificates(final File fileName,
+                                                final char[] password,
+                                                final Proxy httpProxy,
+                                                final PasswordAuthentication credentials,
+                                                final String host,
+                                                final int port)
+            throws CertificateException,
+                   NoSuchAlgorithmException,
+                   KeyStoreException,
+                   IOException,
+                   KeyManagementException
+    {
+        final KeyStore keyStore = load(fileName, password);
+        final String prefix = host + ":" + Integer.toString(port);
+        final ChainCaptureTrustManager tm = new ChainCaptureTrustManager();
+        final SSLContext ctx = SSLContext.getInstance("TLS");
+        ctx.init(null, new TrustManager[]{ tm }, null);
+
+        final URL url = new URL("https", host, port, "/");
+        final HttpsURLConnection conn = (HttpsURLConnection)
+                (httpProxy != null ? url.openConnection(httpProxy) : url.openConnection());
+        conn.setSSLSocketFactory(ctx.getSocketFactory());
+        if (credentials != null) ProxyAuthenticator.credentials.set(credentials);
+
+        try
+        {
+            conn.connect();
+            for (final X509Certificate cert : tm.chain)
+            {
+                keyStore.setCertificateEntry(prefix + "_" + cert.getSubjectDN().getName(), cert);
+            }
+            return store(fileName, password, keyStore);
+        }
+        finally
+        {
+            ProxyAuthenticator.credentials.remove();
+            conn.disconnect();
+        }
+
+    }
+
+
+    public static KeyStore addSslCertificates(final File fileName,
+                                              final char[] password,
+                                              final Proxy socksProxy,
+                                              final PasswordAuthentication credentials,
+                                              final String host,
+                                              final int port)
             throws KeyStoreException,
                    IOException,
                    CertificateException,
@@ -158,15 +200,10 @@ public class KeyStores
         final SSLContext ctx = SSLContext.getInstance("TLS");
         ctx.init(null, new TrustManager[]{ tm }, null);
 
-        if (credentials != null)
-        {
-            ProxyAuthenticator.credentials.set(credentials);
-        }
+        if (credentials != null) ProxyAuthenticator.credentials.set(credentials);
         final Socket proxySocket = socksProxy != null ? new Socket(socksProxy) : null;
-        if (proxySocket != null)
-        {
-            proxySocket.connect(new InetSocketAddress(host, port));
-        }
+        if (proxySocket != null) proxySocket.connect(new InetSocketAddress(host, port));
+
         try
         {
             handshake(ctx, proxySocket, host, port);
@@ -175,10 +212,7 @@ public class KeyStores
         finally
         {
             ProxyAuthenticator.credentials.remove();
-            if (proxySocket != null && !proxySocket.isClosed())
-            {
-                proxySocket.close();
-            }
+            if (proxySocket != null && !proxySocket.isClosed()) proxySocket.close();
         }
     }
 
