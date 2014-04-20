@@ -16,6 +16,8 @@ import java.util.Map;
 
 public class KeyStores
 {
+
+
     private static KeyStore load(final File fileName,
                                  final char[] password)
             throws KeyStoreException,
@@ -24,7 +26,8 @@ public class KeyStores
                    NoSuchAlgorithmException
     {
         final KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        if (fileName == null) {
+        if (fileName == null)
+        {
             keyStore.load(null, password);
             return keyStore;
         }
@@ -47,7 +50,8 @@ public class KeyStores
             throws IOException,
                    CertificateException,
                    NoSuchAlgorithmException,
-                   KeyStoreException {
+                   KeyStoreException
+    {
         final OutputStream os = new FileOutputStream(fileName);
         try
         {
@@ -61,7 +65,7 @@ public class KeyStores
     }
 
     public static KeyStore createNew(final File fileName,
-                                          final char[] password)
+                                     final char[] password)
             throws KeyStoreException,
                    CertificateException,
                    NoSuchAlgorithmException,
@@ -76,11 +80,13 @@ public class KeyStores
             throws KeyStoreException,
                    IOException,
                    CertificateException,
-                   NoSuchAlgorithmException {
+                   NoSuchAlgorithmException
+    {
         return store(fileName, newPassword, load(fileName, oldPassword));
     }
 
-    public static Map<String, Certificate> listCertificates(final File fileName, final char[] password)
+    public static Map<String, Certificate> listCertificates(final File fileName,
+                                                            final char[] password)
             throws KeyStoreException,
                    IOException,
                    CertificateException,
@@ -95,6 +101,7 @@ public class KeyStores
             final String alias = aliases.nextElement();
             certificates.put(alias, keyStore.getCertificate(alias));
         }
+
         return certificates;
     }
 
@@ -115,8 +122,11 @@ public class KeyStores
         {
             final String alias = aliases.nextElement();
             if (alias.startsWith(prefix))
+            {
                 keyStore.deleteEntry(alias);
+            }
         }
+
         return store(fileName, password, keyStore);
     }
 
@@ -132,7 +142,7 @@ public class KeyStores
     {
         final KeyStore keyStore = load(fileName, password);
         final String prefix = host.getCanonicalHostName() + ":" + Integer.toString(port);
-        final X509Certificate [] chain = remoteCertificateChain(host, port);
+        final X509Certificate[] chain = remoteCertificateChain(host, port);
 
         for (final X509Certificate cert : chain)
         {
@@ -194,4 +204,5 @@ public class KeyStores
             this.chain = chain;
         }
     }
+
 }

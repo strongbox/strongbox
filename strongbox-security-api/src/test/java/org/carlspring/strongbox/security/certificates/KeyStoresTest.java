@@ -1,8 +1,5 @@
 package org.carlspring.strongbox.security.certificates;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -15,11 +12,14 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Map;
 
+import org.junit.Before;
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class KeyStoresTest
 {
+
     private File f;
 
 
@@ -50,7 +50,7 @@ public class KeyStoresTest
         Map<String, Certificate> certs = KeyStores.listCertificates(f, "12345".toCharArray());
         for (final Map.Entry<String, Certificate> cert : certs.entrySet())
         {
-            System.out.println(cert.getKey() + " : " + ((X509Certificate)cert.getValue()).getSubjectDN());
+            System.out.println(cert.getKey() + " : " + ((X509Certificate) cert.getValue()).getSubjectDN());
         }
 
         KeyStores.changePassword(f, "12345".toCharArray(), "666".toCharArray());
