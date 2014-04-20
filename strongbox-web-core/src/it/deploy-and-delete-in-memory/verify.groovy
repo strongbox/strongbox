@@ -4,16 +4,17 @@ import org.carlspring.strongbox.client.ArtifactClient
 
 try
 {
-    Artifact artifact = ArtifactUtils.getArtifactFromGAV("org.carlspring.maven:test-project:1.0");
+    def artifact = ArtifactUtils.getArtifactFromGAV("org.carlspring.maven:test-project:1.0");
 
-    ArtifactClient client = new ArtifactClient();
+    def client = new ArtifactClient();
+    client.setUsername("maven");
+    client.setPassword("password");
     client.deleteArtifact(artifact, "storage0", "releases-in-memory");
 
     return !client.artifactExists(artifact, "storage0", "releases-in-memory");
 }
 catch( Throwable t )
 {
-    System.out.println(" *[ Check failed ]* ");
     t.printStackTrace();
     return false;
 }

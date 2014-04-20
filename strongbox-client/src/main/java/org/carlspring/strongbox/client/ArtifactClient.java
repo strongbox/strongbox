@@ -6,9 +6,8 @@ import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.*;
+import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import org.apache.maven.artifact.Artifact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +28,10 @@ public class ArtifactClient
 
     private int port = 48080;
 
+    private String username;
+
+    private String password;
+
 
     public void addArtifact(Artifact artifact,
                             String repository,
@@ -36,6 +39,8 @@ public class ArtifactClient
             throws ArtifactOperationException
     {
         Client client = Client.create();
+
+        setupAuthentication(client);
 
         String url = host + ":" + port + "/" + MANAGEMENT_URL + "/" +
                      repository + "/state/EXISTS/length/" + length + "/" +
@@ -60,6 +65,8 @@ public class ArtifactClient
                    IOException
     {
         Client client = Client.create();
+
+        setupAuthentication(client);
 
         String url = host + ":" + port + "/" + contextBaseUrl + "/" +
                      repository + "/" +
@@ -103,6 +110,8 @@ public class ArtifactClient
     {
         Client client = Client.create();
 
+        setupAuthentication(client);
+
         String url = getUrlForArtifact(artifact, storage, repository);
 
         WebResource webResource = client.resource(url);
@@ -115,6 +124,8 @@ public class ArtifactClient
     {
         Client client = Client.create();
 
+        setupAuthentication(client);
+
         String url = host + ":" + port + "/storages/" + storage + "/" + repository + "/" + path;
 
         WebResource webResource = client.resource(url);
@@ -124,22 +135,62 @@ public class ArtifactClient
     public boolean artifactExists(Artifact artifact,
                                   String storage,
                                   String repository)
+            throws ResponseException
+    {
+        ClientResponse response = artifactExistsStatusCode(artifact, storage, repository);
+
+        if (response.getStatus() == 200)
+        {
+            return true;
+        }
+        else if (response.getStatus() == 404)
+        {
+            return false;
+        }
+        else
+        {
+            throw new ResponseException(response.getStatusInfo().getReasonPhrase(), response.getStatus());
+        }
+    }
+
+    public ClientResponse artifactExistsStatusCode(Artifact artifact,
+                                                   String storage,
+                                                   String repository)
+            throws ResponseException
     {
         Client client = Client.create();
+
+        setupAuthentication(client);
 
         String url = getUrlForArtifact(artifact, storage, repository);
 
         logger.debug("Path to artifact: " + url);
 
         WebResource webResource = client.resource(url);
-        ClientResponse response = webResource.accept("application/xml").get(ClientResponse.class);
+        ClientResponse response = null;
+        try
+        {
+            response = webResource.accept("application/xml").get(ClientResponse.class);
+        }
+        catch (UniformInterfaceException e)
+        {
+            //noinspection ConstantConditions
+            throw new ResponseException(e.getMessage(), response != null ? response.getStatus() : 0);
+        }
+        catch (ClientHandlerException e)
+        {
+            //noinspection ConstantConditions
+            throw new ResponseException(e.getMessage(), response != null ? response.getStatus() : 0);
+        }
 
-        return response.getStatus() == 200;
+        return response;
     }
 
     public boolean pathExists(String path)
     {
         Client client = Client.create();
+
+        setupAuthentication(client);
 
         String url = host + ":" + port + (path.startsWith("/") ? path : '/' + path);
 
@@ -158,6 +209,14 @@ public class ArtifactClient
         return host + ":" + port + "/storages/" + storage + "/" +
                repository + "/" +
                ArtifactUtils.convertArtifactToPath(artifact);
+    }
+
+    private void setupAuthentication(Client client)
+    {
+        if (username != null && password != null)
+        {
+            client.addFilter(new HTTPBasicAuthFilter(username, password));
+        }
     }
 
     public String getHost()
@@ -188,6 +247,26 @@ public class ArtifactClient
     public void setContextBaseUrl(String contextBaseUrl)
     {
         this.contextBaseUrl = contextBaseUrl;
+    }
+
+    public String getUsername()
+    {
+        return username;
+    }
+
+    public void setUsername(String username)
+    {
+        this.username = username;
+    }
+
+    public String getPassword()
+    {
+        return password;
+    }
+
+    public void setPassword(String password)
+    {
+        this.password = password;
     }
 
 }

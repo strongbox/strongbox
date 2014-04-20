@@ -195,13 +195,19 @@ public class ArtifactRestlet
     @Path("{storage}/{repository}/{path:.*}")
     public Response download(@PathParam("storage") String storage,
                              @PathParam("repository") String repository,
-                             @PathParam("path") String path)
+                             @PathParam("path") String path,
+                             @Context HttpServletRequest request,
+                             @Context HttpHeaders headers)
             throws IOException,
                    InstantiationException,
                    IllegalAccessException,
-                   ClassNotFoundException
+                   ClassNotFoundException,
+                   AuthenticationException
     {
         logger.debug(" repository = " + repository + ", path = " + path);
+
+        String protocol = request.getRequestURL().toString().split(":")[0];
+        handleAuthentication(storage, repository, path, headers, protocol);
 
         if (!ArtifactUtils.isArtifact(path))
         {

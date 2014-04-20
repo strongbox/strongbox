@@ -1,24 +1,15 @@
-import org.apache.maven.artifact.Artifact
 import org.carlspring.maven.commons.util.ArtifactUtils
 import org.carlspring.strongbox.client.ArtifactClient
 
-try
-{
-    Artifact artifact = ArtifactUtils.getArtifactFromGAV("org.carlspring.maven:test-project:1.0");
 
-    ArtifactClient client = new ArtifactClient();
-    client.deleteArtifact(artifact, "storage0", "releases");
+def artifact = ArtifactUtils.getArtifactFromGAV("org.carlspring.maven:test-project:1.0");
 
-    File artifactFile = new File("target/storages/storage0/releases/" +
-                                 "org/carlspring/maven/test-project/1.0/test-project-1.0.jar").getAbsoluteFile();
+def client = new ArtifactClient();
+client.setUsername("maven");
+client.setPassword("password");
+client.deleteArtifact(artifact, "storage0", "releases");
 
-    return !client.artifactExists(artifact, "storage0", "releases") && !artifactFile.exists();
-}
-catch( Throwable t )
-{
-    System.out.println(" *[ Check failed ]* ");
-    t.printStackTrace();
-    return false;
-}
+def artifactFile = new File("target/storages/storage0/releases/" +
+                            "org/carlspring/maven/test-project/1.0/test-project-1.0.jar").getAbsoluteFile();
 
-return true;
+return !client.artifactExists(artifact, "storage0", "releases") && !artifactFile.exists();

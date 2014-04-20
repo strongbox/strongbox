@@ -1,20 +1,12 @@
-import org.apache.maven.artifact.Artifact
 import org.carlspring.maven.commons.util.ArtifactUtils
 import org.carlspring.strongbox.client.ArtifactClient
 
-try
-{
-    Artifact artifact = ArtifactUtils.getArtifactFromGAV("org.carlspring.maven:test-project:1.0-SNAPSHOT");
 
-    ArtifactClient client = new ArtifactClient();
+def artifact = ArtifactUtils.getArtifactFromGAV("org.carlspring.maven:test-project:1.0-SNAPSHOT");
 
-    return !client.artifactExists(artifact, "storage0", "snapshots");
-}
-catch( Throwable t )
-{
-    System.out.println(" *[ Check failed ]* ");
-    t.printStackTrace();
-    return false;
-}
+def client = new ArtifactClient();
 
-return true;
+// This should throw a ResponseException as the user is not valid.
+def response = client.artifactExistsStatusCode(artifact, "storage0", "snapshots");
+
+return response.getStatus() == 401;

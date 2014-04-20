@@ -1,20 +1,11 @@
-import org.apache.maven.artifact.Artifact
 import org.carlspring.maven.commons.util.ArtifactUtils
 import org.carlspring.strongbox.client.ArtifactClient
 
-try
-{
-    Artifact artifact = ArtifactUtils.getArtifactFromGAV("org.carlspring.maven:test-project:1.0");
 
-    ArtifactClient client = new ArtifactClient();
+def artifact = ArtifactUtils.getArtifactFromGAV("org.carlspring.maven:test-project:1.0");
 
-    return client.artifactExists(artifact, "storage0", "releases-in-memory");
-}
-catch( Throwable t )
-{
-    System.out.println(" *[ Check failed ]* ");
-    t.printStackTrace();
-    return false;
-}
+def client = new ArtifactClient();
+client.setUsername("maven");
+client.setPassword("password");
 
-return true;
+return client.artifactExists(artifact, "storage0", "releases-in-memory");
