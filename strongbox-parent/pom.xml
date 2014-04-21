@@ -41,6 +41,7 @@
 
         <license.licenseName>apache_v2</license.licenseName>
 
+        <version.aether>1.13.1</version.aether>
         <version.maven.commons>1.3</version.maven.commons>
         <version.jersey>1.18</version.jersey>
         <version.jetty>9.1.3.v20140225</version.jetty>

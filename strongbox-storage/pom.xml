@@ -133,6 +133,7 @@
         </dependency>
     </dependencies>
 
+    <!--
     <profiles>
         <profile>
             <id>active-mq</id>
@@ -204,5 +205,6 @@
             </build>
         </profile>
     </profiles>
+    -->
 
 </project>
