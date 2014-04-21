@@ -378,6 +378,7 @@
 
                             <stopPort>19081</stopPort>
                             <stopKey>53AS9DS1FD8E3WEFEW9GR1ER8G2ER0WE31</stopKey>
+                            <stopWait>10</stopWait>
 
                             <systemProperties>
                                 <systemProperty>
