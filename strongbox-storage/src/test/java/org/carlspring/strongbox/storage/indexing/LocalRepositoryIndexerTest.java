@@ -22,8 +22,6 @@ public class LocalRepositoryIndexerTest
 
     private static final File INDEX_DIR = new File(REPOSITORY_BASEDIR, ".index");
 
-    private static final Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-commons:1.0:jar");
-
 
     @Before
     public void init()
@@ -34,8 +32,14 @@ public class LocalRepositoryIndexerTest
         //noinspection ResultOfMethodCallIgnored
         INDEX_DIR.mkdirs();
 
-        ArtifactGenerator generator = new ArtifactGenerator(REPOSITORY_BASEDIR.getAbsolutePath(), artifact);
-        generator.generate();
+        Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-commons:1.0:jar");
+        Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-commons:1.1:jar");
+        Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-commons:1.2:jar");
+
+        ArtifactGenerator generator = new ArtifactGenerator(REPOSITORY_BASEDIR.getAbsolutePath());
+        generator.generate(artifact1);
+        generator.generate(artifact2);
+        generator.generate(artifact3);
     }
 
     @Test
@@ -49,7 +53,7 @@ public class LocalRepositoryIndexerTest
         {
             final int x = i.index(new File("org/carlspring/strongbox/strongbox-commons"));
             Assert.assertEquals("two artifacts expected",
-                                2,  // one is jar another pom, both would be added into the same Lucene document
+                                6,  // one is jar another pom, both would be added into the same Lucene document
                                 x);
 
             Set<ArtifactInfo> search = i.search("org.carlspring.strongbox", "strongbox-commons", null);
@@ -58,15 +62,16 @@ public class LocalRepositoryIndexerTest
                 System.out.println(ai.groupId + " / " + ai.artifactId + " / " + ai.version + " / " + ai.description);
             }
 
-            Assert.assertEquals("Only one strongbox-commons artifact was expected!", search.size(), 1);
+            Assert.assertEquals("Only three versions of the strongbox-commons artifact were expected!", 3, search.size());
 
             i.delete(search);
-            search = i.search("org.carlspring.strongbox", "strongbox-commons", null);
-            Assert.assertEquals("strongbox-commons should have been deleted!", search.size(), 0);
+            search = i.search("org.carlspring.strongbox", "strongbox-commons", "1.0");
+            Assert.assertEquals("org.carlspring.strongbox:strongbox-commons:1.0 should have been deleted!", search.size(), 0);
         }
         finally
         {
             i.close(false);
         }
     }
+
 }

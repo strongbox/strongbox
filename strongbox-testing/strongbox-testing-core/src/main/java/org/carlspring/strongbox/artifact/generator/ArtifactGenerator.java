@@ -30,34 +30,22 @@ public class ArtifactGenerator
 
     private String basedir;
 
-    private Artifact artifact;
 
-    private String gavtc;
-
-
-    public ArtifactGenerator(String basedir, String gavtc)
+    public ArtifactGenerator(String basedir)
     {
         this.basedir = basedir;
-        this.gavtc = gavtc;
-        this.artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
     }
 
-    public ArtifactGenerator(String basedir, Artifact artifact)
-    {
-        this.basedir = basedir;
-        this.artifact = artifact;
-    }
-
-    public void generate()
+    public void generate(Artifact artifact)
             throws IOException,
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
-        generatePom();
-        createArchive();
+        generatePom(artifact);
+        createArchive(artifact);
     }
 
-    private void createArchive()
+    private void createArchive(Artifact artifact)
             throws NoSuchAlgorithmException,
                    IOException
     {
@@ -73,8 +61,8 @@ public class ArtifactGenerator
 
             zos = new ZipOutputStream(new FileOutputStream(artifactFile));
 
-            createMavenPropertiesFile(zos);
-            addMavenPomFile(zos);
+            createMavenPropertiesFile(artifact, zos);
+            addMavenPomFile(artifact, zos);
             createRandomSizeFile(zos);
 
             generateChecksumsForArtifact(artifactFile);
@@ -85,7 +73,7 @@ public class ArtifactGenerator
         }
     }
 
-    private void addMavenPomFile(ZipOutputStream zos)
+    private void addMavenPomFile(Artifact artifact, ZipOutputStream zos)
             throws IOException
     {
         final Artifact pomArtifact = ArtifactUtils.getPOMArtifact(artifact);
@@ -110,7 +98,7 @@ public class ArtifactGenerator
         zos.closeEntry();
     }
 
-    private void createMavenPropertiesFile(ZipOutputStream zos)
+    private void createMavenPropertiesFile(Artifact artifact, ZipOutputStream zos)
             throws IOException
     {
         ZipEntry ze = new ZipEntry("META-INF/maven/" +
@@ -159,7 +147,7 @@ public class ArtifactGenerator
         zos.closeEntry();
     }
 
-    private void generatePom()
+    private void generatePom(Artifact artifact)
             throws IOException,
                    XmlPullParserException,
                    NoSuchAlgorithmException
@@ -227,6 +215,7 @@ public class ArtifactGenerator
         }
     }
 
+    /*
     public Artifact getArtifact()
     {
         return artifact;
@@ -246,6 +235,7 @@ public class ArtifactGenerator
     {
         this.gavtc = gavtc;
     }
+    */
 
     public String getBasedir()
     {
