@@ -313,13 +313,6 @@
                             <settingsFile>src/it/settings.xml</settingsFile>
                             <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
                             <addTestClassPath>true</addTestClassPath>
-                            <!--
-                            <extraArtifacts>
-                                <extraArtifact>org.carlspring.strongbox:strongbox-client:${project.version}</extraArtifact>
-                                <extraArtifact>org.carlspring.maven:maven-commons:${version.maven.commons}</extraArtifact>
-                                <extraArtifact>org.sonatype.aether:aether-api:${version.aether}</extraArtifact>
-                            </extraArtifacts>
-                            -->
                         </configuration>
 
                         <executions>
