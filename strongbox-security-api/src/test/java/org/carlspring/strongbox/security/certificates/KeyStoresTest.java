@@ -16,6 +16,7 @@ import java.security.cert.X509Certificate;
 import java.util.Map;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -50,7 +51,7 @@ public class KeyStoresTest
         f = new File("target/test-resources/test.jks");
     }
 
-    @Test
+    @Ignore
     public void testSocks()
             throws IOException,
                    CertificateException,
@@ -90,7 +91,7 @@ public class KeyStoresTest
                    KeyStoreException,
                    KeyManagementException
     {
-        KeyStores.createNew(f, "12345".toCharArray());
+        KeyStores.createNew(f, KEYSTORE_PASSWORD.toCharArray());
         final KeyStore ks = KeyStores.addHttpsCertificates(f,
                                                            KEYSTORE_PASSWORD.toCharArray(),
                                                            PROXY_HTTP,
