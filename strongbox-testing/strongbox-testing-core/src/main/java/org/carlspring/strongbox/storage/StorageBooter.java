@@ -41,6 +41,7 @@ public class StorageBooter
         storagesBaseDir.mkdirs();
 
         initializeRepository(storagesBaseDir, "releases");
+        initializeRepository(storagesBaseDir, "releases-with-trash");
         initializeRepository(storagesBaseDir, "releases-in-memory");
         initializeRepository(storagesBaseDir, "snapshots");
         initializeRepository(storagesBaseDir, "snapshots-in-memory");

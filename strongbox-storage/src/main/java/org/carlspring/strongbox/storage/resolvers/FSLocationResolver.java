@@ -128,6 +128,7 @@ public class FSLocationResolver
 
                 final File repoPath = new File(storage.getBasedir(), r.getName());
                 final File artifactFile = new File(repoPath, path).getCanonicalFile();
+                final File basedirTrash = new File(repoPath, ".trash");
 
                 logger.debug("Checking for " + artifactFile.getCanonicalPath() + "...");
 
@@ -135,12 +136,32 @@ public class FSLocationResolver
                 {
                     if (!artifactFile.isDirectory())
                     {
-                        //noinspection ResultOfMethodCallIgnored
-                        artifactFile.delete();
+                        if (r.isTrashEnabled())
+                        {
+                            File trashFile = new File(basedirTrash, path).getCanonicalFile();
+                            FileUtils.moveFile(artifactFile, trashFile);
+
+                            logger.debug("Moved /" + repository + path + " to trash (" + trashFile.getAbsolutePath() + ").");
+                        }
+                        else
+                        {
+                            //noinspection ResultOfMethodCallIgnored
+                            artifactFile.delete();
+                        }
                     }
                     else
                     {
-                        FileUtils.deleteDirectory(artifactFile);
+                        if (r.isTrashEnabled())
+                        {
+                            File trashFile = new File(basedirTrash, path).getCanonicalFile();
+                            FileUtils.moveDirectory(artifactFile, trashFile);
+
+                            logger.debug("Moved /" + repository + path + " to trash (" + trashFile.getAbsolutePath() + ").");
+                        }
+                        else
+                        {
+                            FileUtils.deleteDirectory(artifactFile);
+                        }
                     }
 
                     logger.debug("Removed /" + repository + path);

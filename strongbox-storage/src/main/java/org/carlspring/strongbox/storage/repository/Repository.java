@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.storage.repository;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
@@ -27,6 +28,10 @@ public class Repository
 
     @XStreamAsAttribute
     private boolean secured = false;
+
+    @XStreamAlias("trash-enabled")
+    @XStreamAsAttribute
+    private boolean trashEnabled = false;
 
 
     public Repository()
@@ -122,6 +127,16 @@ public class Repository
     public void setSecured(boolean secured)
     {
         this.secured = secured;
+    }
+
+    public boolean isTrashEnabled()
+    {
+        return trashEnabled;
+    }
+
+    public void setTrashEnabled(boolean trashEnabled)
+    {
+        this.trashEnabled = trashEnabled;
     }
 
     @Override
