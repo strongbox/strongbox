@@ -171,6 +171,57 @@ public class FSLocationResolver
     }
 
     @Override
+    public void deleteTrash(String repository)
+            throws IOException
+    {
+        for (Map.Entry entry : dataCenter.getStorages().entrySet())
+        {
+            Storage storage = (Storage) entry.getValue();
+
+            if (storage.containsRepository(repository))
+            {
+                final Map<String, Repository> repositories = storage.getRepositories();
+
+                Repository r = repositories.get(repository);
+
+                logger.debug("Emptying trash for repository " + r.getName() + "...");
+
+                final File repoPath = new File(storage.getBasedir(), r.getName());
+                final File basedirTrash = new File(repoPath, ".trash");
+
+                FileUtils.deleteDirectory(basedirTrash);
+
+                //noinspection ResultOfMethodCallIgnored
+                basedirTrash.mkdirs();
+            }
+        }
+    }
+
+    @Override
+    public void deleteTrash()
+            throws IOException
+    {
+        for (Map.Entry entry : dataCenter.getStorages().entrySet())
+        {
+            Storage storage = (Storage) entry.getValue();
+
+            final Map<String, Repository> repositories = storage.getRepositories();
+            for (Repository repository : repositories.values())
+            {
+                logger.debug("Emptying trash for repository " + repository.getName() + "...");
+
+                final File repoPath = new File(storage.getBasedir(), repository.getName());
+                final File basedirTrash = new File(repoPath, ".trash");
+
+                FileUtils.deleteDirectory(basedirTrash);
+
+                //noinspection ResultOfMethodCallIgnored
+                basedirTrash.mkdirs();
+            }
+        }
+    }
+
+    @Override
     public void initialize()
             throws IOException
     {

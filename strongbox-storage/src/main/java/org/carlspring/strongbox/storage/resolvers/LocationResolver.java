@@ -19,6 +19,12 @@ public interface LocationResolver
     void delete(String repository, String path)
             throws IOException;
 
+    void deleteTrash(String repository)
+            throws IOException;
+
+    void deleteTrash()
+            throws IOException;
+
     void initialize()
             throws IOException;
 

@@ -132,6 +132,30 @@ public class ArtifactClient
         webResource.delete();
     }
 
+    public void deleteTrash(String repository)
+    {
+        Client client = Client.create();
+
+        setupAuthentication(client);
+
+        String url = getUrlForTrash(repository);
+
+        WebResource webResource = client.resource(url);
+        webResource.delete();
+    }
+
+    public void deleteTrash()
+    {
+        Client client = Client.create();
+
+        setupAuthentication(client);
+
+        String url = host + ":" + port + "/trash";
+
+        WebResource webResource = client.resource(url);
+        webResource.delete();
+    }
+
     public boolean artifactExists(Artifact artifact,
                                   String storage,
                                   String repository)
@@ -209,6 +233,11 @@ public class ArtifactClient
         return host + ":" + port + "/storages/" + storage + "/" +
                repository + "/" +
                ArtifactUtils.convertArtifactToPath(artifact);
+    }
+
+    public String getUrlForTrash(String repository)
+    {
+        return host + ":" + port + "/trash/" + repository;
     }
 
     private void setupAuthentication(Client client)

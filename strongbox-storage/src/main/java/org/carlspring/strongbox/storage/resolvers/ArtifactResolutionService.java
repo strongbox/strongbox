@@ -84,6 +84,27 @@ public class ArtifactResolutionService
         resolver.delete(repositoryName, artifactPath);
     }
 
+    // TODO: This should have restricted access.
+    public void deleteTrash(String repositoryName)
+            throws ArtifactResolutionException, IOException
+    {
+        final Repository repository = dataCenter.getRepository(repositoryName);
+        checkRepositoryExists(repositoryName, repository);
+
+        LocationResolver resolver = getResolvers().get(repository.getImplementation());
+        resolver.deleteTrash(repositoryName);
+    }
+
+    // TODO: This should have restricted access.
+    public void deleteTrash()
+            throws ArtifactResolutionException, IOException
+    {
+        for (LocationResolver resolver : getResolvers().values())
+        {
+            resolver.deleteTrash();
+        }
+    }
+
     private void checkRepositoryExists(String repositoryName,
                                        Repository repository)
             throws ArtifactResolutionException

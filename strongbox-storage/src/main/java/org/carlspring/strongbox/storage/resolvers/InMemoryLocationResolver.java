@@ -139,6 +139,24 @@ public class InMemoryLocationResolver implements LocationResolver
     }
 
     @Override
+    public void deleteTrash(String repository)
+            throws IOException
+    {
+        logger.debug("Emptying trash for repository " + repository + "...");
+
+        // Not much to implement (at least for the time-being)
+    }
+
+    @Override
+    public void deleteTrash()
+            throws IOException
+    {
+        logger.debug("Emptying trash for all repositories...");
+
+        // Not much to implement (at least for the time-being)
+    }
+
+    @Override
     public void initialize()
     {
         logger.debug("Initialized InMemoryLocationResolver.");
