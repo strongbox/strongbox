@@ -10,12 +10,14 @@ import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import static junit.framework.Assert.assertFalse;
 
 /**
  * @author mtodorov
  */
+@Ignore
 public class TrashRestletTest
 {
 
