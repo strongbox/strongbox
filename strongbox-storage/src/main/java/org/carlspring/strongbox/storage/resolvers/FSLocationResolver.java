@@ -142,6 +142,9 @@ public class FSLocationResolver
                             FileUtils.moveFile(artifactFile, trashFile);
 
                             logger.debug("Moved /" + repository + "/" + path + " to trash (" + trashFile.getAbsolutePath() + ").");
+
+                            // Move the checksums to the trash as well
+                            moveChecksumsToTrash(repository, path, artifactFile, basedirTrash);
                         }
                         else
                         {
@@ -167,6 +170,31 @@ public class FSLocationResolver
                     logger.debug("Removed /" + repository + "/" + path);
                 }
             }
+        }
+    }
+
+    private void moveChecksumsToTrash(String repository,
+                                      String path,
+                                      File artifactFile,
+                                      File basedirTrash)
+            throws IOException
+    {
+        File md5ChecksumFile = new File(artifactFile.getAbsolutePath() + ".md5");
+        if (md5ChecksumFile.exists())
+        {
+            File md5TrashFile = new File(basedirTrash, path + ".md5").getCanonicalFile();
+            FileUtils.moveFile(md5ChecksumFile, md5TrashFile);
+
+            logger.debug("Moved /" + repository + "/" + path + ".md5" + " to trash (" + md5TrashFile.getAbsolutePath() + ").");
+        }
+
+        File sha1ChecksumFile = new File(artifactFile.getAbsolutePath() + ".sha1");
+        if (sha1ChecksumFile.exists())
+        {
+            File sha1TrashFile = new File(basedirTrash, path + ".sha1").getCanonicalFile();
+            FileUtils.moveFile(sha1ChecksumFile, sha1TrashFile);
+
+            logger.debug("Moved /" + repository + "/" + path + ".sha1" + " to trash (" + sha1TrashFile.getAbsolutePath() + ").");
         }
     }
 
