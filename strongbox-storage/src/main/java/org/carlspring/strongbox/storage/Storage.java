@@ -3,6 +3,7 @@ package org.carlspring.strongbox.storage;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import org.carlspring.strongbox.storage.repository.Repository;
 
+import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -49,7 +50,25 @@ public class Storage
 
     public String getBasedir()
     {
-        return basedir;
+        if (basedir != null)
+        {
+            return basedir;
+        }
+        else if (name != null)
+        {
+            if (System.getProperty("strongbox.storage.booter.basedir") != null)
+            {
+                return System.getProperty("strongbox.storage.booter.basedir") + File.separatorChar + name;
+            }
+            else
+            {
+                return "target/storages/" + name;
+            }
+        }
+        else
+        {
+            return null;
+        }
     }
 
     public void setBasedir(String basedir)

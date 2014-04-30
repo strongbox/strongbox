@@ -141,7 +141,7 @@ public class FSLocationResolver
                             File trashFile = new File(basedirTrash, path).getCanonicalFile();
                             FileUtils.moveFile(artifactFile, trashFile);
 
-                            logger.debug("Moved /" + repository + path + " to trash (" + trashFile.getAbsolutePath() + ").");
+                            logger.debug("Moved /" + repository + "/" + path + " to trash (" + trashFile.getAbsolutePath() + ").");
                         }
                         else
                         {
@@ -156,7 +156,7 @@ public class FSLocationResolver
                             File trashFile = new File(basedirTrash, path).getCanonicalFile();
                             FileUtils.moveDirectory(artifactFile, trashFile);
 
-                            logger.debug("Moved /" + repository + path + " to trash (" + trashFile.getAbsolutePath() + ").");
+                            logger.debug("Moved /" + repository + "/" + path + " to trash (" + trashFile.getAbsolutePath() + ").");
                         }
                         else
                         {
@@ -164,7 +164,7 @@ public class FSLocationResolver
                         }
                     }
 
-                    logger.debug("Removed /" + repository + path);
+                    logger.debug("Removed /" + repository + "/" + path);
                 }
             }
         }

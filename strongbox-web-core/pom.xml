@@ -313,6 +313,9 @@
                             <settingsFile>src/it/settings.xml</settingsFile>
                             <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
                             <addTestClassPath>true</addTestClassPath>
+                            <properties>
+                                <strongbox.storage.booter.basedir>${basedir}/target/storages</strongbox.storage.booter.basedir>
+                            </properties>
                         </configuration>
 
                         <executions>
@@ -388,6 +391,10 @@
                                 <systemProperty>
                                     <name>repository.config.xml</name>
                                     <value>${dir.strongbox}/etc/configuration.xml</value>
+                                </systemProperty>
+                                <systemProperty>
+                                    <name>strongbox.storage.booter.basedir</name>
+                                    <value>${basedir}/target/storages</value>
                                 </systemProperty>
                                 <systemProperty>
                                     <name>log4j.configuration</name>

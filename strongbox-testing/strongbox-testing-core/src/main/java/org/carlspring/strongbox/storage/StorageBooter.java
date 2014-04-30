@@ -35,7 +35,17 @@ public class StorageBooter
         logger.debug("Running Storagebox booter...");
         logger.debug(" -> Creating storage directory skeleton...");
 
-        File storagesBaseDir = new File("target/storages/storage0");
+        String basedir;
+        if (System.getProperty("strongbox.storage.booter.basedir") != null)
+        {
+            basedir = System.getProperty("strongbox.storage.booter.basedir");
+        }
+        else
+        {
+            basedir = "target/storages";
+        }
+
+        File storagesBaseDir = new File(basedir, "storage0");
 
         //noinspection ResultOfMethodCallIgnored
         storagesBaseDir.mkdirs();

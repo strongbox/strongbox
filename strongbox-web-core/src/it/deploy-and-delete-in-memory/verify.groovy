@@ -4,7 +4,7 @@ import org.carlspring.strongbox.client.ArtifactClient
 
 try
 {
-    def artifact = ArtifactUtils.getArtifactFromGAV("org.carlspring.maven:test-project:1.0");
+    def artifact = ArtifactUtils.getArtifactFromGAV("org.carlspring.maven:test-project:1.0.4");
 
     def client = new ArtifactClient();
     client.setUsername("maven");

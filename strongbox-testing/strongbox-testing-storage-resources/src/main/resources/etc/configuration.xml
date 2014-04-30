@@ -5,7 +5,7 @@
 
     <storages>
         <storage>
-            <basedir>target/storages/storage0</basedir>
+            <!--<basedir>target/storages/storage0</basedir>-->
             <name>storage0</name>
 
             <repositories>
