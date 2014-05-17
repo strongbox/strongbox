@@ -2,6 +2,8 @@ package org.carlspring.strongbox.storage.repository;
 
 import java.io.File;
 
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,13 @@ public class RepositoryManagerTest
 
         repositoryManager.removeRepositoryStructure(basedir.getAbsolutePath(), "foo-snapshots");
         assertFalse("Failed to remove the repository!", repositoryDir.exists());
+    }
+
+    @After
+    public void tearDown()
+            throws Exception
+    {
+        FileUtils.deleteDirectory(new File("target/strongbox"));
     }
 
 }
