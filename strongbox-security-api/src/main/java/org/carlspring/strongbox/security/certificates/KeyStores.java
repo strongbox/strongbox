@@ -2,7 +2,7 @@ package org.carlspring.strongbox.security.certificates;
 
 import javax.net.ssl.*;
 import java.io.*;
-import java.net.InetAddress;
+import java.net.*;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -130,10 +130,54 @@ public class KeyStores
         return store(fileName, password, keyStore);
     }
 
-    public static KeyStore addCertificates(final File fileName,
-                                           final char[] password,
-                                           final InetAddress host,
-                                           final int port)
+    public static KeyStore addHttpsCertificates(final File fileName,
+                                                final char[] password,
+                                                final Proxy httpProxy,
+                                                final PasswordAuthentication credentials,
+                                                final String host,
+                                                final int port)
+            throws CertificateException,
+                   NoSuchAlgorithmException,
+                   KeyStoreException,
+                   IOException,
+                   KeyManagementException
+    {
+        final KeyStore keyStore = load(fileName, password);
+        final String prefix = host + ":" + Integer.toString(port);
+        final ChainCaptureTrustManager tm = new ChainCaptureTrustManager();
+        final SSLContext ctx = SSLContext.getInstance("TLS");
+        ctx.init(null, new TrustManager[]{ tm }, null);
+
+        final URL url = new URL("https", host, port, "/");
+        final HttpsURLConnection conn = (HttpsURLConnection)
+                (httpProxy != null ? url.openConnection(httpProxy) : url.openConnection());
+        conn.setSSLSocketFactory(ctx.getSocketFactory());
+        if (credentials != null) ProxyAuthenticator.credentials.set(credentials);
+
+        try
+        {
+            conn.connect();
+            for (final X509Certificate cert : tm.chain)
+            {
+                keyStore.setCertificateEntry(prefix + "_" + cert.getSubjectDN().getName(), cert);
+            }
+            return store(fileName, password, keyStore);
+        }
+        finally
+        {
+            ProxyAuthenticator.credentials.remove();
+            conn.disconnect();
+        }
+
+    }
+
+
+    public static KeyStore addSslCertificates(final File fileName,
+                                              final char[] password,
+                                              final Proxy socksProxy,
+                                              final PasswordAuthentication credentials,
+                                              final String host,
+                                              final int port)
             throws KeyStoreException,
                    IOException,
                    CertificateException,
@@ -141,8 +185,8 @@ public class KeyStores
                    KeyManagementException
     {
         final KeyStore keyStore = load(fileName, password);
-        final String prefix = host.getCanonicalHostName() + ":" + Integer.toString(port);
-        final X509Certificate[] chain = remoteCertificateChain(host, port);
+        final String prefix = host + ":" + Integer.toString(port);
+        final X509Certificate [] chain = remoteCertificateChain(socksProxy, credentials, host, port);
 
         for (final X509Certificate cert : chain)
         {
@@ -152,7 +196,9 @@ public class KeyStores
         return store(fileName, password, keyStore);
     }
 
-    private static X509Certificate[] remoteCertificateChain(final InetAddress address,
+    private static X509Certificate[] remoteCertificateChain(final Proxy socksProxy,
+                                                            final PasswordAuthentication credentials,
+                                                            final String host,
                                                             final int port)
             throws NoSuchAlgorithmException,
                    IOException,
@@ -162,18 +208,44 @@ public class KeyStores
         final ChainCaptureTrustManager tm = new ChainCaptureTrustManager();
         final SSLContext ctx = SSLContext.getInstance("TLS");
         ctx.init(null, new TrustManager[]{ tm }, null);
-        final SSLSocket socket = (SSLSocket) ctx.getSocketFactory().createSocket(address, port);
+
+        if (credentials != null) ProxyAuthenticator.credentials.set(credentials);
+        final Socket proxySocket = socksProxy != null ? new Socket(socksProxy) : null;
+        if (proxySocket != null) proxySocket.connect(new InetSocketAddress(host, port));
+
+        try
+        {
+            handshake(ctx, proxySocket, host, port);
+            return tm.chain;
+        }
+        finally
+        {
+            ProxyAuthenticator.credentials.remove();
+            if (proxySocket != null && !proxySocket.isClosed()) proxySocket.close();
+        }
+    }
+
+    private static void handshake(final SSLContext ctx,
+                                  final Socket proxySocket,
+                                  final String host,
+                                  final int port) throws IOException
+    {
+        final SSLSocket socket =
+                (SSLSocket)(proxySocket == null ?
+                        ctx.getSocketFactory().createSocket(host, port) :
+                        ctx.getSocketFactory().createSocket(proxySocket, host, port, true));
 
         try
         {
             socket.startHandshake();
-            socket.close();
         }
         catch (final SSLException ignore) // non trusted certificates should be returned as well
         {
         }
-
-        return tm.chain;
+        finally
+        {
+            socket.close();
+        }
     }
 
     private static class ChainCaptureTrustManager
@@ -203,6 +275,25 @@ public class KeyStores
         {
             this.chain = chain;
         }
+    }
+
+    private static class ProxyAuthenticator
+            extends Authenticator
+    {
+        @Override
+        protected PasswordAuthentication getPasswordAuthentication()
+        {
+            return credentials.get();
+        }
+
+        static final ThreadLocal<PasswordAuthentication> credentials = new ThreadLocal<PasswordAuthentication>();
+    }
+
+    private static final ProxyAuthenticator authenticator = new ProxyAuthenticator();
+
+    static
+    {
+        Authenticator.setDefault(authenticator);
     }
 
 }
