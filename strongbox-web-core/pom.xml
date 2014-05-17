@@ -88,12 +88,17 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-storage</artifactId>
+            <artifactId>strongbox-security-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-security-api</artifactId>
+            <artifactId>strongbox-storage-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-storage-indexing</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -110,19 +115,25 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-testing-storage-resources</artifactId>
+            <artifactId>strongbox-testing-storage-api-resources</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-testing-web-resources</artifactId>
+            <artifactId>strongbox-testing-storage-indexing-resources</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-testing-core</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-testing-web-resources</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -340,12 +351,6 @@
                                 <groupId>org.carlspring.maven</groupId>
                                 <artifactId>maven-commons</artifactId>
                                 <version>${version.maven.commons}</version>
-                            </dependency>
-
-                            <dependency>
-                                <groupId>org.sonatype.aether</groupId>
-                                <artifactId>aether-api</artifactId>
-                                <version>${version.aether}</version>
                             </dependency>
 
                             <dependency>

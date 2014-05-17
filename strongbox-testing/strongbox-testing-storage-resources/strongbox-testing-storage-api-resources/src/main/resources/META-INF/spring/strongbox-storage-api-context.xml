@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+    <context:component-scan base-package="org.carlspring.strongbox"/>
+
+    <bean id="configurationManager" class="org.carlspring.strongbox.configuration.ConfigurationManager" />
+
+    <bean id="configurationResourceResolver" class="org.carlspring.strongbox.resource.ConfigurationResourceResolver" />
+
+    <bean id="dataCenter" class="org.carlspring.strongbox.storage.DataCenter">
+        <property name="storages" value="#{configurationManager.configuration.storages}"/>
+    </bean>
+
+    <bean id="checksumCacheManager" class="org.carlspring.strongbox.storage.checksum.ChecksumCacheManager">
+        <!-- How often to check if a checksum has expired: -->
+        <property name="cachedChecksumExpiredCheckInterval" value="300000"/>
+        <!-- The maximum time checksums should be kept in the cache: -->
+        <property name="cachedChecksumLifetime" value="60000"/>
+    </bean>
+
+    <!-- Artifact LocationResolvers -->
+    <bean id="memoryLocationResolver" class="org.carlspring.strongbox.storage.resolvers.InMemoryLocationResolver"/>
+    <bean id="fsLocationResolver" class="org.carlspring.strongbox.storage.resolvers.FSLocationResolver">
+        <property name="configurationManager" ref="configurationManager"/>
+        <property name="dataCenter" ref="dataCenter"/>
+    </bean>
+
+    <util:map id="resolvers"
+              key-type="java.lang.String"
+              value-type="org.carlspring.strongbox.storage.resolvers.LocationResolver"
+              map-class="java.util.LinkedHashMap">
+        <entry key="in-memory" value-ref="memoryLocationResolver"/>
+        <entry key="file-system" value-ref="fsLocationResolver"/>
+    </util:map>
+
+    <bean id="artifactResolutionService" class="org.carlspring.strongbox.storage.resolvers.ArtifactResolutionService">
+        <property name="resolvers" ref="resolvers"/>
+    </bean>
+
+</beans>
