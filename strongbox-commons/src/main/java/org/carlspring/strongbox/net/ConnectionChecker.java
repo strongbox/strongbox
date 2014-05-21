@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 
 /**
  * @author mtodorov
@@ -26,6 +27,10 @@ public class ConnectionChecker
             {
                 return false;
             }
+        }
+        catch (SocketTimeoutException e)
+        {
+            return false;
         }
 
         return socket.isConnected();
