@@ -1,10 +1,7 @@
 package org.carlspring.strongbox.net;
 
 import java.io.IOException;
-import java.net.ConnectException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketTimeoutException;
+import java.net.*;
 
 /**
  * @author mtodorov
@@ -21,7 +18,7 @@ public class ConnectionChecker
         {
             socket.connect(new InetSocketAddress(host, port), timeout);
         }
-        catch (ConnectException e)
+        catch (SocketException e)
         {
             if (e.getMessage().contains("Connection refused"))
             {
