@@ -17,7 +17,6 @@ import static junit.framework.Assert.assertFalse;
 /**
  * @author mtodorov
  */
-@Ignore
 public class TrashRestletTest
 {
 
