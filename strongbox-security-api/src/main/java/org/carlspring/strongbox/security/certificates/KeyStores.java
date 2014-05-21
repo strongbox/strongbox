@@ -130,6 +130,28 @@ public class KeyStores
         return store(fileName, password, keyStore);
     }
 
+    public static KeyStore addCertificates(final File fileName,
+                                           final char[] password,
+                                           final InetAddress host,
+                                           final int port)
+            throws KeyStoreException,
+                   IOException,
+                   CertificateException,
+                   NoSuchAlgorithmException,
+                   KeyManagementException
+    {
+        final KeyStore keyStore = load(fileName, password);
+        final String prefix = host.getCanonicalHostName() + ":" + Integer.toString(port);
+        final X509Certificate [] chain = remoteCertificateChain(host, port);
+
+        for (final X509Certificate cert : chain)
+        {
+            keyStore.setCertificateEntry(prefix + "_" + cert.getSubjectDN().getName(), cert);
+        }
+
+        return store(fileName, password, keyStore);
+    }
+
     public static KeyStore addHttpsCertificates(final File fileName,
                                                 final char[] password,
                                                 final Proxy httpProxy,
@@ -194,6 +216,30 @@ public class KeyStores
         }
 
         return store(fileName, password, keyStore);
+    }
+
+    private static X509Certificate[] remoteCertificateChain(final InetAddress address,
+                                                            final int port)
+            throws NoSuchAlgorithmException,
+                   IOException,
+                   KeyStoreException,
+                   KeyManagementException
+    {
+        final ChainCaptureTrustManager tm = new ChainCaptureTrustManager();
+        final SSLContext ctx = SSLContext.getInstance("TLS");
+        ctx.init(null, new TrustManager[]{ tm }, null);
+        final SSLSocket socket = (SSLSocket) ctx.getSocketFactory().createSocket(address, port);
+
+        try
+        {
+            socket.startHandshake();
+            socket.close();
+        }
+        catch (final SSLException ignore) // non trusted certificates should be returned as well
+        {
+        }
+
+        return tm.chain;
     }
 
     private static X509Certificate[] remoteCertificateChain(final Proxy socksProxy,

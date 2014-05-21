@@ -18,10 +18,7 @@ import java.security.cert.X509Certificate;
 import java.util.Map;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
@@ -63,7 +60,31 @@ public class KeyStoresTest
         f = new File("target/test-resources/test.jks");
     }
 
-    @Ignore
+    @Test
+    public void testWithoutProxy()
+            throws IOException,
+                   CertificateException,
+                   NoSuchAlgorithmException,
+                   KeyStoreException,
+                   KeyManagementException
+    {
+        KeyStores.createNew(f, "12345".toCharArray());
+        final KeyStore ks = KeyStores.addCertificates(f, "12345".toCharArray(), InetAddress.getLocalHost(), 40636);
+        assertEquals("localhost should have three certificates in the chain", 1, ks.size());
+
+        Map<String, Certificate> certs = KeyStores.listCertificates(f, "12345".toCharArray());
+        for (final Map.Entry<String, Certificate> cert : certs.entrySet())
+        {
+            System.out.println(cert.getKey() + " : " + ((X509Certificate)cert.getValue()).getSubjectDN());
+        }
+
+        KeyStores.changePassword(f, "12345".toCharArray(), "666".toCharArray());
+        KeyStores.removeCertificates(f, "666".toCharArray(), InetAddress.getLocalHost(), 40636);
+        certs = KeyStores.listCertificates(f, "666".toCharArray());
+        assertTrue(certs.isEmpty());
+    }
+
+    @Test
     public void testSocks()
             throws IOException,
                    CertificateException,
