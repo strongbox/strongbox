@@ -6,12 +6,14 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import static junit.framework.Assert.assertEquals;
 
 /**
  * @author mtodorov
  */
+@Ignore
 public class ChecksumCacheManagerTest
 {
 
