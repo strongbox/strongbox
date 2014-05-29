@@ -26,7 +26,10 @@ public class ResourceCloser
             }
             catch (IOException e)
             {
-                logger.error(e.getMessage(), e);
+                if (logger != null)
+                {
+                    logger.error(e.getMessage(), e);
+                }
             }
         }
     }
@@ -41,7 +44,10 @@ public class ResourceCloser
             }
             catch (Exception e)
             {
-                logger.error(e.getMessage(), e);
+                if (logger != null)
+                {
+                    logger.error(e.getMessage(), e);
+                }
             }
         }
     }
@@ -56,7 +62,10 @@ public class ResourceCloser
             }
             catch (Exception e)
             {
-                logger.error(e.getMessage(), e);
+                if (logger != null)
+                {
+                    logger.error(e.getMessage(), e);
+                }
             }
         }
     }
@@ -71,7 +80,10 @@ public class ResourceCloser
             }
             catch (Exception e)
             {
-                logger.error(e.getMessage(), e);
+                if (logger != null)
+                {
+                    logger.error(e.getMessage(), e);
+                }
             }
         }
     }
