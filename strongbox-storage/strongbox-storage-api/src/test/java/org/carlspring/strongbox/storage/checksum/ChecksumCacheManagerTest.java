@@ -9,6 +9,7 @@ import java.security.NoSuchAlgorithmException;
 import org.junit.Ignore;
 import org.junit.Test;
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.fail;
 
 /**
  * @author mtodorov
@@ -25,7 +26,8 @@ public class ChecksumCacheManagerTest
         ChecksumCacheManager manager = new ChecksumCacheManager();
         manager.setCachedChecksumLifetime(3000l);
         manager.setCachedChecksumExpiredCheckInterval(500l);
-        manager.startMonitor();
+
+        CheckingThread checkerThread = new CheckingThread(manager);
 
         final String artifact1BasePath = "storage0/repositories/snapshots/org/carlspring/maven/test-project/1.0-SNAPSHOT/maven-metadata.xml";
         final String artifact2BasePath = "storage0/repositories/snapshots/org/carlspring/maven/test-project/1.0-SNAPSHOT/test-project-1.0-20131004.115330-1.jar";
@@ -35,13 +37,22 @@ public class ChecksumCacheManagerTest
         manager.addArtifactChecksum(artifact2BasePath, "md5", "eps0#!_)fs0-qWadg#)s1!");
         manager.addArtifactChecksum(artifact2BasePath, "sha1", "eps0#!_)fs0-qWadg#)s1!");
 
+        manager.startMonitor();
+
+        checkerThread.start();
+
         Thread.sleep(3000l);
 
         manager.getArtifactChecksum(artifact1BasePath, "md5");
 
-        Thread.sleep(3000l);
+        System.out.println("Slept " + checkerThread.getTimeSlept() + " ms");
 
-        assertEquals("Failed to expire checksums from cache!", 1, manager.getSize());
+        if (checkerThread.getTimeSlept() > (checkerThread.getMaxTime() + checkerThread.getTolerance()))
+        {
+            fail("Failed to expire the cache on time!");
+        }
+
+        checkerThread.interrupt();
     }
 
     @Test
@@ -64,6 +75,77 @@ public class ChecksumCacheManagerTest
 
         System.out.println("md5:  " + md5);
         System.out.println("sha1: " + sha1);
+    }
+
+    private class CheckingThread extends Thread
+    {
+
+        ChecksumCacheManager manager;
+
+        int sleepInterval = 100; // 100 ms
+        int timeSlept = 0;
+        int maxTime = 3000;      // 3 secs
+        int tolerance = 1000;    // 1 sec
+
+
+        private CheckingThread(ChecksumCacheManager manager)
+        {
+            this.manager = manager;
+        }
+
+        @Override
+        public void run()
+        {
+
+            try
+            {
+                while (timeSlept < (maxTime + tolerance))
+                {
+                    if (manager.getSize() == 1)
+                    {
+                        break; // This was expected
+                    }
+
+                    if (timeSlept > maxTime)
+                    {
+                        System.out.println("The process has exceeded the defined limit of " + maxTime + " by " + (timeSlept - maxTime) + " ms...");
+                    }
+
+                    sleep(sleepInterval);
+                    timeSlept += sleepInterval;
+                }
+            }
+            catch (InterruptedException e)
+            {
+                // This is okay.
+            }
+        }
+
+        public ChecksumCacheManager getManager()
+        {
+            return manager;
+        }
+
+        public int getSleepInterval()
+        {
+            return sleepInterval;
+        }
+
+        public int getTimeSlept()
+        {
+            return timeSlept;
+        }
+
+        public int getMaxTime()
+        {
+            return maxTime;
+        }
+
+        public int getTolerance()
+        {
+            return tolerance;
+        }
+
     }
 
 }
