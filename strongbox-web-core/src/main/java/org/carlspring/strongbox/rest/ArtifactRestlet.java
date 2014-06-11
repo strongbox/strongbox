@@ -5,9 +5,14 @@ import org.carlspring.strongbox.io.MultipleDigestInputStream;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.security.encryption.EncryptionConstants;
 import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
+import org.carlspring.strongbox.storage.DataCenter;
 import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionService;
+import org.carlspring.strongbox.storage.validation.version.VersionValidationException;
+import org.carlspring.strongbox.storage.validation.version.VersionValidator;
+import org.carlspring.strongbox.storage.validation.version.VersionValidatorService;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,7 +26,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Set;
 
+import org.apache.maven.artifact.Artifact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +51,12 @@ public class ArtifactRestlet
     @Autowired
     private ArtifactResolutionService artifactResolutionService;
 
+    @Autowired
+    private VersionValidatorService versionValidatorService;
+
+    @Autowired
+    private DataCenter dataCenter;
+
 
     @PUT
     @Path("{storage}/{repository}/{path:.*}")
@@ -61,13 +74,15 @@ public class ArtifactRestlet
 
         handleAuthentication(storage, repository, path, headers, protocol);
 
+        performRepositoryAcceptanceValidation(repository, path);
+
         boolean fileIsChecksum = path.endsWith(".md5") || path.endsWith(".sha1");
         MultipleDigestInputStream mdis = new MultipleDigestInputStream(is,
                                                                        new String[]{ EncryptionConstants.ALGORITHM_MD5,
                                                                                      EncryptionConstants.ALGORITHM_SHA1 });
 
-        // TODO: If this is not a checksum file, store the file.
-        // TODO: If this is a checksum file, keep the hash in a String.
+        // If this is not a checksum file, store the file.
+        // If this is a checksum file, keep the hash in a String.
         ByteArrayOutputStream baos = null;
         if (fileIsChecksum)
         {
@@ -121,6 +136,32 @@ public class ArtifactRestlet
         }
 
         return Response.ok().build();
+    }
+
+    private boolean performRepositoryAcceptanceValidation(String repository,
+                                                          String path)
+            throws WebApplicationException
+    {
+        if (!path.contains("/maven-metadata."))
+        {
+            try
+            {
+                Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
+                Repository r = dataCenter.getRepository(repository);
+
+                final Set<VersionValidator> validators = versionValidatorService.getValidators();
+                for (VersionValidator validator : validators)
+                {
+                    validator.validate(r, artifact);
+                }
+            }
+            catch (VersionValidationException e)
+            {
+                throw new WebApplicationException(e, Response.Status.FORBIDDEN);
+            }
+        }
+
+        return true;
     }
 
     private void validateUploadedChecksumAgainstCache(ByteArrayOutputStream baos,

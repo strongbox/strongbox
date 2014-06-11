@@ -139,6 +139,16 @@ public class Repository
         this.trashEnabled = trashEnabled;
     }
 
+    public boolean acceptsSnapshots()
+    {
+        return getPolicy().equals(RepositoryPolicyEnum.SNAPSHOT.toString());
+    }
+
+    public boolean acceptsReleases()
+    {
+        return getPolicy().equals(RepositoryPolicyEnum.RELEASE.toString());
+    }
+
     @Override
     public String toString()
     {

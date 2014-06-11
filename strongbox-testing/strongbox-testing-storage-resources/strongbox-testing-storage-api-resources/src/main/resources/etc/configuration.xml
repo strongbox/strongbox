@@ -10,12 +10,12 @@
 
             <repositories>
                 <!-- Secured repositories do not allow anonymous access -->
-                <repository name="snapshots" basedir="/snapshots" policy="snapshots" implementation="file-system" type="hosted" secured="true" />
-                <repository name="releases" basedir="/releases" policy="releases" implementation="file-system" type="hosted"/>
-                <repository name="releases-with-trash" basedir="/releases-with-trash" policy="releases" implementation="file-system" type="hosted" trash-enabled="true"/>
+                <repository name="snapshots" basedir="/snapshots" policy="snapshot" implementation="file-system" type="hosted" secured="true" />
+                <repository name="releases" basedir="/releases" policy="release" implementation="file-system" type="hosted"/>
+                <repository name="releases-with-trash" basedir="/releases-with-trash" policy="release" implementation="file-system" type="hosted" trash-enabled="true"/>
 
-                <repository name="snapshots-in-memory" basedir="/snapshots-in-memory" policy="snapshots" implementation="in-memory" type="hosted" secured="true" />
-                <repository name="releases-in-memory" basedir="/releases-in-memory" policy="releases" implementation="in-memory" type="hosted"/>
+                <repository name="snapshots-in-memory" basedir="/snapshots-in-memory" policy="snapshot" implementation="in-memory" type="hosted" secured="true" />
+                <repository name="releases-in-memory" basedir="/releases-in-memory" policy="release" implementation="in-memory" type="hosted"/>
             </repositories>
         </storage>
     </storages>

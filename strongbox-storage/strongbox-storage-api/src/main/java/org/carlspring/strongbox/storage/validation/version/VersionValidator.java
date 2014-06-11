@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.storage.validation;
+package org.carlspring.strongbox.storage.validation.version;
 
 import org.carlspring.strongbox.storage.repository.Repository;
 
@@ -15,9 +15,7 @@ public interface VersionValidator
      *
      * @param repository    The repository.
      * @param artifact      The artifact being deployed.
-     * @return              True, if the repository accepts this kind of version;
-     *                      false otherwise.
      */
-    boolean validate(Repository repository, Artifact artifact);
+    void validate(Repository repository, Artifact artifact) throws VersionValidationException;
 
 }
