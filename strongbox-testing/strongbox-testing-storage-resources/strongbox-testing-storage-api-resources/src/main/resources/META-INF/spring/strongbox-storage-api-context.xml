@@ -43,4 +43,6 @@
         <property name="resolvers" ref="resolvers"/>
     </bean>
 
+    <bean id="versionValidatorService" class="org.carlspring.strongbox.storage.validation.version.VersionValidatorService" />
+
 </beans>
