@@ -1,5 +1,8 @@
 package org.carlspring.strongbox.rest;
 
+import edu.emory.mathcs.backport.java.util.Arrays;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.index.ArtifactInfo;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.io.MultipleDigestInputStream;
 import org.carlspring.strongbox.resource.ResourceCloser;
@@ -7,6 +10,8 @@ import org.carlspring.strongbox.security.encryption.EncryptionConstants;
 import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
 import org.carlspring.strongbox.storage.DataCenter;
 import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionService;
@@ -14,6 +19,10 @@ import org.carlspring.strongbox.storage.validation.version.VersionValidationExce
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
 import org.carlspring.strongbox.storage.validation.version.VersionValidatorService;
 import org.carlspring.strongbox.util.MessageDigestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
@@ -27,12 +36,6 @@ import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Set;
-
-import org.apache.maven.artifact.Artifact;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * @author Martin Todorov
@@ -56,6 +59,9 @@ public class ArtifactRestlet
 
     @Autowired
     private DataCenter dataCenter;
+
+    @Autowired
+    private RepositoryIndexManager repositoryIndexManager;
 
 
     @PUT
@@ -281,6 +287,16 @@ public class ArtifactRestlet
         try
         {
             artifactResolutionService.delete(repository, path);
+
+            final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(repository);
+            if (indexer != null)
+            {
+                final Artifact a = ArtifactUtils.convertPathToArtifact(path);
+                indexer.delete(Arrays.asList(new ArtifactInfo[]
+                {
+                    new ArtifactInfo(repository, a.getGroupId(), a.getArtifactId(), a.getVersion(), a.getClassifier())
+                }));
+            }
         }
         catch (ArtifactResolutionException e)
         {
