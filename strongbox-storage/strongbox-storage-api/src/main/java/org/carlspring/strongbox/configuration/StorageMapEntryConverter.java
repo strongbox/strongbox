@@ -88,7 +88,7 @@ public class StorageMapEntryConverter
                     }
                     else if (reader.getNodeName().equals("repositories"))
                     {
-                        final Map<String, Repository> repositories = parseRepositories(reader, context);
+                        final Map<String, Repository> repositories = parseRepositories(reader, context, storage);
                         storage.setRepositories(repositories);
                     }
                     else
@@ -109,7 +109,8 @@ public class StorageMapEntryConverter
     }
 
     private Map<String, Repository> parseRepositories(HierarchicalStreamReader reader,
-                                                      UnmarshallingContext context)
+                                                      UnmarshallingContext context,
+                                                      Storage storage)
     {
         Map<String, Repository> repositories = new LinkedHashMap<String, Repository>();
 
@@ -118,6 +119,13 @@ public class StorageMapEntryConverter
             reader.moveDown();
 
             Repository repository = (Repository) context.convertAnother(null, Repository.class);
+            repository.setStorage(storage);
+            if (repository.acceptsSnapshots())
+            {
+                // Make sure it's possible to re-deploy SNAPSHOT artifacts,
+                // if this is a repository with a SNAPSHOT policy:
+                repository.setAllowsRedeployment(true);
+            }
             repositories.put(repository.getName(), repository);
 
             reader.moveUp();

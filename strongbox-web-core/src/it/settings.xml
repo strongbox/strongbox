@@ -46,6 +46,11 @@
             <password>password1234</password>
         </server>
         <server>
+            <id>releases-with-redeployment</id>
+            <username>maven</username>
+            <password>password</password>
+        </server>
+        <server>
             <id>snapshots-with-valid-user</id>
             <username>maven</username>
             <password>password</password>
