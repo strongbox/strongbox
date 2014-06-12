@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.visitors;
 
 import org.carlspring.strongbox.security.jaas.Group;
+import org.carlspring.strongbox.security.jaas.authentication.NotSupportedException;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -22,12 +23,20 @@ public class ParentGroupVisitorTest
 
         Set<Group> nestedGroups = new LinkedHashSet<Group>();
         ParentGroupVisitor visitor = new ParentGroupVisitor();
-        visitor.visit(group3, nestedGroups);
 
-        for (Group group : nestedGroups)
+        try
         {
-            System.out.println(group.getName());
+            visitor.visit(group3, nestedGroups);
+            for (Group group : nestedGroups)
+            {
+                System.out.println(group.getName());
+            }
         }
+        catch (NotSupportedException e)
+        {
+            e.printStackTrace();
+        }
+
     }
 
     private Group createGroup(final String name, final String description, final Group parent)
