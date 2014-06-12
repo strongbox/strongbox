@@ -75,8 +75,9 @@ public class StorageBooter
                    ComponentLookupException
     {
         initializeRepository(storagesBaseDir, "releases");
-        initializeRepository(storagesBaseDir, "releases-with-trash");
         initializeRepository(storagesBaseDir, "releases-in-memory");
+        initializeRepository(storagesBaseDir, "releases-with-trash");
+        initializeRepository(storagesBaseDir, "releases-with-redeployment");
         initializeRepository(storagesBaseDir, "snapshots");
         initializeRepository(storagesBaseDir, "snapshots-in-memory");
     }

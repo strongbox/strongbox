@@ -5,13 +5,13 @@
 
     <storages>
         <storage>
-            <!--<basedir>target/storages/storage0</basedir>-->
             <name>storage0</name>
 
             <repositories>
                 <!-- Secured repositories do not allow anonymous access -->
                 <repository name="snapshots" basedir="/snapshots" policy="snapshot" implementation="file-system" type="hosted" secured="true" />
                 <repository name="releases" basedir="/releases" policy="release" implementation="file-system" type="hosted"/>
+                <repository name="releases-with-redeployment" basedir="/releases-redeployment" policy="release" implementation="file-system" type="hosted" allows-redeployment="true"/>
                 <repository name="releases-with-trash" basedir="/releases-with-trash" policy="release" implementation="file-system" type="hosted" trash-enabled="true"/>
 
                 <repository name="snapshots-in-memory" basedir="/snapshots-in-memory" policy="snapshot" implementation="in-memory" type="hosted" secured="true" />
