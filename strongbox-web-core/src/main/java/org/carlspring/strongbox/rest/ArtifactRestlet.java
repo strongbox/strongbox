@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.rest;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.index.ArtifactInfo;
 import org.carlspring.maven.commons.util.ArtifactUtils;
@@ -15,6 +14,7 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionService;
+import org.carlspring.strongbox.storage.resolvers.LocationResolver;
 import org.carlspring.strongbox.storage.validation.version.VersionValidationException;
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
 import org.carlspring.strongbox.storage.validation.version.VersionValidatorService;
@@ -32,9 +32,9 @@ import javax.ws.rs.core.Response;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Set;
 
 /**
@@ -95,7 +95,7 @@ public class ArtifactRestlet
             baos = new ByteArrayOutputStream();
         }
 
-        OutputStream os = null;
+        LocationResolver.LocationOutput os = null;
         try
         {
             os = artifactResolutionService.getOutputStream(repository, path);
@@ -113,8 +113,8 @@ public class ArtifactRestlet
                 }
                 else
                 {
-                    os.write(bytes, 0, readLength);
-                    os.flush();
+                    os.getOutputStream().write(bytes, 0, readLength);
+                    os.getOutputStream().flush();
                     // Write the artifact
                 }
             }
@@ -128,13 +128,24 @@ public class ArtifactRestlet
         }
         finally
         {
-            ResourceCloser.close(os, logger);
+            if (os != null)
+            {
+                ResourceCloser.close(os.getOutputStream(), logger);
+            }
         }
 
         final String artifactPath = storage + "/" + repository + "/" + path;
-        if (!fileIsChecksum)
+        if (!fileIsChecksum && os != null)
         {
             addChecksumsToCacheManager(mdis, artifactPath);
+            final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(repository);
+            if (indexer != null)
+            {
+                final Artifact a = ArtifactUtils.convertPathToArtifact(path);
+                indexer.addArtifactToIndex(
+                        os.getFile(),
+                        new ArtifactInfo(repository, a.getGroupId(), a.getArtifactId(), a.getVersion(), a.getClassifier()));
+            }
         }
         else
         {
@@ -293,9 +304,10 @@ public class ArtifactRestlet
             {
                 final Artifact a = ArtifactUtils.convertPathToArtifact(path);
                 indexer.delete(Arrays.asList(new ArtifactInfo[]
-                {
-                    new ArtifactInfo(repository, a.getGroupId(), a.getArtifactId(), a.getVersion(), a.getClassifier())
-                }));
+                        {
+                                new ArtifactInfo(repository, a.getGroupId(), a.getArtifactId(), a.getVersion(),
+                                        a.getClassifier())
+                        }));
             }
         }
         catch (ArtifactResolutionException e)

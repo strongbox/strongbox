@@ -2,16 +2,14 @@ package org.carlspring.strongbox.storage.resolvers;
 
 import org.carlspring.strongbox.storage.DataCenter;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * @author mtodorov
@@ -56,14 +54,14 @@ public class ArtifactResolutionService
         return is;
     }
 
-    public OutputStream getOutputStream(String repositoryName, String artifactPath)
+    public LocationResolver.LocationOutput getOutputStream(String repositoryName, String artifactPath)
             throws ArtifactResolutionException, IOException
     {
         final Repository repository = dataCenter.getRepository(repositoryName);
         checkRepositoryExists(repositoryName, repository);
 
         LocationResolver resolver = getResolvers().get(repository.getImplementation());
-        OutputStream os = resolver.getOutputStream(repositoryName, artifactPath);
+        LocationResolver.LocationOutput os = resolver.getOutputStream(repositoryName, artifactPath);
 
         if (os == null)
         {
