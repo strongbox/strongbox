@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.visitors;
 
 import org.carlspring.strongbox.security.jaas.Group;
+import org.carlspring.strongbox.security.jaas.authentication.NotSupportedException;
 
 import java.util.*;
 
@@ -12,7 +13,7 @@ public class ParentGroupVisitor implements Visitor
 
 
     @Override
-    public void visit(Group group, Set<Group> hierarchy)
+    public void visit(Group group, Set<Group> hierarchy) throws NotSupportedException
     {
         if (group.getParent() != null)
         {
