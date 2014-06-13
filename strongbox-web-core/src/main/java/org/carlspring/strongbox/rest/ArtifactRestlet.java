@@ -138,13 +138,14 @@ public class ArtifactRestlet
         if (!fileIsChecksum && os != null)
         {
             addChecksumsToCacheManager(mdis, artifactPath);
-            final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(repository);
-            if (indexer != null)
+            if (!path.contains("/maven-metadata."))
             {
-                final Artifact a = ArtifactUtils.convertPathToArtifact(path);
-                indexer.addArtifactToIndex(
-                        os.getFile(),
-                        new ArtifactInfo(repository, a.getGroupId(), a.getArtifactId(), a.getVersion(), a.getClassifier()));
+                final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(repository);
+                if (indexer != null)
+                {
+                    final Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
+                    indexer.addArtifactToIndex(repository, os.getFile(), artifact);
+                }
             }
         }
         else

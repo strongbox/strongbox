@@ -1,6 +1,14 @@
 package org.carlspring.strongbox.storage.indexing;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.index.*;
 import org.apache.maven.index.context.IndexCreator;
 import org.apache.maven.index.context.IndexingContext;
@@ -12,14 +20,6 @@ import org.codehaus.plexus.component.repository.exception.ComponentLookupExcepti
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.LoggerManager;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
 import static java.util.Arrays.asList;
 import static org.apache.lucene.search.BooleanClause.Occur.MUST;
 import static org.apache.lucene.search.BooleanClause.Occur.MUST_NOT;
@@ -121,10 +121,22 @@ public class RepositoryIndexer
         return scan.getTotalFiles();
     }
 
-    public void addArtifactToIndex(final File artifact, final ArtifactInfo artifactInfo) throws IOException
+    public void addArtifactToIndex(final File artifactFile, final ArtifactInfo artifactInfo) throws IOException
     {
-        indexer.addArtifactsToIndex(asList(
-                new ArtifactContext(null, artifact, null, artifactInfo, null)), context);
+        indexer.addArtifactsToIndex(asList(new ArtifactContext(null, artifactFile, null, artifactInfo, null)), context);
+    }
+
+    public void addArtifactToIndex(String repository,
+                                   final File artifactFile,
+                                   final Artifact artifact)
+            throws IOException
+    {
+        ArtifactInfo artifactInfo = new ArtifactInfo(repository,
+                                                     artifact.getGroupId(),
+                                                     artifact.getArtifactId(),
+                                                     artifact.getVersion(),
+                                                     artifact.getClassifier());
+        indexer.addArtifactsToIndex(asList(new ArtifactContext(null, artifactFile, null, artifactInfo, null)), context);
     }
 
     private class ReindexArtifactScanningListener
