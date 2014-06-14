@@ -2,13 +2,16 @@ package org.carlspring.strongbox.client;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.sun.jersey.api.client.*;
-import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import org.apache.maven.artifact.Artifact;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,9 +41,7 @@ public class ArtifactClient
                             long length)
             throws ArtifactOperationException
     {
-        Client client = Client.create();
-
-        setupAuthentication(client);
+        Client client = ClientBuilder.newClient();
 
         String url = host + ":" + port + "/" + MANAGEMENT_URL + "/" +
                      repository + "/state/EXISTS/length/" + length + "/" +
@@ -48,8 +49,9 @@ public class ArtifactClient
 
         logger.debug("Using " + url);
 
-        WebResource webResource = client.resource(url);
-        ClientResponse response = webResource.type(MediaType.TEXT_PLAIN).post(ClientResponse.class);
+        WebTarget webResource = client.target(url);
+        setupAuthentication(webResource);
+        Response response = webResource.request(MediaType.TEXT_PLAIN).get();
 
         int status = response.getStatus();
 
@@ -64,9 +66,7 @@ public class ArtifactClient
             throws ArtifactTransportException,
                    IOException
     {
-        Client client = Client.create();
-
-        setupAuthentication(client);
+        Client client = ClientBuilder.newClient();
 
         String url = host + ":" + port + "/" + contextBaseUrl + "/" +
                      repository + "/" +
@@ -74,10 +74,11 @@ public class ArtifactClient
 
         logger.debug("Getting " + url + "...");
 
-        WebResource webResource = client.resource(url);
-        ClientResponse response = webResource.get(ClientResponse.class);
+        WebTarget webResource = client.target(url);
+        setupAuthentication(webResource);
+        Response response = webResource.request(MediaType.TEXT_PLAIN).get();
 
-        final InputStream is = response.getEntity(InputStream.class);
+        final InputStream is = response.readEntity(InputStream.class);
 
         int total = 0;
         int len;
@@ -108,52 +109,48 @@ public class ArtifactClient
                                String storage,
                                String repository)
     {
-        Client client = Client.create();
-
-        setupAuthentication(client);
+        Client client = ClientBuilder.newClient();
 
         String url = getUrlForArtifact(artifact, storage, repository);
 
-        WebResource webResource = client.resource(url);
-        webResource.delete();
+        WebTarget webResource = client.target(url);
+        setupAuthentication(webResource);
+        webResource.request().delete();
     }
 
     public void delete(String storage,
                        String repository,
                        String path)
     {
-        Client client = Client.create();
-
-        setupAuthentication(client);
+        Client client = ClientBuilder.newClient();
 
         String url = host + ":" + port + "/storages/" + storage + "/" + repository + "/" + path;
 
-        WebResource webResource = client.resource(url);
-        webResource.delete();
+        WebTarget webResource = client.target(url);
+        setupAuthentication(webResource);
+        webResource.request().delete();
     }
 
     public void deleteTrash(String repository)
     {
-        Client client = Client.create();
-
-        setupAuthentication(client);
+        Client client = ClientBuilder.newClient();
 
         String url = getUrlForTrash(repository);
 
-        WebResource webResource = client.resource(url);
-        webResource.delete();
+        WebTarget webResource = client.target(url);
+        setupAuthentication(webResource);
+        webResource.request().delete();
     }
 
     public void deleteTrash()
     {
-        Client client = Client.create();
-
-        setupAuthentication(client);
+        Client client = ClientBuilder.newClient();
 
         String url = host + ":" + port + "/trash";
 
-        WebResource webResource = client.resource(url);
-        webResource.delete();
+        WebTarget webResource = client.target(url);
+        setupAuthentication(webResource);
+        webResource.request().delete();
     }
 
     public boolean artifactExists(Artifact artifact,
@@ -161,7 +158,7 @@ public class ArtifactClient
                                   String repository)
             throws ResponseException
     {
-        ClientResponse response = artifactExistsStatusCode(artifact, storage, repository);
+        Response response = artifactExistsStatusCode(artifact, storage, repository);
 
         if (response.getStatus() == 200)
         {
@@ -177,51 +174,33 @@ public class ArtifactClient
         }
     }
 
-    public ClientResponse artifactExistsStatusCode(Artifact artifact,
+    public Response artifactExistsStatusCode(Artifact artifact,
                                                    String storage,
                                                    String repository)
             throws ResponseException
     {
-        Client client = Client.create();
-
-        setupAuthentication(client);
+        Client client = ClientBuilder.newClient();
 
         String url = getUrlForArtifact(artifact, storage, repository);
 
         logger.debug("Path to artifact: " + url);
 
-        WebResource webResource = client.resource(url);
-        ClientResponse response = null;
-        try
-        {
-            response = webResource.accept("application/xml").get(ClientResponse.class);
-        }
-        catch (UniformInterfaceException e)
-        {
-            //noinspection ConstantConditions
-            throw new ResponseException(e.getMessage(), response != null ? response.getStatus() : 0);
-        }
-        catch (ClientHandlerException e)
-        {
-            //noinspection ConstantConditions
-            throw new ResponseException(e.getMessage(), response != null ? response.getStatus() : 0);
-        }
-
-        return response;
+        WebTarget webResource = client.target(url);
+        setupAuthentication(webResource);
+        return webResource.request(MediaType.APPLICATION_XML).get();
     }
 
     public boolean pathExists(String path)
     {
-        Client client = Client.create();
-
-        setupAuthentication(client);
+        Client client = ClientBuilder.newClient();
 
         String url = host + ":" + port + (path.startsWith("/") ? path : '/' + path);
 
         logger.debug("Path to artifact: " + url);
 
-        WebResource webResource = client.resource(url);
-        ClientResponse response = webResource.accept("application/xml").get(ClientResponse.class);
+        WebTarget webResource = client.target(url);
+        setupAuthentication(webResource);
+        Response response = webResource.request(MediaType.APPLICATION_XML).get();
 
         return response.getStatus() == 200;
     }
@@ -240,11 +219,11 @@ public class ArtifactClient
         return host + ":" + port + "/trash/" + repository;
     }
 
-    private void setupAuthentication(Client client)
+    private void setupAuthentication(WebTarget target)
     {
         if (username != null && password != null)
         {
-            client.addFilter(new HTTPBasicAuthFilter(username, password));
+            target.register(HttpAuthenticationFeature.basic(username, password));
         }
     }
 
