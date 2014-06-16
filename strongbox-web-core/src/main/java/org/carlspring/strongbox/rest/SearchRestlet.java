@@ -2,9 +2,7 @@ package org.carlspring.strongbox.rest;
 
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.maven.index.ArtifactInfo;
-import org.carlspring.strongbox.storage.DataCenter;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
-import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,12 +22,6 @@ public class SearchRestlet
 {
 
     private static final Logger logger = LoggerFactory.getLogger(SearchRestlet.class);
-
-    @Autowired
-    private ArtifactResolutionService artifactResolutionService;
-
-    @Autowired
-    private DataCenter dataCenter;
 
     @Autowired
     private RepositoryIndexManager repositoryIndexManager;

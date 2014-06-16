@@ -1,6 +1,10 @@
 package org.carlspring.strongbox.client;
 
+import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -9,11 +13,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
-
-import org.apache.maven.artifact.Artifact;
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 /**
  * @author mtodorov
@@ -131,6 +132,19 @@ public class ArtifactClient
         webResource.request().delete();
     }
 
+    public void search(String repository,
+                       String query)
+            throws UnsupportedEncodingException
+    {
+        Client client = ClientBuilder.newClient();
+
+        String url = host + ":" + port + "/" + repository + "?q=" + URLEncoder.encode(query, "UTF-8");
+
+        WebTarget webResource = client.target(url);
+        setupAuthentication(webResource);
+        final Response response = webResource.request().get();
+        System.out.println(response.readEntity(String.class));
+    }
     public void deleteTrash(String repository)
     {
         Client client = ClientBuilder.newClient();
