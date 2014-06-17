@@ -8,3 +8,5 @@ def client = new ArtifactClient();
 client.setUsername("maven");
 client.setPassword("password");
 client.search("releases", "*:*");
+
+// hopefully stupid groovy interprets it to the end

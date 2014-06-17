@@ -138,7 +138,7 @@ public class ArtifactClient
     {
         Client client = ClientBuilder.newClient();
 
-        String url = host + ":" + port + "/" + repository + "?q=" + URLEncoder.encode(query, "UTF-8");
+        String url = host + ":" + port + "/search/" + repository + "?q=" + URLEncoder.encode(query, "UTF-8");
 
         WebTarget webResource = client.target(url);
         setupAuthentication(webResource);
