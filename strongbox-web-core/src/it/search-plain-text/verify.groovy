@@ -7,6 +7,7 @@ def artifact = ArtifactUtils.getArtifactFromGAV("org.carlspring.maven:test-proje
 def client = new ArtifactClient();
 client.setUsername("maven");
 client.setPassword("password");
-client.search("releases", "*:*");
+def r = client.search("releases", "*:*");
+return r.indexOf("xxx") >= 0;
 
 // hopefully stupid groovy interprets it to the end

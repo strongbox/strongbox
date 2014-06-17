@@ -8,10 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.Set;
 
@@ -28,6 +26,7 @@ public class SearchRestlet
 
     @GET
     @Path("{repository}")
+    @Produces(MediaType.TEXT_PLAIN)
     public String upload(@PathParam("repository") final String repository,
                          @QueryParam("q") final String queryText)
             throws IOException, ParseException
@@ -38,6 +37,7 @@ public class SearchRestlet
         {
             response.append(result.toString()).append(System.lineSeparator());
         }
+        response.append("xxx:xxx:xxx\n");
         return response.toString();
     }
 }

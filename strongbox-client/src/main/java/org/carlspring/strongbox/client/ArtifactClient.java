@@ -132,8 +132,8 @@ public class ArtifactClient
         webResource.request().delete();
     }
 
-    public void search(String repository,
-                       String query)
+    public String search(String repository,
+                         String query)
             throws UnsupportedEncodingException
     {
         Client client = ClientBuilder.newClient();
@@ -142,9 +142,10 @@ public class ArtifactClient
 
         WebTarget webResource = client.target(url);
         setupAuthentication(webResource);
-        final Response response = webResource.request().get();
-        System.out.println(response.readEntity(String.class));
+        final Response response = webResource.request(MediaType.TEXT_PLAIN).get();
+        return response.readEntity(String.class);
     }
+
     public void deleteTrash(String repository)
     {
         Client client = ClientBuilder.newClient();
