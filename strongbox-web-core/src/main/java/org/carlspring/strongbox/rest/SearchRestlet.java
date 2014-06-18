@@ -37,7 +37,8 @@ public class SearchRestlet
         {
             response.append(result.toString()).append(System.lineSeparator());
         }
-        response.append("xxx:xxx:xxx\n");
-        return response.toString();
+        final String responseText = response.toString();
+        logger.info("response:\n{}", responseText);
+        return responseText;
     }
 }

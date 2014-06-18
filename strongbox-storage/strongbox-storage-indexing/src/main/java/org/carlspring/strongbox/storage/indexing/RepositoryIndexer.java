@@ -7,6 +7,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.util.Version;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.index.*;
+import org.apache.maven.index.Scanner;
 import org.apache.maven.index.context.IndexCreator;
 import org.apache.maven.index.context.IndexingContext;
 import org.apache.maven.index.expr.SourcedSearchExpression;
@@ -20,10 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.Arrays.asList;
 import static org.apache.lucene.search.BooleanClause.Occur.MUST;
@@ -35,11 +33,7 @@ public class RepositoryIndexer
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(RepositoryIndexer.class);
     private static final Version luceneVersion = Version.LUCENE_36;
     private static final String [] luceneFields = new String [] {
-            MAVEN.GROUP_ID.getFieldName(),
-            MAVEN.ARTIFACT_ID.getFieldName(),
-            MAVEN.VERSION.getFieldName(),
-            MAVEN.PACKAGING.getFieldName(),
-            MAVEN.CLASSIFIER.getFieldName()
+            "g", "a", "v", "p", "c"
     };
     private static final StandardAnalyzer luceneAnalyzer = new StandardAnalyzer(luceneVersion);
 
@@ -100,7 +94,8 @@ public class RepositoryIndexer
         final List<ArtifactContext> delete = new ArrayList<ArtifactContext>();
         for (final ArtifactInfo artifact : artifacts)
         {
-            logger.info("deleting artifact: {}", artifact.toString());
+            logger.info("deleting artifact: {}; ctx id: {}; idx dir: {}",
+                    new String [] { artifact.toString(), context.getId(), context.getIndexDirectory().toString() });
             delete.add(new ArtifactContext(null, null, null, artifact, null));
         }
 
@@ -126,8 +121,16 @@ public class RepositoryIndexer
         logger.info("running search query: {}; ctx id: {}; idx dir: {}",
                 new String [] { query.toString(), context.getId(), context.getIndexDirectory().toString() });
         final FlatSearchResponse response = indexer.searchFlat(new FlatSearchRequest(query, context));
-
-        return response.getResults();
+        logger.info("hit count: {}", response.getReturnedHitsCount());
+        final Set<ArtifactInfo> results = response.getResults();
+        if (logger.isDebugEnabled())
+        {
+            for (final ArtifactInfo result : results)
+            {
+                logger.debug("found artifact: {}", result.toString());
+            }
+        }
+        return results;
     }
 
     public Set<ArtifactInfo> search(final String queryText)
@@ -138,7 +141,15 @@ public class RepositoryIndexer
                 new String [] { query.toString(), context.getId(), context.getIndexDirectory().toString() });
         final FlatSearchResponse response = indexer.searchFlat(new FlatSearchRequest(query, context));
         logger.info("hit count: {}", response.getReturnedHitsCount());
-        return response.getResults();
+        final Set<ArtifactInfo> results = response.getResults();
+        if (logger.isDebugEnabled())
+        {
+            for (final ArtifactInfo result : results)
+            {
+                logger.debug("found artifact: {}", result.toString());
+            }
+        }
+        return results;
     }
 
     public int index(final File startingPath)
@@ -203,8 +214,8 @@ public class RepositoryIndexer
         {
             try
             {
-                logger.info("adding artifact: {}; ctx id: {}; idx dir: {}",
-                        new String [] { ac.toString(), context.getId(), context.getIndexDirectory().toString() });
+                logger.info("adding artifact gav: {}; ctx id: {}; idx dir: {}",
+                        new String [] { ac.getGav().toString(), context.getId(), context.getIndexDirectory().toString() });
                 indexer.addArtifactsToIndex(asList(ac), context);
                 totalFiles++;
             }
