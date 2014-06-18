@@ -86,8 +86,8 @@ public class InMemoryLocationResolver implements LocationResolver
     }
 
     @Override
-    public OutputStream getOutputStream(String repository,
-                                        String artifactPath)
+    public LocationOutput getOutputStream(String repository,
+                                          String artifactPath)
             throws IOException
     {
         for (Map.Entry entry : dataCenter.getStorages().entrySet())
@@ -107,7 +107,7 @@ public class InMemoryLocationResolver implements LocationResolver
                                                                                                           ArtifactExistenceState.EXISTS));
                 }
 
-                return new ByteArrayOutputStream();
+                return new LocationOutput(null, new ByteArrayOutputStream());
             }
         }
 

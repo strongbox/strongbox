@@ -5,6 +5,7 @@ import org.apache.lucene.queryParser.MultiFieldQueryParser;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.Version;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.index.*;
 import org.apache.maven.index.context.IndexCreator;
 import org.apache.maven.index.context.IndexingContext;
@@ -149,21 +150,39 @@ public class RepositoryIndexer
         return scan.getTotalFiles();
     }
 
+    public void addArtifactToIndex(final File artifactFile, final ArtifactInfo artifactInfo) throws IOException
+    {
+        indexer.addArtifactsToIndex(asList(new ArtifactContext(null, artifactFile, null, artifactInfo, null)), context);
+    }
+
+    public void addArtifactToIndex(String repository,
+                                   final File artifactFile,
+                                   final Artifact artifact)
+            throws IOException
+    {
+        ArtifactInfo artifactInfo = new ArtifactInfo(repository,
+                                                     artifact.getGroupId(),
+                                                     artifact.getArtifactId(),
+                                                     artifact.getVersion(),
+                                                     artifact.getClassifier());
+        indexer.addArtifactsToIndex(asList(new ArtifactContext(null, artifactFile, null, artifactInfo, null)), context);
+    }
+
     private class ReindexArtifactScanningListener
             implements ArtifactScanningListener
     {
 
         int totalFiles = 0;
-        private IndexingContext ctx;
+        private IndexingContext context;
 
         @Override
-        public void scanningStarted(final IndexingContext ctx)
+        public void scanningStarted(final IndexingContext context)
         {
-            this.ctx = ctx;
+            this.context = context;
         }
 
         @Override
-        public void scanningFinished(final IndexingContext ctx,
+        public void scanningFinished(final IndexingContext context,
                                      final ScanningResult result)
         {
             result.setTotalFiles(totalFiles);
@@ -185,8 +204,8 @@ public class RepositoryIndexer
             try
             {
                 logger.info("adding artifact: {}; ctx id: {}; idx dir: {}",
-                        new String [] { ac.toString(), ctx.getId(), ctx.getIndexDirectory().toString() });
-                indexer.addArtifactsToIndex(asList(ac), ctx);
+                        new String [] { ac.toString(), context.getId(), context.getIndexDirectory().toString() });
+                indexer.addArtifactsToIndex(asList(ac), context);
                 totalFiles++;
             }
             catch (IOException ex)
