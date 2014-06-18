@@ -84,6 +84,7 @@ public class RepositoryIndexer
                                                       // performed, or, if we want to "stomp" over existing index
                                                       // (unsafe to do!).
                                                 indexers);
+        logger.info("repository indexer created; id: {}; dir: {}", repositoryId, indexDir);
     }
 
     void close(boolean deleteFiles)
@@ -98,6 +99,7 @@ public class RepositoryIndexer
         final List<ArtifactContext> delete = new ArrayList<ArtifactContext>();
         for (final ArtifactInfo artifact : artifacts)
         {
+            logger.info("deleting artifact: {}", artifact.toString());
             delete.add(new ArtifactContext(null, null, null, artifact, null));
         }
 
@@ -120,6 +122,8 @@ public class RepositoryIndexer
             query.add(indexer.constructQuery(MAVEN.VERSION, new SourcedSearchExpression(version)), MUST);
         }
 
+        logger.info("running search query: {}; ctx id: {}; idx dir: {}",
+                new String [] { query.toString(), context.getId(), context.getIndexDirectory().toString() });
         final FlatSearchResponse response = indexer.searchFlat(new FlatSearchRequest(query, context));
 
         return response.getResults();
@@ -129,7 +133,10 @@ public class RepositoryIndexer
             throws org.apache.lucene.queryParser.ParseException, IOException
     {
         final Query query = new MultiFieldQueryParser(luceneVersion, luceneFields, luceneAnalyzer).parse(queryText);
+        logger.info("running search query: {}; ctx id: {}; idx dir: {}",
+                new String [] { query.toString(), context.getId(), context.getIndexDirectory().toString() });
         final FlatSearchResponse response = indexer.searchFlat(new FlatSearchRequest(query, context));
+        logger.info("hit count: {}", response.getReturnedHitsCount());
         return response.getResults();
     }
 
@@ -177,6 +184,8 @@ public class RepositoryIndexer
         {
             try
             {
+                logger.info("adding artifact: {}; ctx id: {}; idx dir: {}",
+                        new String [] { ac.toString(), ctx.getId(), ctx.getIndexDirectory().toString() });
                 indexer.addArtifactsToIndex(asList(ac), ctx);
                 totalFiles++;
             }

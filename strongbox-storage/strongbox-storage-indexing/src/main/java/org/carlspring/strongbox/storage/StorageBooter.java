@@ -3,17 +3,16 @@ package org.carlspring.strongbox.storage;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.repository.RepositoryManager;
-
-import javax.annotation.PostConstruct;
-import java.io.File;
-import java.io.IOException;
-
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * @author mtodorov
@@ -80,6 +79,8 @@ public class StorageBooter
         initializeRepository(storagesBaseDir, "releases-with-redeployment");
         initializeRepository(storagesBaseDir, "snapshots");
         initializeRepository(storagesBaseDir, "snapshots-in-memory");
+        initializeRepository(storagesBaseDir, "releases-with-valid-user");
+        initializeRepository(storagesBaseDir, "snapshots-with-valid-user");
     }
 
     private void initializeRepository(File storagesBaseDir,
