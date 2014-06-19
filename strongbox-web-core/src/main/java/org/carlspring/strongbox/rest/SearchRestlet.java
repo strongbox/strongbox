@@ -28,7 +28,7 @@ public class SearchRestlet
     @GET
     @Path("{repository}")
     @Produces(MediaType.TEXT_PLAIN)
-    public String upload(@PathParam("repository") final String repository,
+    public String search(@PathParam("repository") final String repository,
                          @QueryParam("q") final String queryText)
             throws IOException, ParseException
     {

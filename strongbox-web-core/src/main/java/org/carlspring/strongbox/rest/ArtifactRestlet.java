@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.rest;
 
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.index.ArtifactInfo;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.io.MultipleDigestInputStream;
 import org.carlspring.strongbox.resource.ResourceCloser;
@@ -16,6 +18,10 @@ import org.carlspring.strongbox.storage.validation.version.VersionValidationExce
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
 import org.carlspring.strongbox.storage.validation.version.VersionValidatorService;
 import org.carlspring.strongbox.util.MessageDigestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
@@ -27,13 +33,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Set;
-
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.index.ArtifactInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * @author Martin Todorov
@@ -133,6 +132,7 @@ public class ArtifactRestlet
         if (!fileIsChecksum && os != null)
         {
             addChecksumsToCacheManager(mdis, artifactPath);
+            logger.info("pre-check; repo: {}; path: {}", repository, artifactPath);
             if (!path.contains("/maven-metadata."))
             {
                 final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(repository);
@@ -142,7 +142,12 @@ public class ArtifactRestlet
                     final File storageBasedir = new File(dataCenter.getStorage(storage).getBasedir());
                     final File artifactFile = new File(storageBasedir, artifactPath).getCanonicalFile();
 
+                    logger.info("pre-indexer; repo: {}; file: {}", repository, artifactFile.toString());
                     indexer.addArtifactToIndex(repository, artifactFile, artifact);
+                }
+                else
+                {
+                    logger.info("no indexer for repo: {}", repository);
                 }
             }
         }

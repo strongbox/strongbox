@@ -160,7 +160,7 @@ public class RepositoryIndexer
         {
             for (final ArtifactInfo result : results)
             {
-                logger.debug("Found artifact: {}", result.toString());
+                logger.debug("Found artifact: {}; uinfo: {}", result.toString(), result.getUinfo());
             }
         }
 
@@ -191,7 +191,10 @@ public class RepositoryIndexer
                                                      artifact.getArtifactId(),
                                                      artifact.getVersion(),
                                                      artifact.getClassifier());
-        indexer.addArtifactsToIndex(asList(new ArtifactContext(null, artifactFile, null, artifactInfo, null)), context);
+        if (artifact.getType() != null) artifactInfo.setFieldValue(MAVEN.PACKAGING, artifact.getType());
+        logger.info("adding artifact: {}; repo: {}; type: {}",
+                new String[] { artifactInfo.getUinfo(), repository, artifact.getType() });
+        indexer.addArtifactsToIndex(asList(new ArtifactContext(null, artifactFile, null, artifactInfo, artifactInfo.calculateGav())), context);
     }
 
     private class ReindexArtifactScanningListener
