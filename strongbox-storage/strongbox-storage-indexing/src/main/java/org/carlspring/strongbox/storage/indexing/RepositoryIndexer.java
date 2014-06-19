@@ -31,10 +31,11 @@ public class RepositoryIndexer
 {
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(RepositoryIndexer.class);
+
     private static final Version luceneVersion = Version.LUCENE_36;
-    private static final String [] luceneFields = new String [] {
-            "g", "a", "v", "p", "c"
-    };
+
+    private static final String [] luceneFields = new String [] { "g", "a", "v", "p", "c" };
+
     private static final StandardAnalyzer luceneAnalyzer = new StandardAnalyzer(luceneVersion);
 
     private PlexusContainer plexus;
@@ -79,7 +80,7 @@ public class RepositoryIndexer
                                                       // performed, or, if we want to "stomp" over existing index
                                                       // (unsafe to do!).
                                                 indexers);
-        logger.info("repository indexer created; id: {}; dir: {}", repositoryId, indexDir);
+        logger.debug("Repository indexer created; id: {}; dir: {}", repositoryId, indexDir);
     }
 
     void close(boolean deleteFiles)
@@ -94,8 +95,10 @@ public class RepositoryIndexer
         final List<ArtifactContext> delete = new ArrayList<ArtifactContext>();
         for (final ArtifactInfo artifact : artifacts)
         {
-            logger.info("deleting artifact: {}; ctx id: {}; idx dir: {}",
-                    new String [] { artifact.toString(), context.getId(), context.getIndexDirectory().toString() });
+            logger.debug("Deleting artifact: {}; ctx id: {}; idx dir: {}",
+                         new String[]{ artifact.toString(),
+                                       context.getId(),
+                                       context.getIndexDirectory().toString() });
             delete.add(new ArtifactContext(null, null, null, artifact, null));
         }
 
@@ -118,18 +121,23 @@ public class RepositoryIndexer
             query.add(indexer.constructQuery(MAVEN.VERSION, new SourcedSearchExpression(version)), MUST);
         }
 
-        logger.info("running search query: {}; ctx id: {}; idx dir: {}",
-                new String [] { query.toString(), context.getId(), context.getIndexDirectory().toString() });
+        logger.debug("Executing search query: {}; ctx id: {}; idx dir: {}",
+                     new String[]{ query.toString(),
+                                   context.getId(),
+                                   context.getIndexDirectory().toString() });
+
         final FlatSearchResponse response = indexer.searchFlat(new FlatSearchRequest(query, context));
-        logger.info("hit count: {}", response.getReturnedHitsCount());
+        logger.info("Hit count: {}", response.getReturnedHitsCount());
+
         final Set<ArtifactInfo> results = response.getResults();
         if (logger.isDebugEnabled())
         {
             for (final ArtifactInfo result : results)
             {
-                logger.debug("found artifact: {}", result.toString());
+                logger.debug("Found artifact: {}", result.toString());
             }
         }
+
         return results;
     }
 
@@ -137,18 +145,25 @@ public class RepositoryIndexer
             throws org.apache.lucene.queryParser.ParseException, IOException
     {
         final Query query = new MultiFieldQueryParser(luceneVersion, luceneFields, luceneAnalyzer).parse(queryText);
-        logger.info("running search query: {}; ctx id: {}; idx dir: {}",
-                new String [] { query.toString(), context.getId(), context.getIndexDirectory().toString() });
+
+        logger.debug("Executing search query: {}; ctx id: {}; idx dir: {}",
+                     new String[]{ query.toString(),
+                                   context.getId(),
+                                   context.getIndexDirectory().toString() });
+
         final FlatSearchResponse response = indexer.searchFlat(new FlatSearchRequest(query, context));
-        logger.info("hit count: {}", response.getReturnedHitsCount());
+
+        logger.info("Hit count: {}", response.getReturnedHitsCount());
+
         final Set<ArtifactInfo> results = response.getResults();
         if (logger.isDebugEnabled())
         {
             for (final ArtifactInfo result : results)
             {
-                logger.debug("found artifact: {}", result.toString());
+                logger.debug("Found artifact: {}", result.toString());
             }
         }
+
         return results;
     }
 
@@ -214,14 +229,17 @@ public class RepositoryIndexer
         {
             try
             {
-                logger.info("adding artifact gav: {}; ctx id: {}; idx dir: {}",
-                        new String [] { ac.getGav().toString(), context.getId(), context.getIndexDirectory().toString() });
+                logger.debug("Adding artifact gav: {}; ctx id: {}; idx dir: {}",
+                             new String[]{ ac.getGav().toString(),
+                                           context.getId(),
+                                           context.getIndexDirectory().toString() });
+
                 indexer.addArtifactsToIndex(asList(ac), context);
                 totalFiles++;
             }
             catch (IOException ex)
             {
-                logger.error("artifact index error", ex);
+                logger.error("Artifact index error", ex);
             }
         }
     }

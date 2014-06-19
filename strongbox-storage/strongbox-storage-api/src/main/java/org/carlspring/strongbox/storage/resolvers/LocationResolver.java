@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.storage.resolvers;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -15,7 +14,7 @@ public interface LocationResolver
                                String path)
             throws IOException;
 
-    LocationOutput getOutputStream(String repository,
+    OutputStream getOutputStream(String repository,
                                  String path)
             throws IOException;
 
@@ -36,25 +35,4 @@ public interface LocationResolver
 
     void setAlias(String alias);
 
-    public class LocationOutput
-    {
-        private final File file;
-        private final OutputStream outputStream;
-
-        public LocationOutput(final File file, final OutputStream outputStream)
-        {
-            this.file = file;
-            this.outputStream = outputStream;
-        }
-
-        public File getFile()
-        {
-            return file;
-        }
-
-        public OutputStream getOutputStream()
-        {
-            return outputStream;
-        }
-    }
 }

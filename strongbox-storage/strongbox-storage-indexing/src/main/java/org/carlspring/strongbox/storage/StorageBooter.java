@@ -79,8 +79,6 @@ public class StorageBooter
         initializeRepository(storagesBaseDir, "releases-with-redeployment");
         initializeRepository(storagesBaseDir, "snapshots");
         initializeRepository(storagesBaseDir, "snapshots-in-memory");
-        initializeRepository(storagesBaseDir, "releases-with-valid-user");
-        initializeRepository(storagesBaseDir, "snapshots-with-valid-user");
     }
 
     private void initializeRepository(File storagesBaseDir,

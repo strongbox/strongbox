@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.rest;
 
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.index.ArtifactInfo;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.io.MultipleDigestInputStream;
 import org.carlspring.strongbox.resource.ResourceCloser;
@@ -14,28 +12,28 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionService;
-import org.carlspring.strongbox.storage.resolvers.LocationResolver;
 import org.carlspring.strongbox.storage.validation.version.VersionValidationException;
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
 import org.carlspring.strongbox.storage.validation.version.VersionValidatorService;
 import org.carlspring.strongbox.util.MessageDigestUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Set;
+
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.index.ArtifactInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * @author Martin Todorov
@@ -95,7 +93,7 @@ public class ArtifactRestlet
             baos = new ByteArrayOutputStream();
         }
 
-        LocationResolver.LocationOutput os = null;
+        OutputStream os = null;
         try
         {
             os = artifactResolutionService.getOutputStream(repository, path);
@@ -113,8 +111,8 @@ public class ArtifactRestlet
                 }
                 else
                 {
-                    os.getOutputStream().write(bytes, 0, readLength);
-                    os.getOutputStream().flush();
+                    os.write(bytes, 0, readLength);
+                    os.flush();
                     // Write the artifact
                 }
             }
@@ -128,10 +126,7 @@ public class ArtifactRestlet
         }
         finally
         {
-            if (os != null)
-            {
-                ResourceCloser.close(os.getOutputStream(), logger);
-            }
+            ResourceCloser.close(os, logger);
         }
 
         final String artifactPath = storage + "/" + repository + "/" + path;
@@ -144,7 +139,10 @@ public class ArtifactRestlet
                 if (indexer != null)
                 {
                     final Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
-                    indexer.addArtifactToIndex(repository, os.getFile(), artifact);
+                    final File storageBasedir = new File(dataCenter.getStorage(storage).getBasedir());
+                    final File artifactFile = new File(storageBasedir, artifactPath).getCanonicalFile();
+
+                    indexer.addArtifactToIndex(repository, artifactFile, artifact);
                 }
             }
         }
@@ -304,11 +302,11 @@ public class ArtifactRestlet
             if (indexer != null)
             {
                 final Artifact a = ArtifactUtils.convertPathToArtifact(path);
-                indexer.delete(Arrays.asList(new ArtifactInfo[]
-                        {
-                                new ArtifactInfo(repository, a.getGroupId(), a.getArtifactId(), a.getVersion(),
-                                        a.getClassifier())
-                        }));
+                indexer.delete(Arrays.asList(new ArtifactInfo(repository,
+                                                              a.getGroupId(),
+                                                              a.getArtifactId(),
+                                                              a.getVersion(),
+                                                              a.getClassifier())));
             }
         }
         catch (ArtifactResolutionException e)

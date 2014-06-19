@@ -1,17 +1,18 @@
 package org.carlspring.strongbox.storage.resolvers;
 
-import org.apache.commons.io.FileUtils;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.storage.DataCenter;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+
+import java.io.*;
+import java.util.Map;
+
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.io.*;
-import java.util.Map;
 
 /**
  * @author mtodorov
@@ -76,7 +77,7 @@ public class FSLocationResolver
     }
 
     @Override
-    public LocationOutput getOutputStream(String repository,
+    public OutputStream getOutputStream(String repository,
                                         String artifactPath)
             throws IOException
     {
@@ -99,7 +100,7 @@ public class FSLocationResolver
                     artifactFile.getParentFile().mkdirs();
                 }
 
-                return new LocationOutput(artifactFile, new FileOutputStream(artifactFile));
+                return new FileOutputStream(artifactFile);
             }
         }
 

@@ -24,6 +24,7 @@ public class SearchRestlet
     @Autowired
     private RepositoryIndexManager repositoryIndexManager;
 
+
     @GET
     @Path("{repository}")
     @Produces(MediaType.TEXT_PLAIN)
@@ -33,12 +34,16 @@ public class SearchRestlet
     {
         final Set<ArtifactInfo> results = repositoryIndexManager.getRepositoryIndex(repository).search(queryText);
         final StringBuilder response = new StringBuilder();
+
         for (final ArtifactInfo result : results)
         {
             response.append(result.toString()).append(System.lineSeparator());
         }
+
         final String responseText = response.toString();
-        logger.info("response:\n{}", responseText);
+
+        logger.debug("Response:\n{}", responseText);
+
         return responseText;
     }
 }
