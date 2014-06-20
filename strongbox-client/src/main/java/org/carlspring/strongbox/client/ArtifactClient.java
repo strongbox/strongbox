@@ -132,17 +132,33 @@ public class ArtifactClient
         webResource.request().delete();
     }
 
-    public String search(String repository,
-                         String query)
+    public String searchLucene(String query)
             throws UnsupportedEncodingException
     {
         Client client = ClientBuilder.newClient();
 
-        String url = host + ":" + port + "/search/" + repository + "?q=" + URLEncoder.encode(query, "UTF-8");
+        String url = host + ":" + port + "/search/lucene/?q=" + URLEncoder.encode(query, "UTF-8");
 
         WebTarget webResource = client.target(url);
         setupAuthentication(webResource);
+
         final Response response = webResource.request(MediaType.TEXT_PLAIN).get();
+
+        return response.readEntity(String.class);
+    }
+
+    public String searchLucene(String repository, String query)
+            throws UnsupportedEncodingException
+    {
+        Client client = ClientBuilder.newClient();
+
+        String url = host + ":" + port + "/search/lucene/" + repository + "?q=" + URLEncoder.encode(query, "UTF-8");
+
+        WebTarget webResource = client.target(url);
+        setupAuthentication(webResource);
+
+        final Response response = webResource.request(MediaType.TEXT_PLAIN).get();
+
         return response.readEntity(String.class);
     }
 

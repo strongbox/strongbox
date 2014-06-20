@@ -1,5 +1,12 @@
 package org.carlspring.strongbox.storage.indexing;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryParser.MultiFieldQueryParser;
 import org.apache.lucene.search.BooleanQuery;
@@ -7,7 +14,6 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.util.Version;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.index.*;
-import org.apache.maven.index.Scanner;
 import org.apache.maven.index.context.IndexCreator;
 import org.apache.maven.index.context.IndexingContext;
 import org.apache.maven.index.expr.SourcedSearchExpression;
@@ -18,14 +24,8 @@ import org.codehaus.plexus.component.repository.exception.ComponentLookupExcepti
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.LoggerManager;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-
 import static java.util.Arrays.asList;
 import static org.apache.lucene.search.BooleanClause.Occur.MUST;
-import static org.apache.lucene.search.BooleanClause.Occur.MUST_NOT;
 
 public class RepositoryIndexer
 {
@@ -107,18 +107,41 @@ public class RepositoryIndexer
 
     public Set<ArtifactInfo> search(final String groupId,
                                     final String artifactId,
-                                    final String version)
+                                    final String version,
+                                    final String packaging,
+                                    final String classifier)
             throws IOException
     {
         final BooleanQuery query = new BooleanQuery();
-        query.add(indexer.constructQuery(MAVEN.GROUP_ID, new SourcedSearchExpression(groupId)), MUST);
-        query.add(indexer.constructQuery(MAVEN.ARTIFACT_ID, new SourcedSearchExpression(artifactId)), MUST);
-        query.add(indexer.constructQuery(MAVEN.PACKAGING, new SourcedSearchExpression("jar")), MUST);
-        query.add(indexer.constructQuery(MAVEN.CLASSIFIER, new SourcedSearchExpression(Field.NOT_PRESENT)), MUST_NOT);
+
+        if (groupId != null)
+        {
+            query.add(indexer.constructQuery(MAVEN.GROUP_ID, new SourcedSearchExpression(groupId)), MUST);
+        }
+
+        if (artifactId != null)
+        {
+            query.add(indexer.constructQuery(MAVEN.ARTIFACT_ID, new SourcedSearchExpression(artifactId)), MUST);
+        }
 
         if (version != null)
         {
             query.add(indexer.constructQuery(MAVEN.VERSION, new SourcedSearchExpression(version)), MUST);
+        }
+
+        if (packaging != null)
+        {
+            query.add(indexer.constructQuery(MAVEN.PACKAGING, new SourcedSearchExpression(packaging)), MUST);
+        }
+        else
+        {
+            // Fallback to jar
+            query.add(indexer.constructQuery(MAVEN.PACKAGING, new SourcedSearchExpression("jar")), MUST);
+        }
+
+        if (classifier != null)
+        {
+            query.add(indexer.constructQuery(MAVEN.CLASSIFIER, new SourcedSearchExpression(classifier)), MUST);
         }
 
         logger.debug("Executing search query: {}; ctx id: {}; idx dir: {}",
@@ -161,6 +184,32 @@ public class RepositoryIndexer
             for (final ArtifactInfo result : results)
             {
                 logger.debug("Found artifact: {}; uinfo: {}", result.toString(), result.getUinfo());
+            }
+        }
+
+        return results;
+    }
+
+    public Set<ArtifactInfo> searchBySHA1(final String checksum)
+            throws IOException
+    {
+        final BooleanQuery query = new BooleanQuery();
+        query.add(indexer.constructQuery(MAVEN.SHA1, new SourcedSearchExpression(checksum)), MUST);
+
+        logger.debug("Executing search query: {}; ctx id: {}; idx dir: {}",
+                     new String[]{ query.toString(),
+                                   context.getId(),
+                                   context.getIndexDirectory().toString() });
+
+        final FlatSearchResponse response = indexer.searchFlat(new FlatSearchRequest(query, context));
+        logger.info("Hit count: {}", response.getReturnedHitsCount());
+
+        final Set<ArtifactInfo> results = response.getResults();
+        if (logger.isDebugEnabled())
+        {
+            for (final ArtifactInfo result : results)
+            {
+                logger.debug("Found artifact: {}", result.toString());
             }
         }
 
