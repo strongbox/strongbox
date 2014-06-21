@@ -1,6 +1,10 @@
 package org.carlspring.strongbox.client;
 
+import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -9,11 +13,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
-
-import org.apache.maven.artifact.Artifact;
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 /**
  * @author mtodorov
@@ -129,6 +130,36 @@ public class ArtifactClient
         WebTarget webResource = client.target(url);
         setupAuthentication(webResource);
         webResource.request().delete();
+    }
+
+    public String searchLucene(String query)
+            throws UnsupportedEncodingException
+    {
+        Client client = ClientBuilder.newClient();
+
+        String url = host + ":" + port + "/search/lucene/?q=" + URLEncoder.encode(query, "UTF-8");
+
+        WebTarget webResource = client.target(url);
+        setupAuthentication(webResource);
+
+        final Response response = webResource.request(MediaType.TEXT_PLAIN).get();
+
+        return response.readEntity(String.class);
+    }
+
+    public String searchLucene(String repository, String query)
+            throws UnsupportedEncodingException
+    {
+        Client client = ClientBuilder.newClient();
+
+        String url = host + ":" + port + "/search/lucene/" + repository + "?q=" + URLEncoder.encode(query, "UTF-8");
+
+        WebTarget webResource = client.target(url);
+        setupAuthentication(webResource);
+
+        final Response response = webResource.request(MediaType.TEXT_PLAIN).get();
+
+        return response.readEntity(String.class);
     }
 
     public void deleteTrash(String repository)
