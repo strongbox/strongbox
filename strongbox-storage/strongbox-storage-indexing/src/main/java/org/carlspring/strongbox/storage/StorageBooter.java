@@ -42,10 +42,50 @@ public class StorageBooter
     {
         File storagesBaseDir = initializeStorage();
 
-        initializeRepositories(storagesBaseDir);
+        if (!lockExists(storagesBaseDir))
+        {
+            createLockFile(storagesBaseDir);
+            initializeRepositories(storagesBaseDir);
+        }
+        else
+        {
+            System.out.println("Failed to initialize the repositories. Another JVM may have already done this.");
+        }
+    }
+
+    private void createLockFile(File storagesRootDir)
+            throws IOException
+    {
+        final File lockFile = new File(storagesRootDir, "storage-booter.lock");
+        //noinspection ResultOfMethodCallIgnored
+        lockFile.getParentFile().mkdirs();
+        //noinspection ResultOfMethodCallIgnored
+        lockFile.createNewFile();
+
+        logger.debug(" -> Created lock file '" + lockFile.getAbsolutePath() + "'...");
+    }
+
+    private boolean lockExists(File storagesRootDir)
+            throws IOException
+    {
+        File lockFile = new File(storagesRootDir, "storage-booter.lock");
+
+        if (lockFile.exists())
+        {
+            logger.debug(" -> Lock found: '" + storagesRootDir + "'!");
+
+            return true;
+        }
+        else
+        {
+            logger.debug(" -> No lock found.");
+
+            return false;
+        }
     }
 
     private File initializeStorage()
+            throws IOException
     {
         logger.debug("Running Strongbox storage booter...");
         logger.debug(" -> Creating storage directory skeleton...");
