@@ -281,7 +281,7 @@
 
                                             <overWrite>true</overWrite>
                                             <outputDirectory>${dir.strongbox}</outputDirectory>
-                                            <includes>etc/configuration.xml,META-INF/spring/**</includes>
+                                            <includes>etc/conf/strongbox.xml,META-INF/spring/**</includes>
                                         </artifactItem>
                                         <artifactItem>
                                             <groupId>${project.groupId}</groupId>
@@ -400,12 +400,12 @@
 
                             <systemProperties>
                                 <systemProperty>
-                                    <name>dir.strongbox</name>
+                                    <name>strongbox.basedir</name>
                                     <value>${dir.strongbox}</value>
                                 </systemProperty>
                                 <systemProperty>
                                     <name>repository.config.xml</name>
-                                    <value>${dir.strongbox}/etc/configuration.xml</value>
+                                    <value>${dir.strongbox}/etc/conf/strongbox.xml</value>
                                 </systemProperty>
                                 <systemProperty>
                                     <name>strongbox.storage.booter.basedir</name>

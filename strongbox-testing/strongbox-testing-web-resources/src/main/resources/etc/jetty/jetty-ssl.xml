@@ -8,7 +8,7 @@
 <!-- ============================================================= -->
 <Configure id="sslContextFactory" class="org.eclipse.jetty.util.ssl.SslContextFactory">
     <Set name="KeyStorePath">
-        <Property name="dir.strongbox" default="target/strongbox"/>/<Property name="jetty.keystore" default="etc/ssl/keystore.jks"/>
+        <Property name="strongbox.basedir"/>/<Property name="jetty.keystore" default="etc/ssl/keystore.jks"/>
     </Set>
     <Set name="KeyStorePassword">
         <Property name="jetty.keystore.password" default="password"/>
@@ -18,7 +18,7 @@
     </Set>
 
     <Set name="TrustStorePath">
-        <Property name="dir.strongbox" default="target/strongbox"/>/<Property name="jetty.truststore" default="etc/ssl/keystore.jks"/>
+        <Property name="strongbox.basedir"/>/<Property name="jetty.truststore" default="etc/ssl/keystore.jks"/>
     </Set>
     <Set name="TrustStorePassword">
         <Property name="jetty.truststore.password" default="password"/>
