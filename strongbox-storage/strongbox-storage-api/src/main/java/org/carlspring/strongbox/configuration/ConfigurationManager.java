@@ -40,9 +40,9 @@ public class ConfigurationManager
     public void init()
             throws IOException
     {
-        Resource resource = configurationResourceResolver.getConfigurationResource("etc/configuration.xml",
+        Resource resource = configurationResourceResolver.getConfigurationResource(ConfigurationResourceResolver.getBasedir() + "/etc/conf/strongbox.xml",
                                                                                    "repository.config.xml",
-                                                                                   "etc/configuration.xml");
+                                                                                   "etc/conf/strongbox.xml");
 
         logger.info("Loading Strongbox configuration from " + resource.toString() + "...");
 

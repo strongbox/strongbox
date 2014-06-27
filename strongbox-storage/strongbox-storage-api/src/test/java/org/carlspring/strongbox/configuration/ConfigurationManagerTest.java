@@ -8,6 +8,7 @@ import org.carlspring.strongbox.xml.parsers.ConfigurationParser;
 import java.io.File;
 import java.io.IOException;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +26,9 @@ public class ConfigurationManagerTest
 
     public static final String TEST_CLASSES = "target/test-classes";
 
-    public static final String CONFIGURATION_BASEDIR = TEST_CLASSES + "/configuration";
+    public static final String CONFIGURATION_BASEDIR = TEST_CLASSES + "/xml";
 
-    public static final String CONFIGURATION_FILE = CONFIGURATION_BASEDIR + "/configuration.xml";
-
-    public static final String CONFIGURATION_OUTPUT_FILE = CONFIGURATION_BASEDIR + "/configuration-saved-cm.xml";
+    public static final String CONFIGURATION_OUTPUT_FILE = CONFIGURATION_BASEDIR + "/strongbox-saved-cm.xml";
 
     public static final String STORAGE_BASEDIR = TEST_CLASSES + "/storages/storage0";
 
@@ -39,6 +38,18 @@ public class ConfigurationManagerTest
     @Autowired
     private ArtifactResolutionService artifactResolutionService;
 
+
+    @Before
+    public void setUp()
+            throws Exception
+    {
+        File xmlDir = new File(CONFIGURATION_BASEDIR);
+        if (!xmlDir.exists())
+        {
+            //noinspection ResultOfMethodCallIgnored
+            xmlDir.mkdirs();
+        }
+    }
 
     @Test
     public void testParseConfiguration()
