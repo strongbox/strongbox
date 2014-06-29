@@ -5,6 +5,7 @@ import org.apache.maven.index.ArtifactInfo;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.io.MultipleDigestInputStream;
 import org.carlspring.strongbox.resource.ResourceCloser;
+import org.carlspring.strongbox.util.ArtifactFileUtils;
 import org.carlspring.strongbox.security.encryption.EncryptionConstants;
 import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
 import org.carlspring.strongbox.storage.DataCenter;
@@ -132,8 +133,8 @@ public class ArtifactRestlet
         if (!fileIsChecksum && os != null)
         {
             addChecksumsToCacheManager(mdis, artifactPath);
-            logger.info("pre-check; repo: {}; path: {}", repository, artifactPath);
-            if (!path.contains("/maven-metadata."))
+
+            if (ArtifactFileUtils.isArtifactFile(path))
             {
                 final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(repository);
                 if (indexer != null)
@@ -142,12 +143,7 @@ public class ArtifactRestlet
                     final File storageBasedir = new File(dataCenter.getStorage(storage).getBasedir());
                     final File artifactFile = new File(storageBasedir, artifactPath).getCanonicalFile();
 
-                    logger.info("pre-indexer; repo: {}; file: {}", repository, artifactFile.toString());
                     indexer.addArtifactToIndex(repository, artifactFile, artifact);
-                }
-                else
-                {
-                    logger.info("no indexer for repo: {}", repository);
                 }
             }
         }
