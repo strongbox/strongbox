@@ -12,6 +12,8 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.ArtifactInfoUtils;
 
+import org.codehaus.jettison.mapped.MappedNamespaceConvention;
+import org.codehaus.jettison.mapped.MappedXMLStreamWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +21,12 @@ import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.io.IOException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+import java.io.*;
 import java.util.Set;
 
 @Component
@@ -71,6 +78,81 @@ public class SearchRestlet
         logger.debug("Response:\n{}", responseText);
 
         return responseText;
+    }
+
+    @GET
+    @Path("lucene2/{repository}")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
+    public Response search2(@PathParam("repository") final String repository,
+                            @QueryParam("q") final String queryText,
+                            @DefaultValue("xml") @QueryParam("format") final String format)
+            throws IOException, ParseException
+    {
+        final Set<ArtifactInfo> results = repositoryIndexManager.getRepositoryIndex(repository).search(queryText);
+        return Response.ok(new StreamingOutput()
+        {
+            @Override
+            public void write(final OutputStream os) throws IOException, WebApplicationException
+            {
+                if ("xml".equals(format) || "json".equals(format))
+                {
+                    try
+                    {
+                        final XMLStreamWriter xsw = "xml".equals(format) ?
+                                XMLOutputFactory.newFactory().createXMLStreamWriter(os) :
+                                new MappedXMLStreamWriter(new MappedNamespaceConvention(), new OutputStreamWriter(os));
+
+                        xsw.writeStartDocument();
+                        xsw.writeStartElement("artifacts");
+
+                        for (final ArtifactInfo artifactInfo : results)
+                        {
+                            xsw.writeStartElement("artifact");
+                            xsw.writeStartElement("groupId");
+                            xsw.writeCharacters(artifactInfo.groupId);
+                            xsw.writeEndElement();
+                            xsw.writeStartElement("artifactId");
+                            xsw.writeCharacters(artifactInfo.artifactId);
+                            xsw.writeEndElement();
+                            xsw.writeStartElement("version");
+                            xsw.writeCharacters(artifactInfo.version);
+                            xsw.writeEndElement();
+                            xsw.writeEndElement();
+                        }
+
+                        xsw.writeEndElement();
+                        xsw.writeEndDocument();
+                    }
+                    catch (XMLStreamException ex)
+                    {
+                        throw new IOException(ex);
+                    }
+                }
+                else
+                {
+                    try (final Writer w = new OutputStreamWriter(os))
+                    {
+                        if (!results.isEmpty())
+                        {
+                            w.append(repository).append("/");
+                            w.append(System.lineSeparator());
+
+                            for (final ArtifactInfo artifactInfo : results)
+                            {
+                                final String gavtc = ArtifactInfoUtils.convertToGAVTC(artifactInfo);
+                                final Artifact artifactFromGAVTC = ArtifactUtils.getArtifactFromGAVTC(gavtc);
+                                final String pathToArtifactFile = ArtifactUtils.convertArtifactToPath(artifactFromGAVTC);
+
+                                w.append("   ").append(gavtc).append(", ");
+                                w.append(pathToArtifactFile).append(System.lineSeparator());
+                            }
+                        }
+                    }
+                }
+            }
+        }).type("xml" .equals(format) ? MediaType.APPLICATION_XML  :
+                "json".equals(format) ? MediaType.APPLICATION_JSON :
+                                        MediaType.TEXT_PLAIN).build();
     }
 
     /**
