@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.storage.validation.version;
 
+import org.carlspring.strongbox.storage.services.VersionValidatorService;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,13 +18,13 @@ public class VersionValidatorServiceTest
 {
 
     @Autowired
-    private VersionValidatorService validatorService;
+    private VersionValidatorService versionValidatorService;
 
 
     @Test
     public void testValidationService()
     {
-        assertFalse(validatorService.getValidators().isEmpty());
+        assertFalse(versionValidatorService.getValidators().isEmpty());
     }
 
 }

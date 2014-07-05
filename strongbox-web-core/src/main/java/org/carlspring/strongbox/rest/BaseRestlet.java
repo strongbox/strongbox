@@ -5,6 +5,7 @@ import org.carlspring.strongbox.security.jaas.authentication.AuthenticationExcep
 import org.carlspring.strongbox.security.jaas.authentication.basic.BasicAuthenticationDecoder;
 import org.carlspring.strongbox.storage.DataCenter;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
 import java.util.List;
 
@@ -79,9 +80,11 @@ public abstract class BaseRestlet
                                      String repository,
                                      String path,
                                      HttpHeaders headers,
-                                     String protocol)
+                                     HttpServletRequest request)
             throws AuthenticationException
     {
+        String protocol = request.getRequestURL().toString().split(":")[0];
+
         if (requiresAuthentication(storage, repository, path, protocol) &&
             (!validateAuthentication(storage, repository, path, headers, protocol)))
         {

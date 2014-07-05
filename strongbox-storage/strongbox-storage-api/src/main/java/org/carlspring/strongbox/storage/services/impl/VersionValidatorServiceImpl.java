@@ -1,4 +1,7 @@
-package org.carlspring.strongbox.storage.validation.version;
+package org.carlspring.strongbox.storage.services.impl;
+
+import org.carlspring.strongbox.storage.services.VersionValidatorService;
+import org.carlspring.strongbox.storage.validation.version.VersionValidator;
 
 import java.util.LinkedHashSet;
 import java.util.ServiceLoader;
@@ -10,13 +13,14 @@ import org.springframework.stereotype.Component;
  * @author mtodorov
  */
 @Component
-public class VersionValidatorService
+public class VersionValidatorServiceImpl
+        implements VersionValidatorService
 {
 
     private Set<VersionValidator> validators = new LinkedHashSet<>();
 
 
-    public VersionValidatorService()
+    public VersionValidatorServiceImpl()
     {
         ServiceLoader<VersionValidator> versionValidators = ServiceLoader.load(VersionValidator.class);
         for (VersionValidator versionValidator : versionValidators)
@@ -25,6 +29,7 @@ public class VersionValidatorService
         }
     }
 
+    @Override
     public Set<VersionValidator> getValidators()
     {
         return validators;
