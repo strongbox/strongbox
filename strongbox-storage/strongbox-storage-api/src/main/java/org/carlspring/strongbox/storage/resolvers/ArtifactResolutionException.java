@@ -1,9 +1,11 @@
 package org.carlspring.strongbox.storage.resolvers;
 
+import java.io.IOException;
+
 /**
  * @author mtodorov
  */
-public class ArtifactResolutionException extends Exception
+public class ArtifactResolutionException extends IOException
 {
 
     public ArtifactResolutionException()
