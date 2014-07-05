@@ -1,7 +1,10 @@
-package org.carlspring.strongbox.storage.resolvers;
+package org.carlspring.strongbox.storage.services.impl;
 
 import org.carlspring.strongbox.storage.DataCenter;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
+import org.carlspring.strongbox.storage.resolvers.LocationResolver;
+import org.carlspring.strongbox.storage.services.ArtifactResolutionService;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -12,12 +15,14 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import static org.carlspring.strongbox.util.RepositoryUtils.checkRepositoryExists;
 
 /**
  * @author mtodorov
  */
 @Component
-public class ArtifactResolutionService
+public class ArtifactResolutionServiceImpl
+        implements ArtifactResolutionService
 {
 
     @Resource(name = "resolvers")
@@ -27,6 +32,7 @@ public class ArtifactResolutionService
     private DataCenter dataCenter;
 
 
+    @Override
     @PostConstruct
     public void listResolvers()
     {
@@ -39,7 +45,9 @@ public class ArtifactResolutionService
         }
     }
 
-    public InputStream getInputStream(String repositoryName, String artifactPath)
+    @Override
+    public InputStream getInputStream(String repositoryName,
+                                      String artifactPath)
             throws ArtifactResolutionException, IOException
     {
         final Repository repository = dataCenter.getRepository(repositoryName);
@@ -56,7 +64,9 @@ public class ArtifactResolutionService
         return is;
     }
 
-    public OutputStream getOutputStream(String repositoryName, String artifactPath)
+    @Override
+    public OutputStream getOutputStream(String repositoryName,
+                                        String artifactPath)
             throws ArtifactResolutionException, IOException
     {
         final Repository repository = dataCenter.getRepository(repositoryName);
@@ -67,54 +77,13 @@ public class ArtifactResolutionService
 
         if (os == null)
         {
-            throw new ArtifactResolutionException("Artifact " + artifactPath + " could not be stored.");
+            throw new ArtifactResolutionException("Artifact " + artifactPath + " cannot be stored.");
         }
 
         return os;
     }
 
-    public void delete(String repositoryName, String artifactPath)
-            throws ArtifactResolutionException, IOException
-    {
-        final Repository repository = dataCenter.getRepository(repositoryName);
-        checkRepositoryExists(repositoryName, repository);
-
-        LocationResolver resolver = getResolvers().get(repository.getImplementation());
-
-        resolver.delete(repositoryName, artifactPath);
-    }
-
-    // TODO: This should have restricted access.
-    public void deleteTrash(String repositoryName)
-            throws ArtifactResolutionException, IOException
-    {
-        final Repository repository = dataCenter.getRepository(repositoryName);
-        checkRepositoryExists(repositoryName, repository);
-
-        LocationResolver resolver = getResolvers().get(repository.getImplementation());
-        resolver.deleteTrash(repositoryName);
-    }
-
-    // TODO: This should have restricted access.
-    public void deleteTrash()
-            throws ArtifactResolutionException, IOException
-    {
-        for (LocationResolver resolver : getResolvers().values())
-        {
-            resolver.deleteTrash();
-        }
-    }
-
-    private void checkRepositoryExists(String repositoryName,
-                                       Repository repository)
-            throws ArtifactResolutionException
-    {
-        if (repository == null)
-        {
-            throw new ArtifactResolutionException("Repository " + repositoryName + " does not exist.");
-        }
-    }
-
+    @Override
     public Map<String, LocationResolver> getResolvers()
     {
         return resolvers;
@@ -125,6 +94,7 @@ public class ArtifactResolutionService
         this.resolvers = resolvers;
     }
 
+    @Override
     public DataCenter getDataCenter()
     {
         return dataCenter;

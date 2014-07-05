@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.io;
 
+import org.carlspring.strongbox.security.encryption.EncryptionConstants;
+
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,6 +21,15 @@ public class MultipleDigestInputStream
 
     private Map<String, MessageDigest> digests = new LinkedHashMap<String, MessageDigest>();
 
+    public static final String[] DEFAULT_ALGORITHMS = { EncryptionConstants.ALGORITHM_MD5,
+                                                        EncryptionConstants.ALGORITHM_SHA1 };
+
+
+    public MultipleDigestInputStream(InputStream is)
+            throws NoSuchAlgorithmException
+    {
+        this(is, DEFAULT_ALGORITHMS);
+    }
 
     public MultipleDigestInputStream(InputStream is,
                                      String[] algorithms)

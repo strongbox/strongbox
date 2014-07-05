@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.rest;
 
-import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
-import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionService;
+import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
+import org.carlspring.strongbox.storage.services.ArtifactManagementService;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.Path;
@@ -27,7 +27,7 @@ public class TrashRestlet
     private static final Logger logger = LoggerFactory.getLogger(TrashRestlet.class);
 
     @Autowired
-    private ArtifactResolutionService artifactResolutionService;
+    private ArtifactManagementService artifactManagementService;
 
 
     @DELETE
@@ -39,9 +39,9 @@ public class TrashRestlet
 
         try
         {
-            artifactResolutionService.deleteTrash(repository);
+            artifactManagementService.deleteTrash(repository);
         }
-        catch (ArtifactResolutionException e)
+        catch (ArtifactStorageException e)
         {
             throw new WebApplicationException(e, Response.Status.NOT_FOUND);
         }
@@ -57,9 +57,9 @@ public class TrashRestlet
 
         try
         {
-            artifactResolutionService.deleteTrash();
+            artifactManagementService.deleteTrash();
         }
-        catch (ArtifactResolutionException e)
+        catch (ArtifactStorageException e)
         {
             throw new WebApplicationException(e, Response.Status.NOT_FOUND);
         }
