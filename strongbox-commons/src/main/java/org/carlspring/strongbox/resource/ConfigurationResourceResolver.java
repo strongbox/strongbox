@@ -88,4 +88,17 @@ public class ConfigurationResourceResolver
         return resource;
     }
 
+    public static String getBasedir()
+    {
+        final String basedir = System.getProperty("strongbox.basedir");
+        if (basedir != null)
+        {
+            return new File(basedir).getAbsolutePath();
+        }
+        else
+        {
+            return new File(".").getAbsolutePath();
+        }
+    }
+
 }
