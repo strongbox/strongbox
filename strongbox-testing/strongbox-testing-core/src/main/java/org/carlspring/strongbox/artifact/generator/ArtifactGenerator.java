@@ -36,6 +36,11 @@ public class ArtifactGenerator
         this.basedir = basedir;
     }
 
+    public ArtifactGenerator(File basedir)
+    {
+        this.basedir = basedir.getAbsolutePath();
+    }
+
     public void generate(Artifact artifact)
             throws IOException,
                    XmlPullParserException,
