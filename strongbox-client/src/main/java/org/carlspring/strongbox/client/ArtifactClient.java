@@ -2,12 +2,14 @@ package org.carlspring.strongbox.client;
 
 import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -37,6 +39,46 @@ public class ArtifactClient
     private String password;
 
 
+    public void addArtifact(Artifact artifact,
+                            String storage,
+                            String repository,
+                            InputStream is)
+            throws ArtifactOperationException
+    {
+        Client client = ClientBuilder.newClient();
+
+        String url = host + ":" + port + "/" + storage + "/" + repository + "/" +
+                     ArtifactUtils.convertArtifactToPath(artifact);
+
+        logger.debug("Deploying " + url + "...");
+
+        String fileName = ArtifactUtils.getArtifactFileName(artifact);
+
+        String contentDisposition = "attachment; filename=\"" + fileName +"\"";
+
+        WebTarget resource = client.target(url);
+        setupAuthentication(resource);
+        Response response = resource.request(MediaType.APPLICATION_OCTET_STREAM)
+                                    .header("Content-Disposition", contentDisposition)
+                                    .put(Entity.entity(is, MediaType.APPLICATION_OCTET_STREAM));
+
+        int status = response.getStatus();
+
+        if (status != 200)
+        {
+            throw new ArtifactOperationException("Failed to create artifact!");
+        }
+    }
+
+    /**
+     * This method will deploy an artifact with a random length to the remote host.
+     * NOTE: This artifacts file will not be a valid Maven one, but will exist for the sake of testing.
+     *
+     * @param artifact
+     * @param repository
+     * @param length
+     * @throws ArtifactOperationException
+     */
     public void addArtifact(Artifact artifact,
                             String repository,
                             long length)
