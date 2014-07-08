@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.storage;
+package org.carlspring.strongbox.booters;
 
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
