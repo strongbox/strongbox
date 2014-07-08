@@ -8,6 +8,10 @@
     <context:component-scan base-package="org.carlspring.strongbox"/>
 
     <!-- This storage booter should only be invoked during testing. -->
-    <bean id="storageBooter" class="org.carlspring.strongbox.storage.StorageBooter"/>
+    <bean id="storageBooter" class="org.carlspring.strongbox.booters.StorageBooter"/>
+
+    <!-- This booter copies all the configuration resources which are only on the classpath
+         and not yet present on the file-system. -->
+    <bean id="resourcesBooter" class="org.carlspring.strongbox.booters.ResourcesBooter"/>
 
 </beans>
