@@ -21,16 +21,17 @@ import org.codehaus.plexus.DefaultPlexusContainer;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.LoggerManager;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static java.util.Arrays.asList;
 import static org.apache.lucene.search.BooleanClause.Occur.MUST;
+import static org.codehaus.plexus.logging.Logger.LEVEL_DEBUG;
 
 public class RepositoryIndexer
 {
 
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(RepositoryIndexer.class);
+    private static final Logger logger = LoggerFactory.getLogger(RepositoryIndexer.class);
 
     private static final Version luceneVersion = Version.LUCENE_36;
 
@@ -66,7 +67,7 @@ public class RepositoryIndexer
                           plexus.lookup(IndexCreator.class, "maven-plugin"));
 
         // @TODO: remove once no longer needed
-        plexus.lookup(LoggerManager.class).setThresholds(Logger.LEVEL_DEBUG);
+        plexus.lookup(LoggerManager.class).setThresholds(LEVEL_DEBUG);
 
         context = indexer.createIndexingContext(repositoryId + "/ctx",
                                                 repositoryId,
