@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.rest;
 
+import javanet.staxutils.IndentingXMLStreamWriter;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.index.ArtifactInfo;
@@ -99,7 +100,8 @@ public class SearchRestlet
                     try
                     {
                         final XMLStreamWriter xsw = "xml".equals(format) ?
-                                                    XMLOutputFactory.newFactory().createXMLStreamWriter(os) :
+                                                    new IndentingXMLStreamWriter(
+                                                            XMLOutputFactory.newFactory().createXMLStreamWriter(os)) :
                                                     new MappedXMLStreamWriter(new MappedNamespaceConvention(),
                                                                               new OutputStreamWriter(os));
 
