@@ -9,7 +9,7 @@ def r0 = client.searchLucene("releases", "g:org.carlspring.maven v:1.0.11 p:pom"
 def r1 = client.searchLucene("releases", "g:org.carlspring.maven v:1.0.11 p:p*", "text");
 def r2 = client.searchLucene("releases", "g:org.carlspring.*", "text");
 def r3 = client.searchLucene("releases", "g:org.carlspring.* v:1.0.1*   ", "text");
-def r4 = client.searchLucene("releases", "u:org.carlspring.*|1.0.12*", "text");
+def r4 = client.searchLucene("releases", "u:org.carlspring.*|1.0.11*", "text");
 def r5 = client.searchLucene("u:org.carlspring.*");
 
 System.out.println("*** g:org.carlspring.maven v:1.0.11 p:pom ***");
@@ -30,4 +30,4 @@ System.out.println("*********************************************");
 
 return r0.indexOf("1.0.11") >= 0 && r1.indexOf("1.0.11") >= 0 &&
        r2.indexOf("1.0.11") >= 0 && r3.indexOf("1.0.5") < 0 &&
-       r4.indexOf("1.0.12") >= 0 && r5.contains("1.0.12");
+       r4.indexOf("1.0.11.1") >= 0 && r5.contains("1.0.11.1");

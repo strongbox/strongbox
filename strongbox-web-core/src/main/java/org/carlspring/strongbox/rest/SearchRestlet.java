@@ -99,8 +99,9 @@ public class SearchRestlet
                     try
                     {
                         final XMLStreamWriter xsw = "xml".equals(format) ?
-                                XMLOutputFactory.newFactory().createXMLStreamWriter(os) :
-                                new MappedXMLStreamWriter(new MappedNamespaceConvention(), new OutputStreamWriter(os));
+                                                    XMLOutputFactory.newFactory().createXMLStreamWriter(os) :
+                                                    new MappedXMLStreamWriter(new MappedNamespaceConvention(),
+                                                                              new OutputStreamWriter(os));
 
                         xsw.writeStartDocument();
                         xsw.writeStartElement("artifacts");

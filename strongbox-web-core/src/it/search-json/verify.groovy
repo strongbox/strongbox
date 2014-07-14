@@ -7,4 +7,6 @@ client.setPassword("password");
 
 def r0 = client.searchLucene("releases", "g:org.carlspring.maven", "json");
 
-return r0.indexOf("\"1.0.11\"") >= 0;
+System.out.println(r0);
+
+return r0.indexOf("\"1.0.11.2.1\"") >= 0;
