@@ -50,43 +50,17 @@ public class SearchRestlet
      *
      * @param repository
      * @param queryText
+     * @param format
      * @return
      * @throws IOException
      * @throws ParseException
      */
     @GET
     @Path("lucene/{repository}")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String search(@PathParam("repository") final String repository,
-                         @QueryParam("q") final String queryText)
-            throws IOException, ParseException
-    {
-        final Set<ArtifactInfo> results = repositoryIndexManager.getRepositoryIndex(repository).search(queryText);
-        final StringBuilder response = new StringBuilder();
-
-        for (final ArtifactInfo artifactInfo : results)
-        {
-            final String gavtc = ArtifactInfoUtils.convertToGAVTC(artifactInfo);
-            final Artifact artifactFromGAVTC = ArtifactUtils.getArtifactFromGAVTC(gavtc);
-            final String pathToArtifactFile = ArtifactUtils.convertArtifactToPath(artifactFromGAVTC);
-
-            response.append(gavtc).append(", ");
-            response.append(pathToArtifactFile).append(System.lineSeparator());
-        }
-
-        final String responseText = response.toString();
-
-        logger.debug("Response:\n{}", responseText);
-
-        return responseText;
-    }
-
-    @GET
-    @Path("lucene2/{repository}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
     public Response search2(@PathParam("repository") final String repository,
                             @QueryParam("q") final String queryText,
-                            @DefaultValue("xml") @QueryParam("format") final String format)
+                            @DefaultValue("text") @QueryParam("format") final String format)
             throws IOException, ParseException
     {
         final Set<ArtifactInfo> results = repositoryIndexManager.getRepositoryIndex(repository).search(queryText);

@@ -194,7 +194,7 @@ public class ArtifactClient
     {
         Client client = ClientBuilder.newClient();
 
-        String url = host + ":" + port + "/search/lucene2/" + repository + "?q=" + URLEncoder.encode(query, "UTF-8") + "&format=" + format;
+        String url = host + ":" + port + "/search/lucene/" + repository + "?q=" + URLEncoder.encode(query, "UTF-8") + "&format=" + format;
 
         WebTarget webResource = client.target(url);
         setupAuthentication(webResource);
