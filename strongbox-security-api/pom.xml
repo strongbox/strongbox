@@ -157,12 +157,12 @@
                 <version>1.0-SNAPSHOT</version>
 
                 <configuration>
-
+                    <hash>5FD4F8E2A</hash>
                 </configuration>
 
                 <executions>
                     <execution>
-                        <id>start-unsecured</id>
+                        <id>start</id>
                         <phase>test-compile</phase>
                         <goals>
                             <goal>start</goal>
@@ -173,6 +173,17 @@
                             <userCredentials>
                                 <testuser>password</testuser>
                             </userCredentials>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>stop</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+
+                        <configuration>
+                            <shutdownPort>8181</shutdownPort>
                         </configuration>
                     </execution>
                 </executions>
