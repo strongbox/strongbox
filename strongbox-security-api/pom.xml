@@ -150,6 +150,33 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.carlspring.maven</groupId>
+                <artifactId>little-proxy-maven-plugin</artifactId>
+                <version>1.0-SNAPSHOT</version>
+
+                <configuration>
+
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <id>start-unsecured</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+
+                        <configuration>
+                            <port>8180</port>
+                            <userCredentials>
+                                <testuser>password</testuser>
+                            </userCredentials>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 

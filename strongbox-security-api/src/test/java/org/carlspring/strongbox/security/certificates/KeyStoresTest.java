@@ -23,7 +23,6 @@ import org.junit.Test;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
-@Ignore
 public class KeyStoresTest
 {
 
@@ -33,11 +32,11 @@ public class KeyStoresTest
 
     private static final String KEYSTORE_PASSWORD = "password";
 
-    private static final String PROXY_HOST = "192.168.100.1";
+    private static final String PROXY_HOST = "localhost";
 
     private static final int PROXY_SOCKS_PORT = 15035;
 
-    private static final int PROXY_HTTP_PORT = 15036;
+    private static final int PROXY_HTTP_PORT = 8180;
 
     private static final Proxy PROXY_SOCKS = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(PROXY_HOST, PROXY_SOCKS_PORT));
 
@@ -46,8 +45,6 @@ public class KeyStoresTest
     private static final PasswordAuthentication credentials = new PasswordAuthentication(PROXY_USERNAME, PROXY_PASSWORD.toCharArray());
 
     private File f;
-
-    private ConnectionChecker connectionChecker;
 
 
     @Before
@@ -62,6 +59,7 @@ public class KeyStoresTest
         f = new File("target/test-resources/test.jks");
     }
 
+    @Ignore
     @Test
     public void testWithoutProxy()
             throws IOException,
@@ -138,6 +136,8 @@ public class KeyStoresTest
             System.out.println("WARN: Skipping the testHttp() test, as the proxy server is unreachable.");
             return;
         }
+
+        System.out.println("Executing HTTP proxy test...");
 
         KeyStores.createNew(f, KEYSTORE_PASSWORD.toCharArray());
         final KeyStore ks = KeyStores.addHttpsCertificates(f,
