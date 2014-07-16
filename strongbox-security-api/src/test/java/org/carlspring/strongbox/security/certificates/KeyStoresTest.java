@@ -34,6 +34,8 @@ public class KeyStoresTest
 
     private static final String PROXY_HOST = "localhost";
 
+    private static final String SOCKS_HOST = "192.168.100.1";
+
     private static final int PROXY_SOCKS_PORT = 15035;
 
     private static final int PROXY_HTTP_PORT = 8180;
@@ -97,7 +99,7 @@ public class KeyStoresTest
                    KeyStoreException,
                    KeyManagementException
     {
-        if (!ConnectionChecker.checkServiceAvailability(PROXY_HOST, PROXY_SOCKS_PORT, 5000))
+        if (!ConnectionChecker.checkServiceAvailability(SOCKS_HOST, PROXY_SOCKS_PORT, 5000))
         {
             System.out.println("WARN: Skipping the testSocks() test, as the proxy server is unreachable.");
             return;
