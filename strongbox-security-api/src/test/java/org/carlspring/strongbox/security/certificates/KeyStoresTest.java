@@ -59,7 +59,6 @@ public class KeyStoresTest
         f = new File("target/test-resources/test.jks");
     }
 
-    @Ignore
     @Test
     public void testWithoutProxy()
             throws IOException,
@@ -68,19 +67,23 @@ public class KeyStoresTest
                    KeyStoreException,
                    KeyManagementException
     {
-        KeyStores.createNew(f, "12345".toCharArray());
-        final KeyStore ks = KeyStores.addCertificates(f, "12345".toCharArray(), InetAddress.getLocalHost(), 40636);
+        KeyStores.createNew(f, KEYSTORE_PASSWORD.toCharArray());
+        final KeyStore ks = KeyStores.addCertificates(f, KEYSTORE_PASSWORD.toCharArray(), InetAddress.getLocalHost(), 40636);
+
         assertEquals("localhost should have three certificates in the chain", 1, ks.size());
 
-        Map<String, Certificate> certs = KeyStores.listCertificates(f, "12345".toCharArray());
+        Map<String, Certificate> certs = KeyStores.listCertificates(f, KEYSTORE_PASSWORD.toCharArray());
         for (final Map.Entry<String, Certificate> cert : certs.entrySet())
         {
             System.out.println(cert.getKey() + " : " + ((X509Certificate)cert.getValue()).getSubjectDN());
         }
 
-        KeyStores.changePassword(f, "12345".toCharArray(), "666".toCharArray());
-        KeyStores.removeCertificates(f, "666".toCharArray(), InetAddress.getLocalHost(), 40636);
-        certs = KeyStores.listCertificates(f, "666".toCharArray());
+        final String newPassword = "newpassword";
+
+        KeyStores.changePassword(f, KEYSTORE_PASSWORD.toCharArray(), newPassword.toCharArray());
+        KeyStores.removeCertificates(f, newPassword.toCharArray(), InetAddress.getLocalHost(), 40636);
+        certs = KeyStores.listCertificates(f, newPassword.toCharArray());
+
         assertTrue(certs.isEmpty());
     }
 
@@ -116,9 +119,11 @@ public class KeyStoresTest
             System.out.println(cert.getKey() + " : " + ((X509Certificate) cert.getValue()).getSubjectDN());
         }
 
-        KeyStores.changePassword(f, KEYSTORE_PASSWORD.toCharArray(), "666".toCharArray());
-        KeyStores.removeCertificates(f, "666".toCharArray(), InetAddress.getLocalHost(), 40636);
-        certs = KeyStores.listCertificates(f, "666".toCharArray());
+        final String newPassword = "newpassword";
+
+        KeyStores.changePassword(f, KEYSTORE_PASSWORD.toCharArray(), newPassword.toCharArray());
+        KeyStores.removeCertificates(f, newPassword.toCharArray(), InetAddress.getLocalHost(), 40636);
+        certs = KeyStores.listCertificates(f, newPassword.toCharArray());
 
         assertTrue(certs.isEmpty());
     }
