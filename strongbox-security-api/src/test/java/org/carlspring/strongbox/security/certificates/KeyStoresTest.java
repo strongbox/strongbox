@@ -23,7 +23,6 @@ import org.junit.Test;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
-@Ignore
 public class KeyStoresTest
 {
 
@@ -33,11 +32,13 @@ public class KeyStoresTest
 
     private static final String KEYSTORE_PASSWORD = "password";
 
-    private static final String PROXY_HOST = "192.168.100.1";
+    private static final String PROXY_HOST = "localhost";
+
+    private static final String SOCKS_HOST = "192.168.100.1";
 
     private static final int PROXY_SOCKS_PORT = 15035;
 
-    private static final int PROXY_HTTP_PORT = 15036;
+    private static final int PROXY_HTTP_PORT = 8180;
 
     private static final Proxy PROXY_SOCKS = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(PROXY_HOST, PROXY_SOCKS_PORT));
 
@@ -46,8 +47,6 @@ public class KeyStoresTest
     private static final PasswordAuthentication credentials = new PasswordAuthentication(PROXY_USERNAME, PROXY_PASSWORD.toCharArray());
 
     private File f;
-
-    private ConnectionChecker connectionChecker;
 
 
     @Before
@@ -70,19 +69,23 @@ public class KeyStoresTest
                    KeyStoreException,
                    KeyManagementException
     {
-        KeyStores.createNew(f, "12345".toCharArray());
-        final KeyStore ks = KeyStores.addCertificates(f, "12345".toCharArray(), InetAddress.getLocalHost(), 40636);
+        KeyStores.createNew(f, KEYSTORE_PASSWORD.toCharArray());
+        final KeyStore ks = KeyStores.addCertificates(f, KEYSTORE_PASSWORD.toCharArray(), InetAddress.getLocalHost(), 40636);
+
         assertEquals("localhost should have three certificates in the chain", 1, ks.size());
 
-        Map<String, Certificate> certs = KeyStores.listCertificates(f, "12345".toCharArray());
+        Map<String, Certificate> certs = KeyStores.listCertificates(f, KEYSTORE_PASSWORD.toCharArray());
         for (final Map.Entry<String, Certificate> cert : certs.entrySet())
         {
             System.out.println(cert.getKey() + " : " + ((X509Certificate)cert.getValue()).getSubjectDN());
         }
 
-        KeyStores.changePassword(f, "12345".toCharArray(), "666".toCharArray());
-        KeyStores.removeCertificates(f, "666".toCharArray(), InetAddress.getLocalHost(), 40636);
-        certs = KeyStores.listCertificates(f, "666".toCharArray());
+        final String newPassword = "newpassword";
+
+        KeyStores.changePassword(f, KEYSTORE_PASSWORD.toCharArray(), newPassword.toCharArray());
+        KeyStores.removeCertificates(f, newPassword.toCharArray(), InetAddress.getLocalHost(), 40636);
+        certs = KeyStores.listCertificates(f, newPassword.toCharArray());
+
         assertTrue(certs.isEmpty());
     }
 
@@ -96,7 +99,7 @@ public class KeyStoresTest
                    KeyStoreException,
                    KeyManagementException
     {
-        if (!ConnectionChecker.checkServiceAvailability(PROXY_HOST, PROXY_SOCKS_PORT, 5000))
+        if (!ConnectionChecker.checkServiceAvailability(SOCKS_HOST, PROXY_SOCKS_PORT, 5000))
         {
             System.out.println("WARN: Skipping the testSocks() test, as the proxy server is unreachable.");
             return;
@@ -118,9 +121,11 @@ public class KeyStoresTest
             System.out.println(cert.getKey() + " : " + ((X509Certificate) cert.getValue()).getSubjectDN());
         }
 
-        KeyStores.changePassword(f, KEYSTORE_PASSWORD.toCharArray(), "666".toCharArray());
-        KeyStores.removeCertificates(f, "666".toCharArray(), InetAddress.getLocalHost(), 40636);
-        certs = KeyStores.listCertificates(f, "666".toCharArray());
+        final String newPassword = "newpassword";
+
+        KeyStores.changePassword(f, KEYSTORE_PASSWORD.toCharArray(), newPassword.toCharArray());
+        KeyStores.removeCertificates(f, newPassword.toCharArray(), InetAddress.getLocalHost(), 40636);
+        certs = KeyStores.listCertificates(f, newPassword.toCharArray());
 
         assertTrue(certs.isEmpty());
     }
@@ -138,6 +143,8 @@ public class KeyStoresTest
             System.out.println("WARN: Skipping the testHttp() test, as the proxy server is unreachable.");
             return;
         }
+
+        System.out.println("Executing HTTP proxy test...");
 
         KeyStores.createNew(f, KEYSTORE_PASSWORD.toCharArray());
         final KeyStore ks = KeyStores.addHttpsCertificates(f,
