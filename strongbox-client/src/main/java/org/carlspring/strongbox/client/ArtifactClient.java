@@ -194,18 +194,20 @@ public class ArtifactClient
     {
         Client client = ClientBuilder.newClient();
 
-        String url = host + ":" + port + "/search/lucene/" + repository + "?q=" + URLEncoder.encode(query, "UTF-8") + "&format=" + format;
+        String url = host + ":" + port + "/search/lucene/" + repository +
+                     "?q=" + URLEncoder.encode(query, "UTF-8") + "&format=" + format;
 
         WebTarget webResource = client.target(url);
         setupAuthentication(webResource);
 
-        final Response response = webResource.request(
-                MediaType.TEXT_PLAIN,
-                MediaType.APPLICATION_XML,
-                MediaType.APPLICATION_JSON).get();
+        final Response response = webResource.request(MediaType.TEXT_PLAIN,
+                                                      MediaType.APPLICATION_XML,
+                                                      MediaType.APPLICATION_JSON).get();
 
         final String asText = response.readEntity(String.class);
+
         logger.info(asText);
+
         return asText;
     }
 

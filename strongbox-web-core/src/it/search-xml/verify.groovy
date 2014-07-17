@@ -9,10 +9,5 @@ def r0 = client.searchLucene("releases", "g:org.carlspring.maven", "xml");
 
 System.out.println(r0);
 
-return r0.indexOf(">1.0.11") >= 0;
-
-// TODO: @Denis: This doesn't seem to be producing any output.
-// TODO: @Denis: Could you have another look, please? Thanks.
-
-// return true;
+return r0.indexOf(">1.0.11.3<") >= 0 && r0.indexOf(">1.0.11.3.1<") >= 0;
 
