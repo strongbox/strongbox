@@ -5,7 +5,7 @@ def client = new ArtifactClient();
 client.setUsername("maven");
 client.setPassword("password");
 
-def r0 = client.searchLucene("releases", "g:org.carlspring.maven", "json");
+def r0 = client.searchLuceneRepo("releases", "g:org.carlspring.maven", "json", "na");
 
 System.out.println(r0);
 

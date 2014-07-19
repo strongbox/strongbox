@@ -1,5 +1,9 @@
 package org.carlspring.strongbox.rest;
 
+import javanet.staxutils.IndentingXMLStreamWriter;
+import org.apache.lucene.queryParser.ParseException;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.index.ArtifactInfo;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.storage.DataCenter;
 import org.carlspring.strongbox.storage.Storage;
@@ -7,6 +11,12 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.ArtifactInfoUtils;
+import org.codehaus.jettison.mapped.MappedNamespaceConvention;
+import org.codehaus.jettison.mapped.MappedXMLStreamWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -19,18 +29,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.HashSet;
 import java.util.Set;
-
-import javanet.staxutils.IndentingXMLStreamWriter;
-import org.apache.lucene.queryParser.ParseException;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.index.ArtifactInfo;
-import org.codehaus.jettison.mapped.MappedNamespaceConvention;
-import org.codehaus.jettison.mapped.MappedXMLStreamWriter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 @Component
 @Path("/search")
@@ -46,6 +46,8 @@ public class SearchRestlet
 
     public static final String OUTPUT_FORMAT_JSON = "json";
 
+    public static final String OUTPUT_INDENT_PRETTY = "pretty";
+
     @Autowired
     private RepositoryIndexManager repositoryIndexManager;
 
@@ -59,19 +61,43 @@ public class SearchRestlet
      * @param repository
      * @param queryText
      * @param format
+     * @param indent
      * @return
      * @throws IOException
      * @throws ParseException
      */
     @GET
-    @Path("lucene/{repository}")
+    @Path("lucene{repository:(/.*)?}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
-    public Response search(@PathParam("repository") final String repository,
+    public Response search(@PathParam("repository") String repository,
                            @QueryParam("q") final String queryText,
-                           @DefaultValue(OUTPUT_FORMAT_PLAIN_TEXT) @QueryParam("format") final String format)
+                           @DefaultValue(OUTPUT_FORMAT_PLAIN_TEXT) @QueryParam("format") final String format,
+                           @DefaultValue(OUTPUT_INDENT_PRETTY) @QueryParam("indent") final String indent)
             throws IOException, ParseException
     {
-        final Set<ArtifactInfo> results = repositoryIndexManager.getRepositoryIndex(repository).search(queryText);
+        final Set<ArtifactInfo> results = new HashSet<>();
+        if (repository != null && !repository.isEmpty())
+        {
+            repository = repository.substring(1); // "/"
+            results.addAll(repositoryIndexManager.getRepositoryIndex(repository).search(queryText));
+        }
+        else
+        {
+            for (Storage storage : dataCenter.getStorages().values())
+            {
+                for (Repository repo : storage.getRepositories().values())
+                {
+                    logger.info("repo: {}", repo.getName());
+                    final RepositoryIndexer repositoryIndex = repositoryIndexManager.getRepositoryIndex(repo.getName());
+                    if (repositoryIndex != null)
+                    {
+                        results.addAll(repositoryIndex.search(queryText));
+                    }
+                }
+            }
+        }
+        logger.info("results: {}", results.size());
+
         return Response.ok(new StreamingOutput()
         {
             @Override
@@ -83,8 +109,10 @@ public class SearchRestlet
 
                     try
                     {
-                        xsw = "xml".equals(format) ?
+                        xsw = OUTPUT_FORMAT_XML.equals(format) ?
+                              OUTPUT_INDENT_PRETTY.equals(indent) ?
                               new IndentingXMLStreamWriter(XMLOutputFactory.newFactory().createXMLStreamWriter(os)) :
+                                  XMLOutputFactory.newFactory().createXMLStreamWriter(os) :
                               new MappedXMLStreamWriter(new MappedNamespaceConvention(), new OutputStreamWriter(os));
 
                         xsw.writeStartDocument();
@@ -134,8 +162,8 @@ public class SearchRestlet
                     {
                         if (!results.isEmpty())
                         {
-                            w.append(repository).append("/");
-                            w.append(System.lineSeparator());
+                            /* w.append(repository).append("/");
+                               w.append(System.lineSeparator()); */
 
                             for (final ArtifactInfo artifactInfo : results)
                             {
@@ -162,7 +190,6 @@ public class SearchRestlet
      * @return
      * @throws IOException
      * @throws ParseException
-     */
     @GET
     @Path("lucene")
     @Produces(MediaType.TEXT_PLAIN)
@@ -203,6 +230,5 @@ public class SearchRestlet
         logger.debug("Response:\n{}", responseText);
 
         return responseText;
-    }
-
+    } */
 }
