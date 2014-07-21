@@ -2,6 +2,7 @@ package org.carlspring.strongbox.rest;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
 import org.carlspring.strongbox.storage.indexing.SearchResults;
 import org.carlspring.strongbox.storage.services.ArtifactSearchService;
@@ -145,17 +146,7 @@ public class SearchRestlet
                     }
                     finally
                     {
-                        if (xsw != null)
-                        {
-                            try
-                            {
-                                xsw.close();
-                            }
-                            catch (XMLStreamException e)
-                            {
-                                logger.trace(e.getMessage(), e);
-                            }
-                        }
+                        ResourceCloser.closeWithReflection(xsw, logger);
                     }
                 }
                 else
