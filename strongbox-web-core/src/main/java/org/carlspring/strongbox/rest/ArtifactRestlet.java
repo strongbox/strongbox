@@ -109,7 +109,7 @@ public class ArtifactRestlet
 
         try
         {
-            artifactManagementService.delete(repository, path);
+            artifactManagementService.delete(storage, repository, path);
         }
         catch (ArtifactStorageException e)
         {

@@ -11,4 +11,6 @@
 
     <bean id="artifactManagementService" class="org.carlspring.strongbox.storage.services.impl.ArtifactManagementServiceImpl"/>
 
+    <bean id="artifactSearchService" class="org.carlspring.strongbox.storage.services.impl.ArtifactSearchServiceImpl"/>
+
 </beans>

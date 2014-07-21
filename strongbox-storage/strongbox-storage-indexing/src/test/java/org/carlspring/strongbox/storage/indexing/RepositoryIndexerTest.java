@@ -55,7 +55,7 @@ public class RepositoryIndexerTest
     public void testIndex() throws Exception
     {
         // final RepositoryIndexer i = new RepositoryIndexer("releases", REPOSITORY_BASEDIR, INDEX_DIR);
-        final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndex("releases");
+        final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndex("storage0:releases");
 
         try
         {

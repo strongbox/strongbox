@@ -1,22 +1,11 @@
 package org.carlspring.strongbox.rest;
 
-import javanet.staxutils.IndentingXMLStreamWriter;
-import org.apache.lucene.queryParser.ParseException;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.index.ArtifactInfo;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.storage.DataCenter;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.storage.indexing.SearchRequest;
+import org.carlspring.strongbox.storage.indexing.SearchResults;
+import org.carlspring.strongbox.storage.services.ArtifactSearchService;
 import org.carlspring.strongbox.util.ArtifactInfoUtils;
-import org.codehaus.jettison.mapped.MappedNamespaceConvention;
-import org.codehaus.jettison.mapped.MappedXMLStreamWriter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -29,8 +18,18 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collection;
+
+import javanet.staxutils.IndentingXMLStreamWriter;
+import org.apache.lucene.queryParser.ParseException;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.index.ArtifactInfo;
+import org.codehaus.jettison.mapped.MappedNamespaceConvention;
+import org.codehaus.jettison.mapped.MappedXMLStreamWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Component
 @Path("/search")
@@ -49,17 +48,18 @@ public class SearchRestlet
     public static final String OUTPUT_INDENT_PRETTY = "pretty";
 
     @Autowired
-    private RepositoryIndexManager repositoryIndexManager;
+    private ArtifactSearchService artifactSearchService;
 
     @Autowired
-    private DataCenter dataCenter;
+    private ConfigurationManager configurationManager;
 
 
     /**
-     * Performs a search against the Lucene index of a specified repository.
+     * Performs a search against the Lucene index of a specified repository,
+     * or the Lucene indexes of all repositories.
      *
      * @param repository
-     * @param queryText
+     * @param query
      * @param format
      * @param indent
      * @return
@@ -67,36 +67,16 @@ public class SearchRestlet
      * @throws ParseException
      */
     @GET
-    @Path("lucene{repository:(/.*)?}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
-    public Response search(@PathParam("repository") String repository,
-                           @QueryParam("q") final String queryText,
+    public Response search(@QueryParam("storage") String storage,
+                           @QueryParam("repository") String repository,
+                           @QueryParam("q") final String query,
                            @DefaultValue(OUTPUT_FORMAT_PLAIN_TEXT) @QueryParam("format") final String format,
                            @DefaultValue(OUTPUT_INDENT_PRETTY) @QueryParam("indent") final String indent)
             throws IOException, ParseException
     {
-        final Set<ArtifactInfo> results = new HashSet<>();
-        if (repository != null && !repository.isEmpty())
-        {
-            repository = repository.substring(1); // "/"
-            results.addAll(repositoryIndexManager.getRepositoryIndex(repository).search(queryText));
-        }
-        else
-        {
-            for (Storage storage : dataCenter.getStorages().values())
-            {
-                for (Repository repo : storage.getRepositories().values())
-                {
-                    logger.info("repo: {}", repo.getName());
-                    final RepositoryIndexer repositoryIndex = repositoryIndexManager.getRepositoryIndex(repo.getName());
-                    if (repositoryIndex != null)
-                    {
-                        results.addAll(repositoryIndex.search(queryText));
-                    }
-                }
-            }
-        }
-        logger.info("results: {}", results.size());
+        final SearchRequest searchRequest = new SearchRequest(storage, repository, query);
+        final SearchResults searchResults = artifactSearchService.search(searchRequest);
 
         return Response.ok(new StreamingOutput()
         {
@@ -111,26 +91,48 @@ public class SearchRestlet
                     {
                         xsw = OUTPUT_FORMAT_XML.equals(format) ?
                               OUTPUT_INDENT_PRETTY.equals(indent) ?
-                              new IndentingXMLStreamWriter(XMLOutputFactory.newFactory().createXMLStreamWriter(os)) :
+                                  new IndentingXMLStreamWriter(XMLOutputFactory.newFactory().createXMLStreamWriter(os)) :
                                   XMLOutputFactory.newFactory().createXMLStreamWriter(os) :
                               new MappedXMLStreamWriter(new MappedNamespaceConvention(), new OutputStreamWriter(os));
 
                         xsw.writeStartDocument();
                         xsw.writeStartElement("artifacts");
 
-                        for (final ArtifactInfo artifactInfo : results)
+                        for (String storageAndRepository : searchResults.getResults().keySet())
                         {
-                            xsw.writeStartElement("artifact");
-                            xsw.writeStartElement("groupId");
-                            xsw.writeCharacters(artifactInfo.groupId);
-                            xsw.writeEndElement();
-                            xsw.writeStartElement("artifactId");
-                            xsw.writeCharacters(artifactInfo.artifactId);
-                            xsw.writeEndElement();
-                            xsw.writeStartElement("version");
-                            xsw.writeCharacters(artifactInfo.version);
-                            xsw.writeEndElement();
-                            xsw.writeEndElement();
+                            String[] s = storageAndRepository.split(":");
+                            String storage = s[0];
+                            String repository = s[1];
+
+                            final Collection<ArtifactInfo> artifactInfos = searchResults.getResults().get(storageAndRepository);
+
+                            for (ArtifactInfo artifactInfo : artifactInfos)
+                            {
+                                final String gavtc = ArtifactInfoUtils.convertToGAVTC(artifactInfo);
+                                final Artifact artifactFromGAVTC = ArtifactUtils.getArtifactFromGAVTC(gavtc);
+                                final String pathToArtifactFile = ArtifactUtils.convertArtifactToPath(artifactFromGAVTC);
+
+                                xsw.writeStartElement("artifact");
+                                xsw.writeStartElement("groupId");
+                                xsw.writeCharacters(artifactInfo.groupId);
+                                xsw.writeEndElement();
+                                xsw.writeStartElement("artifactId");
+                                xsw.writeCharacters(artifactInfo.artifactId);
+                                xsw.writeEndElement();
+                                xsw.writeStartElement("version");
+                                xsw.writeCharacters(artifactInfo.version);
+                                xsw.writeEndElement();
+                                xsw.writeStartElement("repository");
+                                xsw.writeCharacters(artifactInfo.repository);
+                                xsw.writeEndElement();
+                                xsw.writeStartElement("path");
+                                xsw.writeCharacters(pathToArtifactFile);
+                                xsw.writeEndElement();
+                                xsw.writeStartElement("url");
+                                xsw.writeCharacters(getURLFor(storage, repository, pathToArtifactFile));
+                                xsw.writeEndElement();
+                                xsw.writeEndElement();
+                            }
                         }
 
                         xsw.writeEndElement();
@@ -160,75 +162,43 @@ public class SearchRestlet
                 {
                     try (final Writer w = new OutputStreamWriter(os))
                     {
-                        if (!results.isEmpty())
+                        for (String storageAndRepository : searchResults.getResults().keySet())
                         {
-                            /* w.append(repository).append("/");
-                               w.append(System.lineSeparator()); */
+                            String[] s = storageAndRepository.split(":");
+                            String storage = s[0];
+                            String repository = s[1];
 
-                            for (final ArtifactInfo artifactInfo : results)
+                            w.append(storageAndRepository).append("/");
+                            w.append(System.lineSeparator());
+
+                            final Collection<ArtifactInfo> artifactInfos = searchResults.getResults().get(storageAndRepository);
+                            for (ArtifactInfo artifactInfo : artifactInfos)
                             {
                                 final String gavtc = ArtifactInfoUtils.convertToGAVTC(artifactInfo);
                                 final Artifact artifactFromGAVTC = ArtifactUtils.getArtifactFromGAVTC(gavtc);
                                 final String pathToArtifactFile = ArtifactUtils.convertArtifactToPath(artifactFromGAVTC);
 
                                 w.append("   ").append(gavtc).append(", ");
-                                w.append(pathToArtifactFile).append(System.lineSeparator());
+                                w.append(pathToArtifactFile).append(", ");
+                                w.append(getURLFor(storage, repository, pathToArtifactFile));
+                                w.append(System.lineSeparator());
                                 w.flush();
                             }
                         }
                     }
                 }
             }
+
+            private String getURLFor(String storage, String repository, String pathToArtifactFile)
+            {
+                String baseUrl = configurationManager.getConfiguration().getBaseUrl();
+                baseUrl = (baseUrl.endsWith("/") ? baseUrl : baseUrl + "/");
+
+                return baseUrl + "storages/" + storage + "/" + repository + "/" + pathToArtifactFile;
+            }
+
         }).type(OUTPUT_FORMAT_XML.equals(format) ? MediaType.APPLICATION_XML  :
                 OUTPUT_FORMAT_JSON.equals(format) ? MediaType.APPLICATION_JSON : MediaType.TEXT_PLAIN).build();
     }
 
-    /**
-     * Performs a Lucene search across repositories.
-     *
-     * @param queryText
-     * @return
-     * @throws IOException
-     * @throws ParseException
-    @GET
-    @Path("lucene")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String search(@QueryParam("q") final String queryText)
-            throws IOException, ParseException
-    {
-        final StringBuilder response = new StringBuilder();
-        for (Storage storage : dataCenter.getStorages().values())
-        {
-            for (Repository repository : storage.getRepositories().values())
-            {
-                final RepositoryIndexer repositoryIndex = repositoryIndexManager.getRepositoryIndex(repository.getName());
-                if (repositoryIndex != null)
-                {
-                    final Set<ArtifactInfo> results = repositoryIndex.search(queryText);
-
-                    if (!results.isEmpty())
-                    {
-                        response.append(repository.getName()).append("/");
-                        response.append(System.lineSeparator());
-
-                        for (final ArtifactInfo artifactInfo : results)
-                        {
-                            final String gavtc = ArtifactInfoUtils.convertToGAVTC(artifactInfo);
-                            final Artifact artifactFromGAVTC = ArtifactUtils.getArtifactFromGAVTC(gavtc);
-                            final String pathToArtifactFile = ArtifactUtils.convertArtifactToPath(artifactFromGAVTC);
-
-                            response.append("   ").append(gavtc).append(", ");
-                            response.append(pathToArtifactFile).append(System.lineSeparator());
-                        }
-                    }
-                }
-            }
-        }
-
-        final String responseText = response.toString();
-
-        logger.debug("Response:\n{}", responseText);
-
-        return responseText;
-    } */
 }

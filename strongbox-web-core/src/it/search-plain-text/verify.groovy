@@ -5,12 +5,12 @@ def client = new ArtifactClient();
 client.setUsername("maven");
 client.setPassword("password");
 
-def r0 = client.searchLuceneRepo("releases", "g:org.carlspring.maven v:1.0.11 p:pom", "text", "na");
-def r1 = client.searchLuceneRepo("releases", "g:org.carlspring.maven v:1.0.11 p:p*", "text", "na");
-def r2 = client.searchLuceneRepo("releases", "g:org.carlspring.*", "text", "na");
-def r3 = client.searchLuceneRepo("releases", "g:org.carlspring.* v:1.0.1*   ", "text", "na");
-def r4 = client.searchLuceneRepo("releases", "u:org.carlspring.*|1.0.11*", "text", "na");
-def r5 = client.searchLucene("u:org.carlspring.*", "text", "na");
+def r0 = client.search("releases", "g:org.carlspring.maven v:1.0.11 p:pom", "text", null);
+def r1 = client.search("releases", "g:org.carlspring.maven v:1.0.11 p:p*", "text", null);
+def r2 = client.search("releases", "g:org.carlspring.*", "text", null);
+def r3 = client.search("releases", "g:org.carlspring.* v:1.0.1*   ", "text", null);
+def r4 = client.search("releases", "u:org.carlspring.*|1.0.11*", "text", null);
+def r5 = client.search("u:org.carlspring.*", "text", null);
 
 System.out.println("*** g:org.carlspring.maven v:1.0.11 p:pom ***");
 System.out.println(r0);
