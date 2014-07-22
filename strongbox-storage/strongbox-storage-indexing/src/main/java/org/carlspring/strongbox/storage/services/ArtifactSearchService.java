@@ -16,4 +16,7 @@ public interface ArtifactSearchService
     SearchResults search(SearchRequest searchRequest)
             throws IOException, ParseException;
 
+    boolean contains(SearchRequest searchRequest)
+            throws IOException, ParseException;
+
 }

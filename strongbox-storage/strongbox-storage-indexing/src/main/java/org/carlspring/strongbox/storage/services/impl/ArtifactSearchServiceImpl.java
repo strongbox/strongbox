@@ -121,6 +121,13 @@ public class ArtifactSearchServiceImpl implements ArtifactSearchService
         return searchResults;
     }
 
+    @Override
+    public boolean contains(SearchRequest searchRequest)
+            throws IOException, ParseException
+    {
+        return !getResultsMap(searchRequest.getStorage(), searchRequest.getRepository(), searchRequest.getQuery()).isEmpty();
+    }
+
     public Map<String, Collection<ArtifactInfo>> getResultsMap(String storageName, String repository, String query)
             throws IOException, ParseException
     {
