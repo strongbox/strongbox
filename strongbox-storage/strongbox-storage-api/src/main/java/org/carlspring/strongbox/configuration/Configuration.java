@@ -17,6 +17,9 @@ public class Configuration
     @XStreamAlias(value = "storages")
     private Map<String, Storage> storages = new LinkedHashMap<String, Storage>();
 
+    @XStreamAlias(value = "baseUrl")
+    private String baseUrl = "http://localhost/";
+
     @XStreamAlias(value = "port")
     private int port = 48080;
 
@@ -49,6 +52,16 @@ public class Configuration
     public void removeStorage(Storage storage)
     {
         storages.remove(storage.getBasedir());
+    }
+
+    public String getBaseUrl()
+    {
+        return baseUrl;
+    }
+
+    public void setBaseUrl(String baseUrl)
+    {
+        this.baseUrl = baseUrl;
     }
 
     public int getPort()

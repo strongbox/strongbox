@@ -1,6 +1,8 @@
 <configuration>
 
     <version>1.0</version>
+
+    <baseUrl>http://localhost:48080/</baseUrl>
     <port>48080</port>
 
     <storages>

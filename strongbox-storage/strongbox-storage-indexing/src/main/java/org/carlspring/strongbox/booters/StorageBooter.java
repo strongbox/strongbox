@@ -144,7 +144,7 @@ public class StorageBooter
                                                                 repositoryBasedir,
                                                                 new File(repositoryBasedir, ".index"));
 
-        repositoryIndexManager.addRepositoryIndex(repositoryId, indexer);
+        repositoryIndexManager.addRepositoryIndex("storage0:" + repositoryId, indexer);
     }
 
     public RepositoryManager getRepositoryManager()

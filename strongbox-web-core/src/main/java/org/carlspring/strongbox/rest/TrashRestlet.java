@@ -31,15 +31,16 @@ public class TrashRestlet
 
 
     @DELETE
-    @Path("{repository}")
-    public Response delete(@PathParam("repository") String repository)
+    @Path("{storage}/{repository}")
+    public Response delete(@PathParam("storage") String storage,
+                           @PathParam("repository") String repository)
             throws IOException
     {
         logger.debug("Deleting trash for repository " + repository);
 
         try
         {
-            artifactManagementService.deleteTrash(repository);
+            artifactManagementService.deleteTrash(storage, repository);
         }
         catch (ArtifactStorageException e)
         {

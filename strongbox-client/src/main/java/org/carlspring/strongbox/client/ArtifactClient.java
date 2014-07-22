@@ -174,41 +174,42 @@ public class ArtifactClient
         webResource.request().delete();
     }
 
-    public String searchLucene(String query)
+    public String search(String query, String format, String indent)
+            throws UnsupportedEncodingException
+    {
+        return search(null, query, format, indent);
+    }
+
+    public String search(String repository, String query, String format, String indent)
             throws UnsupportedEncodingException
     {
         Client client = ClientBuilder.newClient();
 
-        String url = host + ":" + port + "/search/lucene/?q=" + URLEncoder.encode(query, "UTF-8");
+        String url = host + ":" + port + "/search?" +
+                     (repository != null ? "repository=" + URLEncoder.encode(repository, "UTF-8") : "") +
+                     "&q=" + URLEncoder.encode(query, "UTF-8") +
+                     "&format=" + URLEncoder.encode(format, "UTF-8") +
+                    (indent != null ? "&indent=" + indent : "");
 
         WebTarget webResource = client.target(url);
         setupAuthentication(webResource);
 
-        final Response response = webResource.request(MediaType.TEXT_PLAIN).get();
+        final Response response = webResource.request(MediaType.TEXT_PLAIN,
+                                                      MediaType.APPLICATION_XML,
+                                                      MediaType.APPLICATION_JSON).get();
 
-        return response.readEntity(String.class);
+        final String asText = response.readEntity(String.class);
+
+        logger.info(asText);
+
+        return asText;
     }
 
-    public String searchLucene(String repository, String query)
-            throws UnsupportedEncodingException
+    public void deleteTrash(String storage, String repository)
     {
         Client client = ClientBuilder.newClient();
 
-        String url = host + ":" + port + "/search/lucene/" + repository + "?q=" + URLEncoder.encode(query, "UTF-8");
-
-        WebTarget webResource = client.target(url);
-        setupAuthentication(webResource);
-
-        final Response response = webResource.request(MediaType.TEXT_PLAIN).get();
-
-        return response.readEntity(String.class);
-    }
-
-    public void deleteTrash(String repository)
-    {
-        Client client = ClientBuilder.newClient();
-
-        String url = getUrlForTrash(repository);
+        String url = getUrlForTrash(storage, repository);
 
         WebTarget webResource = client.target(url);
         setupAuthentication(webResource);
@@ -287,9 +288,9 @@ public class ArtifactClient
                ArtifactUtils.convertArtifactToPath(artifact);
     }
 
-    public String getUrlForTrash(String repository)
+    public String getUrlForTrash(String storage, String repository)
     {
-        return host + ":" + port + "/trash/" + repository;
+        return host + ":" + port + "/trash/" + storage + "/" + repository;
     }
 
     private void setupAuthentication(WebTarget target)

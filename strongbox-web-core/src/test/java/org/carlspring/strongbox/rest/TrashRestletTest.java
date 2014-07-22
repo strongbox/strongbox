@@ -72,7 +72,7 @@ public class TrashRestletTest
     public void testDeleteArtifactAndEmptyTrashForRepository()
             throws Exception
     {
-        client.deleteTrash(REPOSITORY);
+        client.deleteTrash(STORAGE, REPOSITORY);
 
         assertFalse("Failed to empty trash for repository '" + REPOSITORY + "'!", ARTIFACT_FILE_IN_TRASH.exists());
     }
