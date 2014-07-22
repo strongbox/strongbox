@@ -60,7 +60,8 @@ public class RepositoryIndexerTest
         try
         {
             final int x = repositoryIndexer.index(new File("org/carlspring/strongbox/strongbox-commons"));
-            Assert.assertEquals("two artifacts expected",
+
+            Assert.assertEquals("6 artifacts expected!",
                                 6,  // one is jar another pom, both would be added into the same Lucene document
                                 x);
 
@@ -74,6 +75,7 @@ public class RepositoryIndexerTest
 
             repositoryIndexer.delete(search);
             search = repositoryIndexer.search("org.carlspring.strongbox", "strongbox-commons", "1.0", null, null);
+
             Assert.assertEquals("org.carlspring.strongbox:strongbox-commons:1.0 should have been deleted!", search.size(), 0);
         }
         finally

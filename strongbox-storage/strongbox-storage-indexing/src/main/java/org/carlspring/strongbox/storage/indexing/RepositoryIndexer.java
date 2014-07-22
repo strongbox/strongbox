@@ -84,7 +84,7 @@ public class RepositoryIndexer
         logger.debug("Repository indexer created; id: {}; dir: {}", repositoryId, indexDir);
     }
 
-    void close(boolean deleteFiles)
+    public void close(boolean deleteFiles)
             throws IOException
     {
         context.close(deleteFiles);
