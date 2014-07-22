@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.rest;
 
-import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.index.ArtifactInfo;
 

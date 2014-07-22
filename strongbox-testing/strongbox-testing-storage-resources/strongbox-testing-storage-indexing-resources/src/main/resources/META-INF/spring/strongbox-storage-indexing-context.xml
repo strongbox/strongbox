@@ -7,6 +7,28 @@
 
     <context:component-scan base-package="org.carlspring.strongbox"/>
 
+    <!-- None of these should really be defined: -->
+    <bean id="indexer" class="org.apache.maven.index.DefaultIndexer"/>
+
+    <bean id="scanner" class="org.apache.maven.index.DefaultScanner"/>
+
+    <bean id="indexerEngine" class="org.apache.maven.index.DefaultIndexerEngine"/>
+
+    <bean id="searchEngine" class="org.apache.maven.index.DefaultSearchEngine"/>
+
+    <bean id="queryCreator" class="org.apache.maven.index.DefaultQueryCreator"/>
+
+    <bean id="artifactContextProducer" class="org.apache.maven.index.DefaultArtifactContextProducer"/>
+
+    <bean id="artifactPackagingMapper" class="org.apache.maven.index.artifact.DefaultArtifactPackagingMapper"/>
+
+    <bean id="indexCreator" class="org.apache.maven.index.context.DefaultIndexCreator"/>
+    <!-- None of these should really be defined. -->
+
+    <bean id="repositoryIndexingContext" class="org.carlspring.strongbox.storage.indexing.RepositoryIndexingContext"/>
+
+    <bean id="repositoryIndexerFactory" class="org.carlspring.strongbox.storage.indexing.RepositoryIndexerFactory"/>
+
     <bean id="repositoryIndexManager" class="org.carlspring.strongbox.storage.indexing.RepositoryIndexManager"/>
 
     <bean id="artifactManagementService" class="org.carlspring.strongbox.storage.services.impl.ArtifactManagementServiceImpl"/>
