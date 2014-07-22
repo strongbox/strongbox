@@ -65,22 +65,15 @@ public class ArtifactSearchServiceImplTest
     {
         final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndex("storage0:releases");
 
-        try
-        {
-            final int x = repositoryIndexer.index(new File("org/carlspring/strongbox/strongbox-utils"));
+        final int x = repositoryIndexer.index(new File("org/carlspring/strongbox/strongbox-utils"));
 
-            Assert.assertTrue("Incorrect number of artifacts found!", x >= 3);
+        Assert.assertTrue("Incorrect number of artifacts found!", x >= 3);
 
-            SearchRequest request = new SearchRequest("storage0",
-                                                      "releases",
-                                                      "g:org.carlspring.strongbox a:strongbox-utils v:1.0.1 p:jar");
+        SearchRequest request = new SearchRequest("storage0",
+                                                  "releases",
+                                                  "g:org.carlspring.strongbox a:strongbox-utils v:1.0.1 p:jar");
 
-            artifactSearchService.contains(request);
-        }
-        finally
-        {
-            repositoryIndexer.close(false);
-        }
+        artifactSearchService.contains(request);
     }
 
 }
