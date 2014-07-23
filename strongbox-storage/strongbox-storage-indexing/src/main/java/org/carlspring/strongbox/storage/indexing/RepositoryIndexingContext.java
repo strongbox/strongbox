@@ -10,7 +10,6 @@ import java.util.Map;
 import org.apache.maven.index.Indexer;
 import org.apache.maven.index.Scanner;
 import org.apache.maven.index.context.IndexCreator;
-import org.springframework.stereotype.Component;
 
 /**
  * @author mtodorov
