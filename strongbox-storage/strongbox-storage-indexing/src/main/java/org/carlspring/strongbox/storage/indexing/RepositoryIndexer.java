@@ -66,9 +66,9 @@ public class RepositoryIndexer
                                                      null,
                                                      true, // if context should be searched in non-targeted mode.
                                                      true, // if indexDirectory is known to contain (or should contain)
-                                                     // valid Maven Indexer lucene index, and no checks needed to be
-                                                     // performed, or, if we want to "stomp" over existing index
-                                                     // (unsafe to do!).
+                                                           // valid Maven Indexer lucene index, and no checks needed to be
+                                                           // performed, or, if we want to "stomp" over existing index
+                                                           // (unsafe to do!).
                                                      repositoryIndexingContext.getIndexersAsList());
         
         logger.debug("Repository indexer created; id: {}; dir: {}", repositoryId, indexDir);
