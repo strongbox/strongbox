@@ -16,7 +16,7 @@ import org.apache.maven.index.context.IndexCreator;
  */
 @Named
 @Singleton
-public class RepositoryIndexingContext
+public class IndexerConfiguration
 {
 
     private Indexer indexer;
@@ -27,9 +27,9 @@ public class RepositoryIndexingContext
 
 
     @Inject
-    public RepositoryIndexingContext(Indexer indexer,
-                                     Scanner scanner,
-                                     Map<String, IndexCreator> indexers)
+    public IndexerConfiguration(Indexer indexer,
+                                Scanner scanner,
+                                Map<String, IndexCreator> indexers)
     {
         this.indexer = indexer;
         this.scanner = scanner;
@@ -39,9 +39,10 @@ public class RepositoryIndexingContext
     public List<IndexCreator> getIndexersAsList()
     {
         List<IndexCreator> indexersAsList = new ArrayList<>();
-        indexersAsList.add(getIndexers().get("min"));
-        indexersAsList.add(getIndexers().get("jarContent"));
-        indexersAsList.add(getIndexers().get("maven-plugin"));
+        for (Map.Entry entry : indexers.entrySet())
+        {
+            indexersAsList.add((IndexCreator) entry.getValue());
+        }
 
         return indexersAsList;
     }

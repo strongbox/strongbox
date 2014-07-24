@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.storage.indexing;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
@@ -10,6 +9,9 @@ import java.util.Map;
 import org.apache.maven.index.Indexer;
 import org.apache.maven.index.Scanner;
 import org.apache.maven.index.context.IndexCreator;
+import org.apache.maven.index.context.IndexingContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author mtodorov
@@ -18,13 +20,15 @@ import org.apache.maven.index.context.IndexCreator;
 public class RepositoryIndexerFactory
 {
 
-    private RepositoryIndexingContext repositoryIndexingContext;
+    private static final Logger logger = LoggerFactory.getLogger(RepositoryIndexerFactory.class);
+
+    private IndexerConfiguration indexerConfiguration;
 
 
     @Inject
-    public RepositoryIndexerFactory(RepositoryIndexingContext repositoryIndexingContext)
+    public RepositoryIndexerFactory(IndexerConfiguration indexerConfiguration)
     {
-        this.repositoryIndexingContext = repositoryIndexingContext;
+        this.indexerConfiguration = indexerConfiguration;
     }
 
     public RepositoryIndexer createRepositoryIndexer(String repositoryId,
@@ -36,34 +40,57 @@ public class RepositoryIndexerFactory
         repositoryIndexer.setRepositoryId(repositoryId);
         repositoryIndexer.setRepositoryBasedir(repositoryBasedir);
         repositoryIndexer.setIndexDir(indexDir);
-        repositoryIndexer.initialize();
+        repositoryIndexer.setIndexingContext(createIndexingContext(repositoryId, repositoryBasedir, indexDir));
+        repositoryIndexer.setIndexer(indexerConfiguration.getIndexer());
+        repositoryIndexer.setScanner(indexerConfiguration.getScanner());
+
+        logger.debug("Repository indexer created; id: {}; dir: {}", repositoryId, indexDir);
 
         return repositoryIndexer;
     }
 
-    public RepositoryIndexingContext getRepositoryIndexingContext()
+    private IndexingContext createIndexingContext(String repositoryId,
+                                                  File repositoryBasedir,
+                                                  File indexDir)
+            throws IOException
     {
-        return repositoryIndexingContext;
+        return getIndexer().createIndexingContext(repositoryId + "/ctx",
+                                                  repositoryId,
+                                                  repositoryBasedir,
+                                                  indexDir,
+                                                  null,
+                                                  null,
+                                                  true, // if context should be searched in non-targeted mode.
+                                                  true, // if indexDirectory is known to contain (or should contain)
+                                                        // valid Maven Indexer lucene index, and no checks needed to be
+                                                        // performed, or, if we want to "stomp" over existing index
+                                                        // (unsafe to do!).
+                                                  indexerConfiguration.getIndexersAsList());
     }
 
-    public void setRepositoryIndexingContext(RepositoryIndexingContext repositoryIndexingContext)
+    public IndexerConfiguration getIndexerConfiguration()
     {
-        this.repositoryIndexingContext = repositoryIndexingContext;
+        return indexerConfiguration;
+    }
+
+    public void setIndexerConfiguration(IndexerConfiguration indexerConfiguration)
+    {
+        this.indexerConfiguration = indexerConfiguration;
     }
 
     public Indexer getIndexer()
     {
-        return repositoryIndexingContext.getIndexer();
+        return indexerConfiguration.getIndexer();
     }
 
     public Scanner getScanner()
     {
-        return repositoryIndexingContext.getScanner();
+        return indexerConfiguration.getScanner();
     }
 
     public Map<String, IndexCreator> getIndexers()
     {
-        return repositoryIndexingContext.getIndexers();
+        return indexerConfiguration.getIndexers();
     }
 
 }

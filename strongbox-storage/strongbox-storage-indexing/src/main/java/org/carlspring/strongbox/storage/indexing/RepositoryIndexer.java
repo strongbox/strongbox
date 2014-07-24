@@ -40,7 +40,7 @@ public class RepositoryIndexer
 
     private List<IndexCreator> indexers;
 
-    private IndexingContext context;
+    private IndexingContext indexingContext;
 
     private String repositoryId;
 
@@ -48,36 +48,23 @@ public class RepositoryIndexer
 
     private File indexDir;
 
-    private RepositoryIndexingContext repositoryIndexingContext;
+    private IndexerConfiguration indexerConfiguration;
 
 
     public RepositoryIndexer()
     {
     }
 
-    public void initialize()
+    public void close()
             throws IOException
     {
-        context = getIndexer().createIndexingContext(getRepositoryId() + "/ctx",
-                                                     getRepositoryId(),
-                                                     getRepositoryBasedir(),
-                                                     getIndexDir(),
-                                                     null,
-                                                     null,
-                                                     true, // if context should be searched in non-targeted mode.
-                                                     true, // if indexDirectory is known to contain (or should contain)
-                                                           // valid Maven Indexer lucene index, and no checks needed to be
-                                                           // performed, or, if we want to "stomp" over existing index
-                                                           // (unsafe to do!).
-                                                     repositoryIndexingContext.getIndexersAsList());
-        
-        logger.debug("Repository indexer created; id: {}; dir: {}", repositoryId, indexDir);
+        indexer.closeIndexingContext(indexingContext, false);
     }
 
     void close(boolean deleteFiles)
             throws IOException
     {
-        context.close(deleteFiles);
+        indexingContext.close(deleteFiles);
     }
 
     public void delete(final Collection<ArtifactInfo> artifacts)
@@ -88,13 +75,13 @@ public class RepositoryIndexer
         {
             logger.debug("Deleting artifact: {}; ctx id: {}; idx dir: {}",
                          new String[]{ artifact.toString(),
-                                       context.getId(),
-                                       context.getIndexDirectory().toString() });
+                                       indexingContext.getId(),
+                                       indexingContext.getIndexDirectory().toString() });
 
             delete.add(new ArtifactContext(null, null, null, artifact, null));
         }
 
-        getIndexer().deleteArtifactsFromIndex(delete, context);
+        getIndexer().deleteArtifactsFromIndex(delete, indexingContext);
     }
 
     public Set<ArtifactInfo> search(final String groupId,
@@ -138,10 +125,11 @@ public class RepositoryIndexer
 
         logger.debug("Executing search query: {}; ctx id: {}; idx dir: {}",
                      new String[]{ query.toString(),
-                                   context.getId(),
-                                   context.getIndexDirectory().toString() });
+                                   indexingContext.getId(),
+                                   indexingContext.getIndexDirectory().toString() });
 
-        final FlatSearchResponse response = getIndexer().searchFlat(new FlatSearchRequest(query, context));
+        final FlatSearchResponse response = getIndexer().searchFlat(new FlatSearchRequest(query, indexingContext));
+
         logger.info("Hit count: {}", response.getReturnedHitsCount());
 
         final Set<ArtifactInfo> results = response.getResults();
@@ -163,10 +151,10 @@ public class RepositoryIndexer
 
         logger.debug("Executing search query: {}; ctx id: {}; idx dir: {}",
                      new String[]{ query.toString(),
-                                   context.getId(),
-                                   context.getIndexDirectory().toString() });
+                                   indexingContext.getId(),
+                                   indexingContext.getIndexDirectory().toString() });
 
-        final FlatSearchResponse response = getIndexer().searchFlat(new FlatSearchRequest(query, context));
+        final FlatSearchResponse response = getIndexer().searchFlat(new FlatSearchRequest(query, indexingContext));
 
         logger.info("Hit count: {}", response.getReturnedHitsCount());
 
@@ -190,10 +178,10 @@ public class RepositoryIndexer
 
         logger.debug("Executing search query: {}; ctx id: {}; idx dir: {}",
                      new String[]{ query.toString(),
-                                   context.getId(),
-                                   context.getIndexDirectory().toString() });
+                                   indexingContext.getId(),
+                                   indexingContext.getIndexDirectory().toString() });
 
-        final FlatSearchResponse response = getIndexer().searchFlat(new FlatSearchRequest(query, context));
+        final FlatSearchResponse response = getIndexer().searchFlat(new FlatSearchRequest(query, indexingContext));
         logger.info("Hit count: {}", response.getReturnedHitsCount());
 
         final Set<ArtifactInfo> results = response.getResults();
@@ -210,7 +198,7 @@ public class RepositoryIndexer
 
     public int index(final File startingPath)
     {
-        final ScanningResult scan = getScanner().scan(new ScanningRequest(context,
+        final ScanningResult scan = getScanner().scan(new ScanningRequest(indexingContext,
                                                                           new ReindexArtifactScanningListener(),
                                                                           startingPath == null ? "." :
                                                                           startingPath.getPath()));
@@ -220,7 +208,7 @@ public class RepositoryIndexer
     public void addArtifactToIndex(final File artifactFile, final ArtifactInfo artifactInfo) throws IOException
     {
         getIndexer().addArtifactsToIndex(asList(new ArtifactContext(null, artifactFile, null, artifactInfo, null)),
-                                         context);
+                                         indexingContext);
     }
 
     public void addArtifactToIndex(String repository,
@@ -245,7 +233,7 @@ public class RepositoryIndexer
                                                                     artifactFile,
                                                                     null,
                                                                     artifactInfo,
-                                                                    artifactInfo.calculateGav())), context);
+                                                                    artifactInfo.calculateGav())), indexingContext);
     }
 
     private class ReindexArtifactScanningListener
@@ -298,14 +286,14 @@ public class RepositoryIndexer
         }
     }
 
-    public RepositoryIndexingContext getRepositoryIndexingContext()
+    public IndexerConfiguration getIndexerConfiguration()
     {
-        return repositoryIndexingContext;
+        return indexerConfiguration;
     }
 
-    public void setRepositoryIndexingContext(RepositoryIndexingContext repositoryIndexingContext)
+    public void setIndexerConfiguration(IndexerConfiguration indexerConfiguration)
     {
-        this.repositoryIndexingContext = repositoryIndexingContext;
+        this.indexerConfiguration = indexerConfiguration;
     }
 
     public Indexer getIndexer()
@@ -338,14 +326,14 @@ public class RepositoryIndexer
         this.indexers = indexers;
     }
 
-    public IndexingContext getContext()
+    public IndexingContext getIndexingContext()
     {
-        return context;
+        return indexingContext;
     }
 
-    public void setContext(IndexingContext context)
+    public void setIndexingContext(IndexingContext indexingContext)
     {
-        this.context = context;
+        this.indexingContext = indexingContext;
     }
 
     public String getRepositoryId()

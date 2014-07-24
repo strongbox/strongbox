@@ -25,7 +25,7 @@
     <bean id="artifactPackagingMapper" class="org.apache.maven.index.artifact.DefaultArtifactPackagingMapper"/>
     <!-- None of these should really be defined. -->
 
-    <bean id="repositoryIndexingContext" class="org.carlspring.strongbox.storage.indexing.RepositoryIndexingContext"/>
+    <bean id="indexerConfiguration" class="org.carlspring.strongbox.storage.indexing.IndexerConfiguration"/>
 
     <bean id="repositoryIndexerFactory" class="org.carlspring.strongbox.storage.indexing.RepositoryIndexerFactory"/>
 
