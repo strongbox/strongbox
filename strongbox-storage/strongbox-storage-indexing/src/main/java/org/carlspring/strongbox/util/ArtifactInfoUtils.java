@@ -11,11 +11,11 @@ public class ArtifactInfoUtils
     public static String convertToGAVTC(ArtifactInfo artifactInfo)
     {
         @SuppressWarnings("UnnecessaryLocalVariable")
-        String gavtc = artifactInfo.groupId + ":" +
-                       artifactInfo.artifactId + ":" +
-                       artifactInfo.version + ":" +
-                       artifactInfo.packaging + ":" +
-                       artifactInfo.classifier;
+        String gavtc = artifactInfo.getGroupId() + ":" +
+                       artifactInfo.getArtifactId() + ":" +
+                       artifactInfo.getVersion() + ":" +
+                       artifactInfo.getPackaging() + ":" +
+                       artifactInfo.getClassifier();
 
         return gavtc;
     }

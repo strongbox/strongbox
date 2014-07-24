@@ -22,7 +22,7 @@ import java.io.Writer;
 import java.util.Collection;
 
 import javanet.staxutils.IndentingXMLStreamWriter;
-import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.index.ArtifactInfo;
 import org.codehaus.jettison.mapped.MappedNamespaceConvention;
@@ -115,16 +115,16 @@ public class SearchRestlet
 
                                 xsw.writeStartElement("artifact");
                                 xsw.writeStartElement("groupId");
-                                xsw.writeCharacters(artifactInfo.groupId);
+                                xsw.writeCharacters(artifactInfo.getGroupId());
                                 xsw.writeEndElement();
                                 xsw.writeStartElement("artifactId");
-                                xsw.writeCharacters(artifactInfo.artifactId);
+                                xsw.writeCharacters(artifactInfo.getArtifactId());
                                 xsw.writeEndElement();
                                 xsw.writeStartElement("version");
-                                xsw.writeCharacters(artifactInfo.version);
+                                xsw.writeCharacters(artifactInfo.getVersion());
                                 xsw.writeEndElement();
                                 xsw.writeStartElement("repository");
-                                xsw.writeCharacters(artifactInfo.repository);
+                                xsw.writeCharacters(artifactInfo.getRepository());
                                 xsw.writeEndElement();
                                 xsw.writeStartElement("path");
                                 xsw.writeCharacters(pathToArtifactFile);

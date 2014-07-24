@@ -5,7 +5,7 @@ import org.carlspring.strongbox.storage.indexing.SearchResults;
 
 import java.io.IOException;
 
-import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.queryparser.classic.ParseException;
 
 /**
  * @author mtodorov

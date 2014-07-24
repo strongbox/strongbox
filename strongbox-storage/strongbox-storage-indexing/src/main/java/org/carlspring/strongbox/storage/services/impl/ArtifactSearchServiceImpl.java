@@ -12,7 +12,7 @@ import org.carlspring.strongbox.storage.services.ArtifactSearchService;
 import java.io.IOException;
 import java.util.*;
 
-import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.maven.index.ArtifactInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +73,8 @@ public class ArtifactSearchServiceImpl implements ArtifactSearchService
             }
             else
             {
-                final Map<String, Collection<ArtifactInfo>> resultsMap = getResultsMap(storage, repository,
+                final Map<String, Collection<ArtifactInfo>> resultsMap = getResultsMap(storage,
+                                                                                       repository,
                                                                                        searchRequest.getQuery());
 
                 if (!resultsMap.isEmpty())

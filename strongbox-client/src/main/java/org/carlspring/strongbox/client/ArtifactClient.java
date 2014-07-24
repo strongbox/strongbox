@@ -39,6 +39,8 @@ public class ArtifactClient
     private String password;
 
 
+
+
     public void addArtifact(Artifact artifact,
                             String storage,
                             String repository,

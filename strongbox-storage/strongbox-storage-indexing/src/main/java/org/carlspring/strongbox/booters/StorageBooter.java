@@ -2,17 +2,19 @@ package org.carlspring.strongbox.booters;
 
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexerFactory;
 import org.carlspring.strongbox.storage.repository.RepositoryManager;
+
+import javax.annotation.PostConstruct;
+import java.io.File;
+import java.io.IOException;
+
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-import java.io.File;
-import java.io.IOException;
 
 /**
  * @author mtodorov
@@ -28,6 +30,9 @@ public class StorageBooter
 
     @Autowired
     private RepositoryIndexManager repositoryIndexManager;
+
+    @Autowired
+    private RepositoryIndexerFactory repositoryIndexerFactory;
 
 
     public StorageBooter()
@@ -140,11 +145,13 @@ public class StorageBooter
                    ComponentLookupException,
                    IOException
     {
-        final RepositoryIndexer indexer = new RepositoryIndexer(repositoryId,
-                                                                repositoryBasedir,
-                                                                new File(repositoryBasedir, ".index"));
+        final File indexDir = new File(repositoryBasedir, ".index");
 
-        repositoryIndexManager.addRepositoryIndex("storage0:" + repositoryId, indexer);
+        RepositoryIndexer repositoryIndexer = repositoryIndexerFactory.createRepositoryIndexer(repositoryId,
+                                                                                               repositoryBasedir,
+                                                                                               indexDir);
+
+        repositoryIndexManager.addRepositoryIndex("storage0:" + repositoryId, repositoryIndexer);
     }
 
     public RepositoryManager getRepositoryManager()
