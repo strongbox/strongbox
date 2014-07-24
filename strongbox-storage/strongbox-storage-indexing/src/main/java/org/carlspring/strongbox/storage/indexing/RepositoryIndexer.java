@@ -61,7 +61,7 @@ public class RepositoryIndexer
         indexer.closeIndexingContext(indexingContext, false);
     }
 
-    void close(boolean deleteFiles)
+    public void close(boolean deleteFiles)
             throws IOException
     {
         indexingContext.close(deleteFiles);

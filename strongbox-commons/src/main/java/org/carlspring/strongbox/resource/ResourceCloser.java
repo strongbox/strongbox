@@ -4,6 +4,7 @@ import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import java.io.Closeable;
 import java.io.IOException;
+import java.lang.reflect.Method;
 
 import org.slf4j.Logger;
 
@@ -77,6 +78,32 @@ public class ResourceCloser
             try
             {
                 resource.close();
+            }
+            catch (Exception e)
+            {
+                if (logger != null)
+                {
+                    logger.error(e.getMessage(), e);
+                }
+            }
+        }
+    }
+
+    public static void closeWithReflection(Object resource, Logger logger)
+    {
+        if (resource != null)
+        {
+            try
+            {
+                try
+                {
+                    Method m = resource.getClass().getMethod("close");
+                    m.invoke(resource);
+                }
+                catch (NoSuchMethodException e)
+                {
+                    logger.warn("Failed to close resource, as " + resource.getClass() + " does not implement a close() method.");
+                }
             }
             catch (Exception e)
             {

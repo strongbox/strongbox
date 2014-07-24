@@ -6,7 +6,6 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexerFactory;
 import org.carlspring.strongbox.storage.repository.RepositoryManager;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 
@@ -152,7 +151,7 @@ public class StorageBooter
                                                                                                repositoryBasedir,
                                                                                                indexDir);
 
-        repositoryIndexManager.addRepositoryIndex(repositoryId, repositoryIndexer);
+        repositoryIndexManager.addRepositoryIndex("storage0:" + repositoryId, repositoryIndexer);
     }
 
     public RepositoryManager getRepositoryManager()

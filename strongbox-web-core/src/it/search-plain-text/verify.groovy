@@ -5,12 +5,12 @@ def client = new ArtifactClient();
 client.setUsername("maven");
 client.setPassword("password");
 
-def r0 = client.searchLucene("releases", "g:org.carlspring.maven v:1.0.11 p:pom");
-def r1 = client.searchLucene("releases", "g:org.carlspring.maven v:1.0.11 p:p*");
-def r2 = client.searchLucene("releases", "g:org.carlspring.*");
-def r3 = client.searchLucene("releases", "g:org.carlspring.* v:1.0.1*   ");
-def r4 = client.searchLucene("releases", "u:org.carlspring.*|1.0.12*");
-def r5 = client.searchLucene("u:org.carlspring.*");
+def r0 = client.search("releases", "g:org.carlspring.maven v:1.0.11 p:pom", "text", null);
+def r1 = client.search("releases", "g:org.carlspring.maven v:1.0.11 p:p*", "text", null);
+def r2 = client.search("releases", "g:org.carlspring.*", "text", null);
+def r3 = client.search("releases", "g:org.carlspring.* v:1.0.1*   ", "text", null);
+def r4 = client.search("releases", "u:org.carlspring.*|1.0.11*", "text", null);
+def r5 = client.search("u:org.carlspring.*", "text", null);
 
 System.out.println("*** g:org.carlspring.maven v:1.0.11 p:pom ***");
 System.out.println(r0);
@@ -30,4 +30,4 @@ System.out.println("*********************************************");
 
 return r0.indexOf("1.0.11") >= 0 && r1.indexOf("1.0.11") >= 0 &&
        r2.indexOf("1.0.11") >= 0 && r3.indexOf("1.0.5") < 0 &&
-       r4.indexOf("1.0.12") >= 0 && r5.contains("1.0.12");
+       r4.indexOf("1.0.11.1") >= 0 && r5.contains("1.0.11.1");

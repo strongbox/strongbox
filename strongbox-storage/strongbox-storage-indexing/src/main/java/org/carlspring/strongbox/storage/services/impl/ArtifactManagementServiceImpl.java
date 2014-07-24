@@ -124,7 +124,7 @@ public class ArtifactManagementServiceImpl
 
                 if (ArtifactFileUtils.isArtifactFile(path))
                 {
-                    final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(repositoryName);
+                    final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storage + ":" + repositoryName);
                     if (indexer != null)
                     {
                         final Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
@@ -202,20 +202,21 @@ public class ArtifactManagementServiceImpl
     }
 
     @Override
-    public void delete(String repositoryName,
+    public void delete(String storage,
+                       String repositoryName,
                        String artifactPath)
             throws ArtifactStorageException
     {
         try
         {
-            final Repository repository = dataCenter.getRepository(repositoryName);
+            final Repository repository = dataCenter.getStorage(storage).getRepository(repositoryName);
             checkRepositoryExists(repositoryName, repository);
 
             LocationResolver resolver = getResolvers().get(repository.getImplementation());
 
             resolver.delete(repositoryName, artifactPath);
 
-            final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(repositoryName);
+            final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storage + ":" + repositoryName);
             if (indexer != null)
             {
                 final Artifact a = ArtifactUtils.convertPathToArtifact(artifactPath);
@@ -307,12 +308,12 @@ public class ArtifactManagementServiceImpl
 
     // TODO: This should have restricted access.
     @Override
-    public void deleteTrash(String repositoryName)
+    public void deleteTrash(String storage, String repositoryName)
             throws ArtifactStorageException
     {
         try
         {
-            final Repository repository = dataCenter.getRepository(repositoryName);
+            final Repository repository = dataCenter.getStorage(storage).getRepository(repositoryName);
             checkRepositoryExists(repositoryName, repository);
 
             LocationResolver resolver = getResolvers().get(repository.getImplementation());

@@ -22,11 +22,12 @@ public interface ArtifactManagementService
                         String path)
             throws ArtifactResolutionException;
 
-    void delete(String repositoryName,
+    void delete(String storage,
+                String repositoryName,
                 String artifactPath)
             throws ArtifactStorageException;
 
-    void deleteTrash(String repositoryName)
+    void deleteTrash(String storage, String repositoryName)
             throws ArtifactStorageException;
 
     void deleteTrash()

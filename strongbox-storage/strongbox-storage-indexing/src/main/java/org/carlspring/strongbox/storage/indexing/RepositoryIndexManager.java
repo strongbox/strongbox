@@ -18,6 +18,10 @@ import org.springframework.stereotype.Component;
 public class RepositoryIndexManager
 {
 
+    /**
+     * K: storageName:repositoryName
+     * V: index
+     */
     private static final Logger logger = LoggerFactory.getLogger(RepositoryIndexManager.class);
 
     private Map<String, RepositoryIndexer> indexes = new LinkedHashMap<>();
@@ -59,9 +63,9 @@ public class RepositoryIndexManager
         this.indexes = indexes;
     }
 
-    public RepositoryIndexer getRepositoryIndex(String repositoryId)
+    public RepositoryIndexer getRepositoryIndex(String storageAndRepositoryId)
     {
-        return indexes.get(repositoryId);
+        return indexes.get(storageAndRepositoryId);
     }
 
     public RepositoryIndexer addRepositoryIndex(String repositoryId, RepositoryIndexer value)
