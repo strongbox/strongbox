@@ -174,13 +174,25 @@ public class ArtifactClient
         webResource.request().delete();
     }
 
-    public String search(String query, String format, String indent)
+    public String search(String query, String format)
+            throws UnsupportedEncodingException
+    {
+        return search(null, query, format, true);
+    }
+
+    public String search(String query, String format, boolean indent)
             throws UnsupportedEncodingException
     {
         return search(null, query, format, indent);
     }
 
-    public String search(String repository, String query, String format, String indent)
+    public String search(String repository, String query, String format)
+            throws UnsupportedEncodingException
+    {
+        return search(repository, query, format, true);
+    }
+
+    public String search(String repository, String query, String format, boolean indent)
             throws UnsupportedEncodingException
     {
         Client client = ClientBuilder.newClient();
@@ -189,7 +201,7 @@ public class ArtifactClient
                      (repository != null ? "repository=" + URLEncoder.encode(repository, "UTF-8") : "") +
                      "&q=" + URLEncoder.encode(query, "UTF-8") +
                      "&format=" + URLEncoder.encode(format, "UTF-8") +
-                    (indent != null ? "&indent=" + indent : "");
+                     "&indent=" + indent;
 
         WebTarget webResource = client.target(url);
         setupAuthentication(webResource);

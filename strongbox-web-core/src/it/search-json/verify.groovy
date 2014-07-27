@@ -5,7 +5,7 @@ def client = new ArtifactClient();
 client.setUsername("maven");
 client.setPassword("password");
 
-def r0 = client.search("releases", "g:org.carlspring.maven", "json", null);
+def r0 = client.search("releases", "g:org.carlspring.maven", "json");
 
 System.out.println(r0);
 

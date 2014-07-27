@@ -5,12 +5,12 @@ def client = new ArtifactClient();
 client.setUsername("maven");
 client.setPassword("password");
 
-def r0 = client.search("releases", "g:org.carlspring.maven v:1.0.11 p:pom", "text", null);
-def r1 = client.search("releases", "g:org.carlspring.maven v:1.0.11 p:p*", "text", null);
-def r2 = client.search("releases", "g:org.carlspring.*", "text", null);
-def r3 = client.search("releases", "g:org.carlspring.* v:1.0.1*   ", "text", null);
-def r4 = client.search("releases", "u:org.carlspring.*|1.0.11*", "text", null);
-def r5 = client.search("u:org.carlspring.*", "text", null);
+def r0 = client.search("releases", "g:org.carlspring.maven v:1.0.11 p:pom", "text");
+def r1 = client.search("releases", "g:org.carlspring.maven v:1.0.11 p:p*", "text");
+def r2 = client.search("releases", "g:org.carlspring.*", "text");
+def r3 = client.search("releases", "g:org.carlspring.* v:1.0.1*   ", "text");
+def r4 = client.search("releases", "u:org.carlspring.*|1.0.11*", "text");
+def r5 = client.search("u:org.carlspring.*", "text");
 
 System.out.println("*** g:org.carlspring.maven v:1.0.11 p:pom ***");
 System.out.println(r0);
