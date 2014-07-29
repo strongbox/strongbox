@@ -16,11 +16,11 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>Strongbox: Testing Storage Resources</name>
+    <name>Strongbox: Resources [Storage]</name>
 
     <modules>
-        <module>strongbox-testing-storage-api-resources</module>
-        <module>strongbox-testing-storage-indexing-resources</module>
+        <module>strongbox-storage-api-resources</module>
+        <module>strongbox-storage-indexing-resources</module>
     </modules>
 
 </project>

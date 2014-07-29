@@ -12,11 +12,11 @@
         <relativePath>../../../strongbox-parent</relativePath>
     </parent>
 
-    <artifactId>strongbox-testing-storage-indexing-resources</artifactId>
+    <artifactId>strongbox-storage-indexing-resources</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>Strongbox: Testing Storage Resources [Indexing]</name>
+    <name>Strongbox: Resources [Storage Indexing]</name>
 
     <build>
         <plugins>
@@ -38,7 +38,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-testing-storage-api-resources</artifactId>
+            <artifactId>strongbox-storage-api-resources</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

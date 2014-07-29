@@ -119,13 +119,13 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-testing-storage-api-resources</artifactId>
+            <artifactId>strongbox-storage-api-resources</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-testing-storage-indexing-resources</artifactId>
+            <artifactId>strongbox-storage-indexing-resources</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -137,13 +137,13 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-testing-resources</artifactId>
+            <artifactId>strongbox-common-resources</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-testing-web-resources</artifactId>
+            <artifactId>strongbox-web-resources</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -256,7 +256,7 @@
                                     <artifactItems>
                                         <artifactItem>
                                             <groupId>${project.groupId}</groupId>
-                                            <artifactId>strongbox-testing-resources</artifactId>
+                                            <artifactId>strongbox-common-resources</artifactId>
                                             <version>${project.version}</version>
                                             <type>jar</type>
 
@@ -277,7 +277,7 @@
                                     <artifactItems>
                                         <artifactItem>
                                             <groupId>${project.groupId}</groupId>
-                                            <artifactId>strongbox-testing-resources</artifactId>
+                                            <artifactId>strongbox-common-resources</artifactId>
                                             <version>${project.version}</version>
                                             <type>jar</type>
 
@@ -298,7 +298,7 @@
                                     <artifactItems>
                                         <artifactItem>
                                             <groupId>${project.groupId}</groupId>
-                                            <artifactId>strongbox-testing-resources</artifactId>
+                                            <artifactId>strongbox-common-resources</artifactId>
                                             <version>${project.version}</version>
                                             <type>jar</type>
 
@@ -308,7 +308,7 @@
                                         </artifactItem>
                                         <artifactItem>
                                             <groupId>${project.groupId}</groupId>
-                                            <artifactId>strongbox-testing-storage-api-resources</artifactId>
+                                            <artifactId>strongbox-storage-api-resources</artifactId>
                                             <version>${project.version}</version>
                                             <type>jar</type>
 
@@ -318,7 +318,7 @@
                                         </artifactItem>
                                         <artifactItem>
                                             <groupId>${project.groupId}</groupId>
-                                            <artifactId>strongbox-testing-storage-indexing-resources</artifactId>
+                                            <artifactId>strongbox-storage-indexing-resources</artifactId>
                                             <version>${project.version}</version>
                                             <type>jar</type>
 
@@ -339,7 +339,7 @@
                                     <artifactItems>
                                         <artifactItem>
                                             <groupId>${project.groupId}</groupId>
-                                            <artifactId>strongbox-testing-web-resources</artifactId>
+                                            <artifactId>strongbox-web-resources</artifactId>
                                             <version>${project.version}</version>
                                             <type>jar</type>
 
