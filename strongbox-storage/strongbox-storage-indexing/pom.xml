@@ -75,13 +75,13 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-testing-resources</artifactId>
+            <artifactId>strongbox-common-resources</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-testing-storage-indexing-resources</artifactId>
+            <artifactId>strongbox-storage-indexing-resources</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

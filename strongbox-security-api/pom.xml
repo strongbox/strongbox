@@ -76,7 +76,7 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>${project.groupId}</groupId>
-                                    <artifactId>strongbox-testing-resources</artifactId>
+                                    <artifactId>strongbox-common-resources</artifactId>
                                     <version>${project.version}</version>
                                     <type>jar</type>
 
@@ -97,7 +97,7 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>${project.groupId}</groupId>
-                                    <artifactId>strongbox-testing-resources</artifactId>
+                                    <artifactId>strongbox-common-resources</artifactId>
                                     <version>${project.version}</version>
                                     <type>jar</type>
 
@@ -199,7 +199,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-testing-resources</artifactId>
+            <artifactId>strongbox-common-resources</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

@@ -12,15 +12,16 @@
         <relativePath>../strongbox-parent</relativePath>
     </parent>
     
-    <artifactId>strongbox-testing</artifactId>
+    <artifactId>strongbox-resources</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     
-    <name>Strongbox: Testing</name>
+    <name>Strongbox: Resources</name>
     
     <modules>
-        <module>strongbox-testing-core</module>
-        <module>strongbox-testing-web</module>
+        <module>strongbox-common-resources</module>
+        <module>strongbox-storage-resources</module>
+        <module>strongbox-web-resources</module>
     </modules>
     
 </project>

@@ -37,6 +37,7 @@
         <module>strongbox-commons</module>
         <module>strongbox-event-api</module>
         <module>strongbox-security-api</module>
+        <module>strongbox-resources</module>
         <module>strongbox-testing</module>
         <module>strongbox-client</module>
         <module>strongbox-storage</module>
