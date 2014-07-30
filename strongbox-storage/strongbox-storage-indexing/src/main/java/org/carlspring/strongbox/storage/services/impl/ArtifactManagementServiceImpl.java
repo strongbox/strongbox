@@ -345,10 +345,11 @@ public class ArtifactManagementServiceImpl
     }
 
     @Override
-    public void merge(String targetStorage,
-                      String targetRepositoryName,
-                      String sourceStorage,
-                      String sourceRepositoryName) throws ArtifactStorageException
+    public void merge(String sourceStorage,
+                      String sourceRepositoryName,
+                      String targetStorage,
+                      String targetRepositoryName)
+            throws ArtifactStorageException
     {
         try
         {
