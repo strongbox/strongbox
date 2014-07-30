@@ -20,6 +20,7 @@
     
     <modules>
         <module>strongbox-testing-core</module>
+        <module>strongbox-testing-web</module>
     </modules>
     
 </project>

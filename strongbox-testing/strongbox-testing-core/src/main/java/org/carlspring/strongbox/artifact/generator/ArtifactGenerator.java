@@ -50,7 +50,7 @@ public class ArtifactGenerator
         createArchive(artifact);
     }
 
-    private void createArchive(Artifact artifact)
+    protected void createArchive(Artifact artifact)
             throws NoSuchAlgorithmException,
                    IOException
     {
@@ -152,7 +152,7 @@ public class ArtifactGenerator
         zos.closeEntry();
     }
 
-    private void generatePom(Artifact artifact)
+    protected void generatePom(Artifact artifact)
             throws IOException,
                    XmlPullParserException,
                    NoSuchAlgorithmException
@@ -219,28 +219,6 @@ public class ArtifactGenerator
             ResourceCloser.close(fos, logger);
         }
     }
-
-    /*
-    public Artifact getArtifact()
-    {
-        return artifact;
-    }
-
-    public void setArtifact(Artifact artifact)
-    {
-        this.artifact = artifact;
-    }
-
-    public String getGavtc()
-    {
-        return gavtc;
-    }
-
-    public void setGavtc(String gavtc)
-    {
-        this.gavtc = gavtc;
-    }
-    */
 
     public String getBasedir()
     {

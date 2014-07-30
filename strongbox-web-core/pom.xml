@@ -134,6 +134,12 @@
             <artifactId>strongbox-testing-core</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>${project.groupId}</groupId>
+                    <artifactId>strongbox-testing-web</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -432,6 +438,8 @@
                             <stopWait>10</stopWait>
 
                             <systemProperties>
+                                <force>true</force>
+
                                 <systemProperty>
                                     <name>strongbox.basedir</name>
                                     <value>${dir.strongbox}</value>

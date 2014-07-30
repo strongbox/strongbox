@@ -2,21 +2,21 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
+    
     <modelVersion>4.0.0</modelVersion>
-
+    
     <parent>
         <groupId>org.carlspring.strongbox</groupId>
         <artifactId>strongbox-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
-        <relativePath>../strongbox-parent</relativePath>
+        <relativePath>../../strongbox-parent</relativePath>
     </parent>
-
-    <artifactId>strongbox-client</artifactId>
+    
+    <artifactId>strongbox-testing-web</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-
-    <name>Strongbox: Client</name>
+    
+    <name>Strongbox: Testing [Web]</name>
 
     <licenses>
         <license>
@@ -57,58 +57,54 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.14.1</version>
-            </plugin>
         </plugins>
     </build>
-
+    
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-common-resources</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.carlspring.maven</groupId>
             <artifactId>maven-commons</artifactId>
+            <version>${version.maven.commons}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.glassfish.jersey.core</groupId>
-            <artifactId>jersey-common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.containers</groupId>
-            <artifactId>jersey-container-servlet-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.core</groupId>
-            <artifactId>jersey-client</artifactId>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-artifact</artifactId>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-core</artifactId>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
         </dependency>
-
         <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
         </dependency>
-
-        <!-- Use Log4J for logging -->
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -116,5 +112,5 @@
             <artifactId>junit</artifactId>
         </dependency>
     </dependencies>
-
+    
 </project>
