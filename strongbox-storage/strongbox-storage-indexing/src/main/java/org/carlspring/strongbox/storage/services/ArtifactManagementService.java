@@ -33,4 +33,9 @@ public interface ArtifactManagementService
     void deleteTrash()
             throws ArtifactStorageException;
 
+    void merge(String targetStorage,
+               String targetRepositoryName,
+               String sourceStorage,
+               String sourceRepositoryName)
+            throws ArtifactStorageException;
 }
