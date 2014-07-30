@@ -47,7 +47,8 @@ public class ArtifactClient
     {
         Client client = ClientBuilder.newClient();
 
-        String url = host + ":" + port + "/" + storage + "/" + repository + "/" +
+        String url = host + ":" + port + (contextBaseUrl != null ? "/" + contextBaseUrl : "" ) +
+                     "/storages/" + storage + "/" + repository + "/" +
                      ArtifactUtils.convertArtifactToPath(artifact);
 
         logger.debug("Deploying " + url + "...");
@@ -66,7 +67,7 @@ public class ArtifactClient
 
         if (status != 200)
         {
-            throw new ArtifactOperationException("Failed to create artifact!");
+            throw new ArtifactOperationException("Failed to deploy artifact!");
         }
     }
 
