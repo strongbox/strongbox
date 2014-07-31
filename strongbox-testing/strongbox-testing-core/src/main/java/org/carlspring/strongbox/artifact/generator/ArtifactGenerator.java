@@ -31,6 +31,10 @@ public class ArtifactGenerator
     private String basedir;
 
 
+    public ArtifactGenerator()
+    {
+    }
+
     public ArtifactGenerator(String basedir)
     {
         this.basedir = basedir;

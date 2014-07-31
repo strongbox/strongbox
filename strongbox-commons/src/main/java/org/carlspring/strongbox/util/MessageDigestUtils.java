@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.util;
 
+import org.carlspring.strongbox.security.encryption.EncryptionConstants;
+
 import java.security.MessageDigest;
 
 /**
@@ -18,6 +20,20 @@ public class MessageDigestUtils
         }
 
         return sb.toString();
+    }
+
+    public static String getExtensionForAlgorithm(String algorithm)
+    {
+        if (EncryptionConstants.ALGORITHM_MD5.equals(algorithm))
+        {
+            return ".md5";
+        }
+        if (EncryptionConstants.ALGORITHM_SHA1.equals(algorithm))
+        {
+            return ".sha1";
+        }
+
+        return null;
     }
 
 }

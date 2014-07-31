@@ -34,6 +34,11 @@
 
     <inceptionYear>2014</inceptionYear>
 
+    <properties>
+        <dir.strongbox>${project.build.directory}/strongbox</dir.strongbox>
+        <dir.jetty.etc>${dir.strongbox}/etc/jetty</dir.jetty.etc>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -142,11 +147,6 @@
                     <name>!skipTests</name>
                 </property>
             </activation>
-
-            <properties>
-                <dir.strongbox>${project.build.directory}/strongbox</dir.strongbox>
-                <dir.jetty.etc>${dir.strongbox}/etc/jetty</dir.jetty.etc>
-            </properties>
 
             <build>
                 <plugins>
