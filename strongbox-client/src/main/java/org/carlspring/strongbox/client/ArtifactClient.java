@@ -45,9 +45,7 @@ public class ArtifactClient
                             InputStream is)
             throws ArtifactOperationException
     {
-        Client client = ClientBuilder.newClient();
-
-        String url = host + ":" + port + (contextBaseUrl != null ? "/" + contextBaseUrl : "" ) +
+        String url = (contextBaseUrl != null ? contextBaseUrl : host + ":" + port ) +
                      "/storages/" + storage + "/" + repository + "/" +
                      ArtifactUtils.convertArtifactToPath(artifact);
 
@@ -55,10 +53,20 @@ public class ArtifactClient
 
         String fileName = ArtifactUtils.getArtifactFileName(artifact);
 
+        deployFile(is, url, fileName);
+    }
+
+    public void deployFile(InputStream is,
+                           String url,
+                           String fileName)
+            throws ArtifactOperationException
+    {
         String contentDisposition = "attachment; filename=\"" + fileName +"\"";
 
+        Client client = ClientBuilder.newClient();
         WebTarget resource = client.target(url);
         setupAuthentication(resource);
+
         Response response = resource.request(MediaType.APPLICATION_OCTET_STREAM)
                                     .header("Content-Disposition", contentDisposition)
                                     .put(Entity.entity(is, MediaType.APPLICATION_OCTET_STREAM));

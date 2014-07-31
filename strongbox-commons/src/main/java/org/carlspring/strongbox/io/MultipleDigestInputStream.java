@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.io;
 
 import org.carlspring.strongbox.security.encryption.EncryptionConstants;
+import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import java.io.FilterInputStream;
 import java.io.IOException;
@@ -54,6 +55,21 @@ public class MultipleDigestInputStream
     public MessageDigest getMessageDigest(String algorithm)
     {
         return digests.get(algorithm);
+    }
+
+    public Map<String, MessageDigest> getDigests()
+    {
+        return digests;
+    }
+
+    public String getMessageDigestAsHexadecimalString(String algorithm)
+    {
+        return MessageDigestUtils.convertToHexadecimalString(getMessageDigest(algorithm));
+    }
+
+    public void setDigests(Map<String, MessageDigest> digests)
+    {
+        this.digests = digests;
     }
 
     @Override

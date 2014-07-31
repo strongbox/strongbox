@@ -12,11 +12,14 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * @author mtodorov
  */
-@Ignore
 public class ArtifactDeployerTest
 {
 
@@ -43,8 +46,8 @@ public class ArtifactDeployerTest
     {
         Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:test:1.2.3");
 
-        ArtifactDeployer deployer = new ArtifactDeployer(BASEDIR);
-        deployer.generateAndDeployArtifact(artifact, "storage0", "releases");
+        ArtifactDeployer artifactDeployer = new ArtifactDeployer(BASEDIR);
+        artifactDeployer.generateAndDeployArtifact(artifact, "storage0", "releases");
     }
 
 }
