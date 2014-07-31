@@ -1,10 +1,14 @@
 package org.carlspring.strongbox.storage.services;
 
-import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.generator.ArtifactGenerator;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
+
+import java.io.File;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+
+import org.apache.maven.artifact.Artifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -14,15 +18,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.io.File;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-
 /**
  * @author mtodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"/META-INF/spring/strongbox-*-context.xml", "classpath*:/META-INF/spring/strongbox-*-context.xml"})
+@ContextConfiguration(locations = { "/META-INF/spring/strongbox-*-context.xml",
+                                    "classpath*:/META-INF/spring/strongbox-*-context.xml" })
 public class ArtifactManagementServiceImplTest
 {
 
@@ -31,13 +32,11 @@ public class ArtifactManagementServiceImplTest
     private static final File INDEX_DIR = new File(REPOSITORY_BASEDIR, ".index");
 
     @Autowired
-    private RepositoryIndexManager repositoryIndexManager;
-
-    @Autowired
-    private ArtifactManagementService artifactMgmtService;
+    private ArtifactManagementService artifactManagementService;
 
     @Autowired
     private ArtifactSearchService artifactSearchService;
+
 
     @Before
     public void init()
@@ -59,28 +58,26 @@ public class ArtifactManagementServiceImplTest
     }
 
     @Test
-    public void testMerge() throws Exception
+    public void testMerge()
+            throws Exception
     {
-        SearchRequest request = new SearchRequest(
-                "storage0",
-                "releases",
-                "g:org.carlspring.strongbox a:strongbox-utils v:1.2.1 p:jar");
+        SearchRequest request = new SearchRequest("storage0",
+                                                  "releases",
+                                                  "g:org.carlspring.strongbox a:strongbox-utils v:1.2.1 p:jar");
 
         Assert.assertTrue(artifactSearchService.contains(request));
 
-        request = new SearchRequest(
-                "storage0",
-                "snapshots",
-                "g:org.carlspring.strongbox a:strongbox-utils v:1.2.1 p:jar");
+        request = new SearchRequest("storage0",
+                                    "snapshots",
+                                    "g:org.carlspring.strongbox a:strongbox-utils v:1.2.1 p:jar");
 
         Assert.assertFalse(artifactSearchService.contains(request));
 
-        artifactMgmtService.merge("storage0", "releases", "storage0", "snapshots");
+        artifactManagementService.merge("storage0", "releases", "storage0", "snapshots");
 
-        request = new SearchRequest(
-                "storage0",
-                "snapshots",
-                "g:org.carlspring.strongbox a:strongbox-utils v:1.2.1 p:jar");
+        request = new SearchRequest("storage0",
+                                    "snapshots",
+                                    "g:org.carlspring.strongbox a:strongbox-utils v:1.2.1 p:jar");
 
         Assert.assertTrue(artifactSearchService.contains(request));
     }
