@@ -57,6 +57,18 @@ public class ArtifactDeployer extends ArtifactGenerator
                    IOException,
                    ArtifactOperationException
     {
+        generateAndDeployArtifact(artifact, null, storage, repository);
+    }
+
+    public void generateAndDeployArtifact(Artifact artifact,
+                                          String[] classifiers,
+                                          String storage,
+                                          String repository)
+            throws NoSuchAlgorithmException,
+                   XmlPullParserException,
+                   IOException,
+                   ArtifactOperationException
+    {
         initialize();
 
         generatePom(artifact);
@@ -65,6 +77,22 @@ public class ArtifactDeployer extends ArtifactGenerator
         deploy(artifact, storage, repository);
         deployPOM(ArtifactUtils.getPOMArtifact(artifact), storage, repository);
 
+        if (classifiers != null)
+        {
+            for (String classifier : classifiers)
+            {
+                // We're assuming the type of the classifier is the same as the one of the main artifact
+                Artifact artifactWithClassifier = ArtifactUtils.getArtifactFromGAVTC(artifact.getGroupId() + ":" +
+                                                                                     artifact.getArtifactId() + ":" +
+                                                                                     artifact.getVersion() + ":" +
+                                                                                     artifact.getType() + ":" +
+                                                                                     classifier);
+                generate(artifactWithClassifier);
+
+                deploy(artifactWithClassifier, storage, repository);
+            }
+        }
+
         // TODO: Update the metadata file on the repository's side.
     }
 
@@ -72,8 +100,9 @@ public class ArtifactDeployer extends ArtifactGenerator
                        String storage,
                        String repository)
             throws ArtifactOperationException,
-                   FileNotFoundException,
-                   NoSuchAlgorithmException
+                   IOException,
+                   NoSuchAlgorithmException,
+                   XmlPullParserException
     {
         File artifactFile = new File(getBasedir(), ArtifactUtils.convertArtifactToPath(artifact));
         ArtifactInputStream ais = new ArtifactInputStream(artifact, new FileInputStream(artifactFile));

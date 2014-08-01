@@ -10,12 +10,7 @@ import java.security.NoSuchAlgorithmException;
 import org.apache.maven.artifact.Artifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * @author mtodorov
@@ -46,8 +41,10 @@ public class ArtifactDeployerTest
     {
         Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:test:1.2.3");
 
+        String[] classifiers = new String[] { "javadocs", "jdk14", "tests"};
+
         ArtifactDeployer artifactDeployer = new ArtifactDeployer(BASEDIR);
-        artifactDeployer.generateAndDeployArtifact(artifact, "storage0", "releases");
+        artifactDeployer.generateAndDeployArtifact(artifact, classifiers, "storage0", "releases");
     }
 
 }
