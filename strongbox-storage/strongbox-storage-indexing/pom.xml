@@ -51,6 +51,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <strongbox.basedir>${basedir}/target/strongbox</strongbox.basedir>
+                        <strongbox.storage.booter.basedir>${basedir}/target/storages</strongbox.storage.booter.basedir>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
