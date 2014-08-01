@@ -366,14 +366,6 @@
 
                         <configuration>
                             <scanIntervalSeconds>10</scanIntervalSeconds>
-                            <scanTargetPatterns>
-                                <scanTargetPattern>
-                                    <directory>${basedir}/src/it</directory>
-                                    <excludes>
-                                        <exclude>**/**</exclude>
-                                    </excludes>
-                                </scanTargetPattern>
-                            </scanTargetPatterns>
 
                             <daemon>true</daemon>
 
