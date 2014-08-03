@@ -138,10 +138,63 @@ public class StorageMapEntryConverter
                                      Repository repository)
     {
         writer.startNode("repository");
+
         writer.addAttribute("name", repository.getName());
         writer.addAttribute("implementation", repository.getImplementation());
         writer.addAttribute("policy", repository.getPolicy());
         writer.addAttribute("type", repository.getType());
+
+        final ProxyConfiguration proxyConfiguration = repository.getProxyConfiguration();
+        if (proxyConfiguration != null)
+        {
+            writer.startNode("proxy-configuration");
+
+            if (proxyConfiguration.getHost() != null)
+            {
+                writer.startNode("host");
+                writer.setValue(proxyConfiguration.getHost());
+                writer.endNode();
+            }
+
+            if (proxyConfiguration.getPort() > 0)
+            {
+                writer.startNode("port");
+                writer.setValue(Integer.toString(proxyConfiguration.getPort()));
+                writer.endNode();
+            }
+
+            if (proxyConfiguration.getUsername() != null)
+            {
+                writer.startNode("username");
+                writer.setValue(proxyConfiguration.getUsername());
+                writer.endNode();
+            }
+
+            if (proxyConfiguration.getPassword() != null)
+            {
+                writer.startNode("password");
+                writer.setValue(proxyConfiguration.getPassword());
+                writer.endNode();
+            }
+
+            final List<String> nonProxyHosts = proxyConfiguration.getNonProxyHosts();
+            if (nonProxyHosts != null && !nonProxyHosts.isEmpty())
+            {
+                writer.startNode("non-proxy-hosts");
+
+                for (String nonProxyHost : nonProxyHosts)
+                {
+                    writer.startNode("non-proxy-host");
+                    writer.setValue(nonProxyHost);
+                    writer.endNode();
+                }
+
+                writer.endNode();
+            }
+
+            writer.endNode();
+        }
+
         writer.endNode();
     }
 

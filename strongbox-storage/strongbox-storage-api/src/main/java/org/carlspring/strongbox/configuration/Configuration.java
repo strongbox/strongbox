@@ -11,11 +11,12 @@ import java.util.*;
 /**
  * @author mtodorov
  */
+@XStreamAlias("configuration")
 public class Configuration
 {
 
-    @XStreamAlias(value = "storages")
-    private Map<String, Storage> storages = new LinkedHashMap<String, Storage>();
+    @XStreamAlias(value = "version")
+    private String version = "1.0";
 
     @XStreamAlias(value = "baseUrl")
     private String baseUrl = "http://localhost/";
@@ -23,8 +24,14 @@ public class Configuration
     @XStreamAlias(value = "port")
     private int port = 48080;
 
-    @XStreamAlias(value = "version")
-    private String version = "1.0";
+    /**
+     * The global proxy settings to use when no per-repository proxy settings have been defined.
+     */
+    @XStreamAlias("proxy-configuration")
+    private ProxyConfiguration proxyConfiguration;
+
+    @XStreamAlias(value = "storages")
+    private Map<String, Storage> storages = new LinkedHashMap<String, Storage>();
 
     @XStreamOmitField
     private Resource resource;
@@ -34,24 +41,14 @@ public class Configuration
     {
     }
 
-    public Map<String, Storage> getStorages()
+    public String getVersion()
     {
-        return storages;
+        return version;
     }
 
-    public void setStorages(Map<String, Storage> storages)
+    public void setVersion(String version)
     {
-        this.storages = storages;
-    }
-
-    public void addStorage(Storage storage)
-    {
-        storages.put(storage.getBasedir(), storage);
-    }
-
-    public void removeStorage(Storage storage)
-    {
-        storages.remove(storage.getBasedir());
+        this.version = version;
     }
 
     public String getBaseUrl()
@@ -74,14 +71,34 @@ public class Configuration
         this.port = port;
     }
 
-    public String getVersion()
+    public ProxyConfiguration getProxyConfiguration()
     {
-        return version;
+        return proxyConfiguration;
     }
 
-    public void setVersion(String version)
+    public void setProxyConfiguration(ProxyConfiguration proxyConfiguration)
     {
-        this.version = version;
+        this.proxyConfiguration = proxyConfiguration;
+    }
+
+    public Map<String, Storage> getStorages()
+    {
+        return storages;
+    }
+
+    public void setStorages(Map<String, Storage> storages)
+    {
+        this.storages = storages;
+    }
+
+    public void addStorage(Storage storage)
+    {
+        storages.put(storage.getBasedir(), storage);
+    }
+
+    public void removeStorage(Storage storage)
+    {
+        storages.remove(storage.getBasedir());
     }
 
     public Resource getResource()

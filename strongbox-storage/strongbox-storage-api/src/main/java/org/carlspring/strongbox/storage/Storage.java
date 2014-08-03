@@ -10,6 +10,7 @@ import java.util.Map;
 /**
  * @author mtodorov
  */
+@XStreamAlias(value = "storage")
 public class Storage
 {
 

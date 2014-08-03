@@ -80,7 +80,25 @@ public class ConfigurationManagerTest
     public void testStoreConfiguration()
             throws IOException
     {
+        ProxyConfiguration proxyConfigurationGlobal = new ProxyConfiguration();
+        proxyConfigurationGlobal.setUsername("maven");
+        proxyConfigurationGlobal.setPassword("password");
+        proxyConfigurationGlobal.setHost("192.168.100.1");
+        proxyConfigurationGlobal.setPort(8080);
+        proxyConfigurationGlobal.addNonProxyHost("192.168.100.1");
+        proxyConfigurationGlobal.addNonProxyHost("192.168.100.2");
+
+        ProxyConfiguration proxyConfigurationRepository1 = new ProxyConfiguration();
+        proxyConfigurationRepository1.setUsername("maven");
+        proxyConfigurationRepository1.setPassword("password");
+        proxyConfigurationRepository1.setHost("192.168.100.5");
+        proxyConfigurationRepository1.setPort(8080);
+        proxyConfigurationRepository1.addNonProxyHost("192.168.100.10");
+        proxyConfigurationRepository1.addNonProxyHost("192.168.100.11");
+
         Repository repository1 = new Repository("snapshots");
+        repository1.setProxyConfiguration(proxyConfigurationRepository1);
+
         Repository repository2 = new Repository("releases");
 
         Storage storage = new Storage();
@@ -90,6 +108,7 @@ public class ConfigurationManagerTest
 
         Configuration configuration = new Configuration();
         configuration.addStorage(storage);
+        configuration.setProxyConfiguration(proxyConfigurationGlobal);
 
         File outputFile = new File(CONFIGURATION_OUTPUT_FILE);
 

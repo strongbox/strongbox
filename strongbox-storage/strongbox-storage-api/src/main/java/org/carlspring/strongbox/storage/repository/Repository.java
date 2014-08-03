@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.storage.repository;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.storage.Storage;
 
 import java.io.File;
@@ -14,6 +15,7 @@ import org.apache.maven.artifact.Artifact;
 /**
  * @author mtodorov
  */
+@XStreamAlias(value = "repository")
 public class Repository
 {
 
@@ -39,6 +41,12 @@ public class Repository
     @XStreamAlias("allows-redeployment")
     @XStreamAsAttribute
     private boolean allowsRedeployment = false;
+
+    /**
+     * The per-repository proxy settings that override the overall global proxy settings.
+     */
+    @XStreamAlias("proxy-configuration")
+    private ProxyConfiguration proxyConfiguration;
 
     @XStreamOmitField
     private Storage storage;
@@ -153,14 +161,24 @@ public class Repository
         this.allowsRedeployment = allowsRedeployment;
     }
 
+    public ProxyConfiguration getProxyConfiguration()
+    {
+        return proxyConfiguration;
+    }
+
+    public void setProxyConfiguration(ProxyConfiguration proxyConfiguration)
+    {
+        this.proxyConfiguration = proxyConfiguration;
+    }
+
     public boolean acceptsSnapshots()
     {
-        return getPolicy().equals(RepositoryPolicyEnum.SNAPSHOT.toString());
+        return RepositoryPolicyEnum.SNAPSHOT.toString().equals(getPolicy());
     }
 
     public boolean acceptsReleases()
     {
-        return getPolicy().equals(RepositoryPolicyEnum.RELEASE.toString());
+        return RepositoryPolicyEnum.RELEASE.toString().equals(getPolicy());
     }
 
     public Storage getStorage()
