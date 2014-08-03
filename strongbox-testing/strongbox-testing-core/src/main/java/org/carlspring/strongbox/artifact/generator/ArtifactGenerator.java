@@ -174,7 +174,8 @@ public class ArtifactGenerator
         model.setVersion(artifact.getVersion());
         model.setPackaging(artifact.getType()); // This is not exactly correct.
 
-        System.out.println("Generating pom file for " + artifact.toString() + "...");
+        logger.info("Generating pom file for " + artifact.toString() + "...");
+
         ModelWriter writer = new ModelWriter(model, pomFile);
         writer.write();
 
