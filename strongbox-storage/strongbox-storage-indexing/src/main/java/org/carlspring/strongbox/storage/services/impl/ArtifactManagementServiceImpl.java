@@ -142,7 +142,6 @@ public class ArtifactManagementServiceImpl
         }
         catch (ArtifactResolutionException e)
         {
-            e.printStackTrace();
             throw new WebApplicationException(e, Response.Status.NOT_FOUND);
         }
         catch (IOException e)
@@ -282,8 +281,7 @@ public class ArtifactManagementServiceImpl
         }
         else
         {
-            logger.debug("The received " + algorithm + " does not match cached one! " + checksum + "/" +
-                         cachedChecksum);
+            logger.debug("The received " + algorithm + " does not match cached one! " + checksum + "/" + cachedChecksum);
             return false;
         }
     }
