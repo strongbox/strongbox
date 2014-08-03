@@ -17,6 +17,13 @@ import java.util.Map;
 public class KeyStores
 {
 
+    private static final ProxyAuthenticator authenticator = new ProxyAuthenticator();
+
+    static
+    {
+        Authenticator.setDefault(authenticator);
+    }
+
 
     private static KeyStore load(final File fileName,
                                  final char[] password)
@@ -171,10 +178,15 @@ public class KeyStores
         ctx.init(null, new TrustManager[]{ tm }, null);
 
         final URL url = new URL("https", host, port, "/");
-        final HttpsURLConnection conn = (HttpsURLConnection)
-                (httpProxy != null ? url.openConnection(httpProxy) : url.openConnection());
+        final HttpsURLConnection conn = (HttpsURLConnection) (httpProxy != null ?
+                                                              url.openConnection(httpProxy) :
+                                                              url.openConnection());
         conn.setSSLSocketFactory(ctx.getSocketFactory());
-        if (credentials != null) ProxyAuthenticator.credentials.set(credentials);
+
+        if (credentials != null)
+        {
+            ProxyAuthenticator.credentials.set(credentials);
+        }
 
         try
         {
@@ -255,9 +267,17 @@ public class KeyStores
         final SSLContext ctx = SSLContext.getInstance("TLS");
         ctx.init(null, new TrustManager[]{ tm }, null);
 
-        if (credentials != null) ProxyAuthenticator.credentials.set(credentials);
+        if (credentials != null)
+        {
+            ProxyAuthenticator.credentials.set(credentials);
+        }
+
         final Socket proxySocket = socksProxy != null ? new Socket(socksProxy) : null;
-        if (proxySocket != null) proxySocket.connect(new InetSocketAddress(host, port));
+
+        if (proxySocket != null)
+        {
+            proxySocket.connect(new InetSocketAddress(host, port));
+        }
 
         try
         {
@@ -267,7 +287,10 @@ public class KeyStores
         finally
         {
             ProxyAuthenticator.credentials.remove();
-            if (proxySocket != null && !proxySocket.isClosed()) proxySocket.close();
+            if (proxySocket != null && !proxySocket.isClosed())
+            {
+                proxySocket.close();
+            }
         }
     }
 
@@ -276,10 +299,9 @@ public class KeyStores
                                   final String host,
                                   final int port) throws IOException
     {
-        final SSLSocket socket =
-                (SSLSocket)(proxySocket == null ?
-                        ctx.getSocketFactory().createSocket(host, port) :
-                        ctx.getSocketFactory().createSocket(proxySocket, host, port, true));
+        final SSLSocket socket = (SSLSocket)(proxySocket == null ?
+                                             ctx.getSocketFactory().createSocket(host, port) :
+                                             ctx.getSocketFactory().createSocket(proxySocket, host, port, true));
 
         try
         {
@@ -333,13 +355,6 @@ public class KeyStores
         }
 
         static final ThreadLocal<PasswordAuthentication> credentials = new ThreadLocal<PasswordAuthentication>();
-    }
-
-    private static final ProxyAuthenticator authenticator = new ProxyAuthenticator();
-
-    static
-    {
-        Authenticator.setDefault(authenticator);
     }
 
 }
