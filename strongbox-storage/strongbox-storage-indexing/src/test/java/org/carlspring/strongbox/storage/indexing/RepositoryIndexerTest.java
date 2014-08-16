@@ -63,7 +63,16 @@ public class RepositoryIndexerTest
                             6,  // one is jar another pom, both would be added into the same Lucene document
                             x);
 
-        Set<ArtifactInfo> search = repositoryIndexer.search("org.carlspring.strongbox",
+        Set<ArtifactInfo> search = repositoryIndexer.search("g:org.carlspring.strongbox a:strongbox-commons +v:1.0 p:jar");
+        for (final ArtifactInfo ai : search)
+        {
+            System.out.println(ai.getGroupId() + " / " + ai.getArtifactId() + " / " + ai.getVersion() + " / " + ai.getDescription());
+        }
+
+        System.out.println("++++++++++++++++++++++++++++++++++++");
+        Assert.assertEquals("Only one versions of the strongbox-commons artifact were expected!", 1, search.size());
+
+        search = repositoryIndexer.search("org.carlspring.strongbox",
                                                             "strongbox-commons",
                                                             null,
                                                             null,
