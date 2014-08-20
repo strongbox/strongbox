@@ -1,13 +1,6 @@
 package org.carlspring.strongbox.storage.indexing;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.BooleanQuery;
@@ -20,6 +13,14 @@ import org.apache.maven.index.context.IndexingContext;
 import org.apache.maven.index.expr.SourcedSearchExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
 import static java.util.Arrays.asList;
 import static org.apache.lucene.search.BooleanClause.Occur.MUST;
 
@@ -32,7 +33,7 @@ public class RepositoryIndexer
 
     private static final String [] luceneFields = new String [] { "g", "a", "v", "p", "c" };
 
-    private static final StandardAnalyzer luceneAnalyzer = new StandardAnalyzer(luceneVersion);
+    private static final WhitespaceAnalyzer luceneAnalyzer = new WhitespaceAnalyzer(luceneVersion);
 
     private Indexer indexer;
 
@@ -149,6 +150,7 @@ public class RepositoryIndexer
     {
         final Query query = new MultiFieldQueryParser(luceneVersion, luceneFields, luceneAnalyzer).parse(queryText);
 
+        logger.debug("Text of the query: {}", queryText);
         logger.debug("Executing search query: {}; ctx id: {}; idx dir: {}",
                      new String[]{ query.toString(),
                                    indexingContext.getId(),

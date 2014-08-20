@@ -2,6 +2,7 @@ package org.carlspring.strongbox.storage.indexing;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.generator.ArtifactGenerator;
+import org.carlspring.strongbox.client.ArtifactOperationException;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.index.ArtifactInfo;
@@ -35,8 +36,9 @@ public class RepositoryIndexerTest
     @Before
     public void init()
             throws NoSuchAlgorithmException,
-                   XmlPullParserException,
-                   IOException
+            XmlPullParserException,
+            IOException,
+            ArtifactOperationException
     {
         //noinspection ResultOfMethodCallIgnored
         INDEX_DIR.mkdirs();
@@ -60,23 +62,14 @@ public class RepositoryIndexerTest
         final int x = repositoryIndexer.index(new File("org/carlspring/strongbox/strongbox-commons"));
 
         Assert.assertEquals("6 artifacts expected!",
-                            6,  // one is jar another pom, both would be added into the same Lucene document
-                            x);
+                6,  // one is jar another pom, both would be added into the same Lucene document
+                x);
 
-        Set<ArtifactInfo> search = repositoryIndexer.search("g:org.carlspring.strongbox a:strongbox-commons +v:1.0 p:jar");
-        for (final ArtifactInfo ai : search)
-        {
-            System.out.println(ai.getGroupId() + " / " + ai.getArtifactId() + " / " + ai.getVersion() + " / " + ai.getDescription());
-        }
-
-        System.out.println("++++++++++++++++++++++++++++++++++++");
-        Assert.assertEquals("Only one versions of the strongbox-commons artifact were expected!", 1, search.size());
-
-        search = repositoryIndexer.search("org.carlspring.strongbox",
-                                                            "strongbox-commons",
-                                                            null,
-                                                            null,
-                                                            null);
+        Set<ArtifactInfo> search = repositoryIndexer.search("org.carlspring.strongbox",
+                "strongbox-commons",
+                null,
+                null,
+                null);
         for (final ArtifactInfo ai : search)
         {
             System.out.println(ai.getGroupId() + " / " + ai.getArtifactId() + " / " + ai.getVersion() + " / " + ai.getDescription());
@@ -84,10 +77,15 @@ public class RepositoryIndexerTest
 
         Assert.assertEquals("Only three versions of the strongbox-commons artifact were expected!", 3, search.size());
 
+        search = repositoryIndexer.search("org.carlspring.strongbox", "strongbox-commons", "1.0", "jar", null);
+        Assert.assertEquals("org.carlspring.strongbox:strongbox-commons:1.0 should have been deleted!", 1, search.size());
+
+        search = repositoryIndexer.search("+g:org.carlspring.strongbox +a:\"strongbox\\-commons\" +v:1.0");
+        Assert.assertEquals("org.carlspring.strongbox:strongbox-commons:1.0 should have been deleted!", 1, search.size());
+
         repositoryIndexer.delete(search);
         search = repositoryIndexer.search("org.carlspring.strongbox", "strongbox-commons", "1.0", null, null);
 
-        Assert.assertEquals("org.carlspring.strongbox:strongbox-commons:1.0 should have been deleted!", search.size(), 0);
+        Assert.assertEquals("org.carlspring.strongbox:strongbox-commons:1.0 should have been deleted!", 0, search.size());
     }
-
 }
