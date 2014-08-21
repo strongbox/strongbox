@@ -53,11 +53,13 @@ public class ArtifactManagementServiceImplTest
         Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-utils:6.0.1:jar");
         Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-utils:6.1.1:jar");
         Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-utils:6.2.1:jar");
+        Artifact artifact4 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-utils:6.2.2-SNAPSHOT:jar");
 
         ArtifactGenerator generator = new ArtifactGenerator(REPOSITORY_BASEDIR.getAbsolutePath());
         generator.generate(artifact1);
         generator.generate(artifact2);
         generator.generate(artifact3);
+        generator.generate(artifact4);
     }
 
     @Test
