@@ -3,7 +3,7 @@ package org.carlspring.strongbox.storage.services;
 import java.io.IOException;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.model.Model;
+import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 /**
@@ -11,7 +11,10 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
  */
 public interface ArtifactMetadataService
 {
-    public Model getMetadata(Artifact artifact)
+
+    public Metadata getMetadata(Artifact artifact)
             throws IOException, XmlPullParserException;
-    public void rebuildMetadata(Artifact artifact);
+
+    public void rebuildMetadata(Artifact artifact)
+            throws IOException, XmlPullParserException;
 }

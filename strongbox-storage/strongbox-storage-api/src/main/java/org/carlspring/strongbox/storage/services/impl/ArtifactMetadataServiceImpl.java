@@ -1,74 +1,81 @@
 package org.carlspring.strongbox.storage.services.impl;
 
 import org.carlspring.strongbox.storage.services.ArtifactMetadataService;
+import org.carlspring.strongbox.storage.visitors.ArtifactPomVisitor;
 
 import java.io.*;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
+import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Writer;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.WriterFactory;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import sun.misc.Regexp;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author stodorov
  */
-public class ArtifactMetadataServiceImpl implements ArtifactMetadataService
+public class ArtifactMetadataServiceImpl
+        implements ArtifactMetadataService
 {
+
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactMetadataServiceImpl.class);
 
     private Path basePath = null;
 
     @Override
-    public Model getMetadata(Artifact artifact)
+    public Metadata getMetadata(Artifact artifact)
             throws IOException, XmlPullParserException
     {
-//        String artifactPath = artifact.getGroupId().replaceAll("\\.", Matcher.quoteReplacement("/"));
-//        File pom = new File("target/storages/storage0/releases/"+artifactPath+"/"+artifact.getArtifactId()+"/maven-metadata.xml");
-//        MavenXpp3Reader reader = new MavenXpp3Reader();
-//        return reader.read(new FileReader(pom));
-        return null;
+        basePath = getArtifactBasePath(artifact);
+
+        File metadataFile = new File(basePath + "/maven-metadata.xml");
+        FileInputStream fileInputStream = new FileInputStream(metadataFile);
+
+        MetadataXpp3Reader reader = new MetadataXpp3Reader();
+        return reader.read(fileInputStream);
     }
 
     @Override
     public void rebuildMetadata(Artifact artifact)
+            throws IOException, XmlPullParserException
     {
-        System.out.println("Artifact Id: " +artifact.getArtifactId());
-        System.out.println("Artifact GroupId: " +artifact.getGroupId());
-        System.out.println("Replace: "+artifact.getGroupId().replaceAll("\\.", Matcher.quoteReplacement("/")));
-
-        String artifactPath = artifact.getGroupId().replaceAll("\\.", Matcher.quoteReplacement("/"));
-        basePath = Paths.get("target/storages/storage0/releases/"+artifactPath+"/"+artifact.getArtifactId());
+        String artifactPath = artifact.getGroupId().replaceAll("\\.", Matcher.quoteReplacement(File.separator));
+        basePath = Paths.get("target/storages/storage0/releases/" + artifactPath + "/" + artifact.getArtifactId());
 
         ArtifactPomVisitor artifactPomVisitor = new ArtifactPomVisitor();
 
-        try
-        {
-            // Find all pom files
-            Files.walkFileTree(basePath, artifactPomVisitor);
-            // Pass the file list to the metadata generator
-            generateMetadata(artifact, artifactPomVisitor.foundPaths);
-        }
-        catch (IOException | XmlPullParserException e)
-        {
-            e.printStackTrace();
-        }
+        // Find all pom files
+        Files.walkFileTree(basePath, artifactPomVisitor);
+
+        // Pass the file list to the metadata generator
+        generateMetadata(artifact, artifactPomVisitor.foundPaths);
     }
 
-    private void generateMetadata(Artifact artifact, ArrayList<Path> foundFiles)
+    public Path getArtifactBasePath(Artifact artifact)
+    {
+        String artifactPath = artifact.getGroupId().replaceAll("\\.", Matcher.quoteReplacement(File.separator));
+        return Paths.get("target/storages/storage0/releases/" + artifactPath + "/" + artifact.getArtifactId());
+    }
+
+    private void generateMetadata(Artifact artifact,
+                                  ArrayList<Path> foundFiles)
             throws IOException, XmlPullParserException
     {
-        if (foundFiles.size() > 0) {
+        if (foundFiles.size() > 0)
+        {
 
             Metadata metadata = new Metadata();
             metadata.setArtifactId(artifact.getArtifactId());
@@ -80,10 +87,11 @@ public class ArtifactMetadataServiceImpl implements ArtifactMetadataService
             Path latestReleasePomFile = null;
 
             // Add all versions
-            for (Path filePath : foundFiles) {
+            for (Path filePath : foundFiles)
+            {
                 Model model = getPom(filePath);
 
-                if(!filePath.toString().matches("^(.+)-SNAPSHOT.*$"))
+                if (!filePath.toString().matches("^(.+)-SNAPSHOT.*$"))
                 {
                     latestReleasePomFile = filePath;
                 }
@@ -96,13 +104,13 @@ public class ArtifactMetadataServiceImpl implements ArtifactMetadataService
             versioning.setRelease(latestReleasePom.getVersion());
 
             // Add latest version
-            Path latestPomFile = foundFiles.get(foundFiles.size()-1).toRealPath(LinkOption.NOFOLLOW_LINKS);
+            Path latestPomFile = foundFiles.get(foundFiles.size() - 1).toRealPath(LinkOption.NOFOLLOW_LINKS);
             Model latestPom = getPom(latestPomFile);
             versioning.setLatest(latestPom.getVersion());
 
             metadata.setVersioning(versioning);
 
-            File metadataFile = new File(basePath+"/maven-metadata.xml");
+            File metadataFile = new File(basePath + "/maven-metadata.xml");
             Writer writer = null;
             try
             {
@@ -110,16 +118,21 @@ public class ArtifactMetadataServiceImpl implements ArtifactMetadataService
 
                 MetadataXpp3Writer mappingWriter = new MetadataXpp3Writer();
 
-                mappingWriter.write( writer, metadata );
+                mappingWriter.write(writer, metadata);
+
+                logger.debug("Maven metadata has been generated for " + artifact.getGroupId() + ":" +
+                             artifact.getArtifactId());
+
             }
             finally
             {
                 IOUtil.close(writer);
             }
 
-
-        } else {
-            System.out.println("No files were founds!");
+        }
+        else
+        {
+            throw new IOException("No pom files were founds!");
         }
 
     }
@@ -131,6 +144,5 @@ public class ArtifactMetadataServiceImpl implements ArtifactMetadataService
         MavenXpp3Reader reader = new MavenXpp3Reader();
         return reader.read(new FileReader(pomFile));
     }
-
 
 }
