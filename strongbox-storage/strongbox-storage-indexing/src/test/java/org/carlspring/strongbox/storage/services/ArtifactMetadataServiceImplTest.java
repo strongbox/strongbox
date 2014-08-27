@@ -18,6 +18,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -33,11 +34,12 @@ public class ArtifactMetadataServiceImplTest
 
     private static final File REPOSITORY_BASEDIR = new File("target/storages/storage0/releases");
 
-    private Artifact artifact;
-    private Artifact latestArtifact;
-    private Artifact releaseArtifact;
+    private static final Artifact ARTIFACT = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-metadata:1.0:jar");
+    private static final Artifact LATEST_ARTIFACT = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-metadata:3.0-SNAPSHOT:jar");
+    private static final Artifact RELEASE_ARTIFACT = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-metadata:2.0:zip");
 
-    private ArtifactMetadataServiceImpl metadataService;
+    @Autowired
+    private ArtifactMetadataServiceImpl artifactMetadataService;
 
 
     @Before
@@ -46,34 +48,28 @@ public class ArtifactMetadataServiceImplTest
                    XmlPullParserException,
                    IOException
     {
-        REPOSITORY_BASEDIR.mkdirs();
+        if (!new File(REPOSITORY_BASEDIR, "org/carlspring/strongbox/strongbox-metadata").exists())
+        {
+            //noinspection ResultOfMethodCallIgnored
+            REPOSITORY_BASEDIR.mkdirs();
 
-        Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-metadata:1.0:jar");
-        Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-metadata:1.1:war");
-        Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-metadata:2.0:zip");
-        Artifact artifact4 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-metadata:3.0-SNAPSHOT:jar");
+            ArtifactGenerator generator = new ArtifactGenerator(REPOSITORY_BASEDIR.getAbsolutePath());
+            generator.generate(ARTIFACT);
+            generator.generate(ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-metadata:1.1:war"));
+            generator.generate(LATEST_ARTIFACT);
+            generator.generate(RELEASE_ARTIFACT);
 
-        ArtifactGenerator generator = new ArtifactGenerator(REPOSITORY_BASEDIR.getAbsolutePath());
-        generator.generate(artifact1);
-        generator.generate(artifact2);
-        generator.generate(artifact3);
-        generator.generate(artifact4);
-
-        artifact = artifact1;
-        latestArtifact = artifact4;
-        releaseArtifact = artifact3;
-        metadataService = new ArtifactMetadataServiceImpl();
-
-        metadataService.rebuildMetadata(artifact);
-
+            artifactMetadataService.rebuildMetadata("storage0", "releases", ARTIFACT);
+        }
     }
 
     @Test
     public void testMetadataRebuild()
             throws IOException, XmlPullParserException
     {
-        String artifactBasePath = metadataService.getArtifactBasePath(artifact).toString();
+        String artifactBasePath = artifactMetadataService.getArtifactBasePath("storage0", "releases", ARTIFACT).toString();
         File metadataFile = new File(artifactBasePath + "/maven-metadata.xml");
+
         Assert.assertTrue("Failed to rebuild maven-metadata.xml file in " + artifactBasePath, metadataFile.exists());
     }
 
@@ -81,14 +77,13 @@ public class ArtifactMetadataServiceImplTest
     public void testMetadataRead()
             throws IOException, XmlPullParserException
     {
-
-        Metadata metadata = metadataService.getMetadata(artifact);
+        Metadata metadata = artifactMetadataService.getMetadata("storage0", "releases", ARTIFACT);
         Versioning versioning = metadata.getVersioning();
 
-        Assert.assertEquals("Artifact Id don't match!", artifact.getArtifactId(), metadata.getArtifactId());
-        Assert.assertEquals("Group Id don't match!", artifact.getGroupId(), metadata.getGroupId());
-        Assert.assertEquals("Latest version doesn't match!", latestArtifact.getVersion(), versioning.getLatest());
-        Assert.assertEquals("Release version don't match!", releaseArtifact.getVersion(), versioning.getRelease());
-
+        Assert.assertEquals("Incorrect artifactId!", ARTIFACT.getArtifactId(), metadata.getArtifactId());
+        Assert.assertEquals("Incorrect groupId!", ARTIFACT.getGroupId(), metadata.getGroupId());
+        Assert.assertEquals("Incorrect latest version!", LATEST_ARTIFACT.getVersion(), versioning.getLatest());
+        Assert.assertEquals("Incorrect release version!", RELEASE_ARTIFACT.getVersion(), versioning.getRelease());
     }
+
 }

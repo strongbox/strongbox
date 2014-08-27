@@ -45,4 +45,6 @@
 
     <bean id="versionValidatorService" class="org.carlspring.strongbox.storage.services.impl.VersionValidatorServiceImpl" />
 
+    <bean id="artifactMetadataService" class="org.carlspring.strongbox.storage.services.impl.ArtifactMetadataServiceImpl" />
+
 </beans>

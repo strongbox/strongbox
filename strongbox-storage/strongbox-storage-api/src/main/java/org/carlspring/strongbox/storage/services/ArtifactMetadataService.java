@@ -12,9 +12,9 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 public interface ArtifactMetadataService
 {
 
-    public Metadata getMetadata(Artifact artifact)
+    public Metadata getMetadata(String storageId, String repositoryId, Artifact artifact)
             throws IOException, XmlPullParserException;
 
-    public void rebuildMetadata(Artifact artifact)
+    public void rebuildMetadata(String storageId, String repositoryId, Artifact artifact)
             throws IOException, XmlPullParserException;
 }
