@@ -12,6 +12,7 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.regex.Matcher;
 
 import org.apache.maven.artifact.Artifact;
@@ -92,6 +93,9 @@ public class ArtifactMetadataServiceImpl
     {
         if (foundFiles.size() > 0)
         {
+
+            // TODO: Make a more reliable solution for sorting artifact versions
+            Collections.sort(foundFiles);
 
             Metadata metadata = new Metadata();
             metadata.setArtifactId(artifact.getArtifactId());
