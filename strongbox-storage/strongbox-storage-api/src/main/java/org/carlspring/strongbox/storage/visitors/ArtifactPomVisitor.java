@@ -13,12 +13,13 @@ public class ArtifactPomVisitor
 {
 
     private PathMatcher matcher;
+
     public ArrayList<Path> foundPaths = new ArrayList<>();
+
 
     public ArtifactPomVisitor()
     {
         matcher = FileSystems.getDefault().getPathMatcher("glob:*.pom");
-
     }
 
     @Override
@@ -26,7 +27,6 @@ public class ArtifactPomVisitor
                                      BasicFileAttributes attr)
             throws IOException
     {
-
         Path name = file.getFileName();
         if (matcher.matches(name))
         {
