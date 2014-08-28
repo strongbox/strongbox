@@ -222,6 +222,7 @@ public class RepositoryIndexer
                                                      artifact.getGroupId(),
                                                      artifact.getArtifactId(),
                                                      artifact.getVersion(),
+                                                     artifact.getType(),
                                                      artifact.getClassifier());
         if (artifact.getType() != null)
         {
