@@ -36,7 +36,7 @@ public class ArtifactMetadataServiceImplTest
 
     private static final Artifact ARTIFACT = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-metadata:1.0:jar");
     private static final Artifact LATEST_ARTIFACT = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-metadata:3.0-SNAPSHOT:jar");
-    private static final Artifact RELEASE_ARTIFACT = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-metadata:2.0:zip");
+    private static final Artifact RELEASE_ARTIFACT = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-metadata:2.0:jar");
 
     @Autowired
     private ArtifactMetadataServiceImpl artifactMetadataService;
@@ -55,9 +55,9 @@ public class ArtifactMetadataServiceImplTest
 
             ArtifactGenerator generator = new ArtifactGenerator(REPOSITORY_BASEDIR.getAbsolutePath());
             generator.generate(ARTIFACT);
-            generator.generate(ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-metadata:1.1:war"));
-            generator.generate(LATEST_ARTIFACT);
+            generator.generate(ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-metadata:1.1:jar"));
             generator.generate(RELEASE_ARTIFACT);
+            generator.generate(LATEST_ARTIFACT);
 
             artifactMetadataService.rebuildMetadata("storage0", "releases", ARTIFACT);
         }

@@ -219,12 +219,15 @@ public class ArtifactManagementServiceImpl
             final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storage + ":" + repositoryName);
             if (indexer != null)
             {
+                String extension = artifactPath.substring(artifactPath.lastIndexOf(".") + 1, artifactPath.length());
+
                 final Artifact a = ArtifactUtils.convertPathToArtifact(artifactPath);
                 indexer.delete(Arrays.asList(new ArtifactInfo(repositoryName,
                                                               a.getGroupId(),
                                                               a.getArtifactId(),
                                                               a.getVersion(),
-                                                              a.getClassifier())));
+                                                              a.getClassifier(),
+                                                              extension)));
             }
         }
         catch (IOException e)

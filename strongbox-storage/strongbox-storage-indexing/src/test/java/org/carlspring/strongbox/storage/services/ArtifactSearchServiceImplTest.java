@@ -9,10 +9,8 @@ import org.carlspring.strongbox.storage.indexing.SearchRequest;
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.index.ArtifactInfo;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Assert;
 import org.junit.Before;
