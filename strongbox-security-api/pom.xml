@@ -58,6 +58,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+
+                <configuration>
+                    <systemPropertyVariables>
+                        <port.littleproxy>${port.littleproxy.listen}</port.littleproxy>
+                        <port.unboundid>${port.unboundid}</port.unboundid>
+                    </systemPropertyVariables>
+                </configuration>
             </plugin>
 
             <plugin>
@@ -111,13 +118,35 @@
             </plugin>
 
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.9</version>
+                <executions>
+                    <execution>
+                        <id>reserve-network-port</id>
+                        <goals>
+                            <goal>reserve-network-port</goal>
+                        </goals>
+                        <phase>process-resources</phase>
+                        <configuration>
+                            <portNames>
+                                <portName>port.littleproxy.listen</portName>
+                                <portName>port.littleproxy.shutdown</portName>
+                                <portName>port.unboundid</portName>
+                            </portNames>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <groupId>org.carlspring.maven</groupId>
                 <artifactId>unboundid-maven-plugin</artifactId>
                 <version>1.0-SNAPSHOT</version>
 
                 <configuration>
                     <baseDn>dc=carlspring,dc=com</baseDn>
-                    <portSSL>40636</portSSL>
+                    <portSSL>${port.unboundid}</portSSL>
                     <useSSL>true</useSSL>
                     <keyStorePassword>password</keyStorePassword>
                     <keyStorePath>${dir.strongbox}/etc/ssl/keystore.jks</keyStorePath>
@@ -168,7 +197,9 @@
                         </goals>
 
                         <configuration>
-                            <port>8180</port>
+                            <port>${port.littleproxy.listen}</port>
+                            <shutdownPort>${port.littleproxy.shutdown}</shutdownPort>
+
                             <userCredentials>
                                 <testuser>password</testuser>
                             </userCredentials>
@@ -182,7 +213,7 @@
                         </goals>
 
                         <configuration>
-                            <shutdownPort>8181</shutdownPort>
+                            <shutdownPort>${port.littleproxy.shutdown}</shutdownPort>
                         </configuration>
                     </execution>
                 </executions>

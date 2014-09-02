@@ -38,13 +38,15 @@ public class KeyStoresTest
 
     private static final int PROXY_SOCKS_PORT = 15035;
 
-    private static final int PROXY_HTTP_PORT = 8180;
+    private static final int PROXY_HTTP_PORT = Integer.parseInt(System.getProperty("port.littleproxy"));
 
     private static final Proxy PROXY_SOCKS = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(PROXY_HOST, PROXY_SOCKS_PORT));
 
     private static final Proxy PROXY_HTTP = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(PROXY_HOST, PROXY_HTTP_PORT));
 
     private static final PasswordAuthentication credentials = new PasswordAuthentication(PROXY_USERNAME, PROXY_PASSWORD.toCharArray());
+
+    public static final int LDAPS_PORT = Integer.parseInt(System.getProperty("port.unboundid"));
 
     private File f;
 
@@ -70,7 +72,10 @@ public class KeyStoresTest
                    KeyManagementException
     {
         KeyStores.createNew(f, KEYSTORE_PASSWORD.toCharArray());
-        final KeyStore ks = KeyStores.addCertificates(f, KEYSTORE_PASSWORD.toCharArray(), InetAddress.getLocalHost(), 40636);
+        final KeyStore ks = KeyStores.addCertificates(f,
+                                                      KEYSTORE_PASSWORD.toCharArray(),
+                                                      InetAddress.getLocalHost(),
+                                                      LDAPS_PORT);
 
         assertEquals("localhost should have three certificates in the chain", 1, ks.size());
 
@@ -83,7 +88,7 @@ public class KeyStoresTest
         final String newPassword = "newpassword";
 
         KeyStores.changePassword(f, KEYSTORE_PASSWORD.toCharArray(), newPassword.toCharArray());
-        KeyStores.removeCertificates(f, newPassword.toCharArray(), InetAddress.getLocalHost(), 40636);
+        KeyStores.removeCertificates(f, newPassword.toCharArray(), InetAddress.getLocalHost(), LDAPS_PORT );
         certs = KeyStores.listCertificates(f, newPassword.toCharArray());
 
         assertTrue(certs.isEmpty());
@@ -124,7 +129,7 @@ public class KeyStoresTest
         final String newPassword = "newpassword";
 
         KeyStores.changePassword(f, KEYSTORE_PASSWORD.toCharArray(), newPassword.toCharArray());
-        KeyStores.removeCertificates(f, newPassword.toCharArray(), InetAddress.getLocalHost(), 40636);
+        KeyStores.removeCertificates(f, newPassword.toCharArray(), InetAddress.getLocalHost(), LDAPS_PORT);
         certs = KeyStores.listCertificates(f, newPassword.toCharArray());
 
         assertTrue(certs.isEmpty());
