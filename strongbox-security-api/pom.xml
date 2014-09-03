@@ -309,6 +309,9 @@
         </profile>
         <profile>
             <id>set-default-ports</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
 
             <properties>
                 <!-- Default ports for local development: -->
