@@ -40,13 +40,13 @@ public class ArtifactDeployer extends ArtifactGenerator
         super(basedir);
     }
 
-    public void initialize()
+    public void initializeClient()
     {
         client = new ArtifactClient();
         client.setUsername("maven");
         client.setPassword("password");
         client.setPort(48080);
-        client.setContextBaseUrl("http://localhost:48080");
+        client.setContextBaseUrl("http://localhost:" + client.getPort());
     }
 
     public void generateAndDeployArtifact(Artifact artifact,
@@ -69,7 +69,10 @@ public class ArtifactDeployer extends ArtifactGenerator
                    IOException,
                    ArtifactOperationException
     {
-        initialize();
+        if (client == null)
+        {
+            initializeClient();
+        }
 
         generatePom(artifact);
         createArchive(artifact);

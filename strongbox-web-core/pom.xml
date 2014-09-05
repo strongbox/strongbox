@@ -57,6 +57,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <strongbox.basedir>${basedir}/target/strongbox</strongbox.basedir>
+                        <port.jetty.listen>${port.jetty.listen}</port.jetty.listen>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
@@ -149,6 +150,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-storage-booter-resources</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-web-resources</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
@@ -179,6 +185,11 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -360,6 +371,27 @@
                     </plugin>
 
                     <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <version>1.9</version>
+                        <executions>
+                            <execution>
+                                <id>reserve-network-port</id>
+                                <goals>
+                                    <goal>reserve-network-port</goal>
+                                </goals>
+                                <phase>process-resources</phase>
+                                <configuration>
+                                    <portNames>
+                                        <portName>port.jetty.listen</portName>
+                                        <portName>port.jetty.shutdown</portName>
+                                    </portNames>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
                         <groupId>org.eclipse.jetty</groupId>
                         <artifactId>jetty-maven-plugin</artifactId>
                         <version>${version.jetty}</version>
@@ -374,9 +406,13 @@
                                 <descriptor>${dir.strongbox}/webapp/WEB-INF/web.xml</descriptor>
                             </webApp>
 
-                            <stopPort>19081</stopPort>
+                            <stopPort>${port.jetty.shutdown}</stopPort>
                             <stopKey>53AS9DS1FD8E3WEFEW9GR1ER8G2ER0WE31</stopKey>
                             <stopWait>10</stopWait>
+
+                            <httpConnector>
+                                <port>${port.jetty.listen}</port>
+                            </httpConnector>
 
                             <systemProperties>
                                 <force>true</force>
@@ -401,7 +437,10 @@
 
                             <useTestScope>true</useTestScope>
 
+                            <!-- Restore the following for SSL/HTTPSL when the time comes:
                             <jettyXml>${dir.jetty.etc}/jetty.xml,${dir.jetty.etc}/jetty-http.xml,${dir.jetty.etc}/jetty-ssl.xml,${dir.jetty.etc}/jetty-https.xml</jettyXml>
+                            -->
+                            <jettyXml>${dir.jetty.etc}/jetty.xml,${dir.jetty.etc}/jetty-http.xml</jettyXml>
                         </configuration>
 
                         <executions>
@@ -458,6 +497,18 @@
                     </plugin>
                 </plugins>
             </build>
+        </profile>
+        <profile>
+            <id>set-default-ports</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
+            <properties>
+                <!-- Default ports for local development: -->
+                <port.jetty.listen>48080</port.jetty.listen>
+                <port.jetty.shutdown>19081</port.jetty.shutdown>
+            </properties>
         </profile>
     </profiles>
 

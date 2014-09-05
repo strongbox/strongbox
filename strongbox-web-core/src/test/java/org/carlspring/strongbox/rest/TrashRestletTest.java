@@ -3,6 +3,7 @@ package org.carlspring.strongbox.rest;
 import org.carlspring.strongbox.artifact.generator.ArtifactGenerator;
 import org.carlspring.strongbox.client.ArtifactClient;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.testing.AssignedPorts;
 
 import java.io.File;
 
@@ -12,11 +13,18 @@ import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static junit.framework.Assert.assertFalse;
 
 /**
  * @author mtodorov
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations={"/META-INF/spring/strongbox-*-context.xml",
+                                 "classpath*:/META-INF/spring/strongbox-*-context.xml"})
 public class TrashRestletTest
 {
 
@@ -42,6 +50,9 @@ public class TrashRestletTest
                                                                 "org/carlspring/strongbox/test-artifact-to-trash/1.0/" +
                                                                 "test-artifact-to-trash-1.0.jar").getAbsoluteFile();
 
+    @Autowired
+    private AssignedPorts assignedPorts;
+
 
     @Before
     public void setUp()
@@ -53,7 +64,7 @@ public class TrashRestletTest
         client = new ArtifactClient();
         client.setUsername("maven");
         client.setPassword("password");
-        client.setPort(48080);
+        client.setPort(assignedPorts.getPort("port.jetty.listen"));
         client.setContextBaseUrl("trash");
 
         // Delete the artifact
