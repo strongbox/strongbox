@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.security.certificates;
 
 import org.carlspring.strongbox.net.ConnectionChecker;
+import org.carlspring.strongbox.testing.AssignedPorts;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,11 +21,21 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations={"/META-INF/spring/strongbox-*-context.xml",
+                                 "classpath*:/META-INF/spring/strongbox-*-context.xml"})
 public class KeyStoresTest
 {
+
+    @Autowired
+    private AssignedPorts assignedPorts;
 
     private static final String PROXY_USERNAME = "testuser";
 
@@ -38,13 +49,15 @@ public class KeyStoresTest
 
     private static final int PROXY_SOCKS_PORT = 15035;
 
-    private static final int PROXY_HTTP_PORT = 8180;
+    private static int PROXY_HTTP_PORT;
 
-    private static final Proxy PROXY_SOCKS = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(PROXY_HOST, PROXY_SOCKS_PORT));
+    private final Proxy PROXY_SOCKS = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(PROXY_HOST, PROXY_SOCKS_PORT));
 
-    private static final Proxy PROXY_HTTP = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(PROXY_HOST, PROXY_HTTP_PORT));
+    private final Proxy PROXY_HTTP = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(PROXY_HOST, PROXY_HTTP_PORT));
 
     private static final PasswordAuthentication credentials = new PasswordAuthentication(PROXY_USERNAME, PROXY_PASSWORD.toCharArray());
+
+    public static int LDAPS_PORT;
 
     private File f;
 
@@ -59,6 +72,9 @@ public class KeyStoresTest
         //noinspection ResultOfMethodCallIgnored
         new File("target/test-resources").mkdirs();
         f = new File("target/test-resources/test.jks");
+
+        PROXY_HTTP_PORT = assignedPorts.getPort("port.littleproxy");
+        LDAPS_PORT = assignedPorts.getPort("port.unboundid");
     }
 
     @Test
@@ -70,7 +86,10 @@ public class KeyStoresTest
                    KeyManagementException
     {
         KeyStores.createNew(f, KEYSTORE_PASSWORD.toCharArray());
-        final KeyStore ks = KeyStores.addCertificates(f, KEYSTORE_PASSWORD.toCharArray(), InetAddress.getLocalHost(), 40636);
+        final KeyStore ks = KeyStores.addCertificates(f,
+                                                      KEYSTORE_PASSWORD.toCharArray(),
+                                                      InetAddress.getLocalHost(),
+                                                      LDAPS_PORT);
 
         assertEquals("localhost should have three certificates in the chain", 1, ks.size());
 
@@ -83,7 +102,7 @@ public class KeyStoresTest
         final String newPassword = "newpassword";
 
         KeyStores.changePassword(f, KEYSTORE_PASSWORD.toCharArray(), newPassword.toCharArray());
-        KeyStores.removeCertificates(f, newPassword.toCharArray(), InetAddress.getLocalHost(), 40636);
+        KeyStores.removeCertificates(f, newPassword.toCharArray(), InetAddress.getLocalHost(), LDAPS_PORT );
         certs = KeyStores.listCertificates(f, newPassword.toCharArray());
 
         assertTrue(certs.isEmpty());
@@ -124,7 +143,7 @@ public class KeyStoresTest
         final String newPassword = "newpassword";
 
         KeyStores.changePassword(f, KEYSTORE_PASSWORD.toCharArray(), newPassword.toCharArray());
-        KeyStores.removeCertificates(f, newPassword.toCharArray(), InetAddress.getLocalHost(), 40636);
+        KeyStores.removeCertificates(f, newPassword.toCharArray(), InetAddress.getLocalHost(), LDAPS_PORT);
         certs = KeyStores.listCertificates(f, newPassword.toCharArray());
 
         assertTrue(certs.isEmpty());

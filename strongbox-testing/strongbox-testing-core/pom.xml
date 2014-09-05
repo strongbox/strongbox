@@ -69,12 +69,12 @@
                 <version>2.14.1</version>
 
                 <configuration>
-                    <systemProperties>
-                        <systemProperty>
-                            <name>log4j.configuration</name>
-                            <value>file:${dir.strongbox}/etc/log4j.properties</value>
-                        </systemProperty>
-                    </systemProperties>
+                    <systemPropertyVariables>
+                        <log4j.configuration>file:${dir.strongbox}/etc/log4j.properties</log4j.configuration>
+                        <strongbox.basedir>${basedir}/target/strongbox</strongbox.basedir>
+                        <port.jetty.listen>${port.jetty.listen}</port.jetty.listen>
+                    </systemPropertyVariables>
+
                 </configuration>
             </plugin>
         </plugins>
@@ -141,7 +141,7 @@
     
     <profiles>
         <profile>
-            <id>run-tests</id>
+            <id>run-it-tests</id>
             <activation>
                 <property>
                     <name>!skipTests</name>
@@ -211,6 +211,27 @@
                     </plugin>
 
                     <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <version>1.9</version>
+                        <executions>
+                            <execution>
+                                <id>reserve-network-port</id>
+                                <goals>
+                                    <goal>reserve-network-port</goal>
+                                </goals>
+                                <phase>process-resources</phase>
+                                <configuration>
+                                    <portNames>
+                                        <portName>port.jetty.listen</portName>
+                                        <portName>port.jetty.shutdown</portName>
+                                    </portNames>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
                         <groupId>org.eclipse.jetty</groupId>
                         <artifactId>jetty-maven-plugin</artifactId>
                         <version>${version.jetty}</version>
@@ -223,13 +244,13 @@
                                 <descriptor>${dir.strongbox}/webapp/WEB-INF/web.xml</descriptor>
                             </webApp>
 
-                            <httpConnector>
-                                <port>48080</port>
-                            </httpConnector>
-
-                            <stopPort>19081</stopPort>
+                            <stopPort>${port.jetty.shutdown}</stopPort>
                             <stopKey>53AS9DS1FD8E3WEFEW9GR1ER8G2ER0WE31</stopKey>
                             <stopWait>10</stopWait>
+
+                            <httpConnector>
+                                <port>${port.jetty.listen}</port>
+                            </httpConnector>
 
                             <systemProperties>
                                 <force>true</force>
@@ -238,16 +259,6 @@
                                     <name>strongbox.basedir</name>
                                     <value>${dir.strongbox}</value>
                                 </systemProperty>
-                                <!--
-                                <systemProperty>
-                                    <name>repository.config.xml</name>
-                                    <value>${dir.strongbox}/etc/conf/strongbox.xml</value>
-                                </systemProperty>
-                                <systemProperty>
-                                    <name>strongbox.storage.booter.basedir</name>
-                                    <value>${basedir}/target/storages</value>
-                                </systemProperty>
-                                -->
                                 <systemProperty>
                                     <name>log4j.configuration</name>
                                     <value>file:${dir.strongbox}/etc/log4j.properties</value>
@@ -311,6 +322,18 @@
                     </plugin>
                 </plugins>
             </build>
+        </profile>
+        <profile>
+            <id>set-default-ports</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
+            <properties>
+                <!-- Default ports for local development: -->
+                <port.jetty.listen>48080</port.jetty.listen>
+                <port.jetty.shutdown>19081</port.jetty.shutdown>
+            </properties>
         </profile>
     </profiles>
 
