@@ -38,9 +38,11 @@
                 <Set name="host">
                     <Property name="jetty.host"/>
                 </Set>
+                <!--
                 <Set name="port">
                     <Property name="jetty.port" default="48080"/>
                 </Set>
+                -->
                 <Set name="idleTimeout">
                     <Property name="http.timeout" default="30000"/>
                 </Set>
