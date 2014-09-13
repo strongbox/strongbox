@@ -39,6 +39,21 @@ public class ArtifactClient
     private String password;
 
 
+    public static ArtifactClient getTestInstance()
+    {
+        int port = System.getProperty("port.jetty.listen") != null ?
+                   Integer.parseInt(System.getProperty("port.jetty.listen")) :
+                   48080;
+
+        ArtifactClient client = new ArtifactClient();
+        client.setUsername("maven");
+        client.setPassword("password");
+        client.setPort(port);
+        client.setContextBaseUrl("http://localhost:" + client.getPort());
+
+        return client;
+    }
+
     public void addArtifact(Artifact artifact,
                             String storage,
                             String repository,
