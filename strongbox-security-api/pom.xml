@@ -116,86 +116,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <plugin>
-                <groupId>org.carlspring.maven</groupId>
-                <artifactId>unboundid-maven-plugin</artifactId>
-                <version>1.0-SNAPSHOT</version>
-
-                <configuration>
-                    <baseDn>dc=carlspring,dc=com</baseDn>
-                    <portSSL>${port.unboundid}</portSSL>
-                    <useSSL>true</useSSL>
-                    <keyStorePassword>password</keyStorePassword>
-                    <keyStorePath>${dir.strongbox}/etc/ssl/keystore.jks</keyStorePath>
-                    <trustStorePath>${dir.strongbox}/etc/ssl/truststore.jks</trustStorePath>
-                </configuration>
-
-                <executions>
-                    <execution>
-                        <id>unboundid-start</id>
-
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>start</goal>
-                        </goals>
-
-                        <configuration>
-                            <ldifFiles>
-                                <ldifFile>${basedir}/src/test/resources/ldap/unboundid.ldif</ldifFile>
-                            </ldifFiles>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>unboundid-stop</id>
-
-                        <phase>test</phase>
-                        <goals>
-                            <goal>stop</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.carlspring.maven</groupId>
-                <artifactId>little-proxy-maven-plugin</artifactId>
-                <version>1.0-SNAPSHOT</version>
-
-                <configuration>
-                    <hash>5FD4F8E2A</hash>
-                </configuration>
-
-                <executions>
-                    <execution>
-                        <id>start</id>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>start</goal>
-                        </goals>
-
-                        <configuration>
-                            <port>${port.littleproxy.listen}</port>
-                            <shutdownPort>${port.littleproxy.shutdown}</shutdownPort>
-
-                            <userCredentials>
-                                <testuser>password</testuser>
-                            </userCredentials>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>stop</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>stop</goal>
-                        </goals>
-
-                        <configuration>
-                            <shutdownPort>${port.littleproxy.shutdown}</shutdownPort>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 
@@ -279,11 +199,10 @@
         <profile>
             <id>run-it-tests</id>
             <activation>
-                <!--
                 <property>
-                    <name>!skipTests</name>
+                    <name>skipTests</name>
+                    <value>!true</value>
                 </property>
-                -->
                 <activeByDefault>false</activeByDefault>
             </activation>
 
@@ -306,6 +225,85 @@
                                         <portName>port.littleproxy.shutdown</portName>
                                         <portName>port.unboundid</portName>
                                     </portNames>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.carlspring.maven</groupId>
+                        <artifactId>unboundid-maven-plugin</artifactId>
+                        <version>1.0-SNAPSHOT</version>
+
+                        <configuration>
+                            <baseDn>dc=carlspring,dc=com</baseDn>
+                            <portSSL>${port.unboundid}</portSSL>
+                            <useSSL>true</useSSL>
+                            <keyStorePassword>password</keyStorePassword>
+                            <keyStorePath>${dir.strongbox}/etc/ssl/keystore.jks</keyStorePath>
+                            <trustStorePath>${dir.strongbox}/etc/ssl/truststore.jks</trustStorePath>
+                        </configuration>
+
+                        <executions>
+                            <execution>
+                                <id>unboundid-start</id>
+
+                                <phase>test-compile</phase>
+                                <goals>
+                                    <goal>start</goal>
+                                </goals>
+
+                                <configuration>
+                                    <ldifFiles>
+                                        <ldifFile>${basedir}/src/test/resources/ldap/unboundid.ldif</ldifFile>
+                                    </ldifFiles>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>unboundid-stop</id>
+
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>stop</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.carlspring.maven</groupId>
+                        <artifactId>little-proxy-maven-plugin</artifactId>
+                        <version>1.0-SNAPSHOT</version>
+
+                        <configuration>
+                            <hash>5FD4F8E2A</hash>
+                        </configuration>
+
+                        <executions>
+                            <execution>
+                                <id>start</id>
+                                <phase>test-compile</phase>
+                                <goals>
+                                    <goal>start</goal>
+                                </goals>
+
+                                <configuration>
+                                    <port>${port.littleproxy.listen}</port>
+                                    <shutdownPort>${port.littleproxy.shutdown}</shutdownPort>
+
+                                    <userCredentials>
+                                        <testuser>password</testuser>
+                                    </userCredentials>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>stop</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>stop</goal>
+                                </goals>
+
+                                <configuration>
+                                    <shutdownPort>${port.littleproxy.shutdown}</shutdownPort>
                                 </configuration>
                             </execution>
                         </executions>
