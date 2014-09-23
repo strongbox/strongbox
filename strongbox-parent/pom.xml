@@ -43,7 +43,7 @@
 
         <version.maven.commons>1.4-SNAPSHOT</version.maven.commons>
         <version.jersey>2.10</version.jersey>
-        <version.jetty>9.2.1.v20140609</version.jetty>
+        <version.jetty>9.2.3.v20140905</version.jetty>
         <version.lucene>4.8.1</version.lucene>
         <version.maven>3.0.5</version.maven>
         <version.slf4j>1.6.4</version.slf4j>
