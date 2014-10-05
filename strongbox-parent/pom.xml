@@ -46,7 +46,8 @@
         <version.jetty>9.2.3.v20140905</version.jetty>
         <version.lucene>4.8.1</version.lucene>
         <version.maven>3.0.5</version.maven>
-        <version.slf4j>1.6.4</version.slf4j>
+        <version.slf4j>1.7.7</version.slf4j>
+        <version.logback>1.1.2</version.logback> 
         <version.spring>4.0.6.RELEASE</version.spring>
     </properties>
 
@@ -250,12 +251,16 @@
                 <scope>test</scope>
             </dependency>
 
-            <!-- Use Log4J for logging -->
+            <!-- Logging -->
             <dependency>
                 <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-log4j12</artifactId>
+                <artifactId>jcl-over-slf4j</artifactId>
                 <version>${version.slf4j}</version>
-                <!--<scope>provided</scope>-->
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${version.logback}</version>
             </dependency>
 
             <dependency>
