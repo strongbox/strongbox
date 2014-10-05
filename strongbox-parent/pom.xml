@@ -46,6 +46,7 @@
         <version.jetty>9.2.3.v20140905</version.jetty>
         <version.lucene>4.8.1</version.lucene>
         <version.maven>3.0.5</version.maven>
+        <version.jcl>1.7.7</version.jcl>
         <version.slf4j>1.7.7</version.slf4j>
         <version.logback>1.1.2</version.logback> 
         <version.spring>4.0.6.RELEASE</version.spring>
@@ -255,7 +256,7 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jcl-over-slf4j</artifactId>
-                <version>${version.slf4j}</version>
+                <version>${version.jcl}</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>

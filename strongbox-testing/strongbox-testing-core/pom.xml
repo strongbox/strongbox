@@ -136,7 +136,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-            <version>${version.slf4j}</version>
+            <version>${version.jcl}</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
