@@ -70,7 +70,6 @@
 
                 <configuration>
                     <systemPropertyVariables>
-                        <log4j.configuration>file:${dir.strongbox}/etc/log4j.properties</log4j.configuration>
                         <strongbox.basedir>${basedir}/target/strongbox</strongbox.basedir>
                         <port.jetty.listen>${port.jetty.listen}</port.jetty.listen>
                     </systemPropertyVariables>
@@ -133,6 +132,18 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>${version.jcl}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${version.logback}</version>
+        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -156,7 +167,7 @@
                         <version>2.8</version>
                         <executions>
                             <execution>
-                                <id>unpack-resources-log4j</id>
+                                <id>unpack-resources-logging</id>
                                 <phase>process-resources</phase>
                                 <goals>
                                     <goal>unpack</goal>
@@ -171,7 +182,6 @@
 
                                             <overWrite>true</overWrite>
                                             <outputDirectory>${dir.strongbox}/etc</outputDirectory>
-                                            <includes>log4j.properties</includes>
                                         </artifactItem>
                                     </artifactItems>
                                 </configuration>
@@ -258,10 +268,6 @@
                                 <systemProperty>
                                     <name>strongbox.basedir</name>
                                     <value>${dir.strongbox}</value>
-                                </systemProperty>
-                                <systemProperty>
-                                    <name>log4j.configuration</name>
-                                    <value>file:${dir.strongbox}/etc/log4j.properties</value>
                                 </systemProperty>
                             </systemProperties>
 
