@@ -32,9 +32,6 @@ public class RepositoryManager
         new File(storageBasedir, repositoryName + File.separatorChar + ".index").mkdirs();
         //noinspection ResultOfMethodCallIgnored
         new File(storageBasedir, repositoryName + File.separatorChar + ".trash").mkdirs();
-
-        logger.debug("Created directory structure for repository '" +
-                     storageBasedir.getAbsolutePath() + File.separatorChar + repositoryName + "'.");
     }
 
     public void removeRepositoryStructure(String storageBasedir, String repositoryName)

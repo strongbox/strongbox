@@ -44,8 +44,6 @@ public class RepositoryIndexerFactory
         repositoryIndexer.setIndexer(indexerConfiguration.getIndexer());
         repositoryIndexer.setScanner(indexerConfiguration.getScanner());
 
-        logger.debug("Repository indexer created; id: {}; dir: {}", repositoryId, indexDir);
-
         return repositoryIndexer;
     }
 
