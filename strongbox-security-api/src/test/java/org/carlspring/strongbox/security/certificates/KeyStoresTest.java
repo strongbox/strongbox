@@ -77,6 +77,7 @@ public class KeyStoresTest
         LDAPS_PORT = assignedPorts.getPort("port.unboundid");
     }
 
+    @Ignore    
     @Test
     public void testWithoutProxy()
             throws IOException,
@@ -149,6 +150,7 @@ public class KeyStoresTest
         assertTrue(certs.isEmpty());
     }
 
+    @Ignore    
     @Test
     public void testHttpProxy()
             throws IOException,
