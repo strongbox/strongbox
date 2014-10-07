@@ -116,8 +116,6 @@ public class ArtifactManagementServiceImpl
                 }
             }
 
-            logger.debug("# Wrote " + readLength + " bytes.");
-
             final String artifactPath = storage + "/" + repositoryId + "/" + path;
             if (!fileIsChecksum && os != null)
             {
