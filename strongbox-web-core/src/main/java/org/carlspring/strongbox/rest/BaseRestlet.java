@@ -41,7 +41,7 @@ public abstract class BaseRestlet
         // TODO: If anonymous is allowed, return false.
         // TODO: If anonymous is forbidden, check the authentication for:
 
-        logger.debug("Protocol: " + protocol);
+        // logger.debug("Protocol: " + protocol);
 
         final boolean required = dataCenter.getStorage(storage).getRepository(repository).isSecured() ||
                                  protocol.equalsIgnoreCase("http");
@@ -64,7 +64,6 @@ public abstract class BaseRestlet
         final List<String> authorizationHeader = headers.getRequestHeader("authorization");
         if (isHttpBasicEnabled() && (authorizationHeader != null && !authorizationHeader.isEmpty()))
         {
-            logger.debug("Security: HTTP Basic");
             return handleHTTPBasicAuthentication(headers, path);
         }
         if (isSslEnabled())
@@ -124,9 +123,7 @@ public abstract class BaseRestlet
             String username = credentials[0];
             String password = credentials[1];
 
-            logger.debug("Username: " + username);
-            logger.debug("Password: " + password);
-
+            logger.debug("Security: HTTP Basic (" + username +  "|" + password + ")");
 
             // TODO: Add proper implementation
             if ((username != null && username.equals("maven")) &&
