@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE configuration>
 <configuration scan="true">
+  <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+      <!-- reset all previous level configurations of all j.u.l. loggers -->
+      <resetJUL>true</resetJUL>
+  </contextListener> 
   <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
       <pattern>%d %5p | %-15t{15} | %-55logger{55} | %m | %n</pattern>
