@@ -66,12 +66,12 @@ public class ArtifactManagementServiceImpl
 
     @Override
     public void store(String storage,
-                      String repositoryName,
+                      String repositoryId,
                       String path,
                       InputStream is)
             throws ArtifactStorageException
     {
-        performRepositoryAcceptanceValidation(repositoryName, path);
+        performRepositoryAcceptanceValidation(repositoryId, path);
 
         boolean fileIsChecksum = path.endsWith(".md5") || path.endsWith(".sha1");
         MultipleDigestInputStream mdis = null;
@@ -95,7 +95,7 @@ public class ArtifactManagementServiceImpl
         OutputStream os = null;
         try
         {
-            os = artifactResolutionService.getOutputStream(repositoryName, path);
+            os = artifactResolutionService.getOutputStream(repositoryId, path);
 
             int readLength;
             byte[] bytes = new byte[4096];
@@ -116,23 +116,21 @@ public class ArtifactManagementServiceImpl
                 }
             }
 
-            logger.debug("# Wrote " + readLength + " bytes.");
-
-            final String artifactPath = storage + "/" + repositoryName + "/" + path;
+            final String artifactPath = storage + "/" + repositoryId + "/" + path;
             if (!fileIsChecksum && os != null)
             {
                 addChecksumsToCacheManager(mdis, artifactPath);
 
                 if (ArtifactFileUtils.isArtifactFile(path))
                 {
-                    final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storage + ":" + repositoryName);
+                    final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storage + ":" + repositoryId);
                     if (indexer != null)
                     {
                         final Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
                         final File storageBasedir = new File(dataCenter.getStorage(storage).getBasedir());
-                        final File artifactFile = new File(storageBasedir, artifactPath).getCanonicalFile();
+                        final File artifactFile = new File(new File(storageBasedir, repositoryId), path).getCanonicalFile();
 
-                        indexer.addArtifactToIndex(repositoryName, artifactFile, artifact);
+                        indexer.addArtifactToIndex(repositoryId, artifactFile, artifact);
                     }
                 }
             }
@@ -153,7 +151,6 @@ public class ArtifactManagementServiceImpl
         {
             ResourceCloser.close(os, logger);
         }
-
     }
 
     @Override

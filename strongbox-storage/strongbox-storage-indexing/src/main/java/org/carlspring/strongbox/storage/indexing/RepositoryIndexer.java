@@ -131,7 +131,7 @@ public class RepositoryIndexer
 
         final FlatSearchResponse response = getIndexer().searchFlat(new FlatSearchRequest(query, indexingContext));
 
-        logger.info("Hit count: {}", response.getReturnedHitsCount());
+        logger.debug("Hit count: {}", response.getReturnedHitsCount());
 
         final Set<ArtifactInfo> results = response.getResults();
         if (logger.isDebugEnabled())
@@ -158,7 +158,7 @@ public class RepositoryIndexer
 
         final FlatSearchResponse response = getIndexer().searchFlat(new FlatSearchRequest(query, indexingContext));
 
-        logger.info("Hit count: {}", response.getReturnedHitsCount());
+        logger.debug("Hit count: {}", response.getReturnedHitsCount());
 
         final Set<ArtifactInfo> results = response.getResults();
         if (logger.isDebugEnabled())
@@ -184,7 +184,8 @@ public class RepositoryIndexer
                                    indexingContext.getIndexDirectory().toString() });
 
         final FlatSearchResponse response = getIndexer().searchFlat(new FlatSearchRequest(query, indexingContext));
-        logger.info("Hit count: {}", response.getReturnedHitsCount());
+
+        logger.debug("Hit count: {}", response.getReturnedHitsCount());
 
         final Set<ArtifactInfo> results = response.getResults();
         if (logger.isDebugEnabled())
@@ -229,8 +230,9 @@ public class RepositoryIndexer
             artifactInfo.setFieldValue(MAVEN.PACKAGING, artifact.getType());
         }
 
-        logger.info("adding artifact: {}; repo: {}; type: {}", new String[] { artifactInfo.getUinfo(),
-                                                                              repository, artifact.getType() });
+        logger.debug("Adding artifact: {}; repo: {}; type: {}", new String[]{ artifactInfo.getUinfo(),
+                                                                              repository,
+                                                                              artifact.getType() });
 
         getIndexer().addArtifactsToIndex(asList(new ArtifactContext(null,
                                                                     artifactFile,

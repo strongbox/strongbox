@@ -104,12 +104,18 @@
             <artifactId>httpclient</artifactId>
         </dependency>
 
-        <!-- Use Log4J for logging -->
+        <!-- Logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>${version.jcl}</version>
         </dependency>
-
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${version.logback}</version>
+        </dependency>
+    
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
