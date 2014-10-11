@@ -74,7 +74,7 @@ public class InMemoryLocationResolver implements LocationResolver
                     else
                     {
                         // Create random data.
-                        System.out.println("Generating stream with " + resource.length() + " bytes.");
+                        logger.debug("Generating stream with " + resource.length() + " bytes.");
 
                         return new RandomInputStream(resource.length());
                     }

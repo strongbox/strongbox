@@ -56,17 +56,18 @@ public class ConfigurationManager
 
     public void dump()
     {
-        System.out.println("Configuration version: " + configuration.getVersion());
-        System.out.println("Listening on port: " + configuration.getPort());
+        logger.info("Configuration version: " + configuration.getVersion());
+        // logger.info("Listening on port: " + configuration.getPort());
 
-        System.out.println("Loading storages...");
+        logger.info("Loading storages...");
         for (String storageKey : configuration.getStorages().keySet())
         {
-            System.out.println(" -> Storage: " + storageKey);
+            logger.info(" -> Storage: " + storageKey);
+
             Storage storage = configuration.getStorages().get(storageKey);
             for (String repositoryKey : storage.getRepositories().keySet())
             {
-                System.out.println("    -> Repository: " + repositoryKey);
+                logger.info("    -> Repository: " + repositoryKey);
             }
         }
     }

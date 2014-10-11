@@ -13,6 +13,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import static org.carlspring.strongbox.util.RepositoryUtils.checkRepositoryExists;
@@ -25,6 +27,8 @@ public class ArtifactResolutionServiceImpl
         implements ArtifactResolutionService
 {
 
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactResolutionServiceImpl.class);
+
     @Resource(name = "resolvers")
     private Map<String, LocationResolver> resolvers;
 
@@ -36,12 +40,12 @@ public class ArtifactResolutionServiceImpl
     @PostConstruct
     public void listResolvers()
     {
-        System.out.println("Loading resolvers...");
+        logger.info("Loading resolvers...");
 
         for (String key : getResolvers().keySet())
         {
             LocationResolver resolver = getResolvers().get(key);
-            System.out.println(" -> " + resolver.getClass());
+            logger.info(" -> " + resolver.getClass());
         }
     }
 
