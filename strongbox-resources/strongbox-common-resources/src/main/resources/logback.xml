@@ -13,6 +13,10 @@
         </encoder>
     </appender>
 
+    <logger name="org.springframework">
+        <level value="ERROR"/>
+    </logger>
+
     <logger name="org.apache.commons.httpclient">
         <level value="INFO"/>
     </logger>
