@@ -5,7 +5,7 @@ import java.io.IOException;
 /**
  * @author mtodorov
  */
-public interface ConfigurationManager
+public interface AuthenticationConfigurationManager
 {
 
     void load() throws IOException;

@@ -20,7 +20,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope("singleton")
-public class AuthenticationManager implements ConfigurationManager
+public class AuthenticationManager
+        implements AuthenticationConfigurationManager
 {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationManager.class);
