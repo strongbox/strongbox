@@ -130,7 +130,10 @@ public class ArtifactManagementServiceImpl
                         final File storageBasedir = new File(dataCenter.getStorage(storage).getBasedir());
                         final File artifactFile = new File(new File(storageBasedir, repositoryId), path).getCanonicalFile();
 
-                        indexer.addArtifactToIndex(repositoryId, artifactFile, artifact);
+                        if (!artifactFile.getName().endsWith(".pom"))
+                        {
+                            indexer.addArtifactToIndex(repositoryId, artifactFile, artifact);
+                        }
                     }
                 }
             }
