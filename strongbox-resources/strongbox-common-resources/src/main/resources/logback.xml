@@ -9,7 +9,7 @@
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS dd-MM-yyyy} | %-5.5p | %-15.15t | %-60.60logger{60} | %m%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS dd-MM-yyyy} | %-5.5p | %-20.20t | %-50.50logger{50} | %m%n</pattern>
         </encoder>
     </appender>
 
