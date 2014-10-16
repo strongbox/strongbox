@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.storage.services.impl;
+package org.carlspring.strongbox.services.impl;
 
 import org.apache.lucene.store.FSDirectory;
 import org.apache.maven.artifact.Artifact;
@@ -7,6 +7,7 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.io.MultipleDigestInputStream;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.security.encryption.EncryptionConstants;
+import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.DataCenter;
 import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
@@ -15,9 +16,8 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
 import org.carlspring.strongbox.storage.resolvers.LocationResolver;
-import org.carlspring.strongbox.storage.services.ArtifactManagementService;
-import org.carlspring.strongbox.storage.services.ArtifactResolutionService;
-import org.carlspring.strongbox.storage.services.VersionValidatorService;
+import org.carlspring.strongbox.services.ArtifactResolutionService;
+import org.carlspring.strongbox.services.VersionValidatorService;
 import org.carlspring.strongbox.storage.validation.version.VersionValidationException;
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
 import org.carlspring.strongbox.util.ArtifactFileUtils;

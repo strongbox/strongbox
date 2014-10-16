@@ -1,9 +1,9 @@
-package org.carlspring.strongbox.storage.services.impl;
+package org.carlspring.strongbox.services.impl;
 
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.DataCenter;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.services.ArtifactMetadataService;
+import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.visitors.ArtifactPomVisitor;
 
 import java.io.*;

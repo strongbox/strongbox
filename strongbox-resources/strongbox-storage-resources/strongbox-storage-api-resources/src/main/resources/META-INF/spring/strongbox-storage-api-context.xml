@@ -39,12 +39,12 @@
         <entry key="file-system" value-ref="fsLocationResolver"/>
     </util:map>
 
-    <bean id="artifactResolutionService" class="org.carlspring.strongbox.storage.services.impl.ArtifactResolutionServiceImpl">
+    <bean id="artifactResolutionService" class="org.carlspring.strongbox.services.impl.ArtifactResolutionServiceImpl">
         <property name="resolvers" ref="resolvers"/>
     </bean>
 
-    <bean id="versionValidatorService" class="org.carlspring.strongbox.storage.services.impl.VersionValidatorServiceImpl" />
+    <bean id="versionValidatorService" class="org.carlspring.strongbox.services.impl.VersionValidatorServiceImpl" />
 
-    <bean id="artifactMetadataService" class="org.carlspring.strongbox.storage.services.impl.ArtifactMetadataServiceImpl" />
+    <bean id="artifactMetadataService" class="org.carlspring.strongbox.services.impl.ArtifactMetadataServiceImpl" />
 
 </beans>

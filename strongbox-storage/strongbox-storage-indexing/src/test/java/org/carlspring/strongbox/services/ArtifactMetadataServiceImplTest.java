@@ -1,8 +1,8 @@
-package org.carlspring.strongbox.storage.services;
+package org.carlspring.strongbox.services;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.generator.ArtifactGenerator;
-import org.carlspring.strongbox.storage.services.impl.ArtifactMetadataServiceImpl;
+import org.carlspring.strongbox.services.impl.ArtifactMetadataServiceImpl;
 
 import java.io.File;
 import java.io.IOException;

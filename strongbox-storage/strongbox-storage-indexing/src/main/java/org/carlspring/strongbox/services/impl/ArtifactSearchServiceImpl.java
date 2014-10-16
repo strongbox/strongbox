@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.storage.services.impl;
+package org.carlspring.strongbox.services.impl;
 
 import org.carlspring.strongbox.storage.DataCenter;
 import org.carlspring.strongbox.storage.Storage;
@@ -7,7 +7,7 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
 import org.carlspring.strongbox.storage.indexing.SearchResults;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.services.ArtifactSearchService;
+import org.carlspring.strongbox.services.ArtifactSearchService;
 
 import java.io.IOException;
 import java.util.*;

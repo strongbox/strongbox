@@ -1,6 +1,6 @@
-package org.carlspring.strongbox.storage.services.impl;
+package org.carlspring.strongbox.services.impl;
 
-import org.carlspring.strongbox.storage.services.VersionValidatorService;
+import org.carlspring.strongbox.services.VersionValidatorService;
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
 
 import java.util.LinkedHashSet;

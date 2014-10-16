@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.storage.validation.version;
 
-import org.carlspring.strongbox.storage.services.VersionValidatorService;
+import org.carlspring.strongbox.services.VersionValidatorService;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

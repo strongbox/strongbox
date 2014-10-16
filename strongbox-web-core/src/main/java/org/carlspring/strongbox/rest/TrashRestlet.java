@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.rest;
 
 import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
-import org.carlspring.strongbox.storage.services.ArtifactManagementService;
+import org.carlspring.strongbox.services.ArtifactManagementService;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.Path;

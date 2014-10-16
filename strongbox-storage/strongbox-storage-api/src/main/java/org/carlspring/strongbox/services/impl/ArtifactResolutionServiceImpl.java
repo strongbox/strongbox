@@ -1,10 +1,10 @@
-package org.carlspring.strongbox.storage.services.impl;
+package org.carlspring.strongbox.services.impl;
 
+import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.DataCenter;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.resolvers.LocationResolver;
-import org.carlspring.strongbox.storage.services.ArtifactResolutionService;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;

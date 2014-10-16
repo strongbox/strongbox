@@ -13,8 +13,8 @@
 
     <bean id="repositoryIndexManager" class="org.carlspring.strongbox.storage.indexing.RepositoryIndexManager"/>
 
-    <bean id="artifactManagementService" class="org.carlspring.strongbox.storage.services.impl.ArtifactManagementServiceImpl"/>
+    <bean id="artifactManagementService" class="org.carlspring.strongbox.services.impl.ArtifactManagementServiceImpl"/>
 
-    <bean id="repositoryManagementService" class="org.carlspring.strongbox.storage.services.impl.RepositoryManagementServiceImpl"/>
+    <bean id="repositoryManagementService" class="org.carlspring.strongbox.services.impl.RepositoryManagementServiceImpl"/>
 
 </beans>

@@ -1,4 +1,6 @@
-package org.carlspring.strongbox.storage.services;
+package org.carlspring.strongbox.services;
+
+import org.carlspring.strongbox.services.RepositoryManagementService;
 
 import java.io.File;
 import java.io.IOException;

@@ -7,7 +7,7 @@ import org.carlspring.strongbox.rest.serialization.search.ArtifactSearchSerializ
 import org.carlspring.strongbox.rest.serialization.search.ArtifactSearchXMLSerializer;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
 import org.carlspring.strongbox.storage.indexing.SearchResults;
-import org.carlspring.strongbox.storage.services.ArtifactSearchService;
+import org.carlspring.strongbox.services.ArtifactSearchService;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;

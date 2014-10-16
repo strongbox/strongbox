@@ -4,7 +4,7 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
 import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
-import org.carlspring.strongbox.storage.services.ArtifactManagementService;
+import org.carlspring.strongbox.services.ArtifactManagementService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;

@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.storage.services;
+package org.carlspring.strongbox.services;
 
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
 import org.carlspring.strongbox.storage.indexing.SearchResults;

@@ -2,7 +2,7 @@ package org.carlspring.strongbox.configuration;
 
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.services.ArtifactResolutionService;
+import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.xml.parsers.ConfigurationParser;
 
 import java.io.File;
