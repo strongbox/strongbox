@@ -89,8 +89,8 @@ public class SearchRestletTest
         String response = client.search("g:org.carlspring.maven a:test-project", "text");
 
         Assert.assertTrue("Received unexpected response!",
-                          response.contains("org.carlspring.maven:test-project:1.0.11.3:pom") &&
-                          response.contains("org.carlspring.maven:test-project:1.0.11.3.1:pom"));
+                          response.contains("org.carlspring.maven:test-project:1.0.11.3:jar") &&
+                          response.contains("org.carlspring.maven:test-project:1.0.11.3.1:jar"));
     }
 
 }
