@@ -16,9 +16,6 @@ import java.util.Map;
 public interface ArtifactResolutionService
 {
 
-    @PostConstruct
-    void listResolvers();
-
     InputStream getInputStream(String repositoryName,
                                String artifactPath)
             throws ArtifactResolutionException, IOException;

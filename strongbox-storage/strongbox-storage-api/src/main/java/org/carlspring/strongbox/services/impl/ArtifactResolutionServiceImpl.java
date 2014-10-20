@@ -36,8 +36,6 @@ public class ArtifactResolutionServiceImpl
     private DataCenter dataCenter;
 
 
-    @Override
-    @PostConstruct
     public void listResolvers()
     {
         logger.info("Loading resolvers...");

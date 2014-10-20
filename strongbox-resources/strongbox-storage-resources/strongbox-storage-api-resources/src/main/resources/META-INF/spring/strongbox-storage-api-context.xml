@@ -39,7 +39,8 @@
         <entry key="file-system" value-ref="fsLocationResolver"/>
     </util:map>
 
-    <bean id="artifactResolutionService" class="org.carlspring.strongbox.services.impl.ArtifactResolutionServiceImpl">
+    <bean id="artifactResolutionService" class="org.carlspring.strongbox.services.impl.ArtifactResolutionServiceImpl"
+          init-method="listResolvers">
         <property name="resolvers" ref="resolvers"/>
     </bean>
 
