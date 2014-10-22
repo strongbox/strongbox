@@ -1,13 +1,15 @@
 package org.carlspring.strongbox.services;
 
-import org.apache.maven.artifact.Artifact;
-import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.generator.ArtifactGenerator;
-import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
+import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
+
+import java.io.File;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -16,10 +18,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import java.io.File;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 
 /**
  * @author mtodorov
@@ -30,7 +28,9 @@ import java.security.NoSuchAlgorithmException;
 public class ArtifactManagementServiceImplTest
 {
 
-    private static final File REPOSITORY_BASEDIR = new File("target/storages/storage0/releases");
+    private static final File STORAGE_BASEDIR = new File("target/storages/storage0");
+
+    private static final File REPOSITORY_BASEDIR = new File(STORAGE_BASEDIR, "/releases");
 
     private static final File INDEX_DIR = new File(REPOSITORY_BASEDIR, ".index");
 
@@ -43,25 +43,55 @@ public class ArtifactManagementServiceImplTest
     @Autowired
     private RepositoryIndexManager repositoryIndexManager;
 
+    private static boolean INITIALIZED = false;
+
+
     @Before
     public void init()
             throws NoSuchAlgorithmException,
                    XmlPullParserException,
                    IOException
     {
-        //noinspection ResultOfMethodCallIgnored
-        INDEX_DIR.mkdirs();
+        if (!INITIALIZED)
+        {
+            //noinspection ResultOfMethodCallIgnored
+            INDEX_DIR.mkdirs();
 
-        Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-utils:6.0.1:jar");
-        Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-utils:6.1.1:jar");
-        Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-utils:6.2.1:jar");
-        Artifact artifact4 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-utils:6.2.2-SNAPSHOT:jar");
+            String gavtc = "org.carlspring.strongbox:strongbox-utils::jar";
 
-        ArtifactGenerator generator = new ArtifactGenerator(REPOSITORY_BASEDIR.getAbsolutePath());
-        generator.generate(artifact1);
-        generator.generate(artifact2);
-        generator.generate(artifact3);
-        generator.generate(artifact4);
+            ArtifactGenerator generator = new ArtifactGenerator(REPOSITORY_BASEDIR.getAbsolutePath());
+            generator.generate(gavtc, "6.0.1", "6.1.1", "6.2.1", "6.2.2-SNAPSHOT", "7.0", "7.1");
+
+            generator.setBasedir(STORAGE_BASEDIR.getAbsolutePath() + "/releases-with-trash");
+            generator.generate(gavtc, "7.1");
+
+            INITIALIZED = true;
+        }
+    }
+
+    @Test
+    public void testForceDelete()
+            throws ArtifactStorageException
+    {
+        final String artifactPath1 = "org/carlspring/strongbox/strongbox-utils/7.0/strongbox-utils-7.0.jar";
+        artifactManagementService.delete("storage0",
+                                         "releases",
+                                         artifactPath1,
+                                         true);
+
+        Assert.assertFalse("Failed to delete artifact during a force delete operation!",
+                           new File(REPOSITORY_BASEDIR, artifactPath1).exists());
+
+        final String artifactPath2 = "org/carlspring/strongbox/strongbox-utils/7.1/strongbox-utils-7.1.jar";
+        artifactManagementService.delete("storage0",
+                                         "releases-with-trash",
+                                         artifactPath2,
+                                         true);
+
+        final File repositoryDir = new File(STORAGE_BASEDIR, "releases-with-trash/.trash");
+        Assert.assertTrue("Should have moved the artifact to the trash during a force delete operation, " +
+                          "when allowsForceDeletion is not enabled!",
+                          new File(repositoryDir, artifactPath2).exists());
     }
 
     @Test

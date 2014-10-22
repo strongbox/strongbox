@@ -189,9 +189,19 @@ public class ArtifactClient
                        String repository,
                        String path)
     {
+        delete(storage, repository, path, false);
+    }
+
+    public void delete(String storage,
+                       String repository,
+                       String path,
+                       boolean force)
+    {
         Client client = ClientBuilder.newClient();
 
-        String url = host + ":" + port + "/storages/" + storage + "/" + repository + "/" + path;
+        @SuppressWarnings("ConstantConditions")
+        String url = host + ":" + port + "/storages/" + storage + "/" + repository + "/" + path +
+                     (force ? "?force=" + force : "");
 
         WebTarget webResource = client.target(url);
         setupAuthentication(webResource);

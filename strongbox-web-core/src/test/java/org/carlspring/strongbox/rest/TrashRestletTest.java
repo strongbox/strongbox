@@ -11,6 +11,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,13 +39,16 @@ public class TrashRestletTest
 
     private final static File BASEDIR = new File(ConfigurationResourceResolver.getBasedir()).getAbsoluteFile();
 
-    private final static String REPOSITORY_WITH_TRASH_BASEDIR = BASEDIR.getParentFile().getAbsolutePath() + "/storages/storage0/releases-with-trash";
-
     private static final String STORAGE = "storage0";
 
-    private static final String REPOSITORY = "releases-with-trash";
+    private static final String REPOSITORY_WITH_TRASH = "releases-with-trash";
+
+    private final static String REPOSITORY_WITH_TRASH_BASEDIR = BASEDIR.getParentFile().getAbsolutePath() +
+                                                                "/storages/" + STORAGE + "/" + REPOSITORY_WITH_TRASH;
 
     private ArtifactClient client = new ArtifactClient();
+
+    private String gavtc = "org.carlspring.strongbox:test-artifact-to-trash::jar";
 
     private static final File ARTIFACT_FILE_IN_TRASH = new File(REPOSITORY_WITH_TRASH_BASEDIR + "/.trash/" +
                                                                 "org/carlspring/strongbox/test-artifact-to-trash/1.0/" +
@@ -59,33 +63,68 @@ public class TrashRestletTest
             throws Exception
     {
         ArtifactGenerator generator = new ArtifactGenerator(REPOSITORY_WITH_TRASH_BASEDIR);
-        generator.generate(ARTIFACT);
+        generator.generate(gavtc, "1.0");
+
+        generator.setBasedir(BASEDIR.getParentFile().getAbsolutePath() + "/storages/" + STORAGE + "/releases");
+        generator.generate(gavtc, "1.1");
 
         client = new ArtifactClient();
         client.setUsername("maven");
         client.setPassword("password");
         client.setPort(assignedPorts.getPort("port.jetty.listen"));
-        client.setContextBaseUrl("trash");
+        client.setContextBaseUrl("http://localhost:" + client.getPort());
 
-        // Delete the artifact
-        client.deleteArtifact(ARTIFACT, STORAGE, REPOSITORY);
+        // Delete the artifact (this one should get placed under the .trash)
+        client.delete(STORAGE,
+                      REPOSITORY_WITH_TRASH,
+                      "org/carlspring/strongbox/test-artifact-to-trash/1.0/test-artifact-to-trash-1.0.jar",
+                      true);
+
+        // Delete the artifact (this one shouldn't get placed under the .trash)
+        client.delete(STORAGE,
+                      "releases",
+                      "org/carlspring/strongbox/test-artifact-to-trash/1.1/test-artifact-to-trash-1.1.jar",
+                      true);
     }
 
-    @After
-    public void tearDown()
+    @Test
+    public void testForceDeleteArtifactNotAllowed()
             throws Exception
     {
-        //noinspection ResultOfMethodCallIgnored
-        ARTIFACT_FILE_IN_TRASH.delete();
+        final String artifactPath = "org/carlspring/strongbox/test-artifact-to-trash/1.0/test-artifact-to-trash-1.0.jar";
+
+        final File repositoryDir = new File("target/storages/storage0/releases-with-trash/.trash");
+        final File artifactFile = new File(repositoryDir, artifactPath);
+
+        System.out.println("Artifact file: " + artifactFile.getAbsolutePath());
+
+        Assert.assertTrue("Should have moved the artifact to the trash during a force delete operation, " +
+                          "when allowsForceDeletion is not enabled!",
+                          artifactFile.exists());
+    }
+
+    @Test
+    public void testForceDeleteArtifactAllowed()
+            throws Exception
+    {
+        final String artifactPath = "org/carlspring/strongbox/test-artifact-to-trash/1.1/test-artifact-to-trash-1.1.jar";
+
+        final File repositoryTrashDir = new File("target/storages/storage0/releases/.trash");
+        final File repositoryDir = new File("target/storages/storage0/releases/.trash");
+
+        Assert.assertFalse("Failed to delete artifact during a force delete operation!",
+                           new File(repositoryTrashDir, artifactPath).exists());
+        Assert.assertFalse("Failed to delete artifact during a force delete operation!",
+                           new File(repositoryDir, artifactPath).exists());
     }
 
     @Test
     public void testDeleteArtifactAndEmptyTrashForRepository()
             throws Exception
     {
-        client.deleteTrash(STORAGE, REPOSITORY);
+        client.deleteTrash(STORAGE, REPOSITORY_WITH_TRASH);
 
-        assertFalse("Failed to empty trash for repository '" + REPOSITORY + "'!", ARTIFACT_FILE_IN_TRASH.exists());
+        assertFalse("Failed to empty trash for repository '" + REPOSITORY_WITH_TRASH + "'!", ARTIFACT_FILE_IN_TRASH.exists());
     }
 
     @Test
@@ -94,7 +133,7 @@ public class TrashRestletTest
     {
         client.deleteTrash();
 
-        assertFalse("Failed to empty trash for repository '" + REPOSITORY + "'!", ARTIFACT_FILE_IN_TRASH.exists());
+        assertFalse("Failed to empty trash for repository '" + REPOSITORY_WITH_TRASH + "'!", ARTIFACT_FILE_IN_TRASH.exists());
     }
 
 }

@@ -24,7 +24,8 @@ public interface ArtifactManagementService
 
     void delete(String storage,
                 String repositoryName,
-                String artifactPath)
+                String artifactPath,
+                boolean force)
             throws ArtifactStorageException;
 
     void deleteTrash(String storage, String repositoryName)

@@ -101,7 +101,8 @@ public class ArtifactRestlet
     @Path("{storage}/{repository}/{path:.*}")
     public Response delete(@PathParam("storage") String storage,
                            @PathParam("repository") String repository,
-                           @PathParam("path") String path)
+                           @PathParam("path") String path,
+                           @QueryParam("force") @DefaultValue("false") boolean force)
             throws IOException
     {
         logger.debug("DELETE: " + path);
@@ -109,7 +110,7 @@ public class ArtifactRestlet
 
         try
         {
-            artifactManagementService.delete(storage, repository, path);
+            artifactManagementService.delete(storage, repository, path, force);
         }
         catch (ArtifactStorageException e)
         {

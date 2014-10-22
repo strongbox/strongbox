@@ -116,7 +116,8 @@ public class InMemoryLocationResolver implements LocationResolver
 
     @Override
     public void delete(String repository,
-                       String path)
+                       String path,
+                       boolean force)
             throws IOException
     {
         for (Map.Entry entry : dataCenter.getStorages().entrySet())

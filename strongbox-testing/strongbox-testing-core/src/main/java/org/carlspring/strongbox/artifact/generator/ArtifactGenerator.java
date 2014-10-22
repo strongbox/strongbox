@@ -45,6 +45,19 @@ public class ArtifactGenerator
         this.basedir = basedir.getAbsolutePath();
     }
 
+    public void generate(String gavtc, String... versions)
+            throws IOException,
+                   XmlPullParserException,
+                   NoSuchAlgorithmException
+    {
+        for (String version : versions)
+        {
+            Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
+            artifact.setVersion(version);
+            generate(artifact);
+        }
+    }
+
     public void generate(Artifact artifact)
             throws IOException,
                    XmlPullParserException,

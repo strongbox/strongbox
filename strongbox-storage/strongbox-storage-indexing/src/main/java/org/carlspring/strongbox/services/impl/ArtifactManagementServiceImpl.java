@@ -204,7 +204,8 @@ public class ArtifactManagementServiceImpl
     @Override
     public void delete(String storage,
                        String repositoryName,
-                       String artifactPath)
+                       String artifactPath,
+                       boolean force)
             throws ArtifactStorageException
     {
         try
@@ -214,7 +215,7 @@ public class ArtifactManagementServiceImpl
 
             LocationResolver resolver = getResolvers().get(repository.getImplementation());
 
-            resolver.delete(repositoryName, artifactPath);
+            resolver.delete(repositoryName, artifactPath, force);
 
             final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storage + ":" + repositoryName);
             if (indexer != null)

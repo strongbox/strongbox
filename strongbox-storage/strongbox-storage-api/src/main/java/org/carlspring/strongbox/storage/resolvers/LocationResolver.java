@@ -19,7 +19,8 @@ public interface LocationResolver
             throws IOException;
 
     void delete(String repository,
-                String path)
+                String path,
+                boolean force)
             throws IOException;
 
     void deleteTrash(String repository)

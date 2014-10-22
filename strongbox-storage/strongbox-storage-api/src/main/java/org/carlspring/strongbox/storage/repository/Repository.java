@@ -38,6 +38,10 @@ public class Repository
     @XStreamAsAttribute
     private boolean trashEnabled = false;
 
+    @XStreamAlias("allows-force-deletion")
+    @XStreamAsAttribute
+    private boolean allowsForceDeletion = false;
+
     @XStreamAlias("allows-redeployment")
     @XStreamAsAttribute
     private boolean allowsRedeployment = false;
@@ -149,6 +153,16 @@ public class Repository
     public void setTrashEnabled(boolean trashEnabled)
     {
         this.trashEnabled = trashEnabled;
+    }
+
+    public boolean allowsForceDeletion()
+    {
+        return allowsForceDeletion;
+    }
+
+    public void setAllowsForceDeletion(boolean allowsForceDeletion)
+    {
+        this.allowsForceDeletion = allowsForceDeletion;
     }
 
     public boolean allowsRedeployment()

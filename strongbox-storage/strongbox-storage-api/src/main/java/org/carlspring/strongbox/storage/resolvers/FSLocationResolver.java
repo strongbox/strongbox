@@ -109,7 +109,8 @@ public class FSLocationResolver
 
     @Override
     public void delete(String repository,
-                       String path)
+                       String path,
+                       boolean force)
             throws IOException
     {
         for (Map.Entry entry : dataCenter.getStorages().entrySet())
@@ -136,7 +137,7 @@ public class FSLocationResolver
                 {
                     if (!artifactFile.isDirectory())
                     {
-                        if (r.isTrashEnabled())
+                        if ((r.isTrashEnabled() && !force) || (force && !r.allowsForceDeletion()))
                         {
                             File trashFile = new File(basedirTrash, path).getCanonicalFile();
                             FileUtils.moveFile(artifactFile, trashFile);
@@ -150,11 +151,12 @@ public class FSLocationResolver
                         {
                             //noinspection ResultOfMethodCallIgnored
                             artifactFile.delete();
+                            deleteChecksums(repository, path, artifactFile);
                         }
                     }
                     else
                     {
-                        if (r.isTrashEnabled())
+                        if ((r.isTrashEnabled() && !force) || (force && !r.allowsForceDeletion()))
                         {
                             File trashFile = new File(basedirTrash, path).getCanonicalFile();
                             FileUtils.moveDirectory(artifactFile, trashFile);
@@ -195,6 +197,29 @@ public class FSLocationResolver
             FileUtils.moveFile(sha1ChecksumFile, sha1TrashFile);
 
             logger.debug("Moved /" + repository + "/" + path + ".sha1" + " to trash (" + sha1TrashFile.getAbsolutePath() + ").");
+        }
+    }
+
+    private void deleteChecksums(String repository,
+                                 String path,
+                                 File artifactFile)
+            throws IOException
+    {
+        File md5ChecksumFile = new File(artifactFile.getAbsolutePath() + ".md5");
+        if (md5ChecksumFile.exists())
+        {
+            //noinspection ResultOfMethodCallIgnored
+            md5ChecksumFile.delete();
+
+            logger.debug("Deleted /" + repository + "/" + path + ".md5.");
+        }
+
+        File sha1ChecksumFile = new File(artifactFile.getAbsolutePath() + ".sha1");
+        if (sha1ChecksumFile.exists())
+        {
+            sha1ChecksumFile.delete();
+
+            logger.debug("Deleted /" + repository + "/" + path + ".sha1.");
         }
     }
 
