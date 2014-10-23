@@ -113,17 +113,17 @@ public class StorageBooter
         return storagesBaseDir;
     }
 
-    private void initializeRepositories(File storagesBaseDir)
+    private void initializeRepositories(File storageBaseDir)
             throws IOException,
                    PlexusContainerException,
                    ComponentLookupException
     {
-        initializeRepository(storagesBaseDir, "releases");
-        initializeRepository(storagesBaseDir, "releases-in-memory");
-        initializeRepository(storagesBaseDir, "releases-with-trash");
-        initializeRepository(storagesBaseDir, "releases-with-redeployment");
-        initializeRepository(storagesBaseDir, "snapshots");
-        initializeRepository(storagesBaseDir, "snapshots-in-memory");
+        initializeRepository(storageBaseDir, "releases");
+        initializeRepository(storageBaseDir, "releases-in-memory");
+        initializeRepository(storageBaseDir, "releases-with-trash");
+        initializeRepository(storageBaseDir, "releases-with-redeployment");
+        initializeRepository(storageBaseDir, "snapshots");
+        initializeRepository(storageBaseDir, "snapshots-in-memory");
     }
 
     private void initializeRepository(File storagesBaseDir,
