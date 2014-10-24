@@ -7,10 +7,6 @@ import org.carlspring.strongbox.testing.AssignedPorts;
 
 import java.io.File;
 
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.DefaultArtifact;
-import org.apache.maven.artifact.handler.DefaultArtifactHandler;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,14 +24,6 @@ import static junit.framework.Assert.assertFalse;
                                  "classpath*:/META-INF/spring/strongbox-*-context.xml"})
 public class TrashRestletTest
 {
-
-    private static final Artifact ARTIFACT = new DefaultArtifact("org.carlspring.strongbox",
-                                                                 "test-artifact-to-trash",
-                                                                 "1.0",
-                                                                 "compile",
-                                                                 "jar",
-                                                                 null,
-                                                                 new DefaultArtifactHandler("jar"));
 
     private final static File BASEDIR = new File(ConfigurationResourceResolver.getBasedir()).getAbsoluteFile();
 
