@@ -96,6 +96,11 @@ public class Configuration
         storages.put(storage.getBasedir(), storage);
     }
 
+    public Storage getStorage(String storageId)
+    {
+        return storages.get(storageId);
+    }
+
     public void removeStorage(Storage storage)
     {
         storages.remove(storage.getBasedir());
