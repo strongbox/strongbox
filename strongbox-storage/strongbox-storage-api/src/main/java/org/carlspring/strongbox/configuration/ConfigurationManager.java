@@ -40,9 +40,7 @@ public class ConfigurationManager
     public void init()
             throws IOException
     {
-        Resource resource = configurationResourceResolver.getConfigurationResource(ConfigurationResourceResolver.getBasedir() + "/etc/conf/strongbox.xml",
-                                                                                   "repository.config.xml",
-                                                                                   "etc/conf/strongbox.xml");
+        Resource resource = getConfigurationResource();
 
         logger.info("Loading Strongbox configuration from " + resource.toString() + "...");
 
@@ -57,7 +55,6 @@ public class ConfigurationManager
     public void dump()
     {
         logger.info("Configuration version: " + configuration.getVersion());
-        // logger.info("Listening on port: " + configuration.getPort());
 
         logger.info("Loading storages...");
         for (String storageKey : configuration.getStorages().keySet())
@@ -72,7 +69,22 @@ public class ConfigurationManager
         }
     }
 
-    public void storeConfiguration(Configuration configuration, String file)
+    public void store()
+            throws IOException
+    {
+        store(configuration);
+    }
+
+    public void store(Configuration configuration)
+            throws IOException
+    {
+        Resource resource = getConfigurationResource();
+
+        ConfigurationParser parser = new ConfigurationParser();
+        parser.store(configuration, resource.getFile());
+    }
+
+    public void store(Configuration configuration, String file)
             throws IOException
     {
         ConfigurationParser parser = new ConfigurationParser();
@@ -97,6 +109,14 @@ public class ConfigurationManager
     public void setConfigurationPath(String configurationPath)
     {
         this.configurationPath = configurationPath;
+    }
+
+    public Resource getConfigurationResource()
+            throws IOException
+    {
+        return configurationResourceResolver.getConfigurationResource(ConfigurationResourceResolver.getBasedir() + "/etc/conf/strongbox.xml",
+                                                                      "repository.config.xml",
+                                                                      "etc/conf/strongbox.xml");
     }
 
 }
