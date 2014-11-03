@@ -1,8 +1,11 @@
 package org.carlspring.strongbox.storage;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
+import org.carlspring.strongbox.xml.RepositoryMapAdapter;
+import org.carlspring.strongbox.xml.StorageMapAdapter;
 import org.carlspring.strongbox.storage.repository.Repository;
 
+import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -10,17 +13,20 @@ import java.util.Map;
 /**
  * @author mtodorov
  */
-@XStreamAlias(value = "storage")
+@XmlRootElement(name = "storage")
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlJavaTypeAdapter(StorageMapAdapter.class)
 public class Storage
 {
 
-    @XStreamAlias(value = "name")
-    private String name;
+    @XmlAttribute(name = "id")
+    private String id;
 
-    @XStreamAlias(value = "basedir")
+    @XmlAttribute(name = "basedir")
     private String basedir;
 
-    @XStreamAlias(value = "repositories")
+    @XmlElement(name = "repositories")
+    @XmlJavaTypeAdapter(RepositoryMapAdapter.class)
     private Map<String, Repository> repositories = new LinkedHashMap<String, Repository>();
 
 
@@ -28,9 +34,14 @@ public class Storage
     {
     }
 
-    public Storage(String name, String basedir)
+    public Storage(String id)
     {
-        this.name = name;
+        this.id = id;
+    }
+
+    public Storage(String id, String basedir)
+    {
+        this.id = id;
         this.basedir = basedir;
     }
 
@@ -39,14 +50,14 @@ public class Storage
         return getRepositories().containsKey(repository);
     }
 
-    public String getName()
+    public String getId()
     {
-        return name;
+        return id;
     }
 
-    public void setName(String name)
+    public void setId(String id)
     {
-        this.name = name;
+        this.id = id;
     }
 
     public String getBasedir()
@@ -55,15 +66,15 @@ public class Storage
         {
             return basedir;
         }
-        else if (name != null)
+        else if (id != null)
         {
             if (System.getProperty("strongbox.storage.booter.basedir") != null)
             {
-                return System.getProperty("strongbox.storage.booter.basedir") + File.separatorChar + name;
+                return System.getProperty("strongbox.storage.booter.basedir") + File.separatorChar + id;
             }
             else
             {
-                return "target/storages/" + name;
+                return "target/storages/" + id;
             }
         }
         else
@@ -87,9 +98,9 @@ public class Storage
         this.repositories = repositories;
     }
 
-    public void addRepository(Repository repository)
+    public void addOrUpdateRepository(Repository repository)
     {
-        repositories.put(repository.getName(), repository);
+        repositories.put(repository.getId(), repository);
     }
 
     public Repository getRepository(String repository)
@@ -97,14 +108,35 @@ public class Storage
         return repositories.get(repository);
     }
 
-    public void removeRepository(Repository repository)
+    public void removeRepository(String repositoryId)
     {
-        repositories.remove(repository.getName());
+        repositories.remove(repositoryId);
     }
 
     public boolean hasRepositories()
     {
         return !repositories.isEmpty();
+    }
+
+    public boolean existsOnFileSystem()
+    {
+        String storagesBasedir;
+        if (basedir != null)
+        {
+            storagesBasedir = basedir;
+        }
+        else if (System.getProperty("strongbox.storage.booter.storagesBasedir") != null)
+        {
+            storagesBasedir = System.getProperty("strongbox.storage.booter.storagesBasedir");
+        }
+        else
+        {
+            storagesBasedir = "target/storages";
+        }
+
+        File storageDirectory = new File(storagesBasedir, id);
+
+        return storageDirectory.exists();
     }
 
 }

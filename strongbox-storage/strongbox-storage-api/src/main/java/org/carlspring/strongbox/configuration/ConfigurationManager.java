@@ -2,9 +2,10 @@ package org.carlspring.strongbox.configuration;
 
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.xml.parsers.ConfigurationParser;
+import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.annotation.PostConstruct;
+import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
 import org.slf4j.Logger;
@@ -28,6 +29,8 @@ public class ConfigurationManager
 
     private Configuration configuration;
 
+    private GenericParser<Configuration> parser = new GenericParser<Configuration>(Configuration.class);
+
     @Autowired
     private ConfigurationResourceResolver configurationResourceResolver;
 
@@ -38,13 +41,11 @@ public class ConfigurationManager
 
     @PostConstruct
     public void init()
-            throws IOException
+            throws IOException, JAXBException
     {
         Resource resource = getConfigurationResource();
 
         logger.info("Loading Strongbox configuration from " + resource.toString() + "...");
-
-        ConfigurationParser parser = new ConfigurationParser();
 
         configuration = parser.parse(resource.getInputStream());
         configuration.setResource(resource);
@@ -70,24 +71,22 @@ public class ConfigurationManager
     }
 
     public void store()
-            throws IOException
+            throws IOException, JAXBException
     {
         store(configuration);
     }
 
     public void store(Configuration configuration)
-            throws IOException
+            throws IOException, JAXBException
     {
         Resource resource = getConfigurationResource();
 
-        ConfigurationParser parser = new ConfigurationParser();
         parser.store(configuration, resource.getFile());
     }
 
     public void store(Configuration configuration, String file)
-            throws IOException
+            throws IOException, JAXBException
     {
-        ConfigurationParser parser = new ConfigurationParser();
         parser.store(configuration, file);
     }
 
@@ -114,8 +113,7 @@ public class ConfigurationManager
     public Resource getConfigurationResource()
             throws IOException
     {
-        return configurationResourceResolver.getConfigurationResource(ConfigurationResourceResolver.getBasedir() + "/etc/conf/strongbox.xml",
-                                                                      "repository.config.xml",
+        return configurationResourceResolver.getConfigurationResource("repository.config.xml",
                                                                       "etc/conf/strongbox.xml");
     }
 

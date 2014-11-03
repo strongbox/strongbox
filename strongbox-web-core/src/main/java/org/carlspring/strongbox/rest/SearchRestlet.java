@@ -1,21 +1,14 @@
 package org.carlspring.strongbox.rest;
 
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.rest.serialization.search.ArtifactSearchJSONSerializer;
-import org.carlspring.strongbox.rest.serialization.search.ArtifactSearchPlainTextSerializer;
-import org.carlspring.strongbox.rest.serialization.search.ArtifactSearchSerializer;
-import org.carlspring.strongbox.rest.serialization.search.ArtifactSearchXMLSerializer;
+import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
 import org.carlspring.strongbox.storage.indexing.SearchResults;
-import org.carlspring.strongbox.services.ArtifactSearchService;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
-import java.io.OutputStream;
 
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.slf4j.Logger;
@@ -28,8 +21,6 @@ import org.springframework.stereotype.Component;
 public class SearchRestlet
         extends BaseRestlet
 {
-
-    private static final Logger logger = LoggerFactory.getLogger(SearchRestlet.class);
 
     public static final String OUTPUT_FORMAT_PLAIN_TEXT = "text";
 
@@ -69,40 +60,11 @@ public class SearchRestlet
         final SearchRequest searchRequest = new SearchRequest(storage, repository, query);
         final SearchResults searchResults = artifactSearchService.search(searchRequest);
 
-        final boolean useIndentation = Boolean.parseBoolean(indent);
-
-        return Response.ok(new StreamingOutput()
-        {
-            @Override
-            public void write(final OutputStream os)
-                    throws IOException, WebApplicationException
-            {
-                try
-                {
-                    ArtifactSearchSerializer serializer;
-                    switch (format)
-                    {
-                        case OUTPUT_FORMAT_XML:
-                            serializer = new ArtifactSearchXMLSerializer(configurationManager);
-                            break;
-                        case OUTPUT_FORMAT_JSON:
-                            serializer = new ArtifactSearchJSONSerializer(configurationManager);
-                            break;
-                        default:
-                            serializer = new ArtifactSearchPlainTextSerializer(configurationManager);
-                            break;
-                    }
-
-                    serializer.write(searchResults, os, useIndentation);
-                }
-                catch (XMLStreamException e)
-                {
-                    throw new IOException(e.getMessage(), e);
-                }
-            }
-
-        }).type(OUTPUT_FORMAT_XML.equals(format) ? MediaType.APPLICATION_XML  :
-                OUTPUT_FORMAT_JSON.equals(format) ? MediaType.APPLICATION_JSON : MediaType.TEXT_PLAIN).build();
+        return Response.ok(searchResults)
+                       .type(OUTPUT_FORMAT_XML.equals(format) ? MediaType.APPLICATION_XML :
+                                                                OUTPUT_FORMAT_JSON.equals(format) ? MediaType.APPLICATION_JSON :
+                                                                                                    MediaType.TEXT_PLAIN)
+                       .build();
     }
 
 }

@@ -8,8 +8,6 @@
     <context:annotation-config />
     <context:component-scan base-package="org.carlspring.strongbox" />
 
-    <bean name="authenticationConfigurationParser" class="org.carlspring.strongbox.xml.parsers.AuthenticationConfigurationParser" />
-
     <bean name="authenticationManager" class="org.carlspring.strongbox.security.jaas.managers.AuthenticationManager"
           init-method="load" lazy-init="true"/>
 

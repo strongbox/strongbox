@@ -1,36 +1,39 @@
 package org.carlspring.strongbox.security.jaas;
 
+import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-
 /**
  * @author mtodorov
  */
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Role implements Serializable
 {
 
-    @XStreamAlias(value = "name")
+    @XmlElement
     private String name;
 
-    @XStreamAlias(value = "description")
+    @XmlElement
     private String description;
 
     /**
      * The repository this role is associated with.
      */
-    @XStreamAlias(value = "repository")
+    @XmlElement
     private String repository;
 
     /**
      * Nested roles.
      */
-    @XStreamAlias(value = "roles")
+    @XmlElement(name = "role")
+    @XmlElementWrapper(name = "roles")
     private List<String> roles = new ArrayList<String>();
 
-    @XStreamAlias(value = "privileges")
+    @XmlElement(name = "privilege")
+    @XmlElementWrapper(name = "privileges")
     private List<String> privileges = new ArrayList<String>();
 
 

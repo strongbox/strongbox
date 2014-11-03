@@ -1,20 +1,22 @@
 package org.carlspring.strongbox.configuration;
 
+import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
  * @author mtodorov
  */
+@XmlRootElement(name = "authentication-configuration")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class AuthenticationConfiguration
 {
 
-    @XStreamAlias(value = "realms")
+    @XmlElement(name = "realm")
+    @XmlElementWrapper(name = "realms")
     private List<String> realms = new ArrayList<String>();
 
-    @XStreamAlias(value = "anonymous-access")
+    @XmlElement(name = "anonymous-access")
     private AnonymousAccessConfiguration anonymousAccessConfiguration;
 
 

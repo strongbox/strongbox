@@ -70,7 +70,7 @@ public class ArtifactSearchServiceImplTest
 
         SearchRequest request = new SearchRequest("storage0",
                                                   "releases",
-                                                  "g:org.carlspring.strongbox a:strongbox-utils v:1.0.1 p:jar");
+                                                  "+g:org.carlspring.strongbox +a:strongbox-utils +v:1.0.1 +p:jar");
 
         artifactSearchService.contains(request);
     }

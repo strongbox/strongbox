@@ -57,7 +57,7 @@ public class InMemoryLocationResolver implements LocationResolver
                 {
                     Repository r = e.getValue();
 
-                    logger.debug("Checking in repository " + r.getName() + "...");
+                    logger.debug("Checking in repository " + r.getId() + "...");
 
                     Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
 

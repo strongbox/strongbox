@@ -4,8 +4,6 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.apache.maven.index.ArtifactInfo;
-
 /**
  * @author mtodorov
  */
@@ -14,21 +12,21 @@ public class SearchResults
 
     /**
      * K: storage:repository
-     * V: artifactInfos
+     * V: searchResults
      */
-    private Map<String, Collection<ArtifactInfo>> results = new LinkedHashMap<>();
+    private Map<String, Collection<SearchResult>> results = new LinkedHashMap<>();
 
 
     public SearchResults()
     {
     }
 
-    public Map<String, Collection<ArtifactInfo>> getResults()
+    public Map<String, Collection<SearchResult>> getResults()
     {
         return results;
     }
 
-    public void setResults(Map<String, Collection<ArtifactInfo>> results)
+    public void setResults(Map<String, Collection<SearchResult>> results)
     {
         this.results = results;
     }

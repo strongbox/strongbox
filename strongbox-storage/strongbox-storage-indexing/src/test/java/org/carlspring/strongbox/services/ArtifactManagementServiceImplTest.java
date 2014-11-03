@@ -103,13 +103,13 @@ public class ArtifactManagementServiceImplTest
 
         SearchRequest request = new SearchRequest("storage0",
                                                   "releases",
-                                                  "g:org.carlspring.strongbox a:strongbox-utils v:6.2.1 p:jar");
+                                                  "+g:org.carlspring.strongbox +a:strongbox-utils +v:6.2.1 +p:jar");
 
         Assert.assertTrue(artifactSearchService.contains(request));
 
         request = new SearchRequest("storage0",
                                     "releases-with-trash",
-                                    "g:org.carlspring.strongbox a:strongbox-utils v:6.2.1 p:jar");
+                                    "+g:org.carlspring.strongbox +a:strongbox-utils +v:6.2.1 +p:jar");
 
         Assert.assertFalse(artifactSearchService.contains(request));
 
@@ -117,7 +117,7 @@ public class ArtifactManagementServiceImplTest
 
         request = new SearchRequest("storage0",
                                     "releases-with-trash",
-                                    "g:org.carlspring.strongbox a:strongbox-utils v:6.2.1 p:jar");
+                                    "+g:org.carlspring.strongbox +a:strongbox-utils +v:6.2.1 +p:jar");
 
         Assert.assertTrue(artifactSearchService.contains(request));
     }

@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.security.jaas.managers;
 
+import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
 /**
@@ -8,8 +9,10 @@ import java.io.IOException;
 public interface AuthenticationConfigurationManager
 {
 
-    void load() throws IOException;
+    void load()
+            throws IOException, JAXBException;
 
-    void store() throws IOException;
+    void store()
+            throws IOException, JAXBException;
 
 }

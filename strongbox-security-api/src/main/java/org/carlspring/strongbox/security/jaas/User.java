@@ -1,35 +1,36 @@
 package org.carlspring.strongbox.security.jaas;
 
+import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamOmitField;
-
 /**
  * @author mtodorov
  */
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class User implements Serializable
 {
 
-    @XStreamAlias(value = "username")
+    @XmlElement
     private String username;
 
-    @XStreamAlias(value = "credentials")
+    @XmlElement
     private Credentials credentials = new Credentials();
 
-    @XStreamAlias(value = "roles")
+    @XmlElement(name = "role")
+    @XmlElementWrapper(name = "roles")
     private List<String> roles = new ArrayList<String>();
 
-    @XStreamAlias(value = "fullName")
+    @XmlElement
     private String fullName;
 
-    @XStreamAlias(value = "email")
+    @XmlElement
     private String email;
 
-    @XStreamOmitField
+    @XmlTransient
     private long seed;
 
 

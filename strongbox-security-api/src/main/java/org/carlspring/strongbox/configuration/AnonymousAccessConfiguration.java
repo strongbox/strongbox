@@ -3,9 +3,15 @@ package org.carlspring.strongbox.configuration;
 import org.carlspring.strongbox.security.jaas.Credentials;
 import org.carlspring.strongbox.security.encryption.EncryptionAlgorithms;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * @author mtodorov
  */
+@XmlRootElement (name = "anonymous-access")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class AnonymousAccessConfiguration
 {
 

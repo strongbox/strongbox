@@ -128,11 +128,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.thoughtworks.xstream</groupId>
-            <artifactId>xstream</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-artifact</artifactId>
         </dependency>
@@ -145,17 +140,14 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-            <version>${version.jcl}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
              <artifactId>jul-to-slf4j</artifactId>
-            <version>${version.jcl}</version>
-        </dependency>        
+        </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>${version.logback}</version>
         </dependency>
 
         <dependency>

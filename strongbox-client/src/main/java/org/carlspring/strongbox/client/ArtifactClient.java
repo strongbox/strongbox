@@ -1,11 +1,6 @@
 package org.carlspring.strongbox.client;
 
-import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -15,8 +10,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+
+import org.apache.maven.artifact.Artifact;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author mtodorov
@@ -30,28 +28,19 @@ public class ArtifactClient
 
     private String host = "http://localhost";
 
-    private String contextBaseUrl;
+    private int port = System.getProperty("port.jetty.listen") != null ?
+                       Integer.parseInt(System.getProperty("port.jetty.listen")) :
+                       48080;
 
-    private int port = 48080;
+    private String contextBaseUrl = "http://localhost:" + port;
 
-    private String username;
+    private String username = "maven";
 
-    private String password;
+    private String password = "password";
 
 
-    public static ArtifactClient getTestInstance()
+    public ArtifactClient()
     {
-        int port = System.getProperty("port.jetty.listen") != null ?
-                   Integer.parseInt(System.getProperty("port.jetty.listen")) :
-                   48080;
-
-        ArtifactClient client = new ArtifactClient();
-        client.setUsername("maven");
-        client.setPassword("password");
-        client.setPort(port);
-        client.setContextBaseUrl("http://localhost:" + client.getPort());
-
-        return client;
     }
 
     public void addArtifact(Artifact artifact,
@@ -76,21 +65,30 @@ public class ArtifactClient
                            String fileName)
             throws ArtifactOperationException
     {
+        put(is, url, fileName, MediaType.APPLICATION_OCTET_STREAM);
+    }
+
+    public void put(InputStream is,
+                    String url,
+                    String fileName,
+                    String mediaType)
+            throws ArtifactOperationException
+    {
         String contentDisposition = "attachment; filename=\"" + fileName +"\"";
 
         Client client = ClientBuilder.newClient();
         WebTarget resource = client.target(url);
         setupAuthentication(resource);
 
-        Response response = resource.request(MediaType.APPLICATION_OCTET_STREAM)
+        Response response = resource.request(mediaType)
                                     .header("Content-Disposition", contentDisposition)
-                                    .put(Entity.entity(is, MediaType.APPLICATION_OCTET_STREAM));
+                                    .put(Entity.entity(is, mediaType));
 
         int status = response.getStatus();
 
         if (status != 200)
         {
-            throw new ArtifactOperationException("Failed to deploy artifact!");
+            throw new ArtifactOperationException("Failed to upload file!");
         }
     }
 
@@ -208,49 +206,6 @@ public class ArtifactClient
         webResource.request().delete();
     }
 
-    public String search(String query, String format)
-            throws UnsupportedEncodingException
-    {
-        return search(null, query, format, true);
-    }
-
-    public String search(String query, String format, boolean indent)
-            throws UnsupportedEncodingException
-    {
-        return search(null, query, format, indent);
-    }
-
-    public String search(String repository, String query, String format)
-            throws UnsupportedEncodingException
-    {
-        return search(repository, query, format, true);
-    }
-
-    public String search(String repository, String query, String format, boolean indent)
-            throws UnsupportedEncodingException
-    {
-        Client client = ClientBuilder.newClient();
-
-        String url = host + ":" + port + "/search?" +
-                     (repository != null ? "repository=" + URLEncoder.encode(repository, "UTF-8") : "") +
-                     "&q=" + URLEncoder.encode(query, "UTF-8") +
-                     "&format=" + URLEncoder.encode(format, "UTF-8") +
-                     "&indent=" + indent;
-
-        WebTarget webResource = client.target(url);
-        setupAuthentication(webResource);
-
-        final Response response = webResource.request(MediaType.TEXT_PLAIN,
-                                                      MediaType.APPLICATION_XML,
-                                                      MediaType.APPLICATION_JSON).get();
-
-        final String asText = response.readEntity(String.class);
-
-        logger.info(asText);
-
-        return asText;
-    }
-
     public void deleteTrash(String storage, String repository)
     {
         Client client = ClientBuilder.newClient();
@@ -339,7 +294,7 @@ public class ArtifactClient
         return host + ":" + port + "/trash/" + storage + "/" + repository;
     }
 
-    private void setupAuthentication(WebTarget target)
+    public void setupAuthentication(WebTarget target)
     {
         if (username != null && password != null)
         {

@@ -41,6 +41,7 @@ public class ArtifactSearchXMLSerializer
     {
         XMLStreamWriter xsw = null;
 
+        /*
         try
         {
             xsw = indent ?
@@ -94,6 +95,7 @@ public class ArtifactSearchXMLSerializer
         {
             ResourceCloser.closeWithReflection(xsw, logger);
         }
+        */
     }
 
 }

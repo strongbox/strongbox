@@ -1,9 +1,11 @@
 package org.carlspring.strongbox.services;
 
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
+import org.carlspring.strongbox.storage.indexing.SearchResult;
 import org.carlspring.strongbox.storage.indexing.SearchResults;
 
 import java.io.IOException;
+import java.util.Set;
 
 import org.apache.lucene.queryparser.classic.ParseException;
 

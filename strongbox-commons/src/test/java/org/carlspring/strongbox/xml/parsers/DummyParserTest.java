@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.xml.parsers;
 
+import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -21,14 +22,14 @@ public class DummyParserTest
 
     private Dummy dummy;
 
-    private DummyParser parser;
+    private GenericParser<Dummy> parser;
 
 
     @Before
     public void setUp()
             throws Exception
     {
-        parser = new DummyParser();
+        parser = new GenericParser<Dummy>(Dummy.class);
 
         dummy = new Dummy();
         dummy.setName("foo");
@@ -57,19 +58,20 @@ public class DummyParserTest
         String result = new String(baos.toByteArray());
         assertTrue("Failed to store output file!", outputFile.exists());
 
-        assertEquals("<name>\n" +
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
+                     "<dummy>\n" +
                      "    <name>foo</name>\n" +
-                     "    <aliases class=\"linked-hash-set\">\n" +
-                     "        <string>bar</string>\n" +
-                     "        <string>blah</string>\n" +
+                     "    <aliases>\n" +
+                     "        <alias>bar</alias>\n" +
+                     "        <alias>blah</alias>\n" +
                      "    </aliases>\n" +
-                     "</name>",
+                     "</dummy>\n",
                      result);
     }
 
     @Test()
     public void testParse()
-            throws IOException
+            throws IOException, JAXBException
     {
         final File file = new File(testResourcesDir, "dummy.xml");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

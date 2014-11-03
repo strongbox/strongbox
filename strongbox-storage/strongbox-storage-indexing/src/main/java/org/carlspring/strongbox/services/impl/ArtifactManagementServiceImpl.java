@@ -108,12 +108,10 @@ public class ArtifactManagementServiceImpl
                     baos.write(bytes, 0, readLength);
                     baos.flush();
                 }
-                else
-                {
-                    os.write(bytes, 0, readLength);
-                    os.flush();
-                    // Write the artifact
-                }
+
+                // Write the artifact
+                os.write(bytes, 0, readLength);
+                os.flush();
             }
 
             final String artifactPath = storage + "/" + repositoryId + "/" + path;

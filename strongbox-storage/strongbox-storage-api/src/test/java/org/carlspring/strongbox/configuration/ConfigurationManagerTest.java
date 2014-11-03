@@ -3,8 +3,9 @@ package org.carlspring.strongbox.configuration;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
-import org.carlspring.strongbox.xml.parsers.ConfigurationParser;
+import org.carlspring.strongbox.xml.parsers.GenericParser;
 
+import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 
@@ -31,6 +32,8 @@ public class ConfigurationManagerTest
     public static final String CONFIGURATION_OUTPUT_FILE = CONFIGURATION_BASEDIR + "/strongbox-saved-cm.xml";
 
     public static final String STORAGE_BASEDIR = TEST_CLASSES + "/storages/storage0";
+
+    private GenericParser<Configuration> parser = new GenericParser<Configuration>(Configuration.class);
 
     @Autowired
     private ConfigurationManager configurationManager;
@@ -60,10 +63,10 @@ public class ConfigurationManagerTest
         assertNotNull(configuration);
         assertNotNull(configuration.getStorages());
 
-        for (String key : configuration.getStorages().keySet())
+        for (String storageId : configuration.getStorages().keySet())
         {
-            assertNotNull("Storage key was null!", key);
-            assertTrue("No repositories were parsed!", !configuration.getStorages().get(key).getRepositories().isEmpty());
+            assertNotNull("Storage ID was null!", storageId);
+            assertTrue("No repositories were parsed!", !configuration.getStorages().get(storageId).getRepositories().isEmpty());
         }
 
         assertEquals("Unexpected number of storages!", 1, configuration.getStorages().size());
@@ -78,7 +81,7 @@ public class ConfigurationManagerTest
 
     @Test
     public void testStoreConfiguration()
-            throws IOException
+            throws IOException, JAXBException
     {
         ProxyConfiguration proxyConfigurationGlobal = new ProxyConfiguration();
         proxyConfigurationGlobal.setUsername("maven");
@@ -103,8 +106,8 @@ public class ConfigurationManagerTest
 
         Storage storage = new Storage();
         storage.setBasedir(STORAGE_BASEDIR);
-        storage.addRepository(repository1);
-        storage.addRepository(repository2);
+        storage.addOrUpdateRepository(repository1);
+        storage.addOrUpdateRepository(repository2);
 
         Configuration configuration = new Configuration();
         configuration.addStorage(storage);
@@ -112,7 +115,6 @@ public class ConfigurationManagerTest
 
         File outputFile = new File(CONFIGURATION_OUTPUT_FILE);
 
-        ConfigurationParser parser = new ConfigurationParser();
         parser.store(configuration, outputFile.getCanonicalPath());
 
         assertTrue("Failed to store the produced XML!", outputFile.length() > 0);

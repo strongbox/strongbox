@@ -3,8 +3,9 @@ package org.carlspring.strongbox.security.jaas.managers;
 import org.carlspring.strongbox.configuration.AnonymousAccessConfiguration;
 import org.carlspring.strongbox.configuration.AuthenticationConfiguration;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.xml.parsers.AuthenticationConfigurationParser;
+import org.carlspring.strongbox.xml.parsers.GenericParser;
 
+import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.List;
 
@@ -31,32 +32,29 @@ public class AuthenticationManager
 
     private AuthenticationConfiguration configuration;
 
-    @Autowired
-    private AuthenticationConfigurationParser authenticationConfigurationParser;
+    private GenericParser<AuthenticationConfiguration> parser = new GenericParser<AuthenticationConfiguration>(AuthenticationConfiguration.class);
 
 
     @Override
     public void load()
-            throws IOException
+            throws IOException, JAXBException
     {
-        Resource resource = configurationResourceResolver.getConfigurationResource("etc/conf/security-authentication.xml",
-                                                                                   "security.authentication.xml",
+        Resource resource = configurationResourceResolver.getConfigurationResource("security.authentication.xml",
                                                                                    "etc/conf/security-authentication.xml");
 
         logger.info("Loading Strongbox configuration from " + resource.toString() + "...");
 
-        configuration = authenticationConfigurationParser.parse(resource.getInputStream());
+        configuration = parser.parse(resource.getInputStream());
     }
 
     @Override
     public void store()
-            throws IOException
+            throws IOException, JAXBException
     {
-        Resource resource = configurationResourceResolver.getConfigurationResource("etc/conf/security-authentication.xml",
-                                                                                   "security.authentication.xml",
+        Resource resource = configurationResourceResolver.getConfigurationResource("security.authentication.xml",
                                                                                    "etc/conf/security-authentication.xml");
 
-        authenticationConfigurationParser.store(configuration, resource.getFile().getAbsoluteFile());
+        parser.store(configuration, resource.getFile().getAbsoluteFile());
     }
 
     public List<String> getRealms()

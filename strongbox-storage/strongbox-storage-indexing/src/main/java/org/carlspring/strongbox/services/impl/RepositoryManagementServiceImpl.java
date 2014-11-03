@@ -57,7 +57,8 @@ public class RepositoryManagementServiceImpl
 
         final File indexDir = new File(repositoryBasedir, ".index");
 
-        RepositoryIndexer repositoryIndexer = repositoryIndexerFactory.createRepositoryIndexer(repositoryId,
+        RepositoryIndexer repositoryIndexer = repositoryIndexerFactory.createRepositoryIndexer(storageId,
+                                                                                               repositoryId,
                                                                                                repositoryBasedir,
                                                                                                indexDir);
 

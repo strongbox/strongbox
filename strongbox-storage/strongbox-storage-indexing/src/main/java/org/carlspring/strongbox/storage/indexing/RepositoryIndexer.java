@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.storage.indexing;
 
+import org.carlspring.strongbox.configuration.Configuration;
+
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -8,6 +10,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.util.Version;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.index.*;
+import org.apache.maven.index.Scanner;
 import org.apache.maven.index.context.IndexCreator;
 import org.apache.maven.index.context.IndexingContext;
 import org.apache.maven.index.expr.SourcedSearchExpression;
@@ -16,10 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.Arrays.asList;
 import static org.apache.lucene.search.BooleanClause.Occur.MUST;
@@ -43,6 +43,8 @@ public class RepositoryIndexer
 
     private IndexingContext indexingContext;
 
+    private String storageId;
+
     private String repositoryId;
 
     private File repositoryBasedir;
@@ -50,6 +52,8 @@ public class RepositoryIndexer
     private File indexDir;
 
     private IndexerConfiguration indexerConfiguration;
+
+    private Configuration configuration;
 
 
     public RepositoryIndexer()
@@ -68,24 +72,28 @@ public class RepositoryIndexer
         indexingContext.close(deleteFiles);
     }
 
-    public void delete(final Collection<ArtifactInfo> artifacts)
+    public void delete(final Collection<ArtifactInfo> artifactInfos)
             throws IOException
     {
         final List<ArtifactContext> delete = new ArrayList<ArtifactContext>();
-        for (final ArtifactInfo artifact : artifacts)
+        for (final ArtifactInfo artifactInfo : artifactInfos)
         {
             logger.debug("Deleting artifact: {}; ctx id: {}; idx dir: {}",
-                         new String[]{ artifact.toString(),
+                         new String[]{ artifactInfo.getGroupId() + ":" +
+                                       artifactInfo.getArtifactId() + ":" +
+                                       artifactInfo.getVersion() + ":" +
+                                       artifactInfo.getClassifier() + ":" +
+                                       artifactInfo.getFileExtension(),
                                        indexingContext.getId(),
                                        indexingContext.getIndexDirectory().toString() });
 
-            delete.add(new ArtifactContext(null, null, null, artifact, null));
+            delete.add(new ArtifactContext(null, null, null, artifactInfo, null));
         }
 
         getIndexer().deleteArtifactsFromIndex(delete, indexingContext);
     }
 
-    public Set<ArtifactInfo> search(final String groupId,
+    public Set<SearchResult> search(final String groupId,
                                     final String artifactId,
                                     final String version,
                                     final String packaging,
@@ -133,10 +141,12 @@ public class RepositoryIndexer
 
         logger.debug("Hit count: {}", response.getReturnedHitsCount());
 
-        final Set<ArtifactInfo> results = response.getResults();
+        final Set<ArtifactInfo> r = response.getResults();
+        final Set<SearchResult> results = asSearchResults(r);
+
         if (logger.isDebugEnabled())
         {
-            for (final ArtifactInfo result : results)
+            for (final SearchResult result : results)
             {
                 logger.debug("Found artifact: {}", result.toString());
             }
@@ -145,7 +155,7 @@ public class RepositoryIndexer
         return results;
     }
 
-    public Set<ArtifactInfo> search(final String queryText)
+    public Set<SearchResult> search(final String queryText)
             throws ParseException, IOException
     {
         final Query query = new MultiFieldQueryParser(luceneVersion, luceneFields, luceneAnalyzer).parse(queryText);
@@ -160,19 +170,21 @@ public class RepositoryIndexer
 
         logger.debug("Hit count: {}", response.getReturnedHitsCount());
 
-        final Set<ArtifactInfo> results = response.getResults();
+        final Set<ArtifactInfo> r = response.getResults();
+        final Set<SearchResult> results = asSearchResults(r);
+
         if (logger.isDebugEnabled())
         {
-            for (final ArtifactInfo result : results)
+            for (final SearchResult result : results)
             {
-                logger.debug("Found artifact: {}; uinfo: {}", result.toString(), result.getUinfo());
+                logger.debug("Found artifact: {}", result.toString());
             }
         }
 
         return results;
     }
 
-    public Set<ArtifactInfo> searchBySHA1(final String checksum)
+    public Set<SearchResult> searchBySHA1(final String checksum)
             throws IOException
     {
         final BooleanQuery query = new BooleanQuery();
@@ -187,16 +199,50 @@ public class RepositoryIndexer
 
         logger.debug("Hit count: {}", response.getReturnedHitsCount());
 
-        final Set<ArtifactInfo> results = response.getResults();
+        final Set<ArtifactInfo> r = response.getResults();
+        final Set<SearchResult> results = asSearchResults(r);
+
         if (logger.isDebugEnabled())
         {
-            for (final ArtifactInfo result : results)
+            for (final SearchResult result : results)
             {
                 logger.debug("Found artifact: {}", result.toString());
             }
         }
 
         return results;
+    }
+
+    private Set<SearchResult> asSearchResults(Set<ArtifactInfo> artifactInfos)
+    {
+        Set<SearchResult> results = new LinkedHashSet<>(artifactInfos.size());
+        for (ArtifactInfo artifactInfo : artifactInfos)
+        {
+            String path = artifactInfo.getPath();
+            String url = getURLForArtifact(storageId, repositoryId, path);
+
+            final SearchResult result = new SearchResult(artifactInfo.getRepository(),
+                                                         artifactInfo.getGroupId(),
+                                                         artifactInfo.getArtifactId(),
+                                                         artifactInfo.getVersion(),
+                                                         artifactInfo.getClassifier(),
+                                                         artifactInfo.getFileExtension(),
+                                                         path,
+                                                         url);
+            results.add(result);
+        }
+
+        return results;
+    }
+
+    public String getURLForArtifact(String storage,
+                                    String repository,
+                                    String pathToArtifactFile)
+    {
+        String baseUrl = getConfiguration().getBaseUrl();
+        baseUrl = (baseUrl.endsWith("/") ? baseUrl : baseUrl + "/");
+
+        return baseUrl + "storages/" + storage + "/" + repository + "/" + pathToArtifactFile;
     }
 
     public int index(final File startingPath)
@@ -208,29 +254,30 @@ public class RepositoryIndexer
         return scan.getTotalFiles();
     }
 
-    public void addArtifactToIndex(final File artifactFile, final ArtifactInfo artifactInfo) throws IOException
-    {
-        getIndexer().addArtifactsToIndex(asList(new ArtifactContext(null, artifactFile, null, artifactInfo, null)),
-                                         indexingContext);
-    }
-
     public void addArtifactToIndex(String repository,
                                    final File artifactFile,
                                    final Artifact artifact)
             throws IOException
     {
+        String extension = artifactFile.getName().substring(artifactFile.getName().lastIndexOf(".") + 1,
+                                                            artifactFile.getName().length());
+
         ArtifactInfo artifactInfo = new ArtifactInfo(repository,
                                                      artifact.getGroupId(),
                                                      artifact.getArtifactId(),
                                                      artifact.getVersion(),
-                                                     artifact.getType(),
-                                                     artifact.getClassifier());
+                                                     artifact.getClassifier(),
+                                                     extension);
         if (artifact.getType() != null)
         {
             artifactInfo.setFieldValue(MAVEN.PACKAGING, artifact.getType());
         }
 
-        logger.debug("Adding artifact: {}; repo: {}; type: {}", new String[]{ artifactInfo.getUinfo(),
+        logger.debug("Adding artifact: {}; repo: {}; type: {}", new String[]{ artifact.getGroupId() + ":" +
+                                                                              artifact.getArtifactId() + ":" +
+                                                                              artifact.getVersion() + ":" +
+                                                                              artifact.getClassifier() + ":" +
+                                                                              extension,
                                                                               repository,
                                                                               artifact.getType() });
 
@@ -276,8 +323,12 @@ public class RepositoryIndexer
         {
             try
             {
-                logger.debug("Adding artifact gav: {}; ctx id: {}; idx dir: {}",
-                             new String[]{ ac.getGav().toString(),
+                logger.debug("Adding artifact: {}; ctx id: {}; idx dir: {}",
+                             new String[]{ ac.getGav().getGroupId() + ":" +
+                                           ac.getGav().getArtifactId() + ":" +
+                                           ac.getGav().getVersion() + ":" +
+                                           ac.getGav().getClassifier() + ":" +
+                                           ac.getGav().getExtension(),
                                            context.getId(),
                                            context.getIndexDirectory().toString() });
 
@@ -341,6 +392,16 @@ public class RepositoryIndexer
         this.indexingContext = indexingContext;
     }
 
+    public String getStorageId()
+    {
+        return storageId;
+    }
+
+    public void setStorageId(String storageId)
+    {
+        this.storageId = storageId;
+    }
+
     public String getRepositoryId()
     {
         return repositoryId;
@@ -369,6 +430,16 @@ public class RepositoryIndexer
     public void setIndexDir(File indexDir)
     {
         this.indexDir = indexDir;
+    }
+
+    public Configuration getConfiguration()
+    {
+        return configuration;
+    }
+
+    public void setConfiguration(Configuration configuration)
+    {
+        this.configuration = configuration;
     }
 
 }

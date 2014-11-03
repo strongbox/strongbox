@@ -1,39 +1,52 @@
 package org.carlspring.strongbox.configuration;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamOmitField;
-import org.springframework.core.io.Resource;
-
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.xml.StorageMapAdapter;
 
-import java.util.*;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.io.File;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.springframework.core.io.Resource;
 
 /**
  * @author mtodorov
  */
-@XStreamAlias("configuration")
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Configuration
 {
 
-    @XStreamAlias(value = "version")
+    @XmlElement
     private String version = "1.0";
 
-    @XStreamAlias(value = "baseUrl")
+    @XmlElement
     private String baseUrl = "http://localhost/";
 
-    @XStreamAlias(value = "port")
+    @XmlElement
     private int port = 48080;
 
     /**
      * The global proxy settings to use when no per-repository proxy settings have been defined.
      */
-    @XStreamAlias("proxy-configuration")
+    @XmlElement(name = "proxy-configuration")
     private ProxyConfiguration proxyConfiguration;
 
-    @XStreamAlias(value = "storages")
+    /**
+     * K: storageId
+     * V: storage
+     */
+    @XmlElement(name = "storages")
+    @XmlJavaTypeAdapter(StorageMapAdapter.class)
     private Map<String, Storage> storages = new LinkedHashMap<String, Storage>();
 
-    @XStreamOmitField
+    @XmlTransient
     private Resource resource;
 
 
@@ -93,7 +106,7 @@ public class Configuration
 
     public void addStorage(Storage storage)
     {
-        storages.put(storage.getBasedir(), storage);
+        storages.put(storage.getId(), storage);
     }
 
     public Storage getStorage(String storageId)

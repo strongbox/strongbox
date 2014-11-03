@@ -19,6 +19,7 @@ import java.io.IOException;
  */
 @Component
 @Path("/manage/artifact")
+@Deprecated
 public class ArtifactManagementRestlet
         extends BaseRestlet
 {

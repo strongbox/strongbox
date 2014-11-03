@@ -4,7 +4,7 @@
         <username>anonymous</username>
         <credentials>
             <password>password</password>
-            <encryptionAlgorithm>plain</encryptionAlgorithm>
+            <encryption-algorithm>plain</encryption-algorithm>
         </credentials>
     </anonymous-access>
     <realms>

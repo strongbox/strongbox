@@ -1,17 +1,22 @@
 package org.carlspring.strongbox.xml.parsers;
 
-/**
- * @author mtodorov
- */
-
+import javax.xml.bind.annotation.*;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+/**
+ * @author mtodorov
+ */
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Dummy
 {
 
+    @XmlElement
     private String name;
 
+    @XmlElement(name = "alias")
+    @XmlElementWrapper(name = "aliases")
     private Set<String> aliases = new LinkedHashSet<String>();
 
 

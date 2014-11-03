@@ -1,36 +1,37 @@
 package org.carlspring.strongbox.configuration;
 
+import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
  * @author mtodorov
  */
-@XStreamAlias(value = "proxy-configuration")
+@XmlRootElement(name = "proxy-configuration")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class ProxyConfiguration
 {
 
-    @XStreamAlias(value = "host")
+    @XmlElement(name = "host")
     private String host;
 
-    @XStreamAlias(value = "port")
+    @XmlElement(name = "port")
     private int port;
 
-    @XStreamAlias(value = "username")
+    @XmlElement(name = "username")
     private String username;
 
-    @XStreamAlias(value = "password")
+    @XmlElement(name = "password")
     private String password;
 
     /**
      * Proxy type (HTTP, SOCKS5, etc)
      */
-    @XStreamAlias(value = "type")
+    @XmlElement(name = "type")
     private String type;
 
-    @XStreamAlias(value = "non-proxy-hosts")
+    @XmlElement(name = "non-proxy-host")
+    @XmlElementWrapper(name = "non-proxy-hosts")
     private List<String> nonProxyHosts = new ArrayList<>();
 
 

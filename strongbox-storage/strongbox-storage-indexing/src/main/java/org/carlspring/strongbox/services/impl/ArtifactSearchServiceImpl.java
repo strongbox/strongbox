@@ -1,19 +1,15 @@
 package org.carlspring.strongbox.services.impl;
 
+import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.DataCenter;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
-import org.carlspring.strongbox.storage.indexing.SearchRequest;
-import org.carlspring.strongbox.storage.indexing.SearchResults;
+import org.carlspring.strongbox.storage.indexing.*;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.services.ArtifactSearchService;
 
 import java.io.IOException;
 import java.util.*;
 
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.maven.index.ArtifactInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,17 +49,17 @@ public class ArtifactSearchServiceImpl implements ArtifactSearchService
                 List<Storage> storages = dataCenter.getStoragesContainingRepository(repository);
 
                 int results = 0;
-                final Map<String, Collection<ArtifactInfo>> resultsMap = new LinkedHashMap<>();
+                final Map<String, Collection<SearchResult>> resultsMap = new LinkedHashMap<>();
                 for (Storage s: storages)
                 {
-                    final String storageAndRepositoryId = s.getName() + ":" + repository;
-                    final Set<ArtifactInfo> artifactInfoResults = repositoryIndexManager.getRepositoryIndex(storageAndRepositoryId)
-                                                                                        .search(searchRequest.getQuery());
+                    final String storageAndRepositoryId = s.getId() + ":" + repository;
+                    final Set<SearchResult> sr = repositoryIndexManager.getRepositoryIndex(storageAndRepositoryId)
+                                                                       .search(searchRequest.getQuery());
 
-                    if (!artifactInfoResults.isEmpty())
+                    if (!sr.isEmpty())
                     {
-                        resultsMap.put(storageAndRepositoryId, artifactInfoResults);
-                        results += artifactInfoResults.size();
+                        resultsMap.put(storageAndRepositoryId, sr);
+                        results += sr.size();
                     }
                 }
 
@@ -73,7 +69,7 @@ public class ArtifactSearchServiceImpl implements ArtifactSearchService
             }
             else
             {
-                final Map<String, Collection<ArtifactInfo>> resultsMap = getResultsMap(storage,
+                final Map<String, Collection<SearchResult>> resultsMap = getResultsMap(storage,
                                                                                        repository,
                                                                                        searchRequest.getQuery());
 
@@ -92,26 +88,26 @@ public class ArtifactSearchServiceImpl implements ArtifactSearchService
         }
         else
         {
-            Map<String, Collection<ArtifactInfo>> resultsMap = new LinkedHashMap<>();
+            Map<String, Collection<SearchResult>> resultsMap = new LinkedHashMap<>();
 
             for (Storage storage : dataCenter.getStorages().values())
             {
                 for (Repository r : storage.getRepositories().values())
                 {
-                    logger.debug("Repository: {}", r.getName());
+                    logger.debug("Repository: {}", r.getId());
 
-                    final RepositoryIndexer repositoryIndex = repositoryIndexManager.getRepositoryIndex(storage.getName() + ":" + r.getName());
+                    final RepositoryIndexer repositoryIndex = repositoryIndexManager.getRepositoryIndex(storage.getId() + ":" + r.getId());
                     if (repositoryIndex != null)
                     {
-                        final Set<ArtifactInfo> artifactInfoResults = repositoryIndexManager.getRepositoryIndex(storage.getName() + ":" + r.getName())
-                                                                                            .search(searchRequest.getQuery());
+                        final Set<SearchResult> sr = repositoryIndexManager.getRepositoryIndex(storage.getId() + ":" + r.getId())
+                                                                           .search(searchRequest.getQuery());
 
-                        if (!artifactInfoResults.isEmpty())
+                        if (!sr.isEmpty())
                         {
-                            resultsMap.put(storage.getName() + ":" + r.getName(), artifactInfoResults);
+                            resultsMap.put(storage.getId() + ":" + r.getId(), sr);
                         }
 
-                        logger.debug("Results: {}", artifactInfoResults.size());
+                        logger.debug("Results: {}", sr.size());
                     }
                 }
             }
@@ -129,16 +125,15 @@ public class ArtifactSearchServiceImpl implements ArtifactSearchService
         return !getResultsMap(searchRequest.getStorage(), searchRequest.getRepository(), searchRequest.getQuery()).isEmpty();
     }
 
-    public Map<String, Collection<ArtifactInfo>> getResultsMap(String storageName, String repository, String query)
+    public Map<String, Collection<SearchResult>> getResultsMap(String storageName, String repository, String query)
             throws IOException, ParseException
     {
-        Map<String, Collection<ArtifactInfo>> resultsMap = new LinkedHashMap<>();
-        final Set<ArtifactInfo> artifactInfoResults = repositoryIndexManager.getRepositoryIndex(storageName + ":" + repository)
-                                                                            .search(query);
+        Map<String, Collection<SearchResult>> resultsMap = new LinkedHashMap<>();
+        final Set<SearchResult> sr = repositoryIndexManager.getRepositoryIndex(storageName + ":" + repository).search(query);
 
-        if (!artifactInfoResults.isEmpty())
+        if (!sr.isEmpty())
         {
-            resultsMap.put(storageName + ":" + repository, artifactInfoResults);
+            resultsMap.put(storageName + ":" + repository, sr);
         }
 
         return resultsMap;

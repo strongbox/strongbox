@@ -1,19 +1,23 @@
 package org.carlspring.strongbox.security.jaas;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
-
-import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
  * @author mtodorov
  */
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Privilege implements Serializable
 {
 
-    @XStreamAlias(value = "name")
+    @XmlElement
     private String name;
 
-    @XStreamAlias(value = "description")
+    @XmlElement
     private String description;
 
 

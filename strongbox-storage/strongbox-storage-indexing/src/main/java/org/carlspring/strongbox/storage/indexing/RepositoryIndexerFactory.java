@@ -1,5 +1,8 @@
 package org.carlspring.strongbox.storage.indexing;
 
+import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.File;
@@ -24,25 +27,32 @@ public class RepositoryIndexerFactory
 
     private IndexerConfiguration indexerConfiguration;
 
+    private Configuration configuration;
+
 
     @Inject
-    public RepositoryIndexerFactory(IndexerConfiguration indexerConfiguration)
+    public RepositoryIndexerFactory(IndexerConfiguration indexerConfiguration,
+                                    ConfigurationManager configurationManager)
     {
         this.indexerConfiguration = indexerConfiguration;
+        this.configuration = configurationManager.getConfiguration();
     }
 
-    public RepositoryIndexer createRepositoryIndexer(String repositoryId,
+    public RepositoryIndexer createRepositoryIndexer(String storageId,
+                                                     String repositoryId,
                                                      File repositoryBasedir,
                                                      File indexDir)
             throws IOException
     {
         RepositoryIndexer repositoryIndexer = new RepositoryIndexer();
+        repositoryIndexer.setStorageId(storageId);
         repositoryIndexer.setRepositoryId(repositoryId);
         repositoryIndexer.setRepositoryBasedir(repositoryBasedir);
         repositoryIndexer.setIndexDir(indexDir);
         repositoryIndexer.setIndexingContext(createIndexingContext(repositoryId, repositoryBasedir, indexDir));
         repositoryIndexer.setIndexer(indexerConfiguration.getIndexer());
         repositoryIndexer.setScanner(indexerConfiguration.getScanner());
+        repositoryIndexer.setConfiguration(configuration);
 
         return repositoryIndexer;
     }
@@ -89,6 +99,16 @@ public class RepositoryIndexerFactory
     public Map<String, IndexCreator> getIndexers()
     {
         return indexerConfiguration.getIndexers();
+    }
+
+    public Configuration getConfiguration()
+    {
+        return configuration;
+    }
+
+    public void setConfiguration(Configuration configuration)
+    {
+        this.configuration = configuration;
     }
 
 }

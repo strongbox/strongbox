@@ -24,6 +24,15 @@ public class ConfigurationResourceResolver
     {
     }
 
+    public Resource getConfigurationResource(String propertyKey,
+                                             String propertyDefaultValue)
+            throws IOException
+    {
+        final String configurationPath = ConfigurationResourceResolver.getBasedir() + "/" + propertyDefaultValue;
+
+        return getConfigurationResource(configurationPath, propertyKey, propertyDefaultValue);
+    }
+
     /**
      *
      * @param configurationPath     The configuration file's path. If null, either propertyKey,

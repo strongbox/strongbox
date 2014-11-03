@@ -33,6 +33,7 @@ public class ArtifactSearchPlainTextSerializer extends AbstractArtifactSearchSer
                       boolean indent)
             throws XMLStreamException, IOException
     {
+        /*
         try (final Writer w = new OutputStreamWriter(os))
         {
             for (String storageAndRepository : searchResults.getResults().keySet())
@@ -59,7 +60,7 @@ public class ArtifactSearchPlainTextSerializer extends AbstractArtifactSearchSer
                 }
             }
         }
-
+        */
     }
 
 

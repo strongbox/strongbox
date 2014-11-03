@@ -69,7 +69,7 @@ public class DataCenter
     {
         Storage anonymousStorage = new Storage();
         anonymousStorage.setBasedir(basedir);
-        anonymousStorage.addRepository(repository);
+        anonymousStorage.addOrUpdateRepository(repository);
 
         addStorage(null, anonymousStorage);
     }

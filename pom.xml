@@ -40,6 +40,7 @@
         <module>strongbox-security-api</module>
         <module>strongbox-testing</module>
         <module>strongbox-client</module>
+        <module>strongbox-rest-client</module>
         <module>strongbox-storage</module>
         <module>strongbox-web-core</module>
     </modules>

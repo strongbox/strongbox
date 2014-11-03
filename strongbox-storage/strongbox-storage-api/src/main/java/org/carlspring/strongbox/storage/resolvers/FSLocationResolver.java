@@ -38,7 +38,7 @@ public class FSLocationResolver
     }
 
     @Override
-    public InputStream getInputStream(String repository,
+    public InputStream getInputStream(String repositoryId,
                                       String artifactPath)
             throws IOException
     {
@@ -46,29 +46,20 @@ public class FSLocationResolver
         {
             Storage storage = (Storage) entry.getValue();
 
-            if (storage.containsRepository(repository))
+            if (storage.containsRepository(repositoryId))
             {
-                logger.debug("Checking in storage " + storage.getBasedir() + "...");
+                logger.debug("Checking in " + storage.getId() + ":" + repositoryId + "...");
 
-                final Map<String, Repository> repositories = storage.getRepositories();
+                final File repoPath = new File(storage.getRepository(repositoryId).getBasedir());
+                final File artifactFile = new File(repoPath, artifactPath).getCanonicalFile();
 
-                for (Map.Entry<String, Repository> e : repositories.entrySet())
+                logger.debug(" -> Checking for " + artifactFile.getCanonicalPath() + "...");
+
+                if (artifactFile.exists())
                 {
-                    Repository r = e.getValue();
+                    logger.debug("Resolved " + artifactFile.getCanonicalPath() + "!");
 
-                    logger.debug("Checking in repository " + r.getName() + "...");
-
-                    final File repoPath = new File(storage.getBasedir(), r.getName());
-                    final File artifactFile = new File(repoPath, artifactPath).getCanonicalFile();
-
-                    logger.debug("Checking for " + artifactFile.getCanonicalPath() + "...");
-
-                    if (artifactFile.exists())
-                    {
-                        logger.info("Resolved " + artifactFile.getCanonicalPath() + "!");
-
-                        return new FileInputStream(artifactFile);
-                    }
+                    return new FileInputStream(artifactFile);
                 }
             }
         }
@@ -77,7 +68,7 @@ public class FSLocationResolver
     }
 
     @Override
-    public OutputStream getOutputStream(String repository,
+    public OutputStream getOutputStream(String repositoryId,
                                         String artifactPath)
             throws IOException
     {
@@ -85,13 +76,9 @@ public class FSLocationResolver
         {
             Storage storage = (Storage) entry.getValue();
 
-            if (storage.containsRepository(repository))
+            if (storage.containsRepository(repositoryId))
             {
-                final Map<String, Repository> repositories = storage.getRepositories();
-
-                Repository r = repositories.get(repository);
-
-                final File repoPath = new File(storage.getBasedir(), r.getName());
+                final File repoPath = new File(storage.getRepository(repositoryId).getBasedir());
                 final File artifactFile = new File(repoPath, artifactPath).getCanonicalFile();
 
                 if (!artifactFile.getParentFile().exists())
@@ -108,7 +95,7 @@ public class FSLocationResolver
     }
 
     @Override
-    public void delete(String repository,
+    public void delete(String repositoryId,
                        String path,
                        boolean force)
             throws IOException
@@ -117,19 +104,19 @@ public class FSLocationResolver
         {
             Storage storage = (Storage) entry.getValue();
 
-            if (storage.containsRepository(repository))
+            if (storage.containsRepository(repositoryId))
             {
                 logger.debug("Checking in storage " + storage.getBasedir() + "...");
 
                 final Map<String, Repository> repositories = storage.getRepositories();
 
-                Repository r = repositories.get(repository);
+                Repository r = repositories.get(repositoryId);
 
-                logger.debug("Checking in repository " + r.getName() + "...");
+                logger.debug("Checking in repository " + r.getId() + "...");
 
-                final File repoPath = new File(storage.getBasedir(), r.getName());
+                final File repoPath = new File(r.getBasedir());
                 final File artifactFile = new File(repoPath, path).getCanonicalFile();
-                final File basedirTrash = new File(repoPath, ".trash");
+                final File basedirTrash = r.getTrashDir();
 
                 logger.debug("Checking for " + artifactFile.getCanonicalPath() + "...");
 
@@ -142,16 +129,16 @@ public class FSLocationResolver
                             File trashFile = new File(basedirTrash, path).getCanonicalFile();
                             FileUtils.moveFile(artifactFile, trashFile);
 
-                            logger.debug("Moved /" + repository + "/" + path + " to trash (" + trashFile.getAbsolutePath() + ").");
+                            logger.debug("Moved /" + repositoryId + "/" + path + " to trash (" + trashFile.getAbsolutePath() + ").");
 
                             // Move the checksums to the trash as well
-                            moveChecksumsToTrash(repository, path, artifactFile, basedirTrash);
+                            moveChecksumsToTrash(repositoryId, path, artifactFile, basedirTrash);
                         }
                         else
                         {
                             //noinspection ResultOfMethodCallIgnored
                             artifactFile.delete();
-                            deleteChecksums(repository, path, artifactFile);
+                            deleteChecksums(repositoryId, path, artifactFile);
                         }
                     }
                     else
@@ -161,7 +148,7 @@ public class FSLocationResolver
                             File trashFile = new File(basedirTrash, path).getCanonicalFile();
                             FileUtils.moveDirectory(artifactFile, trashFile);
 
-                            logger.debug("Moved /" + repository + "/" + path + " to trash (" + trashFile.getAbsolutePath() + ").");
+                            logger.debug("Moved /" + repositoryId + "/" + path + " to trash (" + trashFile.getAbsolutePath() + ").");
                         }
                         else
                         {
@@ -169,7 +156,7 @@ public class FSLocationResolver
                         }
                     }
 
-                    logger.debug("Removed /" + repository + "/" + path);
+                    logger.debug("Removed /" + repositoryId + "/" + path);
                 }
             }
         }
@@ -200,7 +187,7 @@ public class FSLocationResolver
         }
     }
 
-    private void deleteChecksums(String repository,
+    private void deleteChecksums(String repositoryId,
                                  String path,
                                  File artifactFile)
             throws IOException
@@ -211,15 +198,16 @@ public class FSLocationResolver
             //noinspection ResultOfMethodCallIgnored
             md5ChecksumFile.delete();
 
-            logger.debug("Deleted /" + repository + "/" + path + ".md5.");
+            logger.debug("Deleted /" + repositoryId + "/" + path + ".md5.");
         }
 
         File sha1ChecksumFile = new File(artifactFile.getAbsolutePath() + ".sha1");
         if (sha1ChecksumFile.exists())
         {
+            //noinspection ResultOfMethodCallIgnored
             sha1ChecksumFile.delete();
 
-            logger.debug("Deleted /" + repository + "/" + path + ".sha1.");
+            logger.debug("Deleted /" + repositoryId + "/" + path + ".sha1.");
         }
     }
 
@@ -237,10 +225,9 @@ public class FSLocationResolver
 
                 Repository r = repositories.get(repository);
 
-                logger.debug("Emptying trash for repository " + r.getName() + "...");
+                logger.debug("Emptying trash for repository " + r.getId() + "...");
 
-                final File repoPath = new File(storage.getBasedir(), r.getName());
-                final File basedirTrash = new File(repoPath, ".trash");
+                final File basedirTrash = r.getTrashDir();
 
                 FileUtils.deleteDirectory(basedirTrash);
 
@@ -261,10 +248,9 @@ public class FSLocationResolver
             final Map<String, Repository> repositories = storage.getRepositories();
             for (Repository repository : repositories.values())
             {
-                logger.debug("Emptying trash for repository " + repository.getName() + "...");
+                logger.debug("Emptying trash for repository " + repository.getId() + "...");
 
-                final File repoPath = new File(storage.getBasedir(), repository.getName());
-                final File basedirTrash = new File(repoPath, ".trash");
+                final File basedirTrash = repository.getTrashDir();
 
                 FileUtils.deleteDirectory(basedirTrash);
 

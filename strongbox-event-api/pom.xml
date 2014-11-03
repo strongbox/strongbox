@@ -63,17 +63,14 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-            <version>${version.jcl}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
-             <artifactId>jul-to-slf4j</artifactId>
-            <version>${version.jcl}</version>
-        </dependency>        
+            <artifactId>jul-to-slf4j</artifactId>
+        </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>${version.logback}</version>
         </dependency>
 
         <dependency>

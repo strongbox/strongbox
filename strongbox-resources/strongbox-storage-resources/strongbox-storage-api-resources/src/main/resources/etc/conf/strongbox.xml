@@ -6,18 +6,16 @@
     <port>48080</port>
 
     <storages>
-        <storage>
-            <name>storage0</name>
-
+        <storage id="storage0">
             <repositories>
                 <!-- Secured repositories do not allow anonymous access -->
-                <repository name="releases" basedir="/releases" policy="release" implementation="file-system" type="hosted" allows-force-deletion="true"/>
-                <repository name="releases-in-memory" basedir="/releases-in-memory" policy="release" implementation="in-memory" type="hosted"/>
-                <repository name="releases-with-redeployment" basedir="/releases-redeployment" policy="release" implementation="file-system" type="hosted" allows-redeployment="true"/>
-                <repository name="releases-with-trash" basedir="/releases-with-trash" policy="release" implementation="file-system" type="hosted" trash-enabled="true"/>
+                <repository id="releases" policy="release" implementation="file-system" type="hosted" allows-force-deletion="true"/>
+                <repository id="releases-in-memory" policy="release" implementation="in-memory" type="hosted"/>
+                <repository id="releases-with-redeployment" policy="release" implementation="file-system" type="hosted" allows-redeployment="true"/>
+                <repository id="releases-with-trash" policy="release" implementation="file-system" type="hosted" trash-enabled="true"/>
 
-                <repository name="snapshots" basedir="/snapshots" policy="snapshot" implementation="file-system" type="hosted" secured="true" />
-                <repository name="snapshots-in-memory" basedir="/snapshots-in-memory" policy="snapshot" implementation="in-memory" type="hosted" secured="true" />
+                <repository id="snapshots" policy="snapshot" implementation="file-system" type="hosted" secured="true" />
+                <repository id="snapshots-in-memory" policy="snapshot" implementation="in-memory" type="hosted" secured="true" />
             </repositories>
         </storage>
     </storages>

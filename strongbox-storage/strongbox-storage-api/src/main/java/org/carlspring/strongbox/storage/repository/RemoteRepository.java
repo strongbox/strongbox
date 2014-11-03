@@ -2,30 +2,35 @@ package org.carlspring.strongbox.storage.repository;
 
 import org.carlspring.strongbox.security.jaas.Credentials;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * @author mtodorov
  */
+@XmlRootElement(name = "remote-repository")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class RemoteRepository
 {
 
-    @XStreamAlias(value = "url")
+    @XmlElement
     private String url;
 
-    @XStreamAlias(value = "downloadRemoteIndexes")
+    @XmlElement(name = "download-remote-indexes")
     private boolean downloadRemoteIndexes;
 
-    @XStreamAlias(value = "autoBlocking")
+    @XmlElement(name = "auto-blocking")
     private boolean autoBlocking;
 
-    @XStreamAlias(value = "checksumValidation")
+    @XmlElement(name = "checksum-validation")
     private boolean checksumValidation;
 
-    @XStreamAlias(value = "credentials")
+    @XmlElement(name = "credentials")
     private Credentials credentials;
 
-    @XStreamAlias(value = "checksumPolicy")
+    @XmlElement(name = "checksum-policy")
     private String checksumPolicy;
 
 

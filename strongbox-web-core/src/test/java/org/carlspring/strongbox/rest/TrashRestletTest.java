@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.rest;
 
 import org.carlspring.strongbox.artifact.generator.ArtifactGenerator;
-import org.carlspring.strongbox.client.ArtifactClient;
+import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.testing.AssignedPorts;
 
@@ -34,16 +34,13 @@ public class TrashRestletTest
     private final static String REPOSITORY_WITH_TRASH_BASEDIR = BASEDIR.getParentFile().getAbsolutePath() +
                                                                 "/storages/" + STORAGE + "/" + REPOSITORY_WITH_TRASH;
 
-    private ArtifactClient client = new ArtifactClient();
+    private RestClient client = new RestClient();
 
     private String gavtc = "org.carlspring.strongbox:test-artifact-to-trash::jar";
 
     private static final File ARTIFACT_FILE_IN_TRASH = new File(REPOSITORY_WITH_TRASH_BASEDIR + "/.trash/" +
                                                                 "org/carlspring/strongbox/test-artifact-to-trash/1.0/" +
                                                                 "test-artifact-to-trash-1.0.jar").getAbsoluteFile();
-
-    @Autowired
-    private AssignedPorts assignedPorts;
 
 
     @Before
@@ -55,12 +52,6 @@ public class TrashRestletTest
 
         generator.setBasedir(BASEDIR.getParentFile().getAbsolutePath() + "/storages/" + STORAGE + "/releases");
         generator.generate(gavtc, "1.1");
-
-        client = new ArtifactClient();
-        client.setUsername("maven");
-        client.setPassword("password");
-        client.setPort(assignedPorts.getPort("port.jetty.listen"));
-        client.setContextBaseUrl("http://localhost:" + client.getPort());
 
         // Delete the artifact (this one should get placed under the .trash)
         client.delete(STORAGE,

@@ -18,6 +18,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -56,36 +58,48 @@ public class RepositoryIndexerTest
     @Test
     public void testIndex() throws Exception
     {
-        // final RepositoryIndexer i = new RepositoryIndexer("releases", REPOSITORY_BASEDIR, INDEX_DIR);
         final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndex("storage0:releases");
 
         final int x = repositoryIndexer.index(new File("org/carlspring/strongbox/strongbox-commons"));
 
         Assert.assertEquals("6 artifacts expected!",
-                6,  // one is jar another pom, both would be added into the same Lucene document
-                x);
+                            6,  // one is jar another pom, both would be added into the same Lucene document
+                            x);
 
-        Set<ArtifactInfo> search = repositoryIndexer.search("org.carlspring.strongbox",
-                "strongbox-commons",
-                null,
-                null,
-                null);
-        for (final ArtifactInfo ai : search)
-        {
-            System.out.println(ai.getGroupId() + " / " + ai.getArtifactId() + " / " + ai.getVersion() + " / " + ai.getDescription());
-        }
+        Set<SearchResult> search = repositoryIndexer.search("org.carlspring.strongbox",
+                                                            "strongbox-commons",
+                                                            null,
+                                                            null,
+                                                            null);
 
         Assert.assertEquals("Only three versions of the strongbox-commons artifact were expected!", 3, search.size());
 
         search = repositoryIndexer.search("org.carlspring.strongbox", "strongbox-commons", "1.0", "jar", null);
         Assert.assertEquals("org.carlspring.strongbox:strongbox-commons:1.0 should have been deleted!", 1, search.size());
 
-        search = repositoryIndexer.search("+g:org.carlspring.strongbox +a:\"strongbox\\-commons\" +v:1.0");
+        search = repositoryIndexer.search("+g:org.carlspring.strongbox +a:strongbox-commons +v:1.0");
         Assert.assertEquals("org.carlspring.strongbox:strongbox-commons:1.0 should have been deleted!", 1, search.size());
 
-        repositoryIndexer.delete(search);
+        repositoryIndexer.delete(asArtifactInfo(search));
         search = repositoryIndexer.search("org.carlspring.strongbox", "strongbox-commons", "1.0", null, null);
 
         Assert.assertEquals("org.carlspring.strongbox:strongbox-commons:1.0 should have been deleted!", 0, search.size());
     }
+
+    private Collection<ArtifactInfo> asArtifactInfo(Set<SearchResult> results)
+    {
+        Collection<ArtifactInfo> artifactInfos = new LinkedHashSet<>();
+        for (SearchResult result : results)
+        {
+            artifactInfos.add(new ArtifactInfo(result.getRepository(),
+                                               result.getGroupId(),
+                                               result.getArtifactId(),
+                                               result.getVersion(),
+                                               result.getClassifier(),
+                                               result.getExtension()));
+        }
+
+        return artifactInfos;
+    }
+
 }

@@ -46,6 +46,7 @@ public class ArtifactSearchJSONSerializer extends AbstractArtifactSearchSerializ
     {
         XMLStreamWriter xsw = null;
 
+        /*
         try
         {
             if (indent)
@@ -106,6 +107,7 @@ public class ArtifactSearchJSONSerializer extends AbstractArtifactSearchSerializ
         {
             ResourceCloser.closeWithReflection(xsw, logger);
         }
+        */
     }
 
 }

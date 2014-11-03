@@ -3,12 +3,12 @@ package org.carlspring.strongbox.xml.parsers;
 import org.carlspring.strongbox.configuration.AnonymousAccessConfiguration;
 import org.carlspring.strongbox.configuration.AuthenticationConfiguration;
 
+import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.thoughtworks.xstream.XStream;
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 
@@ -26,27 +26,26 @@ public class AuthenticationConfigurationParserTest
 
     public static final String XML_OUTPUT_FILE = CONFIGURATION_BASEDIR + "/security-authentication-saved.xml";
 
+    private GenericParser<AuthenticationConfiguration> parser = new GenericParser<AuthenticationConfiguration>(AuthenticationConfiguration.class);
+
 
     @Test
     public void testParseAuthenticationConfiguration()
-            throws IOException
+            throws IOException, JAXBException
     {
         File xmlFile = new File(XML_FILE);
 
         System.out.println("Parsing " + xmlFile.getAbsolutePath() + "...");
 
-        AuthenticationConfigurationParser parser = new AuthenticationConfigurationParser();
-        final XStream xstream = parser.getXStreamInstance();
-
         //noinspection unchecked
-        AuthenticationConfiguration configuration = (AuthenticationConfiguration) xstream.fromXML(xmlFile);
+        AuthenticationConfiguration configuration = (AuthenticationConfiguration) parser.parse(xmlFile);
 
         assertTrue("Failed to parse the authorization configuration!", configuration != null);
     }
 
     @Test
     public void testStoreAuthenticationConfiguration()
-            throws IOException
+            throws IOException, JAXBException
     {
         List<String> realms = new ArrayList<String>();
         realms.add("org.carlspring.strongbox.jaas.xml.XMLUserRealm");
@@ -64,7 +63,6 @@ public class AuthenticationConfigurationParserTest
 
         System.out.println("Storing " + outputFile.getAbsolutePath() + "...");
 
-        AuthenticationConfigurationParser parser = new AuthenticationConfigurationParser();
         parser.store(configuration, outputFile.getCanonicalPath());
 
         assertTrue("Failed to store the produced XML!", outputFile.length() > 0);

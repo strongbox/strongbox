@@ -26,11 +26,11 @@ public class DataCenterTest
     {
         Storage storage1 = new Storage();
         storage1.setBasedir("/foo/bar/anonymous");
-        storage1.addRepository(new Repository("repository0"));
+        storage1.addOrUpdateRepository(new Repository("repository0"));
 
         Storage storage2 = new Storage();
         storage2.setBasedir("/foo/bar/storage");
-        storage2.setName("storage");
+        storage2.setId("storage");
 
         DataCenter dataCenter = new DataCenter();
         dataCenter.addStorage(null, storage1);

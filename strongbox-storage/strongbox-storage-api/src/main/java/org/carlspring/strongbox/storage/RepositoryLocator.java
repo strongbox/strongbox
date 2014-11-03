@@ -37,9 +37,9 @@ public class RepositoryLocator
                 for (File directory : directories)
                 {
                     Repository repository = new Repository();
-                    repository.setName(directory.getName());
+                    repository.setId(directory.getName());
 
-                    storage.addRepository(repository);
+                    storage.addOrUpdateRepository(repository);
                 }
             }
         }

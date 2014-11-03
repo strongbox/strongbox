@@ -4,55 +4,54 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.storage.Storage;
 
+import javax.xml.bind.annotation.*;
 import java.io.File;
 import java.io.IOException;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import org.apache.maven.artifact.Artifact;
 
 /**
  * @author mtodorov
  */
-@XStreamAlias(value = "repository")
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name = "repository")
 public class Repository
 {
 
-    @XStreamAsAttribute
-    private String name;
+    @XmlAttribute
+    private String id;
 
-    @XStreamAsAttribute
+    @XmlAttribute(name = "basedir")
+    private String basedir;
+
+    @XmlAttribute
     private String policy = RepositoryPolicyEnum.MIXED.getPolicy();
 
-    @XStreamAsAttribute
+    @XmlAttribute
     private String implementation = "in-memory";
 
-    @XStreamAsAttribute
+    @XmlAttribute
     private String type = RepositoryTypeEnum.HOSTED.getType();
 
-    @XStreamAsAttribute
+    @XmlAttribute
     private boolean secured = false;
 
-    @XStreamAlias("trash-enabled")
-    @XStreamAsAttribute
+    @XmlAttribute(name = "trash-enabled")
     private boolean trashEnabled = false;
 
-    @XStreamAlias("allows-force-deletion")
-    @XStreamAsAttribute
+    @XmlAttribute(name = "allows-force-deletion")
     private boolean allowsForceDeletion = false;
 
-    @XStreamAlias("allows-redeployment")
-    @XStreamAsAttribute
+    @XmlAttribute(name = "allows-redeployment")
     private boolean allowsRedeployment = false;
 
     /**
      * The per-repository proxy settings that override the overall global proxy settings.
      */
-    @XStreamAlias("proxy-configuration")
+    @XmlElement(name = "proxy-configuration")
     private ProxyConfiguration proxyConfiguration;
 
-    @XStreamOmitField
+    @XmlTransient
     private Storage storage;
 
 
@@ -60,21 +59,21 @@ public class Repository
     {
     }
 
-    public Repository(String name)
+    public Repository(String id)
     {
-        this.name = name;
+        this.id = id;
     }
 
-    public Repository(String name, boolean secured)
+    public Repository(String id, boolean secured)
     {
-        this.name = name;
+        this.id = id;
         this.secured = secured;
     }
 
     public boolean containsArtifact(Artifact artifact)
     {
         final String artifactPath = ArtifactUtils.convertArtifactToPath(artifact);
-        final File artifactFile = new File(new File(storage.getBasedir(), getName()), artifactPath);
+        final File artifactFile = new File(new File(storage.getBasedir(), getId()), artifactPath);
 
         return artifactFile.exists();
     }
@@ -82,7 +81,7 @@ public class Repository
     public boolean containsPath(String path)
             throws IOException
     {
-        final File artifactFile = new File(new File(storage.getBasedir(), getName()), path).getCanonicalFile();
+        final File artifactFile = new File(new File(storage.getBasedir(), getId()), path).getCanonicalFile();
         return artifactFile.exists();
     }
 
@@ -90,19 +89,36 @@ public class Repository
             throws IOException
     {
         final String artifactPath = ArtifactUtils.convertArtifactToPath(artifact);
-        final File artifactFile = new File(new File(storage.getBasedir(), getName()), artifactPath);
+        final File artifactFile = new File(new File(storage.getBasedir(), getId()), artifactPath);
 
         return artifactFile.getCanonicalPath();
     }
 
-    public String getName()
+    public String getId()
     {
-        return name;
+        return id;
     }
 
-    public void setName(String name)
+    public void setId(String id)
     {
-        this.name = name;
+        this.id = id;
+    }
+
+    public String getBasedir()
+    {
+        if (basedir != null)
+        {
+            return basedir;
+        }
+        else
+        {
+            return storage.getBasedir() + "/" + id;
+        }
+    }
+
+    public void setBasedir(String basedir)
+    {
+        this.basedir = basedir;
     }
 
     public String getPolicy()
@@ -208,7 +224,12 @@ public class Repository
     @Override
     public String toString()
     {
-        return name;
+        return id;
+    }
+
+    public File getTrashDir()
+    {
+        return new File(getBasedir(), ".trash");
     }
 
 }
