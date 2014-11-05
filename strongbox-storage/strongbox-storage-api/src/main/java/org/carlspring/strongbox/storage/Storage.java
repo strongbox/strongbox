@@ -19,10 +19,10 @@ import java.util.Map;
 public class Storage
 {
 
-    @XmlAttribute(name = "id")
+    @XmlAttribute
     private String id;
 
-    @XmlAttribute(name = "basedir")
+    @XmlAttribute
     private String basedir;
 
     @XmlElement(name = "repositories")

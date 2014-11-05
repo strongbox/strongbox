@@ -5,14 +5,14 @@ import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
 import org.carlspring.strongbox.storage.indexing.SearchResults;
 
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -21,12 +21,6 @@ import org.springframework.stereotype.Component;
 public class SearchRestlet
         extends BaseRestlet
 {
-
-    public static final String OUTPUT_FORMAT_PLAIN_TEXT = "text";
-
-    public static final String OUTPUT_FORMAT_XML = "xml";
-
-    public static final String OUTPUT_FORMAT_JSON = "json";
 
 
     @Autowired
@@ -50,21 +44,16 @@ public class SearchRestlet
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
-    public Response search(@QueryParam("storage") final String storage,
+    public SearchResults search(@QueryParam("storage") final String storage,
                            @QueryParam("repository") final String repository,
-                           @QueryParam("q") final String query,
-                           @DefaultValue(OUTPUT_FORMAT_PLAIN_TEXT) @QueryParam("format") final String format,
-                           @DefaultValue("false") @QueryParam("indent") final String indent)
+                           @QueryParam("q") final String query/*,
+                           @DefaultValue("false") @QueryParam("indent") final String indent*/)
             throws IOException, ParseException
     {
         final SearchRequest searchRequest = new SearchRequest(storage, repository, query);
         final SearchResults searchResults = artifactSearchService.search(searchRequest);
 
-        return Response.ok(searchResults)
-                       .type(OUTPUT_FORMAT_XML.equals(format) ? MediaType.APPLICATION_XML :
-                                                                OUTPUT_FORMAT_JSON.equals(format) ? MediaType.APPLICATION_JSON :
-                                                                                                    MediaType.TEXT_PLAIN)
-                       .build();
+        return searchResults;
     }
 
 }

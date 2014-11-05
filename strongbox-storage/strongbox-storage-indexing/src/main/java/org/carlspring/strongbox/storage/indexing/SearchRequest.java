@@ -6,9 +6,9 @@ package org.carlspring.strongbox.storage.indexing;
 public class SearchRequest
 {
 
-    private String storage;
+    private String storageId;
 
-    private String repository;
+    private String repositoryId;
 
     private String query;
 
@@ -17,33 +17,33 @@ public class SearchRequest
     {
     }
 
-    public SearchRequest(String storage,
-                         String repository,
+    public SearchRequest(String storageId,
+                         String repositoryId,
                          String query)
     {
-        this.storage = storage;
-        this.repository = repository;
+        this.storageId = storageId;
+        this.repositoryId = repositoryId;
         this.query = query;
     }
 
-    public String getStorage()
+    public String getStorageId()
     {
-        return storage;
+        return storageId;
     }
 
-    public void setStorage(String storage)
+    public void setStorageId(String storageId)
     {
-        this.storage = storage;
+        this.storageId = storageId;
     }
 
-    public String getRepository()
+    public String getRepositoryId()
     {
-        return repository;
+        return repositoryId;
     }
 
-    public void setRepository(String repository)
+    public void setRepositoryId(String repositoryId)
     {
-        this.repository = repository;
+        this.repositoryId = repositoryId;
     }
 
     public String getQuery()

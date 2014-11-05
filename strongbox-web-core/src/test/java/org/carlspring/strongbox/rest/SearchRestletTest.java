@@ -3,8 +3,8 @@ package org.carlspring.strongbox.rest;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.generator.ArtifactDeployer;
 import org.carlspring.strongbox.client.RestClient;
-import org.carlspring.strongbox.testing.AssignedPorts;
 
+import javax.ws.rs.core.MediaType;
 import java.io.File;
 
 import org.apache.maven.artifact.Artifact;
@@ -13,7 +13,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -22,7 +21,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"/META-INF/spring/strongbox-*-context.xml", "classpath*:/META-INF/spring/strongbox-*-context.xml"})
-@Ignore
 public class SearchRestletTest
 {
 
@@ -58,17 +56,22 @@ public class SearchRestletTest
     public void testSearchXML()
             throws Exception
     {
-        String response = client.search("g:org.carlspring.maven a:test-project", "xml");
+        String response = client.search("g:org.carlspring.maven a:test-project", MediaType.APPLICATION_XML_TYPE);
+
+        System.out.println(response);
 
         Assert.assertTrue("Received unexpected response!",
                           response.contains(">1.0.11.3<") && response.contains(">1.0.11.3.1<"));
     }
 
     @Test
+    @Ignore
     public void testSearchJSON()
             throws Exception
     {
-        String response = client.search("g:org.carlspring.maven a:test-project", "json");
+        String response = client.search("g:org.carlspring.maven a:test-project", MediaType.APPLICATION_JSON_TYPE);
+
+        System.out.println(response);
 
         Assert.assertTrue("Received unexpected response!",
                           response.contains("\"version\" : \"1.0.11.3\"") &&
@@ -76,10 +79,13 @@ public class SearchRestletTest
     }
 
     @Test
+    @Ignore
     public void testSearchPlainText()
             throws Exception
     {
-        String response = client.search("g:org.carlspring.maven a:test-project", "text");
+        String response = client.search("g:org.carlspring.maven a:test-project", MediaType.TEXT_PLAIN_TYPE);
+
+        System.out.println(response);
 
         Assert.assertTrue("Received unexpected response!",
                           response.contains("org.carlspring.maven:test-project:1.0.11.3:jar") &&

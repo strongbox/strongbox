@@ -24,7 +24,7 @@
         <level value="DEBUG"/>
     </logger>
     <logger name="org.glassfish.jersey">
-        <level value="ERROR"/>
+        <level value="DEBUG"/>
     </logger>
 
     <root>

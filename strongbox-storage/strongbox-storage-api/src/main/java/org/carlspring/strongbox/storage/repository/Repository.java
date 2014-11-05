@@ -21,7 +21,7 @@ public class Repository
     @XmlAttribute
     private String id;
 
-    @XmlAttribute(name = "basedir")
+    @XmlAttribute
     private String basedir;
 
     @XmlAttribute

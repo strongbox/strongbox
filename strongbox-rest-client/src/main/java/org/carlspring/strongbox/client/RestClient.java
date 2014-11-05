@@ -218,41 +218,25 @@ public class RestClient extends ArtifactClient
         return repository;
     }
 
-    public String search(String query, String format)
+    public String search(String query, MediaType mediaType)
             throws UnsupportedEncodingException
     {
-        return search(null, query, format, true);
+        return search(null, query, mediaType);
     }
 
-    public String search(String query, String format, boolean indent)
-            throws UnsupportedEncodingException
-    {
-        return search(null, query, format, indent);
-    }
-
-    public String search(String repository, String query, String format)
-            throws UnsupportedEncodingException
-    {
-        return search(repository, query, format, true);
-    }
-
-    public String search(String repository, String query, String format, boolean indent)
+    public String search(String repository, String query, MediaType mediaType)
             throws UnsupportedEncodingException
     {
         Client client = ClientBuilder.newClient();
 
         String url = getContextBaseUrl() + "/search?" +
                      (repository != null ? "repository=" + URLEncoder.encode(repository, "UTF-8") : "") +
-                     "&q=" + URLEncoder.encode(query, "UTF-8") +
-                     "&format=" + URLEncoder.encode(format, "UTF-8") +
-                     "&indent=" + indent;
+                     "&q=" + URLEncoder.encode(query, "UTF-8");
 
         WebTarget webResource = client.target(url);
         setupAuthentication(webResource);
 
-        final Response response = webResource.request(MediaType.TEXT_PLAIN,
-                                                      MediaType.APPLICATION_XML,
-                                                      MediaType.APPLICATION_JSON).get();
+        final Response response = webResource.request(mediaType).get();
 
         final String asText = response.readEntity(String.class);
 

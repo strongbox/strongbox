@@ -12,22 +12,22 @@ import java.util.List;
 public class ProxyConfiguration
 {
 
-    @XmlElement(name = "host")
+    @XmlAttribute
     private String host;
 
-    @XmlElement(name = "port")
+    @XmlAttribute
     private int port;
 
-    @XmlElement(name = "username")
+    @XmlAttribute
     private String username;
 
-    @XmlElement(name = "password")
+    @XmlAttribute
     private String password;
 
     /**
      * Proxy type (HTTP, SOCKS5, etc)
      */
-    @XmlElement(name = "type")
+    @XmlAttribute
     private String type;
 
     @XmlElement(name = "non-proxy-host")

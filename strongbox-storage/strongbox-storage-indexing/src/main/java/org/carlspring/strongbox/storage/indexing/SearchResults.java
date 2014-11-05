@@ -1,32 +1,31 @@
 package org.carlspring.strongbox.storage.indexing;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import javax.xml.bind.annotation.*;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * @author mtodorov
  */
+@XmlRootElement(name = "artifacts")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class SearchResults
 {
 
-    /**
-     * K: storage:repository
-     * V: searchResults
-     */
-    private Map<String, Collection<SearchResult>> results = new LinkedHashMap<>();
+    @XmlElement(name = "artifact")
+    private Set<SearchResult> results = new LinkedHashSet<>();
 
 
     public SearchResults()
     {
     }
 
-    public Map<String, Collection<SearchResult>> getResults()
+    public Set<SearchResult> getResults()
     {
         return results;
     }
 
-    public void setResults(Map<String, Collection<SearchResult>> results)
+    public void setResults(Set<SearchResult> results)
     {
         this.results = results;
     }
