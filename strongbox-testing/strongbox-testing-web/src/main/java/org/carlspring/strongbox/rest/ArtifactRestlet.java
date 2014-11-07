@@ -2,6 +2,7 @@ package org.carlspring.strongbox.rest;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.resource.ResourceCloser;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
@@ -62,6 +63,10 @@ public class ArtifactRestlet
         {
             // TODO: Figure out if this is the correct response type...
             throw new WebApplicationException(e, Response.Status.FORBIDDEN);
+        }
+        finally
+        {
+            ResourceCloser.close(os, logger);
         }
     }
 

@@ -1,9 +1,9 @@
 package org.carlspring.strongbox.services.impl;
 
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.DataCenter;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.visitors.ArtifactPomVisitor;
 
 import java.io.*;
@@ -11,8 +11,8 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.regex.Matcher;
 
 import org.apache.maven.artifact.Artifact;
@@ -70,7 +70,7 @@ public class ArtifactMetadataServiceImpl
         Files.walkFileTree(basePath, artifactPomVisitor);
 
         // Pass the file list to the metadata generator
-        generateMetadata(storageId, repositoryId, artifact, artifactPomVisitor.foundPaths);
+        generateMetadata(storageId, repositoryId, artifact, artifactPomVisitor.matchingPaths);
     }
 
     public Path getArtifactBasePath(String storageId, String repositoryId, Artifact artifact)
@@ -88,7 +88,7 @@ public class ArtifactMetadataServiceImpl
     private void generateMetadata(String storageId,
                                   String repositoryId,
                                   Artifact artifact,
-                                  ArrayList<Path> foundFiles)
+                                  List<Path> foundFiles)
             throws IOException, XmlPullParserException
     {
         if (foundFiles.size() > 0)

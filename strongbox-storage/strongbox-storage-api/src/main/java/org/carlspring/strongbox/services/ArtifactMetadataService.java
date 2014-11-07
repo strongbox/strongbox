@@ -17,4 +17,5 @@ public interface ArtifactMetadataService
 
     public void rebuildMetadata(String storageId, String repositoryId, Artifact artifact)
             throws IOException, XmlPullParserException;
+
 }

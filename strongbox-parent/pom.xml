@@ -41,7 +41,9 @@
 
         <license.licenseName>apache_v2</license.licenseName>
 
+        <version.maven.indexer>6.0-SNAPSHOT</version.maven.indexer>
         <version.maven.commons>1.4-SNAPSHOT</version.maven.commons>
+        <version.jackson>2.4.3</version.jackson>
         <version.jersey>2.13</version.jersey>
         <version.jetty>9.2.3.v20140905</version.jetty>
         <version.lucene>4.8.1</version.lucene>
@@ -171,6 +173,27 @@
             </dependency>
 
             <dependency>
+                <groupId>javax.ws.rs</groupId>
+                <artifactId>javax.ws.rs-api</artifactId>
+                <version>2.0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${version.jackson}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.module</groupId>
+                <artifactId>jackson-module-jaxb-annotations</artifactId>
+                <version>${version.jackson}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${version.jackson}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.glassfish.jersey.core</groupId>
                 <artifactId>jersey-common</artifactId>
                 <version>${version.jersey}</version>
@@ -178,6 +201,11 @@
             <dependency>
                 <groupId>org.glassfish.jersey.containers</groupId>
                 <artifactId>jersey-container-servlet-core</artifactId>
+                <version>${version.jersey}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.media</groupId>
+                <artifactId>jersey-media-json-jackson</artifactId>
                 <version>${version.jersey}</version>
             </dependency>
             <dependency>
@@ -242,7 +270,7 @@
             <dependency>
                 <groupId>org.apache.maven.indexer</groupId>
                 <artifactId>indexer-core</artifactId>
-                <version>6.0-SNAPSHOT</version>
+                <version>${version.maven.indexer}</version>
             </dependency>
 
             <dependency>

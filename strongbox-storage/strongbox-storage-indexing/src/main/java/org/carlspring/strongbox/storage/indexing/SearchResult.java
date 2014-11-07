@@ -30,7 +30,10 @@ public class SearchResult
     private String extension;
 
     @XmlElement
-    private String repository;
+    private String storageId;
+
+    @XmlElement
+    private String repositoryId;
 
     @XmlElement
     private String path;
@@ -43,7 +46,8 @@ public class SearchResult
     {
     }
 
-    public SearchResult(String repository,
+    public SearchResult(String storageId,
+                        String repositoryId,
                         String groupId,
                         String artifactId,
                         String version,
@@ -52,14 +56,35 @@ public class SearchResult
                         String path,
                         String url)
     {
+        this.storageId = storageId;
+        this.repositoryId = repositoryId;
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
         this.classifier = classifier;
         this.extension = extension;
-        this.repository = repository;
         this.path = path;
         this.url = url;
+    }
+
+    public String getStorageId()
+    {
+        return storageId;
+    }
+
+    public void setStorageId(String storageId)
+    {
+        this.storageId = storageId;
+    }
+
+    public String getRepositoryId()
+    {
+        return repositoryId;
+    }
+
+    public void setRepositoryId(String repositoryId)
+    {
+        this.repositoryId = repositoryId;
     }
 
     public String getGroupId()
@@ -112,16 +137,6 @@ public class SearchResult
         this.extension = extension;
     }
 
-    public String getRepository()
-    {
-        return repository;
-    }
-
-    public void setRepository(String repository)
-    {
-        this.repository = repository;
-    }
-
     public String getPath()
     {
         return path;
@@ -151,7 +166,8 @@ public class SearchResult
     public static void main(String[] args)
             throws JAXBException
     {
-        SearchResult sr1 = new SearchResult("releases",
+        SearchResult sr1 = new SearchResult("storage0",
+                                            "releases",
                                             "org.foo",
                                             "bar",
                                             "1.0",
@@ -160,7 +176,8 @@ public class SearchResult
                                             "org/foo/bar/1.0/bar-1.0.jar",
                                             "http://localhost:48080/storages/storage0/releases/org/foo/bar/1.0/bar-1.0.jar");
 
-        SearchResult sr2 = new SearchResult("releases",
+        SearchResult sr2 = new SearchResult("storage0",
+                                            "releases",
                                             "org.foo",
                                             "bar",
                                             "1.1",
@@ -169,7 +186,8 @@ public class SearchResult
                                             "org/foo/bar/1.1/bar-1.1.jar",
                                             "http://localhost:48080/storages/storage0/releases/org/foo/bar/1.1/bar-1.1.jar");
 
-        SearchResult sr3 = new SearchResult("snapshots",
+        SearchResult sr3 = new SearchResult("storage0",
+                                            "snapshots",
                                             "org.foo",
                                             "bar",
                                             "1.0-SNAPSHOT",
@@ -178,7 +196,8 @@ public class SearchResult
                                             "org/foo/bar/1.0-SNAPSHOT/bar-1.0-SNAPSHOT.jar",
                                             "http://localhost:48080/storages/storage0/snapshots/org/foo/bar/1.0-SNAPSHOT/bar-1.0-SNAPSHOT.jar");
 
-        SearchResult sr4 = new SearchResult("snapshots",
+        SearchResult sr4 = new SearchResult("storage0",
+                                            "snapshots",
                                             "org.foo",
                                             "bar",
                                             "1.1-SNAPSHOT",
@@ -187,7 +206,8 @@ public class SearchResult
                                             "org/foo/bar/1.1-SNAPSHOT/bar-1.1-SNAPSHOT.jar",
                                             "http://localhost:48080/storages/storage0/snapshots/org/foo/bar/1.1-SNAPSHOT/bar-1.1-SNAPSHOT.jar");
 
-        SearchResult sr5 = new SearchResult("snapshots",
+        SearchResult sr5 = new SearchResult("storage0",
+                                            "snapshots",
                                             "org.foo",
                                             "bar",
                                             "1.2-SNAPSHOT",
@@ -212,7 +232,6 @@ public class SearchResult
         SearchResults searchResults = new SearchResults();
         searchResults.setResults(results);
 
-        // GenericParser<ArrayList<SearchResult>> parser = new GenericParser<>(ArrayList.class);
         GenericParser<SearchResults> parser = new GenericParser<>(SearchResults.class);
         parser.store(searchResults, System.out);
     }

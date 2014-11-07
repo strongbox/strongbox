@@ -4,6 +4,8 @@ import javax.xml.bind.annotation.*;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.springframework.util.StringUtils;
+
 /**
  * @author mtodorov
  */
@@ -28,6 +30,29 @@ public class SearchResults
     public void setResults(Set<SearchResult> results)
     {
         this.results = results;
+    }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        for (SearchResult artifact : results)
+        {
+            sb.append(artifact.getStorageId()).append(':').append(artifact.getRepositoryId()).append(' ');
+            sb.append(artifact.getGroupId()).append(':');
+            sb.append(artifact.getArtifactId()).append(':');
+            sb.append(artifact.getVersion()).append(':');
+            sb.append(artifact.getExtension()).append(':');
+            if (!StringUtils.isEmpty(artifact.getClassifier()))
+            {
+                sb.append(artifact.getClassifier()).append(' ');
+            }
+            sb.append(artifact.getUrl());
+            sb.append('\n');
+        }
+
+        return sb.toString();
     }
 
 }

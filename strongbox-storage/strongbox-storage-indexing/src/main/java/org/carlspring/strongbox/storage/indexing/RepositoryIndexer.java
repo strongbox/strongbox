@@ -221,7 +221,8 @@ public class RepositoryIndexer
             String path = artifactInfo.getPath();
             String url = getURLForArtifact(storageId, repositoryId, path);
 
-            final SearchResult result = new SearchResult(artifactInfo.getRepository(),
+            final SearchResult result = new SearchResult(storageId,
+                                                         artifactInfo.getRepository(),
                                                          artifactInfo.getGroupId(),
                                                          artifactInfo.getArtifactId(),
                                                          artifactInfo.getVersion(),

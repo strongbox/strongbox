@@ -30,6 +30,10 @@
             <param-value>org.carlspring.strongbox.rest.app.StrongboxApplication</param-value>
         </init-param>
         <init-param>
+            <param-name>jersey.config.xml.formatOutput</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <init-param>
             <param-name>jersey.config.server.provider.packages</param-name>
             <param-value>org.carlspring.strongbox</param-value>
         </init-param>

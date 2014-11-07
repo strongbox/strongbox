@@ -65,7 +65,6 @@ public class SearchRestletTest
     }
 
     @Test
-    @Ignore
     public void testSearchJSON()
             throws Exception
     {
@@ -79,7 +78,6 @@ public class SearchRestletTest
     }
 
     @Test
-    @Ignore
     public void testSearchPlainText()
             throws Exception
     {

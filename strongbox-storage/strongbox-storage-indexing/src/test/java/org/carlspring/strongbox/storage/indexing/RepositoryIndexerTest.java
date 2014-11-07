@@ -91,7 +91,7 @@ public class RepositoryIndexerTest
         Collection<ArtifactInfo> artifactInfos = new LinkedHashSet<>();
         for (SearchResult result : results)
         {
-            artifactInfos.add(new ArtifactInfo(result.getRepository(),
+            artifactInfos.add(new ArtifactInfo(result.getRepositoryId(),
                                                result.getGroupId(),
                                                result.getArtifactId(),
                                                result.getVersion(),

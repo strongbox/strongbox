@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author stodorov
@@ -14,7 +15,7 @@ public class ArtifactPomVisitor
 
     private PathMatcher matcher;
 
-    public ArrayList<Path> foundPaths = new ArrayList<>();
+    public List<Path> matchingPaths = new ArrayList<>();
 
 
     public ArtifactPomVisitor()
@@ -30,7 +31,7 @@ public class ArtifactPomVisitor
         Path name = file.getFileName();
         if (matcher.matches(name))
         {
-            foundPaths.add(file);
+            matchingPaths.add(file);
         }
 
         return FileVisitResult.CONTINUE;

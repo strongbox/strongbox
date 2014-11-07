@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.client;
 
+import org.carlspring.strongbox.rest.ObjectMapperProvider;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
+import org.glassfish.jersey.jackson.JacksonFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -227,7 +229,10 @@ public class RestClient extends ArtifactClient
     public String search(String repository, String query, MediaType mediaType)
             throws UnsupportedEncodingException
     {
-        Client client = ClientBuilder.newClient();
+        final Client client = ClientBuilder.newBuilder()
+                                           .register(ObjectMapperProvider.class)
+                                           .register(JacksonFeature.class)
+                                           .build();
 
         String url = getContextBaseUrl() + "/search?" +
                      (repository != null ? "repository=" + URLEncoder.encode(repository, "UTF-8") : "") +
@@ -238,9 +243,8 @@ public class RestClient extends ArtifactClient
 
         final Response response = webResource.request(mediaType).get();
 
+        //noinspection UnnecessaryLocalVariable
         final String asText = response.readEntity(String.class);
-
-        logger.info(asText);
 
         return asText;
     }
