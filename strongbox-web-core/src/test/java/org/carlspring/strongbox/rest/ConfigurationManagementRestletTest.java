@@ -36,7 +36,7 @@ public class ConfigurationManagementRestletTest
         int status = client.setListeningPort(newPort);
 
         assertEquals("Failed to set port!", 200, status);
-        assertEquals("Failed to get port!", newPort, client.getPort());
+        assertEquals("Failed to get port!", newPort, client.getListeningPort());
     }
 
     @Test

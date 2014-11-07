@@ -56,7 +56,7 @@ public class RestClient extends ArtifactClient
      * Get the port on which the server is listening.
      * @return      The port on which the server is listening.
      */
-    public int getPort()
+    public int getListeningPort()
     {
         Client client = ClientBuilder.newClient();
 
