@@ -46,8 +46,9 @@ public class SearchResults
             sb.append(artifact.getExtension()).append(':');
             if (!StringUtils.isEmpty(artifact.getClassifier()))
             {
-                sb.append(artifact.getClassifier()).append(' ');
+                sb.append(artifact.getClassifier());
             }
+            sb.append(' ');
             sb.append(artifact.getUrl());
             sb.append('\n');
         }
