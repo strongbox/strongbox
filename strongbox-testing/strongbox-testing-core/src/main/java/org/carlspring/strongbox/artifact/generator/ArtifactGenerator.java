@@ -107,17 +107,24 @@ public class ArtifactGenerator
                                    "pom.xml");
         zos.putNextEntry(ze);
 
-        FileInputStream fis = new FileInputStream(pomFile);
-
-        byte[] buffer = new byte[4096];
-        int len;
-        while ((len = fis.read(buffer)) > 0)
+        FileInputStream fis = null;
+        try
         {
-            zos.write(buffer, 0, len);
-        }
+            fis = new FileInputStream(pomFile);
 
-        fis.close();
-        zos.closeEntry();
+            byte[] buffer = new byte[4096];
+            int len;
+            while ((len = fis.read(buffer)) > 0)
+            {
+                zos.write(buffer, 0, len);
+            }
+        }
+        finally
+        {
+            ResourceCloser.close(fis, logger);
+
+            zos.closeEntry();
+        }
     }
 
     private void createMavenPropertiesFile(Artifact artifact, ZipOutputStream zos)
