@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.storage.indexing;
 
+import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.configuration.Configuration;
 
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
@@ -9,6 +10,8 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.Version;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.DefaultArtifact;
+import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.apache.maven.index.*;
 import org.apache.maven.index.Scanner;
 import org.apache.maven.index.context.IndexCreator;
@@ -218,7 +221,16 @@ public class RepositoryIndexer
         Set<SearchResult> results = new LinkedHashSet<>(artifactInfos.size());
         for (ArtifactInfo artifactInfo : artifactInfos)
         {
-            String path = artifactInfo.getPath();
+            Artifact artifact = new DefaultArtifact(artifactInfo.getGroupId(),
+                                                    artifactInfo.getArtifactId(),
+                                                    artifactInfo.getVersion(),
+                                                    "compile",
+                                                    artifactInfo.getFileExtension(),
+                                                    artifactInfo.getClassifier(),
+                                                    // This particular part is not quite smart, but should do:
+                                                    new DefaultArtifactHandler(artifactInfo.getFileExtension()));
+
+            String path = ArtifactUtils.convertArtifactToPath(artifact);
             String url = getURLForArtifact(storageId, repositoryId, path);
 
             final SearchResult result = new SearchResult(storageId,
