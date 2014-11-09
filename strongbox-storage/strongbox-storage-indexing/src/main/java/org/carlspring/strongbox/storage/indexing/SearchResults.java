@@ -43,9 +43,10 @@ public class SearchResults
             sb.append(artifact.getGroupId()).append(':');
             sb.append(artifact.getArtifactId()).append(':');
             sb.append(artifact.getVersion()).append(':');
-            sb.append(artifact.getExtension()).append(':');
+            sb.append(artifact.getExtension());
             if (!StringUtils.isEmpty(artifact.getClassifier()))
             {
+                sb.append(':');
                 sb.append(artifact.getClassifier());
             }
             sb.append(' ');
