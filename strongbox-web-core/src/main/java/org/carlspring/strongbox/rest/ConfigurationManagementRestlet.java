@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.rest;
 
+import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
@@ -33,9 +34,30 @@ public class ConfigurationManagementRestlet
     private ConfigurationManagementService configurationManagementService;
 
 
-    // TODO: 1) Implement XML config upload    /xml/add
-    // TODO: 2) Implement XML config download  /xml/get
+    @PUT
+    @Path("/xml")
+    public Response setConfiguration(Configuration configuration)
+            throws IOException,
+                   AuthenticationException,
+                   JAXBException
+    {
+        configurationManagementService.setConfiguration(configuration);
 
+        logger.info("Received new configuration over REST.");
+
+        return Response.ok().build();
+    }
+
+    @GET
+    @Path("/xml")
+    @Produces(MediaType.APPLICATION_XML)
+    public Response getConfiguration()
+            throws IOException, ParseException
+    {
+        logger.debug("Received configuration request.");
+
+        return Response.status(Response.Status.OK).entity(configurationManagementService.getConfiguration()).build();
+    }
 
     @PUT
     @Path("/baseUrl/{baseUrl:.*}")
@@ -99,19 +121,35 @@ public class ConfigurationManagementRestlet
     @GET
     @Path("/proxy-configuration")
     @Produces(MediaType.APPLICATION_XML)
-    public ProxyConfiguration getProxyConfiguration(@QueryParam("storageId") String storageId,
-                                                    @QueryParam("repositoryId") String repositoryId)
+    public Response getProxyConfiguration(@QueryParam("storageId") String storageId,
+                                          @QueryParam("repositoryId") String repositoryId)
             throws IOException, JAXBException
     {
+        ProxyConfiguration proxyConfiguration = null;
         if (storageId == null)
         {
-            return configurationManagementService.getProxyConfiguration();
+            proxyConfiguration = configurationManagementService.getProxyConfiguration();
         }
         else
         {
-            return configurationManagementService.getStorage(storageId)
-                                                 .getRepository(repositoryId)
-                                                 .getProxyConfiguration();
+            proxyConfiguration = configurationManagementService.getStorage(storageId)
+                                                               .getRepository(repositoryId)
+                                                               .getProxyConfiguration();
+        }
+
+        if (proxyConfiguration != null)
+        {
+            return Response.status(Response.Status.OK).entity(proxyConfiguration).build();
+        }
+        else
+        {
+            String message = "Proxy configuration" +
+                             (storageId != null ? " for " + storageId + ":" + repositoryId : "") +
+                             " not found.";
+
+            return Response.status(Response.Status.NOT_FOUND)
+                           .entity(message)
+                           .build();
         }
     }
 
@@ -140,7 +178,9 @@ public class ConfigurationManagementRestlet
         }
         else
         {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.status(Response.Status.NOT_FOUND)
+                           .entity("Storage " + storageId + " not found.")
+                           .build();
         }
     }
 
@@ -159,7 +199,9 @@ public class ConfigurationManagementRestlet
         }
         else
         {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.status(Response.Status.NOT_FOUND)
+                           .entity("Storage " + storageId + " not found.")
+                           .build();
         }
     }
 
@@ -191,7 +233,9 @@ public class ConfigurationManagementRestlet
         }
         else
         {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.status(Response.Status.NOT_FOUND)
+                           .entity("Repository " + storageId + ":" + repositoryId + " not found.")
+                           .build();
         }
     }
 
@@ -224,7 +268,9 @@ public class ConfigurationManagementRestlet
         }
         else
         {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.status(Response.Status.NOT_FOUND)
+                           .entity("Repository " + storageId + ":" + repositoryId + " not found.")
+                           .build();
         }
     }
 

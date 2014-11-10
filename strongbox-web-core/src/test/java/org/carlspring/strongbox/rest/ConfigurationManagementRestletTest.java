@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.rest;
 
 import org.carlspring.strongbox.client.RestClient;
+import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author mtodorov
@@ -27,9 +29,6 @@ import static org.junit.Assert.*;
                                     "classpath*:/META-INF/spring/strongbox-*-context.xml" })
 public class ConfigurationManagementRestletTest
 {
-
-    @Autowired
-    private AssignedPorts assignedPorts;
 
     private RestClient client = new RestClient();
 
@@ -65,13 +64,18 @@ public class ConfigurationManagementRestletTest
     public void testSetAndGetGlobalProxyConfiguration()
             throws Exception
     {
+        List<String> nonProxyHosts = new ArrayList<>();
+        nonProxyHosts.add("localhost");
+        nonProxyHosts.add("some-hosts.com");
+
         ProxyConfiguration proxyConfiguration = createProxyConfiguration();
+        proxyConfiguration.setNonProxyHosts(nonProxyHosts);
 
         int status = client.setProxyConfiguration(proxyConfiguration);
 
         assertEquals("Failed to set proxy configuration!", 200, status);
 
-        ProxyConfiguration pc = client.getProxyConfiguration();
+        ProxyConfiguration pc = client.getProxyConfiguration(null, null);
 
         assertNotNull("Failed to get proxy configuration!", pc);
         assertEquals("Failed to get proxy configuration!", proxyConfiguration.getHost(), pc.getHost());
@@ -142,8 +146,18 @@ public class ConfigurationManagementRestletTest
         r1.setAllowsRedeployment(true);
         r1.setSecured(true);
         r1.setStorage(storage2);
+        r1.setProxyConfiguration(createProxyConfiguration());
 
         client.addRepository(r1);
+
+        final ProxyConfiguration pc = client.getProxyConfiguration(storageId, repositoryId);
+
+        assertNotNull("Failed to get proxy configuration!", pc);
+        assertEquals("Failed to get proxy configuration!", pc.getHost(), pc.getHost());
+        assertEquals("Failed to get proxy configuration!", pc.getPort(), pc.getPort());
+        assertEquals("Failed to get proxy configuration!", pc.getUsername(), pc.getUsername());
+        assertEquals("Failed to get proxy configuration!", pc.getPassword(), pc.getPassword());
+        assertEquals("Failed to get proxy configuration!", pc.getType(), pc.getType());
 
         Storage storage = client.getStorage(storageId);
 
@@ -168,60 +182,32 @@ public class ConfigurationManagementRestletTest
     }
 
     @Test
-    public void testAddGetDeleteRepository()
-            throws Exception
+    public void testGetAndSetConfiguration()
+            throws IOException, JAXBException
     {
-        String storageId = "storage0";
-        String repositoryId = "releases";
+        final Configuration configuration = client.getConfiguration();
 
-        final Repository repository = new Repository();
+        Storage storage = new Storage("storage3");
 
-        final Repository r = client.getRepository(storageId, repositoryId);
+        configuration.addStorage(storage);
 
-        assertNotNull("Failed to get r (" + storageId + ":" + ")!", r);
-        assertEquals("Failed to get r (" + storageId + ":" + repositoryId + ")!", repositoryId, r.getId());
+        final int response = client.setConfiguration(configuration);
 
+        assertEquals("Failed to retrieve configuration!", 200, response);
 
+        final Configuration c = client.getConfiguration();
+
+        assertNotNull("Failed to create storage3!", c.getStorage("storage3"));
     }
-
-    /*
-    @Test
-    public void testAddGetAndDeleteRepository()
-            throws Exception
-    {
-        Client client = ClientBuilder.newClient();
-
-        WebTarget resource = client.target(BASE_URL + "/strongbox/baseUrl/" + baseUrl);
-
-        Response response = resource.request(MediaType.TEXT_PLAIN)
-                                    .put(Entity.entity(baseUrl, MediaType.TEXT_PLAIN));
-
-        int status = response.getStatus();
-
-        assertEquals("Failed to set baseUrl!", 200, status);
-
-        resource = client.target(BASE_URL + "/strongbox/baseUrl");
-
-        String b = resource.request(MediaType.TEXT_PLAIN).get(String.class);
-
-        assertEquals("Failed to get baseUrl!", 200, status);
-        assertEquals("Failed to get baseUrl!", baseUrl, b);
-    }
-    */
 
     private ProxyConfiguration createProxyConfiguration()
     {
-        List<String> nonProxyHosts = new ArrayList<>();
-        nonProxyHosts.add("localhost");
-        nonProxyHosts.add("some-hosts.com");
-
         ProxyConfiguration proxyConfiguration = new ProxyConfiguration();
         proxyConfiguration.setHost("localhost");
         proxyConfiguration.setPort(8080);
         proxyConfiguration.setUsername("user1");
         proxyConfiguration.setPassword("pass2");
-        proxyConfiguration.setType("HTTP");
-        proxyConfiguration.setNonProxyHosts(nonProxyHosts);
+        proxyConfiguration.setType("http");
 
         return proxyConfiguration;
     }

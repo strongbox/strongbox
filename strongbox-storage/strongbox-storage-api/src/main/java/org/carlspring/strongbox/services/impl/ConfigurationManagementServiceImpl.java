@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.services.impl;
 
+import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
@@ -31,6 +32,21 @@ public class ConfigurationManagementServiceImpl implements ConfigurationManageme
     @Autowired
     private ConfigurationResourceResolver configurationResourceResolver;
 
+
+    @Override
+    public void setConfiguration(Configuration configuration)
+            throws IOException, JAXBException
+    {
+        configurationManager.setConfiguration(configuration);
+        configurationManager.store();
+    }
+
+    @Override
+    public Configuration getConfiguration()
+            throws IOException
+    {
+        return configurationManager.getConfiguration();
+    }
 
     @Override
     public String getBaseUrl()

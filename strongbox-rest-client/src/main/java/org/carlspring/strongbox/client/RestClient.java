@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.client;
 
+import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.rest.ObjectMapperProvider;
 import org.carlspring.strongbox.storage.Storage;
@@ -33,6 +34,52 @@ public class RestClient extends ArtifactClient
 
     private static final Logger logger = LoggerFactory.getLogger(RestClient.class);
 
+
+    public int setConfiguration(Configuration configuration)
+            throws IOException, JAXBException
+    {
+        Client client = ClientBuilder.newClient();
+
+        WebTarget resource = client.target(getContextBaseUrl() + "/configuration/strongbox/xml");
+
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        JAXBContext context = JAXBContext.newInstance(Configuration.class);
+
+        Marshaller marshaller = context.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        marshaller.marshal(configuration, baos);
+
+        Response response = resource.request(MediaType.APPLICATION_XML)
+                                    .put(Entity.entity(baos.toString("UTF-8"), MediaType.APPLICATION_XML));
+
+        return response.getStatus();
+    }
+
+    public Configuration getConfiguration()
+            throws IOException, JAXBException
+    {
+        Client client = ClientBuilder.newClient();
+
+        WebTarget resource = client.target(getContextBaseUrl() + "/configuration/strongbox/xml");
+
+        final Response response = resource.request(MediaType.APPLICATION_XML).get();
+
+        Configuration configuration = null;
+        if (response.getStatus() == 200)
+        {
+            final String xml = response.readEntity(String.class);
+
+            final ByteArrayInputStream baos = new ByteArrayInputStream(xml.getBytes());
+
+            JAXBContext context = JAXBContext.newInstance(Configuration.class);
+            Unmarshaller unmarshaller = context.createUnmarshaller();
+
+            configuration = (Configuration) unmarshaller.unmarshal(baos);
+        }
+
+        return configuration;
+    }
 
     /**
      * Sets the listening port.
@@ -118,12 +165,14 @@ public class RestClient extends ArtifactClient
         return response.getStatus();
     }
 
-    public ProxyConfiguration getProxyConfiguration()
+    public ProxyConfiguration getProxyConfiguration(String storageId, String repositoryId)
             throws JAXBException
     {
         Client client = ClientBuilder.newClient();
 
-        WebTarget resource = client.target(getContextBaseUrl() + "/configuration/strongbox/proxy-configuration");
+        WebTarget resource = client.target(getContextBaseUrl() + "/configuration/strongbox/proxy-configuration" +
+                                           (storageId != null && repositoryId != null ?
+                                            "?storageId=" + storageId + "&repositoryId=" + repositoryId : ""));
 
         final Response response = resource.request(MediaType.APPLICATION_XML).get();
 
@@ -196,11 +245,7 @@ public class RestClient extends ArtifactClient
         {
             final String xml = response.readEntity(String.class);
 
-            System.out.println(xml);
-
             final ByteArrayInputStream baos = new ByteArrayInputStream(xml.getBytes());
-
-            System.out.println(xml);
 
             JAXBContext context = JAXBContext.newInstance(Storage.class);
             Unmarshaller unmarshaller = context.createUnmarshaller();
@@ -247,8 +292,6 @@ public class RestClient extends ArtifactClient
         Marshaller marshaller = context.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         marshaller.marshal(repository, baos);
-
-        System.out.println(baos.toString("UTF-8"));
 
         Response response = resource.request(MediaType.APPLICATION_XML)
                                     .put(Entity.entity(baos.toString("UTF-8"), MediaType.APPLICATION_XML));

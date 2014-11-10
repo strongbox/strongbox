@@ -31,38 +31,45 @@ public class TrashRestlet
 
 
     @DELETE
-    @Path("{storage}/{repository}")
-    public Response delete(@PathParam("storage") String storage,
-                           @PathParam("repository") String repository)
+    @Path("{storageId}/{repositoryId}")
+    public Response delete(@PathParam("storageId") String storageId,
+                           @PathParam("repositoryId") String repositoryId)
             throws IOException
     {
-        logger.debug("Deleting trash for repository " + repository);
-
-        try
+        if (getDataCenter().getStorage(storageId).getRepository(repositoryId) != null)
         {
-            artifactManagementService.deleteTrash(storage, repository);
-        }
-        catch (ArtifactStorageException e)
-        {
-            throw new WebApplicationException(e, Response.Status.NOT_FOUND);
-        }
+            try
+            {
+                artifactManagementService.deleteTrash(storageId, repositoryId);
 
-        return Response.ok().build();
+                logger.debug("Deleted trash for repository " + repositoryId + ".");
+            }
+            catch (ArtifactStorageException e)
+            {
+                throw new WebApplicationException(e, Response.Status.NOT_FOUND);
+            }
+
+            return Response.ok().build();
+        }
+        else
+        {
+            return Response.status(Response.Status.NOT_FOUND).entity("Storage or repository could not be found!").build();
+        }
     }
 
     @DELETE
     public Response delete()
             throws IOException
     {
-        logger.debug("Deleting trash for all repositories...");
-
         try
         {
             artifactManagementService.deleteTrash();
+
+            logger.debug("Deleted trash for all repositories.");
         }
         catch (ArtifactStorageException e)
         {
-            throw new WebApplicationException(e, Response.Status.NOT_FOUND);
+            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
         }
 
         return Response.ok().build();

@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.services;
 
+import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -12,6 +13,12 @@ import java.io.IOException;
  */
 public interface ConfigurationManagementService
 {
+
+    void setConfiguration(Configuration configuration)
+            throws IOException, JAXBException;
+
+    Configuration getConfiguration()
+            throws IOException;
 
     String getBaseUrl()
             throws IOException;
