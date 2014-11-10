@@ -1,10 +1,6 @@
 package org.carlspring.strongbox.storage.indexing;
 
-import org.carlspring.strongbox.xml.parsers.GenericParser;
-
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.*;
-import java.util.*;
 
 /**
  * @author mtodorov
@@ -160,7 +156,7 @@ public class SearchResult
     @Override
     public String toString()
     {
-        return groupId + ':' + artifactId + ':' + version + ':' + extension + ':' + classifier ;
+        return groupId + ':' + artifactId + ':' + version + ':' + extension + ':' + classifier;
     }
 
 }

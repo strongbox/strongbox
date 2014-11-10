@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.services.impl;
 
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.Storage;
@@ -62,6 +63,34 @@ public class ConfigurationManagementServiceImpl implements ConfigurationManageme
     }
 
     @Override
+    public void setProxyConfiguration(String storageId,
+                                      String repositoryId,
+                                      ProxyConfiguration proxyConfiguration)
+            throws IOException, JAXBException
+    {
+        if (storageId != null && repositoryId != null)
+        {
+            configurationManager.getConfiguration()
+                                .getStorage(storageId)
+                                .getRepository(repositoryId)
+                                .setProxyConfiguration(proxyConfiguration);
+        }
+        else
+        {
+            configurationManager.getConfiguration().setProxyConfiguration(proxyConfiguration);
+        }
+
+        configurationManager.store();
+    }
+
+    @Override
+    public ProxyConfiguration getProxyConfiguration()
+            throws IOException, JAXBException
+    {
+        return configurationManager.getConfiguration().getProxyConfiguration();
+    }
+
+    @Override
     public void addOrUpdateStorage(Storage storage)
             throws IOException, JAXBException
     {
@@ -70,7 +99,7 @@ public class ConfigurationManagementServiceImpl implements ConfigurationManageme
 
         if (!storage.existsOnFileSystem())
         {
-            final File storageBaseDir = new File(storage.getBasedir(), storage.getId());
+            final File storageBaseDir = new File(storage.getBasedir());
 
             logger.debug("Creating directory for storage '" + storage.getId() +
                          "' (" + storageBaseDir.getAbsolutePath() + ")...");

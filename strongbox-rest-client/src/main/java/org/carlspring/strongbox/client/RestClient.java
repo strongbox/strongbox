@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.client;
 
+import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.rest.ObjectMapperProvider;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -96,6 +97,56 @@ public class RestClient extends ArtifactClient
         return resource.request(MediaType.TEXT_PLAIN).get(String.class);
     }
 
+    public int setProxyConfiguration(ProxyConfiguration proxyConfiguration)
+            throws IOException, JAXBException
+    {
+        Client client = ClientBuilder.newClient();
+
+        WebTarget resource = client.target(getContextBaseUrl() + "/configuration/strongbox/proxy-configuration");
+
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        JAXBContext context = JAXBContext.newInstance(ProxyConfiguration.class);
+
+        Marshaller marshaller = context.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        marshaller.marshal(proxyConfiguration, baos);
+
+        Response response = resource.request(MediaType.APPLICATION_XML)
+                                    .put(Entity.entity(baos.toString("UTF-8"), MediaType.APPLICATION_XML));
+
+        return response.getStatus();
+    }
+
+    public ProxyConfiguration getProxyConfiguration()
+            throws JAXBException
+    {
+        Client client = ClientBuilder.newClient();
+
+        WebTarget resource = client.target(getContextBaseUrl() + "/configuration/strongbox/proxy-configuration");
+
+        final Response response = resource.request(MediaType.APPLICATION_XML).get();
+
+        @SuppressWarnings("UnnecessaryLocalVariable")
+        ProxyConfiguration proxyConfiguration = null;
+        if (response.getStatus() == 200)
+        {
+            final String xml = response.readEntity(String.class);
+            final ByteArrayInputStream baos = new ByteArrayInputStream(xml.getBytes());
+
+            JAXBContext context = JAXBContext.newInstance(ProxyConfiguration.class);
+            Unmarshaller unmarshaller = context.createUnmarshaller();
+
+            proxyConfiguration = (ProxyConfiguration) unmarshaller.unmarshal(baos);
+        }
+        else
+        {
+            proxyConfiguration = new ProxyConfiguration();
+        }
+
+        return proxyConfiguration;
+    }
+
     /**
      * Creates a new storage.
      *
@@ -108,7 +159,7 @@ public class RestClient extends ArtifactClient
     {
         Client client = ClientBuilder.newClient();
 
-        WebTarget resource = client.target(getContextBaseUrl() + "/configuration/strongbox/storage/" + storage.getId());
+        WebTarget resource = client.target(getContextBaseUrl() + "/configuration/strongbox/storages");
 
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -136,44 +187,58 @@ public class RestClient extends ArtifactClient
     {
         Client client = ClientBuilder.newClient();
 
-        WebTarget resource = client.target(getContextBaseUrl() + "/configuration/strongbox/storage/" + storageId);
+        WebTarget resource = client.target(getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId);
 
-        final String xml = resource.request(MediaType.APPLICATION_XML).get(String.class);
+        final Response response = resource.request(MediaType.APPLICATION_XML).get();
 
-        final ByteArrayInputStream baos = new ByteArrayInputStream(xml.getBytes());
+        Storage storage = null;
+        if (response.getStatus() == 200)
+        {
+            final String xml = response.readEntity(String.class);
 
-        System.out.println(xml);
+            System.out.println(xml);
 
-        JAXBContext context = JAXBContext.newInstance(Storage.class);
-        Unmarshaller unmarshaller = context.createUnmarshaller();
+            final ByteArrayInputStream baos = new ByteArrayInputStream(xml.getBytes());
 
-        @SuppressWarnings("UnnecessaryLocalVariable")
-        Storage storage = (Storage) unmarshaller.unmarshal(baos);
+            System.out.println(xml);
+
+            JAXBContext context = JAXBContext.newInstance(Storage.class);
+            Unmarshaller unmarshaller = context.createUnmarshaller();
+
+            storage = (Storage) unmarshaller.unmarshal(baos);
+        }
 
         return storage;
     }
 
     /**
-     * Creates a new repository.
+     * Deletes a storage.
      *
-     * @param storageId     The ID of the storage object used to associate the repository with.
-     * @param repository    The repository object to create.
-     * @return              The response code.
-     * @throws IOException
+     * @param storageId     The storage to delete.
+     * @return
      */
-    public int addRepository(String storageId, Repository repository)
+    public int deleteStorage(String storageId)
+    {
+        Client client = ClientBuilder.newClient();
+
+        String url = getHost() + ":" + getPort() + "/configuration/strongbox/storages/" + storageId;
+
+        WebTarget webResource = client.target(url);
+        setupAuthentication(webResource);
+
+        Response response = webResource.request().delete();
+
+        return response.getStatus();
+    }
+
+    public int addRepository(Repository repository)
             throws IOException, JAXBException
     {
         Client client = ClientBuilder.newClient();
 
-        WebTarget resource = client.target(getContextBaseUrl() + "/configuration/strongbox/repository/" + storageId + "/" + repository.getId() +  "?" +
-                                           (repository.getPolicy() != null ? "policy=" + repository.getPolicy() : "") +
-                                           (repository.getImplementation() != null ? "&implementation=" + repository.getImplementation() : "") +
-                                           (repository.getType() != null ? "&type=" + repository.getType() : "") +
-                                           "&secured=" + repository.isSecured() +
-                                           "&trashEnabled=" + repository.isTrashEnabled() +
-                                           "&allowsForceDeletion=" + repository.allowsForceDeletion() +
-                                           "&allowsRedeployment=" + repository.allowsRedeployment());
+        WebTarget resource = client.target(getContextBaseUrl() + "/configuration/strongbox/storages/" +
+                                           repository.getStorage().getId() +
+                                           "/repository");
 
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -182,6 +247,8 @@ public class RestClient extends ArtifactClient
         Marshaller marshaller = context.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         marshaller.marshal(repository, baos);
+
+        System.out.println(baos.toString("UTF-8"));
 
         Response response = resource.request(MediaType.APPLICATION_XML)
                                     .put(Entity.entity(baos.toString("UTF-8"), MediaType.APPLICATION_XML));
@@ -199,25 +266,55 @@ public class RestClient extends ArtifactClient
      */
     public Repository getRepository(String storageId,
                                     String repositoryId)
-            throws java.io.IOException, JAXBException
+            throws IOException, JAXBException
     {
         Client client = ClientBuilder.newClient();
 
         WebTarget resource = client.target(getContextBaseUrl() +
-                                           "/configuration/strongbox/repository/" +
+                                           "/configuration/strongbox/storages/" +
                                            storageId + "/" + repositoryId);
 
-        final String xml = resource.request(MediaType.APPLICATION_XML).get(String.class);
+        final Response response = resource.request(MediaType.APPLICATION_XML).get();
 
-        final ByteArrayInputStream baos = new ByteArrayInputStream(xml.getBytes());
+        Repository repository = null;
+        if (response.getStatus() == 200)
+        {
+            final String xml = response.readEntity(String.class);
 
-        JAXBContext context = JAXBContext.newInstance(Repository.class);
-        Unmarshaller unmarshaller = context.createUnmarshaller();
+            final ByteArrayInputStream baos = new ByteArrayInputStream(xml.getBytes());
 
-        @SuppressWarnings("UnnecessaryLocalVariable")
-        Repository repository = (Repository) unmarshaller.unmarshal(baos);
+            JAXBContext context = JAXBContext.newInstance(Repository.class);
+            Unmarshaller unmarshaller = context.createUnmarshaller();
+
+            repository = (Repository) unmarshaller.unmarshal(baos);
+        }
 
         return repository;
+    }
+
+    /**
+     * Deletes a repository.
+     *
+     * @param storageId         The storage in which the repository to delete is under.
+     * @param repositoryId      The repository to delete.
+     * @return
+     */
+    public int deleteRepository(String storageId,
+                                String repositoryId,
+                                boolean deleteFromFileSystem)
+    {
+        Client client = ClientBuilder.newClient();
+
+        String url = getHost() + ":" + getPort() +
+                     "/configuration/strongbox/storages/" + storageId + "/" + repositoryId +
+                     (deleteFromFileSystem ? "?deleteFromFileSystem=true" : "");
+
+        WebTarget webResource = client.target(url);
+        setupAuthentication(webResource);
+
+        Response response = webResource.request().delete();
+
+        return response.getStatus();
     }
 
     public String search(String query, MediaType mediaType)

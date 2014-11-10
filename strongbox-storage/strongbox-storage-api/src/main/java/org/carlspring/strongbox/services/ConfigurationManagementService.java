@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.services;
 
+import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
@@ -24,6 +25,11 @@ public interface ConfigurationManagementService
     void setPort(int port)
             throws IOException, JAXBException;
 
+    void setProxyConfiguration(String storageId,
+                               String repositoryId,
+                               ProxyConfiguration proxyConfiguration)
+            throws IOException, JAXBException;
+
     void addOrUpdateStorage(Storage storage)
             throws IOException, JAXBException;
 
@@ -40,6 +46,9 @@ public interface ConfigurationManagementService
             throws IOException;
 
     void removeRepository(String storageId, String repositoryId)
+            throws IOException, JAXBException;
+
+    ProxyConfiguration getProxyConfiguration()
             throws IOException, JAXBException;
 
 }
