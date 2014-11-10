@@ -26,6 +26,13 @@
         <url>http://www.carlspring.org/</url>
     </organization>
 
+    <developers>
+        <developer>
+            <name>Martin Todorov</name>
+            <email>carlspring@gmail.com</email>
+        </developer>
+    </developers>
+
     <inceptionYear>2014</inceptionYear>
 
     <properties>
