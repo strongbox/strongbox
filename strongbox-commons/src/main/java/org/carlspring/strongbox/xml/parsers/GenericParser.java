@@ -10,6 +10,9 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import java.io.*;
 import java.net.URL;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
@@ -25,7 +28,7 @@ public class GenericParser<T>
 
     private ReentrantLock lock = new ReentrantLock();
 
-    private Class clazz;
+    private Set<Class> classes = new LinkedHashSet<Class>();
 
     private JAXBContext context;
 
@@ -37,13 +40,9 @@ public class GenericParser<T>
     }
 
 
-    protected GenericParser()
+    public GenericParser(Class... classes)
     {
-    }
-
-    public GenericParser(Class clazz)
-    {
-        this.clazz = clazz;
+        Collections.addAll(this.classes, classes);
     }
 
     public T parse(File file)
@@ -146,12 +145,12 @@ public class GenericParser<T>
         }
     }
 
-    private JAXBContext getContext()
+    public JAXBContext getContext()
             throws JAXBException
     {
         if (context == null)
         {
-            context = JAXBContext.newInstance(clazz);
+            context = JAXBContext.newInstance(classes.toArray(new Class[classes.size()]));
         }
 
         return context;
