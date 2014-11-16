@@ -20,7 +20,7 @@ import org.springframework.core.io.Resource;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Configuration
+public class Configuration extends ServerConfiguration
 {
 
     @XmlElement
@@ -45,9 +45,6 @@ public class Configuration
     @XmlElement(name = "storages")
     @XmlJavaTypeAdapter(StorageMapAdapter.class)
     private Map<String, Storage> storages = new LinkedHashMap<String, Storage>();
-
-    @XmlTransient
-    private Resource resource;
 
 
     public Configuration()
@@ -117,16 +114,6 @@ public class Configuration
     public void removeStorage(Storage storage)
     {
         storages.remove(storage.getBasedir());
-    }
-
-    public Resource getResource()
-    {
-        return resource;
-    }
-
-    public void setResource(Resource resource)
-    {
-        this.resource = resource;
     }
 
 }

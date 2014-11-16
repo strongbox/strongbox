@@ -2,6 +2,7 @@ package org.carlspring.strongbox.client;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
+import org.carlspring.strongbox.configuration.ServerConfiguration;
 import org.carlspring.strongbox.rest.ObjectMapperProvider;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -38,13 +39,25 @@ public class RestClient extends ArtifactClient
     public int setConfiguration(Configuration configuration)
             throws IOException, JAXBException
     {
+        return setServerConfiguration(configuration, "/configuration/strongbox/xml", Configuration.class);
+    }
+
+    public Configuration getConfiguration()
+            throws IOException, JAXBException
+    {
+        return (Configuration) getServerConfiguration("/configuration/strongbox/xml", Configuration.class);
+    }
+
+    public int setServerConfiguration(ServerConfiguration configuration, String path, Class... clazz)
+            throws IOException, JAXBException
+    {
         Client client = ClientBuilder.newClient();
 
-        WebTarget resource = client.target(getContextBaseUrl() + "/configuration/strongbox/xml");
+        WebTarget resource = client.target(getContextBaseUrl() + path);
 
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        JAXBContext context = JAXBContext.newInstance(Configuration.class);
+        JAXBContext context = JAXBContext.newInstance(clazz);
 
         Marshaller marshaller = context.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
@@ -56,30 +69,32 @@ public class RestClient extends ArtifactClient
         return response.getStatus();
     }
 
-    public Configuration getConfiguration()
+    public ServerConfiguration getServerConfiguration(String path, Class... clazz)
             throws IOException, JAXBException
     {
         Client client = ClientBuilder.newClient();
 
-        WebTarget resource = client.target(getContextBaseUrl() + "/configuration/strongbox/xml");
+        WebTarget resource = client.target(getContextBaseUrl() + path);
 
         final Response response = resource.request(MediaType.APPLICATION_XML).get();
 
-        Configuration configuration = null;
+        ServerConfiguration configuration = null;
         if (response.getStatus() == 200)
         {
             final String xml = response.readEntity(String.class);
 
             final ByteArrayInputStream baos = new ByteArrayInputStream(xml.getBytes());
 
-            JAXBContext context = JAXBContext.newInstance(Configuration.class);
+            JAXBContext context = JAXBContext.newInstance(clazz);
             Unmarshaller unmarshaller = context.createUnmarshaller();
 
-            configuration = (Configuration) unmarshaller.unmarshal(baos);
+            configuration = (ServerConfiguration) unmarshaller.unmarshal(baos);
         }
 
         return configuration;
     }
+
+
 
     /**
      * Sets the listening port.
@@ -90,12 +105,11 @@ public class RestClient extends ArtifactClient
     public int setListeningPort(int port)
     {
         Client client = ClientBuilder.newClient();
-        int newPort = 18080;
 
-        WebTarget resource = client.target(getContextBaseUrl() + "/configuration/strongbox/port/" + newPort);
+        WebTarget resource = client.target(getContextBaseUrl() + "/configuration/strongbox/port/" + port);
 
         Response response = resource.request(MediaType.TEXT_PLAIN)
-                                    .put(Entity.entity(newPort, MediaType.TEXT_PLAIN));
+                                    .put(Entity.entity(port, MediaType.TEXT_PLAIN));
 
         return response.getStatus();
     }
