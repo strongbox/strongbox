@@ -10,7 +10,7 @@ import org.springframework.core.io.Resource;
  * @author mtodorov
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-public abstract class ServerConfiguration
+public abstract class ServerConfiguration<T>
 {
 
     @XmlTransient

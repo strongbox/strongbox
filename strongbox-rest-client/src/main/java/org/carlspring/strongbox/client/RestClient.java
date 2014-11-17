@@ -94,8 +94,6 @@ public class RestClient extends ArtifactClient
         return configuration;
     }
 
-
-
     /**
      * Sets the listening port.
      *

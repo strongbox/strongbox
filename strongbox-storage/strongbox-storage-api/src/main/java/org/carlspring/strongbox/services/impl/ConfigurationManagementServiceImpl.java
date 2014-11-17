@@ -37,6 +37,7 @@ public class ConfigurationManagementServiceImpl implements ConfigurationManageme
     public void setConfiguration(Configuration configuration)
             throws IOException, JAXBException
     {
+        //noinspection unchecked
         configurationManager.setConfiguration(configuration);
         configurationManager.store();
     }

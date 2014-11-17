@@ -2,7 +2,6 @@ package org.carlspring.strongbox.configuration;
 
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.annotation.PostConstruct;
 import javax.xml.bind.JAXBException;
@@ -20,16 +19,12 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope ("singleton")
-public class ConfigurationManager
+public class ConfigurationManager extends AbstractConfigurationManager<Configuration>
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationManager.class);
 
     private String configurationPath;
-
-    private Configuration configuration;
-
-    private GenericParser<Configuration> parser = new GenericParser<Configuration>(Configuration.class);
 
     @Autowired
     private ConfigurationResourceResolver configurationResourceResolver;
@@ -37,67 +32,42 @@ public class ConfigurationManager
 
     public ConfigurationManager()
     {
+        super(Configuration.class);
     }
 
     @PostConstruct
     public void init()
             throws IOException, JAXBException
     {
-        Resource resource = getConfigurationResource();
-
-        logger.info("Loading Strongbox configuration from " + resource.toString() + "...");
-
-        configuration = parser.parse(resource.getInputStream());
-        configuration.setResource(resource);
-
+        super.init();
         dump();
     }
 
     public void dump()
     {
-        logger.info("Configuration version: " + configuration.getVersion());
+        logger.info("Configuration version: " + getConfiguration().getVersion());
 
-        logger.info("Loading storages...");
-        for (String storageKey : configuration.getStorages().keySet())
+        if (!getConfiguration().getStorages().isEmpty())
         {
-            logger.info(" -> Storage: " + storageKey);
-
-            Storage storage = configuration.getStorages().get(storageKey);
-            for (String repositoryKey : storage.getRepositories().keySet())
+            logger.info("Loading storages...");
+            for (String storageKey : getConfiguration().getStorages().keySet())
             {
-                logger.info("    -> Repository: " + repositoryKey);
+                logger.info(" -> Storage: " + storageKey);
+
+                Storage storage = getConfiguration().getStorages().get(storageKey);
+                for (String repositoryKey : storage.getRepositories().keySet())
+                {
+                    logger.info("    -> Repository: " + repositoryKey);
+                }
             }
         }
     }
 
-    public void store()
-            throws IOException, JAXBException
-    {
-        store(configuration);
-    }
-
-    public void store(Configuration configuration)
-            throws IOException, JAXBException
-    {
-        Resource resource = getConfigurationResource();
-
-        parser.store(configuration, resource.getFile());
-    }
-
-    public void store(Configuration configuration, String file)
-            throws IOException, JAXBException
-    {
-        parser.store(configuration, file);
-    }
-
+    @SuppressWarnings("unchecked")
+    @Override
     public Configuration getConfiguration()
     {
-        return configuration;
-    }
-
-    public void setConfiguration(Configuration configuration)
-    {
-        this.configuration = configuration;
+        return (Configuration) super.getConfiguration();
     }
 
     public String getConfigurationPath()
