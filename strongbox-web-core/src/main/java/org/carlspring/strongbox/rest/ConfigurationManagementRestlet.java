@@ -41,11 +41,20 @@ public class ConfigurationManagementRestlet
                    AuthenticationException,
                    JAXBException
     {
-        configurationManagementService.setConfiguration(configuration);
+        try
+        {
+            configurationManagementService.setConfiguration(configuration);
 
-        logger.info("Received new configuration over REST.");
+            logger.info("Received new configuration over REST.");
 
-        return Response.ok().build();
+            return Response.ok().build();
+        }
+        catch (IOException | JAXBException e)
+        {
+            logger.error(e.getMessage(), e);
+
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GET
@@ -54,9 +63,18 @@ public class ConfigurationManagementRestlet
     public Response getConfiguration()
             throws IOException, ParseException
     {
-        logger.debug("Received configuration request.");
+        try
+        {
+            logger.debug("Received configuration request.");
 
-        return Response.status(Response.Status.OK).entity(configurationManagementService.getConfiguration()).build();
+            return Response.status(Response.Status.OK).entity(configurationManagementService.getConfiguration()).build();
+        }
+        catch (IOException e)
+        {
+            logger.error(e.getMessage(), e);
+
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @PUT
@@ -66,21 +84,37 @@ public class ConfigurationManagementRestlet
                    AuthenticationException,
                    JAXBException
     {
-        configurationManagementService.setBaseUrl(baseUrl);
+        try
+        {
+            configurationManagementService.setBaseUrl(baseUrl);
 
-        logger.info("Set baseUrl to " + baseUrl);
+            logger.info("Set baseUrl to " + baseUrl);
 
-        return Response.ok().build();
+            return Response.ok().build();
+        }
+        catch (IOException | JAXBException e)
+        {
+            logger.error(e.getMessage(), e);
+
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GET
     @Path("/baseUrl")
     @Produces(MediaType.TEXT_PLAIN)
-    public String getBaseUrl()
+    public Response getBaseUrl()
             throws IOException,
                    AuthenticationException
     {
-        return configurationManagementService.getBaseUrl();
+        if (configurationManagementService.getBaseUrl() != null)
+        {
+            return Response.status(Response.Status.OK).entity(configurationManagementService.getBaseUrl()).build();
+        }
+        else
+        {
+            return Response.status(Response.Status.NOT_FOUND).entity("No value for baseUrl has been defined yet.").build();
+        }
     }
 
     @PUT
@@ -88,11 +122,20 @@ public class ConfigurationManagementRestlet
     public Response setPort(@PathParam("port") int port)
             throws IOException, JAXBException
     {
-        configurationManagementService.setPort(port);
+        try
+        {
+            configurationManagementService.setPort(port);
 
-        logger.info("Set port to " + port + ". This operation will require a server restart.");
+            logger.info("Set port to " + port + ". This operation will require a server restart.");
 
-        return Response.ok().build();
+            return Response.ok().build();
+        }
+        catch (IOException | JAXBException e)
+        {
+            logger.error(e.getMessage(), e);
+
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GET
@@ -107,15 +150,24 @@ public class ConfigurationManagementRestlet
 
     @PUT
     @Path("/proxy-configuration")
-    @Produces(MediaType.APPLICATION_XML)
+    @Consumes(MediaType.APPLICATION_XML)
     public Response setProxyConfiguration(@QueryParam("storageId") String storageId,
                                           @QueryParam("repositoryId") String repositoryId,
                                           ProxyConfiguration proxyConfiguration)
             throws IOException, JAXBException
     {
-        configurationManagementService.setProxyConfiguration(storageId, repositoryId, proxyConfiguration);
+        try
+        {
+            configurationManagementService.setProxyConfiguration(storageId, repositoryId, proxyConfiguration);
 
-        return Response.ok().build();
+            return Response.ok().build();
+        }
+        catch (IOException | JAXBException e)
+        {
+            logger.error(e.getMessage(), e);
+
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GET
@@ -159,9 +211,18 @@ public class ConfigurationManagementRestlet
     public Response addOrUpdateStorage(Storage storage)
             throws IOException, JAXBException
     {
-        configurationManagementService.addOrUpdateStorage(storage);
+        try
+        {
+            configurationManagementService.addOrUpdateStorage(storage);
 
-        return Response.ok().build();
+            return Response.ok().build();
+        }
+        catch (IOException | JAXBException e)
+        {
+            logger.error(e.getMessage(), e);
+
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GET
@@ -191,11 +252,22 @@ public class ConfigurationManagementRestlet
     {
         if (configurationManagementService.getStorage(storageId) != null)
         {
-            configurationManagementService.removeStorage(storageId);
+            try
+            {
+                configurationManagementService.removeStorage(storageId);
 
-            logger.debug("Removed storage " + storageId + ".");
+                logger.debug("Removed storage " + storageId + ".");
 
-            return Response.ok().build();
+                return Response.ok().build();
+            }
+            catch (IOException | JAXBException e)
+            {
+                logger.error(e.getMessage(), e);
+
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                               .entity("Failed to remove storage " + storageId + "!")
+                               .build();
+            }
         }
         else
         {
@@ -212,9 +284,18 @@ public class ConfigurationManagementRestlet
                                           Repository repository)
             throws IOException, JAXBException
     {
-        configurationManagementService.addOrUpdateRepository(storageId, repository);
+        try
+        {
+            configurationManagementService.addOrUpdateRepository(storageId, repository);
 
-        return Response.ok().build();
+            return Response.ok().build();
+        }
+        catch (IOException | JAXBException e)
+        {
+            logger.error(e.getMessage(), e);
+
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GET
@@ -239,19 +320,6 @@ public class ConfigurationManagementRestlet
         }
     }
 
-    @PUT
-    @Path("/storages/{storageId}/{repositoryId}")
-    @Consumes (MediaType.APPLICATION_XML)
-    public Response addOrUpdateRepository(@PathParam("storageId") final String storageId,
-                                          @PathParam("repositoryId") final String repositoryId,
-                                          Repository repository)
-            throws IOException, JAXBException
-    {
-        configurationManagementService.addOrUpdateRepository(storageId, repository);
-
-        return Response.ok().build();
-    }
-
     @DELETE
     @Path("/storages/{storageId}/{repositoryId}")
     public Response removeRepository(@PathParam("storageId") final String storageId,
@@ -260,11 +328,22 @@ public class ConfigurationManagementRestlet
     {
         if (configurationManagementService.getStorage(storageId).getRepository(repositoryId) != null)
         {
-            configurationManagementService.getStorage(storageId).removeRepository(repositoryId);
+            try
+            {
+                configurationManagementService.getStorage(storageId).removeRepository(repositoryId);
 
-            logger.debug("Removed repository " + storageId + ":" + repositoryId + ".");
+                logger.debug("Removed repository " + storageId + ":" + repositoryId + ".");
 
-            return Response.ok().build();
+                return Response.ok().build();
+            }
+            catch (IOException e)
+            {
+                logger.error(e.getMessage(), e);
+
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                               .entity("Failed to remove repository " + repositoryId + "!")
+                               .build();
+            }
         }
         else
         {
