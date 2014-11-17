@@ -24,8 +24,6 @@ public class ConfigurationManager extends AbstractConfigurationManager<Configura
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationManager.class);
 
-    private String configurationPath;
-
     @Autowired
     private ConfigurationResourceResolver configurationResourceResolver;
 
@@ -68,16 +66,6 @@ public class ConfigurationManager extends AbstractConfigurationManager<Configura
     public Configuration getConfiguration()
     {
         return (Configuration) super.getConfiguration();
-    }
-
-    public String getConfigurationPath()
-    {
-        return configurationPath;
-    }
-
-    public void setConfigurationPath(String configurationPath)
-    {
-        this.configurationPath = configurationPath;
     }
 
     public Resource getConfigurationResource()
