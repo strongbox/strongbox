@@ -32,13 +32,22 @@ public class GenericParser<T>
 
     private JAXBContext context;
 
+
     static
     {
         final ClasspathURLStreamHandler handler = new ClasspathURLStreamHandler(ClassLoader.getSystemClassLoader());
         ClasspathURLStreamHandlerFactory factory = new ClasspathURLStreamHandlerFactory("classpath", handler);
-        URL.setURLStreamHandlerFactory(factory);
+        try
+        {
+            URL.setURLStreamHandlerFactory(factory);
+        }
+        catch (Error e)
+        {
+            // You can safely disregard this, as a second attempt to register a an already
+            // registered URLStreamHandlerFactory will throw an error. Since there's no
+            // apparent way to check if it's registered, just catch and ignore the error.
+        }
     }
-
 
     public GenericParser(Class... classes)
     {
