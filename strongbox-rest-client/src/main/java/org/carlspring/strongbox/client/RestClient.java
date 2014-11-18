@@ -293,9 +293,9 @@ public class RestClient extends ArtifactClient
     {
         Client client = ClientBuilder.newClient();
 
-        WebTarget resource = client.target(getContextBaseUrl() + "/configuration/strongbox/storages/" +
-                                           repository.getStorage().getId() +
-                                           "/repository");
+        WebTarget resource = client.target(getContextBaseUrl() +
+                                           "/configuration/strongbox/storages/" +
+                                           repository.getStorage().getId());
 
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
