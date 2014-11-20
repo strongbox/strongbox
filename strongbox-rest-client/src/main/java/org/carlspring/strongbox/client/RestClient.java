@@ -6,6 +6,7 @@ import org.carlspring.strongbox.configuration.ServerConfiguration;
 import org.carlspring.strongbox.rest.ObjectMapperProvider;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -13,10 +14,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -48,7 +46,7 @@ public class RestClient extends ArtifactClient
         return (Configuration) getServerConfiguration("/configuration/strongbox/xml", Configuration.class);
     }
 
-    public int setServerConfiguration(ServerConfiguration configuration, String path, Class... clazz)
+    public int setServerConfiguration(ServerConfiguration configuration, String path, Class... classes)
             throws IOException, JAXBException
     {
         Client client = ClientBuilder.newClient();
@@ -57,11 +55,8 @@ public class RestClient extends ArtifactClient
 
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        JAXBContext context = JAXBContext.newInstance(clazz);
-
-        Marshaller marshaller = context.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        marshaller.marshal(configuration, baos);
+        GenericParser<ServerConfiguration> parser = new GenericParser<ServerConfiguration>(classes);
+        parser.store(configuration, baos);
 
         Response response = resource.request(MediaType.APPLICATION_XML)
                                     .put(Entity.entity(baos.toString("UTF-8"), MediaType.APPLICATION_XML));
@@ -69,7 +64,7 @@ public class RestClient extends ArtifactClient
         return response.getStatus();
     }
 
-    public ServerConfiguration getServerConfiguration(String path, Class... clazz)
+    public ServerConfiguration getServerConfiguration(String path, Class... classes)
             throws IOException, JAXBException
     {
         Client client = ClientBuilder.newClient();
@@ -83,12 +78,11 @@ public class RestClient extends ArtifactClient
         {
             final String xml = response.readEntity(String.class);
 
-            final ByteArrayInputStream baos = new ByteArrayInputStream(xml.getBytes());
+            final ByteArrayInputStream bais = new ByteArrayInputStream(xml.getBytes());
 
-            JAXBContext context = JAXBContext.newInstance(clazz);
-            Unmarshaller unmarshaller = context.createUnmarshaller();
+            GenericParser<ServerConfiguration> parser = new GenericParser<ServerConfiguration>(classes);
 
-            configuration = (ServerConfiguration) unmarshaller.unmarshal(baos);
+            configuration = parser.parse(bais);
         }
 
         return configuration;
@@ -165,11 +159,8 @@ public class RestClient extends ArtifactClient
 
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        JAXBContext context = JAXBContext.newInstance(ProxyConfiguration.class);
-
-        Marshaller marshaller = context.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        marshaller.marshal(proxyConfiguration, baos);
+        GenericParser<ProxyConfiguration> parser = new GenericParser<ProxyConfiguration>(ProxyConfiguration.class);
+        parser.store(proxyConfiguration, baos);
 
         Response response = resource.request(MediaType.APPLICATION_XML)
                                     .put(Entity.entity(baos.toString("UTF-8"), MediaType.APPLICATION_XML));
@@ -193,12 +184,11 @@ public class RestClient extends ArtifactClient
         if (response.getStatus() == 200)
         {
             final String xml = response.readEntity(String.class);
-            final ByteArrayInputStream baos = new ByteArrayInputStream(xml.getBytes());
+            final ByteArrayInputStream bais = new ByteArrayInputStream(xml.getBytes());
 
-            JAXBContext context = JAXBContext.newInstance(ProxyConfiguration.class);
-            Unmarshaller unmarshaller = context.createUnmarshaller();
+            GenericParser<ProxyConfiguration> parser = new GenericParser<ProxyConfiguration>(ProxyConfiguration.class);
 
-            proxyConfiguration = (ProxyConfiguration) unmarshaller.unmarshal(baos);
+            proxyConfiguration = parser.parse(bais);
         }
         else
         {
@@ -224,11 +214,8 @@ public class RestClient extends ArtifactClient
 
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        JAXBContext context = JAXBContext.newInstance(Storage.class);
-
-        Marshaller marshaller = context.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        marshaller.marshal(storage, baos);
+        GenericParser<Storage> parser = new GenericParser<Storage>(Storage.class);
+        parser.store(storage, baos);
 
         Response response = resource.request(MediaType.APPLICATION_XML)
                                     .put(Entity.entity(baos.toString("UTF-8"), MediaType.APPLICATION_XML));
@@ -257,12 +244,11 @@ public class RestClient extends ArtifactClient
         {
             final String xml = response.readEntity(String.class);
 
-            final ByteArrayInputStream baos = new ByteArrayInputStream(xml.getBytes());
+            final ByteArrayInputStream bais = new ByteArrayInputStream(xml.getBytes());
 
-            JAXBContext context = JAXBContext.newInstance(Storage.class);
-            Unmarshaller unmarshaller = context.createUnmarshaller();
+            GenericParser<Storage> parser = new GenericParser<Storage>(Storage.class);
 
-            storage = (Storage) unmarshaller.unmarshal(baos);
+            storage = parser.parse(bais);
         }
 
         return storage;
@@ -299,11 +285,8 @@ public class RestClient extends ArtifactClient
 
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        JAXBContext context = JAXBContext.newInstance(Repository.class);
-
-        Marshaller marshaller = context.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        marshaller.marshal(repository, baos);
+        GenericParser<Repository> parser = new GenericParser<Repository>(Repository.class);
+        parser.store(repository, baos);
 
         Response response = resource.request(MediaType.APPLICATION_XML)
                                     .put(Entity.entity(baos.toString("UTF-8"), MediaType.APPLICATION_XML));
@@ -336,12 +319,11 @@ public class RestClient extends ArtifactClient
         {
             final String xml = response.readEntity(String.class);
 
-            final ByteArrayInputStream baos = new ByteArrayInputStream(xml.getBytes());
+            final ByteArrayInputStream bais = new ByteArrayInputStream(xml.getBytes());
 
-            JAXBContext context = JAXBContext.newInstance(Repository.class);
-            Unmarshaller unmarshaller = context.createUnmarshaller();
+            GenericParser<Repository> parser = new GenericParser<Repository>(Repository.class);
 
-            repository = (Repository) unmarshaller.unmarshal(baos);
+            repository = parser.parse(bais);
         }
 
         return repository;
