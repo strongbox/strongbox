@@ -24,15 +24,17 @@ public class ArtifactClient
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactClient.class);
 
-    public static final String MANAGEMENT_URL = "manage/artifact";
+    public static final String MANAGEMENT_URL = "/manage/artifact";
 
-    private String host = "http://localhost";
+    private String protocol = "http";
+
+    private String host = "localhost";
 
     private int port = System.getProperty("port.jetty.listen") != null ?
                        Integer.parseInt(System.getProperty("port.jetty.listen")) :
                        48080;
 
-    private String contextBaseUrl = "http://localhost:" + port;
+    private String contextBaseUrl;
 
     private String username = "maven";
 
@@ -49,8 +51,7 @@ public class ArtifactClient
                             InputStream is)
             throws ArtifactOperationException
     {
-        String url = (contextBaseUrl != null ? contextBaseUrl : host + ":" + port ) +
-                     "/storages/" + storage + "/" + repository + "/" +
+        String url = getContextBaseUrl() + "/storages/" + storage + "/" + repository + "/" +
                      ArtifactUtils.convertArtifactToPath(artifact);
 
         logger.debug("Deploying " + url + "...");
@@ -108,7 +109,7 @@ public class ArtifactClient
     {
         Client client = ClientBuilder.newClient();
 
-        String url = host + ":" + port + "/" + MANAGEMENT_URL + "/" +
+        String url = getContextBaseUrl() + MANAGEMENT_URL + "/" +
                      repository + "/state/EXISTS/length/" + length + "/" +
                      ArtifactUtils.convertArtifactToPath(artifact);
 
@@ -133,9 +134,7 @@ public class ArtifactClient
     {
         Client client = ClientBuilder.newClient();
 
-        String url = host + ":" + port + "/" + contextBaseUrl + "/" +
-                     repository + "/" +
-                     ArtifactUtils.convertArtifactToPath(artifact);
+        String url = getContextBaseUrl() + "/" + repository + "/" + ArtifactUtils.convertArtifactToPath(artifact);
 
         logger.debug("Getting " + url + "...");
 
@@ -198,7 +197,7 @@ public class ArtifactClient
         Client client = ClientBuilder.newClient();
 
         @SuppressWarnings("ConstantConditions")
-        String url = host + ":" + port + "/storages/" + storage + "/" + repository + "/" + path +
+        String url = getContextBaseUrl() + "/storages/" + storage + "/" + repository + "/" + path +
                      (force ? "?force=" + force : "");
 
         WebTarget webResource = client.target(url);
@@ -221,7 +220,7 @@ public class ArtifactClient
     {
         Client client = ClientBuilder.newClient();
 
-        String url = host + ":" + port + "/trash";
+        String url = getContextBaseUrl() + "/trash";
 
         WebTarget webResource = client.target(url);
         setupAuthentication(webResource);
@@ -269,7 +268,7 @@ public class ArtifactClient
     {
         Client client = ClientBuilder.newClient();
 
-        String url = host + ":" + port + (path.startsWith("/") ? path : '/' + path);
+        String url = getContextBaseUrl() + (path.startsWith("/") ? path : '/' + path);
 
         logger.debug("Path to artifact: " + url);
 
@@ -284,14 +283,13 @@ public class ArtifactClient
                                     String storage,
                                     String repository)
     {
-        return host + ":" + port + "/storages/" + storage + "/" +
-               repository + "/" +
+        return getContextBaseUrl() + "/storages/" + storage + "/" + repository + "/" +
                ArtifactUtils.convertArtifactToPath(artifact);
     }
 
     public String getUrlForTrash(String storage, String repository)
     {
-        return host + ":" + port + "/trash/" + storage + "/" + repository;
+        return getContextBaseUrl() + "/trash/" + storage + "/" + repository;
     }
 
     public void setupAuthentication(WebTarget target)
@@ -300,6 +298,16 @@ public class ArtifactClient
         {
             target.register(HttpAuthenticationFeature.basic(username, password));
         }
+    }
+
+    public String getProtocol()
+    {
+        return protocol;
+    }
+
+    public void setProtocol(String protocol)
+    {
+        this.protocol = protocol;
     }
 
     public String getHost()
@@ -324,6 +332,11 @@ public class ArtifactClient
 
     public String getContextBaseUrl()
     {
+        if (contextBaseUrl == null)
+        {
+            contextBaseUrl = protocol + "://" + host + ":" + port;
+        }
+
         return contextBaseUrl;
     }
 

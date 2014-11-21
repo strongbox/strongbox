@@ -264,7 +264,7 @@ public class RestClient extends ArtifactClient
     {
         Client client = ClientBuilder.newClient();
 
-        String url = getHost() + ":" + getPort() + "/configuration/strongbox/storages/" + storageId;
+        String url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId;
 
         WebTarget webResource = client.target(url);
         setupAuthentication(webResource);
@@ -342,7 +342,7 @@ public class RestClient extends ArtifactClient
     {
         Client client = ClientBuilder.newClient();
 
-        String url = getHost() + ":" + getPort() +
+        String url = getContextBaseUrl() +
                      "/configuration/strongbox/storages/" + storageId + "/" + repositoryId +
                      (deleteFromFileSystem ? "?deleteFromFileSystem=true" : "");
 
@@ -398,7 +398,7 @@ public class RestClient extends ArtifactClient
     {
         Client client = ClientBuilder.newClient();
 
-        String url = getHost() + ":" + getPort() + "/trash";
+        String url = getContextBaseUrl() + "/trash";
 
         WebTarget webResource = client.target(url);
         setupAuthentication(webResource);
@@ -407,7 +407,7 @@ public class RestClient extends ArtifactClient
 
     public String getUrlForTrash(String storage, String repository)
     {
-        return getHost() + ":" + getPort() + "/trash/" + storage + "/" + repository;
+        return getContextBaseUrl() + "/trash/" + storage + "/" + repository;
     }
 
 }
