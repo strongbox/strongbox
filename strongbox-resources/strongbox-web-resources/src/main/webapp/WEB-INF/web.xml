@@ -35,7 +35,7 @@
         </init-param>
         <init-param>
             <param-name>jersey.config.server.provider.packages</param-name>
-            <param-value>org.carlspring.strongbox</param-value>
+            <param-value>org.carlspring.strongbox,com.carlspring.strongbox</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
