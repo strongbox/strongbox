@@ -38,19 +38,19 @@ public class ArtifactSearchServiceImpl implements ArtifactSearchService
     {
         SearchResults searchResults = new SearchResults();
 
-        final String repository = searchRequest.getRepositoryId();
+        final String repositoryId = searchRequest.getRepositoryId();
 
-        if (repository != null && !repository.isEmpty())
+        if (repositoryId != null && !repositoryId.isEmpty())
         {
-            logger.debug("Repository: {}", repository);
+            logger.debug("Repository: {}", repositoryId);
 
-            final String storage = searchRequest.getStorageId();
-            if (storage == null)
+            final String storageId = searchRequest.getStorageId();
+            if (storageId == null)
             {
-                List<Storage> storages = dataCenter.getStoragesContainingRepository(repository);
+                List<Storage> storages = dataCenter.getStoragesContainingRepository(repositoryId);
                 for (Storage s: storages)
                 {
-                    final String storageAndRepositoryId = s.getId() + ":" + repository;
+                    final String storageAndRepositoryId = s.getId() + ":" + repositoryId;
                     final Set<SearchResult> sr = repositoryIndexManager.getRepositoryIndex(storageAndRepositoryId)
                                                                        .search(searchRequest.getQuery());
 
