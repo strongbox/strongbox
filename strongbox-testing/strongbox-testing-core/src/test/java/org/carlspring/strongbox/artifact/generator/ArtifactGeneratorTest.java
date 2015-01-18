@@ -14,7 +14,7 @@ import static junit.framework.TestCase.assertTrue;
 public class ArtifactGeneratorTest
 {
 
-    private final static String BASEDIR = "target/strongbox/storages/storage0/releases";
+    private final static String BASEDIR = "target/storages/storage0/releases";
 
 
     @Test

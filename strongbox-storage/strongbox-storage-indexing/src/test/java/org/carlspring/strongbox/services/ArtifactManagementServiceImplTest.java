@@ -1,9 +1,6 @@
 package org.carlspring.strongbox.services;
 
 import org.carlspring.strongbox.artifact.generator.ArtifactGenerator;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
-import org.carlspring.strongbox.storage.indexing.SearchRequest;
 import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
 
 import java.io.File;
@@ -36,12 +33,6 @@ public class ArtifactManagementServiceImplTest
 
     @Autowired
     private ArtifactManagementService artifactManagementService;
-
-    @Autowired
-    private ArtifactSearchService artifactSearchService;
-
-    @Autowired
-    private RepositoryIndexManager repositoryIndexManager;
 
     private static boolean INITIALIZED = false;
 
@@ -92,34 +83,6 @@ public class ArtifactManagementServiceImplTest
         Assert.assertTrue("Should have moved the artifact to the trash during a force delete operation, " +
                           "when allowsForceDeletion is not enabled!",
                           new File(repositoryDir, artifactPath2).exists());
-    }
-
-    @Test
-    public void testMerge()
-            throws Exception
-    {
-        final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndex("storage0:releases");
-        final int x = repositoryIndexer.index(new File("org/carlspring/strongbox/strongbox-utils"));
-
-        SearchRequest request = new SearchRequest("storage0",
-                                                  "releases",
-                                                  "+g:org.carlspring.strongbox +a:strongbox-utils +v:6.2.1 +p:jar");
-
-        Assert.assertTrue(artifactSearchService.contains(request));
-
-        request = new SearchRequest("storage0",
-                                    "releases-with-trash",
-                                    "+g:org.carlspring.strongbox +a:strongbox-utils +v:6.2.1 +p:jar");
-
-        Assert.assertFalse(artifactSearchService.contains(request));
-
-        artifactManagementService.merge("storage0", "releases", "storage0", "releases-with-trash");
-
-        request = new SearchRequest("storage0",
-                                    "releases-with-trash",
-                                    "+g:org.carlspring.strongbox +a:strongbox-utils +v:6.2.1 +p:jar");
-
-        Assert.assertTrue(artifactSearchService.contains(request));
     }
 
 }

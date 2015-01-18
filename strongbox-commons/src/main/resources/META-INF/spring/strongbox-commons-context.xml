@@ -7,6 +7,4 @@
 
     <context:component-scan base-package="org.carlspring.strongbox,com.carlspring.strongbox" />
 
-    <bean id="repositoryManager" class="org.carlspring.strongbox.storage.repository.RepositoryManager" />
-
 </beans>

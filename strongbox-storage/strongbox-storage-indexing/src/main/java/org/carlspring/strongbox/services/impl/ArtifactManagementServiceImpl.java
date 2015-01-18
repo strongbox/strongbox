@@ -344,28 +344,4 @@ public class ArtifactManagementServiceImpl
         }
     }
 
-    @Override
-    public void merge(String sourceStorage,
-                      String sourceRepositoryName,
-                      String targetStorage,
-                      String targetRepositoryName)
-            throws ArtifactStorageException
-    {
-        try
-        {
-            final RepositoryIndexer sourceIndex = repositoryIndexManager
-                    .getRepositoryIndex(sourceStorage + ":" + sourceRepositoryName);
-            if (sourceIndex == null) throw new ArtifactStorageException("source repo not found");
-
-            final RepositoryIndexer targetIndex = repositoryIndexManager
-                    .getRepositoryIndex(targetStorage + ":" + targetRepositoryName);
-            if (targetIndex == null) throw new ArtifactStorageException("target repo not found");
-
-            targetIndex.getIndexingContext().merge(FSDirectory.open(sourceIndex.getIndexDir()));
-        }
-        catch (IOException e)
-        {
-            throw new ArtifactStorageException(e.getMessage(), e);
-        }
-    }
 }
