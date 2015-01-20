@@ -13,4 +13,6 @@
 
     <bean id="repositoryManagementService" class="org.carlspring.strongbox.services.impl.RepositoryManagementServiceImpl"/>
 
+    <bean id="storageManagementService" class="org.carlspring.strongbox.services.impl.StorageManagementServiceImpl"/>
+
 </beans>

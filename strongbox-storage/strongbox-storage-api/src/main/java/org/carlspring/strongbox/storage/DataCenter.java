@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 /**
  * @author mtodorov
  */
+@Deprecated
 @Component
 public class DataCenter
 {

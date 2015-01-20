@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.services.impl;
 
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
-import org.carlspring.strongbox.storage.DataCenter;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.visitors.ArtifactPomVisitor;
 
@@ -41,7 +41,7 @@ public class ArtifactMetadataServiceImpl
     private static final Logger logger = LoggerFactory.getLogger(ArtifactMetadataServiceImpl.class);
 
     @Autowired
-    private DataCenter dataCenter;
+    private ConfigurationManager configurationManager;
 
 
     @Override
@@ -75,7 +75,7 @@ public class ArtifactMetadataServiceImpl
 
     public Path getArtifactBasePath(String storageId, String repositoryId, Artifact artifact)
     {
-        Storage storage = dataCenter.getStorage(storageId);
+        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
 
         String artifactPath = artifact.getGroupId().replaceAll("\\.", Matcher.quoteReplacement(File.separator));
 

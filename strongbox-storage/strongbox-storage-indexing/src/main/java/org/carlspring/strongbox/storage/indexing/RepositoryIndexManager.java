@@ -38,19 +38,27 @@ public class RepositoryIndexManager
         {
             try
             {
-                final RepositoryIndexer repositoryIndexer = indexes.get(storageAndRepository);
-
-                logger.debug("Closing indexer for " + repositoryIndexer.getRepositoryId() + "...");
-
-                repositoryIndexer.close();
-
-                logger.debug("Closed indexer for " + repositoryIndexer.getRepositoryId() + ".");
+                closeIndexer(storageAndRepository);
             }
             catch (IOException e)
             {
                 logger.error(e.getMessage(), e);
             }
         }
+    }
+
+    public void closeIndexer(String storageAndRepository)
+            throws IOException
+    {
+        final RepositoryIndexer repositoryIndexer = indexes.get(storageAndRepository);
+
+        logger.debug("Closing indexer for " + repositoryIndexer.getStorageId() + ":" + repositoryIndexer.getRepositoryId() + "...");
+
+        repositoryIndexer.close();
+
+        logger.debug("Closed indexer for " + repositoryIndexer.getStorageId() + ":" + repositoryIndexer.getRepositoryId() + ".");
+
+        indexes.remove(storageAndRepository);
     }
 
     public Map<String, RepositoryIndexer> getIndexes()

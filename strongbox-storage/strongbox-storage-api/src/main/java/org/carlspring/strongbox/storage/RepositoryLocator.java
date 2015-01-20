@@ -38,6 +38,7 @@ public class RepositoryLocator
                 {
                     Repository repository = new Repository();
                     repository.setId(directory.getName());
+                    repository.setStorage(storage);
 
                     storage.addOrUpdateRepository(repository);
                 }

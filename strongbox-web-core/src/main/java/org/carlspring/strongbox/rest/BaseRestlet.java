@@ -1,9 +1,9 @@
 package org.carlspring.strongbox.rest;
 
-import org.carlspring.strongbox.security.jaas.authorization.AuthorizationException;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
 import org.carlspring.strongbox.security.jaas.authentication.basic.BasicAuthenticationDecoder;
-import org.carlspring.strongbox.storage.DataCenter;
+import org.carlspring.strongbox.security.jaas.authorization.AuthorizationException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
@@ -28,7 +28,7 @@ public abstract class BaseRestlet
     private boolean sslEnabled = false;
 
     @Autowired
-    private DataCenter dataCenter;
+    private ConfigurationManager configurationManager;
 
 
     public boolean requiresAuthentication(String storage,
@@ -43,7 +43,7 @@ public abstract class BaseRestlet
 
         // logger.debug("Protocol: " + protocol);
 
-        final boolean required = dataCenter.getStorage(storage).getRepository(repository).isSecured() ||
+        final boolean required = configurationManager.getConfiguration().getStorage(storage).getRepository(repository).isSecured() ||
                                  protocol.equalsIgnoreCase("http");
 
         logger.debug("Resource: /storages/" + storage + "/" + repository + "/" + path + " requires authentication? " + required);
@@ -161,16 +161,6 @@ public abstract class BaseRestlet
     public void setSslEnabled(boolean sslEnabled)
     {
         this.sslEnabled = sslEnabled;
-    }
-
-    public DataCenter getDataCenter()
-    {
-        return dataCenter;
-    }
-
-    public void setDataCenter(DataCenter dataCenter)
-    {
-        this.dataCenter = dataCenter;
     }
 
 }

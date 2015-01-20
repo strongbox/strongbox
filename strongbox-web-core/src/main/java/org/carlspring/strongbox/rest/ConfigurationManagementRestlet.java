@@ -4,13 +4,17 @@ import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
+import org.carlspring.strongbox.services.RepositoryManagementService;
+import org.carlspring.strongbox.services.StorageManagementService;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
+import java.io.File;
 import java.io.IOException;
 
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -32,6 +36,15 @@ public class ConfigurationManagementRestlet
 
     @Autowired
     private ConfigurationManagementService configurationManagementService;
+
+    @Autowired
+    private StorageManagementService storageManagementService;
+
+    @Autowired
+    private RepositoryManagementService repositoryManagementService;
+
+    @Autowired
+    private RepositoryIndexManager repositoryIndexManager;
 
 
     @PUT
@@ -215,6 +228,11 @@ public class ConfigurationManagementRestlet
         {
             configurationManagementService.addOrUpdateStorage(storage);
 
+            if (!storage.existsOnFileSystem())
+            {
+                storageManagementService.createStorage(storage);
+            }
+
             return Response.ok().build();
         }
         catch (IOException | JAXBException e)
@@ -247,13 +265,19 @@ public class ConfigurationManagementRestlet
 
     @DELETE
     @Path("/storages/{storageId}")
-    public Response removeStorage(@PathParam("storageId") final String storageId)
+    public Response removeStorage(@PathParam("storageId") final String storageId,
+                                  @QueryParam("force") @DefaultValue("false") final boolean force)
             throws IOException, JAXBException
     {
         if (configurationManagementService.getStorage(storageId) != null)
         {
             try
             {
+                if (force)
+                {
+                    storageManagementService.removeStorage(storageId);
+                }
+
                 configurationManagementService.removeStorage(storageId);
 
                 logger.debug("Removed storage " + storageId + ".");
@@ -286,7 +310,14 @@ public class ConfigurationManagementRestlet
     {
         try
         {
+            repository.setStorage(configurationManagementService.getStorage(storageId));
             configurationManagementService.addOrUpdateRepository(storageId, repository);
+
+            final File repositoryBaseDir = new File(repository.getBasedir());
+            if (!repositoryBaseDir.exists())
+            {
+                repositoryManagementService.createRepository(storageId, repository.getId());
+            }
 
             return Response.ok().build();
         }
@@ -323,13 +354,23 @@ public class ConfigurationManagementRestlet
     @DELETE
     @Path("/storages/{storageId}/{repositoryId}")
     public Response removeRepository(@PathParam("storageId") final String storageId,
-                                     @PathParam("repositoryId") final String repositoryId)
+                                     @PathParam("repositoryId") final String repositoryId,
+                                     @QueryParam("force") @DefaultValue("false") boolean force)
             throws IOException
     {
-        if (configurationManagementService.getStorage(storageId).getRepository(repositoryId) != null)
+        final Repository repository = configurationManagementService.getStorage(storageId).getRepository(repositoryId);
+        if (repository != null)
         {
             try
             {
+                repositoryIndexManager.closeIndexer(storageId + ":" + repositoryId);
+
+                final File repositoryBaseDir = new File(repository.getBasedir());
+                if (!repositoryBaseDir.exists() && force)
+                {
+                    repositoryManagementService.removeRepository(storageId, repository.getId());
+                }
+
                 configurationManagementService.getStorage(storageId).removeRepository(repositoryId);
 
                 logger.debug("Removed repository " + storageId + ":" + repositoryId + ".");

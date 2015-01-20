@@ -1,10 +1,7 @@
 package org.carlspring.strongbox.services;
 
-import org.carlspring.strongbox.storage.DataCenter;
-import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.resolvers.LocationResolver;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -16,16 +13,16 @@ import java.util.Map;
 public interface ArtifactResolutionService
 {
 
-    InputStream getInputStream(String repositoryName,
+    InputStream getInputStream(String storageId,
+                               String repositoryId,
                                String artifactPath)
-            throws ArtifactResolutionException, IOException;
+            throws IOException;
 
-    OutputStream getOutputStream(String repositoryName,
+    OutputStream getOutputStream(String storageId,
+                                 String repositoryId,
                                  String artifactPath)
-                    throws ArtifactResolutionException, IOException;
+                    throws IOException;
 
     Map<String, LocationResolver> getResolvers();
-
-    DataCenter getDataCenter();
 
 }

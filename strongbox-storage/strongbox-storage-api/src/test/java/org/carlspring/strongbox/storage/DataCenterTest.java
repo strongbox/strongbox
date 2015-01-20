@@ -1,18 +1,14 @@
 package org.carlspring.strongbox.storage;
 
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.junit.Test;
-
 import java.io.File;
-import java.io.IOException;
-import java.util.*;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
+import org.junit.Ignore;
 
 /**
  * @author mtodorov
  */
+@Ignore
+@Deprecated
 public class DataCenterTest
 {
 
@@ -21,6 +17,7 @@ public class DataCenterTest
     public static final String TEST_STORAGES_DIR = TEST_CLASSES_DIR + "/storages";
 
 
+    /*
     @Test
     public void testAddAnonymous()
     {
@@ -110,5 +107,6 @@ public class DataCenterTest
                      2,
                      storagesContainingIntReleases.size());
     }
+    */
 
 }

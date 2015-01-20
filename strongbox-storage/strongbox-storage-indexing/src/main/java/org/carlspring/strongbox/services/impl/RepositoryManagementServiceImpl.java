@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.services.impl;
 
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.services.RepositoryManagementService;
-import org.carlspring.strongbox.storage.DataCenter;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
@@ -29,7 +29,7 @@ public class RepositoryManagementServiceImpl
     private static final Logger logger = LoggerFactory.getLogger(RepositoryManagementServiceImpl.class);
 
     @Autowired
-    private DataCenter dataCenter;
+    private ConfigurationManager configurationManager;
 
     @Autowired
     private RepositoryIndexManager repositoryIndexManager;
@@ -43,7 +43,7 @@ public class RepositoryManagementServiceImpl
                                  String repositoryId)
             throws IOException
     {
-        Storage storage = dataCenter.getStorage(storageId);
+        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
 
         final String storageBasedirPath = storage.getBasedir();
         final File repositoryBasedir = new File(storageBasedirPath, repositoryId).getAbsoluteFile();
@@ -57,7 +57,7 @@ public class RepositoryManagementServiceImpl
                                                                                                repositoryBasedir,
                                                                                                indexDir);
 
-        repositoryIndexManager.addRepositoryIndex("storage0:" + repositoryId, repositoryIndexer);
+        repositoryIndexManager.addRepositoryIndex(storageId + ":" + repositoryId, repositoryIndexer);
     }
 
     private void createRepositoryStructure(String storageBasedirPath,
@@ -109,7 +109,7 @@ public class RepositoryManagementServiceImpl
     }
 
     @Override
-    public void deleteRepository(String storageId,
+    public void removeRepository(String storageId,
                                  String repositoryId)
             throws IOException
     {
@@ -120,7 +120,7 @@ public class RepositoryManagementServiceImpl
                                           String repositoryId)
             throws IOException
     {
-        Storage storage = dataCenter.getStorage(storageId);
+        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
 
         final String storageBasedirPath = storage.getBasedir();
 

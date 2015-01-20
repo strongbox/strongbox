@@ -1,7 +1,8 @@
 package org.carlspring.strongbox.rest;
 
-import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.services.ArtifactManagementService;
+import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.Path;
@@ -29,6 +30,9 @@ public class TrashRestlet
     @Autowired
     private ArtifactManagementService artifactManagementService;
 
+    @Autowired
+    private ConfigurationManager configurationManager;
+
 
     @DELETE
     @Path("{storageId}/{repositoryId}")
@@ -36,7 +40,7 @@ public class TrashRestlet
                            @PathParam("repositoryId") String repositoryId)
             throws IOException
     {
-        if (getDataCenter().getStorage(storageId).getRepository(repositoryId) != null)
+        if (configurationManager.getConfiguration().getStorage(storageId).getRepository(repositoryId) != null)
         {
             try
             {

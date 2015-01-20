@@ -1,14 +1,14 @@
 package org.carlspring.strongbox.services.impl;
 
-import org.apache.lucene.store.FSDirectory;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.index.ArtifactInfo;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.io.MultipleDigestInputStream;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.security.encryption.EncryptionConstants;
 import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.storage.DataCenter;
+import org.carlspring.strongbox.services.ArtifactResolutionService;
+import org.carlspring.strongbox.services.VersionValidatorService;
+import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
@@ -16,16 +16,10 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
 import org.carlspring.strongbox.storage.resolvers.LocationResolver;
-import org.carlspring.strongbox.services.ArtifactResolutionService;
-import org.carlspring.strongbox.services.VersionValidatorService;
 import org.carlspring.strongbox.storage.validation.version.VersionValidationException;
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
 import org.carlspring.strongbox.util.ArtifactFileUtils;
 import org.carlspring.strongbox.util.MessageDigestUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -36,6 +30,12 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.index.ArtifactInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import static org.carlspring.strongbox.util.RepositoryUtils.checkRepositoryExists;
 
 /**
@@ -58,20 +58,20 @@ public class ArtifactManagementServiceImpl
     private ChecksumCacheManager checksumCacheManager;
 
     @Autowired
-    private DataCenter dataCenter;
+    private ConfigurationManager configurationManager;
 
     @Autowired
     private RepositoryIndexManager repositoryIndexManager;
 
 
     @Override
-    public void store(String storage,
+    public void store(String storageId,
                       String repositoryId,
                       String path,
                       InputStream is)
             throws ArtifactStorageException
     {
-        performRepositoryAcceptanceValidation(repositoryId, path);
+        performRepositoryAcceptanceValidation(storageId, repositoryId, path);
 
         boolean fileIsChecksum = path.endsWith(".md5") || path.endsWith(".sha1");
         MultipleDigestInputStream mdis = null;
@@ -95,7 +95,7 @@ public class ArtifactManagementServiceImpl
         OutputStream os = null;
         try
         {
-            os = artifactResolutionService.getOutputStream(repositoryId, path);
+            os = artifactResolutionService.getOutputStream(storageId, repositoryId, path);
 
             int readLength;
             byte[] bytes = new byte[4096];
@@ -114,18 +114,19 @@ public class ArtifactManagementServiceImpl
                 os.flush();
             }
 
-            final String artifactPath = storage + "/" + repositoryId + "/" + path;
+            final String artifactPath = storageId + "/" + repositoryId + "/" + path;
             if (!fileIsChecksum && os != null)
             {
                 addChecksumsToCacheManager(mdis, artifactPath);
 
                 if (ArtifactFileUtils.isArtifactFile(path))
                 {
-                    final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storage + ":" + repositoryId);
+                    final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storageId + ":" + repositoryId);
                     if (indexer != null)
                     {
                         final Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
-                        final File storageBasedir = new File(dataCenter.getStorage(storage).getBasedir());
+                        final Storage storage = configurationManager.getConfiguration().getStorages().get(storageId);
+                        final File storageBasedir = new File(storage.getBasedir());
                         final File artifactFile = new File(new File(storageBasedir, repositoryId), path).getCanonicalFile();
 
                         if (!artifactFile.getName().endsWith(".pom"))
@@ -155,7 +156,7 @@ public class ArtifactManagementServiceImpl
     }
 
     @Override
-    public InputStream resolve(String storage,
+    public InputStream resolve(String storageId,
                                String repository,
                                String path)
             throws ArtifactResolutionException
@@ -164,7 +165,7 @@ public class ArtifactManagementServiceImpl
 
         try
         {
-            is = artifactResolutionService.getInputStream(repository, path);
+            is = artifactResolutionService.getInputStream(storageId, repository, path);
             return is;
         }
         catch (IOException e)
@@ -173,7 +174,8 @@ public class ArtifactManagementServiceImpl
         }
     }
 
-    private boolean performRepositoryAcceptanceValidation(String repository,
+    private boolean performRepositoryAcceptanceValidation(String storageId,
+                                                          String repositoryId,
                                                           String path)
             throws WebApplicationException
     {
@@ -182,7 +184,8 @@ public class ArtifactManagementServiceImpl
             try
             {
                 Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
-                Repository r = dataCenter.getRepository(repository);
+                final Storage storage = configurationManager.getConfiguration().getStorages().get(storageId);
+                Repository r = storage.getRepository(repositoryId);
 
                 final Set<VersionValidator> validators = versionValidatorService.getValidators();
                 for (VersionValidator validator : validators)
@@ -200,7 +203,7 @@ public class ArtifactManagementServiceImpl
     }
 
     @Override
-    public void delete(String storage,
+    public void delete(String storageId,
                        String repositoryName,
                        String artifactPath,
                        boolean force)
@@ -208,14 +211,16 @@ public class ArtifactManagementServiceImpl
     {
         try
         {
-            final Repository repository = dataCenter.getStorage(storage).getRepository(repositoryName);
+            final Storage storage = configurationManager.getConfiguration().getStorages().get(storageId);
+            final Repository repository = storage.getRepository(repositoryName);
+
             checkRepositoryExists(repositoryName, repository);
 
             LocationResolver resolver = getResolvers().get(repository.getImplementation());
 
             resolver.delete(repositoryName, artifactPath, force);
 
-            final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storage + ":" + repositoryName);
+            final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storageId + ":" + repositoryName);
             if (indexer != null)
             {
                 String extension = artifactPath.substring(artifactPath.lastIndexOf(".") + 1, artifactPath.length());
@@ -309,16 +314,18 @@ public class ArtifactManagementServiceImpl
 
     // TODO: This should have restricted access.
     @Override
-    public void deleteTrash(String storage, String repositoryName)
+    public void deleteTrash(String storageId, String repositoryId)
             throws ArtifactStorageException
     {
         try
         {
-            final Repository repository = dataCenter.getStorage(storage).getRepository(repositoryName);
-            checkRepositoryExists(repositoryName, repository);
+            final Storage storage = configurationManager.getConfiguration().getStorages().get(storageId);
+            final Repository repository = storage.getRepository(repositoryId);
+
+            checkRepositoryExists(repositoryId, repository);
 
             LocationResolver resolver = getResolvers().get(repository.getImplementation());
-            resolver.deleteTrash(repositoryName);
+            resolver.deleteTrash(repositoryId);
         }
         catch (IOException e)
         {

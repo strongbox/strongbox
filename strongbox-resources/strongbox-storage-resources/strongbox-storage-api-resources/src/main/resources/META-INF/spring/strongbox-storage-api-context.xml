@@ -9,10 +9,6 @@
 
     <bean id="configurationResourceResolver" class="org.carlspring.strongbox.resource.ConfigurationResourceResolver" />
 
-    <bean id="dataCenter" class="org.carlspring.strongbox.storage.DataCenter">
-        <property name="storages" value="#{configurationManager.configuration.storages}"/>
-    </bean>
-
     <bean id="checksumCacheManager" class="org.carlspring.strongbox.storage.checksum.ChecksumCacheManager">
         <!-- How often to check if a checksum has expired: -->
         <property name="cachedChecksumExpiredCheckInterval" value="300000"/>
@@ -22,10 +18,7 @@
 
     <!-- Artifact LocationResolvers -->
     <bean id="memoryLocationResolver" class="org.carlspring.strongbox.storage.resolvers.InMemoryLocationResolver"/>
-    <bean id="fsLocationResolver" class="org.carlspring.strongbox.storage.resolvers.FSLocationResolver">
-        <property name="configurationManager" ref="configurationManager"/>
-        <property name="dataCenter" ref="dataCenter"/>
-    </bean>
+    <bean id="fsLocationResolver" class="org.carlspring.strongbox.storage.resolvers.FSLocationResolver"/>
 
     <util:map id="resolvers"
               key-type="java.lang.String"

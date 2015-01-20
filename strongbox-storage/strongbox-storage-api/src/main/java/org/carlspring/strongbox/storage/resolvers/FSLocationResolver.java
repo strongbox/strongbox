@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.storage.resolvers;
 
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.storage.DataCenter;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
@@ -29,9 +28,6 @@ public class FSLocationResolver
     @Autowired
     private ConfigurationManager configurationManager;
 
-    @Autowired
-    private DataCenter dataCenter;
-
 
     public FSLocationResolver()
     {
@@ -42,7 +38,7 @@ public class FSLocationResolver
                                       String artifactPath)
             throws IOException
     {
-        for (Map.Entry entry : dataCenter.getStorages().entrySet())
+        for (Map.Entry entry : configurationManager.getConfiguration().getStorages().entrySet())
         {
             Storage storage = (Storage) entry.getValue();
 
@@ -72,7 +68,7 @@ public class FSLocationResolver
                                         String artifactPath)
             throws IOException
     {
-        for (Map.Entry entry : dataCenter.getStorages().entrySet())
+        for (Map.Entry entry : configurationManager.getConfiguration().getStorages().entrySet())
         {
             Storage storage = (Storage) entry.getValue();
 
@@ -100,7 +96,7 @@ public class FSLocationResolver
                        boolean force)
             throws IOException
     {
-        for (Map.Entry entry : dataCenter.getStorages().entrySet())
+        for (Map.Entry entry : configurationManager.getConfiguration().getStorages().entrySet())
         {
             Storage storage = (Storage) entry.getValue();
 
@@ -215,7 +211,7 @@ public class FSLocationResolver
     public void deleteTrash(String repository)
             throws IOException
     {
-        for (Map.Entry entry : dataCenter.getStorages().entrySet())
+        for (Map.Entry entry : configurationManager.getConfiguration().getStorages().entrySet())
         {
             Storage storage = (Storage) entry.getValue();
 
@@ -241,7 +237,7 @@ public class FSLocationResolver
     public void deleteTrash()
             throws IOException
     {
-        for (Map.Entry entry : dataCenter.getStorages().entrySet())
+        for (Map.Entry entry : configurationManager.getConfiguration().getStorages().entrySet())
         {
             Storage storage = (Storage) entry.getValue();
 
@@ -264,11 +260,7 @@ public class FSLocationResolver
     public void initialize()
             throws IOException
     {
-        final Map<String, Storage> storages = configurationManager.getConfiguration().getStorages();
-
-        dataCenter.setStorages(storages);
-
-        logger.info("Initialized FSLocationResolver.");
+        logger.debug("Initialized FSLocationResolver.");
     }
 
     @Override
@@ -281,16 +273,6 @@ public class FSLocationResolver
     public void setAlias(String alias)
     {
         this.alias = alias;
-    }
-
-    public DataCenter getDataCenter()
-    {
-        return dataCenter;
-    }
-
-    public void setDataCenter(DataCenter dataCenter)
-    {
-        this.dataCenter = dataCenter;
     }
 
     public ConfigurationManager getConfigurationManager()

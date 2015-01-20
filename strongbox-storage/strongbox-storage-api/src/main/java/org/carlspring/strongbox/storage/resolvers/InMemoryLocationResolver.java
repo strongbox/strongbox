@@ -1,23 +1,25 @@
 package org.carlspring.strongbox.storage.resolvers;
 
-import org.apache.maven.artifact.Artifact;
-
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.annotations.ArtifactExistenceState;
 import org.carlspring.strongbox.annotations.ArtifactResource;
 import org.carlspring.strongbox.annotations.ArtifactResourceMapper;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.io.RandomInputStream;
-import org.carlspring.strongbox.storage.DataCenter;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Map;
+
+import org.apache.maven.artifact.Artifact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.io.*;
-import java.util.Map;
 
 /**
  * @author mtodorov
@@ -31,7 +33,7 @@ public class InMemoryLocationResolver implements LocationResolver
     private String alias = "in-memory";
 
     @Autowired
-    private DataCenter dataCenter;
+    private ConfigurationManager configurationManager;
 
 
     public InMemoryLocationResolver()
@@ -43,7 +45,7 @@ public class InMemoryLocationResolver implements LocationResolver
                                       String artifactPath)
             throws IOException
     {
-        for (Map.Entry entry : dataCenter.getStorages().entrySet())
+        for (Map.Entry entry : configurationManager.getConfiguration().getStorages().entrySet())
         {
             Storage storage = (Storage) entry.getValue();
 
@@ -90,7 +92,7 @@ public class InMemoryLocationResolver implements LocationResolver
                                         String artifactPath)
             throws IOException
     {
-        for (Map.Entry entry : dataCenter.getStorages().entrySet())
+        for (Map.Entry entry : configurationManager.getConfiguration().getStorages().entrySet())
         {
             Storage storage = (Storage) entry.getValue();
 
@@ -120,7 +122,7 @@ public class InMemoryLocationResolver implements LocationResolver
                        boolean force)
             throws IOException
     {
-        for (Map.Entry entry : dataCenter.getStorages().entrySet())
+        for (Map.Entry entry : configurationManager.getConfiguration().getStorages().entrySet())
         {
             Storage storage = (Storage) entry.getValue();
 
@@ -173,16 +175,6 @@ public class InMemoryLocationResolver implements LocationResolver
     public void setAlias(String alias)
     {
         this.alias = alias;
-    }
-
-    public DataCenter getDataCenter()
-    {
-        return dataCenter;
-    }
-
-    public void setDataCenter(DataCenter dataCenter)
-    {
-        this.dataCenter = dataCenter;
     }
 
 }

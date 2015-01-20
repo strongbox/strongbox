@@ -9,7 +9,6 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.xml.bind.JAXBException;
-import java.io.File;
 import java.io.IOException;
 
 import org.slf4j.Logger;
@@ -113,17 +112,6 @@ public class ConfigurationManagementServiceImpl implements ConfigurationManageme
     {
         configurationManager.getConfiguration().addStorage(storage);
         configurationManager.store();
-
-        if (!storage.existsOnFileSystem())
-        {
-            final File storageBaseDir = new File(storage.getBasedir());
-
-            logger.debug("Creating directory for storage '" + storage.getId() +
-                         "' (" + storageBaseDir.getAbsolutePath() + ")...");
-
-            //noinspection ResultOfMethodCallIgnored
-            storageBaseDir.mkdirs();
-        }
     }
 
     @Override

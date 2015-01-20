@@ -260,11 +260,11 @@ public class RestClient extends ArtifactClient
      * @param storageId     The storage to delete.
      * @return
      */
-    public int deleteStorage(String storageId)
+    public int deleteStorage(String storageId, boolean force)
     {
         Client client = ClientBuilder.newClient();
 
-        String url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId;
+        String url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId + (force ? "?force=true" : "");
 
         WebTarget webResource = client.target(url);
         setupAuthentication(webResource);
@@ -338,13 +338,13 @@ public class RestClient extends ArtifactClient
      */
     public int deleteRepository(String storageId,
                                 String repositoryId,
-                                boolean deleteFromFileSystem)
+                                boolean force)
     {
         Client client = ClientBuilder.newClient();
 
         String url = getContextBaseUrl() +
                      "/configuration/strongbox/storages/" + storageId + "/" + repositoryId +
-                     (deleteFromFileSystem ? "?deleteFromFileSystem=true" : "");
+                     (force ? "?force=true" : "");
 
         WebTarget webResource = client.target(url);
         setupAuthentication(webResource);

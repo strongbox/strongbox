@@ -64,7 +64,7 @@ public class RepositoryManagementServiceImplTest
 
         assertTrue("Failed to create the repository \"" + repositoryDir.getAbsolutePath() + "\"!", repositoryDir.exists());
 
-        repositoryManagementService.deleteRepository("storage0", "foo-snapshots");
+        repositoryManagementService.removeRepository("storage0", "foo-snapshots");
 
         assertFalse("Failed to remove the repository!", repositoryDir.exists());
     }

@@ -5,21 +5,18 @@ import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.AssignedPorts;
 
 import javax.xml.bind.JAXBException;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author mtodorov
@@ -134,7 +131,8 @@ public class ConfigurationManagementRestletTest
             throws IOException, JAXBException
     {
         final String storageId = "storage2";
-        final String repositoryId = "repository0";
+        final String repositoryId1 = "repository0";
+        final String repositoryId2 = "repository1";
 
         Storage storage2 = new Storage(storageId);
 
@@ -142,15 +140,21 @@ public class ConfigurationManagementRestletTest
 
         assertEquals("Failed to create storage!", 200, response);
 
-        Repository r1 = new Repository(repositoryId);
+        Repository r1 = new Repository(repositoryId1);
         r1.setAllowsRedeployment(true);
         r1.setSecured(true);
         r1.setStorage(storage2);
         r1.setProxyConfiguration(createProxyConfiguration());
 
-        client.addRepository(r1);
+        Repository r2 = new Repository(repositoryId2);
+        r2.setAllowsRedeployment(true);
+        r2.setSecured(true);
+        r2.setStorage(storage2);
 
-        final ProxyConfiguration pc = client.getProxyConfiguration(storageId, repositoryId);
+        client.addRepository(r1);
+        client.addRepository(r2);
+
+        final ProxyConfiguration pc = client.getProxyConfiguration(storageId, repositoryId1);
 
         assertNotNull("Failed to get proxy configuration!", pc);
         assertEquals("Failed to get proxy configuration!", pc.getHost(), pc.getHost());
@@ -164,21 +168,27 @@ public class ConfigurationManagementRestletTest
         assertNotNull("Failed to get storage (" + storageId + ")!", storage);
         assertFalse("Failed to get storage (" + storageId + ")!", storage.getRepositories().isEmpty());
 
-        response = client.deleteRepository(storageId, repositoryId, false);
+        response = client.deleteRepository(storageId, repositoryId1, true);
 
-        assertEquals("Failed to delete repository " + storageId + ":" + repositoryId + "!", 200, response);
+        assertEquals("Failed to delete repository " + storageId + ":" + repositoryId1 + "!", 200, response);
 
-        final Repository r = client.getRepository(storageId, repositoryId);
+        final Repository r = client.getRepository(storageId, repositoryId1);
 
         assertNull(r);
 
-        response = client.deleteStorage(storageId);
+        File storageDir = new File(storage.getBasedir());
+
+        assertTrue("Storage doesn't exist!", storageDir.exists());
+
+        response = client.deleteStorage(storageId, true);
 
         assertEquals("Failed to delete storage " + storageId + "!", 200, response);
 
         final Storage s = client.getStorage(storageId);
 
         assertNull("Failed to delete storage " + storageId + "!", s);
+
+        assertFalse("Failed to delete storage!", storageDir.exists());
     }
 
     @Test

@@ -1,13 +1,13 @@
 package org.carlspring.strongbox.services.impl;
 
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.services.ArtifactSearchService;
-import org.carlspring.strongbox.storage.DataCenter;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.*;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Collection;
 import java.util.Set;
 
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -29,7 +29,7 @@ public class ArtifactSearchServiceImpl implements ArtifactSearchService
     private RepositoryIndexManager repositoryIndexManager;
 
     @Autowired
-    private DataCenter dataCenter;
+    private ConfigurationManager configurationManager;
 
 
     @Override
@@ -40,6 +40,7 @@ public class ArtifactSearchServiceImpl implements ArtifactSearchService
 
         final String repositoryId = searchRequest.getRepositoryId();
 
+        final Collection<Storage> storages = configurationManager.getConfiguration().getStorages().values();
         if (repositoryId != null && !repositoryId.isEmpty())
         {
             logger.debug("Repository: {}", repositoryId);
@@ -47,16 +48,18 @@ public class ArtifactSearchServiceImpl implements ArtifactSearchService
             final String storageId = searchRequest.getStorageId();
             if (storageId == null)
             {
-                List<Storage> storages = dataCenter.getStoragesContainingRepository(repositoryId);
-                for (Storage s: storages)
+                for (Storage storage : storages)
                 {
-                    final String storageAndRepositoryId = s.getId() + ":" + repositoryId;
-                    final Set<SearchResult> sr = repositoryIndexManager.getRepositoryIndex(storageAndRepositoryId)
-                                                                       .search(searchRequest.getQuery());
-
-                    if (sr != null && !sr.isEmpty())
+                    if (storage.containsRepository(repositoryId))
                     {
-                        searchResults.getResults().addAll(sr);
+                        final String storageAndRepositoryId = storage.getId() + ":" + repositoryId;
+                        final Set<SearchResult> sr = repositoryIndexManager.getRepositoryIndex(storageAndRepositoryId)
+                                                                           .search(searchRequest.getQuery());
+
+                        if (sr != null && !sr.isEmpty())
+                        {
+                            searchResults.getResults().addAll(sr);
+                        }
                     }
                 }
 
@@ -82,7 +85,7 @@ public class ArtifactSearchServiceImpl implements ArtifactSearchService
         }
         else
         {
-            for (Storage storage : dataCenter.getStorages().values())
+            for (Storage storage : storages)
             {
                 for (Repository r : storage.getRepositories().values())
                 {
