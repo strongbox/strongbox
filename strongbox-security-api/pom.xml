@@ -46,20 +46,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.8</version>
                 <executions>
                     <execution>
                         <id>unpack-resources-logging</id>
@@ -143,34 +134,22 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
-            <version>${version.spring}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>${version.spring}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
-            <version>${version.spring}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>${version.spring}</version>
-            <exclusions>
-              <!-- Exclude Commons Logging -->
-              <exclusion>
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-              </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <version>${version.spring}</version>
             <scope>test</scope>
         </dependency>
 
@@ -193,7 +172,6 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>build-helper-maven-plugin</artifactId>
-                        <version>1.9</version>
                         <executions>
                             <execution>
                                 <id>reserve-network-port</id>
@@ -249,7 +227,6 @@
                     <plugin>
                         <groupId>org.carlspring.maven</groupId>
                         <artifactId>unboundid-maven-plugin</artifactId>
-                        <version>1.0-SNAPSHOT</version>
 
                         <configuration>
                             <baseDn>dc=carlspring,dc=com</baseDn>
@@ -289,7 +266,6 @@
                     <plugin>
                         <groupId>org.carlspring.maven</groupId>
                         <artifactId>little-proxy-maven-plugin</artifactId>
-                        <version>1.0-SNAPSHOT</version>
 
                         <configuration>
                             <hash>5FD4F8E2A</hash>
