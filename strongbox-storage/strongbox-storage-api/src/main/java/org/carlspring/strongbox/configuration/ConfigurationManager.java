@@ -2,10 +2,12 @@ package org.carlspring.strongbox.configuration;
 
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.annotation.PostConstruct;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +40,34 @@ public class ConfigurationManager extends AbstractConfigurationManager<Configura
             throws IOException, JAXBException
     {
         super.init();
+
+        setRepositoryStorageRelationships();
+
         dump();
+    }
+
+    /**
+     * Sets the repository <--> storage relationships explicitly, as initially,
+     * when these are deserialized from the XML, they have no such relationship.
+     */
+    private void setRepositoryStorageRelationships()
+    {
+        final Configuration configuration = getConfiguration();
+        final Map<String, Storage> storages = configuration.getStorages();
+
+        if (storages != null && !storages.isEmpty())
+        {
+            for (Storage storage : storages.values())
+            {
+                if (storage.getRepositories() != null && !storage.getRepositories().isEmpty())
+                {
+                    for (Repository repository : storage.getRepositories().values())
+                    {
+                        repository.setStorage(storage);
+                    }
+                }
+            }
+        }
     }
 
     public void dump()
