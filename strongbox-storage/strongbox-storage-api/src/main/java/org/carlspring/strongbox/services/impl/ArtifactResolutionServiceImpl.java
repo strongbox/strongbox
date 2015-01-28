@@ -70,15 +70,15 @@ public class ArtifactResolutionServiceImpl
 
     @Override
     public OutputStream getOutputStream(String storageId,
-                                        String repositoryName,
+                                        String repositoryId,
                                         String artifactPath)
             throws IOException
     {
-        final Repository repository = getStorage(storageId).getRepository(repositoryName);
-        checkRepositoryExists(repositoryName, repository);
+        final Repository repository = getStorage(storageId).getRepository(repositoryId);
+        checkRepositoryExists(repositoryId, repository);
 
         LocationResolver resolver = getResolvers().get(repository.getImplementation());
-        OutputStream os = resolver.getOutputStream(repositoryName, artifactPath);
+        OutputStream os = resolver.getOutputStream(repositoryId, artifactPath);
 
         if (os == null)
         {

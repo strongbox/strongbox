@@ -11,24 +11,24 @@ import java.io.InputStream;
 public interface ArtifactManagementService
 {
 
-    void store(String storage,
-               String repositoryName,
+    void store(String storageId,
+               String repositoryId,
                String path,
                InputStream is)
             throws ArtifactStorageException;
 
-    InputStream resolve(String storage,
-                        String repository,
+    InputStream resolve(String storageId,
+                        String repositoryId,
                         String path)
             throws ArtifactResolutionException;
 
-    void delete(String storage,
-                String repositoryName,
+    void delete(String storageId,
+                String repositoryId,
                 String artifactPath,
                 boolean force)
             throws ArtifactStorageException;
 
-    void deleteTrash(String storage, String repositoryName)
+    void deleteTrash(String storageId, String repositoryId)
             throws ArtifactStorageException;
 
     void deleteTrash()

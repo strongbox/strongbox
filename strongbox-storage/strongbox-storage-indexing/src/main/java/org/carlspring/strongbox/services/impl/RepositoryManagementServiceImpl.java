@@ -80,21 +80,21 @@ public class RepositoryManagementServiceImpl
 
     @Override
     public void mergeRepositoryIndex(String sourceStorage,
-                                     String sourceRepositoryName,
+                                     String sourceRepositoryId,
                                      String targetStorage,
-                                     String targetRepositoryName)
+                                     String targetRepositoryId)
             throws ArtifactStorageException
     {
         try
         {
             final RepositoryIndexer sourceIndex = repositoryIndexManager.getRepositoryIndex(sourceStorage + ":" +
-                                                                                            sourceRepositoryName);
+                                                                                            sourceRepositoryId);
             if (sourceIndex == null)
             {
                 throw new ArtifactStorageException("Source repository not found!");
             }
 
-            final RepositoryIndexer targetIndex = repositoryIndexManager.getRepositoryIndex(targetStorage + ":" + targetRepositoryName);
+            final RepositoryIndexer targetIndex = repositoryIndexManager.getRepositoryIndex(targetStorage + ":" + targetRepositoryId);
             if (targetIndex == null)
             {
                 throw new ArtifactStorageException("Target repository not found!");

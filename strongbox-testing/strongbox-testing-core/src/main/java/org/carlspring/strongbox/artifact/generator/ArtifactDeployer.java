@@ -50,20 +50,20 @@ public class ArtifactDeployer extends ArtifactGenerator
     }
 
     public void generateAndDeployArtifact(Artifact artifact,
-                                          String storage,
-                                          String repository)
+                                          String storageId,
+                                          String repositoryId)
             throws NoSuchAlgorithmException,
                    XmlPullParserException,
                    IOException,
                    ArtifactOperationException
     {
-        generateAndDeployArtifact(artifact, null, storage, repository);
+        generateAndDeployArtifact(artifact, null, storageId, repositoryId);
     }
 
     public void generateAndDeployArtifact(Artifact artifact,
                                           String[] classifiers,
-                                          String storage,
-                                          String repository)
+                                          String storageId,
+                                          String repositoryId)
             throws NoSuchAlgorithmException,
                    XmlPullParserException,
                    IOException,
@@ -77,8 +77,8 @@ public class ArtifactDeployer extends ArtifactGenerator
         generatePom(artifact);
         createArchive(artifact);
 
-        deploy(artifact, storage, repository);
-        deployPOM(ArtifactUtils.getPOMArtifact(artifact), storage, repository);
+        deploy(artifact, storageId, repositoryId);
+        deployPOM(ArtifactUtils.getPOMArtifact(artifact), storageId, repositoryId);
 
         if (classifiers != null)
         {
@@ -92,16 +92,16 @@ public class ArtifactDeployer extends ArtifactGenerator
                                                                                      classifier);
                 generate(artifactWithClassifier);
 
-                deploy(artifactWithClassifier, storage, repository);
+                deploy(artifactWithClassifier, storageId, repositoryId);
             }
         }
 
-        // TODO: Update the metadata file on the repository's side.
+        // TODO: Update the metadata file on the repositoryId's side.
     }
 
     public void deploy(Artifact artifact,
-                       String storage,
-                       String repository)
+                       String storageId,
+                       String repositoryId)
             throws ArtifactOperationException,
                    IOException,
                    NoSuchAlgorithmException,
@@ -110,14 +110,14 @@ public class ArtifactDeployer extends ArtifactGenerator
         File artifactFile = new File(getBasedir(), ArtifactUtils.convertArtifactToPath(artifact));
         ArtifactInputStream ais = new ArtifactInputStream(artifact, new FileInputStream(artifactFile));
 
-        client.addArtifact(artifact, storage, repository, ais);
+        client.addArtifact(artifact, storageId, repositoryId, ais);
 
-        deployChecksum(ais, storage, repository, artifact);
+        deployChecksum(ais, storageId, repositoryId, artifact);
     }
 
     private void deployChecksum(ArtifactInputStream ais,
-                                String storage,
-                                String repository,
+                                String storageId,
+                                String repositoryId,
                                 Artifact artifact)
             throws ArtifactOperationException
     {
@@ -130,7 +130,7 @@ public class ArtifactDeployer extends ArtifactGenerator
             final String extensionForAlgorithm = MessageDigestUtils.getExtensionForAlgorithm(digest.getAlgorithm());
 
             String artifactToPath = ArtifactUtils.convertArtifactToPath(artifact) + extensionForAlgorithm;
-            String url = client.getContextBaseUrl() + "/storages/" + storage + "/" + repository + "/" + artifactToPath;
+            String url = client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + artifactToPath;
             String artifactFileName = ais.getArtifactFileName() + extensionForAlgorithm;
 
             client.deployFile(bais, url, artifactFileName);
@@ -138,8 +138,8 @@ public class ArtifactDeployer extends ArtifactGenerator
     }
 
     private void deployPOM(Artifact artifact,
-                           String storage,
-                           String repository)
+                           String storageId,
+                           String repositoryId)
             throws NoSuchAlgorithmException,
                    FileNotFoundException,
                    ArtifactOperationException
@@ -149,9 +149,9 @@ public class ArtifactDeployer extends ArtifactGenerator
         InputStream is = new FileInputStream(pomFile);
         ArtifactInputStream ais = new ArtifactInputStream(artifact, is);
 
-        client.addArtifact(artifact, storage, repository, ais);
+        client.addArtifact(artifact, storageId, repositoryId, ais);
 
-        deployChecksum(ais, storage, repository, artifact);
+        deployChecksum(ais, storageId, repositoryId, artifact);
     }
 
     public String getUsername()

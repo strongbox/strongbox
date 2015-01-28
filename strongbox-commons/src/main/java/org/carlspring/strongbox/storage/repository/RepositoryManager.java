@@ -22,26 +22,26 @@ public class RepositoryManager
     {
     }
 
-    public void createRepositoryStructure(String storageBaseDir, String repositoryName)
+    public void createRepositoryStructure(String storageBaseDir, String repositoryId)
             throws IOException
     {
         final File storageBasedir = new File(storageBaseDir);
         //noinspection ResultOfMethodCallIgnored
-        new File(storageBasedir, repositoryName).mkdirs();
+        new File(storageBasedir, repositoryId).mkdirs();
         //noinspection ResultOfMethodCallIgnored
-        new File(storageBasedir, repositoryName + File.separatorChar + ".index").mkdirs();
+        new File(storageBasedir, repositoryId + File.separatorChar + ".index").mkdirs();
         //noinspection ResultOfMethodCallIgnored
-        new File(storageBasedir, repositoryName + File.separatorChar + ".trash").mkdirs();
+        new File(storageBasedir, repositoryId + File.separatorChar + ".trash").mkdirs();
     }
 
-    public void removeRepositoryStructure(String storageBasedir, String repositoryName)
+    public void removeRepositoryStructure(String storageBasedir, String repositoryId)
             throws IOException
     {
-        final File repositoryBaseDir = new File(new File(storageBasedir), repositoryName);
+        final File repositoryBaseDir = new File(new File(storageBasedir), repositoryId);
         FileUtils.deleteDirectory(repositoryBaseDir);
 
         logger.debug("Removed directory structure for repository '" +
-                     repositoryBaseDir.getAbsolutePath() + File.separatorChar + repositoryName + "'.");
+                     repositoryBaseDir.getAbsolutePath() + File.separatorChar + repositoryId + "'.");
     }
 
 }

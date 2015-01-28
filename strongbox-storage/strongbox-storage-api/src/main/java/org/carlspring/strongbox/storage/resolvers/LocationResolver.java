@@ -10,20 +10,20 @@ import java.io.OutputStream;
 public interface LocationResolver
 {
 
-    InputStream getInputStream(String repository,
+    InputStream getInputStream(String repositoryId,
                                String path)
             throws IOException;
 
-    OutputStream getOutputStream(String repository,
+    OutputStream getOutputStream(String repositoryId,
                                  String path)
             throws IOException;
 
-    void delete(String repository,
+    void delete(String repositoryId,
                 String path,
                 boolean force)
             throws IOException;
 
-    void deleteTrash(String repository)
+    void deleteTrash(String repositoryId)
             throws IOException;
 
     void deleteTrash()

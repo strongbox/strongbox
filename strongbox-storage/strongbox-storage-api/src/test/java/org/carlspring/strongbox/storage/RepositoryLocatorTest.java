@@ -48,9 +48,9 @@ public class RepositoryLocatorTest
                      3,
                      locator.getStorage().getRepositories().size());
 
-        for (String repositoryName : locator.getStorage().getRepositories().keySet())
+        for (String repositoryId : locator.getStorage().getRepositories().keySet())
         {
-            System.out.println(repositoryName);
+            System.out.println(repositoryId);
         }
     }
 

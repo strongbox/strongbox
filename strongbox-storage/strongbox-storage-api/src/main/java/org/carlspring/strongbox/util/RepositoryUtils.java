@@ -10,12 +10,12 @@ public class RepositoryUtils
 {
 
 
-    public static void checkRepositoryExists(String repositoryName, Repository repository)
+    public static void checkRepositoryExists(String repositoryId, Repository repository)
             throws ArtifactResolutionException
     {
         if (repository == null)
         {
-            throw new ArtifactResolutionException("Repository " + repositoryName + " does not exist.");
+            throw new ArtifactResolutionException("Repository " + repositoryId + " does not exist.");
         }
     }
 

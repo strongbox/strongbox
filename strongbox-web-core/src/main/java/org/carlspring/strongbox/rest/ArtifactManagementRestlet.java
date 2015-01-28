@@ -28,9 +28,9 @@ public class ArtifactManagementRestlet
 
 
     @POST
-    @Path("/{repository}/state/{state}/length/{length}/{path:.*}")
+    @Path("/{repositoryId}/state/{state}/length/{length}/{path:.*}")
     @Consumes(MediaType.TEXT_PLAIN)
-    public String addArtifact(@PathParam("repository") String repository,
+    public String addArtifact(@PathParam("repositoryId") String repositoryId,
                               @PathParam("state") String state,
                               @PathParam("length") long length,
                               @PathParam("path") String artifactPath)
@@ -45,7 +45,7 @@ public class ArtifactManagementRestlet
 
         ArtifactExistenceState existenceState = ArtifactExistenceState.valueOf(state);
 
-        final ArtifactResource artifactResource = ArtifactResourceMapper.getArtifactResourceInstance(repository,
+        final ArtifactResource artifactResource = ArtifactResourceMapper.getArtifactResourceInstance(repositoryId,
                                                                                                      artifact,
                                                                                                      length,
                                                                                                      existenceState);
@@ -55,7 +55,7 @@ public class ArtifactManagementRestlet
         final String msg = "Added artifact " + artifact.toString() +
                            " with state " + state +
                            " and length " + length +
-                           " to repository " + repository + ".";
+                           " to repository " + repositoryId + ".";
 
         logger.debug(msg);
 
@@ -63,8 +63,8 @@ public class ArtifactManagementRestlet
     }
 
     @DELETE
-    @Path("{repository}/{path:.*}")
-    public void delete(@PathParam("repository") String repository,
+    @Path("{repositoryId}/{path:.*}")
+    public void delete(@PathParam("repositoryId") String repositoryId,
                        @PathParam("path") String path)
             throws IOException
     {

@@ -27,9 +27,9 @@ public class ArtifactRestlet
 
 
     @PUT
-    @Path("{storage}/{repository}/{path:.*}")
-    public Response upload(@PathParam("storage") String storage,
-                           @PathParam("repository") String repository,
+    @Path("{storageId}/{repositoryId}/{path:.*}")
+    public Response upload(@PathParam("storageId") String storageId,
+                           @PathParam("repositoryId") String repositoryId,
                            @PathParam("path") String path,
                            @Context HttpHeaders headers,
                            @Context HttpServletRequest request,
@@ -37,13 +37,13 @@ public class ArtifactRestlet
             throws IOException,
                    NoSuchAlgorithmException
     {
-        logger.debug("Deploying to " + storage + "/" + repository + "/" + path + "...");
+        logger.debug("Deploying to " + storageId + "/" + repositoryId + "/" + path + "...");
 
         OutputStream os = null;
         try
         {
             final File file = new File(ConfigurationResourceResolver.getBasedir() + File.separatorChar +
-                                       "storages/" + storage + File.separatorChar + repository, path);
+                                       "storages/" + storageId + File.separatorChar + repositoryId, path);
 
             if (!file.getParentFile().exists())
             {
@@ -71,9 +71,9 @@ public class ArtifactRestlet
     }
 
     @GET
-    @Path("{storage}/{repository}/{path:.*}")
-    public Response download(@PathParam("storage") String storage,
-                             @PathParam("repository") String repository,
+    @Path("{storageId}/{repositoryId}/{path:.*}")
+    public Response download(@PathParam("storageId") String storageId,
+                             @PathParam("repositoryId") String repositoryId,
                              @PathParam("path") String path,
                              @Context HttpServletRequest request,
                              @Context HttpHeaders headers)
@@ -82,7 +82,7 @@ public class ArtifactRestlet
                    IllegalAccessException,
                    ClassNotFoundException
     {
-        logger.debug(" repository = " + repository + ", path = " + path);
+        logger.debug(" repositoryId = " + repositoryId + ", path = " + path);
 
         if (!ArtifactUtils.isArtifact(path))
         {
@@ -94,14 +94,14 @@ public class ArtifactRestlet
     }
 
     @DELETE
-    @Path("{storage}/{repository}/{path:.*}")
-    public Response delete(@PathParam("storage") String storage,
-                           @PathParam("repository") String repository,
+    @Path("{storageId}/{repositoryId}/{path:.*}")
+    public Response delete(@PathParam("storageId") String storageId,
+                           @PathParam("repositoryId") String repositoryId,
                            @PathParam("path") String path)
             throws IOException
     {
         logger.debug("DELETE: " + path);
-        logger.debug(" repository = " + repository + ", path = " + path);
+        logger.debug(" repository = " + repositoryId + ", path = " + path);
 
         return Response.ok().build();
     }

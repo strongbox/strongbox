@@ -41,7 +41,7 @@ public class InMemoryLocationResolver implements LocationResolver
     }
 
     @Override
-    public InputStream getInputStream(String repository,
+    public InputStream getInputStream(String repositoryId,
                                       String artifactPath)
             throws IOException
     {
@@ -49,7 +49,7 @@ public class InMemoryLocationResolver implements LocationResolver
         {
             Storage storage = (Storage) entry.getValue();
 
-            if (storage.containsRepository(repository))
+            if (storage.containsRepository(repositoryId))
             {
                 logger.debug("Checking in storage " + storage.getBasedir() + "...");
 
@@ -88,7 +88,7 @@ public class InMemoryLocationResolver implements LocationResolver
     }
 
     @Override
-    public OutputStream getOutputStream(String repository,
+    public OutputStream getOutputStream(String repositoryId,
                                         String artifactPath)
             throws IOException
     {
@@ -96,12 +96,12 @@ public class InMemoryLocationResolver implements LocationResolver
         {
             Storage storage = (Storage) entry.getValue();
 
-            if (storage.containsRepository(repository))
+            if (storage.containsRepository(repositoryId))
             {
                 if (!artifactPath.contains("/maven-metadata."))
                 {
                     Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
-                    ArtifactResourceMapper.addResource(ArtifactResourceMapper.getArtifactResourceInstance(repository,
+                    ArtifactResourceMapper.addResource(ArtifactResourceMapper.getArtifactResourceInstance(repositoryId,
                                                                                                           artifact,
                                                                                                           10000L, // Hard-coding to 10 KB as we can't guess
                                                                                                                   // the size at this point and we shouldn't be
@@ -117,7 +117,7 @@ public class InMemoryLocationResolver implements LocationResolver
     }
 
     @Override
-    public void delete(String repository,
+    public void delete(String repositoryId,
                        String path,
                        boolean force)
             throws IOException
@@ -126,7 +126,7 @@ public class InMemoryLocationResolver implements LocationResolver
         {
             Storage storage = (Storage) entry.getValue();
 
-            if (storage.containsRepository(repository))
+            if (storage.containsRepository(repositoryId))
             {
                 if (!path.contains("/maven-metadata."))
                 {
@@ -135,7 +135,7 @@ public class InMemoryLocationResolver implements LocationResolver
                                                            artifact.getArtifactId(),
                                                            artifact.getVersion());
 
-                    logger.debug("Removed /" + repository + path);
+                    logger.debug("Removed /" + repositoryId + path);
                 }
             }
         }

@@ -158,7 +158,7 @@ public class FSLocationResolver
         }
     }
 
-    private void moveChecksumsToTrash(String repository,
+    private void moveChecksumsToTrash(String repositoryId,
                                       String path,
                                       File artifactFile,
                                       File basedirTrash)
@@ -170,7 +170,7 @@ public class FSLocationResolver
             File md5TrashFile = new File(basedirTrash, path + ".md5").getCanonicalFile();
             FileUtils.moveFile(md5ChecksumFile, md5TrashFile);
 
-            logger.debug("Moved /" + repository + "/" + path + ".md5" + " to trash (" + md5TrashFile.getAbsolutePath() + ").");
+            logger.debug("Moved /" + repositoryId + "/" + path + ".md5" + " to trash (" + md5TrashFile.getAbsolutePath() + ").");
         }
 
         File sha1ChecksumFile = new File(artifactFile.getAbsolutePath() + ".sha1");
@@ -179,7 +179,7 @@ public class FSLocationResolver
             File sha1TrashFile = new File(basedirTrash, path + ".sha1").getCanonicalFile();
             FileUtils.moveFile(sha1ChecksumFile, sha1TrashFile);
 
-            logger.debug("Moved /" + repository + "/" + path + ".sha1" + " to trash (" + sha1TrashFile.getAbsolutePath() + ").");
+            logger.debug("Moved /" + repositoryId + "/" + path + ".sha1" + " to trash (" + sha1TrashFile.getAbsolutePath() + ").");
         }
     }
 

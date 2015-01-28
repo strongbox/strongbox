@@ -157,7 +157,7 @@ public class ArtifactManagementServiceImpl
 
     @Override
     public InputStream resolve(String storageId,
-                               String repository,
+                               String repositoryId,
                                String path)
             throws ArtifactResolutionException
     {
@@ -165,7 +165,7 @@ public class ArtifactManagementServiceImpl
 
         try
         {
-            is = artifactResolutionService.getInputStream(storageId, repository, path);
+            is = artifactResolutionService.getInputStream(storageId, repositoryId, path);
             return is;
         }
         catch (IOException e)
@@ -204,7 +204,7 @@ public class ArtifactManagementServiceImpl
 
     @Override
     public void delete(String storageId,
-                       String repositoryName,
+                       String repositoryId,
                        String artifactPath,
                        boolean force)
             throws ArtifactStorageException
@@ -212,21 +212,21 @@ public class ArtifactManagementServiceImpl
         try
         {
             final Storage storage = configurationManager.getConfiguration().getStorages().get(storageId);
-            final Repository repository = storage.getRepository(repositoryName);
+            final Repository repository = storage.getRepository(repositoryId);
 
-            checkRepositoryExists(repositoryName, repository);
+            checkRepositoryExists(repositoryId, repository);
 
             LocationResolver resolver = getResolvers().get(repository.getImplementation());
 
-            resolver.delete(repositoryName, artifactPath, force);
+            resolver.delete(repositoryId, artifactPath, force);
 
-            final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storageId + ":" + repositoryName);
+            final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storageId + ":" + repositoryId);
             if (indexer != null)
             {
                 String extension = artifactPath.substring(artifactPath.lastIndexOf(".") + 1, artifactPath.length());
 
                 final Artifact a = ArtifactUtils.convertPathToArtifact(artifactPath);
-                indexer.delete(Arrays.asList(new ArtifactInfo(repositoryName,
+                indexer.delete(Arrays.asList(new ArtifactInfo(repositoryId,
                                                               a.getGroupId(),
                                                               a.getArtifactId(),
                                                               a.getVersion(),

@@ -19,7 +19,7 @@ public class RepositoryIndexManager
 {
 
     /**
-     * K: storageName:repositoryName
+     * K: storage/Id:repositoryId
      * V: index
      */
     private static final Logger logger = LoggerFactory.getLogger(RepositoryIndexManager.class);

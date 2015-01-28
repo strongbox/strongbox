@@ -31,8 +31,8 @@ public abstract class BaseRestlet
     private ConfigurationManager configurationManager;
 
 
-    public boolean requiresAuthentication(String storage,
-                                          String repository,
+    public boolean requiresAuthentication(String storageId,
+                                          String repositoryId,
                                           String path,
                                           String protocol)
     {
@@ -43,16 +43,16 @@ public abstract class BaseRestlet
 
         // logger.debug("Protocol: " + protocol);
 
-        final boolean required = configurationManager.getConfiguration().getStorage(storage).getRepository(repository).isSecured() ||
+        final boolean required = configurationManager.getConfiguration().getStorage(storageId).getRepository(repositoryId).isSecured() ||
                                  protocol.equalsIgnoreCase("http");
 
-        logger.debug("Resource: /storages/" + storage + "/" + repository + "/" + path + " requires authentication? " + required);
+        logger.debug("Resource: /storages/" + storageId + "/" + repositoryId + "/" + path + " requires authentication? " + required);
 
         return required;
     }
 
-    public boolean validateAuthentication(String storage,
-                                          String repository,
+    public boolean validateAuthentication(String storageId,
+                                          String repositoryId,
                                           String path,
                                           HttpHeaders headers,
                                           String protocol)
@@ -75,8 +75,8 @@ public abstract class BaseRestlet
         return false;
     }
 
-    public void handleAuthentication(String storage,
-                                     String repository,
+    public void handleAuthentication(String storageId,
+                                     String repositoryId,
                                      String path,
                                      HttpHeaders headers,
                                      HttpServletRequest request)
@@ -84,8 +84,8 @@ public abstract class BaseRestlet
     {
         String protocol = request.getRequestURL().toString().split(":")[0];
 
-        if (requiresAuthentication(storage, repository, path, protocol) &&
-            (!validateAuthentication(storage, repository, path, headers, protocol)))
+        if (requiresAuthentication(storageId, repositoryId, path, protocol) &&
+            (!validateAuthentication(storageId, repositoryId, path, headers, protocol)))
         {
             // Return HTTP 401
             throw new AuthorizationException("You are not authorized to deploy artifacts to this repository.");

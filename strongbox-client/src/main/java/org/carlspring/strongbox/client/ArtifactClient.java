@@ -46,12 +46,12 @@ public class ArtifactClient
     }
 
     public void addArtifact(Artifact artifact,
-                            String storage,
-                            String repository,
+                            String storageId,
+                            String repositoryId,
                             InputStream is)
             throws ArtifactOperationException
     {
-        String url = getContextBaseUrl() + "/storages/" + storage + "/" + repository + "/" +
+        String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" +
                      ArtifactUtils.convertArtifactToPath(artifact);
 
         logger.debug("Deploying " + url + "...");
@@ -98,19 +98,19 @@ public class ArtifactClient
      * NOTE: This artifacts file will not be a valid Maven one, but will exist for the sake of testing.
      *
      * @param artifact
-     * @param repository
+     * @param repositoryId
      * @param length
      * @throws ArtifactOperationException
      */
     public void addArtifact(Artifact artifact,
-                            String repository,
+                            String repositoryId,
                             long length)
             throws ArtifactOperationException
     {
         Client client = ClientBuilder.newClient();
 
         String url = getContextBaseUrl() + MANAGEMENT_URL + "/" +
-                     repository + "/state/EXISTS/length/" + length + "/" +
+                     repositoryId + "/state/EXISTS/length/" + length + "/" +
                      ArtifactUtils.convertArtifactToPath(artifact);
 
         logger.debug("Using " + url);
@@ -170,34 +170,34 @@ public class ArtifactClient
     }
 
     public void deleteArtifact(Artifact artifact,
-                               String storage,
-                               String repository)
+                               String storageId,
+                               String repositoryId)
     {
         Client client = ClientBuilder.newClient();
 
-        String url = getUrlForArtifact(artifact, storage, repository);
+        String url = getUrlForArtifact(artifact, storageId, repositoryId);
 
         WebTarget webResource = client.target(url);
         setupAuthentication(webResource);
         webResource.request().delete();
     }
 
-    public void delete(String storage,
-                       String repository,
+    public void delete(String storageId,
+                       String repositoryId,
                        String path)
     {
-        delete(storage, repository, path, false);
+        delete(storageId, repositoryId, path, false);
     }
 
-    public void delete(String storage,
-                       String repository,
+    public void delete(String storageId,
+                       String repositoryId,
                        String path,
                        boolean force)
     {
         Client client = ClientBuilder.newClient();
 
         @SuppressWarnings("ConstantConditions")
-        String url = getContextBaseUrl() + "/storages/" + storage + "/" + repository + "/" + path +
+        String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + path +
                      (force ? "?force=" + force : "");
 
         WebTarget webResource = client.target(url);
@@ -205,11 +205,11 @@ public class ArtifactClient
         webResource.request().delete();
     }
 
-    public void deleteTrash(String storage, String repository)
+    public void deleteTrash(String storageId, String repositoryId)
     {
         Client client = ClientBuilder.newClient();
 
-        String url = getUrlForTrash(storage, repository);
+        String url = getUrlForTrash(storageId, repositoryId);
 
         WebTarget webResource = client.target(url);
         setupAuthentication(webResource);
@@ -228,11 +228,11 @@ public class ArtifactClient
     }
 
     public boolean artifactExists(Artifact artifact,
-                                  String storage,
-                                  String repository)
+                                  String storageId,
+                                  String repositoryId)
             throws ResponseException
     {
-        Response response = artifactExistsStatusCode(artifact, storage, repository);
+        Response response = artifactExistsStatusCode(artifact, storageId, repositoryId);
 
         if (response.getStatus() == 200)
         {
@@ -249,13 +249,13 @@ public class ArtifactClient
     }
 
     public Response artifactExistsStatusCode(Artifact artifact,
-                                                   String storage,
-                                                   String repository)
+                                                   String storageId,
+                                                   String repositoryId)
             throws ResponseException
     {
         Client client = ClientBuilder.newClient();
 
-        String url = getUrlForArtifact(artifact, storage, repository);
+        String url = getUrlForArtifact(artifact, storageId, repositoryId);
 
         logger.debug("Path to artifact: " + url);
 
@@ -280,16 +280,16 @@ public class ArtifactClient
     }
 
     public String getUrlForArtifact(Artifact artifact,
-                                    String storage,
-                                    String repository)
+                                    String storageId,
+                                    String repositoryId)
     {
-        return getContextBaseUrl() + "/storages/" + storage + "/" + repository + "/" +
+        return getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" +
                ArtifactUtils.convertArtifactToPath(artifact);
     }
 
-    public String getUrlForTrash(String storage, String repository)
+    public String getUrlForTrash(String storageId, String repositoryId)
     {
-        return getContextBaseUrl() + "/trash/" + storage + "/" + repository;
+        return getContextBaseUrl() + "/trash/" + storageId + "/" + repositoryId;
     }
 
     public void setupAuthentication(WebTarget target)

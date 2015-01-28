@@ -36,9 +36,9 @@ public class ArtifactRestlet
 
 
     @PUT
-    @Path("{storage}/{repository}/{path:.*}")
-    public Response upload(@PathParam("storage") String storage,
-                           @PathParam("repository") String repository,
+    @Path("{storageId}/{repositoryId}/{path:.*}")
+    public Response upload(@PathParam("storageId") String storageId,
+                           @PathParam("repositoryId") String repositoryId,
                            @PathParam("path") String path,
                            @Context HttpHeaders headers,
                            @Context HttpServletRequest request,
@@ -47,11 +47,11 @@ public class ArtifactRestlet
                    AuthenticationException,
                    NoSuchAlgorithmException
     {
-        handleAuthentication(storage, repository, path, headers, request);
+        handleAuthentication(storageId, repositoryId, path, headers, request);
 
         try
         {
-            artifactManagementService.store(storage, repository, path, is);
+            artifactManagementService.store(storageId, repositoryId, path, is);
 
             return Response.ok().build();
         }
@@ -63,9 +63,9 @@ public class ArtifactRestlet
     }
 
     @GET
-    @Path("{storage}/{repository}/{path:.*}")
-    public Response download(@PathParam("storage") String storage,
-                             @PathParam("repository") String repository,
+    @Path("{storageId}/{repositoryId}/{path:.*}")
+    public Response download(@PathParam("storageId") String storageId,
+                             @PathParam("repositoryId") String repositoryId,
                              @PathParam("path") String path,
                              @Context HttpServletRequest request,
                              @Context HttpHeaders headers)
@@ -75,9 +75,9 @@ public class ArtifactRestlet
                    ClassNotFoundException,
                    AuthenticationException
     {
-        logger.debug(" repository = " + repository + ", path = " + path);
+        logger.debug(" repository = " + repositoryId + ", path = " + path);
 
-        handleAuthentication(storage, repository, path, headers, request);
+        handleAuthentication(storageId, repositoryId, path, headers, request);
 
         if (!ArtifactUtils.isArtifact(path))
         {
@@ -87,7 +87,7 @@ public class ArtifactRestlet
         InputStream is;
         try
         {
-            is = artifactManagementService.resolve(storage, repository, path);
+            is = artifactManagementService.resolve(storageId, repositoryId, path);
         }
         catch (ArtifactResolutionException e)
         {
@@ -98,19 +98,19 @@ public class ArtifactRestlet
     }
 
     @DELETE
-    @Path("{storage}/{repository}/{path:.*}")
-    public Response delete(@PathParam("storage") String storage,
-                           @PathParam("repository") String repository,
+    @Path("{storageId}/{repositoryId}/{path:.*}")
+    public Response delete(@PathParam("storageId") String storageId,
+                           @PathParam("repositoryId") String repositoryId,
                            @PathParam("path") String path,
                            @QueryParam("force") @DefaultValue("false") boolean force)
             throws IOException
     {
         logger.debug("DELETE: " + path);
-        logger.debug(" repository = " + repository + ", path = " + path);
+        logger.debug(" repository = " + repositoryId + ", path = " + path);
 
         try
         {
-            artifactManagementService.delete(storage, repository, path, force);
+            artifactManagementService.delete(storageId, repositoryId, path, force);
         }
         catch (ArtifactStorageException e)
         {

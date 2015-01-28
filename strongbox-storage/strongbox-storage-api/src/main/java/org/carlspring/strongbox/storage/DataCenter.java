@@ -75,19 +75,19 @@ public class DataCenter
         addStorage(null, anonymousStorage);
     }
 
-    public Repository getRepository(String repositoryName)
+    public Repository getRepository(String repositoryId)
     {
         for (Map.Entry entry : getStorages().entrySet())
         {
             Storage storage = (Storage) entry.getValue();
 
-            if (storage.containsRepository(repositoryName))
+            if (storage.containsRepository(repositoryId))
             {
                 final Map<String, Repository> repositories = storage.getRepositories();
 
-                if (repositories.containsKey(repositoryName))
+                if (repositories.containsKey(repositoryId))
                 {
-                    return repositories.get(repositoryName);
+                    return repositories.get(repositoryId);
                 }
             }
         }
@@ -124,17 +124,17 @@ public class DataCenter
     }
 
     /**
-     * @param storageName If the storage is anonymous, pass null as an argument.
+     * @param storageId If the storage is anonymous, pass null as an argument.
      * @param storage
      */
-    public void addStorage(String storageName, Storage storage)
+    public void addStorage(String storageId, Storage storage)
     {
-        if (storageName == null)
+        if (storageId == null)
         {
-            storageName = STORAGE_PREFIX + "-" + anonymousStoragesCounter.incrementAndGet();
+            storageId = STORAGE_PREFIX + "-" + anonymousStoragesCounter.incrementAndGet();
         }
 
-        storages.put(storageName, storage);
+        storages.put(storageId, storage);
     }
 
     public void addStorages(Collection<Storage> storages)
@@ -145,9 +145,9 @@ public class DataCenter
         }
     }
 
-    public void removeStorage(String storageName)
+    public void removeStorage(String storageId)
     {
-        storages.remove(storageName);
+        storages.remove(storageId);
     }
 
     public Map<String, Storage> getStorages()

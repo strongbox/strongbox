@@ -360,7 +360,7 @@ public class RestClient extends ArtifactClient
         return search(null, query, mediaType);
     }
 
-    public String search(String repository, String query, MediaType mediaType)
+    public String search(String repositoryId, String query, MediaType mediaType)
             throws UnsupportedEncodingException
     {
         final Client client = ClientBuilder.newBuilder()
@@ -369,7 +369,7 @@ public class RestClient extends ArtifactClient
                                            .build();
 
         String url = getContextBaseUrl() + "/search?" +
-                     (repository != null ? "repository=" + URLEncoder.encode(repository, "UTF-8") : "") +
+                     (repositoryId != null ? "repository=" + URLEncoder.encode(repositoryId, "UTF-8") : "") +
                      "&q=" + URLEncoder.encode(query, "UTF-8");
 
         WebTarget webResource = client.target(url);
@@ -383,11 +383,11 @@ public class RestClient extends ArtifactClient
         return asText;
     }
 
-    public void deleteTrash(String storage, String repository)
+    public void deleteTrash(String storageId, String repositoryId)
     {
         Client client = ClientBuilder.newClient();
 
-        String url = getUrlForTrash(storage, repository);
+        String url = getUrlForTrash(storageId, repositoryId);
 
         WebTarget webResource = client.target(url);
         setupAuthentication(webResource);
@@ -405,9 +405,9 @@ public class RestClient extends ArtifactClient
         webResource.request().delete();
     }
 
-    public String getUrlForTrash(String storage, String repository)
+    public String getUrlForTrash(String storageId, String repositoryId)
     {
-        return getContextBaseUrl() + "/trash/" + storage + "/" + repository;
+        return getContextBaseUrl() + "/trash/" + storageId + "/" + repositoryId;
     }
 
 }

@@ -14,9 +14,9 @@ public interface RepositoryManagementService
             throws IOException;
 
     void mergeRepositoryIndex(String sourceStorage,
-                              String sourceRepositoryName,
+                              String sourceRepositoryId,
                               String targetStorage,
-                              String targetRepositoryName)
+                              String targetRepositoryId)
             throws ArtifactStorageException;
 
     void removeRepository(String storageId,

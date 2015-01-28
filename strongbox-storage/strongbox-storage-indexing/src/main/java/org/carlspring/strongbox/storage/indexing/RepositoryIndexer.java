@@ -248,14 +248,14 @@ public class RepositoryIndexer
         return results;
     }
 
-    public String getURLForArtifact(String storage,
-                                    String repository,
+    public String getURLForArtifact(String storageId,
+                                    String repositoryId,
                                     String pathToArtifactFile)
     {
         String baseUrl = getConfiguration().getBaseUrl();
         baseUrl = (baseUrl.endsWith("/") ? baseUrl : baseUrl + "/");
 
-        return baseUrl + "storages/" + storage + "/" + repository + "/" + pathToArtifactFile;
+        return baseUrl + "storages/" + storageId + "/" + repositoryId + "/" + pathToArtifactFile;
     }
 
     public int index(final File startingPath)
@@ -267,7 +267,7 @@ public class RepositoryIndexer
         return scan.getTotalFiles();
     }
 
-    public void addArtifactToIndex(String repository,
+    public void addArtifactToIndex(String repositoryId,
                                    final File artifactFile,
                                    final Artifact artifact)
             throws IOException
@@ -275,7 +275,7 @@ public class RepositoryIndexer
         String extension = artifactFile.getName().substring(artifactFile.getName().lastIndexOf(".") + 1,
                                                             artifactFile.getName().length());
 
-        ArtifactInfo artifactInfo = new ArtifactInfo(repository,
+        ArtifactInfo artifactInfo = new ArtifactInfo(repositoryId,
                                                      artifact.getGroupId(),
                                                      artifact.getArtifactId(),
                                                      artifact.getVersion(),
@@ -291,7 +291,7 @@ public class RepositoryIndexer
                                                                               artifact.getVersion() + ":" +
                                                                               artifact.getClassifier() + ":" +
                                                                               extension,
-                                                                              repository,
+                                                                              repositoryId,
                                                                               artifact.getType() });
 
         getIndexer().addArtifactsToIndex(asList(new ArtifactContext(null,
