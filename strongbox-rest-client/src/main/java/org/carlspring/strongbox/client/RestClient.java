@@ -369,7 +369,7 @@ public class RestClient extends ArtifactClient
                                            .build();
 
         String url = getContextBaseUrl() + "/search?" +
-                     (repositoryId != null ? "repository=" + URLEncoder.encode(repositoryId, "UTF-8") : "") +
+                     (repositoryId != null ? "repositoryId=" + URLEncoder.encode(repositoryId, "UTF-8") : "") +
                      "&q=" + URLEncoder.encode(query, "UTF-8");
 
         WebTarget webResource = client.target(url);

@@ -73,8 +73,8 @@ public class SearchRestlet
      */
     @GET
     @Produces({ MediaType.TEXT_PLAIN })
-    public String searchAsPlainText(@QueryParam("storage") final String storageId,
-                                    @QueryParam("repository") final String repositoryId,
+    public String searchAsPlainText(@QueryParam("storageId") final String storageId,
+                                    @QueryParam("repositoryId") final String repositoryId,
                                     @QueryParam("q") final String query)
             throws IOException, ParseException
     {
