@@ -50,7 +50,7 @@ public class ConfigurationManager extends AbstractConfigurationManager<Configura
      * Sets the repository <--> storage relationships explicitly, as initially,
      * when these are deserialized from the XML, they have no such relationship.
      */
-    private void setRepositoryStorageRelationships()
+    public void setRepositoryStorageRelationships()
     {
         final Configuration configuration = getConfiguration();
         final Map<String, Storage> storages = configuration.getStorages();
