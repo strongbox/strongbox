@@ -102,19 +102,15 @@ public class FSLocationResolver
 
             if (storage.containsRepository(repositoryId))
             {
-                logger.debug("Checking in storage " + storage.getBasedir() + "...");
-
                 final Map<String, Repository> repositories = storage.getRepositories();
 
                 Repository r = repositories.get(repositoryId);
-
-                logger.debug("Checking in repository " + r.getId() + "...");
 
                 final File repoPath = new File(r.getBasedir());
                 final File artifactFile = new File(repoPath, path).getCanonicalFile();
                 final File basedirTrash = r.getTrashDir();
 
-                logger.debug("Checking for " + artifactFile.getCanonicalPath() + "...");
+                logger.debug("Checking in " + storage.getId() + ":" + r.getId() + "(" + artifactFile.getCanonicalPath() + ")...");
 
                 if (artifactFile.exists())
                 {

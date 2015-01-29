@@ -39,6 +39,7 @@ public class ConfigurationManagementServiceImpl implements ConfigurationManageme
         //noinspection unchecked
         configurationManager.setConfiguration(configuration);
         configurationManager.store();
+        configurationManager.setRepositoryStorageRelationships();
     }
 
     @Override
