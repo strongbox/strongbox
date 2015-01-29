@@ -106,7 +106,7 @@ public class ArtifactRestlet
             throws IOException
     {
         logger.debug("DELETE: " + path);
-        logger.debug(" repository = " + repositoryId + ", path = " + path);
+        logger.debug(storageId + ":" + repositoryId + ": " + path);
 
         try
         {
