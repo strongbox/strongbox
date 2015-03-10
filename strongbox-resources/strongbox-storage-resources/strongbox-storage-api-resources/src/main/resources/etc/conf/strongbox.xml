@@ -16,6 +16,24 @@
 
                 <repository id="snapshots" policy="snapshot" implementation="file-system" type="hosted" secured="true" />
                 <repository id="snapshots-in-memory" policy="snapshot" implementation="in-memory" type="hosted" secured="true" />
+
+                <repository id="proxied-releases" policy="release" implementation="file-system" type="proxy">
+                    <proxy-configuration host="localhost" port="8180" username="testuser" password="password" />
+                    <remote-repository url="http://localhost:48080/releases/"
+                                       username="maven"
+                                       password="password"
+                                       download-remote-indexes="true"
+                                       auto-blocking="true"
+                                       checksum-validation="true" />
+                </repository>
+
+                <repository id="group-snapshots" policy="snapshot" implementation="file-system" type="hosted" secured="true">
+                    <group>
+                        <repository>snapshots</repository>
+                        <repository>snapshots-in-memory</repository>
+                    </group>
+                </repository>
+
             </repositories>
         </storage>
     </storages>

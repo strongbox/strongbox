@@ -7,6 +7,8 @@ import org.carlspring.strongbox.storage.Storage;
 import javax.xml.bind.annotation.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 
@@ -50,6 +52,13 @@ public class Repository
      */
     @XmlElement(name = "proxy-configuration")
     private ProxyConfiguration proxyConfiguration;
+
+    @XmlElement(name = "remote-repository")
+    private RemoteRepository remoteRepository;
+
+    @XmlElement(name = "repository")
+    @XmlElementWrapper(name = "group")
+    private Set<String> groupRepositories = new LinkedHashSet<String>();
 
     @XmlTransient
     private Storage storage;
@@ -199,6 +208,36 @@ public class Repository
     public void setProxyConfiguration(ProxyConfiguration proxyConfiguration)
     {
         this.proxyConfiguration = proxyConfiguration;
+    }
+
+    public RemoteRepository getRemoteRepository()
+    {
+        return remoteRepository;
+    }
+
+    public void setRemoteRepository(RemoteRepository remoteRepository)
+    {
+        this.remoteRepository = remoteRepository;
+    }
+
+    public Set<String> getGroupRepositories()
+    {
+        return groupRepositories;
+    }
+
+    public void setGroupRepositories(Set<String> groupRepositories)
+    {
+        this.groupRepositories = groupRepositories;
+    }
+
+    public void addRepositoryToGroup(String repositoryId)
+    {
+        groupRepositories.add(repositoryId);
+    }
+
+    public void removeRepositoryFromGroup(String repositoryId)
+    {
+        groupRepositories.remove(repositoryId);
     }
 
     public boolean acceptsSnapshots()

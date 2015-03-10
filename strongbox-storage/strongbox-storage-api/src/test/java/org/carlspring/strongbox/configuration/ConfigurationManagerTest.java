@@ -120,4 +120,36 @@ public class ConfigurationManagerTest
         assertTrue("Failed to store the produced XML!", outputFile.length() > 0);
     }
 
+    @Test
+    public void testGroupRepositories()
+            throws IOException, JAXBException
+    {
+        Repository repository1 = new Repository("snapshots");
+        Repository repository2 = new Repository("ext-snapshots");
+        Repository repository3 = new Repository("grp-snapshots");
+        repository3.addRepositoryToGroup(repository1.getId());
+        repository3.addRepositoryToGroup(repository2.getId());
+
+        Storage storage = new Storage("storage0");
+        storage.setBasedir(STORAGE_BASEDIR);
+        storage.addOrUpdateRepository(repository1);
+        storage.addOrUpdateRepository(repository2);
+        storage.addOrUpdateRepository(repository3);
+
+        Configuration configuration = new Configuration();
+        configuration.addStorage(storage);
+
+        File outputFile = new File(CONFIGURATION_OUTPUT_FILE);
+
+        parser.store(configuration, outputFile.getCanonicalPath());
+
+        assertTrue("Failed to store the produced XML!", outputFile.length() > 0);
+
+        Configuration c = parser.parse(outputFile);
+
+        assertEquals("Failed to read repository groups!",
+                     2,
+                     c.getStorages().get("storage0").getRepositories().get("grp-snapshots").getGroupRepositories().size());
+    }
+
 }
