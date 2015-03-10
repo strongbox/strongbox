@@ -2,10 +2,7 @@ package org.carlspring.strongbox.storage.repository;
 
 import org.carlspring.strongbox.security.jaas.Credentials;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
 
 /**
  * @author mtodorov
@@ -15,22 +12,25 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class RemoteRepository
 {
 
-    @XmlElement
+    @XmlAttribute
     private String url;
 
-    @XmlElement(name = "download-remote-indexes")
+    @XmlAttribute(name = "download-remote-indexes")
     private boolean downloadRemoteIndexes;
 
-    @XmlElement(name = "auto-blocking")
+    @XmlAttribute(name = "auto-blocking")
     private boolean autoBlocking;
 
-    @XmlElement(name = "checksum-validation")
+    @XmlAttribute(name = "checksum-validation")
     private boolean checksumValidation;
 
-    @XmlElement(name = "credentials")
-    private Credentials credentials;
+    @XmlAttribute
+    private String username;
 
-    @XmlElement(name = "checksum-policy")
+    @XmlAttribute
+    private String password;
+
+    @XmlAttribute(name = "checksum-policy")
     private String checksumPolicy;
 
 
@@ -78,14 +78,24 @@ public class RemoteRepository
         this.checksumValidation = checksumValidation;
     }
 
-    public Credentials getCredentials()
+    public String getUsername()
     {
-        return credentials;
+        return username;
     }
 
-    public void setCredentials(Credentials credentials)
+    public void setUsername(String username)
     {
-        this.credentials = credentials;
+        this.username = username;
+    }
+
+    public String getPassword()
+    {
+        return password;
+    }
+
+    public void setPassword(String password)
+    {
+        this.password = password;
     }
 
     public String getChecksumPolicy()
