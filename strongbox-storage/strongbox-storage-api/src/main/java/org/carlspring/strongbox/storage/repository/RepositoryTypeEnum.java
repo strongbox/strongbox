@@ -10,7 +10,7 @@ public enum RepositoryTypeEnum
 
     PROXY("proxy"),     // Unsupported
 
-    GROUP("group"),     // Unsupported
+    GROUP("group"),
 
     VIRTUAL("virtual"); // Unsupported
 

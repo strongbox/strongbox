@@ -73,7 +73,8 @@ public class ConfigurationManagerTest
         assertEquals("Incorrect version!", "1.0", configuration.getVersion());
         assertEquals("Incorrect port number!", 48080, configuration.getPort());
         assertNotNull("No resolvers found!", artifactResolutionService.getResolvers());
-        assertEquals("Incorrect number of resolvers found!", 2, artifactResolutionService.getResolvers().size());
+        // The test repository group should have at least two repositories in it:
+        assertTrue("Incorrect number of resolvers found!", artifactResolutionService.getResolvers().size() >= 2);
         assertEquals("Repository should have required authentication!",
                      true,
                      configuration.getStorages().get("storage0").getRepositories().get("snapshots").isSecured());
