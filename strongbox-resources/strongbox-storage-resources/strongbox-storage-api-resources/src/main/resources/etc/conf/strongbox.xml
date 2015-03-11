@@ -27,10 +27,11 @@
                                        checksum-validation="true" />
                 </repository>
 
-                <repository id="group-snapshots" policy="snapshot" implementation="file-system" type="hosted" secured="true">
+                <repository id="group-releases" policy="release" implementation="group" type="group" secured="true">
                     <group>
-                        <repository>snapshots</repository>
-                        <repository>snapshots-in-memory</repository>
+                        <repository>releases</repository>
+                        <repository>releases-with-redeployment</repository>
+                        <repository>releases-with-trash</repository>
                     </group>
                 </repository>
 

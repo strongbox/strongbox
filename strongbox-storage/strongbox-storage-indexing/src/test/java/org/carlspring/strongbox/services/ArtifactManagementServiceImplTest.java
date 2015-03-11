@@ -1,10 +1,13 @@
 package org.carlspring.strongbox.services;
 
+import org.apache.commons.io.IOUtils;
 import org.carlspring.strongbox.artifact.generator.ArtifactGenerator;
+import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -15,6 +18,9 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author mtodorov
@@ -54,10 +60,28 @@ public class ArtifactManagementServiceImplTest
             generator.generate(gavtc, "6.0.1", "6.1.1", "6.2.1", "6.2.2-SNAPSHOT", "7.0", "7.1");
 
             generator.setBasedir(STORAGE_BASEDIR.getAbsolutePath() + "/releases-with-trash");
-            generator.generate(gavtc, "7.1");
+            generator.generate(gavtc, "7.2");
+
+            generator.setBasedir(STORAGE_BASEDIR.getAbsolutePath() + "/releases-with-redeployment");
+            generator.generate(gavtc, "7.3");
 
             INITIALIZED = true;
         }
+    }
+
+    @Test
+    public void testArtifactResolutionFromGroup() throws
+                                                  IOException
+    {
+        InputStream is = artifactManagementService.resolve("storage0",
+                                                           "group-releases",
+                                                           "org/carlspring/strongbox/strongbox-utils/7.3/strongbox-utils-7.3.jar");
+
+
+        assertFalse("Failed to resolve artifact from group repository!", is == null);
+        assertTrue("Failed to resolve artifact from group repository!", is.available() > 0);
+
+        is.close();
     }
 
     @Test
@@ -70,19 +94,19 @@ public class ArtifactManagementServiceImplTest
                                          artifactPath1,
                                          true);
 
-        Assert.assertFalse("Failed to delete artifact during a force delete operation!",
-                           new File(REPOSITORY_BASEDIR, artifactPath1).exists());
+        assertFalse("Failed to delete artifact during a force delete operation!",
+                    new File(REPOSITORY_BASEDIR, artifactPath1).exists());
 
-        final String artifactPath2 = "org/carlspring/strongbox/strongbox-utils/7.1/strongbox-utils-7.1.jar";
+        final String artifactPath2 = "org/carlspring/strongbox/strongbox-utils/7.2/strongbox-utils-7.2.jar";
         artifactManagementService.delete("storage0",
                                          "releases-with-trash",
                                          artifactPath2,
                                          true);
 
         final File repositoryDir = new File(STORAGE_BASEDIR, "releases-with-trash/.trash");
-        Assert.assertTrue("Should have moved the artifact to the trash during a force delete operation, " +
-                          "when allowsForceDeletion is not enabled!",
-                          new File(repositoryDir, artifactPath2).exists());
+        assertTrue("Should have moved the artifact to the trash during a force delete operation, " +
+                   "when allowsForceDeletion is not enabled!",
+                   new File(repositoryDir, artifactPath2).exists());
     }
 
 }
