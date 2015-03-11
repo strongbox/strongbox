@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.storage.resolvers;
 
-import org.apache.commons.io.FileUtils;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -17,7 +16,7 @@ import java.util.Map;
  */
 @Component
 public class GroupLocationResolver
-        extends FSLocationResolver
+        implements LocationResolver
 {
 
     private static final Logger logger = LoggerFactory.getLogger(GroupLocationResolver.class);
@@ -113,6 +112,18 @@ public class GroupLocationResolver
             throws IOException
     {
         logger.debug("Initialized GroupLocationResolver.");
+    }
+
+    @Override
+    public String getAlias()
+    {
+        return alias;
+    }
+
+    @Override
+    public void setAlias(String alias)
+    {
+        this.alias = alias;
     }
 
 }
