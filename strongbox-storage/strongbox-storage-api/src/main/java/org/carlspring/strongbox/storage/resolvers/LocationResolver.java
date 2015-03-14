@@ -10,17 +10,13 @@ import java.io.OutputStream;
 public interface LocationResolver
 {
 
-    InputStream getInputStream(String repositoryId,
-                               String path)
+    InputStream getInputStream(String repositoryId, String path)
             throws IOException;
 
-    OutputStream getOutputStream(String repositoryId,
-                                 String path)
+    OutputStream getOutputStream(String repositoryId, String path)
             throws IOException;
 
-    void delete(String repositoryId,
-                String path,
-                boolean force)
+    void delete(String repositoryId, String path, boolean force)
             throws IOException;
 
     void deleteTrash(String repositoryId)
