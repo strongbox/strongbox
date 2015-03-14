@@ -58,7 +58,8 @@ public class ArtifactRestlet
         catch (ArtifactStorageException e)
         {
             // TODO: Figure out if this is the correct response type...
-            throw new WebApplicationException(e, Response.Status.FORBIDDEN);
+            logger.error(e.getMessage(), e);
+            throw new WebApplicationException(e.getMessage(), Response.Status.FORBIDDEN);
         }
     }
 

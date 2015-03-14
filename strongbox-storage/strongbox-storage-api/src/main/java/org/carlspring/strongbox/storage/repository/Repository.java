@@ -44,8 +44,14 @@ public class Repository
     @XmlAttribute(name = "allows-force-deletion")
     private boolean allowsForceDeletion = false;
 
+    @XmlAttribute(name = "allows-deployment")
+    private boolean allowsDeployment = true;
+
     @XmlAttribute(name = "allows-redeployment")
     private boolean allowsRedeployment = false;
+
+    @XmlAttribute(name = "allows-delete")
+    private boolean allowsDelete = true;
 
     /**
      * The per-repository proxy settings that override the overall global proxy settings.
@@ -180,6 +186,16 @@ public class Repository
         this.trashEnabled = trashEnabled;
     }
 
+    public void setAllowsDelete(boolean allowsDelete)
+    {
+        this.allowsDelete = allowsDelete;
+    }
+
+    public boolean allowsDeletion()
+    {
+        return allowsDelete;
+    }
+
     public boolean allowsForceDeletion()
     {
         return allowsForceDeletion;
@@ -188,6 +204,16 @@ public class Repository
     public void setAllowsForceDeletion(boolean allowsForceDeletion)
     {
         this.allowsForceDeletion = allowsForceDeletion;
+    }
+
+    public boolean allowsDeployment()
+    {
+        return allowsDeployment;
+    }
+
+    public void setAllowsDeployment(boolean allowsDeployment)
+    {
+        this.allowsDeployment = allowsDeployment;
     }
 
     public boolean allowsRedeployment()

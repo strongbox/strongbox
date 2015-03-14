@@ -1,11 +1,9 @@
 package org.carlspring.strongbox.storage.resolvers;
 
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -16,15 +14,12 @@ import java.util.Map;
  */
 @Component
 public class GroupLocationResolver
-        implements LocationResolver
+        extends AbstractLocationResolver
 {
 
     private static final Logger logger = LoggerFactory.getLogger(GroupLocationResolver.class);
 
     private String alias = "group";
-
-    @Autowired
-    private ConfigurationManager configurationManager;
 
 
     public GroupLocationResolver()
@@ -36,7 +31,7 @@ public class GroupLocationResolver
                                       String artifactPath)
             throws IOException
     {
-        for (Map.Entry entry : configurationManager.getConfiguration().getStorages().entrySet())
+        for (Map.Entry entry : getConfiguration().getStorages().entrySet())
         {
             Storage storage = (Storage) entry.getValue();
 
@@ -52,7 +47,7 @@ public class GroupLocationResolver
                     String sId = storageAndRepositoryIdTokens.length == 2 ? storageAndRepositoryIdTokens[0] : storage.getId();
                     String rId = storageAndRepositoryIdTokens[storageAndRepositoryIdTokens.length < 2 ? 0 : 1];
 
-                    Repository r = configurationManager.getConfiguration().getStorage(sId).getRepository(rId);
+                    Repository r = getConfiguration().getStorage(sId).getRepository(rId);
 
                     final File repoPath = new File(r.getBasedir());
                     final File artifactFile = new File(repoPath, artifactPath).getCanonicalFile();
@@ -94,7 +89,7 @@ public class GroupLocationResolver
     }
 
     @Override
-    public void deleteTrash(String repository)
+    public void deleteTrash(String repositoryId)
             throws IOException
     {
         throw new IOException("Group repositories cannot perform delete operations.");

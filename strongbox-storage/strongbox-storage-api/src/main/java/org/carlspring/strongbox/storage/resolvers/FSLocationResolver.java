@@ -1,32 +1,26 @@
 package org.carlspring.strongbox.storage.resolvers;
 
-import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.apache.commons.io.FileUtils;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.util.Map;
-
-import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * @author mtodorov
  */
 @Component
 public class FSLocationResolver
-        implements LocationResolver
+        extends AbstractLocationResolver
 {
 
     private static final Logger logger = LoggerFactory.getLogger(FSLocationResolver.class);
 
     private String alias = "file-system";
-
-    @Autowired
-    private ConfigurationManager configurationManager;
 
 
     public FSLocationResolver()
@@ -38,7 +32,7 @@ public class FSLocationResolver
                                       String artifactPath)
             throws IOException
     {
-        for (Map.Entry entry : configurationManager.getConfiguration().getStorages().entrySet())
+        for (Map.Entry entry : getConfiguration().getStorages().entrySet())
         {
             Storage storage = (Storage) entry.getValue();
 
@@ -68,7 +62,7 @@ public class FSLocationResolver
                                         String artifactPath)
             throws IOException
     {
-        for (Map.Entry entry : configurationManager.getConfiguration().getStorages().entrySet())
+        for (Map.Entry entry : getConfiguration().getStorages().entrySet())
         {
             Storage storage = (Storage) entry.getValue();
 
@@ -96,7 +90,7 @@ public class FSLocationResolver
                        boolean force)
             throws IOException
     {
-        for (Map.Entry entry : configurationManager.getConfiguration().getStorages().entrySet())
+        for (Map.Entry entry : getConfiguration().getStorages().entrySet())
         {
             Storage storage = (Storage) entry.getValue();
 
@@ -204,20 +198,20 @@ public class FSLocationResolver
     }
 
     @Override
-    public void deleteTrash(String repository)
+    public void deleteTrash(String repositoryId)
             throws IOException
     {
-        for (Map.Entry entry : configurationManager.getConfiguration().getStorages().entrySet())
+        for (Map.Entry entry : getConfiguration().getStorages().entrySet())
         {
             Storage storage = (Storage) entry.getValue();
 
-            if (storage.containsRepository(repository))
+            if (storage.containsRepository(repositoryId))
             {
                 final Map<String, Repository> repositories = storage.getRepositories();
 
-                Repository r = repositories.get(repository);
+                Repository r = repositories.get(repositoryId);
 
-                logger.debug("Emptying trash for repository " + r.getId() + "...");
+                logger.debug("Emptying trash for repositoryId " + r.getId() + "...");
 
                 final File basedirTrash = r.getTrashDir();
 
@@ -233,21 +227,28 @@ public class FSLocationResolver
     public void deleteTrash()
             throws IOException
     {
-        for (Map.Entry entry : configurationManager.getConfiguration().getStorages().entrySet())
+        for (Map.Entry entry : getConfiguration().getStorages().entrySet())
         {
             Storage storage = (Storage) entry.getValue();
 
             final Map<String, Repository> repositories = storage.getRepositories();
             for (Repository repository : repositories.values())
             {
-                logger.debug("Emptying trash for repository " + repository.getId() + "...");
+                if (repository.allowsDeletion())
+                {
+                    logger.debug("Emptying trash for repository " + repository.getId() + "...");
 
-                final File basedirTrash = repository.getTrashDir();
+                    final File basedirTrash = repository.getTrashDir();
 
-                FileUtils.deleteDirectory(basedirTrash);
+                    FileUtils.deleteDirectory(basedirTrash);
 
-                //noinspection ResultOfMethodCallIgnored
-                basedirTrash.mkdirs();
+                    //noinspection ResultOfMethodCallIgnored
+                    basedirTrash.mkdirs();
+                }
+                else
+                {
+                    logger.warn("Repository " + repository.getId() + " does not support removal of trash.");
+                }
             }
         }
     }
@@ -269,16 +270,6 @@ public class FSLocationResolver
     public void setAlias(String alias)
     {
         this.alias = alias;
-    }
-
-    public ConfigurationManager getConfigurationManager()
-    {
-        return configurationManager;
-    }
-
-    public void setConfigurationManager(ConfigurationManager configurationManager)
-    {
-        this.configurationManager = configurationManager;
     }
 
 }

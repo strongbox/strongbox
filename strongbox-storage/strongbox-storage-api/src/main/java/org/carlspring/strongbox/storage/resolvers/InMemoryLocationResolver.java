@@ -1,13 +1,16 @@
 package org.carlspring.strongbox.storage.resolvers;
 
+import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.annotations.ArtifactExistenceState;
 import org.carlspring.strongbox.annotations.ArtifactResource;
 import org.carlspring.strongbox.annotations.ArtifactResourceMapper;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.io.RandomInputStream;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -15,25 +18,17 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 
-import org.apache.maven.artifact.Artifact;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 /**
  * @author mtodorov
  */
 @Component
-public class InMemoryLocationResolver implements LocationResolver
+public class InMemoryLocationResolver
+        extends AbstractLocationResolver
 {
 
     private static final Logger logger = LoggerFactory.getLogger(InMemoryLocationResolver.class);
 
     private String alias = "in-memory";
-
-    @Autowired
-    private ConfigurationManager configurationManager;
 
 
     public InMemoryLocationResolver()
@@ -45,7 +40,7 @@ public class InMemoryLocationResolver implements LocationResolver
                                       String artifactPath)
             throws IOException
     {
-        for (Map.Entry entry : configurationManager.getConfiguration().getStorages().entrySet())
+        for (Map.Entry entry : getConfiguration().getStorages().entrySet())
         {
             Storage storage = (Storage) entry.getValue();
 
@@ -92,7 +87,7 @@ public class InMemoryLocationResolver implements LocationResolver
                                         String artifactPath)
             throws IOException
     {
-        for (Map.Entry entry : configurationManager.getConfiguration().getStorages().entrySet())
+        for (Map.Entry entry : getConfiguration().getStorages().entrySet())
         {
             Storage storage = (Storage) entry.getValue();
 
@@ -122,7 +117,7 @@ public class InMemoryLocationResolver implements LocationResolver
                        boolean force)
             throws IOException
     {
-        for (Map.Entry entry : configurationManager.getConfiguration().getStorages().entrySet())
+        for (Map.Entry entry : getConfiguration().getStorages().entrySet())
         {
             Storage storage = (Storage) entry.getValue();
 
@@ -142,10 +137,10 @@ public class InMemoryLocationResolver implements LocationResolver
     }
 
     @Override
-    public void deleteTrash(String repository)
+    public void deleteTrash(String repositoryId)
             throws IOException
     {
-        logger.debug("Emptying trash for repository " + repository + "...");
+        logger.debug("Emptying trash for repositoryId " + repositoryId + "...");
 
         // Not much to implement (at least for the time-being)
     }

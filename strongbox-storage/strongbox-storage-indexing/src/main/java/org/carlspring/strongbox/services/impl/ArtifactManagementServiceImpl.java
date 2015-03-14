@@ -1,6 +1,9 @@
 package org.carlspring.strongbox.services.impl;
 
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.index.ArtifactInfo;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.io.MultipleDigestInputStream;
 import org.carlspring.strongbox.resource.ResourceCloser;
@@ -20,22 +23,18 @@ import org.carlspring.strongbox.storage.validation.version.VersionValidationExce
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
 import org.carlspring.strongbox.util.ArtifactFileUtils;
 import org.carlspring.strongbox.util.MessageDigestUtils;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import java.io.*;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.index.ArtifactInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.io.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+
 import static org.carlspring.strongbox.util.RepositoryUtils.checkRepositoryExists;
 
 /**
@@ -125,7 +124,7 @@ public class ArtifactManagementServiceImpl
                     if (indexer != null)
                     {
                         final Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
-                        final Storage storage = configurationManager.getConfiguration().getStorages().get(storageId);
+                        final Storage storage = getStorage(storageId);
                         final File storageBasedir = new File(storage.getBasedir());
                         final File artifactFile = new File(new File(storageBasedir, repositoryId), path).getCanonicalFile();
 
@@ -143,7 +142,7 @@ public class ArtifactManagementServiceImpl
         }
         catch (ArtifactResolutionException e)
         {
-            throw new WebApplicationException(e, Response.Status.NOT_FOUND);
+            throw new ArtifactStorageException(e);
         }
         catch (IOException e)
         {
@@ -177,27 +176,31 @@ public class ArtifactManagementServiceImpl
     private boolean performRepositoryAcceptanceValidation(String storageId,
                                                           String repositoryId,
                                                           String path)
-            throws WebApplicationException
+            throws ArtifactStorageException
     {
+        final Storage storage = getStorage(storageId);
+        final Repository repository = storage.getRepository(repositoryId);
+
         if (!path.contains("/maven-metadata."))
         {
             try
             {
                 Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
-                final Storage storage = configurationManager.getConfiguration().getStorages().get(storageId);
-                Repository r = storage.getRepository(repositoryId);
 
                 final Set<VersionValidator> validators = versionValidatorService.getValidators();
                 for (VersionValidator validator : validators)
                 {
-                    validator.validate(r, artifact);
+                    validator.validate(repository, artifact);
                 }
             }
             catch (VersionValidationException e)
             {
-                throw new WebApplicationException(e, Response.Status.FORBIDDEN);
+                throw new ArtifactStorageException(e);
             }
         }
+
+        checkAllowsDeployment(repository);
+        checkAllowsRedeployment(repository, ArtifactUtils.convertPathToArtifact(path));
 
         return true;
     }
@@ -209,11 +212,13 @@ public class ArtifactManagementServiceImpl
                        boolean force)
             throws ArtifactStorageException
     {
+        final Storage storage = getStorage(storageId);
+        final Repository repository = storage.getRepository(repositoryId);
+
+        checkAllowsDeletion(repository);
+
         try
         {
-            final Storage storage = configurationManager.getConfiguration().getStorages().get(storageId);
-            final Repository repository = storage.getRepository(repositoryId);
-
             checkRepositoryExists(repositoryId, repository);
 
             LocationResolver resolver = getResolvers().get(repository.getImplementation());
@@ -226,17 +231,44 @@ public class ArtifactManagementServiceImpl
                 String extension = artifactPath.substring(artifactPath.lastIndexOf(".") + 1, artifactPath.length());
 
                 final Artifact a = ArtifactUtils.convertPathToArtifact(artifactPath);
-                indexer.delete(Arrays.asList(new ArtifactInfo(repositoryId,
-                                                              a.getGroupId(),
-                                                              a.getArtifactId(),
-                                                              a.getVersion(),
-                                                              a.getClassifier(),
-                                                              extension)));
+                indexer.delete(Collections.singletonList(new ArtifactInfo(repositoryId,
+                                                                          a.getGroupId(),
+                                                                          a.getArtifactId(),
+                                                                          a.getVersion(),
+                                                                          a.getClassifier(),
+                                                                          extension)));
             }
         }
         catch (IOException e)
         {
             throw new ArtifactStorageException(e.getMessage(), e);
+        }
+    }
+
+    private void checkAllowsDeployment(Repository repository)
+            throws ArtifactStorageException
+    {
+        if (!repository.allowsDeployment())
+        {
+            throw new ArtifactStorageException("Deployment of artifacts to " + repository.getType() + " repository is not allowed!");
+        }
+    }
+
+    private void checkAllowsRedeployment(Repository repository, Artifact artifact)
+            throws ArtifactStorageException
+    {
+        if (repository.containsArtifact(artifact) && !repository.allowsDeployment())
+        {
+            throw new ArtifactStorageException("Re-deployment of artifacts to " + repository.getType() + " repository is not allowed!");
+        }
+    }
+
+    private void checkAllowsDeletion(Repository repository)
+            throws ArtifactStorageException
+    {
+        if (!repository.allowsDeletion())
+        {
+            throw new ArtifactStorageException("Deleting artifacts from " + repository.getType() + " repository is not allowed!");
         }
     }
 
@@ -319,10 +351,11 @@ public class ArtifactManagementServiceImpl
     {
         try
         {
-            final Storage storage = configurationManager.getConfiguration().getStorages().get(storageId);
+            final Storage storage = getStorage(storageId);
             final Repository repository = storage.getRepository(repositoryId);
 
             checkRepositoryExists(repositoryId, repository);
+            checkAllowsDeletion(repository);
 
             LocationResolver resolver = getResolvers().get(repository.getImplementation());
             resolver.deleteTrash(repositoryId);
@@ -349,6 +382,16 @@ public class ArtifactManagementServiceImpl
         {
             throw new ArtifactStorageException(e.getMessage(), e);
         }
+    }
+
+    private Configuration getConfiguration()
+    {
+        return configurationManager.getConfiguration();
+    }
+
+    private Storage getStorage(String storageId)
+    {
+        return getConfiguration().getStorages().get(storageId);
     }
 
 }

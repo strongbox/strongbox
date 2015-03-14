@@ -9,6 +9,7 @@ import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.Map;
 
+import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,8 +43,35 @@ public class ConfigurationManager extends AbstractConfigurationManager<Configura
         super.init();
 
         setRepositoryStorageRelationships();
+        setAllows();
 
         dump();
+    }
+
+    private void setAllows()
+    {
+        final Configuration configuration = getConfiguration();
+        final Map<String, Storage> storages = configuration.getStorages();
+
+        if (storages != null && !storages.isEmpty())
+        {
+            for (Storage storage : storages.values())
+            {
+                if (storage.getRepositories() != null && !storage.getRepositories().isEmpty())
+                {
+                    for (Repository repository : storage.getRepositories().values())
+                    {
+                        if (repository.getType().equals(RepositoryTypeEnum.GROUP.getType()) ||
+                            repository.getType().equals(RepositoryTypeEnum.PROXY.getType()))
+                        {
+                            repository.setAllowsDelete(false);
+                            repository.setAllowsDeployment(false);
+                            repository.setAllowsRedeployment(false);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
