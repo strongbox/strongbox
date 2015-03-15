@@ -36,10 +36,26 @@
                         <repository>releases-with-redeployment</repository>
                         <repository>releases-with-trash</repository>
                     </group>
-                </repository>
 
+                </repository>
             </repositories>
         </storage>
+
+        <routing-rules>
+            <rule group-repository="group-releases">
+                <pattern>.*/(com|org)/carlspring/.*</pattern>
+                <repositories>
+                    <repository>releases</repository>
+                </repositories>
+            </rule>
+            <rule group-repository="*">
+                <pattern>.*/(com|org)/ninja/.*</pattern>
+                <repositories>
+                    <repository>releases</repository>
+                </repositories>
+            </rule>
+        </routing-rules>
+
     </storages>
 
 </configuration>

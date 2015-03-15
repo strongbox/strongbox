@@ -28,123 +28,103 @@ public class FSLocationResolver
     }
 
     @Override
-    public InputStream getInputStream(String repositoryId,
+    public InputStream getInputStream(String storageId,
+                                      String repositoryId,
                                       String artifactPath)
             throws IOException
     {
-        for (Map.Entry entry : getConfiguration().getStorages().entrySet())
+        Storage storage = getConfiguration().getStorage(storageId);
+
+        logger.debug("Checking in " + storage.getId() + ":" + repositoryId + "...");
+
+        final File repoPath = new File(storage.getRepository(repositoryId).getBasedir());
+        final File artifactFile = new File(repoPath, artifactPath).getCanonicalFile();
+
+        logger.debug(" -> Checking for " + artifactFile.getCanonicalPath() + "...");
+
+        if (artifactFile.exists())
         {
-            Storage storage = (Storage) entry.getValue();
+            logger.debug("Resolved " + artifactFile.getCanonicalPath() + "!");
 
-            if (storage.containsRepository(repositoryId))
-            {
-                logger.debug("Checking in " + storage.getId() + ":" + repositoryId + "...");
-
-                final File repoPath = new File(storage.getRepository(repositoryId).getBasedir());
-                final File artifactFile = new File(repoPath, artifactPath).getCanonicalFile();
-
-                logger.debug(" -> Checking for " + artifactFile.getCanonicalPath() + "...");
-
-                if (artifactFile.exists())
-                {
-                    logger.debug("Resolved " + artifactFile.getCanonicalPath() + "!");
-
-                    return new FileInputStream(artifactFile);
-                }
-            }
+            return new FileInputStream(artifactFile);
         }
 
         return null;
     }
 
     @Override
-    public OutputStream getOutputStream(String repositoryId,
+    public OutputStream getOutputStream(String storageId,
+                                        String repositoryId,
                                         String artifactPath)
             throws IOException
     {
-        for (Map.Entry entry : getConfiguration().getStorages().entrySet())
+        Storage storage = getConfiguration().getStorage(storageId);
+
+        final File repoPath = new File(storage.getRepository(repositoryId).getBasedir());
+        final File artifactFile = new File(repoPath, artifactPath).getCanonicalFile();
+
+        if (!artifactFile.getParentFile().exists())
         {
-            Storage storage = (Storage) entry.getValue();
-
-            if (storage.containsRepository(repositoryId))
-            {
-                final File repoPath = new File(storage.getRepository(repositoryId).getBasedir());
-                final File artifactFile = new File(repoPath, artifactPath).getCanonicalFile();
-
-                if (!artifactFile.getParentFile().exists())
-                {
-                    //noinspection ResultOfMethodCallIgnored
-                    artifactFile.getParentFile().mkdirs();
-                }
-
-                return new FileOutputStream(artifactFile);
-            }
+            //noinspection ResultOfMethodCallIgnored
+            artifactFile.getParentFile().mkdirs();
         }
 
-        return null;
+        return new FileOutputStream(artifactFile);
     }
 
     @Override
-    public void delete(String repositoryId,
+    public void delete(String storageId,
+                       String repositoryId,
                        String path,
                        boolean force)
             throws IOException
     {
-        for (Map.Entry entry : getConfiguration().getStorages().entrySet())
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+
+        final File repoPath = new File(repository.getBasedir());
+        final File artifactFile = new File(repoPath, path).getCanonicalFile();
+        final File basedirTrash = repository.getTrashDir();
+
+        logger.debug("Checking in " + storage.getId() + ":" + repository.getId() + "(" + artifactFile.getCanonicalPath() + ")...");
+
+        if (artifactFile.exists())
         {
-            Storage storage = (Storage) entry.getValue();
-
-            if (storage.containsRepository(repositoryId))
+            if (!artifactFile.isDirectory())
             {
-                final Map<String, Repository> repositories = storage.getRepositories();
-
-                Repository r = repositories.get(repositoryId);
-
-                final File repoPath = new File(r.getBasedir());
-                final File artifactFile = new File(repoPath, path).getCanonicalFile();
-                final File basedirTrash = r.getTrashDir();
-
-                logger.debug("Checking in " + storage.getId() + ":" + r.getId() + "(" + artifactFile.getCanonicalPath() + ")...");
-
-                if (artifactFile.exists())
+                if ((repository.isTrashEnabled() && !force) || (force && !repository.allowsForceDeletion()))
                 {
-                    if (!artifactFile.isDirectory())
-                    {
-                        if ((r.isTrashEnabled() && !force) || (force && !r.allowsForceDeletion()))
-                        {
-                            File trashFile = new File(basedirTrash, path).getCanonicalFile();
-                            FileUtils.moveFile(artifactFile, trashFile);
+                    File trashFile = new File(basedirTrash, path).getCanonicalFile();
+                    FileUtils.moveFile(artifactFile, trashFile);
 
-                            logger.debug("Moved /" + repositoryId + "/" + path + " to trash (" + trashFile.getAbsolutePath() + ").");
+                    logger.debug("Moved /" + repositoryId + "/" + path + " to trash (" + trashFile.getAbsolutePath() + ").");
 
-                            // Move the checksums to the trash as well
-                            moveChecksumsToTrash(repositoryId, path, artifactFile, basedirTrash);
-                        }
-                        else
-                        {
-                            //noinspection ResultOfMethodCallIgnored
-                            artifactFile.delete();
-                            deleteChecksums(repositoryId, path, artifactFile);
-                        }
-                    }
-                    else
-                    {
-                        if ((r.isTrashEnabled() && !force) || (force && !r.allowsForceDeletion()))
-                        {
-                            File trashFile = new File(basedirTrash, path).getCanonicalFile();
-                            FileUtils.moveDirectory(artifactFile, trashFile);
-
-                            logger.debug("Moved /" + repositoryId + "/" + path + " to trash (" + trashFile.getAbsolutePath() + ").");
-                        }
-                        else
-                        {
-                            FileUtils.deleteDirectory(artifactFile);
-                        }
-                    }
-
-                    logger.debug("Removed /" + repositoryId + "/" + path);
+                    // Move the checksums to the trash as well
+                    moveChecksumsToTrash(repositoryId, path, artifactFile, basedirTrash);
+                }
+                else
+                {
+                    //noinspection ResultOfMethodCallIgnored
+                    artifactFile.delete();
+                    deleteChecksums(repositoryId, path, artifactFile);
                 }
             }
+            else
+            {
+                if ((repository.isTrashEnabled() && !force) || (force && !repository.allowsForceDeletion()))
+                {
+                    File trashFile = new File(basedirTrash, path).getCanonicalFile();
+                    FileUtils.moveDirectory(artifactFile, trashFile);
+
+                    logger.debug("Moved /" + repositoryId + "/" + path + " to trash (" + trashFile.getAbsolutePath() + ").");
+                }
+                else
+                {
+                    FileUtils.deleteDirectory(artifactFile);
+                }
+            }
+
+            logger.debug("Removed /" + repositoryId + "/" + path);
         }
     }
 
@@ -198,29 +178,20 @@ public class FSLocationResolver
     }
 
     @Override
-    public void deleteTrash(String repositoryId)
+    public void deleteTrash(String storageId, String repositoryId)
             throws IOException
     {
-        for (Map.Entry entry : getConfiguration().getStorages().entrySet())
-        {
-            Storage storage = (Storage) entry.getValue();
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
 
-            if (storage.containsRepository(repositoryId))
-            {
-                final Map<String, Repository> repositories = storage.getRepositories();
+        logger.debug("Emptying trash for repositoryId " + repository.getId() + "...");
 
-                Repository r = repositories.get(repositoryId);
+        final File basedirTrash = repository.getTrashDir();
 
-                logger.debug("Emptying trash for repositoryId " + r.getId() + "...");
+        FileUtils.deleteDirectory(basedirTrash);
 
-                final File basedirTrash = r.getTrashDir();
-
-                FileUtils.deleteDirectory(basedirTrash);
-
-                //noinspection ResultOfMethodCallIgnored
-                basedirTrash.mkdirs();
-            }
-        }
+        //noinspection ResultOfMethodCallIgnored
+        basedirTrash.mkdirs();
     }
 
     @Override

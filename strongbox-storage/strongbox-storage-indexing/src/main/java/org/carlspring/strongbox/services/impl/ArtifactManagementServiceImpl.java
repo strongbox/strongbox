@@ -223,7 +223,7 @@ public class ArtifactManagementServiceImpl
 
             LocationResolver resolver = getResolvers().get(repository.getImplementation());
 
-            resolver.delete(repositoryId, artifactPath, force);
+            resolver.delete(storageId, repositoryId, artifactPath, force);
 
             final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storageId + ":" + repositoryId);
             if (indexer != null)
@@ -358,7 +358,7 @@ public class ArtifactManagementServiceImpl
             checkAllowsDeletion(repository);
 
             LocationResolver resolver = getResolvers().get(repository.getImplementation());
-            resolver.deleteTrash(repositoryId);
+            resolver.deleteTrash(storageId, repositoryId);
         }
         catch (IOException e)
         {

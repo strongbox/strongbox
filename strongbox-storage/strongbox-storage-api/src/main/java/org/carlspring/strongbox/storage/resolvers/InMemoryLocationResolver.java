@@ -16,7 +16,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Map;
 
 /**
  * @author mtodorov
@@ -36,108 +35,81 @@ public class InMemoryLocationResolver
     }
 
     @Override
-    public InputStream getInputStream(String repositoryId,
+    public InputStream getInputStream(String storageId,
+                                      String repositoryId,
                                       String artifactPath)
             throws IOException
     {
-        for (Map.Entry entry : getConfiguration().getStorages().entrySet())
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+
+        logger.debug("Checking in " + storageId + ":" + repository.getId() + "...");
+
+        Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
+
+        final ArtifactResource resource = ArtifactResourceMapper.getResource(artifact.getGroupId(),
+                                                                             artifact.getArtifactId(),
+                                                                             artifact.getVersion());
+
+        if (resource == null)
         {
-            Storage storage = (Storage) entry.getValue();
+            logger.debug("Artifact " + artifact.toString() + " not found.");
 
-            if (storage.containsRepository(repositoryId))
-            {
-                logger.debug("Checking in storage " + storage.getBasedir() + "...");
-
-                final Map<String, Repository> repositories = storage.getRepositories();
-
-                for (Map.Entry<String, Repository> e : repositories.entrySet())
-                {
-                    Repository r = e.getValue();
-
-                    logger.debug("Checking in repository " + r.getId() + "...");
-
-                    Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
-
-                    final ArtifactResource resource = ArtifactResourceMapper.getResource(artifact.getGroupId(),
-                                                                                         artifact.getArtifactId(),
-                                                                                         artifact.getVersion());
-
-                    if (resource == null)
-                    {
-                        logger.debug("Artifact " + artifact.toString() + " not found.");
-
-                        return null;
-                    }
-                    else
-                    {
-                        // Create random data.
-                        logger.debug("Generating stream with " + resource.length() + " bytes.");
-
-                        return new RandomInputStream(resource.length());
-                    }
-                }
-            }
+            return null;
         }
+        else
+        {
+            // Create random data.
+            logger.debug("Generating stream with " + resource.length() + " bytes.");
 
-        return null;
+            return new RandomInputStream(resource.length());
+        }
     }
 
     @Override
-    public OutputStream getOutputStream(String repositoryId,
+    public OutputStream getOutputStream(String storageId,
+                                        String repositoryId,
                                         String artifactPath)
             throws IOException
     {
-        for (Map.Entry entry : getConfiguration().getStorages().entrySet())
+        if (!artifactPath.contains("/maven-metadata."))
         {
-            Storage storage = (Storage) entry.getValue();
+            Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
+            ArtifactResourceMapper.addResource(ArtifactResourceMapper.getArtifactResourceInstance(repositoryId,
+                                                                                                  artifact,
+                                                                                                  10000L, // Hard-coding to 10 KB as we can't guess
+                                                                                                          // the size at this point and we shouldn't be
+                                                                                                          // caring about this too much as it's in memory
+                                                                                                  ArtifactExistenceState.EXISTS));
 
-            if (storage.containsRepository(repositoryId))
-            {
-                if (!artifactPath.contains("/maven-metadata."))
-                {
-                    Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
-                    ArtifactResourceMapper.addResource(ArtifactResourceMapper.getArtifactResourceInstance(repositoryId,
-                                                                                                          artifact,
-                                                                                                          10000L, // Hard-coding to 10 KB as we can't guess
-                                                                                                                  // the size at this point and we shouldn't be
-                                                                                                                  // caring about this too much as it's in memory
-                                                                                                          ArtifactExistenceState.EXISTS));
-                }
-
-                return new ByteArrayOutputStream();
-            }
+            return new ByteArrayOutputStream();
         }
 
         return null;
     }
 
     @Override
-    public void delete(String repositoryId,
+    public void delete(String storageId,
+                       String repositoryId,
                        String path,
                        boolean force)
             throws IOException
     {
-        for (Map.Entry entry : getConfiguration().getStorages().entrySet())
+        Storage storage = getConfiguration().getStorage(storageId);
+
+        if (!path.contains("/maven-metadata."))
         {
-            Storage storage = (Storage) entry.getValue();
+            Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
+            ArtifactResourceMapper.removeResources(artifact.getGroupId(),
+                                                   artifact.getArtifactId(),
+                                                   artifact.getVersion());
 
-            if (storage.containsRepository(repositoryId))
-            {
-                if (!path.contains("/maven-metadata."))
-                {
-                    Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
-                    ArtifactResourceMapper.removeResources(artifact.getGroupId(),
-                                                           artifact.getArtifactId(),
-                                                           artifact.getVersion());
-
-                    logger.debug("Removed /" + repositoryId + path);
-                }
-            }
+            logger.debug("Removed /" + repositoryId + path);
         }
     }
 
     @Override
-    public void deleteTrash(String repositoryId)
+    public void deleteTrash(String storageId, String repositoryId)
             throws IOException
     {
         logger.debug("Emptying trash for repositoryId " + repositoryId + "...");

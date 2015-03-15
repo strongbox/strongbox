@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
-import java.util.Map;
 
 /**
  * @author mtodorov
@@ -27,40 +26,35 @@ public class GroupLocationResolver
     }
 
     @Override
-    public InputStream getInputStream(String repositoryId,
+    public InputStream getInputStream(String storageId,
+                                      String repositoryId,
                                       String artifactPath)
             throws IOException
     {
-        for (Map.Entry entry : getConfiguration().getStorages().entrySet())
+        Storage storage = getConfiguration().getStorage(storageId);
+
+        logger.debug("Checking in " + storage.getId() + ":" + repositoryId + "...");
+
+        Repository groupRepository = storage.getRepository(repositoryId);
+
+        for (String storageAndRepositoryId : groupRepository.getGroupRepositories())
         {
-            Storage storage = (Storage) entry.getValue();
+            String[] storageAndRepositoryIdTokens = storageAndRepositoryId.split(":");
+            String sId = storageAndRepositoryIdTokens.length == 2 ? storageAndRepositoryIdTokens[0] : storage.getId();
+            String rId = storageAndRepositoryIdTokens[storageAndRepositoryIdTokens.length < 2 ? 0 : 1];
 
-            if (storage.containsRepository(repositoryId))
+            Repository r = getConfiguration().getStorage(sId).getRepository(rId);
+
+            final File repoPath = new File(r.getBasedir());
+            final File artifactFile = new File(repoPath, artifactPath).getCanonicalFile();
+
+            logger.debug(" -> Checking for " + artifactFile.getCanonicalPath() + "...");
+
+            if (artifactFile.exists())
             {
-                logger.debug("Checking in " + storage.getId() + ":" + repositoryId + "...");
+                logger.debug("Resolved " + artifactFile.getCanonicalPath() + "!");
 
-                Repository groupRepository = storage.getRepository(repositoryId);
-
-                for (String storageAndRepositoryId : groupRepository.getGroupRepositories())
-                {
-                    String[] storageAndRepositoryIdTokens = storageAndRepositoryId.split(":");
-                    String sId = storageAndRepositoryIdTokens.length == 2 ? storageAndRepositoryIdTokens[0] : storage.getId();
-                    String rId = storageAndRepositoryIdTokens[storageAndRepositoryIdTokens.length < 2 ? 0 : 1];
-
-                    Repository r = getConfiguration().getStorage(sId).getRepository(rId);
-
-                    final File repoPath = new File(r.getBasedir());
-                    final File artifactFile = new File(repoPath, artifactPath).getCanonicalFile();
-
-                    logger.debug(" -> Checking for " + artifactFile.getCanonicalPath() + "...");
-
-                    if (artifactFile.exists())
-                    {
-                        logger.debug("Resolved " + artifactFile.getCanonicalPath() + "!");
-
-                        return new FileInputStream(artifactFile);
-                    }
-                }
+                return new FileInputStream(artifactFile);
             }
         }
 
@@ -68,7 +62,8 @@ public class GroupLocationResolver
     }
 
     @Override
-    public OutputStream getOutputStream(String repositoryId,
+    public OutputStream getOutputStream(String storageId,
+                                        String repositoryId,
                                         String artifactPath)
             throws IOException
     {
@@ -80,7 +75,8 @@ public class GroupLocationResolver
     }
 
     @Override
-    public void delete(String repositoryId,
+    public void delete(String storageId,
+                       String repositoryId,
                        String path,
                        boolean force)
             throws IOException
@@ -89,7 +85,7 @@ public class GroupLocationResolver
     }
 
     @Override
-    public void deleteTrash(String repositoryId)
+    public void deleteTrash(String storageId, String repositoryId)
             throws IOException
     {
         throw new IOException("Group repositories cannot perform delete operations.");

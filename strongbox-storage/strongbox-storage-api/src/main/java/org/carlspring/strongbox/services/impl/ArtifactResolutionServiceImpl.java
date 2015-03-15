@@ -58,7 +58,7 @@ public class ArtifactResolutionServiceImpl
         checkRepositoryExists(repositoryId, repository);
 
         LocationResolver resolver = getResolvers().get(repository.getImplementation());
-        InputStream is = resolver.getInputStream(repositoryId, artifactPath);
+        InputStream is = resolver.getInputStream(storageId, repositoryId, artifactPath);
 
         if (is == null)
         {
@@ -78,7 +78,7 @@ public class ArtifactResolutionServiceImpl
         checkRepositoryExists(repositoryId, repository);
 
         LocationResolver resolver = getResolvers().get(repository.getImplementation());
-        OutputStream os = resolver.getOutputStream(repositoryId, artifactPath);
+        OutputStream os = resolver.getOutputStream(storageId, repositoryId, artifactPath);
 
         if (os == null)
         {
