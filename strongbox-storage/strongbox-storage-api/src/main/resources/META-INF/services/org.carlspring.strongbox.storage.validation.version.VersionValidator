@@ -1,3 +1,0 @@
-org.carlspring.strongbox.storage.validation.version.RedeploymentValidator
-org.carlspring.strongbox.storage.validation.version.ReleaseVersionValidator
-org.carlspring.strongbox.storage.validation.version.SnapshotVersionValidator

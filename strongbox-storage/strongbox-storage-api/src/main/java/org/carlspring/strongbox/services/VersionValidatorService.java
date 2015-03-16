@@ -10,6 +10,6 @@ import java.util.Set;
 public interface VersionValidatorService
 {
 
-    Set<VersionValidator> getValidators();
+    Set<VersionValidator> getVersionValidators();
 
 }

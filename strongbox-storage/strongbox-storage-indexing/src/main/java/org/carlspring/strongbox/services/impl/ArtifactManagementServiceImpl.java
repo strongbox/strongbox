@@ -187,7 +187,7 @@ public class ArtifactManagementServiceImpl
             {
                 Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
 
-                final Set<VersionValidator> validators = versionValidatorService.getValidators();
+                final Set<VersionValidator> validators = versionValidatorService.getVersionValidators();
                 for (VersionValidator validator : validators)
                 {
                     validator.validate(repository, artifact);
