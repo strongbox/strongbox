@@ -203,8 +203,8 @@ public class ArtifactManagementServiceImpl
             }
         }
 
-        checkAllowsDeployment(repository);
-        checkAllowsRedeployment(repository, ArtifactUtils.convertPathToArtifact(path));
+        artifactOperationsValidator.checkAllowsDeployment(repository);
+        artifactOperationsValidator.checkAllowsRedeployment(repository, ArtifactUtils.convertPathToArtifact(path));
 
         return true;
     }
@@ -221,7 +221,7 @@ public class ArtifactManagementServiceImpl
         final Storage storage = getStorage(storageId);
         final Repository repository = storage.getRepository(repositoryId);
 
-        checkAllowsDeletion(repository);
+        artifactOperationsValidator.checkAllowsDeletion(repository);
 
         try
         {
@@ -246,33 +246,6 @@ public class ArtifactManagementServiceImpl
         catch (IOException e)
         {
             throw new ArtifactStorageException(e.getMessage(), e);
-        }
-    }
-
-    private void checkAllowsDeployment(Repository repository)
-            throws ArtifactStorageException
-    {
-        if (!repository.allowsDeployment())
-        {
-            throw new ArtifactStorageException("Deployment of artifacts to " + repository.getType() + " repository is not allowed!");
-        }
-    }
-
-    private void checkAllowsRedeployment(Repository repository, Artifact artifact)
-            throws ArtifactStorageException
-    {
-        if (repository.containsArtifact(artifact) && !repository.allowsDeployment())
-        {
-            throw new ArtifactStorageException("Re-deployment of artifacts to " + repository.getType() + " repository is not allowed!");
-        }
-    }
-
-    private void checkAllowsDeletion(Repository repository)
-            throws ArtifactStorageException
-    {
-        if (!repository.allowsDeletion())
-        {
-            throw new ArtifactStorageException("Deleting artifacts from " + repository.getType() + " repository is not allowed!");
         }
     }
 
@@ -361,7 +334,7 @@ public class ArtifactManagementServiceImpl
             final Storage storage = getStorage(storageId);
             final Repository repository = storage.getRepository(repositoryId);
 
-            checkAllowsDeletion(repository);
+            artifactOperationsValidator.checkAllowsDeletion(repository);
 
             LocationResolver resolver = getResolvers().get(repository.getImplementation());
             resolver.deleteTrash(storageId, repositoryId);

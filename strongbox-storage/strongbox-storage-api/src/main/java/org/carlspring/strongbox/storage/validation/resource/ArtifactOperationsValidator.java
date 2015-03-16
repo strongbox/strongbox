@@ -1,8 +1,11 @@
 package org.carlspring.strongbox.storage.validation.resource;
 
+import org.apache.maven.artifact.Artifact;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
+import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -64,6 +67,33 @@ public class ArtifactOperationsValidator
         if (artifactPath == null)
         {
             throw new ArtifactResolutionException("No artifact path specified.");
+        }
+    }
+
+    public void checkAllowsDeployment(Repository repository)
+            throws ArtifactStorageException
+    {
+        if (!repository.allowsDeployment())
+        {
+            throw new ArtifactStorageException("Deployment of artifacts to " + repository.getType() + " repository is not allowed!");
+        }
+    }
+
+    public void checkAllowsRedeployment(Repository repository, Artifact artifact)
+            throws ArtifactStorageException
+    {
+        if (repository.containsArtifact(artifact) && !repository.allowsDeployment())
+        {
+            throw new ArtifactStorageException("Re-deployment of artifacts to " + repository.getType() + " repository is not allowed!");
+        }
+    }
+
+    public void checkAllowsDeletion(Repository repository)
+            throws ArtifactStorageException
+    {
+        if (!repository.allowsDeletion())
+        {
+            throw new ArtifactStorageException("Deleting artifacts from " + repository.getType() + " repository is not allowed!");
         }
     }
 
