@@ -288,7 +288,7 @@ public class ArtifactManagementServiceImplTest
 
     @Test
     public void testForceDelete()
-            throws ArtifactStorageException
+            throws IOException
     {
         final String artifactPath1 = "org/carlspring/strongbox/strongbox-utils/7.0/strongbox-utils-7.0.jar";
         artifactManagementService.delete("storage0",

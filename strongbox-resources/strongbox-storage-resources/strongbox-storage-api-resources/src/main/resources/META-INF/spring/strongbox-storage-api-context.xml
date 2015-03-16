@@ -16,6 +16,8 @@
         <property name="cachedChecksumLifetime" value="60000"/>
     </bean>
 
+    <bean id="artifactOperationsValidator" class="org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator"/>
+
     <!-- Artifact LocationResolvers -->
     <bean id="memoryLocationResolver" class="org.carlspring.strongbox.storage.resolvers.InMemoryLocationResolver"/>
     <bean id="fsLocationResolver" class="org.carlspring.strongbox.storage.resolvers.FSLocationResolver"/>
@@ -49,5 +51,7 @@
     <bean id="versionValidatorService" class="org.carlspring.strongbox.services.impl.VersionValidatorServiceImpl" />
 
     <bean id="artifactMetadataService" class="org.carlspring.strongbox.services.impl.ArtifactMetadataServiceImpl" />
+
+    <bean id="basicRepositoryService" class="org.carlspring.strongbox.services.impl.BasicRepositoryServiceImpl" />
 
 </beans>
