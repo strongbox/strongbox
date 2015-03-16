@@ -2,12 +2,11 @@ package org.carlspring.strongbox.services.impl;
 
 import org.carlspring.strongbox.services.VersionValidatorService;
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashSet;
-import java.util.ServiceLoader;
 import java.util.Set;
-
-import org.springframework.stereotype.Component;
 
 /**
  * @author mtodorov
@@ -17,27 +16,23 @@ public class VersionValidatorServiceImpl
         implements VersionValidatorService
 {
 
-    private Set<VersionValidator> validators = new LinkedHashSet<>();
+    @Autowired
+    private Set<VersionValidator> versionValidators = new LinkedHashSet<>();
 
 
     public VersionValidatorServiceImpl()
     {
-        ServiceLoader<VersionValidator> versionValidators = ServiceLoader.load(VersionValidator.class);
-        for (VersionValidator versionValidator : versionValidators)
-        {
-            validators.add(versionValidator);
-        }
     }
 
     @Override
-    public Set<VersionValidator> getValidators()
+    public Set<VersionValidator> getVersionValidators()
     {
-        return validators;
+        return versionValidators;
     }
 
-    public void setValidators(Set<VersionValidator> validators)
+    public void setVersionValidators(Set<VersionValidator> versionValidators)
     {
-        this.validators = validators;
+        this.versionValidators = versionValidators;
     }
 
 }
