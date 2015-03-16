@@ -35,6 +35,17 @@
         <property name="resolvers" ref="resolvers"/>
     </bean>
 
+    <!-- Version versionValidators -->
+    <bean id="releaseVersionValidator" class="org.carlspring.strongbox.storage.validation.version.ReleaseVersionValidator"/>
+    <bean id="snapshotVersionValidator" class="org.carlspring.strongbox.storage.validation.version.SnapshotVersionValidator"/>
+    <bean id="redeploymentValidator" class="org.carlspring.strongbox.storage.validation.version.RedeploymentValidator"/>
+
+    <util:set id="versionValidators" set-class="java.util.LinkedHashSet">
+        <ref bean="releaseVersionValidator"/>
+        <ref bean="snapshotVersionValidator"/>
+        <ref bean="redeploymentValidator"/>
+    </util:set>
+
     <bean id="versionValidatorService" class="org.carlspring.strongbox.services.impl.VersionValidatorServiceImpl" />
 
     <bean id="artifactMetadataService" class="org.carlspring.strongbox.services.impl.ArtifactMetadataServiceImpl" />

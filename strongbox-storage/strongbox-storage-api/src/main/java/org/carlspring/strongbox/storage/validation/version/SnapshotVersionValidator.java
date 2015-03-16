@@ -1,12 +1,13 @@
 package org.carlspring.strongbox.storage.validation.version;
 
-import org.carlspring.strongbox.storage.repository.Repository;
-
 import org.apache.maven.artifact.Artifact;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.springframework.stereotype.Component;
 
 /**
  * @author stodorov
  */
+@Component
 public class SnapshotVersionValidator
         implements VersionValidator
 {
