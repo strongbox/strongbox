@@ -19,6 +19,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
 import org.carlspring.strongbox.storage.resolvers.LocationResolver;
+import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
 import org.carlspring.strongbox.storage.validation.version.VersionValidationException;
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
 import org.carlspring.strongbox.util.ArtifactFileUtils;
@@ -34,8 +35,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-
-import static org.carlspring.strongbox.util.RepositoryUtils.checkRepositoryExists;
 
 /**
  * @author mtodorov
@@ -62,13 +61,16 @@ public class ArtifactManagementServiceImpl
     @Autowired
     private RepositoryIndexManager repositoryIndexManager;
 
+    @Autowired
+    private ArtifactOperationsValidator artifactOperationsValidator;
+
 
     @Override
     public void store(String storageId,
                       String repositoryId,
                       String path,
                       InputStream is)
-            throws ArtifactStorageException
+            throws IOException
     {
         performRepositoryAcceptanceValidation(storageId, repositoryId, path);
 
@@ -158,7 +160,7 @@ public class ArtifactManagementServiceImpl
     public InputStream resolve(String storageId,
                                String repositoryId,
                                String path)
-            throws ArtifactResolutionException
+            throws IOException
     {
         InputStream is = null;
 
@@ -176,8 +178,10 @@ public class ArtifactManagementServiceImpl
     private boolean performRepositoryAcceptanceValidation(String storageId,
                                                           String repositoryId,
                                                           String path)
-            throws ArtifactStorageException
+            throws IOException
     {
+        artifactOperationsValidator.validate(storageId, repositoryId, path);
+
         final Storage storage = getStorage(storageId);
         final Repository repository = storage.getRepository(repositoryId);
 
@@ -210,8 +214,10 @@ public class ArtifactManagementServiceImpl
                        String repositoryId,
                        String artifactPath,
                        boolean force)
-            throws ArtifactStorageException
+            throws IOException
     {
+        artifactOperationsValidator.validate(storageId, repositoryId, artifactPath);
+
         final Storage storage = getStorage(storageId);
         final Repository repository = storage.getRepository(repositoryId);
 
@@ -219,8 +225,6 @@ public class ArtifactManagementServiceImpl
 
         try
         {
-            checkRepositoryExists(repositoryId, repository);
-
             LocationResolver resolver = getResolvers().get(repository.getImplementation());
 
             resolver.delete(repositoryId, artifactPath, force);
@@ -347,14 +351,16 @@ public class ArtifactManagementServiceImpl
     // TODO: This should have restricted access.
     @Override
     public void deleteTrash(String storageId, String repositoryId)
-            throws ArtifactStorageException
+            throws IOException
     {
+        artifactOperationsValidator.checkStorageExists(storageId);
+        artifactOperationsValidator.checkRepositoryExists(storageId, repositoryId);
+
         try
         {
             final Storage storage = getStorage(storageId);
             final Repository repository = storage.getRepository(repositoryId);
 
-            checkRepositoryExists(repositoryId, repository);
             checkAllowsDeletion(repository);
 
             LocationResolver resolver = getResolvers().get(repository.getImplementation());

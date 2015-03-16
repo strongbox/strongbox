@@ -1,8 +1,6 @@
 package org.carlspring.strongbox.services;
 
-import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
-import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
-
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -15,23 +13,23 @@ public interface ArtifactManagementService
                String repositoryId,
                String path,
                InputStream is)
-            throws ArtifactStorageException;
+            throws IOException;
 
     InputStream resolve(String storageId,
                         String repositoryId,
                         String path)
-            throws ArtifactResolutionException;
+            throws IOException;
 
     void delete(String storageId,
                 String repositoryId,
                 String artifactPath,
                 boolean force)
-            throws ArtifactStorageException;
+            throws IOException;
 
     void deleteTrash(String storageId, String repositoryId)
-            throws ArtifactStorageException;
+            throws IOException;
 
     void deleteTrash()
-            throws ArtifactStorageException;
+            throws IOException;
 
 }

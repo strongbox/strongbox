@@ -7,18 +7,17 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
 import org.carlspring.strongbox.storage.resolvers.LocationResolver;
+import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import static org.carlspring.strongbox.util.RepositoryUtils.checkRepositoryExists;
 
 /**
  * @author mtodorov
@@ -35,6 +34,9 @@ public class ArtifactResolutionServiceImpl
 
     @Autowired
     private ConfigurationManager configurationManager;
+
+    @Autowired
+    private ArtifactOperationsValidator artifactOperationsValidator;
 
 
     public void listResolvers()
@@ -54,8 +56,9 @@ public class ArtifactResolutionServiceImpl
                                       String artifactPath)
             throws IOException
     {
+        artifactOperationsValidator.validate(storageId, repositoryId, artifactPath);
+
         final Repository repository = getStorage(storageId).getRepository(repositoryId);
-        checkRepositoryExists(repositoryId, repository);
 
         LocationResolver resolver = getResolvers().get(repository.getImplementation());
         InputStream is = resolver.getInputStream(repositoryId, artifactPath);
@@ -74,8 +77,9 @@ public class ArtifactResolutionServiceImpl
                                         String artifactPath)
             throws IOException
     {
+        artifactOperationsValidator.validate(storageId, repositoryId, artifactPath);
+
         final Repository repository = getStorage(storageId).getRepository(repositoryId);
-        checkRepositoryExists(repositoryId, repository);
 
         LocationResolver resolver = getResolvers().get(repository.getImplementation());
         OutputStream os = resolver.getOutputStream(repositoryId, artifactPath);
