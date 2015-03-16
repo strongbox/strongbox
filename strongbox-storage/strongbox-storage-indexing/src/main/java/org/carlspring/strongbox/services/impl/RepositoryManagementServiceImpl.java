@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
  * @author mtodorov
  */
 @Component
-public class RepositoryManagementServiceImpl
+public class RepositoryManagementServiceImpl extends BasicRepositoryServiceImpl
         implements RepositoryManagementService
 {
 
