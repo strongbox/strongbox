@@ -5,13 +5,11 @@ import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
-import static junit.framework.Assert.assertFalse;
 import org.junit.Before;
 import org.junit.Test;
 
 import org.apache.maven.artifact.Artifact;
 
-import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 

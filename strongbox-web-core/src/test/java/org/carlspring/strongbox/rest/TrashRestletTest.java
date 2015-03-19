@@ -1,20 +1,18 @@
 package org.carlspring.strongbox.rest;
 
-import org.carlspring.strongbox.artifact.generator.ArtifactGenerator;
 import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.testing.AssignedPorts;
-
-import java.io.File;
-
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static junit.framework.Assert.assertFalse;
+
+import java.io.File;
+
+import static org.junit.Assert.assertFalse;
 
 /**
  * @author mtodorov
@@ -23,6 +21,7 @@ import static junit.framework.Assert.assertFalse;
 @ContextConfiguration(locations={"/META-INF/spring/strongbox-*-context.xml",
                                  "classpath*:/META-INF/spring/strongbox-*-context.xml"})
 public class TrashRestletTest
+        extends TestCaseWithArtifactGeneration
 {
 
     private final static File BASEDIR = new File(ConfigurationResourceResolver.getBasedir()).getAbsoluteFile();
@@ -36,8 +35,6 @@ public class TrashRestletTest
 
     private RestClient client = new RestClient();
 
-    private String gavtc = "org.carlspring.strongbox:test-artifact-to-trash::jar";
-
     private static final File ARTIFACT_FILE_IN_TRASH = new File(REPOSITORY_WITH_TRASH_BASEDIR + "/.trash/" +
                                                                 "org/carlspring/strongbox/test-artifact-to-trash/1.0/" +
                                                                 "test-artifact-to-trash-1.0.jar").getAbsoluteFile();
@@ -47,11 +44,10 @@ public class TrashRestletTest
     public void setUp()
             throws Exception
     {
-        ArtifactGenerator generator = new ArtifactGenerator(REPOSITORY_WITH_TRASH_BASEDIR);
-        generator.generate(gavtc, "1.0");
+        final String gavtc = "org.carlspring.strongbox:test-artifact-to-trash::jar";
 
-        generator.setBasedir(BASEDIR.getParentFile().getAbsolutePath() + "/storages/" + STORAGE + "/releases");
-        generator.generate(gavtc, "1.1");
+        generateArtifact(REPOSITORY_WITH_TRASH_BASEDIR, gavtc, "1.0");
+        generateArtifact(BASEDIR.getParentFile().getAbsolutePath() + "/storages/" + STORAGE + "/releases", gavtc, "1.1");
 
         // Delete the artifact (this one should get placed under the .trash)
         client.delete(STORAGE,

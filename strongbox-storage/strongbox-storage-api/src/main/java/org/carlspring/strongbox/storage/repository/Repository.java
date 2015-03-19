@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.storage.repository;
 
+import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.storage.Storage;
@@ -9,8 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
-
-import org.apache.maven.artifact.Artifact;
 
 /**
  * @author mtodorov
@@ -64,7 +63,7 @@ public class Repository
 
     @XmlElement(name = "repository")
     @XmlElementWrapper(name = "group")
-    private Set<String> groupRepositories = new LinkedHashSet<String>();
+    private Set<String> groupRepositories = new LinkedHashSet<>();
 
     @XmlTransient
     private Storage storage;
@@ -85,6 +84,9 @@ public class Repository
         this.secured = secured;
     }
 
+    // TODO: Address the following three methods as they won't work for group repositories.
+    // TODO: Possibly extract them into a separate utility class.
+    // TODO: https://dev.carlspring.org/youtrack/issue/SB-308
     public boolean containsArtifact(Artifact artifact)
     {
         final String artifactPath = ArtifactUtils.convertArtifactToPath(artifact);
@@ -108,6 +110,7 @@ public class Repository
 
         return artifactFile.getCanonicalPath();
     }
+    // TODO: Required refactoring section end.
 
     public String getId()
     {

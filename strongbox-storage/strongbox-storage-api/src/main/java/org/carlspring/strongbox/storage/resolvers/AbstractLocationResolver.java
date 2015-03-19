@@ -17,6 +17,16 @@ public abstract class AbstractLocationResolver implements LocationResolver
     private ConfigurationManager configurationManager;
 
 
+    public ConfigurationManager getConfigurationManager()
+    {
+        return configurationManager;
+    }
+
+    public void setConfigurationManager(ConfigurationManager configurationManager)
+    {
+        this.configurationManager = configurationManager;
+    }
+
     public Configuration getConfiguration()
     {
         return configurationManager.getConfiguration();

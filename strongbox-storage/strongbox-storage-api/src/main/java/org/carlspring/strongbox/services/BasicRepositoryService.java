@@ -3,8 +3,6 @@ package org.carlspring.strongbox.services;
 import org.apache.maven.artifact.Artifact;
 import org.carlspring.strongbox.storage.repository.Repository;
 
-import java.io.IOException;
-
 /**
  * @author mtodorov
  */

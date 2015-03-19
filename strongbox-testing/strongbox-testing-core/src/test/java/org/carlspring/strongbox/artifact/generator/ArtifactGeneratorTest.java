@@ -5,13 +5,16 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import java.io.File;
 
 import org.apache.maven.artifact.Artifact;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.junit.Test;
-import static junit.framework.TestCase.assertTrue;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author mtodorov
  */
 public class ArtifactGeneratorTest
+        extends TestCaseWithArtifactGeneration
 {
 
     private final static String BASEDIR = "target/storages/storage0/releases";
@@ -23,8 +26,7 @@ public class ArtifactGeneratorTest
     {
         Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.testing:test-foo:1.2.3:jar");
 
-        ArtifactGenerator generator = new ArtifactGenerator(BASEDIR);
-        generator.generate(artifact);
+        generateArtifact(BASEDIR, artifact);
 
         assertTrue("Failed to generate POM file!",
                    new File(BASEDIR, "org/carlspring/strongbox/testing/test-foo/1.2.3/test-foo-1.2.3.pom").exists());
