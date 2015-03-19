@@ -3,6 +3,7 @@ package org.carlspring.strongbox.storage.validation.resource;
 import org.apache.maven.artifact.Artifact;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.services.BasicRepositoryService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
@@ -19,6 +20,9 @@ public class ArtifactOperationsValidator
 
     @Autowired
     private ConfigurationManager configurationManager;
+
+    @Autowired
+    private BasicRepositoryService basicRepositoryService;
 
 
     public ArtifactOperationsValidator()
@@ -82,7 +86,7 @@ public class ArtifactOperationsValidator
     public void checkAllowsRedeployment(Repository repository, Artifact artifact)
             throws ArtifactStorageException
     {
-        if (repository.containsArtifact(artifact) && !repository.allowsDeployment())
+        if (basicRepositoryService.containsArtifact(repository, artifact) && !repository.allowsDeployment())
         {
             throw new ArtifactStorageException("Re-deployment of artifacts to " + repository.getType() + " repository is not allowed!");
         }

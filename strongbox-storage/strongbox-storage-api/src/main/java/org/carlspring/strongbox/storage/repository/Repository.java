@@ -84,34 +84,6 @@ public class Repository
         this.secured = secured;
     }
 
-    // TODO: Address the following three methods as they won't work for group repositories.
-    // TODO: Possibly extract them into a separate utility class.
-    // TODO: https://dev.carlspring.org/youtrack/issue/SB-308
-    public boolean containsArtifact(Artifact artifact)
-    {
-        final String artifactPath = ArtifactUtils.convertArtifactToPath(artifact);
-        final File artifactFile = new File(new File(storage.getBasedir(), getId()), artifactPath);
-
-        return artifactFile.exists();
-    }
-
-    public boolean containsPath(String path)
-            throws IOException
-    {
-        final File artifactFile = new File(new File(storage.getBasedir(), getId()), path).getCanonicalFile();
-        return artifactFile.exists();
-    }
-
-    public String pathToArtifact(Artifact artifact)
-            throws IOException
-    {
-        final String artifactPath = ArtifactUtils.convertArtifactToPath(artifact);
-        final File artifactFile = new File(new File(storage.getBasedir(), getId()), artifactPath);
-
-        return artifactFile.getCanonicalPath();
-    }
-    // TODO: Required refactoring section end.
-
     public String getId()
     {
         return id;

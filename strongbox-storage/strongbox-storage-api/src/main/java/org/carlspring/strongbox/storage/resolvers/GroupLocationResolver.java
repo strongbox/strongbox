@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.storage.resolvers;
 
+import org.carlspring.strongbox.services.BasicRepositoryService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
@@ -26,6 +27,9 @@ public class GroupLocationResolver
 
     @Autowired
     private RoutingRulesManager routingRulesManager;
+
+    @Autowired
+    private BasicRepositoryService basicRepositoryService;
 
 
     public GroupLocationResolver()
@@ -123,7 +127,7 @@ public class GroupLocationResolver
                         rId = getConfigurationManager().getRepositoryId(rId);
 
                         Repository repository = getConfiguration().getStorage(sId).getRepository(rId);
-                        if (repository.containsPath(artifactPath))
+                        if (basicRepositoryService.containsPath(repository, artifactPath))
                         {
                             final InputStream is = getInputStream(artifactPath, repository);
                             if (is != null)
@@ -163,7 +167,7 @@ public class GroupLocationResolver
                         rId = getConfigurationManager().getRepositoryId(rId);
 
                         Repository repository = getConfiguration().getStorage(sId).getRepository(rId);
-                        if (repository.containsPath(artifactPath))
+                        if (basicRepositoryService.containsPath(repository, artifactPath))
                         {
                             final InputStream is = getInputStream(artifactPath, repository);
                             if (is != null)
