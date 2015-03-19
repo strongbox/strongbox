@@ -62,6 +62,8 @@ public class ConfigurationManagerTest
 
         assertNotNull(configuration);
         assertNotNull(configuration.getStorages());
+        assertNotNull(configuration.getRoutingRules());
+        assertFalse(configuration.getRoutingRules().isEmpty());
 
         for (String storageId : configuration.getStorages().keySet())
         {

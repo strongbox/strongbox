@@ -2,9 +2,9 @@ package org.carlspring.strongbox.services;
 
 import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.artifact.generator.ArtifactGenerator;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,6 +28,7 @@ import static org.junit.Assert.*;
 @ContextConfiguration(locations = { "/META-INF/spring/strongbox-*-context.xml",
                                     "classpath*:/META-INF/spring/strongbox-*-context.xml" })
 public class ArtifactManagementServiceImplTest
+        extends TestCaseWithArtifactGeneration
 {
 
     private static final File STORAGE_BASEDIR = new File("target/storages/storage0");
@@ -55,14 +56,9 @@ public class ArtifactManagementServiceImplTest
 
             String gavtc = "org.carlspring.strongbox:strongbox-utils::jar";
 
-            ArtifactGenerator generator = new ArtifactGenerator(REPOSITORY_BASEDIR.getAbsolutePath());
-            generator.generate(gavtc, "6.0.1", "6.1.1", "6.2.1", "6.2.2-SNAPSHOT", "7.0", "7.1");
-
-            generator.setBasedir(STORAGE_BASEDIR.getAbsolutePath() + "/releases-with-trash");
-            generator.generate(gavtc, "7.2");
-
-            generator.setBasedir(STORAGE_BASEDIR.getAbsolutePath() + "/releases-with-redeployment");
-            generator.generate(gavtc, "7.3");
+            generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), gavtc, "6.0.1", "6.1.1", "6.2.1", "6.2.2-SNAPSHOT", "7.0", "7.1");
+            generateArtifact(STORAGE_BASEDIR.getAbsolutePath() + "/releases-with-trash", gavtc, "7.2");
+            generateArtifact(STORAGE_BASEDIR.getAbsolutePath() + "/releases-with-redeployment", gavtc, "7.3");
 
             INITIALIZED = true;
         }
@@ -82,7 +78,8 @@ public class ArtifactManagementServiceImplTest
             String repositoryId = "releases-without-deployment";
             String gavtc = "org.carlspring.strongbox:strongbox-utils:8.0:jar";
 
-            is = generateArtifactInputStream(repositoryId, gavtc, true);
+            File repositoryDir = new File(STORAGE_BASEDIR, repositoryId);
+            is = generateArtifactInputStream(repositoryDir.getAbsolutePath(), repositoryId, gavtc, true);
 
             Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
             artifactManagementService.store("storage0",
@@ -116,9 +113,10 @@ public class ArtifactManagementServiceImplTest
             String repositoryId = "releases-without-redeployment";
             String gavtc = "org.carlspring.strongbox:strongbox-utils:8.1:jar";
 
-            generateArtifact(gavtc, new File(STORAGE_BASEDIR, repositoryId).getAbsolutePath());
+            generateArtifact(new File(STORAGE_BASEDIR, repositoryId).getAbsolutePath(), gavtc);
 
-            is = generateArtifactInputStream(repositoryId, gavtc, true);
+            File repositoryDir = new File(STORAGE_BASEDIR, repositoryId);
+            is = generateArtifactInputStream(repositoryDir.getAbsolutePath(), repositoryId, gavtc, true);
 
             Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
             artifactManagementService.store("storage0",
@@ -152,9 +150,11 @@ public class ArtifactManagementServiceImplTest
             String repositoryId = "releases-without-delete";
             String gavtc = "org.carlspring.strongbox:strongbox-utils:8.2:jar";
 
-            generateArtifact(gavtc, new File(STORAGE_BASEDIR, repositoryId).getAbsolutePath());
+            File repositoryDir = new File(STORAGE_BASEDIR, repositoryId);
 
-            is = generateArtifactInputStream(repositoryId, gavtc, true);
+            generateArtifact(repositoryDir.getAbsolutePath(), gavtc);
+
+            is = generateArtifactInputStream(STORAGE_BASEDIR.getAbsolutePath(), repositoryId, gavtc, true);
 
             Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
             artifactManagementService.delete("storage0",
@@ -190,7 +190,8 @@ public class ArtifactManagementServiceImplTest
         //noinspection EmptyCatchBlock
         try
         {
-            is = generateArtifactInputStream(repositoryId, gavtc, true);
+            File repositoryDir = new File(STORAGE_BASEDIR, repositoryId);
+            is = generateArtifactInputStream(repositoryDir.getAbsolutePath(), repositoryId, gavtc, true);
 
             artifactManagementService.store("storage0",
                                             repositoryId,
@@ -213,7 +214,7 @@ public class ArtifactManagementServiceImplTest
         {
             // Generate the artifact on the file-system anyway so that we could achieve
             // the state of having it there before attempting a re-deployment
-            generateArtifact(gavtc, new File(STORAGE_BASEDIR, repositoryId).getAbsolutePath());
+            generateArtifact(new File(STORAGE_BASEDIR, repositoryId).getAbsolutePath(), gavtc);
             artifactManagementService.store("storage0",
                                             repositoryId,
                                             ArtifactUtils.convertArtifactToPath(artifact),
@@ -310,36 +311,6 @@ public class ArtifactManagementServiceImplTest
         assertTrue("Should have moved the artifact to the trash during a force delete operation, " +
                    "when allowsForceDeletion is not enabled!",
                    new File(repositoryDir, artifactPath2).exists());
-    }
-
-    private InputStream generateArtifactInputStream(String repositoryId, String gavtc, boolean useTempDir)
-            throws NoSuchAlgorithmException,
-                   XmlPullParserException,
-                   IOException
-    {
-        File basedir = new File(STORAGE_BASEDIR.getAbsolutePath() + "/" + repositoryId + (useTempDir ? "/.temp" : ""));
-        if (!basedir.exists())
-        {
-            //noinspection ResultOfMethodCallIgnored
-            basedir.mkdirs();
-        }
-
-        Artifact artifact = generateArtifact(gavtc, basedir.getCanonicalPath());
-
-        return new FileInputStream(new File(basedir, ArtifactUtils.convertArtifactToPath(artifact)));
-    }
-
-    private Artifact generateArtifact(String gavtc, String basedir)
-            throws IOException,
-                   XmlPullParserException,
-                   NoSuchAlgorithmException
-    {
-        Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
-
-        ArtifactGenerator generator = new ArtifactGenerator(basedir);
-        generator.generate(artifact);
-
-        return artifact;
     }
 
 }

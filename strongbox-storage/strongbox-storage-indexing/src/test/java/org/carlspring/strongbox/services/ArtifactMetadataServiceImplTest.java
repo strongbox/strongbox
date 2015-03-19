@@ -1,16 +1,11 @@
 package org.carlspring.strongbox.services;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.artifact.generator.ArtifactGenerator;
-import org.carlspring.strongbox.services.impl.ArtifactMetadataServiceImpl;
-
-import java.io.File;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
+import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.services.impl.ArtifactMetadataServiceImpl;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -22,6 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.File;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+
 /**
  * @author stodorov
  */
@@ -30,6 +29,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(locations = {"/META-INF/spring/strongbox-*-context.xml",
                                    "classpath*:/META-INF/spring/strongbox-*-context.xml"})
 public class ArtifactMetadataServiceImplTest
+        extends TestCaseWithArtifactGeneration
 {
 
     private static final File REPOSITORY_BASEDIR = new File("target/storages/storage0/releases");
@@ -53,11 +53,10 @@ public class ArtifactMetadataServiceImplTest
             //noinspection ResultOfMethodCallIgnored
             REPOSITORY_BASEDIR.mkdirs();
 
-            ArtifactGenerator generator = new ArtifactGenerator(REPOSITORY_BASEDIR.getAbsolutePath());
-            generator.generate(ARTIFACT);
-            generator.generate(ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-metadata:1.1:jar"));
-            generator.generate(RELEASE_ARTIFACT);
-            generator.generate(LATEST_ARTIFACT);
+            generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), ARTIFACT);
+            generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-metadata:1.1:jar"));
+            generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), RELEASE_ARTIFACT);
+            generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), LATEST_ARTIFACT);
 
             artifactMetadataService.rebuildMetadata("storage0", "releases", ARTIFACT);
         }

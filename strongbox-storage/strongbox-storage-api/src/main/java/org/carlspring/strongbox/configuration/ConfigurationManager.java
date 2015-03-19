@@ -118,6 +118,20 @@ public class ConfigurationManager extends AbstractConfigurationManager<Configura
         }
     }
 
+    public String getStorageId(Storage storage, String storageAndRepositoryId)
+    {
+        String[] storageAndRepositoryIdTokens = storageAndRepositoryId.split(":");
+
+        return storageAndRepositoryIdTokens.length == 2 ? storageAndRepositoryIdTokens[0] : storage.getId();
+    }
+
+    public String getRepositoryId(String storageAndRepositoryId)
+    {
+        String[] storageAndRepositoryIdTokens = storageAndRepositoryId.split(":");
+
+        return storageAndRepositoryIdTokens[storageAndRepositoryIdTokens.length < 2 ? 0 : 1];
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Configuration getConfiguration()
@@ -128,8 +142,7 @@ public class ConfigurationManager extends AbstractConfigurationManager<Configura
     public Resource getConfigurationResource()
             throws IOException
     {
-        return configurationResourceResolver.getConfigurationResource("repository.config.xml",
-                                                                      "etc/conf/strongbox.xml");
+        return configurationResourceResolver.getConfigurationResource("repository.config.xml", "etc/conf/strongbox.xml");
     }
 
 }

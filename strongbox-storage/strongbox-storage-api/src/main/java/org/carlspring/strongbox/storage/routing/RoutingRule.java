@@ -17,8 +17,8 @@ public class RoutingRule
     @XmlAttribute (name = "group-repository")
     private String groupRepository;
 
-    @XmlElement(name = "repository")
-    @XmlElementWrapper(name = "ordered-repositories")
+    @XmlElement (name = "repository")
+    @XmlElementWrapper(name = "repositories")
     private Set<String> repositories;
 
     @XmlElement (name = "pattern")
