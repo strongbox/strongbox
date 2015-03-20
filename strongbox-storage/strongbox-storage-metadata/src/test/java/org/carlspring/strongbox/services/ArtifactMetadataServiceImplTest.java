@@ -28,12 +28,6 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author stodorov
  */
-/*
-@RunWith(SpringJUnit4ClassRunner.class)
-@FixMethodOrder(MethodSorters.JVM)
-@ContextConfiguration(locations = {"/META-INF/spring/strongbox-*-context.xml", "classpath*:/META-INF/spring/strongbox-*-context.xml"})
-*/
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"/META-INF/spring/strongbox-*-context.xml", "classpath*:/META-INF/spring/strongbox-*-context.xml"})
 public class ArtifactMetadataServiceImplTest extends TestCaseWithArtifactGeneration
@@ -52,9 +46,6 @@ public class ArtifactMetadataServiceImplTest extends TestCaseWithArtifactGenerat
 
     @Autowired
     private ArtifactMetadataService artifactMetadataService;
-
-    @Autowired
-    private BasicRepositoryService basicRepositoryService;
 
 
     @Before
@@ -101,8 +92,6 @@ public class ArtifactMetadataServiceImplTest extends TestCaseWithArtifactGenerat
             generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), PLUGIN_ARTIFACT);
             generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), PLUGIN_ARTIFACT_SNAPSHOT);
         }
-
-        assertNotNull(basicRepositoryService);
     }
 
     @Test
