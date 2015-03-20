@@ -50,6 +50,8 @@
 
     <bean id="versionValidatorService" class="org.carlspring.strongbox.services.impl.VersionValidatorServiceImpl" />
 
+    <bean id="artifactMetadataService" class="org.carlspring.strongbox.services.impl.ArtifactMetadataServiceImpl" />
+
     <bean id="basicRepositoryService" class="org.carlspring.strongbox.services.impl.BasicRepositoryServiceImpl" />
 
     <bean id="routingRulesManager" class="org.carlspring.strongbox.storage.routing.RoutingRulesManager" init-method="initialize"/>

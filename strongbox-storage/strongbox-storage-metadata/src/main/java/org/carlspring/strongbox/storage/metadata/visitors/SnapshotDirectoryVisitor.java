@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.storage.visitors;
+package org.carlspring.strongbox.storage.metadata.visitors;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -9,18 +9,19 @@ import java.util.List;
 /**
  * @author stodorov
  */
-public class ArtifactPomVisitor
+public class SnapshotDirectoryVisitor
         extends SimpleFileVisitor<Path>
 {
 
-    private PathMatcher matcher;
-
     public List<Path> matchingPaths = new ArrayList<>();
 
+    private PathMatcher matcher;
 
-    public ArtifactPomVisitor()
+    private final String search = "glob:*.{pom,md5,sha1}";
+
+    public SnapshotDirectoryVisitor()
     {
-        matcher = FileSystems.getDefault().getPathMatcher("glob:*.pom");
+        matcher = FileSystems.getDefault().getPathMatcher(search);
     }
 
     @Override
@@ -29,12 +30,16 @@ public class ArtifactPomVisitor
             throws IOException
     {
         Path name = file.getFileName();
-        if (matcher.matches(name))
+        if (!matcher.matches(name))
         {
             matchingPaths.add(file);
         }
 
         return FileVisitResult.CONTINUE;
+    }
+
+    public List<Path> getMatchingPaths(){
+        return matchingPaths;
     }
 
 }

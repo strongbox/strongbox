@@ -37,6 +37,7 @@
     <modules>
         <module>strongbox-storage-api</module>
         <module>strongbox-storage-indexing</module>
+        <module>strongbox-storage-metadata</module>
     </modules>
 
 </project>
