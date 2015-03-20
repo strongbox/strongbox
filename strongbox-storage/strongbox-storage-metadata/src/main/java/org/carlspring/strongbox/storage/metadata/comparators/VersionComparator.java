@@ -8,10 +8,13 @@ import java.util.Comparator;
  * @author Steve Todorov <s.todorov@itnews-bg.com>
  */
 public class VersionComparator
-        implements Comparator<String> {
+        implements Comparator<String>
+{
 
-    public int compare(String v1, String v2) {
-        if (v1 == null || v2 == null) {
+    public int compare(String v1, String v2)
+    {
+        if (v1 == null || v2 == null)
+        {
             throw new IllegalArgumentException();
         }
 
