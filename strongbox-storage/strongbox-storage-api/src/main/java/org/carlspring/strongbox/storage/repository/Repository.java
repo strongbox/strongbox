@@ -1,13 +1,10 @@
 package org.carlspring.strongbox.storage.repository;
 
-import org.apache.maven.artifact.Artifact;
-import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.storage.Storage;
 
 import javax.xml.bind.annotation.*;
 import java.io.File;
-import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -51,6 +48,9 @@ public class Repository
 
     @XmlAttribute(name = "allows-delete")
     private boolean allowsDelete = true;
+
+    @XmlAttribute(name = "allows-directory-browsing")
+    private boolean allowsDirectoryBrowsing = true;
 
     /**
      * The per-repository proxy settings that override the overall global proxy settings.
@@ -199,6 +199,16 @@ public class Repository
     public void setAllowsRedeployment(boolean allowsRedeployment)
     {
         this.allowsRedeployment = allowsRedeployment;
+    }
+
+    public boolean allowsDirectoryBrowsing()
+    {
+        return allowsDirectoryBrowsing;
+    }
+
+    public void setAllowsDirectoryBrowsing(boolean allowsDirectoryBrowsing)
+    {
+        this.allowsDirectoryBrowsing = allowsDirectoryBrowsing;
     }
 
     public ProxyConfiguration getProxyConfiguration()
