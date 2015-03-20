@@ -77,9 +77,11 @@ public class ConfigurationManagerTest
         assertNotNull("No resolvers found!", artifactResolutionService.getResolvers());
         // The test repository group should have at least two repositories in it:
         assertTrue("Incorrect number of resolvers found!", artifactResolutionService.getResolvers().size() >= 2);
-        assertEquals("Repository should have required authentication!",
-                     true,
-                     configuration.getStorages().get("storage0").getRepositories().get("snapshots").isSecured());
+        assertTrue("Repository should have required authentication!",
+                   configuration.getStorages().get("storage0").getRepositories().get("snapshots").isSecured());
+
+        assertTrue(configuration.getStorages().get("storage0").getRepositories().get("releases").allowsDirectoryBrowsing());
+        assertFalse(configuration.getStorages().get("storage0").getRepositories().get("releases-without-browsing").allowsDirectoryBrowsing());
     }
 
     @Test
