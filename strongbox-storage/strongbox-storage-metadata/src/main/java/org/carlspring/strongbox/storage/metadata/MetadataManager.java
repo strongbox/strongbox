@@ -37,6 +37,7 @@ public class MetadataManager
 
     private static final Logger logger = LoggerFactory.getLogger(MetadataManager.class);
 
+
     public MetadataManager()
     {
     }
@@ -54,7 +55,6 @@ public class MetadataManager
     public Metadata getMetadata(Path artifactBasePath)
             throws IOException, XmlPullParserException
     {
-
         File metadataFile = getMetadataFile(artifactBasePath);
         Metadata metadata = null;
         FileInputStream fis = null;
@@ -69,10 +69,7 @@ public class MetadataManager
         }
         finally
         {
-            if (fis != null)
-            {
-                ResourceCloser.close(fis, logger);
-            }
+            ResourceCloser.close(fis, logger);
         }
 
         return metadata;
@@ -93,7 +90,6 @@ public class MetadataManager
         return new File(artifactBasePath.toFile().getAbsolutePath() + "/maven-metadata.xml");
     }
 
-
     /**
      * Generate a metadata file for an artifact.
      *
@@ -106,7 +102,6 @@ public class MetadataManager
     public void generateMetadata(Repository repository, Artifact artifact)
             throws IOException, XmlPullParserException
     {
-
         if (basicRepositoryService.containsArtifact(repository, artifact))
         {
             logger.debug("Artifact metadata generation triggered for " + artifact.toString() + ".");
@@ -130,7 +125,9 @@ public class MetadataManager
                 versionCollector.processPomFiles(foundFiles);
 
                 // Write artifact metadata if there is any.
-                if(versionCollector.getVersioning() != null && (versionCollector.getVersioning().getVersions().size() > 0 || versionCollector.getVersioning().getSnapshotVersions().size() > 0))
+                if(versionCollector.getVersioning() != null &&
+                   (versionCollector.getVersioning().getVersions().size() > 0 ||
+                    versionCollector.getVersioning().getSnapshotVersions().size() > 0))
                 {
                     // TODO: 1. Set latest release & snapshot versions.
 
@@ -151,7 +148,6 @@ public class MetadataManager
                 if(versionCollector.getPlugins() != null && versionCollector.getPlugins().size() > 0)
                 {
                     Metadata pluginMetadata = new Metadata();
-
                     pluginMetadata.setPlugins(versionCollector.getPlugins());
 
                     Path pluginMetadataPath = artifactBasePath.getParent();
@@ -160,7 +156,6 @@ public class MetadataManager
 
                     logger.debug("Generated Maven plugin metadata for " + artifact.getGroupId() + ":" + artifact.getArtifactId() + ".");
                 }
-
             }
             else
             {
@@ -172,6 +167,7 @@ public class MetadataManager
             logger.debug("Artifact metadata generation failed: artifact missing (" + artifact.toString() + ")");
         }
     }
+
     public void generateMetadata(Repository repository, String artifactPath)
             throws IOException, XmlPullParserException
     {
@@ -193,6 +189,7 @@ public class MetadataManager
 
         File metadataFile = getMetadataFile(artifactBasePath);
         Writer writer = null;
+
         try
         {
             writer = WriterFactory.newXmlWriter(metadataFile);
@@ -214,6 +211,7 @@ public class MetadataManager
     {
         File metadataFile = getMetadataFile(metadataBasePath);
         Writer writer = null;
+
         try
         {
             writer = WriterFactory.newXmlWriter(metadataFile);

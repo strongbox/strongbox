@@ -54,6 +54,8 @@ public class ArtifactGenerator
         {
             Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
             artifact.setVersion(version);
+            artifact.setFile(new File(getBasedir() + "/" + ArtifactUtils.convertArtifactToPath(artifact)));
+
             generate(artifact);
         }
     }
