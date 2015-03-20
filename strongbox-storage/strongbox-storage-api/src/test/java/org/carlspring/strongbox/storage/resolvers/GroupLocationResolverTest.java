@@ -2,6 +2,7 @@ package org.carlspring.strongbox.storage.resolvers;
 
 import com.carmatechnologies.commons.testing.logging.ExpectedLogs;
 import com.carmatechnologies.commons.testing.logging.api.LogLevel;
+import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.junit.Before;
 import org.junit.Rule;
@@ -78,6 +79,8 @@ public class GroupLocationResolverTest
                                  " [+]: .*(com|org)/artifacts.in.releases.with.trash.* after 2 hops."), is(true));
 
         assertNotNull(is);
+
+        ResourceCloser.close(is, null);
     }
 
     @Test
@@ -94,6 +97,26 @@ public class GroupLocationResolverTest
                                  " [+]: .*(com|org)/artifacts.in.releases.* after 1 hops."), is(true));
 
         assertNotNull(is);
+
+        ResourceCloser.close(is, null);
+    }
+
+    @Test
+    public void testGroupIncludesWildcardRuleAgainstNestedRepository()
+            throws IOException
+    {
+        System.out.println("# Testing group includes with wildcard against nested repositories...");
+
+        InputStream is = groupLocationResolver.getInputStream("storage0",
+                                                              "group-releases-nested",
+                                                              "com/artifacts/in/releases/foo/1.2.4/foo-1.2.4.jar");
+
+        assertThat(logs.contains("Located artifact via wildcard routing rule [storage0:releases]:" +
+                                 " [+]: .*(com|org)/artifacts.in.releases.* after 1 hops."), is(true));
+
+        assertNotNull(is);
+
+        ResourceCloser.close(is, null);
     }
 
     @Test
