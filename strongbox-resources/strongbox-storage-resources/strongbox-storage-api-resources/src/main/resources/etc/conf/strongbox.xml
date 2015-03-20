@@ -17,6 +17,8 @@
                 <repository id="releases-without-redeployment" policy="release" implementation="file-system" type="hosted" allows-deployment="false"/>
                 <repository id="releases-without-delete" policy="release" implementation="file-system" type="hosted" allows-delete="false"/>
                 <repository id="releases-without-delete-trash" policy="release" implementation="file-system" type="hosted" trash-enabled="true" allows-delete="false"/>
+                <repository id="releases-without-browsing" policy="release" implementation="file-system" type="hosted" allows-directory-browsing="false"/>
+
                 <repository id="snapshots" policy="snapshot" implementation="file-system" type="hosted" secured="true" />
                 <repository id="snapshots-in-memory" policy="snapshot" implementation="in-memory" type="hosted" secured="true" />
 
@@ -40,8 +42,34 @@
                         <repository>releases-without-redeployment</repository>
                         <repository>releases-without-delete</repository>
                         <repository>releases-without-delete-trash</repository>
+                        <repository>releases-without-browsing</repository>
                     </group>
                 </repository>
+
+                <repository id="group-releases-with-options" policy="release" implementation="group" type="group" secured="true">
+                    <group>
+                        <repository>releases</repository>
+                        <repository>releases-in-memory</repository>
+                        <repository>releases-with-redeployment</repository>
+                        <repository>releases-with-trash</repository>
+                    </group>
+                </repository>
+                <repository id="group-releases-without-options" policy="release" implementation="group" type="group" secured="true">
+                    <group>
+                        <repository>releases-without-deployment</repository>
+                        <repository>releases-without-redeployment</repository>
+                        <repository>releases-without-delete</repository>
+                        <repository>releases-without-delete-trash</repository>
+                        <repository>releases-without-browsing</repository>
+                    </group>
+                </repository>
+                <repository id="group-releases-nested" policy="release" implementation="group" type="group" secured="true">
+                    <group>
+                        <repository>releases-with-options</repository>
+                        <repository>releases-without-options</repository>
+                    </group>
+                </repository>
+
             </repositories>
         </storage>
     </storages>
