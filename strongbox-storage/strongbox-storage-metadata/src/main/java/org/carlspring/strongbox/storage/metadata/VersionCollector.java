@@ -5,12 +5,15 @@ import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.carlspring.strongbox.storage.metadata.comparators.SnapshotVersionComparator;
+import org.carlspring.strongbox.storage.metadata.comparators.VersionComparator;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -77,9 +80,8 @@ public class VersionCollector
             }
         }
 
-        // TODO: FIX version sorting here!
-        // versioning.addVersion("1.5");
-        // Arrays.sort(versioning, getVersioning().getVersions(), new ComparableVersion());
+        Collections.sort(versioning.getVersions(), new VersionComparator());
+        Collections.sort(snapshots, new SnapshotVersionComparator());
 
     }
 
