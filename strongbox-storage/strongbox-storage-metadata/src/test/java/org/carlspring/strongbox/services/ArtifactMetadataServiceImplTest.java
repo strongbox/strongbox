@@ -5,10 +5,12 @@ import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.services.impl.ArtifactMetadataServiceImpl;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -20,6 +22,8 @@ import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author stodorov
@@ -47,7 +51,10 @@ public class ArtifactMetadataServiceImplTest extends TestCaseWithArtifactGenerat
     private ArrayList<Artifact> testArtifacts = new ArrayList<>();
 
     @Autowired
-    private ArtifactMetadataServiceImpl artifactMetadataService;
+    private ArtifactMetadataService artifactMetadataService;
+
+    @Autowired
+    private BasicRepositoryService basicRepositoryService;
 
 
     @Before
@@ -63,16 +70,14 @@ public class ArtifactMetadataServiceImplTest extends TestCaseWithArtifactGenerat
             String ga = "org.carlspring.strongbox:strongbox-metadata";
 
             // Create released artifacts
+            Artifact artifact = null;
             for (int i = 0; i <= 4; i++)
             {
-                Artifact artifact = createRelease(ga + ":1." + i + ":jar");
-
-                if (i == 4)
-                {
-                    this.artifact = artifact;
-                    latestRelease = artifact;
-                }
+                artifact = createRelease(ga + ":1." + i + ":jar");
             }
+
+            this.artifact = artifact;
+            latestRelease = artifact;
 
             // Create snapshot artifacts
             SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -96,6 +101,8 @@ public class ArtifactMetadataServiceImplTest extends TestCaseWithArtifactGenerat
             generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), PLUGIN_ARTIFACT);
             generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), PLUGIN_ARTIFACT_SNAPSHOT);
         }
+
+        assertNotNull(basicRepositoryService);
     }
 
     @Test
@@ -158,6 +165,7 @@ public class ArtifactMetadataServiceImplTest extends TestCaseWithArtifactGenerat
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
         Artifact snapshot = ArtifactUtils.getArtifactFromGAVTC(gavt);
+        snapshot.setFile(new File(REPOSITORY_BASEDIR.getAbsolutePath() + "/" + ArtifactUtils.convertArtifactToPath(snapshot)));
 
         generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), snapshot);
         generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), ArtifactUtils.getArtifactFromGAVTC(gavt + ":javadoc"));

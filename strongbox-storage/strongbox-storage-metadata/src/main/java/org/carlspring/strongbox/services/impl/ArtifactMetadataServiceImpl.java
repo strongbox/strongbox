@@ -25,11 +25,12 @@ public class ArtifactMetadataServiceImpl
     @Autowired
     private ConfigurationManager configurationManager;
 
-    private final MetadataManager metadataManager;
+    @Autowired
+    private MetadataManager metadataManager;
+
 
     public ArtifactMetadataServiceImpl()
     {
-        metadataManager = new MetadataManager();
     }
 
     @Override
@@ -72,4 +73,5 @@ public class ArtifactMetadataServiceImpl
         // TODO: Change this arguments to repository, artifact, mergeMetadata
         metadataManager.mergeMetadata(artifactBasePath, mergeMetadata);
     }
+
 }
