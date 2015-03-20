@@ -65,7 +65,7 @@ public class VersionCollector
                     plugin.setArtifactId(pom.getArtifactId());
                     plugin.setPrefix(prefix);
 
-                    if(!plugins.contains(plugin))
+                    if (!plugins.contains(plugin))
                     {
                         plugins.add(plugin);
                     }
@@ -80,8 +80,36 @@ public class VersionCollector
             }
         }
 
+        // Fix sorting
         Collections.sort(versioning.getVersions(), new VersionComparator());
         Collections.sort(snapshots, new SnapshotVersionComparator());
+
+        // Set latest version & latest release version
+        if (versioning.getVersions().size() > 0)
+        {
+            VersionComparator versionComparator = new VersionComparator();
+
+            String latestVersion = "0";
+            String latestRelease = "0";
+
+            for (String version : versioning.getVersions())
+            {
+                // Latest version include SNAPSHOT versions as well.
+                if(versionComparator.compare(version, latestVersion) == 1)
+                {
+                    latestVersion = version;
+                }
+
+                // Latest release excludes SNAPSHOT versions
+                if(!version.matches("^(.+)-((?i)snapshot).*$") && versionComparator.compare(version, latestRelease) == 1)
+                {
+                    latestRelease = version;
+                }
+            }
+
+            versioning.setLatest(latestVersion);
+            versioning.setRelease(latestRelease);
+        }
 
     }
 

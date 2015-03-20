@@ -129,8 +129,6 @@ public class MetadataManager
                    (versionCollector.getVersioning().getVersions().size() > 0 ||
                     versionCollector.getVersioning().getSnapshotVersions().size() > 0))
                 {
-                    // TODO: 1. Set latest release & snapshot versions.
-
                     metadata.setVersioning(versionCollector.getVersioning());
                     metadata.getVersioning().setLastUpdatedTimestamp(new Date());
 
