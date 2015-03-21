@@ -23,8 +23,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import static org.junit.Assert.assertNotNull;
-
 /**
  * @author stodorov
  */
@@ -57,7 +55,6 @@ public class ArtifactMetadataServiceImplTest extends TestCaseWithArtifactGenerat
             //noinspection ResultOfMethodCallIgnored
             REPOSITORY_BASEDIR.mkdirs();
 
-            //ArtifactGenerator generator = new ArtifactGenerator(REPOSITORY_BASEDIR.getAbsolutePath());
             String ga = "org.carlspring.strongbox:strongbox-metadata";
 
             // Create released artifacts
@@ -89,8 +86,8 @@ public class ArtifactMetadataServiceImplTest extends TestCaseWithArtifactGenerat
             }
 
             // Create plugin artifact
-            generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), PLUGIN_ARTIFACT);
-            generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), PLUGIN_ARTIFACT_SNAPSHOT);
+            generateArtifact(REPOSITORY_BASEDIR, PLUGIN_ARTIFACT);
+            generateArtifact(REPOSITORY_BASEDIR, PLUGIN_ARTIFACT_SNAPSHOT);
         }
     }
 
@@ -156,10 +153,9 @@ public class ArtifactMetadataServiceImplTest extends TestCaseWithArtifactGenerat
         Artifact snapshot = ArtifactUtils.getArtifactFromGAVTC(gavt);
         snapshot.setFile(new File(REPOSITORY_BASEDIR.getAbsolutePath() + "/" + ArtifactUtils.convertArtifactToPath(snapshot)));
 
-        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), snapshot);
-        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), ArtifactUtils.getArtifactFromGAVTC(gavt + ":javadoc"));
-        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), ArtifactUtils.getArtifactFromGAVTC(gavt + ":source-release"));
-        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), ArtifactUtils.getArtifactFromGAVTC(gavt + ":sources"));
+        generateArtifact(REPOSITORY_BASEDIR, snapshot);
+        generateArtifact(REPOSITORY_BASEDIR, ArtifactUtils.getArtifactFromGAVTC(gavt + ":javadoc"));
+        generateArtifact(REPOSITORY_BASEDIR, ArtifactUtils.getArtifactFromGAVTC(gavt + ":sources"));
 
         return snapshot;
     }

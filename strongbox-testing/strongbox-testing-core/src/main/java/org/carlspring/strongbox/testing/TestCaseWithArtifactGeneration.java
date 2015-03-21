@@ -30,6 +30,17 @@ public class TestCaseWithArtifactGeneration
         return artifact;
     }
 
+    public void generateArtifact(File basedir, Artifact artifact)
+            throws IOException,
+                   XmlPullParserException,
+                   NoSuchAlgorithmException
+    {
+        artifact.setFile(new File(basedir + "/" + ArtifactUtils.convertArtifactToPath(artifact)));
+
+        ArtifactGenerator generator = new ArtifactGenerator(basedir);
+        generator.generate(artifact);
+    }
+
     public void generateArtifact(String basedir, Artifact artifact)
             throws IOException,
                    XmlPullParserException,
