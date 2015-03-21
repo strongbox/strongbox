@@ -1,6 +1,10 @@
 package org.carlspring.strongbox.storage.resolvers;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.maven.artifact.Artifact;
+import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.io.ArtifactFile;
+import org.carlspring.strongbox.io.ArtifactFileOutputStream;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
@@ -60,16 +64,14 @@ public class FSLocationResolver
     {
         Storage storage = getConfiguration().getStorage(storageId);
 
-        final File repoPath = new File(storage.getRepository(repositoryId).getBasedir());
-        final File artifactFile = new File(repoPath, artifactPath).getCanonicalFile();
+        Repository repository = storage.getRepository(repositoryId);
 
-        if (!artifactFile.getParentFile().exists())
-        {
-            //noinspection ResultOfMethodCallIgnored
-            artifactFile.getParentFile().mkdirs();
-        }
+        Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
 
-        return new FileOutputStream(artifactFile);
+        ArtifactFile artifactFile = new ArtifactFile(repository, artifact, true);
+        artifactFile.createParents();
+
+        return new ArtifactFileOutputStream(artifactFile);
     }
 
     @Override
