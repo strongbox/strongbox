@@ -37,7 +37,7 @@ public class ArtifactMetadataServiceImpl
     public Metadata getMetadata(String storageId, String repositoryId, Artifact artifact)
             throws IOException, XmlPullParserException
     {
-        Path artifactBasePath = artifact.getFile().toPath().getParent();
+        Path artifactBasePath = artifact.getFile().toPath().getParent().getParent();
 
         return metadataManager.getMetadata(artifactBasePath);
     }
@@ -46,7 +46,7 @@ public class ArtifactMetadataServiceImpl
     public Metadata getMetadata(String storageId, String repositoryId, String artifactPath)
             throws IOException, XmlPullParserException
     {
-        Path artifactBasePath = ArtifactUtils.convertPathToArtifact(artifactPath).getFile().toPath();
+        Path artifactBasePath = ArtifactUtils.convertPathToArtifact(artifactPath).getFile().toPath().getParent();
         return metadataManager.getMetadata(artifactBasePath);
     }
 
@@ -62,16 +62,16 @@ public class ArtifactMetadataServiceImpl
     public void rebuildMetadata(String storageId, String repositoryId, String artifactPath)
             throws IOException, XmlPullParserException
     {
-        rebuildMetadata(storageId, repositoryId, org.carlspring.maven.commons.util.ArtifactUtils.convertPathToArtifact(artifactPath));
+        rebuildMetadata(storageId, repositoryId, ArtifactUtils.convertPathToArtifact(artifactPath));
     }
 
     @Override
     public void mergeMetadata(String storageId, String repositoryId, Artifact artifact, Metadata mergeMetadata)
             throws IOException, XmlPullParserException
     {
-        Path artifactBasePath = artifact.getFile().toPath().getParent();
-        // TODO: Change this arguments to repository, artifact, mergeMetadata
-        metadataManager.mergeMetadata(artifactBasePath, mergeMetadata);
+        Repository repository = configurationManager.getConfiguration().getStorage(storageId).getRepository(repositoryId);
+
+        metadataManager.mergeMetadata(repository, artifact, mergeMetadata);
     }
 
 }

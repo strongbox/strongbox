@@ -17,7 +17,7 @@ public class SnapshotDirectoryVisitor
 
     private PathMatcher matcher;
 
-    private final String search = "glob:*.{pom,md5,sha1}";
+    private final String search = "glob:*.{md5,sha1}";
 
     public SnapshotDirectoryVisitor()
     {
