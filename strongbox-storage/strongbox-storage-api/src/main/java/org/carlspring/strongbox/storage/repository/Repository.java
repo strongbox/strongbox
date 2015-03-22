@@ -282,4 +282,9 @@ public class Repository
         return new File(getBasedir(), ".trash");
     }
 
+    public File getTempDir()
+    {
+        return new File(getBasedir(), ".temp");
+    }
+
 }

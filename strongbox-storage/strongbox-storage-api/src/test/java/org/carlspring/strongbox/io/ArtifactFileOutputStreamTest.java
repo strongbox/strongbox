@@ -17,6 +17,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -48,9 +49,37 @@ public class ArtifactFileOutputStreamTest
         ByteArrayInputStream bais = new ByteArrayInputStream("This is a test\n".getBytes());
         IOUtils.copy(bais, afos);
 
+        assertTrue("Failed to create temporary artifact file!", artifactFile.getTemporaryFile().exists());
+
         afos.close();
 
-        assertTrue(afos.getArtifactFile().exists());
+        assertTrue("Failed to the move temporary artifact file to original location!", afos.getArtifactFile().exists());
+    }
+
+    @Test
+    public void testCreateWithTemporaryLocationNoMoveOnClose()
+            throws IOException
+    {
+        final Storage storage = getConfiguration().getStorage("storage0");
+        final Repository repository = storage.getRepository("releases");
+
+        final Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.foo:temp-file-test:1.2.4:jar");
+        final ArtifactFile artifactFile = new ArtifactFile(repository, artifact, true);
+        artifactFile.createParents();
+
+        final ArtifactFileOutputStream afos = new ArtifactFileOutputStream(artifactFile, false);
+
+        ByteArrayInputStream bais = new ByteArrayInputStream("This is a test\n".getBytes());
+        IOUtils.copy(bais, afos);
+
+        assertTrue("Failed to create temporary artifact file!", artifactFile.getTemporaryFile().exists());
+
+        afos.close();
+
+        assertFalse("Should not have move temporary the artifact file to original location!",
+                    afos.getArtifactFile().exists());
+        assertTrue("Should not have move temporary the artifact file to original location!",
+                   afos.getArtifactFile().getTemporaryFile().exists());
     }
 
     private Configuration getConfiguration()

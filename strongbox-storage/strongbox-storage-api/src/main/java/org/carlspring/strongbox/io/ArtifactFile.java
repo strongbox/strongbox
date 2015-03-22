@@ -1,10 +1,12 @@
 package org.carlspring.strongbox.io;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * @author mtodorov
@@ -45,7 +47,8 @@ public class ArtifactFile extends File
     {
         return new ArtifactFile(new File(repository.getBasedir() +
                                          "/.temp/" +
-                                         ArtifactUtils.convertArtifactToPath(artifact)));
+                                         ArtifactUtils.convertArtifactToPath(artifact) +
+                                         "." + temporaryTimestamp));
     }
 
     public void createParents()
@@ -66,6 +69,18 @@ public class ArtifactFile extends File
                 getParentFile().mkdirs();
             }
         }
+    }
+
+    public void moveTempFileToOriginalDestination()
+            throws IOException
+    {
+        if (!getParentFile().exists())
+        {
+            //noinspection ResultOfMethodCallIgnored
+            getParentFile().mkdirs();
+        }
+
+        FileUtils.moveFile(getTemporaryFile(), this);
     }
 
     public Repository getRepository()

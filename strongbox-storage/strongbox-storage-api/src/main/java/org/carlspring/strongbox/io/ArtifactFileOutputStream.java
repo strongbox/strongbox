@@ -15,13 +15,22 @@ public class ArtifactFileOutputStream
 
     private ArtifactFile artifactFile;
 
+    private boolean moveOnClose;
+
 
     public ArtifactFileOutputStream(ArtifactFile artifactFile)
+            throws FileNotFoundException
+    {
+        this(artifactFile, true);
+    }
+
+    public ArtifactFileOutputStream(ArtifactFile artifactFile, boolean moveOnClose)
             throws FileNotFoundException
     {
         super(artifactFile.isTemporaryMode() ? artifactFile.getTemporaryFile() : artifactFile);
 
         this.artifactFile = artifactFile;
+        this.moveOnClose = moveOnClose;
     }
 
     @Override
@@ -30,22 +39,10 @@ public class ArtifactFileOutputStream
     {
         super.close();
 
-        if (artifactFile.isTemporaryMode())
+        if (artifactFile.isTemporaryMode() && moveOnClose)
         {
-            if (!artifactFile.getParentFile().exists())
-            {
-                //noinspection ResultOfMethodCallIgnored
-                artifactFile.getParentFile().mkdirs();
-            }
-
-            moveTempFileToOriginalDestination();
+            artifactFile.moveTempFileToOriginalDestination();
         }
-    }
-
-    private void moveTempFileToOriginalDestination()
-            throws IOException
-    {
-        FileUtils.moveFile(artifactFile.getTemporaryFile(), artifactFile);
     }
 
     public ArtifactFile getArtifactFile()
@@ -56,6 +53,16 @@ public class ArtifactFileOutputStream
     public void setArtifactFile(ArtifactFile artifactFile)
     {
         this.artifactFile = artifactFile;
+    }
+
+    public boolean isMoveOnClose()
+    {
+        return moveOnClose;
+    }
+
+    public void setMoveOnClose(boolean moveOnClose)
+    {
+        this.moveOnClose = moveOnClose;
     }
 
 }
