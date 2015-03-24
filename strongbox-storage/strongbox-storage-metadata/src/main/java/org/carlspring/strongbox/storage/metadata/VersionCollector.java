@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.storage.metadata;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.repository.metadata.Plugin;
 import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.artifact.repository.metadata.Versioning;
@@ -8,6 +9,7 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.carlspring.strongbox.storage.metadata.comparators.VersionComparator;
 import org.carlspring.strongbox.storage.metadata.versions.MetadataVersion;
 import org.carlspring.strongbox.storage.metadata.visitors.ArtifactPomVisitor;
+import org.carlspring.strongbox.storage.metadata.visitors.SnapshotDirectoryVisitor;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 import java.io.FileReader;
@@ -18,6 +20,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author stodorov
@@ -25,21 +29,18 @@ import java.util.List;
 public class VersionCollector
 {
 
-    private Versioning versioning = new Versioning();
-
-    private List<MetadataVersion> releasedVersions = new ArrayList<>();
-
     private ArrayList<Plugin> plugins = new ArrayList<>();
-    private ArrayList<SnapshotVersion> snapshots = new ArrayList<SnapshotVersion>();
 
     public VersionCollector()
     {
     }
 
-
-    public void collectVersions(Path artifactBasePath)
+    public List<MetadataVersion> collectVersions(Path artifactBasePath)
             throws IOException, XmlPullParserException
     {
+
+        List<MetadataVersion> versionList = new ArrayList<>();
+
         ArtifactPomVisitor artifactPomVisitor = new ArtifactPomVisitor();
 
         // Find all artifact versions
@@ -55,11 +56,27 @@ public class VersionCollector
             {
                 BasicFileAttributes fileAttributes = Files.readAttributes(filePath, BasicFileAttributes.class);
 
-                MetadataVersion metadataVersion = new MetadataVersion();
-                metadataVersion.setVersion(pom.getVersion());
-                metadataVersion.setCreatedDate(fileAttributes.lastModifiedTime());
+                String version = pom.getVersion();
 
-                releasedVersions.add(metadataVersion);
+                if(artifactIsSnapshot(pom))
+                {
+                    Pattern pattern = Pattern.compile("^(.*-(?i)snapshot).*$");
+                    Matcher matcher = pattern.matcher(version);
+
+                    if(matcher.find())
+                    {
+                        version = matcher.group(1);
+                    }
+                }
+
+                if(!versionListContains(versionList, version))
+                {
+                    MetadataVersion metadataVersion = new MetadataVersion();
+                    metadataVersion.setVersion(version);
+                    metadataVersion.setCreatedDate(fileAttributes.lastModifiedTime());
+
+                    versionList.add(metadataVersion);
+                }
 
                 if(artifactIsPlugin(pom))
                 {
@@ -80,32 +97,81 @@ public class VersionCollector
                 }
             }
         }
+
+        return versionList;
     }
 
-    public void collectSnapshotVersions(Path artifactBasePath)
+    /**
+     * Get snapshot versioning information for every relased snapshot
+     *
+     * @param artifactVersionPath
+     */
+    public List<SnapshotVersion> collectSnapshotVersions(Path artifactVersionPath)
+            throws IOException
     {
 
+        List<SnapshotVersion> snapshotVersions = new ArrayList<>();
+
+        SnapshotDirectoryVisitor snapshotDirectoryVisitor = new SnapshotDirectoryVisitor();
+
+        Pattern versionExtractor = Pattern.compile("^.*-(([0-9]{8})(.([0-9]+))?(-([0-9]+))?)((-)(.*))?$");
+
+        Files.walkFileTree(artifactVersionPath, snapshotDirectoryVisitor);
+
+        for (Path filePath : snapshotDirectoryVisitor.getMatchingPaths())
+        {
+            String name = filePath.toFile().getName();
+            String baseName = FilenameUtils.getBaseName(name);
+
+            Matcher matcher = versionExtractor.matcher(baseName);
+
+            if(matcher.find())
+            {
+                SnapshotVersion snapshotVersion = new SnapshotVersion();
+                snapshotVersion.setVersion(matcher.group(1));
+                snapshotVersion.setExtension(FilenameUtils.getExtension(name));
+
+                if(matcher.group(9) != null)
+                {
+                    snapshotVersion.setClassifier(matcher.group(9));
+                }
+
+                snapshotVersions.add(snapshotVersion);
+            }
+        }
+
+        return snapshotVersions;
     }
 
-
-
-    public Versioning getReleasedVersioning()
+    public Versioning generateVersioning(List<MetadataVersion> versions)
     {
         Versioning versioning = new Versioning();
 
-        if (releasedVersions.size() > 0)
+        if (versions.size() > 0)
         {
             // Sort versions naturally (1.1 < 1.2 < 1.3 ...)
-            Collections.sort(releasedVersions, new VersionComparator());
-            for (MetadataVersion version : releasedVersions)
+            Collections.sort(versions, new VersionComparator());
+            for (MetadataVersion version : versions)
             {
                 versioning.addVersion(version.getVersion());
             }
 
             // Sort versions naturally but consider creation date as well so that
             // 1.1 < 1.2 < 1.4 < 1.3 (1.3 is considered latest release because it was changed recently)
-            Collections.sort(releasedVersions);
-            versioning.setRelease(releasedVersions.get(releasedVersions.size() - 1).getVersion());
+            Collections.sort(versions);
+            versioning.setRelease(versions.get(versions.size() - 1).getVersion());
+        }
+
+        return versioning;
+    }
+
+    public Versioning generateSnapshotVersions(List<SnapshotVersion> snapshotVersionList)
+    {
+        Versioning versioning = new Versioning();
+
+        if(snapshotVersionList.size() > 0)
+        {
+            versioning.setSnapshotVersions(snapshotVersionList);
         }
 
         return versioning;
@@ -193,19 +259,9 @@ public class VersionCollector
 
     }
 
-    public Versioning getVersioning()
-    {
-        return versioning;
-    }
-
     public ArrayList<Plugin> getPlugins()
     {
         return plugins;
-    }
-
-    public ArrayList<SnapshotVersion> getSnapshots()
-    {
-        return snapshots;
     }
 
     private boolean artifactIsPlugin(Model model)
@@ -223,6 +279,25 @@ public class VersionCollector
     {
         MavenXpp3Reader reader = new MavenXpp3Reader();
         return reader.read(new FileReader(filePath.toFile()));
+    }
+
+    private boolean versionListContains(List<MetadataVersion> versioningList, String version)
+    {
+        boolean contains = false;
+
+        if(versioningList.size() > 0)
+        {
+            for(MetadataVersion metadataVersion : versioningList)
+            {
+                if(metadataVersion.getVersion().equals(version))
+                {
+                    contains = true;
+                    break;
+                }
+            }
+        }
+
+        return contains;
     }
 
 }

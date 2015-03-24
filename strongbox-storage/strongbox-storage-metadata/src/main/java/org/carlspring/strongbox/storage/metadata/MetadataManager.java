@@ -2,12 +2,16 @@ package org.carlspring.strongbox.storage.metadata;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
+import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Writer;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.services.BasicRepositoryService;
+import org.carlspring.strongbox.storage.metadata.comparators.SnapshotVersionComparator;
+import org.carlspring.strongbox.storage.metadata.versions.MetadataVersion;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.codehaus.plexus.util.WriterFactory;
@@ -20,6 +24,8 @@ import org.springframework.stereotype.Component;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author stodorov
@@ -136,18 +142,65 @@ public class MetadataManager
             metadata.setGroupId(artifact.getGroupId());
 
             VersionCollector versionCollector = new VersionCollector();
-            versionCollector.collectVersions(artifactBasePath);
 
+            List<MetadataVersion> baseVersioning = versionCollector.collectVersions(artifactBasePath);
+            Versioning versioning = versionCollector.generateVersioning(baseVersioning);
+
+            /**
+             * In a release repository we only need to generate maven-metadata.xml in the artifactBasePath
+             * (i.e. org/foo/bar/maven-metadata.xml)
+             */
             if(repository.getPolicy().equals(RepositoryPolicyEnum.RELEASE.getPolicy()))
             {
-                metadata.setVersioning(versionCollector.getReleasedVersioning());
+                // Don't write empty <versioning/> tags when no versions are available.
+                if(versioning.getVersions().size() > 0)
+                {
+                    metadata.setVersioning(versioning);
+                }
+
+                // Write basic metadata
+                writeMetadata(artifactBasePath, metadata);
+
+                logger.debug("Generated basic maven metadata for " + artifact.getGroupId() + ":" + artifact.getArtifactId() + ".");
+
             }
+            /**
+             * In a snapshot repository we need to generate maven-metadata.xml in the artifactBasePath and
+             * generate additional maven-metadata.xml files for each snapshot directory containing information about
+             * all available artifacts.
+             */
             else if(repository.getPolicy().equals(RepositoryPolicyEnum.SNAPSHOT.getPolicy()))
             {
-                // Work in progress
-                versionCollector.collectSnapshotVersions(artifactBasePath);
+                // Don't write empty <versioning/> tags when no versions are available.
+                if(versioning.getVersions().size() > 0)
+                {
+                    metadata.setVersioning(versioning);
 
-                //metadata.setVersioning(versionCollector.getSnapshotVersioning());
+                    // Generate and write additional snapshot metadata.
+                    for(String version : metadata.getVersioning().getVersions())
+                    {
+                        Path snapshotBasePath = Paths.get(artifactBasePath.toAbsolutePath() + "/" + version);
+
+                        // Write snapshot metadata version information for each snapshot.
+                        Metadata snapshotMetadata = new Metadata();
+                        snapshotMetadata.setArtifactId(artifact.getArtifactId());
+                        snapshotMetadata.setGroupId(artifact.getGroupId());
+
+                        List<SnapshotVersion> snapshotVersions = versionCollector.collectSnapshotVersions(snapshotBasePath);
+
+                        Collections.sort(snapshotVersions, new SnapshotVersionComparator());
+
+                        snapshotMetadata.setVersioning(versionCollector.generateSnapshotVersions(snapshotVersions));
+
+                        writeMetadata(snapshotBasePath, snapshotMetadata);
+                    }
+                }
+
+                // Write basic metadata
+                writeMetadata(artifactBasePath, metadata);
+
+                logger.debug("Generated basic maven metadata for " + artifact.getGroupId() + ":" + artifact.getArtifactId() + ".");
+
             }
             else if(repository.getPolicy().equals(RepositoryPolicyEnum.MIXED.getPolicy()))
             {
@@ -158,15 +211,12 @@ public class MetadataManager
                 throw new RuntimeException("Repository policy type unknown: "+repository.getId());
             }
 
-            writeMetadata(artifactBasePath, metadata);
-
-            logger.debug("Generated Maven metadata for " + artifact.getGroupId() + ":" + artifact.getArtifactId() + ".");
-
-
-            for (int i = 0; i < metadata.getVersioning().getVersions().size(); i++)
+/*
+            for (int i = 0; i < metadata.generateVersioning().getVersions().size(); i++)
             {
-                logger.debug("Version: "+metadata.getVersioning().getVersions().get(i));
+                logger.debug("Version: "+metadata.generateVersioning().getVersions().get(i));
             }
+*/
 
             // If this is a plugin, we need to add an additional metadata to the groupId.artifactId path.
             if (versionCollector.getPlugins() != null && versionCollector.getPlugins().size() > 0)
@@ -180,86 +230,6 @@ public class MetadataManager
 
                 logger.debug("Generated Maven plugin metadata for " + artifact.getGroupId() + ":" + artifact.getArtifactId() + ".");
             }
-
-
-
-/*
-            // Find all artifact versions
-            Files.walkFileTree(artifactBasePath, artifactPomVisitor);
-
-            List<Path> foundFiles = artifactPomVisitor.getMatchingPaths();
-
-            if (foundFiles.size() > 0)
-            {
-                Metadata metadata = new Metadata();
-                metadata.setArtifactId(artifact.getArtifactId());
-                metadata.setGroupId(artifact.getGroupId());
-
-                VersionCollector versionCollector = new VersionCollector();
-                versionCollector.processPomFiles(foundFiles);
-
-                logger.debug("\n\nVersions for " + artifact.getArtifactId() + "\n");
-
-
-                for(MetadataReleaseVersion version : versionCollector.getVersions())
-                {
-                    System.out.println("V: "+version.getVersion()+"; T: "+version.getCreatedDate());
-                }
-
-                // Write artifact metadata if there is any.
-                if (versionCollector.getVersioning() != null &&
-                    (versionCollector.getVersioning().getVersions().size() > 0 ||
-                     versionCollector.getVersioning().getSnapshotVersions().size() > 0))
-                {
-                    metadata.setVersioning(versionCollector.getVersioning());
-                    metadata.getVersioning().setLastUpdatedTimestamp(new Date());
-
-                    for (int i = 0; i < metadata.getVersioning().getVersions().size(); i++)
-                    {
-                        logger.debug("Version: "+metadata.getVersioning().getVersions().get(i));
-                    }
-
-                    writeMetadata(artifactBasePath, metadata);
-
-                    logger.debug("Generated Maven metadata for " + artifact.getGroupId() + ":" + artifact.getArtifactId() + ".");
-                }
-
-                // Write artifact metadata if there is any.
-                if (versionCollector.getVersioning() != null &&
-                    (versionCollector.getVersioning().getVersions().size() > 0 ||
-                     versionCollector.getVersioning().getSnapshotVersions().size() > 0))
-                {
-                    metadata.setVersioning(versionCollector.getVersioning());
-                    metadata.getVersioning().setLastUpdatedTimestamp(new Date());
-
-                    for (int i = 0; i < metadata.getVersioning().getVersions().size(); i++)
-                    {
-                        logger.debug("Version: "+metadata.getVersioning().getVersions().get(i));
-                    }
-                    
-                    writeMetadata(artifactBasePath, metadata);
-
-                    logger.debug("Generated Maven metadata for " + artifact.getGroupId() + ":" + artifact.getArtifactId() + ".");
-                }
-
-                // Write plugin metadata if there is any.
-                if (versionCollector.getPlugins() != null && versionCollector.getPlugins().size() > 0)
-                {
-                    Metadata pluginMetadata = new Metadata();
-                    pluginMetadata.setPlugins(versionCollector.getPlugins());
-
-                    Path pluginMetadataPath = artifactBasePath.getParent();
-
-                    writeMetadata(pluginMetadataPath, pluginMetadata);
-
-                    logger.debug("Generated Maven plugin metadata for " + artifact.getGroupId() + ":" + artifact.getArtifactId() + ".");
-                }
-            }
-            else
-            {
-                logger.debug("No artifacts found.");
-            }
-*/
         }
         else
         {

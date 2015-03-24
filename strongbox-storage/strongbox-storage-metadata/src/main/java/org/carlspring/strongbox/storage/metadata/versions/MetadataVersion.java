@@ -1,6 +1,9 @@
 package org.carlspring.strongbox.storage.metadata.versions;
 
+import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
+
 import java.nio.file.attribute.FileTime;
+import java.util.ArrayList;
 
 /**
  * @author Steve Todorov <s.todorov@itnews-bg.com>
@@ -11,6 +14,8 @@ public class MetadataVersion implements Comparable<MetadataVersion>
     private String version;
 
     private FileTime createdDate;
+
+    private ArrayList<SnapshotVersion> snapshots = new ArrayList<SnapshotVersion>();
 
     public String getVersion()
     {
@@ -30,6 +35,16 @@ public class MetadataVersion implements Comparable<MetadataVersion>
     public void setCreatedDate(FileTime createdDate)
     {
         this.createdDate = createdDate;
+    }
+
+    public ArrayList<SnapshotVersion> getSnapshots()
+    {
+        return snapshots;
+    }
+
+    public void setSnapshots(ArrayList<SnapshotVersion> snapshots)
+    {
+        this.snapshots = snapshots;
     }
 
     @Override

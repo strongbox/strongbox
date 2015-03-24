@@ -16,7 +16,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.attribute.BasicFileAttributeView;
+import java.nio.file.attribute.FileTime;
 import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -64,14 +68,9 @@ public class ArtifactMetadataServiceImplReleaseTest
             // Testing scenario where 1.1 < 1.2 < 1.3 < 1.5 <  1.4
             // which might occur when 1.4 has been updated recently
             createRelease(ga + ":1.5:jar");
+            artifact = createRelease(ga + ":1.4:jar");
 
-            // Delay generating this artifact to simulate it has been updated more recently than other versions.
-            try {
-                Thread.sleep(2000);
-                artifact = createRelease(ga + ":1.4:jar");
-            } catch(InterruptedException ex) {
-                Thread.currentThread().interrupt();
-            }
+            changeCreationDate(artifact);
 
             // Create an artifact for metadata merging tests
             mergeArtifact = createRelease("org.carlspring.strongbox:strongbox-metadata-merge:1.0:jar");
@@ -168,9 +167,7 @@ public class ArtifactMetadataServiceImplReleaseTest
         }
 
         Assert.assertEquals("Incorrect latest release version!",mergeMetadata.getVersioning().getRelease(),metadata.getVersioning().getRelease());
-        Assert.assertEquals("Incorrect number of versions stored in metadata!",
-                            3,
-                            metadata.getVersioning().getVersions().size());
+        Assert.assertEquals("Incorrect number of versions stored in metadata!",3,metadata.getVersioning().getVersions().size());
     }
 
     /**
@@ -209,4 +206,20 @@ public class ArtifactMetadataServiceImplReleaseTest
         return generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), gavtc);
     }
 
+
+    private void changeCreationDate(Artifact artifact)
+            throws IOException
+    {
+        File directory = artifact.getFile().toPath().getParent().toFile();
+
+        for (final File fileEntry : directory.listFiles()) {
+            if(fileEntry.isFile())
+            {
+                BasicFileAttributeView attributes = Files.getFileAttributeView(fileEntry.toPath(),BasicFileAttributeView.class);
+                FileTime time = FileTime.from(System.currentTimeMillis() + 60000L, TimeUnit.MILLISECONDS);
+                attributes.setTimes(time, time, time);
+            }
+        }
+
+    }
 }
