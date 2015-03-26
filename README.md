@@ -32,6 +32,10 @@ Welcome to the Strongbox Maven artifact repository manager's home.
 * Web UI
 * An assembly with a pre-configured Jetty for standalone mode.
 
+# Requirements:
+* Java 1.7.x
+* Maven 3.2.x
+
 # Contributing
 Contributions and contributors are always welcome!
 
