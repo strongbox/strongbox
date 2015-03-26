@@ -33,7 +33,7 @@ public class StorageMapAdapter
     {
         List<Storage> entries = storageMap.getEntries();
 
-        Map<String, Storage> map = new LinkedHashMap<String, Storage>(entries.size());
+        Map<String, Storage> map = new LinkedHashMap<>(entries.size());
         for (Storage storage : entries)
         {
             map.put(storage.getId(), storage);
