@@ -33,7 +33,7 @@ public class RepositoryMapAdapter
     {
         List<Repository> entries = repositoryMap.getEntries();
 
-        Map<String, Repository> map = new LinkedHashMap<String, Repository>(entries.size());
+        Map<String, Repository> map = new LinkedHashMap<>(entries.size());
         for (Repository repository : entries)
         {
             map.put(repository.getId(), repository);
