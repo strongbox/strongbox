@@ -69,39 +69,45 @@
                         <repository>releases-without-options</repository>
                     </group>
                 </repository>
-
             </repositories>
         </storage>
     </storages>
 
     <routing-rules>
-        <rule group-repository="group-releases" type="accept">
-            <pattern>.*(com|org)/artifacts.in.releases.with.trash.*</pattern>
-            <repositories>
-                <repository>releases-in-memory</repository>
-                <repository>releases-with-trash</repository>
-                <repository>releases-with-redeployment</repository>
-            </repositories>
-        </rule>
-        <rule group-repository="*" type="accept">
-            <pattern>.*(com|org)/artifacts.in.releases.*</pattern>
-            <repositories>
-                <repository>releases</repository>
-            </repositories>
-        </rule>
-
-        <rule group-repository="group-releases" type="deny">
-            <pattern>.*(com|org)/artifacts.denied.in.memory.*</pattern>
-            <repositories>
-                <repository>releases-in-memory</repository>
-            </repositories>
-        </rule>
-        <rule group-repository="*" type="deny">
-            <pattern>.*(com|org)/artifacts.denied.by.wildcard.*</pattern>
-            <repositories>
-                <repository>releases</repository>
-            </repositories>
-        </rule>
+        <accepted>
+            <rule-set group-repository="group-releases">
+                <rule pattern=".*(com|org)/artifacts.in.releases.with.trash.*">
+                    <repositories>
+                        <repository>releases-in-memory</repository>
+                        <repository>releases-with-trash</repository>
+                        <repository>releases-with-redeployment</repository>
+                    </repositories>
+                </rule>
+            </rule-set>
+            <rule-set group-repository="*">
+                <rule pattern=".*(com|org)/artifacts.in.releases.*">
+                    <repositories>
+                        <repository>releases</repository>
+                    </repositories>
+                </rule>
+            </rule-set>
+        </accepted>
+        <denied>
+            <rule-set group-repository="group-releases">
+                <rule pattern=".*(com|org)/artifacts.denied.in.memory.*">
+                    <repositories>
+                        <repository>releases-in-memory</repository>
+                    </repositories>
+                </rule>
+            </rule-set>
+            <rule-set group-repository="*">
+                <rule pattern=".*(com|org)/artifacts.denied.by.wildcard.*">
+                    <repositories>
+                        <repository>releases</repository>
+                    </repositories>
+                </rule>
+            </rule-set>
+        </denied>
     </routing-rules>
 
 </configuration>

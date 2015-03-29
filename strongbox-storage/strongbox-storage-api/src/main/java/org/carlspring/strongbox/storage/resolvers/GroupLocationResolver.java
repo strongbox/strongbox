@@ -4,14 +4,15 @@ import org.carlspring.strongbox.services.BasicRepositoryService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
-import org.carlspring.strongbox.storage.routing.RoutingRulesManager;
+import org.carlspring.strongbox.storage.routing.RoutingRules;
+import org.carlspring.strongbox.storage.routing.RuleSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
-import java.util.Set;
+import java.util.List;
 
 /**
  * @author mtodorov
@@ -25,8 +26,6 @@ public class GroupLocationResolver
 
     private String alias = "group";
 
-    @Autowired
-    private RoutingRulesManager routingRulesManager;
 
     @Autowired
     private BasicRepositoryService basicRepositoryService;
@@ -69,8 +68,8 @@ public class GroupLocationResolver
         // Handle:
         // - Repository deny
         // - Repository wildcard repository deny
-        final Set<RoutingRule> denyRules = routingRulesManager.getDenyRules(repositoryId);
-        final Set<RoutingRule> wildcardDenyRules = getRoutingRulesManager().getWildcardDenyRules();
+        final RuleSet denyRules = getRoutingRules().getDenyRules(repositoryId);
+        final RuleSet wildcardDenyRules = getRoutingRules().getWildcardDeniedRules();
 
         // If there are no matches in the routing rules, then loop as usual:
         for (String storageAndRepositoryId : groupRepository.getGroupRepositories())
@@ -94,11 +93,11 @@ public class GroupLocationResolver
         return null;
     }
 
-    public boolean repositoryRejects(String repositoryId, String artifactPath, Set<RoutingRule> denyRules)
+    public boolean repositoryRejects(String repositoryId, String artifactPath, RuleSet denyRules)
     {
-        if (denyRules != null && !denyRules.isEmpty())
+        if (denyRules != null && !denyRules.getRoutingRules().isEmpty())
         {
-            for (RoutingRule rule : denyRules)
+            for (RoutingRule rule : denyRules.getRoutingRules())
             {
                 if (rule.getRepositories().contains(repositoryId) && artifactPath.matches(rule.getPattern()))
                 {
@@ -113,11 +112,13 @@ public class GroupLocationResolver
     private InputStream getInputStreamFromWildcardRepositoryAcceptRules(String artifactPath, Storage storage)
             throws IOException
     {
-        Set<RoutingRule> globalAcceptRules = routingRulesManager.getWildcardAcceptRules();
-        if (globalAcceptRules != null && !globalAcceptRules.isEmpty())
+        RuleSet globalAcceptRules = getRoutingRules().getWildcardAcceptedRules();
+        if (globalAcceptRules != null && globalAcceptRules.getRoutingRules() != null &&
+            !globalAcceptRules.getRoutingRules().isEmpty())
         {
             int hops = 1;
-            for (RoutingRule rule : globalAcceptRules)
+            final List<RoutingRule> routingRules = globalAcceptRules.getRoutingRules();
+            for (RoutingRule rule : routingRules)
             {
                 if (artifactPath.matches(rule.getPattern()))
                 {
@@ -150,14 +151,18 @@ public class GroupLocationResolver
         return null;
     }
 
-    private InputStream getInputStreamFromRepositoryAcceptRules(String repositoryId, String artifactPath, Storage storage)
+    private InputStream getInputStreamFromRepositoryAcceptRules(String repositoryId,
+                                                                String artifactPath,
+                                                                Storage storage)
             throws IOException
     {
-        Set<RoutingRule> acceptRules = routingRulesManager.getAcceptRules(repositoryId);
-        if (acceptRules != null && !acceptRules.isEmpty())
+        RuleSet acceptRules = getRoutingRules().getAcceptRules(repositoryId);
+        if (acceptRules != null && acceptRules.getRoutingRules() != null &&
+            !acceptRules.getRoutingRules().isEmpty())
         {
             int hops = 1;
-            for (RoutingRule rule : acceptRules)
+            final List<RoutingRule> routingRules = acceptRules.getRoutingRules();
+            for (RoutingRule rule : routingRules)
             {
                 if (artifactPath.matches(rule.getPattern()))
                 {
@@ -264,14 +269,9 @@ public class GroupLocationResolver
         this.alias = alias;
     }
 
-    public RoutingRulesManager getRoutingRulesManager()
+    public RoutingRules getRoutingRules()
     {
-        return routingRulesManager;
-    }
-
-    public void setRoutingRulesManager(RoutingRulesManager routingRulesManager)
-    {
-        this.routingRulesManager = routingRulesManager;
+        return getConfiguration().getRoutingRules();
     }
 
 }

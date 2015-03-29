@@ -1,12 +1,16 @@
 package org.carlspring.strongbox.configuration;
 
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.routing.RoutingRule;
+import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.xml.StorageMapAdapter;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author mtodorov
@@ -39,9 +43,8 @@ public class Configuration extends ServerConfiguration
     @XmlJavaTypeAdapter(StorageMapAdapter.class)
     private Map<String, Storage> storages = new LinkedHashMap<>();
 
-    @XmlElement(name = "rule")
-    @XmlElementWrapper(name = "routing-rules")
-    private Set<RoutingRule> routingRules = new LinkedHashSet<>();
+    @XmlElement(name = "routing-rules")
+    private RoutingRules routingRules;
 
 
     public Configuration()
@@ -113,12 +116,12 @@ public class Configuration extends ServerConfiguration
         storages.remove(storage.getBasedir());
     }
 
-    public Set<RoutingRule> getRoutingRules()
+    public RoutingRules getRoutingRules()
     {
         return routingRules;
     }
 
-    public void setRoutingRules(Set<RoutingRule> routingRules)
+    public void setRoutingRules(RoutingRules routingRules)
     {
         this.routingRules = routingRules;
     }
