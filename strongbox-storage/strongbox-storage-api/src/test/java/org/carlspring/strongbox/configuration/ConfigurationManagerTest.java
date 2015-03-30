@@ -6,7 +6,6 @@ import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.RuleSet;
-import org.carlspring.strongbox.storage.routing.Rules;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.xml.bind.JAXBException;
