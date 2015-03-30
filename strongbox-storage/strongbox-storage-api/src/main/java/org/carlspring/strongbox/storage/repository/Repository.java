@@ -37,6 +37,9 @@ public class Repository
     @XmlAttribute(name = "trash-enabled")
     private boolean trashEnabled = false;
 
+    @XmlAttribute(name = "indexing-enabled")
+    private boolean indexingEnabled = false;
+
     @XmlAttribute(name = "allows-force-deletion")
     private boolean allowsForceDeletion = false;
 
@@ -159,6 +162,16 @@ public class Repository
     public void setTrashEnabled(boolean trashEnabled)
     {
         this.trashEnabled = trashEnabled;
+    }
+
+    public boolean isIndexingEnabled()
+    {
+        return indexingEnabled;
+    }
+
+    public void setIndexingEnabled(boolean indexingEnabled)
+    {
+        this.indexingEnabled = indexingEnabled;
     }
 
     public void setAllowsDelete(boolean allowsDelete)

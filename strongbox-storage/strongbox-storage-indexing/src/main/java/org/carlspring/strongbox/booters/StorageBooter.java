@@ -64,7 +64,7 @@ public class StorageBooter
             for (String storageKey : configuration.getStorages().keySet())
             {
                 Storage storage = configuration.getStorages().get(storageKey);
-                initializeRepositories(storage, new File(storage.getBasedir(), storage.getId()));
+                initializeRepositories(storage);
             }
         }
         else
@@ -145,16 +145,15 @@ public class StorageBooter
         return storagesBaseDir;
     }
 
-    private void initializeRepositories(Storage storage,
-                                        File storageBaseDir)
+    private void initializeRepositories(Storage storageId)
             throws IOException,
                    PlexusContainerException,
                    ComponentLookupException
     {
-        for (Repository repository : storage.getRepositories().values())
+        for (Repository repository : storageId.getRepositories().values())
         {
-            initializeRepository(storage, repository.getId());
-            repository.setStorage(storage);
+            initializeRepository(storageId, repository.getId());
+            repository.setStorage(storageId);
         }
     }
 
@@ -168,7 +167,10 @@ public class StorageBooter
 
         repositoryManagementService.createRepository(storage.getId(), repositoryId);
 
-        initializeRepositoryIndex(storage, repositoryId);
+        if (storage.getRepository(repositoryId).isIndexingEnabled())
+        {
+            initializeRepositoryIndex(storage, repositoryId);
+        }
 
         logger.debug(" -> Initialized '" + repositoryBasedir.getAbsolutePath() + "'.");
     }
@@ -208,6 +210,11 @@ public class StorageBooter
     public void setRepositoryIndexManager(RepositoryIndexManager repositoryIndexManager)
     {
         this.repositoryIndexManager = repositoryIndexManager;
+    }
+
+    public Configuration getConfiguration()
+    {
+        return configurationManager.getConfiguration();
     }
 
 }
