@@ -18,6 +18,7 @@ Welcome to the Strongbox Maven artifact repository manager's home.
 # What's in the works:
 * Proxy repositories
 * Metadata
+* Deploy as transaction
 
 # Upcoming:
 * Directory browsing
