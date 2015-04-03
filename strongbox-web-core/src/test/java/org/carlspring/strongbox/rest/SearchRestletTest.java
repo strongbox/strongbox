@@ -8,6 +8,7 @@ import javax.ws.rs.core.MediaType;
 import java.io.File;
 
 import org.apache.maven.artifact.Artifact;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -35,7 +36,7 @@ public class SearchRestletTest
     {
         if (!INITIALIZED)
         {
-            File strongboxBaseDir = new File("target/strongbox/tmp");
+            File strongboxBaseDir = new File(ConfigurationResourceResolver.getVaultDirectory() + "/tmp");
             String[] classifiers = new String[] { "javadoc", "tests" };
 
             Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.maven:test-project:1.0.11.3");

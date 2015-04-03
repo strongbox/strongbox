@@ -76,7 +76,7 @@ public class StorageBooter
     private void createLockFile()
             throws IOException
     {
-        final File lockFile = new File(ConfigurationResourceResolver.getBasedir(), "storage-booter.lock");
+        final File lockFile = new File(ConfigurationResourceResolver.getVaultDirectory(), "storage-booter.lock");
         //noinspection ResultOfMethodCallIgnored
         lockFile.getParentFile().mkdirs();
         //noinspection ResultOfMethodCallIgnored
@@ -88,10 +88,10 @@ public class StorageBooter
     private boolean lockExists()
             throws IOException
     {
-        final File lockFile = new File(ConfigurationResourceResolver.getBasedir(), "storage-booter.lock");
+        final File lockFile = new File(ConfigurationResourceResolver.getVaultDirectory(), "storage-booter.lock");
         if (lockFile.exists())
         {
-            logger.debug(" -> Lock found: '" + ConfigurationResourceResolver.getBasedir() + "'!");
+            logger.debug(" -> Lock found: '" + ConfigurationResourceResolver.getVaultDirectory() + "'!");
 
             return true;
         }
@@ -120,7 +120,8 @@ public class StorageBooter
         }
         else
         {
-            basedir = "target/storages";
+            // Assuming this invocation is related to tests:
+            basedir = ConfigurationResourceResolver.getVaultDirectory() + "/storages";
         }
 
         final Map<String,Storage> storages = configurationManager.getConfiguration().getStorages();

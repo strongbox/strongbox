@@ -19,11 +19,6 @@ import static org.junit.Assert.assertTrue;
 public class ResourcesBooterTest
 {
 
-    static
-    {
-        System.setProperty("strongbox.basedir", "target/strongbox");
-    }
-
     // This field is indeed used. It's execute() method is being invoked with a @PostConstruct.
     @SuppressWarnings("UnusedDeclaration")
     @Autowired
@@ -34,7 +29,7 @@ public class ResourcesBooterTest
     public void testResourceBooting()
             throws Exception
     {
-        File file = new File("target/strongbox/etc/conf/simple-test.xml");
+        File file = new File(ConfigurationResourceResolver.getVaultDirectory() + "/etc/conf/simple-test.xml");
 
         assertTrue("Failed to copy configuration resource from classpath!", file.exists());
     }

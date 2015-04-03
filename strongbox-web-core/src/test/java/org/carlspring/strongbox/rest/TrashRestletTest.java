@@ -24,13 +24,13 @@ public class TrashRestletTest
         extends TestCaseWithArtifactGeneration
 {
 
-    private final static File BASEDIR = new File(ConfigurationResourceResolver.getBasedir()).getAbsoluteFile();
+    private final static File BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory()).getAbsoluteFile();
 
     private static final String STORAGE = "storage0";
 
     private static final String REPOSITORY_WITH_TRASH = "releases-with-trash";
 
-    private final static String REPOSITORY_WITH_TRASH_BASEDIR = BASEDIR.getParentFile().getAbsolutePath() +
+    private final static String REPOSITORY_WITH_TRASH_BASEDIR = BASEDIR.getAbsolutePath() +
                                                                 "/storages/" + STORAGE + "/" + REPOSITORY_WITH_TRASH;
 
     private RestClient client = new RestClient();
@@ -46,8 +46,11 @@ public class TrashRestletTest
     {
         final String gavtc = "org.carlspring.strongbox:test-artifact-to-trash::jar";
 
+        System.out.println("REPOSITORY_WITH_TRASH_BASEDIR: " + REPOSITORY_WITH_TRASH_BASEDIR);
+        System.out.println("BASEDIR.getAbsolutePath(): " + BASEDIR.getAbsolutePath());
+
         generateArtifact(REPOSITORY_WITH_TRASH_BASEDIR, gavtc, "1.0");
-        generateArtifact(BASEDIR.getParentFile().getAbsolutePath() + "/storages/" + STORAGE + "/releases", gavtc, "1.1");
+        generateArtifact(BASEDIR.getAbsolutePath() + "/storages/" + STORAGE + "/releases", gavtc, "1.1");
 
         // Delete the artifact (this one should get placed under the .trash)
         client.delete(STORAGE,
@@ -68,7 +71,7 @@ public class TrashRestletTest
     {
         final String artifactPath = "org/carlspring/strongbox/test-artifact-to-trash/1.0/test-artifact-to-trash-1.0.jar";
 
-        final File repositoryDir = new File("target/storages/storage0/releases-with-trash/.trash");
+        final File repositoryDir = new File(BASEDIR + "/storages/storage0/releases-with-trash/.trash");
         final File artifactFile = new File(repositoryDir, artifactPath);
 
         System.out.println("Artifact file: " + artifactFile.getAbsolutePath());
@@ -84,8 +87,8 @@ public class TrashRestletTest
     {
         final String artifactPath = "org/carlspring/strongbox/test-artifact-to-trash/1.1/test-artifact-to-trash-1.1.jar";
 
-        final File repositoryTrashDir = new File("target/storages/storage0/releases/.trash");
-        final File repositoryDir = new File("target/storages/storage0/releases/.trash");
+        final File repositoryTrashDir = new File(BASEDIR + "/storages/storage0/releases/.trash");
+        final File repositoryDir = new File(BASEDIR + "/storages/storage0/releases/.trash");
 
         Assert.assertFalse("Failed to delete artifact during a force delete operation!",
                            new File(repositoryTrashDir, artifactPath).exists());

@@ -79,7 +79,10 @@ public class ArtifactMetadataServiceImpl
 
         String artifactPath = artifact.getGroupId().replaceAll("\\.", Matcher.quoteReplacement(File.separator));
 
-        String basedir = storage.getBasedir() != null ? storage.getBasedir() : ConfigurationResourceResolver.getBasedir() + storageId;
+        String basedir = storage.getBasedir() != null ?
+                         storage.getBasedir() :
+                         ConfigurationResourceResolver.getVaultDirectory() + storageId;
+        
         return Paths.get(basedir + File.separatorChar + repositoryId + File.separatorChar +
                          artifactPath + File.separatorChar +
                          artifact.getArtifactId());

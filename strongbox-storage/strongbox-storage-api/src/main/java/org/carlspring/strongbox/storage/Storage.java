@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.storage;
 
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.xml.RepositoryMapAdapter;
 import org.carlspring.strongbox.xml.StorageMapAdapter;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -74,7 +75,8 @@ public class Storage
             }
             else
             {
-                return "target/storages/" + id;
+                // Assuming this invocation is related to tests:
+                return ConfigurationResourceResolver.getVaultDirectory() + "/storages/" + id;
             }
         }
         else
