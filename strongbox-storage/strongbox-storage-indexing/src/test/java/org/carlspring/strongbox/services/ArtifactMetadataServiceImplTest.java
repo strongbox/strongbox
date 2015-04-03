@@ -4,6 +4,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.impl.ArtifactMetadataServiceImpl;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -32,7 +33,7 @@ public class ArtifactMetadataServiceImplTest
         extends TestCaseWithArtifactGeneration
 {
 
-    private static final File REPOSITORY_BASEDIR = new File("target/storages/storage0/releases");
+    private static final File REPOSITORY_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/releases");
 
     private static final Artifact ARTIFACT = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-metadata:1.0:jar");
     private static final Artifact LATEST_ARTIFACT = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-metadata:3.0-SNAPSHOT:jar");

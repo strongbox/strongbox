@@ -50,8 +50,9 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <systemPropertyVariables>
-                        <strongbox.basedir>${basedir}/target/strongbox</strongbox.basedir>
-                        <strongbox.storage.booter.basedir>${basedir}/target/storages</strongbox.storage.booter.basedir>
+                        <strongbox.home>${basedir}/target/strongbox</strongbox.home>
+                        <strongbox.vault>${basedir}/target/strongbox-vault</strongbox.vault>
+                        <strongbox.storage.booter.basedir>${basedir}/target/strongbox-vault/storages</strongbox.storage.booter.basedir>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>

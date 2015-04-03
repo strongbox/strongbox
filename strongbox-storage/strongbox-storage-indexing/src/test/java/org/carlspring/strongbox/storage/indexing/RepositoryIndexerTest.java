@@ -4,6 +4,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.index.ArtifactInfo;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactOperationException;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Assert;
@@ -27,7 +28,7 @@ public class RepositoryIndexerTest
         extends TestCaseWithArtifactGeneration
 {
 
-    private static final File REPOSITORY_BASEDIR = new File("target/storages/storage0/releases");
+    private static final File REPOSITORY_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/releases");
 
     private static final File INDEX_DIR = new File(REPOSITORY_BASEDIR, ".index");
 

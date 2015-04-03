@@ -28,7 +28,7 @@ public class ConfigurationResourceResolver
                                              String propertyDefaultValue)
             throws IOException
     {
-        final String configurationPath = ConfigurationResourceResolver.getBasedir() + "/" + propertyDefaultValue;
+        final String configurationPath = ConfigurationResourceResolver.getVaultDirectory() + "/" + propertyDefaultValue;
 
         return getConfigurationResource(configurationPath, propertyKey, propertyDefaultValue);
     }
@@ -97,9 +97,26 @@ public class ConfigurationResourceResolver
         return resource;
     }
 
-    public static String getBasedir()
+    public static String getHomeDirectory()
     {
-        final String basedir = System.getProperty("strongbox.basedir");
+        final String basedir = System.getenv("STRONGBOX_HOME") != null ?
+                               System.getenv("STRONGBOX_HOME") :
+                               System.getProperty("strongbox.home");
+        if (basedir != null)
+        {
+            return new File(basedir).getAbsolutePath();
+        }
+        else
+        {
+            return new File(".").getAbsolutePath();
+        }
+    }
+
+    public static String getVaultDirectory()
+    {
+        final String basedir = System.getenv("STRONGBOX_VAULT") != null ?
+                               System.getenv("STRONGBOX_VAULT") :
+                               System.getProperty("strongbox.vault");
         if (basedir != null)
         {
             return new File(basedir).getAbsolutePath();

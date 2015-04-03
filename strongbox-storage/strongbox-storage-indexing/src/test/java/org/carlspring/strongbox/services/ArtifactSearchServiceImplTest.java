@@ -2,6 +2,7 @@ package org.carlspring.strongbox.services;
 
 import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
@@ -28,7 +29,7 @@ public class ArtifactSearchServiceImplTest
         extends TestCaseWithArtifactGeneration
 {
 
-    private static final File REPOSITORY_BASEDIR = new File("target/storages/storage0/releases");
+    private static final File REPOSITORY_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/releases");
 
     private static final File INDEX_DIR = new File(REPOSITORY_BASEDIR, ".index");
 

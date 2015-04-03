@@ -2,6 +2,7 @@ package org.carlspring.strongbox.storage.resolvers;
 
 import com.carmatechnologies.commons.testing.logging.ExpectedLogs;
 import com.carmatechnologies.commons.testing.logging.api.LogLevel;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.junit.Before;
@@ -30,7 +31,7 @@ public class GroupLocationResolverTest
         extends TestCaseWithArtifactGeneration
 {
 
-    private static final File STORAGE_BASEDIR = new File("target/storages/storage0");
+    private static final File STORAGE_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0");
 
     private static final File REPOSITORY_BASEDIR_RELEASES = new File(STORAGE_BASEDIR, "releases");
 
