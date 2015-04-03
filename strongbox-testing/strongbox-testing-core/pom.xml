@@ -57,9 +57,10 @@
                 <configuration>
                     <systemPropertyVariables>
                         <strongbox.home>${basedir}/target/strongbox</strongbox.home>
+                        <strongbox.vault>${basedir}/target/strongbox-vault</strongbox.vault>
+                        <strongbox.storage.booter.basedir>${basedir}/target/strongbox-vault/storages</strongbox.storage.booter.basedir>
                         <port.jetty.listen>${port.jetty.listen}</port.jetty.listen>
                     </systemPropertyVariables>
-
                 </configuration>
             </plugin>
         </plugins>
@@ -254,6 +255,18 @@
                                 <systemProperty>
                                     <name>strongbox.home</name>
                                     <value>${dir.strongbox.home}</value>
+                                </systemProperty>
+                                <systemProperty>
+                                    <name>strongbox.vault</name>
+                                    <value>${project.build.directory}/strongbox-vault</value>
+                                </systemProperty>
+                                <systemProperty>
+                                    <name>repository.config.xml</name>
+                                    <value>${dir.strongbox.home}/etc/conf/strongbox.xml</value>
+                                </systemProperty>
+                                <systemProperty>
+                                    <name>strongbox.storage.booter.basedir</name>
+                                    <value>${project.build.directory}/strongbox-vault/storages</value>
                                 </systemProperty>
                             </systemProperties>
 

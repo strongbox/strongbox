@@ -3,6 +3,7 @@ package org.carlspring.strongbox.artifact.generator;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactClient;
 import org.carlspring.strongbox.client.ArtifactOperationException;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.testing.AssignedPorts;
 
 import java.io.File;
@@ -26,7 +27,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class ArtifactDeployerTest
 {
 
-    private final static File BASEDIR = new File("target/strongbox/tmp/storages/storage0/releases");
+    private final static File BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/releases/.temp");
 
     @Autowired
     private AssignedPorts assignedPorts;
