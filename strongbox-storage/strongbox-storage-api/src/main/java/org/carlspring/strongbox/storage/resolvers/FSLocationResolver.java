@@ -63,12 +63,20 @@ public class FSLocationResolver
             throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
-
         Repository repository = storage.getRepository(repositoryId);
 
-        Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
+        ArtifactFile artifactFile;
+        if (!ArtifactUtils.isMetadata(artifactPath) && !ArtifactUtils.isChecksum(artifactPath))
+        {
+            Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
+            artifactFile = new ArtifactFile(repository, artifact, true);
+        }
+        else
+        {
+            final File repoPath = new File(storage.getRepository(repositoryId).getBasedir());
+            artifactFile = new ArtifactFile(new File(repoPath, artifactPath).getCanonicalFile());
+        }
 
-        ArtifactFile artifactFile = new ArtifactFile(repository, artifact, true);
         artifactFile.createParents();
 
         return new ArtifactFileOutputStream(artifactFile);

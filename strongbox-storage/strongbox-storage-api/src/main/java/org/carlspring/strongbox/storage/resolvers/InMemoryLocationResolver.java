@@ -81,11 +81,9 @@ public class InMemoryLocationResolver
                                                                                                           // the size at this point and we shouldn't be
                                                                                                           // caring about this too much as it's in memory
                                                                                                   ArtifactExistenceState.EXISTS));
-
-            return new ByteArrayOutputStream();
         }
 
-        return null;
+        return new ByteArrayOutputStream();
     }
 
     @Override

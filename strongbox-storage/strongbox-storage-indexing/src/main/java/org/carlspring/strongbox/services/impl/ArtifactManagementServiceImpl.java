@@ -185,7 +185,8 @@ public class ArtifactManagementServiceImpl
         final Storage storage = getStorage(storageId);
         final Repository repository = storage.getRepository(repositoryId);
 
-        if (!path.contains("/maven-metadata."))
+        if (!path.contains("/maven-metadata.") &&
+            !ArtifactUtils.isMetadata(path) && !ArtifactUtils.isChecksum(path))
         {
             try
             {
@@ -201,10 +202,11 @@ public class ArtifactManagementServiceImpl
             {
                 throw new ArtifactStorageException(e);
             }
+
+            artifactOperationsValidator.checkAllowsRedeployment(repository, ArtifactUtils.convertPathToArtifact(path));
         }
 
         artifactOperationsValidator.checkAllowsDeployment(repository);
-        artifactOperationsValidator.checkAllowsRedeployment(repository, ArtifactUtils.convertPathToArtifact(path));
 
         return true;
     }
