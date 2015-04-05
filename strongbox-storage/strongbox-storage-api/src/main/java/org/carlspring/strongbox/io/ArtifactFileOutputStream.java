@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.io;
 
-import org.apache.commons.io.FileUtils;
-
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
