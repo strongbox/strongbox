@@ -93,8 +93,6 @@ public class InMemoryLocationResolver
                        boolean force)
             throws IOException
     {
-        Storage storage = getConfiguration().getStorage(storageId);
-
         if (!path.contains("/maven-metadata."))
         {
             Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
