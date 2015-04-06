@@ -4,6 +4,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.*;
@@ -33,7 +34,7 @@ public class ArtifactMetadataServiceImplSnapshotTest
         extends TestCaseWithArtifactGeneration
 {
 
-    private static final File REPOSITORY_BASEDIR = new File("target/storages/storage0/snapshots");
+    private static final File REPOSITORY_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/snapshots");
 
     private static Artifact artifact;
 
@@ -177,8 +178,9 @@ public class ArtifactMetadataServiceImplSnapshotTest
     {
         File directory = artifact.getFile().toPath().getParent().toFile();
 
-        for (final File fileEntry : directory.listFiles()) {
-            if(fileEntry.isFile())
+        for (final File fileEntry : directory.listFiles())
+        {
+            if (fileEntry.isFile())
             {
                 BasicFileAttributeView attributes = Files.getFileAttributeView(fileEntry.toPath(), BasicFileAttributeView.class);
                 FileTime time = FileTime.from(System.currentTimeMillis() + 60000L, TimeUnit.MILLISECONDS);

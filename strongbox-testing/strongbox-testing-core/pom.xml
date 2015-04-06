@@ -35,8 +35,8 @@
     <inceptionYear>2014</inceptionYear>
 
     <properties>
-        <dir.strongbox>${project.build.directory}/strongbox</dir.strongbox>
-        <dir.jetty.etc>${dir.strongbox}/etc/jetty</dir.jetty.etc>
+        <dir.strongbox.home>${project.build.directory}/strongbox</dir.strongbox.home>
+        <dir.jetty.etc>${dir.strongbox.home}/etc/jetty</dir.jetty.etc>
     </properties>
 
     <build>
@@ -56,10 +56,11 @@
 
                 <configuration>
                     <systemPropertyVariables>
-                        <strongbox.basedir>${basedir}/target/strongbox</strongbox.basedir>
+                        <strongbox.home>${basedir}/target/strongbox</strongbox.home>
+                        <strongbox.vault>${basedir}/target/strongbox-vault</strongbox.vault>
+                        <strongbox.storage.booter.basedir>${basedir}/target/strongbox-vault/storages</strongbox.storage.booter.basedir>
                         <port.jetty.listen>${port.jetty.listen}</port.jetty.listen>
                     </systemPropertyVariables>
-
                 </configuration>
             </plugin>
         </plugins>
@@ -168,7 +169,7 @@
                                             <type>jar</type>
 
                                             <overWrite>true</overWrite>
-                                            <outputDirectory>${dir.strongbox}/etc</outputDirectory>
+                                            <outputDirectory>${dir.strongbox.home}/etc</outputDirectory>
                                         </artifactItem>
                                     </artifactItems>
                                 </configuration>
@@ -198,7 +199,7 @@
                                             <type>jar</type>
 
                                             <overWrite>true</overWrite>
-                                            <outputDirectory>${dir.strongbox}</outputDirectory>
+                                            <outputDirectory>${dir.strongbox.home}</outputDirectory>
                                             <includes>webapp/**</includes>
                                         </artifactItem>
                                     </artifactItems>
@@ -237,7 +238,7 @@
 
                             <webApp>
                                 <contextPath>/</contextPath>
-                                <descriptor>${dir.strongbox}/webapp/WEB-INF/web.xml</descriptor>
+                                <descriptor>${dir.strongbox.home}/webapp/WEB-INF/web.xml</descriptor>
                             </webApp>
 
                             <stopPort>${port.jetty.shutdown}</stopPort>
@@ -252,8 +253,20 @@
                                 <force>true</force>
 
                                 <systemProperty>
-                                    <name>strongbox.basedir</name>
-                                    <value>${dir.strongbox}</value>
+                                    <name>strongbox.home</name>
+                                    <value>${dir.strongbox.home}</value>
+                                </systemProperty>
+                                <systemProperty>
+                                    <name>strongbox.vault</name>
+                                    <value>${project.build.directory}/strongbox-vault</value>
+                                </systemProperty>
+                                <systemProperty>
+                                    <name>repository.config.xml</name>
+                                    <value>${dir.strongbox.home}/etc/conf/strongbox.xml</value>
+                                </systemProperty>
+                                <systemProperty>
+                                    <name>strongbox.storage.booter.basedir</name>
+                                    <value>${project.build.directory}/strongbox-vault/storages</value>
                                 </systemProperty>
                             </systemProperties>
 

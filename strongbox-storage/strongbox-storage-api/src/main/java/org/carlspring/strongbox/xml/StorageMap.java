@@ -13,7 +13,7 @@ public class StorageMap
 {
 
     @XmlElement(name = "storage")
-    private List<Storage> entries = new ArrayList<Storage>();
+    private List<Storage> entries = new ArrayList<>();
 
 
     public List<Storage> getEntries()

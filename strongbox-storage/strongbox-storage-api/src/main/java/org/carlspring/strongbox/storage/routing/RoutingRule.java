@@ -12,50 +12,20 @@ public class RoutingRule
 {
 
     @XmlAttribute
-    private String type;
-
-    @XmlAttribute (name = "group-repository")
-    private String groupRepository;
+    private String pattern;
 
     @XmlElement (name = "repository")
     @XmlElementWrapper(name = "repositories")
     private Set<String> repositories;
-
-    @XmlElement (name = "pattern")
-    private String pattern;
 
 
     public RoutingRule()
     {
     }
 
-    public String getType()
+    public RoutingRule(String pattern, Set<String> repositories)
     {
-        return type;
-    }
-
-    public void setType(String type)
-    {
-        this.type = type;
-    }
-
-    public String getGroupRepository()
-    {
-        return groupRepository;
-    }
-
-    public void setGroupRepository(String groupRepository)
-    {
-        this.groupRepository = groupRepository;
-    }
-
-    public Set<String> getRepositories()
-    {
-        return repositories;
-    }
-
-    public void setRepositories(Set<String> repositories)
-    {
+        this.pattern = pattern;
         this.repositories = repositories;
     }
 
@@ -67,6 +37,16 @@ public class RoutingRule
     public void setPattern(String pattern)
     {
         this.pattern = pattern;
+    }
+
+    public Set<String> getRepositories()
+    {
+        return repositories;
+    }
+
+    public void setRepositories(Set<String> repositories)
+    {
+        this.repositories = repositories;
     }
 
 }

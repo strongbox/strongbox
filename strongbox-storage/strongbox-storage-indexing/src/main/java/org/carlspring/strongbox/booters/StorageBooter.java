@@ -64,7 +64,7 @@ public class StorageBooter
             for (String storageKey : configuration.getStorages().keySet())
             {
                 Storage storage = configuration.getStorages().get(storageKey);
-                initializeRepositories(storage, new File(storage.getBasedir(), storage.getId()));
+                initializeRepositories(storage);
             }
         }
         else
@@ -76,7 +76,7 @@ public class StorageBooter
     private void createLockFile()
             throws IOException
     {
-        final File lockFile = new File(ConfigurationResourceResolver.getBasedir(), "storage-booter.lock");
+        final File lockFile = new File(ConfigurationResourceResolver.getVaultDirectory(), "storage-booter.lock");
         //noinspection ResultOfMethodCallIgnored
         lockFile.getParentFile().mkdirs();
         //noinspection ResultOfMethodCallIgnored
@@ -88,10 +88,10 @@ public class StorageBooter
     private boolean lockExists()
             throws IOException
     {
-        final File lockFile = new File(ConfigurationResourceResolver.getBasedir(), "storage-booter.lock");
+        final File lockFile = new File(ConfigurationResourceResolver.getVaultDirectory(), "storage-booter.lock");
         if (lockFile.exists())
         {
-            logger.debug(" -> Lock found: '" + ConfigurationResourceResolver.getBasedir() + "'!");
+            logger.debug(" -> Lock found: '" + ConfigurationResourceResolver.getVaultDirectory() + "'!");
 
             return true;
         }
@@ -120,7 +120,8 @@ public class StorageBooter
         }
         else
         {
-            basedir = "target/storages";
+            // Assuming this invocation is related to tests:
+            basedir = ConfigurationResourceResolver.getVaultDirectory() + "/storages";
         }
 
         final Map<String,Storage> storages = configurationManager.getConfiguration().getStorages();
@@ -145,16 +146,15 @@ public class StorageBooter
         return storagesBaseDir;
     }
 
-    private void initializeRepositories(Storage storage,
-                                        File storageBaseDir)
+    private void initializeRepositories(Storage storageId)
             throws IOException,
                    PlexusContainerException,
                    ComponentLookupException
     {
-        for (Repository repository : storage.getRepositories().values())
+        for (Repository repository : storageId.getRepositories().values())
         {
-            initializeRepository(storage, repository.getId());
-            repository.setStorage(storage);
+            initializeRepository(storageId, repository.getId());
+            repository.setStorage(storageId);
         }
     }
 
@@ -168,7 +168,10 @@ public class StorageBooter
 
         repositoryManagementService.createRepository(storage.getId(), repositoryId);
 
-        initializeRepositoryIndex(storage, repositoryId);
+        if (storage.getRepository(repositoryId).isIndexingEnabled())
+        {
+            initializeRepositoryIndex(storage, repositoryId);
+        }
 
         logger.debug(" -> Initialized '" + repositoryBasedir.getAbsolutePath() + "'.");
     }
@@ -208,6 +211,11 @@ public class StorageBooter
     public void setRepositoryIndexManager(RepositoryIndexManager repositoryIndexManager)
     {
         this.repositoryIndexManager = repositoryIndexManager;
+    }
+
+    public Configuration getConfiguration()
+    {
+        return configurationManager.getConfiguration();
     }
 
 }

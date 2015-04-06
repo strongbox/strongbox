@@ -1,10 +1,10 @@
 package org.carlspring.strongbox.services;
 
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,13 +26,11 @@ public class RepositoryManagementServiceImplTest
         extends TestCaseWithArtifactGeneration
 {
 
-    public static final String REPOSITORY_ID = "releases";
+    private static final String REPOSITORY_ID = "releases";
 
-    private static final File REPOSITORY_BASEDIR = new File("target/storages/storage0/" + REPOSITORY_ID);
+    private static final String STORAGES_BASEDIR = ConfigurationResourceResolver.getVaultDirectory() + "/storages";
 
-    private static final File INDEX_DIR = new File(REPOSITORY_BASEDIR, ".index");
-
-    private static boolean INITIALIZED = false;
+    private static final File REPOSITORY_BASEDIR = new File(STORAGES_BASEDIR + "/storage0/" + REPOSITORY_ID);
 
     @Autowired
     private RepositoryManagementService repositoryManagementService;
@@ -57,8 +55,7 @@ public class RepositoryManagementServiceImplTest
     public void testCreateAndDelete()
             throws Exception
     {
-        final String storageBaseDir = "target/storages/storage0";
-        File basedir = new File(storageBaseDir);
+        File basedir = new File(STORAGES_BASEDIR + "/storage0");
         File repositoryDir = new File(basedir, "foo-snapshots");
 
         repositoryManagementService.createRepository("storage0", "foo-snapshots");

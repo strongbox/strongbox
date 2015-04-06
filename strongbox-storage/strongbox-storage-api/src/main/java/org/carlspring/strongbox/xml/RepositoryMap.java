@@ -13,7 +13,7 @@ public class RepositoryMap
 {
 
     @XmlElement(name = "repository")
-    private List<Repository> entries = new ArrayList<Repository>();
+    private List<Repository> entries = new ArrayList<>();
 
 
     public List<Repository> getEntries()

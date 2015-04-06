@@ -42,7 +42,7 @@ public class ArtifactRestlet
         OutputStream os = null;
         try
         {
-            final File file = new File(ConfigurationResourceResolver.getBasedir() + File.separatorChar +
+            final File file = new File(ConfigurationResourceResolver.getVaultDirectory() + File.separatorChar +
                                        "storages/" + storageId + File.separatorChar + repositoryId, path);
 
             if (!file.getParentFile().exists())

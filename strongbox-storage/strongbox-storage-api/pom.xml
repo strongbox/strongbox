@@ -35,7 +35,7 @@
     <inceptionYear>2014</inceptionYear>
 
     <properties>
-        <dir.strongbox>${project.build.directory}/strongbox</dir.strongbox>
+        <dir.strongbox.home>${project.build.directory}/strongbox</dir.strongbox.home>
     </properties>
 
     <build>
@@ -69,7 +69,7 @@
                                     <type>jar</type>
 
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${dir.strongbox}/etc</outputDirectory>
+                                    <outputDirectory>${dir.strongbox.home}/etc</outputDirectory>
                                     <includes>logback.xml</includes>
                                 </artifactItem>
                             </artifactItems>
@@ -90,7 +90,7 @@
                                     <type>jar</type>
 
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${dir.strongbox}</outputDirectory>
+                                    <outputDirectory>${dir.strongbox.home}</outputDirectory>
                                     <includes>etc/**</includes>
                                 </artifactItem>
                             </artifactItems>
@@ -111,7 +111,7 @@
                                     <type>jar</type>
 
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${dir.strongbox}/etc</outputDirectory>
+                                    <outputDirectory>${dir.strongbox.home}/etc</outputDirectory>
                                     <includes>logback.xml</includes>
                                 </artifactItem>
                                 <artifactItem>
@@ -121,7 +121,7 @@
                                     <type>jar</type>
 
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${dir.strongbox}</outputDirectory>
+                                    <outputDirectory>${dir.strongbox.home}</outputDirectory>
                                     <includes>etc/conf/strongbox.xml,META-INF/spring/**</includes>
                                 </artifactItem>
                                 <artifactItem>
@@ -131,13 +131,46 @@
                                     <type>jar</type>
 
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${dir.strongbox}</outputDirectory>
+                                    <outputDirectory>${dir.strongbox.home}</outputDirectory>
                                     <includes>META-INF/spring/**</includes>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>unpack-web-resources</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>strongbox-web-resources</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${dir.strongbox.home}</outputDirectory>
+                                    <includes>etc/**,webapp/**</includes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemPropertyVariables>
+                        <strongbox.home>${basedir}/target/strongbox</strongbox.home>
+                        <strongbox.vault>${basedir}/target/strongbox-vault</strongbox.vault>
+                        <strongbox.storage.booter.basedir>${basedir}/target/strongbox-vault/storages</strongbox.storage.booter.basedir>
+                    </systemPropertyVariables>
+                </configuration>
             </plugin>
         </plugins>
     </build>

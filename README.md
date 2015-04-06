@@ -18,6 +18,7 @@ Welcome to the Strongbox Maven artifact repository manager's home.
 # What's in the works:
 * Proxy repositories
 * Metadata
+* Deploy as transaction
 
 # Upcoming:
 * Directory browsing
@@ -31,6 +32,10 @@ Welcome to the Strongbox Maven artifact repository manager's home.
   * Currently there is no proper security set up. The only thing that is implemented is a hard-coded check for HTTP Basic authentication with maven/password as credentials.
 * Web UI
 * An assembly with a pre-configured Jetty for standalone mode.
+
+# Requirements:
+* Java 1.7.x
+* Maven 3.2.x
 
 # Contributing
 Contributions and contributors are always welcome!

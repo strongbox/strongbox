@@ -3,11 +3,16 @@ package org.carlspring.strongbox.configuration;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
+import org.carlspring.strongbox.storage.routing.RoutingRule;
+import org.carlspring.strongbox.storage.routing.RoutingRules;
+import org.carlspring.strongbox.storage.routing.RuleSet;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.xml.bind.JAXBException;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.*;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -63,7 +68,8 @@ public class ConfigurationManagerTest
         assertNotNull(configuration);
         assertNotNull(configuration.getStorages());
         assertNotNull(configuration.getRoutingRules());
-        assertFalse(configuration.getRoutingRules().isEmpty());
+        assertFalse(configuration.getRoutingRules().getWildcardAcceptedRules().getRoutingRules().isEmpty());
+        assertFalse(configuration.getRoutingRules().getWildcardDeniedRules().getRoutingRules().isEmpty());
 
         for (String storageId : configuration.getStorages().keySet())
         {
@@ -154,7 +160,41 @@ public class ConfigurationManagerTest
 
         assertEquals("Failed to read repository groups!",
                      2,
-                     c.getStorages().get("storage0").getRepositories().get("grp-snapshots").getGroupRepositories().size());
+                     c.getStorages().get("storage0")
+                                    .getRepositories()
+                                    .get("grp-snapshots")
+                                    .getGroupRepositories()
+                                    .size());
+    }
+
+    @Test
+    public void testRoutingRules()
+            throws JAXBException
+    {
+        Set<String> repositories = new LinkedHashSet<>();
+        repositories.addAll(Arrays.asList("int-releases", "int-snapshots"));
+
+        RoutingRule routingRule = new RoutingRule(".*(com|org)/artifacts.denied.in.memory.*", repositories);
+
+        List<RoutingRule> routingRulesList = new ArrayList<>();
+        routingRulesList.add(routingRule);
+
+        RuleSet ruleSet = new RuleSet();
+        ruleSet.setGroupRepository("group-internal");
+        ruleSet.setRoutingRules(routingRulesList);
+
+        RoutingRules routingRules = new RoutingRules();
+        routingRules.addAcceptRule("group-internal", ruleSet);
+
+        GenericParser<RoutingRules> parser = new GenericParser<>(RoutingRule.class,
+                                                                 RoutingRules.class,
+                                                                 RuleSet.class);
+
+        parser.store(routingRules, new ByteArrayOutputStream());
+        // parser.store(routingRules, System.out);
+
+        // Assuming that if there is no error, there is no problem.
+        // Not optimal, but that's as good as it gets right now.
     }
 
 }

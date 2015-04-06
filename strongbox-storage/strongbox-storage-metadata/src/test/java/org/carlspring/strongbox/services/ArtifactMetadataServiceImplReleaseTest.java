@@ -4,6 +4,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Assert;
@@ -33,7 +34,7 @@ public class ArtifactMetadataServiceImplReleaseTest
         extends TestCaseWithArtifactGeneration
 {
 
-    private static final File REPOSITORY_BASEDIR = new File("target/storages/storage0/releases");
+    private static final File REPOSITORY_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/releases");
 
     private static Artifact artifact;
 
