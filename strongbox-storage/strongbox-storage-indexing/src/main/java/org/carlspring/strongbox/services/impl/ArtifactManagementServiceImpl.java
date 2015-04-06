@@ -234,7 +234,7 @@ public class ArtifactManagementServiceImpl
             final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storageId + ":" + repositoryId);
             if (indexer != null)
             {
-                String extension = artifactPath.substring(artifactPath.lastIndexOf(".") + 1, artifactPath.length());
+                String extension = artifactPath.substring(artifactPath.lastIndexOf('.') + 1, artifactPath.length());
 
                 final Artifact a = ArtifactUtils.convertPathToArtifact(artifactPath);
                 indexer.delete(Collections.singletonList(new ArtifactInfo(repositoryId,
