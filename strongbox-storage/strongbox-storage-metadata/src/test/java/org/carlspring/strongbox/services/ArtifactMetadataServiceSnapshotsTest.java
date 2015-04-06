@@ -30,7 +30,7 @@ import static org.junit.Assert.assertNotNull;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"/META-INF/spring/strongbox-*-context.xml", "classpath*:/META-INF/spring/strongbox-*-context.xml"})
-public class ArtifactMetadataServiceImplSnapshotTest
+public class ArtifactMetadataServiceSnapshotsTest
         extends TestCaseWithArtifactGeneration
 {
 
