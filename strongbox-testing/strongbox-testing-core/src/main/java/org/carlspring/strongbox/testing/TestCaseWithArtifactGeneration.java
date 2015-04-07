@@ -23,10 +23,22 @@ public class TestCaseWithArtifactGeneration
                    NoSuchAlgorithmException
     {
         Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
+        artifact.setFile(new File(basedir + "/" + ArtifactUtils.convertArtifactToPath(artifact)));
 
         generateArtifact(basedir, artifact);
 
         return artifact;
+    }
+
+    public void generateArtifact(File basedir, Artifact artifact)
+            throws IOException,
+                   XmlPullParserException,
+                   NoSuchAlgorithmException
+    {
+        artifact.setFile(new File(basedir + "/" + ArtifactUtils.convertArtifactToPath(artifact)));
+
+        ArtifactGenerator generator = new ArtifactGenerator(basedir);
+        generator.generate(artifact);
     }
 
     public void generateArtifact(String basedir, Artifact artifact)
@@ -34,6 +46,8 @@ public class TestCaseWithArtifactGeneration
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
+        artifact.setFile(new File(basedir + "/" + ArtifactUtils.convertArtifactToPath(artifact)));
+
         ArtifactGenerator generator = new ArtifactGenerator(basedir);
         generator.generate(artifact);
     }
