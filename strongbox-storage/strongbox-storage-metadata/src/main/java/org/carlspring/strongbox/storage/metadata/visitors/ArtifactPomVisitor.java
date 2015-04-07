@@ -13,15 +13,16 @@ public class ArtifactPomVisitor
         extends SimpleFileVisitor<Path>
 {
 
+    private static final String SEARCH_PATTERN = "glob:*.pom";
+
     public List<Path> matchingPaths = new ArrayList<>();
 
     private PathMatcher matcher;
 
-    private final String search = "glob:*.pom";
 
     public ArtifactPomVisitor()
     {
-        matcher = FileSystems.getDefault().getPathMatcher(search);
+        matcher = FileSystems.getDefault().getPathMatcher(SEARCH_PATTERN);
     }
 
     @Override

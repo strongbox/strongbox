@@ -51,8 +51,7 @@ public class MetadataVersion implements Comparable<MetadataVersion>
     public int compareTo(MetadataVersion v1)
     {
         int diff = v1.getVersion().compareTo(this.getVersion());
-
-        if(diff < 1 && this.createdDate.toMillis() > v1.getCreatedDate().toMillis())
+        if (diff < 1 && this.createdDate.toMillis() > v1.getCreatedDate().toMillis())
         {
             diff = 1;
         }

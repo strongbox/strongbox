@@ -31,6 +31,7 @@ public class VersionCollector
 
     private ArrayList<Plugin> plugins = new ArrayList<>();
 
+
     public VersionCollector()
     {
     }
@@ -38,7 +39,6 @@ public class VersionCollector
     public List<MetadataVersion> collectVersions(Path artifactBasePath)
             throws IOException, XmlPullParserException
     {
-
         List<MetadataVersion> versionList = new ArrayList<>();
 
         ArtifactPomVisitor artifactPomVisitor = new ArtifactPomVisitor();
@@ -158,7 +158,9 @@ public class VersionCollector
 
             // Sort versions naturally but consider creation date as well so that
             // 1.1 < 1.2 < 1.4 < 1.3 (1.3 is considered latest release because it was changed recently)
-            Collections.sort(versions);
+            // TODO: Sort this out as part of SB-333
+            //Collections.sort(versions);
+
             versioning.setRelease(versions.get(versions.size() - 1).getVersion());
         }
 

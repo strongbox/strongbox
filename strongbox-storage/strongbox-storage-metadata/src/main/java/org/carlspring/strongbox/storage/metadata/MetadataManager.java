@@ -288,7 +288,7 @@ public class MetadataManager
             }
             catch (FileNotFoundException | NullPointerException e)
             {
-                throw new IOException("Artifact " + artifact.toString() + " has no metadata generated, therefore we can't merge your metadata!");
+                throw new IOException("Artifact " + artifact.toString() + " has no metadata generated, therefore we can't merge the metadata!");
             }
         }
         else
