@@ -46,6 +46,7 @@ public class ArtifactMetadataServiceSnapshotsTest
     @Autowired
     private BasicRepositoryService basicRepositoryService;
 
+
     @Before
     public void setUp()
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
@@ -57,7 +58,6 @@ public class ArtifactMetadataServiceSnapshotsTest
 
             //ArtifactGenerator generator = new ArtifactGenerator(REPOSITORY_BASEDIR.getAbsolutePath());
             String ga = "org.carlspring.strongbox:strongbox-metadata";
-
 
             // Create snapshot artifacts
             SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -82,7 +82,6 @@ public class ArtifactMetadataServiceSnapshotsTest
 
             // Create an artifact for metadata merging tests
             mergeArtifact = createSnapshot("org.carlspring.strongbox:strongbox-metadata-merge:1.0:jar");
-
         }
 
         assertNotNull(basicRepositoryService);
@@ -94,16 +93,9 @@ public class ArtifactMetadataServiceSnapshotsTest
     {
         artifactMetadataService.rebuildMetadata("storage0", "snapshots", artifact);
 
-        Metadata metadata = null;
+        Metadata metadata = artifactMetadataService.getMetadata("storage0", "snapshots", artifact);
 
-        try
-        {
-            metadata = artifactMetadataService.getMetadata("storage0", "snapshots", artifact);
-        }
-        catch (IOException | XmlPullParserException e)
-        {
-            assertNotNull(metadata);
-        }
+        assertNotNull(metadata);
 
         Versioning versioning = metadata.getVersioning();
 
@@ -135,19 +127,14 @@ public class ArtifactMetadataServiceSnapshotsTest
         // Merge
         artifactMetadataService.mergeMetadata("storage0", "snapshots", mergeArtifact, mergeMetadata);
 
-        Metadata metadata = null;
+        Metadata metadata = artifactMetadataService.getMetadata("storage0", "snapshots", mergeArtifact);
 
-        try
-        {
-            metadata = artifactMetadataService.getMetadata("storage0", "snapshots", mergeArtifact);
-        }
-        catch (IOException | XmlPullParserException e)
-        {
-            assertNotNull(metadata);
-        }
+        assertNotNull(metadata);
 
         Assert.assertEquals("Incorrect latest release version!",mergeMetadata.getVersioning().getRelease(),metadata.getVersioning().getRelease());
-        Assert.assertEquals("Incorrect number of versions stored in metadata!",3,metadata.getVersioning().getVersions().size());
+        Assert.assertEquals("Incorrect number of versions stored in metadata!",
+                            3,
+                            metadata.getVersioning().getVersions().size());
     }
 
     /**
@@ -178,6 +165,7 @@ public class ArtifactMetadataServiceSnapshotsTest
     {
         File directory = artifact.getFile().toPath().getParent().toFile();
 
+        //noinspection ConstantConditions
         for (final File fileEntry : directory.listFiles())
         {
             if (fileEntry.isFile())
@@ -187,7 +175,6 @@ public class ArtifactMetadataServiceSnapshotsTest
                 attributes.setTimes(time, time, time);
             }
         }
-
     }
 
 }

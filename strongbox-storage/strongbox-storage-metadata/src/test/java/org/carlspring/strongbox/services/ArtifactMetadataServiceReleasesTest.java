@@ -48,6 +48,7 @@ public class ArtifactMetadataServiceReleasesTest
     @Autowired
     private BasicRepositoryService basicRepositoryService;
 
+
     @Before
     public void setUp()
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
@@ -89,16 +90,9 @@ public class ArtifactMetadataServiceReleasesTest
     {
         artifactMetadataService.rebuildMetadata("storage0", "releases", artifact);
 
-        Metadata metadata = null;
+        Metadata metadata = artifactMetadataService.getMetadata("storage0", "releases", artifact);
 
-        try
-        {
-            metadata = artifactMetadataService.getMetadata("storage0", "releases", artifact);
-        }
-        catch (IOException | XmlPullParserException e)
-        {
-            assertNotNull(metadata);
-        }
+        assertNotNull(metadata);
 
         Versioning versioning = metadata.getVersioning();
 
@@ -115,16 +109,9 @@ public class ArtifactMetadataServiceReleasesTest
     {
         artifactMetadataService.rebuildMetadata("storage0", "releases", pluginArtifact);
 
-        Metadata metadata = null;
+        Metadata metadata = artifactMetadataService.getMetadata("storage0", "releases", pluginArtifact);
 
-        try
-        {
-            metadata = artifactMetadataService.getMetadata("storage0", "releases", pluginArtifact);
-        }
-        catch (IOException | XmlPullParserException e)
-        {
-            assertNotNull(metadata);
-        }
+        assertNotNull(metadata);
 
         Versioning versioning = metadata.getVersioning();
 
@@ -156,41 +143,16 @@ public class ArtifactMetadataServiceReleasesTest
         // Merge
         artifactMetadataService.mergeMetadata("storage0", "releases", mergeArtifact, mergeMetadata);
 
-        Metadata metadata = null;
+        Metadata metadata = artifactMetadataService.getMetadata("storage0", "releases", mergeArtifact);
 
-        try
-        {
-            metadata = artifactMetadataService.getMetadata("storage0", "releases", mergeArtifact);
-        }
-        catch (IOException | XmlPullParserException e)
-        {
-            assertNotNull(metadata);
-        }
+        assertNotNull(metadata);
 
-        Assert.assertEquals("Incorrect latest release version!",mergeMetadata.getVersioning().getRelease(),metadata.getVersioning().getRelease());
-        Assert.assertEquals("Incorrect number of versions stored in metadata!",3,metadata.getVersioning().getVersions().size());
-    }
-
-    /**
-     * Generate a couple of testing artifacts for a specific snapshot (i.e. javadoc, sources, etc)
-     *
-     * @param gavt String
-     * @throws NoSuchAlgorithmException
-     * @throws XmlPullParserException
-     * @throws IOException
-     */
-    private Artifact createSnapshot(String gavt)
-            throws NoSuchAlgorithmException, XmlPullParserException, IOException
-    {
-        Artifact snapshot = ArtifactUtils.getArtifactFromGAVTC(gavt);
-        snapshot.setFile(new File(REPOSITORY_BASEDIR.getAbsolutePath() + "/" + ArtifactUtils.convertArtifactToPath(snapshot)));
-
-        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), snapshot);
-        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), ArtifactUtils.getArtifactFromGAVTC(gavt + ":javadoc"));
-        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), ArtifactUtils.getArtifactFromGAVTC(gavt + ":source-release"));
-        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), ArtifactUtils.getArtifactFromGAVTC(gavt + ":sources"));
-
-        return snapshot;
+        Assert.assertEquals("Incorrect latest release version!",
+                            mergeMetadata.getVersioning().getRelease(),
+                            metadata.getVersioning().getRelease());
+        Assert.assertEquals("Incorrect number of versions stored in metadata!",
+                            3,
+                            metadata.getVersioning().getVersions().size());
     }
 
     /**
@@ -207,20 +169,21 @@ public class ArtifactMetadataServiceReleasesTest
         return generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), gavtc);
     }
 
-
     private void changeCreationDate(Artifact artifact)
             throws IOException
     {
         File directory = artifact.getFile().toPath().getParent().toFile();
 
-        for (final File fileEntry : directory.listFiles()) {
-            if(fileEntry.isFile())
+        //noinspection ConstantConditions
+        for (final File fileEntry : directory.listFiles())
+        {
+            if (fileEntry.isFile())
             {
                 BasicFileAttributeView attributes = Files.getFileAttributeView(fileEntry.toPath(),BasicFileAttributeView.class);
                 FileTime time = FileTime.from(System.currentTimeMillis() + 60000L, TimeUnit.MILLISECONDS);
                 attributes.setTimes(time, time, time);
             }
         }
-
     }
+
 }
