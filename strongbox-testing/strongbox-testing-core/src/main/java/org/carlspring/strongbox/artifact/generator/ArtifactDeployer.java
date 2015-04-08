@@ -4,6 +4,7 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactClient;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.security.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import java.io.*;
@@ -119,7 +120,7 @@ public class ArtifactDeployer extends ArtifactGenerator
                                 String storageId,
                                 String repositoryId,
                                 Artifact artifact)
-            throws ArtifactOperationException
+            throws ArtifactOperationException, IOException
     {
         for (MessageDigest digest : ais.getDigests().values())
         {
@@ -127,7 +128,7 @@ public class ArtifactDeployer extends ArtifactGenerator
 
             ByteArrayInputStream bais = new ByteArrayInputStream(checksum.getBytes());
 
-            final String extensionForAlgorithm = MessageDigestUtils.getExtensionForAlgorithm(digest.getAlgorithm());
+            final String extensionForAlgorithm = EncryptionAlgorithmsEnum.fromAlgorithm(digest.getAlgorithm()).getExtension();
 
             String artifactToPath = ArtifactUtils.convertArtifactToPath(artifact) + extensionForAlgorithm;
             String url = client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + artifactToPath;
@@ -141,7 +142,7 @@ public class ArtifactDeployer extends ArtifactGenerator
                            String storageId,
                            String repositoryId)
             throws NoSuchAlgorithmException,
-                   FileNotFoundException,
+                   IOException,
                    ArtifactOperationException
     {
         File pomFile = new File(getBasedir(), ArtifactUtils.convertArtifactToPath(artifact));

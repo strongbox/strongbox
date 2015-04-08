@@ -7,7 +7,6 @@ import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Writer;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.services.BasicRepositoryService;
 import org.carlspring.strongbox.storage.metadata.comparators.SnapshotVersionComparator;
@@ -34,13 +33,10 @@ import java.util.List;
 public class MetadataManager
 {
 
+    private static final Logger logger = LoggerFactory.getLogger(MetadataManager.class);
+
     @Autowired
     private BasicRepositoryService basicRepositoryService;
-
-    @Autowired
-    private ConfigurationManager configurationManager;
-
-    private static final Logger logger = LoggerFactory.getLogger(MetadataManager.class);
 
 
     public MetadataManager()
@@ -211,12 +207,12 @@ public class MetadataManager
                 throw new RuntimeException("Repository policy type unknown: "+repository.getId());
             }
 
-/*
+            /*
             for (int i = 0; i < metadata.generateVersioning().getVersions().size(); i++)
             {
                 logger.debug("Version: "+metadata.generateVersioning().getVersions().get(i));
             }
-*/
+            */
 
             // If this is a plugin, we need to add an additional metadata to the groupId.artifactId path.
             if (versionCollector.getPlugins() != null && versionCollector.getPlugins().size() > 0)
@@ -253,7 +249,7 @@ public class MetadataManager
      * @throws XmlPullParserException
      */
     public void mergeMetadata(Repository repository, Artifact artifact, Metadata mergeMetadata)
-            throws FileNotFoundException, IOException, XmlPullParserException
+            throws IOException, XmlPullParserException
     {
 
         if (basicRepositoryService.containsArtifact(repository, artifact))
@@ -270,7 +266,6 @@ public class MetadataManager
                 metadata.merge(mergeMetadata);
 
                 Writer writer = null;
-
                 try
                 {
                     writer = WriterFactory.newXmlWriter(metadataFile);

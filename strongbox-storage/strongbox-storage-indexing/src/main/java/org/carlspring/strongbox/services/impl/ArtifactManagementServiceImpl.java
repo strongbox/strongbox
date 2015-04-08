@@ -7,7 +7,7 @@ import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.io.MultipleDigestInputStream;
 import org.carlspring.strongbox.resource.ResourceCloser;
-import org.carlspring.strongbox.security.encryption.EncryptionConstants;
+import org.carlspring.strongbox.security.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.services.VersionValidatorService;
@@ -261,13 +261,13 @@ public class ArtifactManagementServiceImpl
 
         final String checksumExtension = artifactPath.substring(artifactPath.lastIndexOf('.') + 1,
                                                                 artifactPath.length());
-        if (checksumExtension.equalsIgnoreCase(EncryptionConstants.ALGORITHM_MD5))
+        if (checksumExtension.equalsIgnoreCase(EncryptionAlgorithmsEnum.MD5.getAlgorithm()))
         {
-            algorithm = EncryptionConstants.ALGORITHM_MD5;
+            algorithm = EncryptionAlgorithmsEnum.MD5.getAlgorithm();
         }
         else if (checksumExtension.equals("sha1"))
         {
-            algorithm = EncryptionConstants.ALGORITHM_SHA1;
+            algorithm = EncryptionAlgorithmsEnum.SHA1.getAlgorithm();
         }
         else
         {
@@ -308,14 +308,14 @@ public class ArtifactManagementServiceImpl
     private void addChecksumsToCacheManager(MultipleDigestInputStream mdis,
                                             String artifactPath)
     {
-        MessageDigest md5Digest = mdis.getMessageDigest(EncryptionConstants.ALGORITHM_MD5);
-        MessageDigest sha1Digest = mdis.getMessageDigest(EncryptionConstants.ALGORITHM_SHA1);
+        MessageDigest md5Digest = mdis.getMessageDigest(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
+        MessageDigest sha1Digest = mdis.getMessageDigest(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
 
         String md5 = MessageDigestUtils.convertToHexadecimalString(md5Digest);
         String sha1 = MessageDigestUtils.convertToHexadecimalString(sha1Digest);
 
-        checksumCacheManager.addArtifactChecksum(artifactPath, EncryptionConstants.ALGORITHM_MD5, md5);
-        checksumCacheManager.addArtifactChecksum(artifactPath, EncryptionConstants.ALGORITHM_SHA1, sha1);
+        checksumCacheManager.addArtifactChecksum(artifactPath, EncryptionAlgorithmsEnum.MD5.getAlgorithm(), md5);
+        checksumCacheManager.addArtifactChecksum(artifactPath, EncryptionAlgorithmsEnum.SHA1.getAlgorithm(), sha1);
     }
 
     private Map<String, LocationResolver> getResolvers()
