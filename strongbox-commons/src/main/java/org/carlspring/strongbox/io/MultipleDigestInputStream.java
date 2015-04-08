@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.io;
 
-import org.carlspring.strongbox.security.encryption.EncryptionConstants;
+import org.carlspring.strongbox.security.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import java.io.FilterInputStream;
@@ -20,10 +20,12 @@ public class MultipleDigestInputStream
         extends FilterInputStream
 {
 
-    private Map<String, MessageDigest> digests = new LinkedHashMap<String, MessageDigest>();
+    public static final String[] DEFAULT_ALGORITHMS = { EncryptionAlgorithmsEnum.MD5.getAlgorithm(),
+                                                        EncryptionAlgorithmsEnum.SHA1.getAlgorithm() };
 
-    public static final String[] DEFAULT_ALGORITHMS = { EncryptionConstants.ALGORITHM_MD5,
-                                                        EncryptionConstants.ALGORITHM_SHA1 };
+    private Map<String, MessageDigest> digests = new LinkedHashMap<>();
+
+    private Map<String, String> hexDigests = new LinkedHashMap<>();
 
 
     public MultipleDigestInputStream(InputStream is)
@@ -64,7 +66,19 @@ public class MultipleDigestInputStream
 
     public String getMessageDigestAsHexadecimalString(String algorithm)
     {
-        return MessageDigestUtils.convertToHexadecimalString(getMessageDigest(algorithm));
+        if (hexDigests.containsKey(algorithm))
+        {
+            return hexDigests.get(algorithm);
+        }
+        else
+        {
+            // This method will invoke MessageDigest.digest() which will reset the bytes when it's done
+            // and thus this data will no longer be available, so we'll need to cache the calculated digest
+            String hexDigest = MessageDigestUtils.convertToHexadecimalString(getMessageDigest(algorithm));
+            hexDigests.put(algorithm, hexDigest);
+
+            return hexDigest;
+        }
     }
 
     public void setDigests(Map<String, MessageDigest> digests)

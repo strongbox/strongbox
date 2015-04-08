@@ -10,7 +10,7 @@ import org.junit.Test;
 /**
  * @author mtodorov
  */
-public class ArtifactInputStreamTest
+public class MultipleDigestInputStreamTest
 {
 
 
