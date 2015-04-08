@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * @author stodorov
@@ -34,8 +35,11 @@ public class ArtifactMetadataServiceImpl
     }
 
     @Override
-    public Metadata getMetadata(String storageId, String repositoryId, Artifact artifact)
-            throws IOException, XmlPullParserException
+    public Metadata getMetadata(String storageId,
+                                String repositoryId,
+                                Artifact artifact)
+            throws IOException,
+                   XmlPullParserException
     {
         Path artifactBasePath = artifact.getFile().toPath().getParent().getParent();
 
@@ -43,16 +47,23 @@ public class ArtifactMetadataServiceImpl
     }
 
     @Override
-    public Metadata getMetadata(String storageId, String repositoryId, String artifactPath)
-            throws IOException, XmlPullParserException
+    public Metadata getMetadata(String storageId,
+                                String repositoryId,
+                                String artifactPath)
+            throws IOException,
+                   XmlPullParserException
     {
         Path artifactBasePath = ArtifactUtils.convertPathToArtifact(artifactPath).getFile().toPath().getParent();
         return metadataManager.getMetadata(artifactBasePath);
     }
 
     @Override
-    public void rebuildMetadata(String storageId, String repositoryId, Artifact artifact)
-            throws IOException, XmlPullParserException
+    public void rebuildMetadata(String storageId,
+                                String repositoryId,
+                                Artifact artifact)
+            throws IOException,
+                   XmlPullParserException,
+                   NoSuchAlgorithmException
     {
         Repository repository = configurationManager.getConfiguration().getStorage(storageId).getRepository(repositoryId);
 
@@ -60,14 +71,20 @@ public class ArtifactMetadataServiceImpl
     }
 
     public void rebuildMetadata(String storageId, String repositoryId, String artifactPath)
-            throws IOException, XmlPullParserException
+            throws IOException,
+                   XmlPullParserException,
+                   NoSuchAlgorithmException
     {
         rebuildMetadata(storageId, repositoryId, ArtifactUtils.convertPathToArtifact(artifactPath));
     }
 
     @Override
-    public void mergeMetadata(String storageId, String repositoryId, Artifact artifact, Metadata mergeMetadata)
-            throws IOException, XmlPullParserException
+    public void mergeMetadata(String storageId,
+                              String repositoryId,
+                              Artifact artifact,
+                              Metadata mergeMetadata)
+            throws IOException,
+                   XmlPullParserException
     {
         Repository repository = configurationManager.getConfiguration().getStorage(storageId).getRepository(repositoryId);
 

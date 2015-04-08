@@ -7,6 +7,7 @@ import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Writer;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.io.MultipleDigestOutputStream;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.services.BasicRepositoryService;
 import org.carlspring.strongbox.storage.metadata.comparators.SnapshotVersionComparator;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Component;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.List;
 
@@ -125,7 +127,9 @@ public class MetadataManager
      * @throws XmlPullParserException
      */
     public void generateMetadata(Repository repository, Artifact artifact)
-            throws IOException, XmlPullParserException
+            throws IOException,
+                   XmlPullParserException,
+                   NoSuchAlgorithmException
     {
         if (basicRepositoryService.containsArtifact(repository, artifact))
         {
@@ -157,7 +161,8 @@ public class MetadataManager
                 // Write basic metadata
                 writeMetadata(artifactBasePath, metadata);
 
-                logger.debug("Generated basic maven metadata for " + artifact.getGroupId() + ":" + artifact.getArtifactId() + ".");
+                logger.debug("Generated basic maven metadata for " + artifact.getGroupId() + ":" +
+                             artifact.getArtifactId() + ".");
 
             }
             /**
@@ -195,8 +200,8 @@ public class MetadataManager
                 // Write basic metadata
                 writeMetadata(artifactBasePath, metadata);
 
-                logger.debug("Generated basic maven metadata for " + artifact.getGroupId() + ":" + artifact.getArtifactId() + ".");
-
+                logger.debug("Generated basic maven metadata for " + artifact.getGroupId() + ":" +
+                             artifact.getArtifactId() + ".");
             }
             else if(repository.getPolicy().equals(RepositoryPolicyEnum.MIXED.getPolicy()))
             {
@@ -224,7 +229,8 @@ public class MetadataManager
 
                 writeMetadata(pluginMetadataPath, pluginMetadata);
 
-                logger.debug("Generated Maven plugin metadata for " + artifact.getGroupId() + ":" + artifact.getArtifactId() + ".");
+                logger.debug("Generated Maven plugin metadata for " + artifact.getGroupId() + ":" +
+                             artifact.getArtifactId() + ".");
             }
         }
         else
@@ -234,7 +240,9 @@ public class MetadataManager
     }
 
     public void generateMetadata(Repository repository, String artifactPath)
-            throws IOException, XmlPullParserException
+            throws IOException,
+                   XmlPullParserException,
+                   NoSuchAlgorithmException
     {
         generateMetadata(repository, ArtifactUtils.convertPathToArtifact(artifactPath));
     }
@@ -274,7 +282,8 @@ public class MetadataManager
 
                     mappingWriter.write(writer, metadata);
 
-                    logger.debug("Merged Maven metadata for " + metadata.getGroupId() + ":" + metadata.getArtifactId() + ".");
+                    logger.debug("Merged Maven metadata for " + metadata.getGroupId() + ":" +
+                                 metadata.getArtifactId() + ".");
                 }
                 finally
                 {
@@ -283,31 +292,38 @@ public class MetadataManager
             }
             catch (FileNotFoundException | NullPointerException e)
             {
-                throw new IOException("Artifact " + artifact.toString() + " has no metadata generated, therefore we can't merge the metadata!");
+                throw new IOException("Artifact " + artifact.toString() + " has no metadata generated," +
+                                      " therefore we can't merge the metadata!");
             }
         }
         else
         {
-            throw new IOException("Artifact " + artifact.toString() + " does not exist in " + repository.getStorage().getBasedir() +"/" + repository.getBasedir() + " !");
+            throw new IOException("Artifact " + artifact.toString() + " does not exist in " +
+                                  repository.getStorage().getBasedir() +"/" + repository.getBasedir() + " !");
         }
-
     }
 
     private void writeMetadata(Path metadataBasePath, Metadata metadata)
-            throws IOException
+            throws IOException,
+                   NoSuchAlgorithmException
     {
         File metadataFile = getMetadataFile(metadataBasePath);
+
+        OutputStream os = null;
         Writer writer = null;
 
         try
         {
-            writer = WriterFactory.newXmlWriter(metadataFile);
+            os = new MultipleDigestOutputStream(metadataFile, new FileOutputStream(metadataFile));
+
+            writer = WriterFactory.newXmlWriter(os);
             MetadataXpp3Writer mappingWriter = new MetadataXpp3Writer();
             mappingWriter.write(writer, metadata);
         }
         finally
         {
             ResourceCloser.close(writer, logger);
+            ResourceCloser.close(os, logger);
         }
     }
 

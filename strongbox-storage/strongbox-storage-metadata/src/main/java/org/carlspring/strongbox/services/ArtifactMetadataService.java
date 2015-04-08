@@ -5,6 +5,7 @@ import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * @author stodorov
@@ -53,7 +54,7 @@ public interface ArtifactMetadataService
      * @throws XmlPullParserException
      */
     public void rebuildMetadata(String storageId, String repositoryId, Artifact artifact)
-            throws IOException, XmlPullParserException;
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException;
 
     /**
      * Rebuild metadata for artifact using artifactPath (string)
@@ -66,7 +67,7 @@ public interface ArtifactMetadataService
      * @throws XmlPullParserException
      */
     public void rebuildMetadata(String storageId, String repositoryId, String artifactPath)
-            throws IOException, XmlPullParserException;
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException;
 
     /**
      * Merge existing artifact metadata with mergeMetadata.

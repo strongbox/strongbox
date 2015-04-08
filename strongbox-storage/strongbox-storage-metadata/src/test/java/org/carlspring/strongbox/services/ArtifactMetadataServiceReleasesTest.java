@@ -3,7 +3,6 @@ package org.carlspring.strongbox.services;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
-import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -86,7 +85,7 @@ public class ArtifactMetadataServiceReleasesTest
 
     @Test
     public void testReleaseMetadataRebuild()
-            throws IOException, XmlPullParserException
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
         artifactMetadataService.rebuildMetadata("storage0", "releases", artifact);
 
@@ -107,7 +106,7 @@ public class ArtifactMetadataServiceReleasesTest
 
     @Test
     public void testReleasePluginMetadataRebuild()
-            throws IOException, XmlPullParserException
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
         artifactMetadataService.rebuildMetadata("storage0", "releases", pluginArtifact);
 
@@ -126,7 +125,7 @@ public class ArtifactMetadataServiceReleasesTest
 
     @Test
     public void testMetadataMerge()
-            throws IOException, XmlPullParserException
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
         // Generate a proper maven-metadata.xml
         artifactMetadataService.rebuildMetadata("storage0", "releases", mergeArtifact);
