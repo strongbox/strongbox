@@ -89,7 +89,7 @@ public class ArtifactMetadataServiceSnapshotsTest
 
     @Test
     public void testSnapshotMetadataRebuild()
-            throws IOException, XmlPullParserException
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
         artifactMetadataService.rebuildMetadata("storage0", "snapshots", artifact);
 
@@ -108,7 +108,7 @@ public class ArtifactMetadataServiceSnapshotsTest
 
     @Ignore
     public void testMetadataMerge()
-            throws IOException, XmlPullParserException
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
         // Generate a proper maven-metadata.xml
         artifactMetadataService.rebuildMetadata("storage0", "snapshots", mergeArtifact);
