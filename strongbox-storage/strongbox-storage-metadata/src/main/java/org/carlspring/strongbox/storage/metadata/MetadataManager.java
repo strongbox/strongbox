@@ -257,9 +257,10 @@ public class MetadataManager
      * @throws XmlPullParserException
      */
     public void mergeMetadata(Repository repository, Artifact artifact, Metadata mergeMetadata)
-            throws IOException, XmlPullParserException
+            throws IOException,
+                   XmlPullParserException,
+                   NoSuchAlgorithmException
     {
-
         if (basicRepositoryService.containsArtifact(repository, artifact))
         {
             logger.debug("Artifact merge metadata triggered for " + artifact.toString() + ". " + repository.getType());
@@ -268,31 +269,14 @@ public class MetadataManager
 
             try
             {
-                File metadataFile = getMetadataFile(artifactBasePath);
-
                 Metadata metadata = getMetadata(repository, artifact);
                 metadata.merge(mergeMetadata);
 
-                Writer writer = null;
-                try
-                {
-                    writer = WriterFactory.newXmlWriter(metadataFile);
-
-                    MetadataXpp3Writer mappingWriter = new MetadataXpp3Writer();
-
-                    mappingWriter.write(writer, metadata);
-
-                    logger.debug("Merged Maven metadata for " + metadata.getGroupId() + ":" +
-                                 metadata.getArtifactId() + ".");
-                }
-                finally
-                {
-                    ResourceCloser.close(writer, logger);
-                }
+                writeMetadata(artifactBasePath, metadata);
             }
-            catch (FileNotFoundException | NullPointerException e)
+            catch (FileNotFoundException e)
             {
-                throw new IOException("Artifact " + artifact.toString() + " has no metadata generated," +
+                throw new IOException("Artifact " + artifact.toString() + " doesn't contain any metadata," +
                                       " therefore we can't merge the metadata!");
             }
         }

@@ -84,7 +84,8 @@ public class ArtifactMetadataServiceImpl
                               Artifact artifact,
                               Metadata mergeMetadata)
             throws IOException,
-                   XmlPullParserException
+                   XmlPullParserException,
+                   NoSuchAlgorithmException
     {
         Repository repository = configurationManager.getConfiguration().getStorage(storageId).getRepository(repositoryId);
 

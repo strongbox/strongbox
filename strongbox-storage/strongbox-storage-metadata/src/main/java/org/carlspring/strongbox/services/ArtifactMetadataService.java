@@ -81,6 +81,6 @@ public interface ArtifactMetadataService
      * @throws XmlPullParserException
      */
     public void mergeMetadata(String storageId, String repositoryId, Artifact artifact, Metadata mergeMetadata)
-            throws IOException, XmlPullParserException;
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException;
 
 }

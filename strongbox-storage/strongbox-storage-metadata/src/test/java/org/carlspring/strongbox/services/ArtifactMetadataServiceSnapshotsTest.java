@@ -38,6 +38,8 @@ public class ArtifactMetadataServiceSnapshotsTest
 
     private static Artifact artifact;
 
+    private static Artifact pluginArtifact;
+
     private static Artifact mergeArtifact;
 
     @Autowired
@@ -82,6 +84,9 @@ public class ArtifactMetadataServiceSnapshotsTest
 
             // Create an artifact for metadata merging tests
             mergeArtifact = createSnapshot("org.carlspring.strongbox:strongbox-metadata-merge:1.0:jar");
+
+            // Create plugin artifact
+            pluginArtifact = createSnapshot("org.carlspring.strongbox.maven:strongbox-metadata-plugin:1.1-SNAPSHOT:jar");
         }
 
         assertNotNull(basicRepositoryService);
@@ -105,6 +110,26 @@ public class ArtifactMetadataServiceSnapshotsTest
 
         Assert.assertEquals("Incorrect number of versions stored in metadata!", 1, versioning.getVersions().size());
     }
+
+    @Test
+    public void testReleasePluginMetadataRebuild()
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException
+    {
+        artifactMetadataService.rebuildMetadata("storage0", "snapshots", pluginArtifact);
+
+        Metadata metadata = artifactMetadataService.getMetadata("storage0", "snapshots", pluginArtifact);
+
+        assertNotNull(metadata);
+
+        Versioning versioning = metadata.getVersioning();
+
+        Assert.assertEquals("Incorrect artifactId!", pluginArtifact.getArtifactId(), metadata.getArtifactId());
+        Assert.assertEquals("Incorrect groupId!", pluginArtifact.getGroupId(), metadata.getGroupId());
+        Assert.assertEquals("Incorrect latest release version!", pluginArtifact.getVersion(), versioning.getRelease());
+
+        Assert.assertEquals("Incorrect number of versions stored in metadata!", 1, versioning.getVersions().size());
+    }
+
 
     @Ignore
     public void testMetadataMerge()
