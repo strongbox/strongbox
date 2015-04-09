@@ -25,7 +25,7 @@ public interface ArtifactMetadataService
      * @throws IOException
      * @throws XmlPullParserException
      */
-    public Metadata getMetadata(String storageId, String repositoryId, Artifact artifact)
+    Metadata getMetadata(String storageId, String repositoryId, Artifact artifact)
             throws IOException, XmlPullParserException;
 
     /**
@@ -40,7 +40,7 @@ public interface ArtifactMetadataService
      * @throws IOException
      * @throws XmlPullParserException
      */
-    public Metadata getMetadata(String storageId, String repositoryId, String artifactPath)
+    Metadata getMetadata(String storageId, String repositoryId, String artifactPath)
             throws IOException, XmlPullParserException;
 
     /**
@@ -53,7 +53,7 @@ public interface ArtifactMetadataService
      * @throws IOException
      * @throws XmlPullParserException
      */
-    public void rebuildMetadata(String storageId, String repositoryId, Artifact artifact)
+    void rebuildMetadata(String storageId, String repositoryId, Artifact artifact)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException;
 
     /**
@@ -66,7 +66,7 @@ public interface ArtifactMetadataService
      * @throws IOException
      * @throws XmlPullParserException
      */
-    public void rebuildMetadata(String storageId, String repositoryId, String artifactPath)
+    void rebuildMetadata(String storageId, String repositoryId, String artifactPath)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException;
 
     /**
@@ -80,7 +80,7 @@ public interface ArtifactMetadataService
      * @throws IOException
      * @throws XmlPullParserException
      */
-    public void mergeMetadata(String storageId, String repositoryId, Artifact artifact, Metadata mergeMetadata)
+    void mergeMetadata(String storageId, String repositoryId, Artifact artifact, Metadata mergeMetadata)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException;
 
 }

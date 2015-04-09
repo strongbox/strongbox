@@ -218,33 +218,8 @@ public class ArtifactGenerator
         final MessageDigest md5Digest = mdis.getMessageDigest("MD5");
         final MessageDigest sha1Digest = mdis.getMessageDigest("SHA-1");
 
-        writeDigestAsHexadecimalString(md5Digest, artifactFile, "md5");
-        writeDigestAsHexadecimalString(sha1Digest, artifactFile, "sha1");
-    }
-
-    private void writeDigestAsHexadecimalString(MessageDigest digest,
-                                                File artifactFile,
-                                                String checksumFileExtension)
-            throws IOException
-    {
-        String checksum = MessageDigestUtils.convertToHexadecimalString(digest);
-
-        final File checksumFile = new File(artifactFile.getAbsolutePath() + "." + checksumFileExtension);
-
-        FileOutputStream fos = null;
-
-        try
-        {
-            fos = new FileOutputStream(checksumFile);
-
-            fos.write((checksum + "\n").getBytes());
-            fos.flush();
-            fos.close();
-        }
-        finally
-        {
-            ResourceCloser.close(fos, logger);
-        }
+        MessageDigestUtils.writeDigestAsHexadecimalString(md5Digest, artifactFile, "md5");
+        MessageDigestUtils.writeDigestAsHexadecimalString(sha1Digest, artifactFile, "sha1");
     }
 
     public String getBasedir()

@@ -6,7 +6,7 @@ import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-import org.carlspring.strongbox.storage.metadata.comparators.VersionComparator;
+import org.carlspring.strongbox.storage.metadata.comparators.MetadataVersionComparator;
 import org.carlspring.strongbox.storage.metadata.versions.MetadataVersion;
 import org.carlspring.strongbox.storage.metadata.visitors.ArtifactPomVisitor;
 import org.carlspring.strongbox.storage.metadata.visitors.SnapshotDirectoryVisitor;
@@ -109,7 +109,6 @@ public class VersionCollector
     public List<SnapshotVersion> collectSnapshotVersions(Path artifactVersionPath)
             throws IOException
     {
-
         List<SnapshotVersion> snapshotVersions = new ArrayList<>();
 
         SnapshotDirectoryVisitor snapshotDirectoryVisitor = new SnapshotDirectoryVisitor();
@@ -150,7 +149,7 @@ public class VersionCollector
         if (versions.size() > 0)
         {
             // Sort versions naturally (1.1 < 1.2 < 1.3 ...)
-            Collections.sort(versions, new VersionComparator());
+            Collections.sort(versions, new MetadataVersionComparator());
             for (MetadataVersion version : versions)
             {
                 versioning.addVersion(version.getVersion());
@@ -160,8 +159,6 @@ public class VersionCollector
             // 1.1 < 1.2 < 1.4 < 1.3 (1.3 is considered latest release because it was changed recently)
             // TODO: Sort this out as part of SB-333
             //Collections.sort(versions);
-
-            versioning.setRelease(versions.get(versions.size() - 1).getVersion());
         }
 
         return versioning;
@@ -229,13 +226,13 @@ public class VersionCollector
         }
 
         // Fix sorting
-        Collections.sort(versioning.getVersions(), new VersionComparator());
+        Collections.sort(versioning.getVersions(), new MetadataVersionComparator());
         Collections.sort(snapshots, new SnapshotVersionComparator());
 
         // Set latest version & latest release version
         if (versioning.getVersions().size() > 0)
         {
-            VersionComparator versionComparator = new VersionComparator();
+            MetadataVersionComparator versionComparator = new MetadataVersionComparator();
 
             String latestVersion = "0";
             String latestRelease = "0";

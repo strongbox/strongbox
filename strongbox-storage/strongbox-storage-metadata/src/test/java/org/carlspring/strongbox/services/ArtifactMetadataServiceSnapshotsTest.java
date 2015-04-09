@@ -2,7 +2,9 @@ package org.carlspring.strongbox.services;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.Snapshot;
 import org.apache.maven.artifact.repository.metadata.Versioning;
+import org.carlspring.maven.commons.DetachedArtifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
@@ -48,6 +50,10 @@ public class ArtifactMetadataServiceSnapshotsTest
     @Autowired
     private BasicRepositoryService basicRepositoryService;
 
+    private SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
+
+    private Calendar calendar = Calendar.getInstance();
+
 
     @Before
     public void setUp()
@@ -62,36 +68,43 @@ public class ArtifactMetadataServiceSnapshotsTest
             String ga = "org.carlspring.strongbox:strongbox-metadata";
 
             // Create snapshot artifacts
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-            Calendar calendar = Calendar.getInstance();
 
-            for (int i = 0; i <= 2; i++)
+            int i = 0;
+            for (; i <= 2; i++)
             {
                 calendar.add(Calendar.SECOND, 7);
                 calendar.add(Calendar.MINUTE, 5);
 
                 String timestamp = formatter.format(calendar.getTime());
-                createSnapshot(ga + ":2.0-SNAPSHOT-" + timestamp + ":jar");
+                createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR.getAbsolutePath(),
+                                                  "org.carlspring.strongbox",
+                                                  "strongbox-metadata",
+                                                  "2.0-" + timestamp + "-" + (i + 1));
             }
 
             calendar.add(Calendar.SECOND, 7);
             calendar.add(Calendar.MINUTE, 5);
             String timestamp = formatter.format(calendar.getTime());
 
-            artifact = createSnapshot(ga + ":2.0-SNAPSHOT-" + timestamp + ":jar");
+            artifact = createSnapshot(REPOSITORY_BASEDIR.getAbsolutePath(), ga + ":2.0-" + timestamp + "-" + (i + 1) + ":jar");
 
             changeCreationDate(artifact);
 
             // Create an artifact for metadata merging tests
-            mergeArtifact = createSnapshot("org.carlspring.strongbox:strongbox-metadata-merge:1.0:jar");
+            mergeArtifact = createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR.getAbsolutePath(),
+                                                              "org.carlspring.strongbox",
+                                                              "strongbox-metadata-merge",
+                                                              "2.0-" + formatter.format(calendar.getTime()) + "-1");
 
             // Create plugin artifact
-            pluginArtifact = createSnapshot("org.carlspring.strongbox.maven:strongbox-metadata-plugin:1.1-SNAPSHOT:jar");
+            pluginArtifact = createSnapshot(REPOSITORY_BASEDIR.getAbsolutePath(),
+                                            "org.carlspring.strongbox.maven:strongbox-metadata-plugin:1.1-SNAPSHOT:jar");
         }
 
         assertNotNull(basicRepositoryService);
     }
 
+    @Ignore
     @Test
     public void testSnapshotMetadataRebuild()
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
@@ -112,7 +125,7 @@ public class ArtifactMetadataServiceSnapshotsTest
     }
 
     @Test
-    public void testReleasePluginMetadataRebuild()
+    public void testSnapshotPluginMetadataRebuild()
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
         artifactMetadataService.rebuildMetadata("storage0", "snapshots", pluginArtifact);
@@ -125,13 +138,13 @@ public class ArtifactMetadataServiceSnapshotsTest
 
         Assert.assertEquals("Incorrect artifactId!", pluginArtifact.getArtifactId(), metadata.getArtifactId());
         Assert.assertEquals("Incorrect groupId!", pluginArtifact.getGroupId(), metadata.getGroupId());
-        Assert.assertEquals("Incorrect latest release version!", pluginArtifact.getVersion(), versioning.getRelease());
+        Assert.assertNull("Incorrect latest release version!", versioning.getRelease());
 
         Assert.assertEquals("Incorrect number of versions stored in metadata!", 1, versioning.getVersions().size());
     }
 
-
     @Ignore
+    @Test
     public void testMetadataMerge()
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
@@ -142,10 +155,16 @@ public class ArtifactMetadataServiceSnapshotsTest
         Metadata mergeMetadata = new Metadata();
         Versioning appendVersioning = new Versioning();
 
-        appendVersioning.addVersion("1.1");
-        appendVersioning.addVersion("1.2");
+        appendVersioning.addVersion("1.0-SNAPSHOT");
+        appendVersioning.addVersion("1.3-SNAPSHOT");
 
-        appendVersioning.setRelease("1.2");
+        Snapshot snapshot = new Snapshot();
+        snapshot.setTimestamp(formatter.format(calendar.getTime()));
+        snapshot.setBuildNumber(1);
+
+        appendVersioning.setRelease(null);
+        appendVersioning.setSnapshot(snapshot);
+        appendVersioning.setLatest("1.3-SNAPSHOT");
 
         mergeMetadata.setVersioning(appendVersioning);
 
@@ -156,31 +175,52 @@ public class ArtifactMetadataServiceSnapshotsTest
 
         assertNotNull(metadata);
 
-        Assert.assertEquals("Incorrect latest release version!",mergeMetadata.getVersioning().getRelease(),metadata.getVersioning().getRelease());
+        Assert.assertEquals("Incorrect latest release version!", "1.3-SNAPSHOT", metadata.getVersioning().getLatest());
+        // Assert.assertEquals("Incorrect latest release version!", null, metadata.getVersioning().getRelease());
         Assert.assertEquals("Incorrect number of versions stored in metadata!",
                             3,
                             metadata.getVersioning().getVersions().size());
     }
 
+    private Artifact createTimestampedSnapshotArtifact(String repositoryBasedir,
+                                                       String groupId,
+                                                       String artifactId,
+                                                       String snapshotVersion/*,
+                                                       String timestamp*/)
+            throws NoSuchAlgorithmException, XmlPullParserException, IOException
+    {
+        Artifact snapshot = new DetachedArtifact(groupId, artifactId, snapshotVersion);
+        snapshot.setFile(new File(repositoryBasedir + "/" + ArtifactUtils.convertArtifactToPath(snapshot)));
+
+        generateArtifact(repositoryBasedir, snapshot);
+        /*
+        generateArtifact(repositoryBasedir, ArtifactUtils.getArtifactFromGAVTC(ga + ":" + timestamp + ":jar:javadoc"));
+        generateArtifact(repositoryBasedir, ArtifactUtils.getArtifactFromGAVTC(ga + ":" + timestamp + ":jar:source-release"));
+        generateArtifact(repositoryBasedir, ArtifactUtils.getArtifactFromGAVTC(ga + ":" + timestamp + ":jar:sources"));
+        */
+
+        return snapshot;
+    }
+
     /**
      * Generate a couple of testing artifacts for a specific snapshot (i.e. javadoc, sources, etc)
      *
+     * @param repositoryBasedir String
      * @param gavt String
      * @throws NoSuchAlgorithmException
      * @throws XmlPullParserException
      * @throws IOException
      */
-    private Artifact createSnapshot(String gavt)
+    private Artifact createSnapshot(String repositoryBasedir, String gavt)
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
         Artifact snapshot = ArtifactUtils.getArtifactFromGAVTC(gavt);
-        snapshot.setFile(new File(REPOSITORY_BASEDIR.getAbsolutePath() + "/" + ArtifactUtils.convertArtifactToPath(snapshot)));
+        snapshot.setFile(new File(repositoryBasedir + "/" + ArtifactUtils.convertArtifactToPath(snapshot)));
 
-        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), snapshot);
-        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), ArtifactUtils.getArtifactFromGAVTC(gavt + ":javadoc"));
-        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(),
-                         ArtifactUtils.getArtifactFromGAVTC(gavt + ":source-release"));
-        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), ArtifactUtils.getArtifactFromGAVTC(gavt + ":sources"));
+        generateArtifact(repositoryBasedir, snapshot);
+        generateArtifact(repositoryBasedir, ArtifactUtils.getArtifactFromGAVTC(gavt + ":javadoc"));
+        generateArtifact(repositoryBasedir, ArtifactUtils.getArtifactFromGAVTC(gavt + ":source-release"));
+        generateArtifact(repositoryBasedir, ArtifactUtils.getArtifactFromGAVTC(gavt + ":sources"));
 
         return snapshot;
     }

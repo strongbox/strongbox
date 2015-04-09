@@ -11,6 +11,7 @@ import org.carlspring.strongbox.io.MultipleDigestOutputStream;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.services.BasicRepositoryService;
 import org.carlspring.strongbox.storage.metadata.comparators.SnapshotVersionComparator;
+import org.carlspring.strongbox.storage.metadata.comparators.VersionComparator;
 import org.carlspring.strongbox.storage.metadata.versions.MetadataVersion;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -150,12 +151,13 @@ public class MetadataManager
              * In a release repository we only need to generate maven-metadata.xml in the artifactBasePath
              * (i.e. org/foo/bar/maven-metadata.xml)
              */
-            if(repository.getPolicy().equals(RepositoryPolicyEnum.RELEASE.getPolicy()))
+            if (repository.getPolicy().equals(RepositoryPolicyEnum.RELEASE.getPolicy()))
             {
                 // Don't write empty <versioning/> tags when no versions are available.
-                if(versioning.getVersions().size() > 0)
+                if (!versioning.getVersions().isEmpty())
                 {
                     metadata.setVersioning(versioning);
+                    versioning.setRelease(baseVersioning.get(baseVersioning.size() - 1).getVersion());
                 }
 
                 // Write basic metadata
@@ -271,6 +273,16 @@ public class MetadataManager
             {
                 Metadata metadata = getMetadata(repository, artifact);
                 metadata.merge(mergeMetadata);
+
+                Versioning versioning = metadata.getVersioning();
+                if (versioning.getVersions() != null)
+                {
+                    Collections.sort(versioning.getVersions(), new VersionComparator());
+                }
+                if (versioning.getSnapshotVersions() != null)
+                {
+                    Collections.sort(versioning.getSnapshotVersions(), new SnapshotVersionComparator());
+                }
 
                 writeMetadata(artifactBasePath, metadata);
             }
