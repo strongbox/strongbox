@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.storage.routing;
 
 import javax.xml.bind.annotation.*;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -16,7 +17,7 @@ public class RoutingRule
 
     @XmlElement (name = "repository")
     @XmlElementWrapper(name = "repositories")
-    private Set<String> repositories;
+    private Set<String> repositories = new LinkedHashSet<>();
 
 
     public RoutingRule()
