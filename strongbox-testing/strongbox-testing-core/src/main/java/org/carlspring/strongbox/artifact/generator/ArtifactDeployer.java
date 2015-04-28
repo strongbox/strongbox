@@ -58,13 +58,14 @@ public class ArtifactDeployer extends ArtifactGenerator
                    IOException,
                    ArtifactOperationException
     {
-        generateAndDeployArtifact(artifact, null, storageId, repositoryId);
+        generateAndDeployArtifact(artifact, null, storageId, repositoryId, "jar");
     }
 
     public void generateAndDeployArtifact(Artifact artifact,
                                           String[] classifiers,
                                           String storageId,
-                                          String repositoryId)
+                                          String repositoryId,
+                                          String packaging)
             throws NoSuchAlgorithmException,
                    XmlPullParserException,
                    IOException,
@@ -75,7 +76,7 @@ public class ArtifactDeployer extends ArtifactGenerator
             initializeClient();
         }
 
-        generatePom(artifact);
+        generatePom(artifact, packaging);
         createArchive(artifact);
 
         deploy(artifact, storageId, repositoryId);
@@ -97,6 +98,7 @@ public class ArtifactDeployer extends ArtifactGenerator
             }
         }
 
+        // TODO: SB-230: Implement metadata merging for the ArtifactDeployer
         // TODO: Update the metadata file on the repositoryId's side.
     }
 

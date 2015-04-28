@@ -28,6 +28,8 @@ public class ArtifactGenerator
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactGenerator.class);
 
+    public static final String PACKAGING_JAR = "jar";
+
     private String basedir;
 
 
@@ -43,6 +45,26 @@ public class ArtifactGenerator
     public ArtifactGenerator(File basedir)
     {
         this.basedir = basedir.getAbsolutePath();
+    }
+
+    public void generate(String gavtc, String packaging, String... versions)
+            throws IOException,
+                   XmlPullParserException,
+                   NoSuchAlgorithmException
+    {
+        if (packaging == null)
+        {
+            packaging = PACKAGING_JAR;
+        }
+
+        for (String version : versions)
+        {
+            Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
+            artifact.setVersion(version);
+            artifact.setFile(new File(getBasedir() + "/" + ArtifactUtils.convertArtifactToPath(artifact)));
+
+            generate(artifact, packaging);
+        }
     }
 
     public void generate(String gavtc, String... versions)
@@ -65,7 +87,16 @@ public class ArtifactGenerator
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
-        generatePom(artifact);
+        generatePom(artifact, PACKAGING_JAR);
+        createArchive(artifact);
+    }
+
+    public void generate(Artifact artifact, String packaging)
+            throws IOException,
+                   XmlPullParserException,
+                   NoSuchAlgorithmException
+    {
+        generatePom(artifact, packaging);
         createArchive(artifact);
     }
 
@@ -178,7 +209,7 @@ public class ArtifactGenerator
         zos.closeEntry();
     }
 
-    protected void generatePom(Artifact artifact)
+    protected void generatePom(Artifact artifact, String packaging)
             throws IOException,
                    XmlPullParserException,
                    NoSuchAlgorithmException
@@ -194,7 +225,7 @@ public class ArtifactGenerator
         model.setGroupId(artifact.getGroupId());
         model.setArtifactId(artifact.getArtifactId());
         model.setVersion(artifact.getVersion());
-        model.setPackaging(artifact.getType()); // This is not exactly correct.
+        model.setPackaging(packaging);
 
         logger.info("Generating pom file for " + artifact.toString() + "...");
 
