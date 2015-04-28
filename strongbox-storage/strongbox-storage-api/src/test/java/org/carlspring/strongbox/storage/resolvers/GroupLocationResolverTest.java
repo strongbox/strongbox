@@ -77,7 +77,7 @@ public class GroupLocationResolverTest
                                                               "com/artifacts/in/releases/with/trash/foo/1.2.3/foo-1.2.3.jar");
 
         assertThat(logs.contains("Located artifact via routing rule [storage0:releases-with-trash]:" +
-                                 " [+]: .*(com|org)/artifacts.in.releases.with.trash.* after 2 hops."), is(true));
+                                 " [+]: .*(com|org)/artifacts.in.releases.with.trash.* after 1 hops."), is(true));
 
         assertNotNull(is);
 
