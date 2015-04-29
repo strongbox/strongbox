@@ -73,7 +73,7 @@ public class RepositoryManagementServiceImplTest
     {
         String gavtc = "org.carlspring.strongbox:strongbox-utils::jar";
 
-        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), gavtc, "6.0.1", "6.1.1", "6.2.1", "6.2.2-SNAPSHOT", "7.0", "7.1");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), gavtc, new String[] {"6.0.1", "6.1.1", "6.2.1", "6.2.2-SNAPSHOT", "7.0", "7.1"});
 
         final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndex("storage0:releases");
         final int x = repositoryIndexer.index(new File("org/carlspring/strongbox/strongbox-utils"));

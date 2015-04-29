@@ -57,9 +57,9 @@ public class ArtifactManagementServiceImplTest
 
             String gavtc = "org.carlspring.strongbox:strongbox-utils::jar";
 
-            generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), gavtc, "6.0.1", "6.1.1", "6.2.1", "6.2.2-SNAPSHOT", "7.0", "7.1");
-            generateArtifact(STORAGE_BASEDIR.getAbsolutePath() + "/releases-with-trash", gavtc, "7.2");
-            generateArtifact(STORAGE_BASEDIR.getAbsolutePath() + "/releases-with-redeployment", gavtc, "7.3");
+            generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), gavtc, new String[] {"6.0.1", "6.1.1", "6.2.1", "6.2.2-SNAPSHOT", "7.0", "7.1"});
+            generateArtifact(STORAGE_BASEDIR.getAbsolutePath() + "/releases-with-trash", gavtc, new String[] {"7.2"});
+            generateArtifact(STORAGE_BASEDIR.getAbsolutePath() + "/releases-with-redeployment", gavtc, new String[] {"7.3"});
 
             INITIALIZED = true;
         }
