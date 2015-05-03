@@ -170,21 +170,4 @@ public class ArtifactMetadataServiceReleasesTest
         return generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), gavtc);
     }
 
-    private void changeCreationDate(Artifact artifact)
-            throws IOException
-    {
-        File directory = artifact.getFile().toPath().getParent().toFile();
-
-        //noinspection ConstantConditions
-        for (final File fileEntry : directory.listFiles())
-        {
-            if (fileEntry.isFile())
-            {
-                BasicFileAttributeView attributes = Files.getFileAttributeView(fileEntry.toPath(),BasicFileAttributeView.class);
-                FileTime time = FileTime.from(System.currentTimeMillis() + 60000L, TimeUnit.MILLISECONDS);
-                attributes.setTimes(time, time, time);
-            }
-        }
-    }
-
 }

@@ -44,6 +44,19 @@ public interface ArtifactMetadataService
             throws IOException, XmlPullParserException;
 
     /**
+     * Get artifact metadata.
+     *
+     * @param artifactBasePath  The base path of the artifact
+     *
+     * @return Metadata
+     *
+     * @throws IOException
+     * @throws XmlPullParserException
+     */
+    Metadata getMetadata(String artifactBasePath)
+            throws IOException, XmlPullParserException;
+
+    /**
      * Rebuild metadata for artifact
      *
      * @param storageId     String

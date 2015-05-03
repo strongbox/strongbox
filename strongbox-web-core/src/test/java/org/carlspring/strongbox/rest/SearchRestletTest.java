@@ -1,21 +1,19 @@
 package org.carlspring.strongbox.rest;
 
+import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.generator.ArtifactDeployer;
 import org.carlspring.strongbox.client.RestClient;
-
-import javax.ws.rs.core.MediaType;
-import java.io.File;
-
-import org.apache.maven.artifact.Artifact;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import javax.ws.rs.core.MediaType;
+import java.io.File;
 
 /**
  * @author mtodorov
@@ -45,9 +43,9 @@ public class SearchRestletTest
 
             ArtifactDeployer artifactDeployer = new ArtifactDeployer(strongboxBaseDir);
             artifactDeployer.setClient(client);
-            artifactDeployer.generateAndDeployArtifact(artifact1, classifiers, "storage0", "releases");
-            artifactDeployer.generateAndDeployArtifact(artifact2, classifiers, "storage0", "releases");
-            artifactDeployer.generateAndDeployArtifact(artifact3, classifiers, "storage0", "releases");
+            artifactDeployer.generateAndDeployArtifact(artifact1, classifiers, "storage0", "releases", "jar");
+            artifactDeployer.generateAndDeployArtifact(artifact2, classifiers, "storage0", "releases", "jar");
+            artifactDeployer.generateAndDeployArtifact(artifact3, classifiers, "storage0", "releases", "jar");
 
             INITIALIZED = true;
         }

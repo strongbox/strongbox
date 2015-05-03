@@ -9,17 +9,18 @@ import java.util.List;
 /**
  * @author stodorov
  */
-public class SnapshotDirectoryVisitor
+public class ArtifactVersionDirectoryVisitor
         extends SimpleFileVisitor<Path>
 {
+
+    private static final String search = "glob:*.{md5,sha1}";
 
     public List<Path> matchingPaths = new ArrayList<>();
 
     private PathMatcher matcher;
 
-    private final String search = "glob:*.{md5,sha1}";
 
-    public SnapshotDirectoryVisitor()
+    public ArtifactVersionDirectoryVisitor()
     {
         matcher = FileSystems.getDefault().getPathMatcher(search);
     }

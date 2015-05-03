@@ -49,8 +49,8 @@ public class TrashRestletTest
         System.out.println("REPOSITORY_WITH_TRASH_BASEDIR: " + REPOSITORY_WITH_TRASH_BASEDIR);
         System.out.println("BASEDIR.getAbsolutePath(): " + BASEDIR.getAbsolutePath());
 
-        generateArtifact(REPOSITORY_WITH_TRASH_BASEDIR, gavtc, "1.0");
-        generateArtifact(BASEDIR.getAbsolutePath() + "/storages/" + STORAGE + "/releases", gavtc, "1.1");
+        generateArtifact(REPOSITORY_WITH_TRASH_BASEDIR, gavtc, new String[]{ "1.0" });
+        generateArtifact(BASEDIR.getAbsolutePath() + "/storages/" + STORAGE + "/releases", gavtc, new String[]{ "1.1" });
 
         // Delete the artifact (this one should get placed under the .trash)
         client.delete(STORAGE,

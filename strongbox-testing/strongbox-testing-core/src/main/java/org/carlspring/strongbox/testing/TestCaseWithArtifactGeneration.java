@@ -104,19 +104,22 @@ public class TestCaseWithArtifactGeneration
     public Artifact createTimestampedSnapshotArtifact(String repositoryBasedir,
                                                       String groupId,
                                                       String artifactId,
-                                                      String snapshotVersion/*,
-                                                      String timestamp*/)
+                                                      String snapshotVersion,
+                                                      String[] classifiers)
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
         Artifact snapshot = new DetachedArtifact(groupId, artifactId, snapshotVersion);
         snapshot.setFile(new File(repositoryBasedir + "/" + ArtifactUtils.convertArtifactToPath(snapshot)));
 
         generateArtifact(repositoryBasedir, snapshot);
-        /*
-        generateArtifact(repositoryBasedir, ArtifactUtils.getArtifactFromGAVTC(ga + ":" + timestamp + ":jar:javadoc"));
-        generateArtifact(repositoryBasedir, ArtifactUtils.getArtifactFromGAVTC(ga + ":" + timestamp + ":jar:source-release"));
-        generateArtifact(repositoryBasedir, ArtifactUtils.getArtifactFromGAVTC(ga + ":" + timestamp + ":jar:sources"));
-        */
+
+        if (classifiers != null)
+        {
+            for (String classifier : classifiers)
+            {
+                generateArtifact(repositoryBasedir, ArtifactUtils.getArtifactFromGAVTC(groupId + ":" + artifactId + ":" + snapshotVersion + ":jar:" + classifier));
+            }
+        }
 
         return snapshot;
     }
