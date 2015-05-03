@@ -72,7 +72,7 @@ public class VersionCollector
                     // TODO: a non-null version is found and use that as the version.
                     String version = pom.getVersion() != null ? pom.getVersion() : (pom.getParent() != null ? pom.getVersion() : null);
 
-                    if (artifactIsSnapshot(pom) && ArtifactUtils.isSnapshot(version))
+                    if (ArtifactUtils.isSnapshot(version))
                     {
                         version = ArtifactUtils.getSnapshotBaseVersion(version);
                     }
