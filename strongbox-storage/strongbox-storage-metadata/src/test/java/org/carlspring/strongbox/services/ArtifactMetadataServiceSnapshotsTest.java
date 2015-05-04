@@ -86,7 +86,8 @@ public class ArtifactMetadataServiceSnapshotsTest
             calendar.add(Calendar.MINUTE, 5);
             String timestamp = formatter.format(calendar.getTime());
 
-            artifact = createSnapshot(REPOSITORY_BASEDIR.getAbsolutePath(), ga + ":2.0-" + timestamp + "-" + (i + 1) + ":jar");
+            artifact = createSnapshot(REPOSITORY_BASEDIR.getAbsolutePath(), ga + ":2.0-" + timestamp + "-" + (i + 1) + ":jar",
+                                      new String[] { "javadoc", "sources", "source-release" });
 
             changeCreationDate(artifact);
 
@@ -98,15 +99,12 @@ public class ArtifactMetadataServiceSnapshotsTest
                                                               CLASSIFIERS);
 
             // Create plugin artifact
-            // pluginArtifact = createSnapshot(REPOSITORY_BASEDIR.getAbsolutePath(),
-            //                                 "org.carlspring.strongbox.maven:strongbox-metadata-plugin:1.1-SNAPSHOT:jar");
+            pluginArtifact = createSnapshot(REPOSITORY_BASEDIR.getAbsolutePath(),
+                                            "org.carlspring.strongbox.maven:strongbox-metadata-plugin:1.1-SNAPSHOT:jar");
 
-//            pluginArtifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.maven:strongbox-metadata-plugin:1.1-SNAPSHOT:jar");
-//            pluginArtifact.setFile(new File(REPOSITORY_BASEDIR, ArtifactUtils.convertArtifactToPath(pluginArtifact)));
-//
-//            generatePluginArtifact(REPOSITORY_BASEDIR.getAbsolutePath(),
-//                                   "org.carlspring.strongbox.maven:strongbox-metadata-plugin",
-//                                   "1.1-SNAPSHOT");
+            generatePluginArtifact(REPOSITORY_BASEDIR.getAbsolutePath(),
+                                   "org.carlspring.strongbox.maven:strongbox-metadata-plugin",
+                                   "1.1-SNAPSHOT");
 
             initialized = true;
         }
@@ -135,12 +133,11 @@ public class ArtifactMetadataServiceSnapshotsTest
         Assert.assertEquals("Incorrect number of versions stored in metadata!", 1, versioning.getVersions().size());
     }
 
-    @Ignore
     @Test
     public void testSnapshotPluginMetadataRebuild()
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
-        artifactMetadataService.rebuildMetadata("storage0", "snapshots", pluginArtifact);
+        artifactMetadataService.rebuildMetadata("storage0", "snapshots", ArtifactUtils.convertArtifactToPath(pluginArtifact));
 
         Metadata metadata = artifactMetadataService.getMetadata("storage0", "snapshots", pluginArtifact);
 

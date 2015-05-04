@@ -140,9 +140,32 @@ public class TestCaseWithArtifactGeneration
         snapshot.setFile(new File(repositoryBasedir + "/" + ArtifactUtils.convertArtifactToPath(snapshot)));
 
         generateArtifact(repositoryBasedir, snapshot);
-        generateArtifact(repositoryBasedir, ArtifactUtils.getArtifactFromGAVTC(gavt + ":javadoc"));
-        generateArtifact(repositoryBasedir, ArtifactUtils.getArtifactFromGAVTC(gavt + ":source-release"));
-        generateArtifact(repositoryBasedir, ArtifactUtils.getArtifactFromGAVTC(gavt + ":sources"));
+
+        return snapshot;
+    }
+
+    /**
+     * Generate a couple of testing artifacts for a specific snapshot (i.e. javadoc, sources, etc)
+     *
+     * @param repositoryBasedir String
+     * @param gavt String
+     * @throws NoSuchAlgorithmException
+     * @throws XmlPullParserException
+     * @throws IOException
+     */
+    public Artifact createSnapshot(String repositoryBasedir, String gavt, String[] classifiers)
+            throws NoSuchAlgorithmException, XmlPullParserException, IOException
+    {
+        Artifact snapshot = ArtifactUtils.getArtifactFromGAVTC(gavt);
+        snapshot.setFile(new File(repositoryBasedir + "/" + ArtifactUtils.convertArtifactToPath(snapshot)));
+
+        generateArtifact(repositoryBasedir, snapshot);
+
+        for (String classifier : classifiers)
+        {
+            generateArtifact(repositoryBasedir, ArtifactUtils.getArtifactFromGAVTC(gavt + ":" + classifier));
+
+        }
 
         return snapshot;
     }

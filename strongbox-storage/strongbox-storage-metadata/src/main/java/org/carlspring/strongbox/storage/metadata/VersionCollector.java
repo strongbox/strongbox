@@ -157,11 +157,6 @@ public class VersionCollector
         Pattern versionExtractor = Pattern.compile("^.*-(([0-9]{8})(.([0-9]+))?(-([0-9]+))?)((-)(.*))?$");
 
         Files.walkFileTree(artifactVersionPath, artifactVersionDirectoryVisitor);
-        //Files.walkFileTree(artifactVersionPath, new LinkedHashSet<FileVisitOption>(), 1, new ArtifactVersionDirectoryVisitor());
-
-        // ne se polzva nikude.
-        //List<File> versionPaths = Arrays.asList(artifactVersionPath.toAbsolutePath().toFile()
-        //                                                           .listFiles(new ArtifactVersionDirectoryFilter()));
 
         for (Path filePath : artifactVersionDirectoryVisitor.getMatchingPaths())
         {
