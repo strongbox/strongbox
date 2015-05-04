@@ -65,7 +65,7 @@ public class ArtifactDeployerTest
 
         ArtifactDeployer artifactDeployer = new ArtifactDeployer(BASEDIR);
         artifactDeployer.setClient(client);
-        artifactDeployer.generateAndDeployArtifact(artifact, classifiers, "storage0", "releases");
+        artifactDeployer.generateAndDeployArtifact(artifact, classifiers, "storage0", "releases", "jar");
     }
 
 }
