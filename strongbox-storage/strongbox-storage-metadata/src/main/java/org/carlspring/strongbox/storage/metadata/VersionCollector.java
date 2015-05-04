@@ -167,9 +167,15 @@ public class VersionCollector
 
             if (matcher.find())
             {
+                String timestamp = matcher.group(1);
+                String updated = timestamp;
+                updated = updated.replace(".", "");
+                updated = updated.substring(0, updated.lastIndexOf("-"));
+
                 SnapshotVersion snapshotVersion = new SnapshotVersion();
-                snapshotVersion.setVersion(matcher.group(1));
+                snapshotVersion.setVersion(timestamp);
                 snapshotVersion.setExtension(FilenameUtils.getExtension(name));
+                snapshotVersion.setUpdated(updated);
 
                 if (matcher.group(9) != null)
                 {

@@ -100,7 +100,8 @@ public class ArtifactMetadataServiceSnapshotsTest
 
             // Create plugin artifact
             pluginArtifact = createSnapshot(REPOSITORY_BASEDIR.getAbsolutePath(),
-                                            "org.carlspring.strongbox.maven:strongbox-metadata-plugin:1.1-SNAPSHOT:jar");
+                                            "org.carlspring.strongbox.maven:strongbox-metadata-plugin:" +
+                                            "1.1-" + formatter.format(calendar.getTime()) + "-1" + ":jar");
 
             generatePluginArtifact(REPOSITORY_BASEDIR.getAbsolutePath(),
                                    "org.carlspring.strongbox.maven:strongbox-metadata-plugin",

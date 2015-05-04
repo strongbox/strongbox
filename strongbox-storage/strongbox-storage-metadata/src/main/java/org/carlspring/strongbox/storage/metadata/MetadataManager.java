@@ -197,14 +197,17 @@ public class MetadataManager
                         {
                             SnapshotVersion latest = snapshotVersioning.getSnapshotVersions().get(snapshotVersioning.getSnapshotVersions().size() - 1);
 
-                            Snapshot snapshotVersion = new Snapshot();
                             String timestamp = latest.getVersion().substring(0, latest.getVersion().lastIndexOf("-"));
                             String buildNumber = latest.getVersion().substring(latest.getVersion().lastIndexOf("-") + 1, latest.getVersion().length());
+                            String updated = timestamp;
+                            updated = updated.replace(".", "");
 
+                            Snapshot snapshotVersion = new Snapshot();
                             snapshotVersion.setTimestamp(timestamp);
                             snapshotVersion.setBuildNumber(Integer.parseInt(buildNumber));
 
                             snapshotVersioning.setSnapshot(snapshotVersion);
+                            snapshotVersioning.setLastUpdated(updated);
                         }
 
                         snapshotMetadata.setVersioning(snapshotVersioning);
