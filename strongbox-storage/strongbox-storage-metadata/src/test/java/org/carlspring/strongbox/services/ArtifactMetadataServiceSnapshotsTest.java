@@ -153,7 +153,6 @@ public class ArtifactMetadataServiceSnapshotsTest
         Assert.assertEquals("Incorrect number of versions stored in metadata!", 1, versioning.getVersions().size());
     }
 
-    @Ignore
     @Test
     public void testMetadataMerge()
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
