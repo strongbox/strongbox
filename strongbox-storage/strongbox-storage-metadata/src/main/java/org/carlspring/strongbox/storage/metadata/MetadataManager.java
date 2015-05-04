@@ -2,6 +2,7 @@ package org.carlspring.strongbox.storage.metadata;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.Snapshot;
 import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
@@ -190,8 +191,23 @@ public class MetadataManager
                         Metadata snapshotMetadata = new Metadata();
                         snapshotMetadata.setArtifactId(artifact.getArtifactId());
                         snapshotMetadata.setGroupId(artifact.getGroupId());
-                        // snapshotMetadata.setVersioning(snapshotVersions);
-                        snapshotMetadata.setVersioning(versionCollector.generateSnapshotVersions(snapshotVersions));
+
+                        Versioning snapshotVersioning = versionCollector.generateSnapshotVersions(snapshotVersions);
+                        if (!snapshotVersioning.getSnapshotVersions().isEmpty())
+                        {
+                            SnapshotVersion latest = snapshotVersioning.getSnapshotVersions().get(snapshotVersioning.getSnapshotVersions().size() - 1);
+
+                            Snapshot snapshotVersion = new Snapshot();
+                            String timestamp = latest.getVersion().substring(0, latest.getVersion().lastIndexOf("-"));
+                            String buildNumber = latest.getVersion().substring(latest.getVersion().lastIndexOf("-") + 1, latest.getVersion().length());
+
+                            snapshotVersion.setTimestamp(timestamp);
+                            snapshotVersion.setBuildNumber(Integer.parseInt(buildNumber));
+
+                            snapshotVersioning.setSnapshot(snapshotVersion);
+                        }
+
+                        snapshotMetadata.setVersioning(snapshotVersioning);
 
                         writeMetadata(snapshotBasePath, snapshotMetadata);
                     }
