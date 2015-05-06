@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.storage.metadata;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Plugin;
 import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.artifact.repository.metadata.Versioning;
@@ -25,9 +26,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author stodorov
@@ -154,39 +157,31 @@ public class VersionCollector
 
         ArtifactVersionDirectoryVisitor artifactVersionDirectoryVisitor = new ArtifactVersionDirectoryVisitor();
 
-        Pattern versionExtractor = Pattern.compile("^.*-(([0-9]{8})(.([0-9]+))?(-([0-9]+))?)((-)(.*))?$");
-
         Files.walkFileTree(artifactVersionPath, artifactVersionDirectoryVisitor);
 
         for (Path filePath : artifactVersionDirectoryVisitor.getMatchingPaths())
         {
+            Artifact artifact = ArtifactUtils.convertPathToArtifact(filePath.toString());
+
             String name = filePath.toFile().getName();
-            String baseName = FilenameUtils.getBaseName(name);
 
-            Matcher matcher = versionExtractor.matcher(baseName);
+            SnapshotVersion snapshotVersion = new SnapshotVersion();
+            snapshotVersion.setVersion(artifact.getVersion());
+            snapshotVersion.setExtension(FilenameUtils.getExtension(name));
+            snapshotVersion.setUpdated(String.valueOf(Instant.now().getEpochSecond()));
 
-            if (matcher.find())
+            if (artifact.getClassifier() != null)
             {
-                String timestamp = matcher.group(1);
-                String updated = timestamp;
-                updated = updated.replace(".", "");
-                updated = updated.substring(0, updated.lastIndexOf("-"));
-
-                SnapshotVersion snapshotVersion = new SnapshotVersion();
-                snapshotVersion.setVersion(timestamp);
-                snapshotVersion.setExtension(FilenameUtils.getExtension(name));
-                snapshotVersion.setUpdated(updated);
-
-                if (matcher.group(9) != null)
-                {
-                    snapshotVersion.setClassifier(matcher.group(9));
-                }
-
-                snapshotVersions.add(snapshotVersion);
+                snapshotVersion.setClassifier(artifact.getClassifier());
             }
+
+            snapshotVersions.add(snapshotVersion);
         }
 
-        Collections.sort(snapshotVersions, new SnapshotVersionComparator());
+        if (!snapshotVersions.isEmpty())
+        {
+            Collections.sort(snapshotVersions, new SnapshotVersionComparator());
+        }
 
         return snapshotVersions;
     }

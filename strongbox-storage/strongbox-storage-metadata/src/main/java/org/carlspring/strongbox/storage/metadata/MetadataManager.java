@@ -27,6 +27,7 @@ import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
@@ -192,22 +193,22 @@ public class MetadataManager
                         snapshotMetadata.setArtifactId(artifact.getArtifactId());
                         snapshotMetadata.setGroupId(artifact.getGroupId());
 
+                        // TODO: Figure out how to handle versions which have SNAPSHOT instead of timestamp i.e 2.0-SNAPSHOT or 2.0-SNAPSHOT-1.
                         Versioning snapshotVersioning = versionCollector.generateSnapshotVersions(snapshotVersions);
                         if (!snapshotVersioning.getSnapshotVersions().isEmpty())
                         {
-                            SnapshotVersion latest = snapshotVersioning.getSnapshotVersions().get(snapshotVersioning.getSnapshotVersions().size() - 1);
+                            SnapshotVersion latest = snapshotVersioning.getSnapshotVersions().get(
+                                    snapshotVersioning.getSnapshotVersions().size() - 1);
 
-                            String timestamp = latest.getVersion().substring(0, latest.getVersion().lastIndexOf("-"));
-                            String buildNumber = latest.getVersion().substring(latest.getVersion().lastIndexOf("-") + 1, latest.getVersion().length());
-                            String updated = timestamp;
-                            updated = updated.replace(".", "");
+                            String timestamp = ArtifactUtils.getSnapshotTimestamp(latest.getVersion());
+                            String buildNumber = ArtifactUtils.getSnapshotBuildNumber(latest.getVersion());
 
                             Snapshot snapshotVersion = new Snapshot();
                             snapshotVersion.setTimestamp(timestamp);
                             snapshotVersion.setBuildNumber(Integer.parseInt(buildNumber));
 
                             snapshotVersioning.setSnapshot(snapshotVersion);
-                            snapshotVersioning.setLastUpdated(updated);
+                            snapshotVersioning.setLastUpdated(String.valueOf(Instant.now().getEpochSecond()));
                         }
 
                         snapshotMetadata.setVersioning(snapshotVersioning);
