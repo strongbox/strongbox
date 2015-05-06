@@ -13,7 +13,7 @@ public class ArtifactVersionDirectoryVisitor
         extends SimpleFileVisitor<Path>
 {
 
-    private static final String CEHCKSUM_PATTERN = "glob:*.{md5,sha1}";
+    private static final String CHECKSUM_PATTERN = "glob:*.{md5,sha1}";
     private static final String METADATA_PATTERN = "glob:maven-metadata.*";
 
     public List<Path> matchingPaths = new ArrayList<>();
@@ -23,7 +23,7 @@ public class ArtifactVersionDirectoryVisitor
 
     public ArtifactVersionDirectoryVisitor()
     {
-        checksumFileMatcher = FileSystems.getDefault().getPathMatcher(CEHCKSUM_PATTERN);
+        checksumFileMatcher = FileSystems.getDefault().getPathMatcher(CHECKSUM_PATTERN);
         metadataFileMatcher = FileSystems.getDefault().getPathMatcher(METADATA_PATTERN);
     }
 
