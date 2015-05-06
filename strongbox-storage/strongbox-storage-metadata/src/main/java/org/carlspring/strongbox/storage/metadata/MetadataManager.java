@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -147,6 +148,9 @@ public class MetadataManager
             List<MetadataVersion> baseVersioning = request.getMetadataVersions();
             Versioning versioning = request.getVersioning();
 
+            // Set lastUpdated tag for main maven-metadata
+            versioning.setLastUpdated(String.valueOf(Instant.now().getEpochSecond()));
+
             /**
              * In a release repository we only need to generate maven-metadata.xml in the artifactBasePath
              * (i.e. org/foo/bar/maven-metadata.xml)
@@ -158,6 +162,11 @@ public class MetadataManager
                 {
                     metadata.setVersioning(request.getVersioning());
                     versioning.setRelease(baseVersioning.get(baseVersioning.size() - 1).getVersion());
+
+                    // Set <latest> by figuring out the most current upload
+                    Collections.sort(baseVersioning);
+                    String latestVersion = baseVersioning.get(baseVersioning.size() - 1).getVersion();
+                    versioning.setLatest(latestVersion);
                 }
 
                 // Write basic metadata
@@ -177,6 +186,10 @@ public class MetadataManager
                 // Don't write empty <versioning/> tags when no versions are available.
                 if (!versioning.getVersions().isEmpty())
                 {
+                    // Set <latest>
+                    String latestVersion = versioning.getVersions().get(versioning.getVersions().size()-1);
+                    versioning.setLatest(latestVersion);
+
                     metadata.setVersioning(versioning);
 
                     // Generate and write additional snapshot metadata.
@@ -193,22 +206,28 @@ public class MetadataManager
                         snapshotMetadata.setArtifactId(artifact.getArtifactId());
                         snapshotMetadata.setGroupId(artifact.getGroupId());
 
-                        // TODO: Figure out how to handle versions which have SNAPSHOT instead of timestamp i.e 2.0-SNAPSHOT or 2.0-SNAPSHOT-1.
                         Versioning snapshotVersioning = versionCollector.generateSnapshotVersions(snapshotVersions);
                         if (!snapshotVersioning.getSnapshotVersions().isEmpty())
                         {
-                            SnapshotVersion latest = snapshotVersioning.getSnapshotVersions().get(snapshotVersioning.getSnapshotVersions().size() - 1);
+                            SnapshotVersion latestSnapshot = snapshotVersioning.getSnapshotVersions().get(snapshotVersioning.getSnapshotVersions().size() - 1);
 
-                            String timestamp = ArtifactUtils.getSnapshotTimestamp(latest.getVersion());
-                            String buildNumber = ArtifactUtils.getSnapshotBuildNumber(latest.getVersion());
+                            String timestamp = ArtifactUtils.getSnapshotTimestamp(latestSnapshot.getVersion());
+                            String buildNumber = ArtifactUtils.getSnapshotBuildNumber(latestSnapshot.getVersion());
 
-                            Snapshot snapshotVersion = new Snapshot();
-                            snapshotVersion.setTimestamp(timestamp);
-                            snapshotVersion.setBuildNumber(Integer.parseInt(buildNumber));
+                            if (!StringUtils.isEmpty(timestamp) || !StringUtils.isEmpty(buildNumber))
+                            {
+                                Snapshot snapshotVersion = new Snapshot();
 
-                            snapshotVersioning.setSnapshot(snapshotVersion);
-                            snapshotVersioning.setLastUpdated(String.valueOf(Instant.now().getEpochSecond()));
+                                snapshotVersion.setTimestamp(timestamp);
+                                snapshotVersion.setBuildNumber(Integer.parseInt(buildNumber));
+
+                                snapshotVersioning.setSnapshot(snapshotVersion);
+                            }
+
                         }
+
+                        // Last updated should be present in both cases.
+                        snapshotVersioning.setLastUpdated(String.valueOf(Instant.now().getEpochSecond()));
 
                         snapshotMetadata.setVersioning(snapshotVersioning);
 

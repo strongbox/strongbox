@@ -111,6 +111,12 @@ public class VersionCollector
             }
         }
 
+        // 1.1 < 1.2 < 1.3 ....
+        if (!versions.isEmpty())
+        {
+            Collections.sort(versions, new MetadataVersionComparator());
+        }
+
         request.setMetadataVersions(versions);
         request.setVersioning(generateVersioning(versions));
 
