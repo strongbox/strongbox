@@ -197,8 +197,7 @@ public class MetadataManager
                         Versioning snapshotVersioning = versionCollector.generateSnapshotVersions(snapshotVersions);
                         if (!snapshotVersioning.getSnapshotVersions().isEmpty())
                         {
-                            SnapshotVersion latest = snapshotVersioning.getSnapshotVersions().get(
-                                    snapshotVersioning.getSnapshotVersions().size() - 1);
+                            SnapshotVersion latest = snapshotVersioning.getSnapshotVersions().get(snapshotVersioning.getSnapshotVersions().size() - 1);
 
                             String timestamp = ArtifactUtils.getSnapshotTimestamp(latest.getVersion());
                             String buildNumber = ArtifactUtils.getSnapshotBuildNumber(latest.getVersion());
@@ -212,6 +211,10 @@ public class MetadataManager
                         }
 
                         snapshotMetadata.setVersioning(snapshotVersioning);
+
+                        // Set the version that this metadata represents, if any. This is used for artifact snapshots only.
+                        // http://maven.apache.org/ref/3.2.1/maven-repository-metadata/repository-metadata.html
+                        snapshotMetadata.setVersion(version);
 
                         writeMetadata(snapshotBasePath, snapshotMetadata);
                     }
