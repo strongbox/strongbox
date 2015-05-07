@@ -22,11 +22,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
@@ -146,6 +148,9 @@ public class MetadataManager
             List<MetadataVersion> baseVersioning = request.getMetadataVersions();
             Versioning versioning = request.getVersioning();
 
+            // Set lastUpdated tag for main maven-metadata
+            versioning.setLastUpdated(String.valueOf(Instant.now().getEpochSecond()));
+
             /**
              * In a release repository we only need to generate maven-metadata.xml in the artifactBasePath
              * (i.e. org/foo/bar/maven-metadata.xml)
@@ -157,6 +162,11 @@ public class MetadataManager
                 {
                     metadata.setVersioning(request.getVersioning());
                     versioning.setRelease(baseVersioning.get(baseVersioning.size() - 1).getVersion());
+
+                    // Set <latest> by figuring out the most current upload
+                    Collections.sort(baseVersioning);
+                    String latestVersion = baseVersioning.get(baseVersioning.size() - 1).getVersion();
+                    versioning.setLatest(latestVersion);
                 }
 
                 // Write basic metadata
@@ -176,6 +186,10 @@ public class MetadataManager
                 // Don't write empty <versioning/> tags when no versions are available.
                 if (!versioning.getVersions().isEmpty())
                 {
+                    // Set <latest>
+                    String latestVersion = versioning.getVersions().get(versioning.getVersions().size()-1);
+                    versioning.setLatest(latestVersion);
+
                     metadata.setVersioning(versioning);
 
                     // Generate and write additional snapshot metadata.
@@ -195,22 +209,31 @@ public class MetadataManager
                         Versioning snapshotVersioning = versionCollector.generateSnapshotVersions(snapshotVersions);
                         if (!snapshotVersioning.getSnapshotVersions().isEmpty())
                         {
-                            SnapshotVersion latest = snapshotVersioning.getSnapshotVersions().get(snapshotVersioning.getSnapshotVersions().size() - 1);
+                            SnapshotVersion latestSnapshot = snapshotVersioning.getSnapshotVersions().get(snapshotVersioning.getSnapshotVersions().size() - 1);
 
-                            String timestamp = latest.getVersion().substring(0, latest.getVersion().lastIndexOf("-"));
-                            String buildNumber = latest.getVersion().substring(latest.getVersion().lastIndexOf("-") + 1, latest.getVersion().length());
-                            String updated = timestamp;
-                            updated = updated.replace(".", "");
+                            String timestamp = ArtifactUtils.getSnapshotTimestamp(latestSnapshot.getVersion());
+                            String buildNumber = ArtifactUtils.getSnapshotBuildNumber(latestSnapshot.getVersion());
 
-                            Snapshot snapshotVersion = new Snapshot();
-                            snapshotVersion.setTimestamp(timestamp);
-                            snapshotVersion.setBuildNumber(Integer.parseInt(buildNumber));
+                            if (!StringUtils.isEmpty(timestamp) || !StringUtils.isEmpty(buildNumber))
+                            {
+                                Snapshot snapshotVersion = new Snapshot();
 
-                            snapshotVersioning.setSnapshot(snapshotVersion);
-                            snapshotVersioning.setLastUpdated(updated);
+                                snapshotVersion.setTimestamp(timestamp);
+                                snapshotVersion.setBuildNumber(Integer.parseInt(buildNumber));
+
+                                snapshotVersioning.setSnapshot(snapshotVersion);
+                            }
+
                         }
 
+                        // Last updated should be present in both cases.
+                        snapshotVersioning.setLastUpdated(String.valueOf(Instant.now().getEpochSecond()));
+
                         snapshotMetadata.setVersioning(snapshotVersioning);
+
+                        // Set the version that this metadata represents, if any. This is used for artifact snapshots only.
+                        // http://maven.apache.org/ref/3.2.1/maven-repository-metadata/repository-metadata.html
+                        snapshotMetadata.setVersion(version);
 
                         writeMetadata(snapshotBasePath, snapshotMetadata);
                     }

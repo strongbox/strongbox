@@ -43,6 +43,8 @@ public class ArtifactMetadataServiceSnapshotsTest
 
     private static Artifact mergeArtifact;
 
+    private static Artifact artifactNoTimestamp;
+
     @Autowired
     private ArtifactMetadataService artifactMetadataService;
 
@@ -75,6 +77,9 @@ public class ArtifactMetadataServiceSnapshotsTest
                                                          3);
 
             changeCreationDate(artifact);
+
+            // Create a snapshot without a timestamp
+            artifactNoTimestamp = createSnapshot(REPOSITORY_BASEDIR.getAbsolutePath(), "org.carlspring.strongbox:strongbox-metadata-without-timestamp:2.0-SNAPSHOT:jar");
 
             // Create an artifact for metadata merging tests
             mergeArtifact = createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR.getAbsolutePath(),
