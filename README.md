@@ -17,7 +17,7 @@ Welcome to the Strongbox Maven artifact repository manager's home.
 
 # What's in the works:
 * Proxy repositories
-* Metadata
+* [Metadata](https://github.com/strongbox/strongbox/wiki/Maven-Metadata)
 * Deploy as transaction
 
 # Upcoming:
