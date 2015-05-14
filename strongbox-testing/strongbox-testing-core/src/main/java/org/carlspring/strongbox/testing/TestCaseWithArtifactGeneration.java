@@ -117,6 +117,37 @@ public class TestCaseWithArtifactGeneration
     public Artifact createTimestampedSnapshotArtifact(String repositoryBasedir,
                                                       String groupId,
                                                       String artifactId,
+                                                      String baseSnapshotVersion)
+            throws NoSuchAlgorithmException, XmlPullParserException, IOException
+    {
+        return createTimestampedSnapshotArtifact(repositoryBasedir,
+                                                 groupId,
+                                                 artifactId,
+                                                 baseSnapshotVersion,
+                                                 "jar",
+                                                 null,
+                                                 1);
+    }
+
+    public Artifact createTimestampedSnapshotArtifact(String repositoryBasedir,
+                                                      String groupId,
+                                                      String artifactId,
+                                                      String baseSnapshotVersion,
+                                                      int numberOfBuilds)
+            throws NoSuchAlgorithmException, XmlPullParserException, IOException
+    {
+        return createTimestampedSnapshotArtifact(repositoryBasedir,
+                                                 groupId,
+                                                 artifactId,
+                                                 baseSnapshotVersion,
+                                                 "jar",
+                                                 null,
+                                                 numberOfBuilds);
+    }
+
+    public Artifact createTimestampedSnapshotArtifact(String repositoryBasedir,
+                                                      String groupId,
+                                                      String artifactId,
                                                       String baseSnapshotVersion,
                                                       String[] classifiers)
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
