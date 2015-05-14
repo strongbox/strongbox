@@ -2,7 +2,6 @@ package org.carlspring.strongbox.services.impl;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.artifact.locator.handlers.ArtifactLocationGenerateMetadataOperation;
 import org.carlspring.strongbox.configuration.Configuration;
@@ -42,21 +41,14 @@ public class ArtifactMetadataServiceImpl
     @Override
     public Metadata getMetadata(String storageId,
                                 String repositoryId,
-                                Artifact artifact)
-            throws IOException,
-                   XmlPullParserException
-    {
-        return metadataManager.getMetadata(getConfiguration().getStorage(storageId).getRepository(repositoryId), artifact);
-    }
-
-    @Override
-    public Metadata getMetadata(String storageId,
-                                String repositoryId,
                                 String artifactPath)
             throws IOException,
                    XmlPullParserException
     {
-        Path artifactBasePath = ArtifactUtils.convertPathToArtifact(artifactPath).getFile().getParentFile().toPath();
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+
+        Path artifactBasePath = Paths.get(repository.getBasedir(), artifactPath);
 
         return metadataManager.getMetadata(artifactBasePath);
     }
@@ -69,18 +61,7 @@ public class ArtifactMetadataServiceImpl
         return metadataManager.getMetadata(Paths.get(artifactBasePath));
     }
 
-    @Override
-    public void rebuildMetadata(String storageId,
-                                String repositoryId,
-                                Artifact artifact)
-            throws IOException,
-                   XmlPullParserException,
-                   NoSuchAlgorithmException
-    {
-        rebuildMetadata(storageId, repositoryId, ArtifactUtils.convertArtifactToPath(artifact));
-    }
-
-    public void rebuildMetadata(String storageId, String repositoryId, String artifactPath)
+    public void rebuildMetadata(String storageId, String repositoryId, String basePath)
             throws IOException,
                    XmlPullParserException,
                    NoSuchAlgorithmException
@@ -91,6 +72,7 @@ public class ArtifactMetadataServiceImpl
         ArtifactLocationGenerateMetadataOperation operation = new ArtifactLocationGenerateMetadataOperation(metadataManager);
         operation.setStorage(storage);
         operation.setRepository(repository);
+        operation.setBasePath(basePath);
 
         ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
         locator.setOperation(operation);

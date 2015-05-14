@@ -32,7 +32,7 @@ public class BasicRepositoryServiceImpl
             final String artifactPath = ArtifactUtils.convertArtifactToPath(artifact);
 
             final File repositoryBasedir = new File(repository.getStorage().getBasedir(), repository.getId());
-            final File artifactFile = new File(repositoryBasedir, artifactPath);
+            final File artifactFile = new File(repositoryBasedir, artifactPath).getAbsoluteFile();
 
             return artifactFile.exists();
         }

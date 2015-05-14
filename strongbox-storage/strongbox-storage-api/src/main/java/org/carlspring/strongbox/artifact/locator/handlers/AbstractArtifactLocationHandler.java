@@ -1,13 +1,19 @@
 package org.carlspring.strongbox.artifact.locator.handlers;
 
+import org.carlspring.strongbox.io.filters.ArtifactVersionDirectoryFilter;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
-import java.util.ArrayList;
+import java.io.File;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
  * @author mtodorov
+ * @author stodorov
  */
 public abstract class AbstractArtifactLocationHandler
     implements ArtifactDirectoryOperation
@@ -17,7 +23,7 @@ public abstract class AbstractArtifactLocationHandler
 
     private Repository repository;
 
-    private List<String> visitedRootPaths = new ArrayList<>();
+    private LinkedHashMap<String, List<File>> visitedRootPaths = new LinkedHashMap<>();
 
     /**
      * The base path within the repository from where to start scanning for artifacts.
@@ -25,9 +31,28 @@ public abstract class AbstractArtifactLocationHandler
     private String basePath;
 
 
-    public List<String> getVisitedRootPaths()
+    public LinkedHashMap<String, List<File>> getVisitedRootPaths()
     {
         return visitedRootPaths;
+    }
+
+    public List<File> getVersionDirectories(Path basePath)
+    {
+        File basedir = basePath.toFile();
+        File[] versionDirectories = basedir.listFiles(new ArtifactVersionDirectoryFilter());
+
+        if (versionDirectories != null)
+        {
+            List<File> directories = Arrays.asList(versionDirectories);
+
+            Collections.sort(directories);
+
+            return directories;
+        }
+        else
+        {
+            return null;
+        }
     }
 
     @Override

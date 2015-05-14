@@ -14,21 +14,6 @@ public interface ArtifactMetadataService
 {
 
     /**
-     * Get artifact metadata.
-     *
-     * @param storageId     String
-     * @param repositoryId  String
-     * @param artifact      Artifact
-     *
-     * @return Metadata
-     *
-     * @throws IOException
-     * @throws XmlPullParserException
-     */
-    Metadata getMetadata(String storageId, String repositoryId, Artifact artifact)
-            throws IOException, XmlPullParserException;
-
-    /**
      * Get artifact metadata using artifactPath(string) instead of Artifact.
      *
      * @param storageId     String
@@ -55,19 +40,6 @@ public interface ArtifactMetadataService
      */
     Metadata getMetadata(String artifactBasePath)
             throws IOException, XmlPullParserException;
-
-    /**
-     * Rebuild metadata for artifact
-     *
-     * @param storageId     String
-     * @param repositoryId  String
-     * @param artifact      Artifact
-     *
-     * @throws IOException
-     * @throws XmlPullParserException
-     */
-    void rebuildMetadata(String storageId, String repositoryId, Artifact artifact)
-            throws IOException, XmlPullParserException, NoSuchAlgorithmException;
 
     /**
      * Rebuild metadata for artifact using artifactPath (string)
