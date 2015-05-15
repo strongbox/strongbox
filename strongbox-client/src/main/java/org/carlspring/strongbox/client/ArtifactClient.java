@@ -184,6 +184,23 @@ public class ArtifactClient
         }
     }
 
+    public InputStream getResource(String path)
+            throws ArtifactTransportException,
+                   IOException
+    {
+        Client client = ClientBuilder.newClient();
+
+        String url = getContextBaseUrl() + (!path.startsWith("/") ? "/" : "") + path;
+
+        logger.debug("Getting " + url + "...");
+
+        WebTarget webResource = client.target(url);
+        setupAuthentication(webResource);
+        Response response = webResource.request(MediaType.TEXT_PLAIN).get();
+
+        return response.readEntity(InputStream.class);
+    }
+
     public void deleteArtifact(Artifact artifact,
                                String storageId,
                                String repositoryId)

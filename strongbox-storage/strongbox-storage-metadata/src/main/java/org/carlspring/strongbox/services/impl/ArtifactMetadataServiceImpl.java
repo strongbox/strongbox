@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
@@ -59,6 +60,13 @@ public class ArtifactMetadataServiceImpl
                    XmlPullParserException
     {
         return metadataManager.getMetadata(Paths.get(artifactBasePath));
+    }
+
+    @Override
+    public Metadata getMetadata(InputStream is)
+            throws IOException, XmlPullParserException
+    {
+        return metadataManager.getMetadata(is);
     }
 
     public void rebuildMetadata(String storageId, String repositoryId, String basePath)

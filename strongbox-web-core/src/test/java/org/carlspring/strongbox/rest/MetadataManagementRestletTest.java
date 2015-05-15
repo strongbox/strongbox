@@ -1,19 +1,21 @@
 package org.carlspring.strongbox.rest;
 
+import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
+import java.io.InputStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author mtodorov
@@ -30,6 +32,9 @@ public class MetadataManagementRestletTest
     public static boolean INITIALIZED = false;
 
     private static RestClient client = new RestClient();
+
+    @Autowired
+    private ArtifactMetadataService artifactMetadataService;
 
 
     @Before
@@ -64,6 +69,13 @@ public class MetadataManagementRestletTest
 
         assertEquals("Received unexpected response!", 200, response);
         assertTrue("Failed to rebuild release metadata!", client.pathExists(metadataPath));
+
+        InputStream is = client.getResource(metadataPath);
+        Metadata metadata = artifactMetadataService.getMetadata(is);
+
+        assertNotNull("Incorrect metadata!", metadata.getVersioning());
+        assertNotNull("Incorrect metadata!", metadata.getVersioning().getLatest());
+        assertEquals("Incorrect metadata!", "3.1", metadata.getVersioning().getLatest());
     }
 
     @Test
@@ -80,6 +92,12 @@ public class MetadataManagementRestletTest
 
         assertEquals("Received unexpected response!", 200, response);
         assertTrue("Failed to rebuild snapshots metadata!", client.pathExists(metadataPath));
+
+        InputStream is = client.getResource(metadataPath);
+        Metadata metadata = artifactMetadataService.getMetadata(is);
+
+        assertNotNull("Incorrect metadata!", metadata.getVersioning());
+        assertNotNull("Incorrect metadata!", metadata.getVersioning().getLatest());
     }
 
     @Test
@@ -107,6 +125,18 @@ public class MetadataManagementRestletTest
         assertFalse("Failed to rebuild snapshot metadata!", client.pathExists(metadataPath1));
         assertTrue("Failed to rebuild snapshot metadata!", client.pathExists(metadataPath2));
         assertTrue("Failed to rebuild snapshot metadata!", client.pathExists(metadataPath3));
+
+        InputStream is = client.getResource(metadataPath2);
+        Metadata metadata2 = artifactMetadataService.getMetadata(is);
+
+        assertNotNull("Incorrect metadata!", metadata2.getVersioning());
+        assertNotNull("Incorrect metadata!", metadata2.getVersioning().getLatest());
+
+        is = client.getResource(metadataPath3);
+        Metadata metadata3 = artifactMetadataService.getMetadata(is);
+
+        assertNotNull("Incorrect metadata!", metadata3.getVersioning());
+        assertNotNull("Incorrect metadata!", metadata3.getVersioning().getLatest());
     }
 
 }

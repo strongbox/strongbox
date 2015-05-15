@@ -5,6 +5,7 @@ import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 
 /**
@@ -39,6 +40,17 @@ public interface ArtifactMetadataService
      * @throws XmlPullParserException
      */
     Metadata getMetadata(String artifactBasePath)
+            throws IOException, XmlPullParserException;
+
+    /**
+     * Get artifact metadata using an InputStream.
+     *
+     * @return Metadata
+     *
+     * @throws IOException
+     * @throws XmlPullParserException
+     */
+    Metadata getMetadata(InputStream is)
             throws IOException, XmlPullParserException;
 
     /**

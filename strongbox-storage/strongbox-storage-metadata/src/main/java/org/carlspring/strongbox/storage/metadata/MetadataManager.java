@@ -49,37 +49,6 @@ public class MetadataManager
     {
     }
 
-    /**
-     * Returns artifact metadata instance
-     *
-     * @param artifactBasePath Path
-     * @return Metadata
-     * @throws java.io.IOException
-     * @throws org.codehaus.plexus.util.xml.pull.XmlPullParserException
-     */
-    public Metadata getMetadata(Path artifactBasePath)
-            throws IOException, XmlPullParserException
-    {
-        File metadataFile = getMetadataFile(artifactBasePath);
-        Metadata metadata = null;
-        FileInputStream fis = null;
-
-        try
-        {
-            fis = new FileInputStream(metadataFile);
-
-            MetadataXpp3Reader reader = new MetadataXpp3Reader();
-
-            metadata = reader.read(fis);
-        }
-        finally
-        {
-            ResourceCloser.close(fis, logger);
-        }
-
-        return metadata;
-    }
-
     public Metadata getMetadata(Repository repository, Artifact artifact)
             throws IOException, XmlPullParserException
     {
@@ -101,6 +70,62 @@ public class MetadataManager
         else
         {
             throw new IOException("Artifact " + artifact.toString() + " does not exist in " + repository.getStorage().getBasedir() +"/" + repository.getBasedir() + " !");
+        }
+
+        return metadata;
+    }
+
+    /**
+     * Returns artifact metadata instance
+     *
+     * @param artifactBasePath Path
+     * @return Metadata
+     * @throws java.io.IOException
+     * @throws org.codehaus.plexus.util.xml.pull.XmlPullParserException
+     */
+    public Metadata getMetadata(Path artifactBasePath)
+            throws IOException, XmlPullParserException
+    {
+        File metadataFile = getMetadataFile(artifactBasePath);
+        Metadata metadata = null;
+        FileInputStream fis = null;
+
+        try
+        {
+            fis = new FileInputStream(metadataFile);
+
+            metadata = getMetadata(fis);
+        }
+        finally
+        {
+            ResourceCloser.close(fis, logger);
+        }
+
+        return metadata;
+    }
+
+    /**
+     * Returns artifact metadata instance
+     *
+     * @param is    The InputStream from which to read the Metadata.
+     * @return Metadata
+     * @throws java.io.IOException
+     * @throws org.codehaus.plexus.util.xml.pull.XmlPullParserException
+     */
+    public Metadata getMetadata(InputStream is)
+            throws IOException, XmlPullParserException
+    {
+        Metadata metadata = null;
+
+        try
+        {
+            MetadataXpp3Reader reader = new MetadataXpp3Reader();
+
+            metadata = reader.read(is);
+        }
+        finally
+        {
+            ResourceCloser.close(is, logger);
         }
 
         return metadata;

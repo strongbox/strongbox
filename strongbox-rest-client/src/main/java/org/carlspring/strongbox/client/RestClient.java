@@ -383,6 +383,20 @@ public class RestClient extends ArtifactClient
         return asText;
     }
 
+    public int rebuildMetadata(String storageId, String repositoryId, String basePath)
+            throws IOException, JAXBException
+    {
+        Client client = ClientBuilder.newClient();
+
+        WebTarget resource = client.target(getContextBaseUrl() + "/metadata/" +
+                                           storageId + "/" + repositoryId + "/" + (basePath != null ? basePath : ""));
+        setupAuthentication(resource);
+
+        Response response = resource.request(MediaType.TEXT_PLAIN).post(Entity.entity("Rebuild", MediaType.APPLICATION_XML));
+
+        return response.getStatus();
+    }
+
     public void deleteTrash(String storageId, String repositoryId)
     {
         Client client = ClientBuilder.newClient();
