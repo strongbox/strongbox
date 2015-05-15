@@ -48,9 +48,6 @@ public class ArtifactMetadataServiceSnapshotsTest
     @Autowired
     private ArtifactMetadataService artifactMetadataService;
 
-    @Autowired
-    private BasicRepositoryService basicRepositoryService;
-
     private SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
 
     private Calendar calendar = Calendar.getInstance();
@@ -68,28 +65,13 @@ public class ArtifactMetadataServiceSnapshotsTest
             REPOSITORY_BASEDIR.mkdirs();
 
             // Create snapshot artifacts
-            String ga = "org.carlspring.strongbox:strongbox-metadata";
-
-            int i = 0;
-            for (; i <= 2; i++)
-            {
-                calendar.add(Calendar.SECOND, 7);
-                calendar.add(Calendar.MINUTE, 5);
-
-                String timestamp = formatter.format(calendar.getTime());
-                createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR.getAbsolutePath(),
-                                                  "org.carlspring.strongbox",
-                                                  "strongbox-metadata",
-                                                  "2.0-" + timestamp + "-" + (i + 1),
-                                                  CLASSIFIERS);
-            }
-
-            calendar.add(Calendar.SECOND, 7);
-            calendar.add(Calendar.MINUTE, 5);
-            String timestamp = formatter.format(calendar.getTime());
-
-            artifact = createSnapshot(REPOSITORY_BASEDIR.getAbsolutePath(), ga + ":2.0-" + timestamp + "-" + (i + 1) + ":jar",
-                                      new String[] { "javadoc", "sources", "source-release" });
+            artifact = createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR.getAbsolutePath(),
+                                                         "org.carlspring.strongbox",
+                                                         "strongbox-metadata",
+                                                         "2.0",
+                                                         "jar",
+                                                         CLASSIFIERS,
+                                                         3);
 
             changeCreationDate(artifact);
 
@@ -100,22 +82,19 @@ public class ArtifactMetadataServiceSnapshotsTest
             mergeArtifact = createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR.getAbsolutePath(),
                                                               "org.carlspring.strongbox",
                                                               "strongbox-metadata-merge",
-                                                              "2.0-" + formatter.format(calendar.getTime()) + "-1",
+                                                              "2.0",
                                                               CLASSIFIERS);
 
             // Create plugin artifact
-            pluginArtifact = createSnapshot(REPOSITORY_BASEDIR.getAbsolutePath(),
-                                            "org.carlspring.strongbox.maven:strongbox-metadata-plugin:" +
-                                            "1.1-" + formatter.format(calendar.getTime()) + "-1" + ":jar");
-
-            generatePluginArtifact(REPOSITORY_BASEDIR.getAbsolutePath(),
-                                   "org.carlspring.strongbox.maven:strongbox-metadata-plugin",
-                                   "1.1-SNAPSHOT");
+            pluginArtifact = createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR.getAbsolutePath(),
+                                                               "org.carlspring.strongbox.maven",
+                                                               "strongbox-metadata-plugin",
+                                                               "1.1",
+                                                               "maven-plugin",
+                                                               null);
 
             initialized = true;
         }
-
-        assertNotNull(basicRepositoryService);
     }
 
     @Test
@@ -124,7 +103,7 @@ public class ArtifactMetadataServiceSnapshotsTest
     {
         artifactMetadataService.rebuildMetadata("storage0", "snapshots", ARTIFACT_BASE_PATH_STRONGBOX_METADATA);
 
-        Metadata metadata = artifactMetadataService.getMetadata("storage0", "snapshots", artifact);
+        Metadata metadata = artifactMetadataService.getMetadata("storage0", "snapshots", "org/carlspring/strongbox/strongbox-metadata");
 
         assertNotNull(metadata);
 
@@ -143,9 +122,11 @@ public class ArtifactMetadataServiceSnapshotsTest
     public void testSnapshotPluginMetadataRebuild()
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
-        artifactMetadataService.rebuildMetadata("storage0", "snapshots", ArtifactUtils.convertArtifactToPath(pluginArtifact));
+        artifactMetadataService.rebuildMetadata("storage0",
+                                                "snapshots",
+                                                "/org/carlspring/strongbox/maven/strongbox-metadata-plugin");
 
-        Metadata metadata = artifactMetadataService.getMetadata("storage0", "snapshots", pluginArtifact);
+        Metadata metadata = artifactMetadataService.getMetadata("storage0", "snapshots", "org/carlspring/strongbox/maven/strongbox-metadata-plugin");
 
         assertNotNull(metadata);
 
@@ -163,7 +144,7 @@ public class ArtifactMetadataServiceSnapshotsTest
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
         // Generate a proper maven-metadata.xml
-        artifactMetadataService.rebuildMetadata("storage0", "snapshots", mergeArtifact);
+        artifactMetadataService.rebuildMetadata("storage0", "snapshots", "org/carlspring/strongbox/strongbox-metadata-merge");
 
         // Generate metadata to merge
         Metadata mergeMetadata = new Metadata();
@@ -185,7 +166,7 @@ public class ArtifactMetadataServiceSnapshotsTest
         // Merge
         artifactMetadataService.mergeMetadata("storage0", "snapshots", mergeArtifact, mergeMetadata);
 
-        Metadata metadata = artifactMetadataService.getMetadata("storage0", "snapshots", mergeArtifact);
+        Metadata metadata = artifactMetadataService.getMetadata("storage0", "snapshots", "org/carlspring/strongbox/strongbox-metadata-merge");
 
         assertNotNull(metadata);
 

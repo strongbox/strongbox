@@ -3,11 +3,12 @@ package org.carlspring.strongbox.services;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
+import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,12 +17,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.attribute.BasicFileAttributeView;
-import java.nio.file.attribute.FileTime;
 import java.security.NoSuchAlgorithmException;
-import java.util.concurrent.TimeUnit;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -37,6 +35,10 @@ public class ArtifactMetadataServiceReleasesTest
 
     private static Artifact artifact;
 
+    private static Artifact nestedArtifact1;
+
+    private static Artifact nestedArtifact2;
+
     private static Artifact pluginArtifact;
 
     private static Artifact mergeArtifact;
@@ -44,21 +46,18 @@ public class ArtifactMetadataServiceReleasesTest
     @Autowired
     private ArtifactMetadataService artifactMetadataService;
 
-    @Autowired
-    private BasicRepositoryService basicRepositoryService;
-
 
     @Before
     public void setUp()
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
-        if (!new File(REPOSITORY_BASEDIR, "org/carlspring/strongbox/strongbox-metadata").exists())
+        if (!new File(REPOSITORY_BASEDIR, "org/carlspring/strongbox/metadata/strongbox-metadata").exists())
         {
             //noinspection ResultOfMethodCallIgnored
             REPOSITORY_BASEDIR.mkdirs();
 
             //ArtifactGenerator generator = new ArtifactGenerator(REPOSITORY_BASEDIR.getAbsolutePath());
-            String ga = "org.carlspring.strongbox:strongbox-metadata";
+            String ga = "org.carlspring.strongbox.metadata:strongbox-metadata";
 
             // Create released artifacts
             for (int i = 0; i <= 3; i++)
@@ -73,62 +72,86 @@ public class ArtifactMetadataServiceReleasesTest
 
             changeCreationDate(artifact);
 
-            // Create an artifact for metadata merging tests
-            mergeArtifact = createRelease("org.carlspring.strongbox:strongbox-metadata-merge:1.0:jar");
+            nestedArtifact1 = createRelease("org.carlspring.strongbox.metadata.nested:foo:2.1:jar");
+            nestedArtifact2 = createRelease("org.carlspring.strongbox.metadata.nested:bar:3.1:jar");
 
-            // Create plugin artifact
-            pluginArtifact = createRelease("org.carlspring.strongbox.maven:strongbox-metadata-plugin:1.0:jar");
+            createRelease("org.carlspring.strongbox.metadata.nested:foo:2.1:jar");
+            createRelease("org.carlspring.strongbox.metadata.nested:foo:2.2:jar");
+            createRelease("org.carlspring.strongbox.metadata.nested:foo:2.3:jar");
+            createRelease("org.carlspring.strongbox.metadata.nested:bar:3.1:jar");
+            createRelease("org.carlspring.strongbox.metadata.nested:bar:3.2:jar");
+            createRelease("org.carlspring.strongbox.metadata.nested:bar:3.3:jar");
+
+            createRelease("org.carlspring.strongbox.metadata:nested:1.1:jar");
+            createRelease("org.carlspring.strongbox.metadata:nested:1.2:jar");
+
+            createRelease("org.carlspring.strongbox.metadata:utils:1.1:jar");
+            createRelease("org.carlspring.strongbox.metadata:utils:1.2:jar");
         }
-
-        assertNotNull(basicRepositoryService);
     }
 
     @Test
     public void testReleaseMetadataRebuild()
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
-        artifactMetadataService.rebuildMetadata("storage0", "releases", artifact);
+        artifactMetadataService.rebuildMetadata("storage0", "releases", "org/carlspring/strongbox/metadata");
 
-        Metadata metadata = artifactMetadataService.getMetadata("storage0", "releases", artifact);
+        Metadata metadata = artifactMetadataService.getMetadata("storage0", "releases", "org/carlspring/strongbox/metadata/strongbox-metadata");
 
         assertNotNull(metadata);
 
         Versioning versioning = metadata.getVersioning();
 
-        Assert.assertEquals("Incorrect artifactId!", artifact.getArtifactId(), metadata.getArtifactId());
-        Assert.assertEquals("Incorrect groupId!", artifact.getGroupId(), metadata.getGroupId());
+        assertEquals("Incorrect artifactId!", artifact.getArtifactId(), metadata.getArtifactId());
+        assertEquals("Incorrect groupId!", artifact.getGroupId(), metadata.getGroupId());
         // TODO: Fix this as part of SB-333:
         //Assert.assertEquals("Incorrect latest release version!", artifact.getVersion(), versioning.getRelease());
-        Assert.assertEquals("Incorrect latest release version!", "1.5", versioning.getRelease());
+        assertEquals("Incorrect latest release version!", "1.5", versioning.getRelease());
+        assertEquals("Incorrect number of versions stored in metadata!", 6, versioning.getVersions().size());
 
-        Assert.assertEquals("Incorrect number of versions stored in metadata!", 6, versioning.getVersions().size());
+        Metadata nestedMetadata1 = artifactMetadataService.getMetadata("storage0", "releases", "org/carlspring/strongbox/metadata/nested/foo");
+
+        assertNotNull(nestedMetadata1);
+
+        Metadata nestedMetadata2 = artifactMetadataService.getMetadata("storage0", "releases", "org/carlspring/strongbox/metadata/nested/bar");
+
+        assertNotNull(nestedMetadata2);
     }
 
     @Test
     public void testReleasePluginMetadataRebuild()
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
-        artifactMetadataService.rebuildMetadata("storage0", "releases", pluginArtifact);
+        // Create plugin artifact
+        generatePluginArtifact(REPOSITORY_BASEDIR.getAbsolutePath(),
+                               "org.carlspring.strongbox.metadata.maven:strongbox-metadata-plugin",
+                               "1.0");
+        pluginArtifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.metadata.maven:strongbox-metadata-plugin:1.0");
 
-        Metadata metadata = artifactMetadataService.getMetadata("storage0", "releases", pluginArtifact);
+        artifactMetadataService.rebuildMetadata("storage0", "releases", "org/carlspring/strongbox/metadata/maven/strongbox-metadata-plugin");
+
+        Metadata metadata = artifactMetadataService.getMetadata("storage0", "releases", "org/carlspring/strongbox/metadata/maven/strongbox-metadata-plugin");
 
         assertNotNull(metadata);
 
         Versioning versioning = metadata.getVersioning();
 
-        Assert.assertEquals("Incorrect artifactId!", pluginArtifact.getArtifactId(), metadata.getArtifactId());
-        Assert.assertEquals("Incorrect groupId!", pluginArtifact.getGroupId(), metadata.getGroupId());
-        Assert.assertEquals("Incorrect latest release version!", pluginArtifact.getVersion(), versioning.getRelease());
+        assertEquals("Incorrect artifactId!", pluginArtifact.getArtifactId(), metadata.getArtifactId());
+        assertEquals("Incorrect groupId!", pluginArtifact.getGroupId(), metadata.getGroupId());
+        assertEquals("Incorrect latest release version!", pluginArtifact.getVersion(), versioning.getRelease());
 
-        Assert.assertEquals("Incorrect number of versions stored in metadata!", 1, versioning.getVersions().size());
+        assertEquals("Incorrect number of versions stored in metadata!", 1, versioning.getVersions().size());
     }
 
     @Test
     public void testMetadataMerge()
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
+        // Create an artifact for metadata merging tests
+        mergeArtifact = createRelease("org.carlspring.strongbox.metadata:strongbox-metadata-merge:1.0:jar");
+
         // Generate a proper maven-metadata.xml
-        artifactMetadataService.rebuildMetadata("storage0", "releases", mergeArtifact);
+        artifactMetadataService.rebuildMetadata("storage0", "releases", "org/carlspring/strongbox/metadata/strongbox-metadata-merge");
 
         // Generate metadata to merge
         Metadata mergeMetadata = new Metadata();
@@ -144,16 +167,16 @@ public class ArtifactMetadataServiceReleasesTest
         // Merge
         artifactMetadataService.mergeMetadata("storage0", "releases", mergeArtifact, mergeMetadata);
 
-        Metadata metadata = artifactMetadataService.getMetadata("storage0", "releases", mergeArtifact);
+        Metadata metadata = artifactMetadataService.getMetadata("storage0", "releases", "org/carlspring/strongbox/metadata/strongbox-metadata-merge");
 
         assertNotNull(metadata);
 
-        Assert.assertEquals("Incorrect latest release version!",
-                            mergeMetadata.getVersioning().getRelease(),
-                            metadata.getVersioning().getRelease());
-        Assert.assertEquals("Incorrect number of versions stored in metadata!",
-                            3,
-                            metadata.getVersioning().getVersions().size());
+        assertEquals("Incorrect latest release version!",
+                     mergeMetadata.getVersioning().getRelease(),
+                     metadata.getVersioning().getRelease());
+        assertEquals("Incorrect number of versions stored in metadata!",
+                     3,
+                     metadata.getVersioning().getVersions().size());
     }
 
     /**

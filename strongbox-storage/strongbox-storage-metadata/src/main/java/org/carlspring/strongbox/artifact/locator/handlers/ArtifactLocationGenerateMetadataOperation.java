@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.artifact.locator.handlers;
 
 import org.carlspring.maven.commons.io.filters.PomFilenameFilter;
-import org.carlspring.strongbox.io.filters.ArtifactVersionDirectoryFilter;
 import org.carlspring.strongbox.storage.metadata.MetadataManager;
 import org.carlspring.strongbox.storage.metadata.VersionCollectionRequest;
 import org.carlspring.strongbox.storage.metadata.VersionCollector;
@@ -28,6 +27,8 @@ public class ArtifactLocationGenerateMetadataOperation
 
     private MetadataManager metadataManager;
 
+    private static String previousPath;
+
 
     public ArtifactLocationGenerateMetadataOperation()
     {
@@ -41,37 +42,63 @@ public class ArtifactLocationGenerateMetadataOperation
     public void execute(Path path)
     {
         File f = path.toAbsolutePath().toFile();
+
         List<String> filePaths = Arrays.asList(f.list(new PomFilenameFilter()));
 
-        if (!filePaths.isEmpty() && !getVisitedRootPaths().contains(path.getParent().toString()))
-        {
-            System.out.println(path.getParent());
+        String parentPath = path.getParent().toAbsolutePath().toString();
 
-            String parentPath = path.getParent().toAbsolutePath().toString();
-            if (!getVisitedRootPaths().isEmpty() &&
-                !parentPath.startsWith(getVisitedRootPaths().get(getVisitedRootPaths().size() - 1)))
+        if (!filePaths.isEmpty())
+        {
+            // Don't enter visited paths (i.e. version directories such as 1.2, 1.3, 1.4...)
+            if (!getVisitedRootPaths().isEmpty() && getVisitedRootPaths().containsKey(parentPath))
             {
-                getVisitedRootPaths().clear();
+                List<File> visitedVersionPaths = getVisitedRootPaths().get(parentPath);
+
+                if (visitedVersionPaths.contains(f))
+                {
+                    return;
+                }
             }
 
-            getVisitedRootPaths().add(parentPath);
+            if (logger.isDebugEnabled())
+            {
+                // We're using System.out.println() here for clarity and due to the length of the lines
+                System.out.println(parentPath);
+            }
+
+            // The current directory is out of the tree
+            if (previousPath != null && !parentPath.startsWith(previousPath))
+            {
+                getVisitedRootPaths().remove(previousPath);
+                previousPath = parentPath;
+            }
+
+            if (previousPath == null)
+            {
+                previousPath = parentPath;
+            }
 
             List<File> versionDirectories = getVersionDirectories(Paths.get(parentPath));
             if (versionDirectories != null)
             {
+                getVisitedRootPaths().put(parentPath, versionDirectories);
+
                 VersionCollector versionCollector = new VersionCollector();
                 VersionCollectionRequest request;
 
                 request = versionCollector.collectVersions(path.getParent().toAbsolutePath());
 
-                for (File directory : versionDirectories)
+                if (logger.isDebugEnabled())
                 {
-                    System.out.println(directory.getAbsolutePath());
+                    for (File directory : versionDirectories)
+                    {
+                        // We're using System.out.println() here for clarity and due to the length of the lines
+                        System.out.println(" " + directory.getAbsolutePath());
+                    }
                 }
 
-                String artifactPath = parentPath.toString().substring(getRepository().getBasedir().length(), parentPath.toString().length());
-
-                // System.out.println("artifactPath = " + artifactPath);
+                String artifactPath = parentPath.substring(getRepository().getBasedir().length() + 1,
+                                                           parentPath.length());
 
                 try
                 {
@@ -84,14 +111,6 @@ public class ArtifactLocationGenerateMetadataOperation
                 }
             }
         }
-    }
-
-    public List<File> getVersionDirectories(Path basePath)
-    {
-        File basedir = basePath.toFile();
-        File[] versionDirectories = basedir.listFiles(new ArtifactVersionDirectoryFilter());
-
-        return versionDirectories != null ? Arrays.asList(versionDirectories) : null;
     }
 
     public MetadataManager getMetadataManager()

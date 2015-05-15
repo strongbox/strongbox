@@ -43,6 +43,8 @@ public class ArtifactDirectoryLocator
 
         logger.debug("Executed (cache: " + operation.getVisitedRootPaths().size() + ")" +
                      " visits in " + (endTime - startTime) + " ms.");
+
+        getOperation().getVisitedRootPaths().clear();
     }
 
     public String getStartingPath()
@@ -56,6 +58,8 @@ public class ArtifactDirectoryLocator
         {
             basePath = "/" + basePath;
         }
+
+        System.out.println("basePath = " + rootPath + basePath);
 
         return rootPath + basePath;
     }

@@ -5,6 +5,7 @@ import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 
 /**
@@ -12,21 +13,6 @@ import java.security.NoSuchAlgorithmException;
  */
 public interface ArtifactMetadataService
 {
-
-    /**
-     * Get artifact metadata.
-     *
-     * @param storageId     String
-     * @param repositoryId  String
-     * @param artifact      Artifact
-     *
-     * @return Metadata
-     *
-     * @throws IOException
-     * @throws XmlPullParserException
-     */
-    Metadata getMetadata(String storageId, String repositoryId, Artifact artifact)
-            throws IOException, XmlPullParserException;
 
     /**
      * Get artifact metadata using artifactPath(string) instead of Artifact.
@@ -57,17 +43,15 @@ public interface ArtifactMetadataService
             throws IOException, XmlPullParserException;
 
     /**
-     * Rebuild metadata for artifact
+     * Get artifact metadata using an InputStream.
      *
-     * @param storageId     String
-     * @param repositoryId  String
-     * @param artifact      Artifact
+     * @return Metadata
      *
      * @throws IOException
      * @throws XmlPullParserException
      */
-    void rebuildMetadata(String storageId, String repositoryId, Artifact artifact)
-            throws IOException, XmlPullParserException, NoSuchAlgorithmException;
+    Metadata getMetadata(InputStream is)
+            throws IOException, XmlPullParserException;
 
     /**
      * Rebuild metadata for artifact using artifactPath (string)

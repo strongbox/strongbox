@@ -14,6 +14,8 @@ import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.FileTime;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -55,6 +57,17 @@ public class TestCaseWithArtifactGeneration
 
         ArtifactGenerator generator = new ArtifactGenerator(basedir);
         generator.generate(artifact);
+    }
+
+    public void generateArtifact(String basedir, Artifact artifact, String packaging)
+            throws IOException,
+                   XmlPullParserException,
+                   NoSuchAlgorithmException
+    {
+        artifact.setFile(new File(basedir + "/" + ArtifactUtils.convertArtifactToPath(artifact)));
+
+        ArtifactGenerator generator = new ArtifactGenerator(basedir);
+        generator.generate(artifact, packaging);
     }
 
     public void generateArtifact(String basedir, String gavtc, String... versions)
@@ -104,24 +117,106 @@ public class TestCaseWithArtifactGeneration
     public Artifact createTimestampedSnapshotArtifact(String repositoryBasedir,
                                                       String groupId,
                                                       String artifactId,
-                                                      String snapshotVersion,
+                                                      String baseSnapshotVersion)
+            throws NoSuchAlgorithmException, XmlPullParserException, IOException
+    {
+        return createTimestampedSnapshotArtifact(repositoryBasedir,
+                                                 groupId,
+                                                 artifactId,
+                                                 baseSnapshotVersion,
+                                                 "jar",
+                                                 null,
+                                                 1);
+    }
+
+    public Artifact createTimestampedSnapshotArtifact(String repositoryBasedir,
+                                                      String groupId,
+                                                      String artifactId,
+                                                      String baseSnapshotVersion,
+                                                      int numberOfBuilds)
+            throws NoSuchAlgorithmException, XmlPullParserException, IOException
+    {
+        return createTimestampedSnapshotArtifact(repositoryBasedir,
+                                                 groupId,
+                                                 artifactId,
+                                                 baseSnapshotVersion,
+                                                 "jar",
+                                                 null,
+                                                 numberOfBuilds);
+    }
+
+    public Artifact createTimestampedSnapshotArtifact(String repositoryBasedir,
+                                                      String groupId,
+                                                      String artifactId,
+                                                      String baseSnapshotVersion,
                                                       String[] classifiers)
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
-        Artifact snapshot = new DetachedArtifact(groupId, artifactId, snapshotVersion);
-        snapshot.setFile(new File(repositoryBasedir + "/" + ArtifactUtils.convertArtifactToPath(snapshot)));
+        return createTimestampedSnapshotArtifact(repositoryBasedir,
+                                                 groupId,
+                                                 artifactId,
+                                                 baseSnapshotVersion,
+                                                 "jar",
+                                                 classifiers,
+                                                 1);
+    }
 
-        generateArtifact(repositoryBasedir, snapshot);
+    public Artifact createTimestampedSnapshotArtifact(String repositoryBasedir,
+                                                      String groupId,
+                                                      String artifactId,
+                                                      String baseSnapshotVersion,
+                                                      String packaging,
+                                                      String[] classifiers)
+            throws NoSuchAlgorithmException, XmlPullParserException, IOException
+    {
+        return createTimestampedSnapshotArtifact(repositoryBasedir,
+                                                 groupId,
+                                                 artifactId,
+                                                 baseSnapshotVersion,
+                                                 packaging,
+                                                 classifiers,
+                                                 1);
+    }
 
-        if (classifiers != null)
+    public Artifact createTimestampedSnapshotArtifact(String repositoryBasedir,
+                                                      String groupId,
+                                                      String artifactId,
+                                                      String baseSnapshotVersion,
+                                                      String packaging,
+                                                      String[] classifiers,
+                                                      int numberOfBuilds)
+            throws NoSuchAlgorithmException, XmlPullParserException, IOException
+    {
+        Artifact artifact = null;
+
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
+        Calendar calendar = Calendar.getInstance();
+
+        for (int i = 0; i < numberOfBuilds; i++)
         {
-            for (String classifier : classifiers)
+            calendar.add(Calendar.SECOND, 7);
+            calendar.add(Calendar.MINUTE, 5);
+
+            String timestamp = formatter.format(calendar.getTime());
+            String version = baseSnapshotVersion + "-" + timestamp + "-" + (i + 1);
+
+            artifact = new DetachedArtifact(groupId, artifactId, version);
+            artifact.setFile(new File(repositoryBasedir + "/" + ArtifactUtils.convertArtifactToPath(artifact)));
+
+            generateArtifact(repositoryBasedir, artifact, packaging);
+
+            if (classifiers != null)
             {
-                generateArtifact(repositoryBasedir, ArtifactUtils.getArtifactFromGAVTC(groupId + ":" + artifactId + ":" + snapshotVersion + ":jar:" + classifier));
+                for (String classifier : classifiers)
+                {
+                    String gavtc = groupId + ":" + artifactId + ":" + version + ":jar:" + classifier;
+                    generateArtifact(repositoryBasedir,ArtifactUtils.getArtifactFromGAVTC(gavtc));
+                }
             }
         }
 
-        return snapshot;
+        // Return the main artifact
+        return artifact;
     }
 
     /**

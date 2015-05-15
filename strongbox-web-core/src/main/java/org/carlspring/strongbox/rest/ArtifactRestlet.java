@@ -80,11 +80,6 @@ public class ArtifactRestlet
 
         handleAuthentication(storageId, repositoryId, path, headers, request);
 
-        if (!ArtifactUtils.isArtifact(path))
-        {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
-
         InputStream is;
         try
         {

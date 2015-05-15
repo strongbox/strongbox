@@ -49,6 +49,32 @@ public class MetadataManager
     {
     }
 
+    public Metadata getMetadata(Repository repository, Artifact artifact)
+            throws IOException, XmlPullParserException
+    {
+        Metadata metadata = null;
+
+        if (basicRepositoryService.containsArtifact(repository, artifact))
+        {
+            Path artifactPath = Paths.get(basicRepositoryService.getPathToArtifact(repository, artifact));
+            Path artifactBasePath = artifactPath;
+            if (artifact.getVersion() != null)
+            {
+                artifactBasePath = artifactPath.getParent().getParent();
+            }
+
+            logger.debug("Getting metadata for " + artifactBasePath.toAbsolutePath());
+
+            metadata = getMetadata(artifactBasePath);
+        }
+        else
+        {
+            throw new IOException("Artifact " + artifact.toString() + " does not exist in " + repository.getStorage().getBasedir() +"/" + repository.getBasedir() + " !");
+        }
+
+        return metadata;
+    }
+
     /**
      * Returns artifact metadata instance
      *
@@ -68,9 +94,7 @@ public class MetadataManager
         {
             fis = new FileInputStream(metadataFile);
 
-            MetadataXpp3Reader reader = new MetadataXpp3Reader();
-
-            metadata = reader.read(fis);
+            metadata = getMetadata(fis);
         }
         finally
         {
@@ -80,23 +104,28 @@ public class MetadataManager
         return metadata;
     }
 
-    public Metadata getMetadata(Repository repository, Artifact artifact)
+    /**
+     * Returns artifact metadata instance
+     *
+     * @param is    The InputStream from which to read the Metadata.
+     * @return Metadata
+     * @throws java.io.IOException
+     * @throws org.codehaus.plexus.util.xml.pull.XmlPullParserException
+     */
+    public Metadata getMetadata(InputStream is)
             throws IOException, XmlPullParserException
     {
         Metadata metadata = null;
 
-        if (basicRepositoryService.containsArtifact(repository, artifact))
+        try
         {
-            logger.debug("Getting metadata for " + Paths.get(basicRepositoryService.getPathToArtifact(repository, artifact)).toString());
+            MetadataXpp3Reader reader = new MetadataXpp3Reader();
 
-            Path artifactPath = Paths.get(basicRepositoryService.getPathToArtifact(repository, artifact));
-            Path artifactBasePath = artifactPath.getParent().getParent();
-
-            metadata = getMetadata(artifactBasePath);
+            metadata = reader.read(is);
         }
-        else
+        finally
         {
-            throw new IOException("Artifact " + artifact.toString() + " does not exist in " + repository.getStorage().getBasedir() +"/" + repository.getBasedir() + " !");
+            ResourceCloser.close(is, logger);
         }
 
         return metadata;
@@ -117,7 +146,7 @@ public class MetadataManager
         }
         else
         {
-            throw new FileNotFoundException();
+            throw new FileNotFoundException("Could not find " + new File(artifactBasePath.toFile().getAbsolutePath() + "/maven-metadata.xml") + "!");
         }
     }
 
@@ -125,21 +154,22 @@ public class MetadataManager
      * Generate a metadata file for an artifact.
      *
      * @param repository Repository
-     * @param artifact   Artifact
      * @throws IOException
      * @throws XmlPullParserException
      * @throws NoSuchAlgorithmException
      */
-    public void generateMetadata(Repository repository, Artifact artifact, VersionCollectionRequest request)
+    public void generateMetadata(Repository repository, String path, VersionCollectionRequest request)
             throws IOException,
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
-        if (basicRepositoryService.containsPath(repository, ArtifactUtils.convertArtifactToPath(artifact)))
+        if (basicRepositoryService.containsPath(repository, path))
         {
-            logger.debug("Artifact metadata generation triggered for " + artifact.toString() +
+            logger.debug("Artifact metadata generation triggered for " + path +
                          " in '" + repository.getStorage().getId() + ":" + repository.getId() + "'" +
                          " [policy: " + repository.getPolicy() + "].");
+
+            Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
 
             Metadata metadata = new Metadata();
             metadata.setArtifactId(artifact.getArtifactId());
@@ -160,12 +190,13 @@ public class MetadataManager
                 // Don't write empty <versioning/> tags when no versions are available.
                 if (!versioning.getVersions().isEmpty())
                 {
-                    metadata.setVersioning(request.getVersioning());
-                    versioning.setRelease(baseVersioning.get(baseVersioning.size() - 1).getVersion());
-
-                    // Set <latest> by figuring out the most current upload
-                    Collections.sort(baseVersioning);
                     String latestVersion = baseVersioning.get(baseVersioning.size() - 1).getVersion();
+
+                    metadata.setVersioning(request.getVersioning());
+                    versioning.setRelease(latestVersion);
+
+                    // Set <latest> by figuring out the most recent upload
+                    Collections.sort(baseVersioning);
                     versioning.setLatest(latestVersion);
                 }
 
@@ -212,14 +243,15 @@ public class MetadataManager
                             SnapshotVersion latestSnapshot = snapshotVersioning.getSnapshotVersions().get(snapshotVersioning.getSnapshotVersions().size() - 1);
 
                             String timestamp = ArtifactUtils.getSnapshotTimestamp(latestSnapshot.getVersion());
-                            String buildNumber = ArtifactUtils.getSnapshotBuildNumber(latestSnapshot.getVersion());
+                            // Potentially revisit this for timestamps with custom formats
+                            int buildNumber = Integer.parseInt(ArtifactUtils.getSnapshotBuildNumber(latestSnapshot.getVersion()));
 
                             if (!StringUtils.isEmpty(timestamp) || !StringUtils.isEmpty(buildNumber))
                             {
                                 Snapshot snapshotVersion = new Snapshot();
 
                                 snapshotVersion.setTimestamp(timestamp);
-                                snapshotVersion.setBuildNumber(Integer.parseInt(buildNumber));
+                                snapshotVersion.setBuildNumber(buildNumber);
 
                                 snapshotVersioning.setSnapshot(snapshotVersion);
                             }
@@ -254,13 +286,6 @@ public class MetadataManager
                 throw new RuntimeException("Repository policy type unknown: " + repository.getId());
             }
 
-            /*
-            for (int i = 0; i < metadata.generateVersioning().getVersions().size(); i++)
-            {
-                logger.debug("Version: " + metadata.generateVersioning().getVersions().get(i));
-            }
-            */
-
             // If this is a plugin, we need to add an additional metadata to the groupId.artifactId path.
             if (!request.getPlugins().isEmpty())
             {
@@ -277,16 +302,8 @@ public class MetadataManager
         }
         else
         {
-            logger.error("Artifact metadata generation failed: artifact missing (" + artifact.toString() + ")");
+            logger.error("Artifact metadata generation failed: " + path + ").");
         }
-    }
-
-    public void generateMetadata(Repository repository, String artifactPath, VersionCollectionRequest request)
-            throws IOException,
-                   XmlPullParserException,
-                   NoSuchAlgorithmException
-    {
-        generateMetadata(repository, ArtifactUtils.convertPathToArtifact(artifactPath), request);
     }
 
     /**
@@ -305,9 +322,18 @@ public class MetadataManager
     {
         if (basicRepositoryService.containsArtifact(repository, artifact))
         {
-            logger.debug("Artifact merge metadata triggered for " + artifact.toString() + ". " + repository.getType());
+            Path artifactBasePath;
+            if (artifact.getFile() != null && !artifact.getFile().isDirectory())
+            {
+                artifactBasePath = artifact.getFile().toPath().getParent().getParent();
+            }
+            else
+            {
+                artifactBasePath = artifact.getFile().toPath();
+            }
 
-            Path artifactBasePath = artifact.getFile().toPath().getParent().getParent();
+            logger.debug("Artifact merge metadata triggered for " + artifact.toString() +
+                         "(" +artifactBasePath + "). " + repository.getType());
 
             try
             {
