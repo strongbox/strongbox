@@ -49,7 +49,7 @@ public class MetadataManager
     {
     }
 
-    public Metadata getMetadata(Repository repository, Artifact artifact)
+    public Metadata readMetadata(Repository repository, Artifact artifact)
             throws IOException, XmlPullParserException
     {
         Metadata metadata = null;
@@ -65,7 +65,7 @@ public class MetadataManager
 
             logger.debug("Getting metadata for " + artifactBasePath.toAbsolutePath());
 
-            metadata = getMetadata(artifactBasePath);
+            metadata = readMetadata(artifactBasePath);
         }
         else
         {
@@ -76,14 +76,14 @@ public class MetadataManager
     }
 
     /**
-     * Returns artifact metadata instance
+     * Returns an artifact metadata instance
      *
      * @param artifactBasePath Path
      * @return Metadata
      * @throws java.io.IOException
      * @throws org.codehaus.plexus.util.xml.pull.XmlPullParserException
      */
-    public Metadata getMetadata(Path artifactBasePath)
+    public Metadata readMetadata(Path artifactBasePath)
             throws IOException, XmlPullParserException
     {
         File metadataFile = getMetadataFile(artifactBasePath);
@@ -94,7 +94,7 @@ public class MetadataManager
         {
             fis = new FileInputStream(metadataFile);
 
-            metadata = getMetadata(fis);
+            metadata = readMetadata(fis);
         }
         finally
         {
@@ -112,7 +112,7 @@ public class MetadataManager
      * @throws java.io.IOException
      * @throws org.codehaus.plexus.util.xml.pull.XmlPullParserException
      */
-    public Metadata getMetadata(InputStream is)
+    public Metadata readMetadata(InputStream is)
             throws IOException, XmlPullParserException
     {
         Metadata metadata = null;
@@ -129,6 +129,30 @@ public class MetadataManager
         }
 
         return metadata;
+    }
+
+    public void storeMetadata(Path metadataBasePath, Metadata metadata)
+            throws IOException,
+                   NoSuchAlgorithmException
+    {
+        File metadataFile = getMetadataFile(metadataBasePath);
+
+        OutputStream os = null;
+        Writer writer = null;
+
+        try
+        {
+            os = new MultipleDigestOutputStream(metadataFile, new FileOutputStream(metadataFile));
+
+            writer = WriterFactory.newXmlWriter(os);
+            MetadataXpp3Writer mappingWriter = new MetadataXpp3Writer();
+            mappingWriter.write(writer, metadata);
+        }
+        finally
+        {
+            ResourceCloser.close(writer, logger);
+            ResourceCloser.close(os, logger);
+        }
     }
 
     /**
@@ -201,7 +225,7 @@ public class MetadataManager
                 }
 
                 // Write basic metadata
-                writeMetadata(request.getArtifactBasePath(), metadata);
+                storeMetadata(request.getArtifactBasePath(), metadata);
 
                 logger.debug("Generated Maven metadata for " +
                              artifact.getGroupId() + ":" +
@@ -267,12 +291,12 @@ public class MetadataManager
                         // http://maven.apache.org/ref/3.2.1/maven-repository-metadata/repository-metadata.html
                         snapshotMetadata.setVersion(version);
 
-                        writeMetadata(snapshotBasePath, snapshotMetadata);
+                        storeMetadata(snapshotBasePath, snapshotMetadata);
                     }
                 }
 
                 // Write basic metadata
-                writeMetadata(request.getArtifactBasePath(), metadata);
+                storeMetadata(request.getArtifactBasePath(), metadata);
 
                 logger.debug("Generated Maven metadata for " + artifact.getGroupId() + ":" +
                              artifact.getArtifactId() + ".");
@@ -294,7 +318,7 @@ public class MetadataManager
 
                 Path pluginMetadataPath = request.getArtifactBasePath().getParent();
 
-                writeMetadata(pluginMetadataPath, pluginMetadata);
+                storeMetadata(pluginMetadataPath, pluginMetadata);
 
                 logger.debug("Generated Maven plugin metadata for " + artifact.getGroupId() + ":" +
                              artifact.getArtifactId() + ".");
@@ -337,7 +361,7 @@ public class MetadataManager
 
             try
             {
-                Metadata metadata = getMetadata(repository, artifact);
+                Metadata metadata = readMetadata(repository, artifact);
                 metadata.merge(mergeMetadata);
 
                 Versioning versioning = metadata.getVersioning();
@@ -350,7 +374,7 @@ public class MetadataManager
                     Collections.sort(versioning.getSnapshotVersions(), new SnapshotVersionComparator());
                 }
 
-                writeMetadata(artifactBasePath, metadata);
+                storeMetadata(artifactBasePath, metadata);
             }
             catch (FileNotFoundException e)
             {
@@ -362,30 +386,6 @@ public class MetadataManager
         {
             throw new IOException("Artifact " + artifact.toString() + " does not exist in " +
                                   repository.getStorage().getBasedir() +"/" + repository.getBasedir() + " !");
-        }
-    }
-
-    private void writeMetadata(Path metadataBasePath, Metadata metadata)
-            throws IOException,
-                   NoSuchAlgorithmException
-    {
-        File metadataFile = getMetadataFile(metadataBasePath);
-
-        OutputStream os = null;
-        Writer writer = null;
-
-        try
-        {
-            os = new MultipleDigestOutputStream(metadataFile, new FileOutputStream(metadataFile));
-
-            writer = WriterFactory.newXmlWriter(os);
-            MetadataXpp3Writer mappingWriter = new MetadataXpp3Writer();
-            mappingWriter.write(writer, metadata);
-        }
-        finally
-        {
-            ResourceCloser.close(writer, logger);
-            ResourceCloser.close(os, logger);
         }
     }
 
