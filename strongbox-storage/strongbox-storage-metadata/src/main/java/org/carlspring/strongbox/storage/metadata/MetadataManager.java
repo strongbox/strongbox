@@ -24,13 +24,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import javax.xml.bind.Unmarshaller;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author stodorov
@@ -40,6 +44,8 @@ public class MetadataManager
 {
 
     private static final Logger logger = LoggerFactory.getLogger(MetadataManager.class);
+
+    private ReentrantLock lock = new ReentrantLock();
 
     @Autowired
     private BasicRepositoryService basicRepositoryService;
@@ -142,14 +148,20 @@ public class MetadataManager
 
         try
         {
+            lock.lock();
+
             os = new MultipleDigestOutputStream(metadataFile, new FileOutputStream(metadataFile));
 
             writer = WriterFactory.newXmlWriter(os);
             MetadataXpp3Writer mappingWriter = new MetadataXpp3Writer();
             mappingWriter.write(writer, metadata);
+
+            os.flush();
         }
         finally
         {
+            lock.unlock();
+
             ResourceCloser.close(writer, logger);
             ResourceCloser.close(os, logger);
         }
@@ -203,7 +215,7 @@ public class MetadataManager
             Versioning versioning = request.getVersioning();
 
             // Set lastUpdated tag for main maven-metadata
-            versioning.setLastUpdated(String.valueOf(Instant.now().getEpochSecond()));
+            MetadataHelper.setLastUpdated(versioning);
 
             /**
              * In a release repository we only need to generate maven-metadata.xml in the artifactBasePath
@@ -223,6 +235,9 @@ public class MetadataManager
                     Collections.sort(baseVersioning);
                     versioning.setLatest(latestVersion);
                 }
+
+                // Touch the lastUpdated field
+                MetadataHelper.setLastUpdated(versioning);
 
                 // Write basic metadata
                 storeMetadata(request.getArtifactBasePath(), metadata);
@@ -279,16 +294,15 @@ public class MetadataManager
 
                                 snapshotVersioning.setSnapshot(snapshotVersion);
                             }
-
                         }
 
                         // Last updated should be present in both cases.
-                        snapshotVersioning.setLastUpdated(String.valueOf(Instant.now().getEpochSecond()));
+                        MetadataHelper.setLastUpdated(snapshotVersioning);
 
                         snapshotMetadata.setVersioning(snapshotVersioning);
 
                         // Set the version that this metadata represents, if any. This is used for artifact snapshots only.
-                        // http://maven.apache.org/ref/3.2.1/maven-repository-metadata/repository-metadata.html
+                        // http://maven.apache.org/ref/3.3.3/maven-repository-metadata/repository-metadata.html
                         snapshotMetadata.setVersion(version);
 
                         storeMetadata(snapshotBasePath, snapshotMetadata);

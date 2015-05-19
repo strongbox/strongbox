@@ -8,7 +8,6 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +18,9 @@ import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -35,14 +36,6 @@ public class ArtifactMetadataServiceReleasesTest
 
     private static Artifact artifact;
 
-    private static Artifact nestedArtifact1;
-
-    private static Artifact nestedArtifact2;
-
-    private static Artifact pluginArtifact;
-
-    private static Artifact mergeArtifact;
-
     @Autowired
     private ArtifactMetadataService artifactMetadataService;
 
@@ -56,7 +49,6 @@ public class ArtifactMetadataServiceReleasesTest
             //noinspection ResultOfMethodCallIgnored
             REPOSITORY_BASEDIR.mkdirs();
 
-            //ArtifactGenerator generator = new ArtifactGenerator(REPOSITORY_BASEDIR.getAbsolutePath());
             String ga = "org.carlspring.strongbox.metadata:strongbox-metadata";
 
             // Create released artifacts
@@ -72,8 +64,8 @@ public class ArtifactMetadataServiceReleasesTest
 
             changeCreationDate(artifact);
 
-            nestedArtifact1 = createRelease("org.carlspring.strongbox.metadata.nested:foo:2.1:jar");
-            nestedArtifact2 = createRelease("org.carlspring.strongbox.metadata.nested:bar:3.1:jar");
+            createRelease("org.carlspring.strongbox.metadata.nested:foo:2.1:jar");
+            createRelease("org.carlspring.strongbox.metadata.nested:bar:3.1:jar");
 
             createRelease("org.carlspring.strongbox.metadata.nested:foo:2.1:jar");
             createRelease("org.carlspring.strongbox.metadata.nested:foo:2.2:jar");
@@ -119,6 +111,32 @@ public class ArtifactMetadataServiceReleasesTest
     }
 
     @Test
+    public void testDeleteVersionFromMetadata()
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException
+    {
+        createRelease("org.carlspring.strongbox:deleted:1.0:jar");
+        createRelease("org.carlspring.strongbox:deleted:1.1:jar");
+        createRelease("org.carlspring.strongbox:deleted:1.2:jar");
+        createRelease("org.carlspring.strongbox:deleted:1.3:jar");
+
+        String artifactPath = "org/carlspring/strongbox/deleted";
+
+        artifactMetadataService.rebuildMetadata("storage0", "releases", artifactPath);
+
+        Metadata metadataBefore = artifactMetadataService.getMetadata("storage0", "releases", artifactPath);
+
+        assertNotNull(metadataBefore);
+        assertTrue("Unexpected set of versions!", metadataBefore.getVersioning().getVersions().contains("1.3"));
+
+        artifactMetadataService.removeVersion("storage0", "releases", artifactPath, "1.3");
+
+        Metadata metadataAfter = artifactMetadataService.getMetadata("storage0", "releases", artifactPath);
+
+        assertNotNull(metadataAfter);
+        assertFalse("Unexpected set of versions!", metadataAfter.getVersioning().getVersions().contains("1.3"));
+    }
+
+    @Test
     public void testReleasePluginMetadataRebuild()
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
@@ -126,7 +144,7 @@ public class ArtifactMetadataServiceReleasesTest
         generatePluginArtifact(REPOSITORY_BASEDIR.getAbsolutePath(),
                                "org.carlspring.strongbox.metadata.maven:strongbox-metadata-plugin",
                                "1.0");
-        pluginArtifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.metadata.maven:strongbox-metadata-plugin:1.0");
+        Artifact pluginArtifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.metadata.maven:strongbox-metadata-plugin:1.0");
 
         artifactMetadataService.rebuildMetadata("storage0", "releases", "org/carlspring/strongbox/metadata/maven/strongbox-metadata-plugin");
 
@@ -148,7 +166,7 @@ public class ArtifactMetadataServiceReleasesTest
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
         // Create an artifact for metadata merging tests
-        mergeArtifact = createRelease("org.carlspring.strongbox.metadata:strongbox-metadata-merge:1.0:jar");
+        Artifact mergeArtifact = createRelease("org.carlspring.strongbox.metadata:strongbox-metadata-merge:1.0:jar");
 
         // Generate a proper maven-metadata.xml
         artifactMetadataService.rebuildMetadata("storage0", "releases", "org/carlspring/strongbox/metadata/strongbox-metadata-merge");

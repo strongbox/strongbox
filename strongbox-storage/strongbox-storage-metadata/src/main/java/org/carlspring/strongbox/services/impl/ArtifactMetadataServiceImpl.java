@@ -2,12 +2,15 @@ package org.carlspring.strongbox.services.impl;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.Versioning;
+import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.artifact.locator.handlers.ArtifactLocationGenerateMetadataOperation;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -19,9 +22,12 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
+import java.util.List;
 
 /**
  * @author stodorov
+ * @author mtodorov
  */
 @Component
 public class ArtifactMetadataServiceImpl
@@ -51,7 +57,7 @@ public class ArtifactMetadataServiceImpl
 
         Path artifactBasePath = Paths.get(repository.getBasedir(), artifactPath);
 
-        return metadataManager.getMetadata(artifactBasePath);
+        return metadataManager.readMetadata(artifactBasePath);
     }
 
     @Override
@@ -59,14 +65,14 @@ public class ArtifactMetadataServiceImpl
             throws IOException,
                    XmlPullParserException
     {
-        return metadataManager.getMetadata(Paths.get(artifactBasePath));
+        return metadataManager.readMetadata(Paths.get(artifactBasePath));
     }
 
     @Override
     public Metadata getMetadata(InputStream is)
             throws IOException, XmlPullParserException
     {
-        return metadataManager.getMetadata(is);
+        return metadataManager.readMetadata(is);
     }
 
     public void rebuildMetadata(String storageId, String repositoryId, String basePath)
@@ -99,6 +105,31 @@ public class ArtifactMetadataServiceImpl
         Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
 
         metadataManager.mergeMetadata(repository, artifact, mergeMetadata);
+    }
+
+    @Override
+    public void removeVersion(String storageId, String repositoryId, String artifactPath, String version)
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException
+    {
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+
+        Path artifactBasePath = Paths.get(repository.getBasedir(), artifactPath);
+
+        Metadata metadata = getMetadata(artifactBasePath.toAbsolutePath().toString());
+        Versioning versioning = metadata.getVersioning();
+
+        // Update the latest field
+        MetadataHelper.setLatest(metadata, version);
+        // Update the release field
+        MetadataHelper.setRelease(metadata, version);
+        // Update the lastUpdated field
+        MetadataHelper.setLastUpdated(metadata.getVersioning());
+
+        // Remove the version
+        versioning.removeVersion(version);
+
+        metadataManager.storeMetadata(artifactBasePath, metadata);
     }
 
     public Configuration getConfiguration()

@@ -4,6 +4,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Snapshot;
 import org.apache.maven.artifact.repository.metadata.Versioning;
+import org.carlspring.maven.commons.DetachedArtifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
@@ -20,7 +21,9 @@ import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author stodorov
@@ -109,13 +112,44 @@ public class ArtifactMetadataServiceSnapshotsTest
 
         Versioning versioning = metadata.getVersioning();
 
-        Assert.assertEquals("Incorrect artifactId!", artifact.getArtifactId(), metadata.getArtifactId());
-        Assert.assertEquals("Incorrect groupId!", artifact.getGroupId(), metadata.getGroupId());
-        //Assert.assertEquals("Incorrect latest release version!", artifact.getVersion(), versioning.getRelease());
+        assertEquals("Incorrect artifactId!", artifact.getArtifactId(), metadata.getArtifactId());
+        assertEquals("Incorrect groupId!", artifact.getGroupId(), metadata.getGroupId());
+        //assertEquals("Incorrect latest release version!", artifact.getVersion(), versioning.getRelease());
 
-        Assert.assertNotNull("No versioning information could be found in the metadata!",
-                             versioning.getVersions().size());
-        Assert.assertEquals("Incorrect number of versions stored in metadata!", 1, versioning.getVersions().size());
+        assertNotNull("No versioning information could be found in the metadata!",
+                      versioning.getVersions().size());
+        assertEquals("Incorrect number of versions stored in metadata!", 1, versioning.getVersions().size());
+    }
+
+    @Test
+    public void testSnapshotWithoutTimestampMetadataRebuild()
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException
+    {
+        String version = "2.0-SNAPSHOT";
+
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), "org.carlspring.strongbox.snapshots:metadata:" + version);
+        final String artifactPath = "org/carlspring/strongbox/snapshots/metadata";
+
+        Artifact snapshotArtifact = new DetachedArtifact("org.carlspring.strongbox.snapshots", "metadata", version);
+
+        artifactMetadataService.rebuildMetadata("storage0", "snapshots", artifactPath);
+
+        Metadata metadata = artifactMetadataService.getMetadata("storage0", "snapshots", artifactPath);
+
+        assertNotNull(metadata);
+
+        Versioning versioning = metadata.getVersioning();
+
+        assertEquals("Incorrect artifactId!", snapshotArtifact.getArtifactId(), metadata.getArtifactId());
+        assertEquals("Incorrect groupId!", snapshotArtifact.getGroupId(), metadata.getGroupId());
+        //assertEquals("Incorrect latest release version!", artifact.getVersion(), versioning.getRelease());
+
+        assertNotNull("No versioning information could be found in the metadata!",
+                      versioning.getVersions().size());
+        assertEquals("Incorrect number of versions stored in metadata!", 1, versioning.getVersions().size());
+        assertEquals(version, metadata.getVersion());
+        assertEquals(version, versioning.getLatest());
+        assertNotNull("Failed to set lastUpdated field!", versioning.getLastUpdated());
     }
 
     @Test
@@ -132,11 +166,11 @@ public class ArtifactMetadataServiceSnapshotsTest
 
         Versioning versioning = metadata.getVersioning();
 
-        Assert.assertEquals("Incorrect artifactId!", pluginArtifact.getArtifactId(), metadata.getArtifactId());
-        Assert.assertEquals("Incorrect groupId!", pluginArtifact.getGroupId(), metadata.getGroupId());
-        Assert.assertNull("Incorrect latest release version!", versioning.getRelease());
+        assertEquals("Incorrect artifactId!", pluginArtifact.getArtifactId(), metadata.getArtifactId());
+        assertEquals("Incorrect groupId!", pluginArtifact.getGroupId(), metadata.getGroupId());
+        assertNull("Incorrect latest release version!", versioning.getRelease());
 
-        Assert.assertEquals("Incorrect number of versions stored in metadata!", 1, versioning.getVersions().size());
+        assertEquals("Incorrect number of versions stored in metadata!", 1, versioning.getVersions().size());
     }
 
     @Test
@@ -170,11 +204,11 @@ public class ArtifactMetadataServiceSnapshotsTest
 
         assertNotNull(metadata);
 
-        Assert.assertEquals("Incorrect latest release version!", "1.3-SNAPSHOT", metadata.getVersioning().getLatest());
-        // Assert.assertEquals("Incorrect latest release version!", null, metadata.getVersioning().getRelease());
-        Assert.assertEquals("Incorrect number of versions stored in metadata!",
-                            3,
-                            metadata.getVersioning().getVersions().size());
+        assertEquals("Incorrect latest release version!", "1.3-SNAPSHOT", metadata.getVersioning().getLatest());
+        // assertEquals("Incorrect latest release version!", null, metadata.getVersioning().getRelease());
+        assertEquals("Incorrect number of versions stored in metadata!",
+                     3,
+                     metadata.getVersioning().getVersions().size());
     }
 
 }

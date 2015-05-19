@@ -80,4 +80,18 @@ public interface ArtifactMetadataService
     void mergeMetadata(String storageId, String repositoryId, Artifact artifact, Metadata mergeMetadata)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException;
 
+    /**
+     * Removes an existing version from the metadata file.
+     *
+     * @param storageId
+     * @param repositoryId
+     * @param artifactPath
+     * @param version
+     * @throws IOException
+     * @throws XmlPullParserException
+     * @throws NoSuchAlgorithmException
+     */
+    void removeVersion(String storageId, String repositoryId, String artifactPath, String version)
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException;
+
 }

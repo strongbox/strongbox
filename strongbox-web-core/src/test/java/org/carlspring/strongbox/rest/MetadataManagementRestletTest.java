@@ -44,7 +44,7 @@ public class MetadataManagementRestletTest
         if (!INITIALIZED)
         {
             // Generate releases
-            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(), "org.carlspring.strongbox.metadata:strongbox-metadata", new String[]{"3.0.1", "3.0.2", "3.1"});
+            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(), "org.carlspring.strongbox.metadata:strongbox-metadata", new String[]{"3.0.1", "3.0.2", "3.1", "3.2"});
 
             // Generate snapshots
             createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_SNAPSHOTS.getAbsolutePath(), "org.carlspring.strongbox.metadata", "strongbox-metadata", "3.0.1", 3);
@@ -56,10 +56,12 @@ public class MetadataManagementRestletTest
     }
 
     @Test
-    public void testRebuildReleaseMetadata()
+    public void testRebuildReleaseMetadataAndDeleteAVersion()
             throws Exception
     {
         String metadataPath = "/storages/storage0/releases/org/carlspring/strongbox/metadata/strongbox-metadata/maven-metadata.xml";
+
+        String artifactPath = "org/carlspring/strongbox/metadata/strongbox-metadata";
 
         assertFalse("Metadata already exists!", client.pathExists(metadataPath));
 
@@ -71,11 +73,23 @@ public class MetadataManagementRestletTest
         assertTrue("Failed to rebuild release metadata!", client.pathExists(metadataPath));
 
         InputStream is = client.getResource(metadataPath);
-        Metadata metadata = artifactMetadataService.getMetadata(is);
+        Metadata metadataBefore = artifactMetadataService.getMetadata(is);
 
-        assertNotNull("Incorrect metadata!", metadata.getVersioning());
-        assertNotNull("Incorrect metadata!", metadata.getVersioning().getLatest());
-        assertEquals("Incorrect metadata!", "3.1", metadata.getVersioning().getLatest());
+        assertNotNull("Incorrect metadata!", metadataBefore.getVersioning());
+        assertNotNull("Incorrect metadata!", metadataBefore.getVersioning().getLatest());
+        assertEquals("Incorrect metadata!", "3.2", metadataBefore.getVersioning().getLatest());
+
+        response = client.removeVersionFromMetadata("storage0", "releases", artifactPath, "3.2");
+
+        assertEquals("Received unexpected response!", 200, response);
+
+        is = client.getResource(metadataPath);
+        Metadata metadataAfter = artifactMetadataService.getMetadata(is);
+
+        assertNotNull("Incorrect metadata!", metadataAfter.getVersioning());
+        assertFalse("Unexpected set of versions!", metadataAfter.getVersioning().getVersions().contains("3.2"));
+        assertNotNull("Incorrect metadata!", metadataAfter.getVersioning().getLatest());
+        assertEquals("Incorrect metadata!", "3.1", metadataAfter.getVersioning().getLatest());
     }
 
     @Test
