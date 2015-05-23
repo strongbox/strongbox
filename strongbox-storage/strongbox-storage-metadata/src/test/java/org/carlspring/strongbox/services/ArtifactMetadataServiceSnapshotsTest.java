@@ -45,7 +45,6 @@ public class ArtifactMetadataServiceSnapshotsTest
 
     private static Artifact mergeArtifact;
 
-    private static Artifact artifactNoTimestamp;
 
     @Autowired
     private ArtifactMetadataService artifactMetadataService;
@@ -78,7 +77,7 @@ public class ArtifactMetadataServiceSnapshotsTest
             changeCreationDate(artifact);
 
             // Create a snapshot without a timestamp
-            artifactNoTimestamp = createSnapshot(REPOSITORY_BASEDIR.getAbsolutePath(), "org.carlspring.strongbox:strongbox-metadata-without-timestamp:2.0-SNAPSHOT:jar");
+            // artifactNoTimestamp = createSnapshot(REPOSITORY_BASEDIR.getAbsolutePath(), "org.carlspring.strongbox:strongbox-metadata-without-timestamp:2.0-SNAPSHOT:jar");
 
             // Create an artifact for metadata merging tests
             mergeArtifact = createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR.getAbsolutePath(),
@@ -156,7 +155,6 @@ public class ArtifactMetadataServiceSnapshotsTest
         assertEquals("Incorrect number of versions stored in metadata!", 1, snapshotVersioning.getVersions().size());
         assertEquals(version, snapshotVersioning.getLatest());
         assertNotNull("Failed to set lastUpdated field!", snapshotVersioning.getLastUpdated());
-
     }
 
     @Test
