@@ -24,14 +24,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import javax.xml.bind.Unmarshaller;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
@@ -92,7 +88,7 @@ public class MetadataManager
     public Metadata readMetadata(Path artifactBasePath)
             throws IOException, XmlPullParserException
     {
-        File metadataFile = getMetadataFile(artifactBasePath);
+        File metadataFile = MetadataHelper.getMetadataFile(artifactBasePath);
         Metadata metadata = null;
         FileInputStream fis = null;
 
@@ -137,11 +133,11 @@ public class MetadataManager
         return metadata;
     }
 
-    public void storeMetadata(Path metadataBasePath, Metadata metadata)
+    public void storeMetadata(Path metadataBasePath, String version, Metadata metadata, MetadataType metadataType)
             throws IOException,
                    NoSuchAlgorithmException
     {
-        File metadataFile = getMetadataFile(metadataBasePath);
+        File metadataFile = MetadataHelper.getMetadataFile(metadataBasePath, version, metadataType);
 
         OutputStream os = null;
         Writer writer = null;
@@ -164,25 +160,6 @@ public class MetadataManager
 
             ResourceCloser.close(writer, logger);
             ResourceCloser.close(os, logger);
-        }
-    }
-
-    /**
-     * Returns artifact metadata File
-     *
-     * @param artifactBasePath Path
-     * @return File
-     */
-    public File getMetadataFile(Path artifactBasePath)
-            throws FileNotFoundException
-    {
-        if (artifactBasePath.toFile().exists())
-        {
-            return new File(artifactBasePath.toFile().getAbsolutePath() + "/maven-metadata.xml");
-        }
-        else
-        {
-            throw new FileNotFoundException("Could not find " + new File(artifactBasePath.toFile().getAbsolutePath() + "/maven-metadata.xml") + "!");
         }
     }
 
@@ -240,7 +217,7 @@ public class MetadataManager
                 MetadataHelper.setLastUpdated(versioning);
 
                 // Write basic metadata
-                storeMetadata(request.getArtifactBasePath(), metadata);
+                storeMetadata(request.getArtifactBasePath(), null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
 
                 logger.debug("Generated Maven metadata for " +
                              artifact.getGroupId() + ":" +
@@ -273,8 +250,9 @@ public class MetadataManager
 
                         // Write snapshot metadata version information for each snapshot.
                         Metadata snapshotMetadata = new Metadata();
-                        snapshotMetadata.setArtifactId(artifact.getArtifactId());
                         snapshotMetadata.setGroupId(artifact.getGroupId());
+                        snapshotMetadata.setArtifactId(artifact.getArtifactId());
+                        snapshotMetadata.setVersion(version);
 
                         Versioning snapshotVersioning = versionCollector.generateSnapshotVersions(snapshotVersions);
                         if (!snapshotVersioning.getSnapshotVersions().isEmpty())
@@ -305,12 +283,12 @@ public class MetadataManager
                         // http://maven.apache.org/ref/3.3.3/maven-repository-metadata/repository-metadata.html
                         snapshotMetadata.setVersion(version);
 
-                        storeMetadata(snapshotBasePath, snapshotMetadata);
+                        storeMetadata(snapshotBasePath.getParent(), version, snapshotMetadata, MetadataType.SNAPSHOT_VERSION_LEVEL);
                     }
                 }
 
                 // Write basic metadata
-                storeMetadata(request.getArtifactBasePath(), metadata);
+                storeMetadata(request.getArtifactBasePath(), null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
 
                 logger.debug("Generated Maven metadata for " + artifact.getGroupId() + ":" +
                              artifact.getArtifactId() + ".");
@@ -332,7 +310,7 @@ public class MetadataManager
 
                 Path pluginMetadataPath = request.getArtifactBasePath().getParent();
 
-                storeMetadata(pluginMetadataPath, pluginMetadata);
+                storeMetadata(pluginMetadataPath, null, pluginMetadata, MetadataType.PLUGIN_GROUP_LEVEL);
 
                 logger.debug("Generated Maven plugin metadata for " + artifact.getGroupId() + ":" +
                              artifact.getArtifactId() + ".");
@@ -388,7 +366,7 @@ public class MetadataManager
                     Collections.sort(versioning.getSnapshotVersions(), new SnapshotVersionComparator());
                 }
 
-                storeMetadata(artifactBasePath, metadata);
+                storeMetadata(artifactBasePath, artifact.getVersion(), metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
             }
             catch (FileNotFoundException e)
             {

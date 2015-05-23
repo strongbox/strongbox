@@ -401,14 +401,15 @@ public class RestClient extends ArtifactClient
     public int removeVersionFromMetadata(String storageId,
                                          String repositoryId,
                                          String artifactPath,
-                                         String version)
+                                         String version,
+                                         String metadataType)
             throws IOException, JAXBException
     {
         Client client = ClientBuilder.newClient();
 
         WebTarget resource = client.target(getContextBaseUrl() + "/metadata/" +
                                            storageId + "/" + repositoryId + "/" + (artifactPath != null ? artifactPath : "") +
-                                           "?version=" + version);
+                                           "?version=" + version + "&metadataType=" + metadataType);
         setupAuthentication(resource);
 
         Response response = resource.request().delete();

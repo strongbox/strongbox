@@ -1,10 +1,8 @@
 package org.carlspring.strongbox.rest;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
-import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
-import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
+import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
@@ -17,7 +15,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
@@ -70,6 +67,7 @@ public class MetadataManagementRestlet
     public Response delete(@PathParam("storageId") String storageId,
                            @PathParam("path") String path,
                            @QueryParam("version") String version,
+                           @QueryParam("metadataType") String metadataType,
                            @PathParam("repositoryId") String repositoryId,
                            @Context HttpHeaders headers,
                            @Context HttpServletRequest request,
@@ -83,7 +81,7 @@ public class MetadataManagementRestlet
 
         try
         {
-            artifactMetadataService.removeVersion(storageId, repositoryId, path, version);
+            artifactMetadataService.removeVersion(storageId, repositoryId, path, version, MetadataType.from(metadataType));
 
             return Response.ok().build();
         }

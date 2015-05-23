@@ -4,6 +4,7 @@ import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
+import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.junit.Before;
 import org.junit.Test;
@@ -79,7 +80,7 @@ public class MetadataManagementRestletTest
         assertNotNull("Incorrect metadata!", metadataBefore.getVersioning().getLatest());
         assertEquals("Incorrect metadata!", "3.2", metadataBefore.getVersioning().getLatest());
 
-        response = client.removeVersionFromMetadata("storage0", "releases", artifactPath, "3.2");
+        response = client.removeVersionFromMetadata("storage0", "releases", artifactPath, "3.2", MetadataType.ARTIFACT_ROOT_LEVEL.getType());
 
         assertEquals("Received unexpected response!", 200, response);
 

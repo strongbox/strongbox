@@ -3,7 +3,6 @@ package org.carlspring.strongbox.services.impl;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
-import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.artifact.locator.handlers.ArtifactLocationGenerateMetadataOperation;
 import org.carlspring.strongbox.configuration.Configuration;
@@ -12,6 +11,7 @@ import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataManager;
+import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +22,6 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
-import java.time.Instant;
-import java.util.List;
 
 /**
  * @author stodorov
@@ -61,11 +59,11 @@ public class ArtifactMetadataServiceImpl
     }
 
     @Override
-    public Metadata getMetadata(String artifactBasePath)
+    public Metadata getMetadata(String metadataPath)
             throws IOException,
                    XmlPullParserException
     {
-        return metadataManager.readMetadata(Paths.get(artifactBasePath));
+        return metadataManager.readMetadata(Paths.get(metadataPath));
     }
 
     @Override
@@ -108,7 +106,11 @@ public class ArtifactMetadataServiceImpl
     }
 
     @Override
-    public void removeVersion(String storageId, String repositoryId, String artifactPath, String version)
+    public void removeVersion(String storageId,
+                              String repositoryId,
+                              String artifactPath,
+                              String version,
+                              MetadataType metadataType)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
         Storage storage = getConfiguration().getStorage(storageId);
@@ -129,7 +131,7 @@ public class ArtifactMetadataServiceImpl
         // Remove the version
         versioning.removeVersion(version);
 
-        metadataManager.storeMetadata(artifactBasePath, metadata);
+        metadataManager.storeMetadata(artifactBasePath, version, metadata, metadataType);
     }
 
     public Configuration getConfiguration()

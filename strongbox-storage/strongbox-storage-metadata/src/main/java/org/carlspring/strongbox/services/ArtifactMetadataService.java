@@ -2,6 +2,7 @@ package org.carlspring.strongbox.services;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 import java.io.IOException;
@@ -87,11 +88,16 @@ public interface ArtifactMetadataService
      * @param repositoryId
      * @param artifactPath
      * @param version
+     * @param metadataType
      * @throws IOException
      * @throws XmlPullParserException
      * @throws NoSuchAlgorithmException
      */
-    void removeVersion(String storageId, String repositoryId, String artifactPath, String version)
+    void removeVersion(String storageId,
+                       String repositoryId,
+                       String artifactPath,
+                       String version,
+                       MetadataType metadataType)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException;
 
 }

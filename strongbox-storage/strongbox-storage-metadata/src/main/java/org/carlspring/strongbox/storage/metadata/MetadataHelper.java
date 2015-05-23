@@ -3,6 +3,9 @@ package org.carlspring.strongbox.storage.metadata;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
@@ -111,6 +114,61 @@ public class MetadataHelper
             {
                 // TODO: Figure out what we should do in case there are no other available versions
             }
+        }
+    }
+
+    /**
+     * Returns artifact metadata File
+     *
+     * @param artifactBasePath Path
+     * @return File
+     */
+    public static File getMetadataFile(Path artifactBasePath)
+            throws FileNotFoundException
+    {
+        if (artifactBasePath.toFile().exists())
+        {
+            return new File(artifactBasePath.toFile().getAbsolutePath() + "/maven-metadata.xml");
+        }
+        else
+        {
+            throw new FileNotFoundException("Could not find " +
+                                            new File(artifactBasePath.toFile().getAbsolutePath() + "/maven-metadata.xml") + "!");
+        }
+    }
+
+    public static File getArtifactMetadataFile(Path artifactBasePath)
+    {
+        return getMetadataFile(artifactBasePath, null, MetadataType.ARTIFACT_ROOT_LEVEL);
+    }
+
+    public static File getSnapshotMetadataFile(Path artifactBasePath, String version)
+    {
+        return getMetadataFile(artifactBasePath, version, MetadataType.SNAPSHOT_VERSION_LEVEL);
+    }
+
+    public static File getPluginMetadataFile(Path artifactBasePath)
+    {
+        return getMetadataFile(artifactBasePath, null, MetadataType.PLUGIN_GROUP_LEVEL);
+    }
+
+    /**
+     * Returns artifact metadata File
+     *
+     * @param artifactBasePath Path
+     * @return File
+     */
+    public static File getMetadataFile(Path artifactBasePath, String version, MetadataType metadataType)
+    {
+        switch (metadataType)
+        {
+            case PLUGIN_GROUP_LEVEL:
+                return new File(artifactBasePath.getParent().toFile().getAbsolutePath() + "/maven-metadata.xml");
+            case SNAPSHOT_VERSION_LEVEL:
+                return new File(artifactBasePath.toFile().getAbsolutePath() + "/" + version + "/maven-metadata.xml");
+            case ARTIFACT_ROOT_LEVEL:
+            default:
+                return new File(artifactBasePath.toFile().getAbsolutePath() + "/maven-metadata.xml");
         }
     }
 

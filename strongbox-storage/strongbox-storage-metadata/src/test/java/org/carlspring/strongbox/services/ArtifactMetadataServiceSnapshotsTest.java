@@ -5,7 +5,6 @@ import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Snapshot;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.carlspring.maven.commons.DetachedArtifact;
-import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -135,21 +134,29 @@ public class ArtifactMetadataServiceSnapshotsTest
         artifactMetadataService.rebuildMetadata("storage0", "snapshots", artifactPath);
 
         Metadata metadata = artifactMetadataService.getMetadata("storage0", "snapshots", artifactPath);
+        Metadata snapshotMetadata = artifactMetadataService.getMetadata("storage0", "snapshots", artifactPath);
 
         assertNotNull(metadata);
 
         Versioning versioning = metadata.getVersioning();
+        Versioning snapshotVersioning = snapshotMetadata.getVersioning();
 
         assertEquals("Incorrect artifactId!", snapshotArtifact.getArtifactId(), metadata.getArtifactId());
         assertEquals("Incorrect groupId!", snapshotArtifact.getGroupId(), metadata.getGroupId());
         //assertEquals("Incorrect latest release version!", artifact.getVersion(), versioning.getRelease());
 
-        assertNotNull("No versioning information could be found in the metadata!",
-                      versioning.getVersions().size());
+        assertNotNull("No versioning information could be found in the metadata!", versioning.getVersions().size());
         assertEquals("Incorrect number of versions stored in metadata!", 1, versioning.getVersions().size());
-        assertEquals(version, metadata.getVersion());
+        // assertEquals(version, metadata.getVersion());
         assertEquals(version, versioning.getLatest());
         assertNotNull("Failed to set lastUpdated field!", versioning.getLastUpdated());
+
+        assertNotNull("No versioning information could be found in the metadata!",
+                      snapshotVersioning.getVersions().size());
+        assertEquals("Incorrect number of versions stored in metadata!", 1, snapshotVersioning.getVersions().size());
+        assertEquals(version, snapshotVersioning.getLatest());
+        assertNotNull("Failed to set lastUpdated field!", snapshotVersioning.getLastUpdated());
+
     }
 
     @Test
