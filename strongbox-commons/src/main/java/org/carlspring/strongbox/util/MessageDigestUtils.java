@@ -57,11 +57,26 @@ public class MessageDigestUtils
             throws IOException
     {
         InputStream is = null;
-        BufferedReader br = null;
 
         try
         {
             is = new FileInputStream(path);
+
+            return readChecksumFile(is);
+        }
+        finally
+        {
+            ResourceCloser.close(is, null);
+        }
+    }
+
+    public static String readChecksumFile(InputStream is)
+            throws IOException
+    {
+        BufferedReader br = null;
+
+        try
+        {
             br = new BufferedReader(new InputStreamReader(is));
 
             return br.readLine();

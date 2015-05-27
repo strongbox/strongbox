@@ -76,18 +76,9 @@ public class ConfigurationManagementRestlet
     public Response getConfiguration()
             throws IOException, ParseException
     {
-        try
-        {
-            logger.debug("Received configuration request.");
+        logger.debug("Received configuration request.");
 
-            return Response.status(Response.Status.OK).entity(configurationManagementService.getConfiguration()).build();
-        }
-        catch (IOException e)
-        {
-            logger.error(e.getMessage(), e);
-
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
+        return Response.status(Response.Status.OK).entity(configurationManagementService.getConfiguration()).build();
     }
 
     @PUT

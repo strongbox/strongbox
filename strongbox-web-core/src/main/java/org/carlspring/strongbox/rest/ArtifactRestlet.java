@@ -1,7 +1,8 @@
 package org.carlspring.strongbox.rest;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
 import org.carlspring.strongbox.services.ArtifactManagementService;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 
+import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,6 +83,7 @@ public class ArtifactRestlet
         handleAuthentication(storageId, repositoryId, path, headers, request);
 
         InputStream is;
+
         try
         {
             is = artifactManagementService.resolve(storageId, repositoryId, path);
@@ -90,7 +93,51 @@ public class ArtifactRestlet
             throw new WebApplicationException(e, Response.Status.NOT_FOUND);
         }
 
-        return Response.ok(is).build();
+        Response.ResponseBuilder responseBuilder = Response.ok(is);
+
+        setHeadersForChecksums(storageId, repositoryId, path, responseBuilder);
+
+        return responseBuilder.build();
+    }
+
+    private void setHeadersForChecksums(String storageId,
+                                        String repositoryId,
+                                        String path,
+                                        Response.ResponseBuilder responseBuilder)
+            throws IOException
+    {
+        Storage storage = artifactManagementService.getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+        if (!repository.isChecksumHeadersEnabled())
+        {
+            return;
+        }
+
+        InputStream isMd5;
+        //noinspection EmptyCatchBlock
+        try
+        {
+            isMd5 = artifactManagementService.resolve(storageId, repositoryId, path + ".md5");
+            responseBuilder.header("Checksum-MD5", MessageDigestUtils.readChecksumFile(isMd5));
+        }
+        catch (IOException e)
+        {
+            // This can occur if there is no checksum
+            logger.warn("There is no MD5 checksum for "  + storageId + "/" + repositoryId + "/" + path);
+        }
+
+        InputStream isSha1;
+        //noinspection EmptyCatchBlock
+        try
+        {
+            isSha1 = artifactManagementService.resolve(storageId, repositoryId, path + ".sha1");
+            responseBuilder.header("Checksum-SHA1", MessageDigestUtils.readChecksumFile(isSha1));
+        }
+        catch (IOException e)
+        {
+            // This can occur if there is no checksum
+            logger.warn("There is no SHA1 checksum for "  + storageId + "/" + repositoryId + "/" + path);
+        }
     }
 
     @DELETE

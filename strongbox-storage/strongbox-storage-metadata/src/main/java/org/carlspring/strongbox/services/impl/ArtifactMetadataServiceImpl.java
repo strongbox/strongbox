@@ -51,7 +51,7 @@ public class ArtifactMetadataServiceImpl
 
         Path artifactBasePath = Paths.get(repository.getBasedir(), artifactPath);
 
-        return metadataManager.getMetadata(artifactBasePath);
+        return metadataManager.readMetadata(artifactBasePath);
     }
 
     @Override
@@ -59,14 +59,14 @@ public class ArtifactMetadataServiceImpl
             throws IOException,
                    XmlPullParserException
     {
-        return metadataManager.getMetadata(Paths.get(artifactBasePath));
+        return metadataManager.readMetadata(Paths.get(artifactBasePath));
     }
 
     @Override
     public Metadata getMetadata(InputStream is)
             throws IOException, XmlPullParserException
     {
-        return metadataManager.getMetadata(is);
+        return metadataManager.readMetadata(is);
     }
 
     public void rebuildMetadata(String storageId, String repositoryId, String basePath)
@@ -101,6 +101,7 @@ public class ArtifactMetadataServiceImpl
         metadataManager.mergeMetadata(repository, artifact, mergeMetadata);
     }
 
+    @Override
     public Configuration getConfiguration()
     {
         return configurationManager.getConfiguration();
