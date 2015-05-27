@@ -44,7 +44,6 @@ public class ConfigurationManagementServiceImpl implements ConfigurationManageme
 
     @Override
     public Configuration getConfiguration()
-            throws IOException
     {
         return configurationManager.getConfiguration();
     }

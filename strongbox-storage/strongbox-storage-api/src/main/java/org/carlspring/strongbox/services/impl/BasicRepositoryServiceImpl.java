@@ -115,6 +115,7 @@ public class BasicRepositoryServiceImpl
         this.configurationManager = configurationManager;
     }
 
+    @Override
     public Configuration getConfiguration()
     {
         return configurationManager.getConfiguration();
