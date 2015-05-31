@@ -100,4 +100,24 @@ public interface ArtifactMetadataService
                        MetadataType metadataType)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException;
 
+    /**
+     * Removes an existing timestamped SNAPSHOT version from the SNAPSHOT metadata file.
+     *
+     * @param storageId
+     * @param repositoryId
+     * @param artifactPath
+     * @param baseVersion
+     * @param timestampedVersion
+     * @throws IOException
+     * @throws XmlPullParserException
+     * @throws NoSuchAlgorithmException
+     */
+    void removeTimestampedSnapshotVersion(String storageId,
+                                          String repositoryId,
+                                          String artifactPath,
+                                          String baseVersion,
+                                          String timestampedVersion,
+                                          String extension)
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException;
+
 }

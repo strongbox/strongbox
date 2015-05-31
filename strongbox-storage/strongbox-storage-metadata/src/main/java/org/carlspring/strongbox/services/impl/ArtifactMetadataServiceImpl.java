@@ -2,7 +2,9 @@ package org.carlspring.strongbox.services.impl;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.artifact.repository.metadata.Versioning;
+import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.artifact.locator.handlers.ArtifactLocationGenerateMetadataOperation;
 import org.carlspring.strongbox.configuration.Configuration;
@@ -14,6 +16,8 @@ import org.carlspring.strongbox.storage.metadata.MetadataManager;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +26,8 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author stodorov
@@ -31,6 +37,8 @@ import java.security.NoSuchAlgorithmException;
 public class ArtifactMetadataServiceImpl
         implements ArtifactMetadataService
 {
+
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactMetadataServiceImpl.class);
 
     @Autowired
     private ConfigurationManager configurationManager;
@@ -121,6 +129,15 @@ public class ArtifactMetadataServiceImpl
         Metadata metadata = getMetadata(artifactBasePath.toAbsolutePath().toString());
         Versioning versioning = metadata.getVersioning();
 
+        if (ArtifactUtils.isSnapshot(version))
+        {
+            Path snapshotBasePath = Paths.get(artifactBasePath + "/" + ArtifactUtils.getSnapshotBaseVersion(version));
+
+            Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
+
+            metadataManager.generateSnapshotVersioningMetadata(snapshotBasePath, artifact, version, true);
+        }
+
         // Update the latest field
         MetadataHelper.setLatest(metadata, version);
         // Update the release field
@@ -132,6 +149,61 @@ public class ArtifactMetadataServiceImpl
         versioning.removeVersion(version);
 
         metadataManager.storeMetadata(artifactBasePath, version, metadata, metadataType);
+    }
+
+    @Override
+    public void removeTimestampedSnapshotVersion(String storageId,
+                                                 String repositoryId,
+                                                 String artifactPath,
+                                                 String baseVersion,
+                                                 String timestampedVersionToRemoved,
+                                                 String classifier)
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException
+    {
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+
+        String version = baseVersion + "-SNAPSHOT";
+
+        Path artifactBasePath = Paths.get(repository.getBasedir(), artifactPath);
+
+        Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
+
+        Metadata snapshotMetadata = metadataManager.generateSnapshotVersioningMetadata(artifactBasePath,
+                                                                                       artifact,
+                                                                                       version,
+                                                                                       false);
+
+        List<SnapshotVersion> snapshotVersions = snapshotMetadata.getVersioning().getSnapshotVersions();
+        for (Iterator<SnapshotVersion> iterator = snapshotVersions.iterator(); iterator.hasNext();)
+        {
+            SnapshotVersion snapshotVersion = iterator.next();
+            if (snapshotVersion.getVersion().equals(timestampedVersionToRemoved))
+            {
+                if (classifier == null || snapshotVersion.getClassifier().equals(classifier))
+                {
+                    iterator.remove();
+
+                    logger.debug("Removed timestamped SNAPSHOT (" + timestampedVersionToRemoved +
+                                 (classifier != null ? ":" + classifier :
+                                 (snapshotVersion.getClassifier() != null && !snapshotVersion.getClassifier().equals("") ?
+                                  ":" + snapshotVersion.getClassifier() + ":" : ":") +
+                                 snapshotVersion.getExtension()) + ") from metadata.");
+                }
+            }
+        }
+
+        // Update the latest field
+        // MetadataHelper.setLatest(metadata, version);
+        // Update the release field
+        // MetadataHelper.setRelease(metadata, version);
+        // Update the lastUpdated field
+        MetadataHelper.setLastUpdated(snapshotMetadata.getVersioning());
+
+        metadataManager.storeMetadata(artifactBasePath,
+                                      version,
+                                      snapshotMetadata,
+                                      MetadataType.SNAPSHOT_VERSION_LEVEL);
     }
 
     public Configuration getConfiguration()

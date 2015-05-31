@@ -1,7 +1,11 @@
 package org.carlspring.strongbox.storage.metadata;
 
 import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.Snapshot;
+import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.artifact.repository.metadata.Versioning;
+import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -117,6 +121,58 @@ public class MetadataHelper
         }
     }
 
+    public static void setupSnapshotVersioning(Versioning snapshotVersioning)
+    {
+        if (!snapshotVersioning.getSnapshotVersions().isEmpty())
+        {
+            SnapshotVersion latestSnapshot = snapshotVersioning.getSnapshotVersions().get(snapshotVersioning.getSnapshotVersions().size() - 1);
+
+            String timestamp = ArtifactUtils.getSnapshotTimestamp(latestSnapshot.getVersion());
+            // Potentially revisit this for timestamps with custom formats
+            int buildNumber = Integer.parseInt(ArtifactUtils.getSnapshotBuildNumber(latestSnapshot.getVersion()));
+
+            if (!StringUtils.isEmpty(timestamp) || !StringUtils.isEmpty(buildNumber))
+            {
+                Snapshot snapshotVersion = new Snapshot();
+
+                snapshotVersion.setTimestamp(timestamp);
+                snapshotVersion.setBuildNumber(buildNumber);
+
+                snapshotVersioning.setSnapshot(snapshotVersion);
+            }
+        }
+    }
+
+    public static boolean containsTimestampedSnapshotVersion(Metadata metadata,
+                                                             String timestampedSnapshotVersion)
+    {
+        return containsTimestampedSnapshotVersion(metadata, timestampedSnapshotVersion, null);
+    }
+
+    public static boolean containsTimestampedSnapshotVersion(Metadata metadata,
+                                                             String timestampedSnapshotVersion,
+                                                             String classifier)
+    {
+        for (SnapshotVersion snapshotVersion : metadata.getVersioning().getSnapshotVersions())
+        {
+            if (snapshotVersion.getVersion().equals(timestampedSnapshotVersion))
+            {
+                if (classifier == null || snapshotVersion.getClassifier().equals(classifier))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public static boolean containsVersion(Metadata metadata,
+                                          String version)
+    {
+        return metadata.getVersioning().getVersions().contains(version);
+    }
+
     /**
      * Returns artifact metadata File
      *
@@ -170,6 +226,11 @@ public class MetadataHelper
             default:
                 return new File(artifactBasePath.toFile().getAbsolutePath() + "/maven-metadata.xml");
         }
+    }
+
+    public static Path getMetadataPath(Path artifactBasePath, String version, MetadataType metadataType)
+    {
+        return getMetadataFile(artifactBasePath, version, metadataType).toPath();
     }
 
 }

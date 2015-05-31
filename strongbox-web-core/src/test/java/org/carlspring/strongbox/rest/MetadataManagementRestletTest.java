@@ -4,6 +4,7 @@ import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
+import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.junit.Before;
@@ -88,7 +89,7 @@ public class MetadataManagementRestletTest
         Metadata metadataAfter = artifactMetadataService.getMetadata(is);
 
         assertNotNull("Incorrect metadata!", metadataAfter.getVersioning());
-        assertFalse("Unexpected set of versions!", metadataAfter.getVersioning().getVersions().contains("3.2"));
+        assertFalse("Unexpected set of versions!", MetadataHelper.containsVersion(metadataAfter, "3.2"));
         assertNotNull("Incorrect metadata!", metadataAfter.getVersioning().getLatest());
         assertEquals("Incorrect metadata!", "3.1", metadataAfter.getVersioning().getLatest());
     }

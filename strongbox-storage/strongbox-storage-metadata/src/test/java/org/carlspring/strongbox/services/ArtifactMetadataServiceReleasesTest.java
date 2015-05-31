@@ -5,6 +5,7 @@ import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -127,7 +128,7 @@ public class ArtifactMetadataServiceReleasesTest
         Metadata metadataBefore = artifactMetadataService.getMetadata("storage0", "releases", artifactPath);
 
         assertNotNull(metadataBefore);
-        assertTrue("Unexpected set of versions!", metadataBefore.getVersioning().getVersions().contains("1.3"));
+        assertTrue("Unexpected set of versions!", MetadataHelper.containsVersion(metadataBefore, "1.3"));
 
         artifactMetadataService.removeVersion("storage0",
                                               "releases",
@@ -138,7 +139,7 @@ public class ArtifactMetadataServiceReleasesTest
         Metadata metadataAfter = artifactMetadataService.getMetadata("storage0", "releases", artifactPath);
 
         assertNotNull(metadataAfter);
-        assertFalse("Unexpected set of versions!", metadataAfter.getVersioning().getVersions().contains("1.3"));
+        assertFalse("Unexpected set of versions!", MetadataHelper.containsVersion(metadataAfter, "1.3"));
     }
 
     @Test
