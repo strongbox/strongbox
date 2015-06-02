@@ -402,14 +402,18 @@ public class RestClient extends ArtifactClient
                                          String repositoryId,
                                          String artifactPath,
                                          String version,
+                                         String classifier,
                                          String metadataType)
             throws IOException, JAXBException
     {
         Client client = ClientBuilder.newClient();
 
         WebTarget resource = client.target(getContextBaseUrl() + "/metadata/" +
-                                           storageId + "/" + repositoryId + "/" + (artifactPath != null ? artifactPath : "") +
-                                           "?version=" + version + "&metadataType=" + metadataType);
+                                           storageId + "/" + repositoryId + "/" +
+                                           (artifactPath != null ? artifactPath : "") +
+                                           "?version=" + version +
+                                           (classifier != null ? "&classifier=" + classifier : "") +
+                                           "&metadataType=" + metadataType);
         setupAuthentication(resource);
 
         Response response = resource.request().delete();

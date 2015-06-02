@@ -106,8 +106,8 @@ public interface ArtifactMetadataService
      * @param storageId
      * @param repositoryId
      * @param artifactPath
-     * @param baseVersion
-     * @param timestampedVersion
+     * @param version
+     * @param classifier
      * @throws IOException
      * @throws XmlPullParserException
      * @throws NoSuchAlgorithmException
@@ -115,9 +115,8 @@ public interface ArtifactMetadataService
     void removeTimestampedSnapshotVersion(String storageId,
                                           String repositoryId,
                                           String artifactPath,
-                                          String baseVersion,
-                                          String timestampedVersion,
-                                          String extension)
+                                          String version,
+                                          String classifier)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException;
 
 }

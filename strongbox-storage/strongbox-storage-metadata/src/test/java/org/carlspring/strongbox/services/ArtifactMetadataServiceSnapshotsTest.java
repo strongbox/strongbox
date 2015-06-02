@@ -183,7 +183,6 @@ public class ArtifactMetadataServiceSnapshotsTest
         artifactMetadataService.removeTimestampedSnapshotVersion("storage0",
                                                                  "snapshots",
                                                                  artifactPath,
-                                                                 "2.0",
                                                                  deletedArtifact.getVersion(),
                                                                  null);
 

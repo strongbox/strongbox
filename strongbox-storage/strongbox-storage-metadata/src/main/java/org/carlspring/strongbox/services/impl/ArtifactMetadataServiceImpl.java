@@ -155,15 +155,14 @@ public class ArtifactMetadataServiceImpl
     public void removeTimestampedSnapshotVersion(String storageId,
                                                  String repositoryId,
                                                  String artifactPath,
-                                                 String baseVersion,
-                                                 String timestampedVersionToRemoved,
+                                                 String version,
                                                  String classifier)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        String version = baseVersion + "-SNAPSHOT";
+        String snapshot = ArtifactUtils.getSnapshotBaseVersion(version);
 
         Path artifactBasePath = Paths.get(repository.getBasedir(), artifactPath);
 
@@ -171,20 +170,20 @@ public class ArtifactMetadataServiceImpl
 
         Metadata snapshotMetadata = metadataManager.generateSnapshotVersioningMetadata(artifactBasePath,
                                                                                        artifact,
-                                                                                       version,
+                                                                                       snapshot,
                                                                                        false);
 
         List<SnapshotVersion> snapshotVersions = snapshotMetadata.getVersioning().getSnapshotVersions();
         for (Iterator<SnapshotVersion> iterator = snapshotVersions.iterator(); iterator.hasNext();)
         {
             SnapshotVersion snapshotVersion = iterator.next();
-            if (snapshotVersion.getVersion().equals(timestampedVersionToRemoved))
+            if (snapshotVersion.getVersion().equals(version))
             {
                 if (classifier == null || snapshotVersion.getClassifier().equals(classifier))
                 {
                     iterator.remove();
 
-                    logger.debug("Removed timestamped SNAPSHOT (" + timestampedVersionToRemoved +
+                    logger.debug("Removed timestamped SNAPSHOT (" + version +
                                  (classifier != null ? ":" + classifier :
                                  (snapshotVersion.getClassifier() != null && !snapshotVersion.getClassifier().equals("") ?
                                   ":" + snapshotVersion.getClassifier() + ":" : ":") +
@@ -193,15 +192,14 @@ public class ArtifactMetadataServiceImpl
             }
         }
 
-        // Update the latest field
-        // MetadataHelper.setLatest(metadata, version);
-        // Update the release field
-        // MetadataHelper.setRelease(metadata, version);
+        // Set the snapshot mapping fields (timestamp + buildNumber)
+        MetadataHelper.setupSnapshotVersioning(snapshotMetadata.getVersioning());
+
         // Update the lastUpdated field
         MetadataHelper.setLastUpdated(snapshotMetadata.getVersioning());
 
         metadataManager.storeMetadata(artifactBasePath,
-                                      version,
+                                      snapshot,
                                       snapshotMetadata,
                                       MetadataType.SNAPSHOT_VERSION_LEVEL);
     }

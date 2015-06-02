@@ -26,11 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author stodorov
@@ -174,7 +170,7 @@ public class VersionCollector
             SnapshotVersion snapshotVersion = new SnapshotVersion();
             snapshotVersion.setVersion(artifact.getVersion());
             snapshotVersion.setExtension(FilenameUtils.getExtension(name));
-            snapshotVersion.setUpdated(String.valueOf(Instant.now().getEpochSecond()));
+            snapshotVersion.setUpdated(MetadataHelper.LAST_UPDATED_FIELD_FORMATTER.format(Calendar.getInstance().getTime()));
 
             if (artifact.getClassifier() != null)
             {

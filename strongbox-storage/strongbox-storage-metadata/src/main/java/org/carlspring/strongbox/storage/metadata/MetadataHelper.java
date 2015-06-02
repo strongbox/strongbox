@@ -133,12 +133,12 @@ public class MetadataHelper
 
             if (!StringUtils.isEmpty(timestamp) || !StringUtils.isEmpty(buildNumber))
             {
-                Snapshot snapshotVersion = new Snapshot();
+                Snapshot snapshot = new Snapshot();
 
-                snapshotVersion.setTimestamp(timestamp);
-                snapshotVersion.setBuildNumber(buildNumber);
+                snapshot.setTimestamp(timestamp);
+                snapshot.setBuildNumber(buildNumber);
 
-                snapshotVersioning.setSnapshot(snapshotVersion);
+                snapshotVersioning.setSnapshot(snapshot);
             }
         }
     }

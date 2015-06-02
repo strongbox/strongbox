@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.rest;
 
+import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
@@ -65,10 +66,11 @@ public class MetadataManagementRestlet
     @DELETE
     @Path("{storageId}/{repositoryId}/{path:.*}")
     public Response delete(@PathParam("storageId") String storageId,
+                           @PathParam("repositoryId") String repositoryId,
                            @PathParam("path") String path,
                            @QueryParam("version") String version,
+                           @QueryParam("classifier") String classifier,
                            @QueryParam("metadataType") String metadataType,
-                           @PathParam("repositoryId") String repositoryId,
                            @Context HttpHeaders headers,
                            @Context HttpServletRequest request,
                            InputStream is)
@@ -81,7 +83,14 @@ public class MetadataManagementRestlet
 
         try
         {
-            artifactMetadataService.removeVersion(storageId, repositoryId, path, version, MetadataType.from(metadataType));
+            if (ArtifactUtils.isReleaseVersion(version))
+            {
+                artifactMetadataService.removeVersion(storageId, repositoryId, path, version, MetadataType.from(metadataType));
+            }
+            else
+            {
+                artifactMetadataService.removeTimestampedSnapshotVersion(storageId, repositoryId, path, version, classifier);
+            }
 
             return Response.ok().build();
         }
