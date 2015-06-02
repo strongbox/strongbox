@@ -97,8 +97,7 @@ public class ArtifactLocationGenerateMetadataOperation
                     }
                 }
 
-                String artifactPath = parentPath.substring(getRepository().getBasedir().length() + 1,
-                                                           parentPath.length());
+                String artifactPath = parentPath.substring(getRepository().getBasedir().length() + 1, parentPath.length());
 
                 try
                 {

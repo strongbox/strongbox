@@ -392,7 +392,31 @@ public class RestClient extends ArtifactClient
                                            storageId + "/" + repositoryId + "/" + (basePath != null ? basePath : ""));
         setupAuthentication(resource);
 
-        Response response = resource.request(MediaType.TEXT_PLAIN).post(Entity.entity("Rebuild", MediaType.APPLICATION_XML));
+        Response response = resource.request(MediaType.TEXT_PLAIN).post(Entity.entity("Rebuild",
+                                                                                      MediaType.APPLICATION_XML));
+
+        return response.getStatus();
+    }
+
+    public int removeVersionFromMetadata(String storageId,
+                                         String repositoryId,
+                                         String artifactPath,
+                                         String version,
+                                         String classifier,
+                                         String metadataType)
+            throws IOException, JAXBException
+    {
+        Client client = ClientBuilder.newClient();
+
+        WebTarget resource = client.target(getContextBaseUrl() + "/metadata/" +
+                                           storageId + "/" + repositoryId + "/" +
+                                           (artifactPath != null ? artifactPath : "") +
+                                           "?version=" + version +
+                                           (classifier != null ? "&classifier=" + classifier : "") +
+                                           "&metadataType=" + metadataType);
+        setupAuthentication(resource);
+
+        Response response = resource.request().delete();
 
         return response.getStatus();
     }

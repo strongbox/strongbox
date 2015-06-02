@@ -2,9 +2,8 @@ package org.carlspring.strongbox.rest;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
-import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
-import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
+import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
@@ -54,6 +53,44 @@ public class MetadataManagementRestlet
         try
         {
             artifactMetadataService.rebuildMetadata(storageId, repositoryId, path);
+
+            return Response.ok().build();
+        }
+        catch (ArtifactStorageException e)
+        {
+            logger.error(e.getMessage(), e);
+            throw new WebApplicationException(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DELETE
+    @Path("{storageId}/{repositoryId}/{path:.*}")
+    public Response delete(@PathParam("storageId") String storageId,
+                           @PathParam("repositoryId") String repositoryId,
+                           @PathParam("path") String path,
+                           @QueryParam("version") String version,
+                           @QueryParam("classifier") String classifier,
+                           @QueryParam("metadataType") String metadataType,
+                           @Context HttpHeaders headers,
+                           @Context HttpServletRequest request,
+                           InputStream is)
+            throws IOException,
+                   AuthenticationException,
+                   NoSuchAlgorithmException,
+                   XmlPullParserException
+    {
+        handleAuthentication(storageId, repositoryId, path, headers, request);
+
+        try
+        {
+            if (ArtifactUtils.isReleaseVersion(version))
+            {
+                artifactMetadataService.removeVersion(storageId, repositoryId, path, version, MetadataType.from(metadataType));
+            }
+            else
+            {
+                artifactMetadataService.removeTimestampedSnapshotVersion(storageId, repositoryId, path, version, classifier);
+            }
 
             return Response.ok().build();
         }

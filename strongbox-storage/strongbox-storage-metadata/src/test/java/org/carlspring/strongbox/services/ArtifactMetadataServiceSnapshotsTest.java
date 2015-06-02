@@ -4,8 +4,10 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Snapshot;
 import org.apache.maven.artifact.repository.metadata.Versioning;
-import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.maven.commons.DetachedArtifact;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.storage.metadata.MetadataHelper;
+import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.*;
@@ -20,7 +22,10 @@ import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import static org.junit.Assert.assertNotNull;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author stodorov
@@ -42,8 +47,6 @@ public class ArtifactMetadataServiceSnapshotsTest
     private static Artifact pluginArtifact;
 
     private static Artifact mergeArtifact;
-
-    private static Artifact artifactNoTimestamp;
 
     @Autowired
     private ArtifactMetadataService artifactMetadataService;
@@ -71,12 +74,12 @@ public class ArtifactMetadataServiceSnapshotsTest
                                                          "2.0",
                                                          "jar",
                                                          CLASSIFIERS,
-                                                         3);
+                                                         5);
 
             changeCreationDate(artifact);
 
             // Create a snapshot without a timestamp
-            artifactNoTimestamp = createSnapshot(REPOSITORY_BASEDIR.getAbsolutePath(), "org.carlspring.strongbox:strongbox-metadata-without-timestamp:2.0-SNAPSHOT:jar");
+            // artifactNoTimestamp = createSnapshot(REPOSITORY_BASEDIR.getAbsolutePath(), "org.carlspring.strongbox:strongbox-metadata-without-timestamp:2.0-SNAPSHOT:jar");
 
             // Create an artifact for metadata merging tests
             mergeArtifact = createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR.getAbsolutePath(),
@@ -109,13 +112,119 @@ public class ArtifactMetadataServiceSnapshotsTest
 
         Versioning versioning = metadata.getVersioning();
 
-        Assert.assertEquals("Incorrect artifactId!", artifact.getArtifactId(), metadata.getArtifactId());
-        Assert.assertEquals("Incorrect groupId!", artifact.getGroupId(), metadata.getGroupId());
-        //Assert.assertEquals("Incorrect latest release version!", artifact.getVersion(), versioning.getRelease());
+        assertEquals("Incorrect artifactId!", artifact.getArtifactId(), metadata.getArtifactId());
+        assertEquals("Incorrect groupId!", artifact.getGroupId(), metadata.getGroupId());
 
-        Assert.assertNotNull("No versioning information could be found in the metadata!",
-                             versioning.getVersions().size());
-        Assert.assertEquals("Incorrect number of versions stored in metadata!", 1, versioning.getVersions().size());
+        assertNotNull("No versioning information could be found in the metadata!", versioning.getVersions().size());
+        assertEquals("Incorrect number of versions stored in metadata!", 1, versioning.getVersions().size());
+    }
+
+    @Test
+    public void testDeleteVersionFromMetadata()
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException
+    {
+        // Create snapshot artifacts
+        Artifact deletedArtifact = createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR.getAbsolutePath(),
+                                                                     "org.carlspring.strongbox",
+                                                                     "deleted",
+                                                                     "1.0",
+                                                                     "jar",
+                                                                     CLASSIFIERS,
+                                                                     5);
+
+        changeCreationDate(deletedArtifact);
+
+        String artifactPath = "org/carlspring/strongbox/deleted";
+
+        artifactMetadataService.rebuildMetadata("storage0", "snapshots", artifactPath);
+
+        Metadata metadataBefore = artifactMetadataService.getMetadata("storage0", "snapshots", artifactPath);
+
+        assertNotNull(metadataBefore);
+        assertTrue("Unexpected set of versions!", MetadataHelper.containsVersion(metadataBefore, "1.0-SNAPSHOT"));
+
+        artifactMetadataService.removeVersion("storage0",
+                                              "snapshots",
+                                              artifactPath,
+                                              "1.0-SNAPSHOT",
+                                              MetadataType.ARTIFACT_ROOT_LEVEL);
+
+        Metadata metadataAfter = artifactMetadataService.getMetadata("storage0", "snapshots", artifactPath);
+
+        assertNotNull(metadataAfter);
+        assertFalse("Unexpected set of versions!", MetadataHelper.containsVersion(metadataAfter, "1.0-SNAPSHOT"));
+    }
+
+    @Test
+    public void testDeleteTimestampedSnapshotVersionFromMetadata()
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException
+    {
+        // Create snapshot artifacts
+        Artifact deletedArtifact = createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR.getAbsolutePath(),
+                                                                     "org.carlspring.strongbox",
+                                                                     "deleted",
+                                                                     "2.0",
+                                                                     "jar",
+                                                                     CLASSIFIERS,
+                                                                     5);
+
+        changeCreationDate(deletedArtifact);
+
+        String artifactPath = "org/carlspring/strongbox/deleted";
+
+        artifactMetadataService.rebuildMetadata("storage0", "snapshots", artifactPath);
+
+        String metadataPath = artifactPath + "/2.0-SNAPSHOT";
+
+        Metadata metadataBefore = artifactMetadataService.getMetadata("storage0", "snapshots", metadataPath);
+
+        assertTrue(MetadataHelper.containsTimestampedSnapshotVersion(metadataBefore, deletedArtifact.getVersion(), null));
+
+        artifactMetadataService.removeTimestampedSnapshotVersion("storage0",
+                                                                 "snapshots",
+                                                                 artifactPath,
+                                                                 deletedArtifact.getVersion(),
+                                                                 null);
+
+        Metadata metadataAfter = artifactMetadataService.getMetadata("storage0", "snapshots", metadataPath);
+
+        assertNotNull(metadataAfter);
+        assertFalse(MetadataHelper.containsTimestampedSnapshotVersion(metadataAfter, deletedArtifact.getVersion()));
+    }
+
+    @Test
+    public void testSnapshotWithoutTimestampMetadataRebuild()
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException
+    {
+        String version = "2.0-SNAPSHOT";
+
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), "org.carlspring.strongbox.snapshots:metadata:" + version);
+        final String artifactPath = "org/carlspring/strongbox/snapshots/metadata";
+
+        Artifact snapshotArtifact = new DetachedArtifact("org.carlspring.strongbox.snapshots", "metadata", version);
+
+        artifactMetadataService.rebuildMetadata("storage0", "snapshots", artifactPath);
+
+        Metadata metadata = artifactMetadataService.getMetadata("storage0", "snapshots", artifactPath);
+        Metadata snapshotMetadata = artifactMetadataService.getMetadata("storage0", "snapshots", artifactPath);
+
+        assertNotNull(metadata);
+
+        Versioning versioning = metadata.getVersioning();
+        Versioning snapshotVersioning = snapshotMetadata.getVersioning();
+
+        assertEquals("Incorrect artifactId!", snapshotArtifact.getArtifactId(), metadata.getArtifactId());
+        assertEquals("Incorrect groupId!", snapshotArtifact.getGroupId(), metadata.getGroupId());
+
+        assertNotNull("No versioning information could be found in the metadata!", versioning.getVersions().size());
+        assertEquals("Incorrect number of versions stored in metadata!", 1, versioning.getVersions().size());
+        assertEquals(version, versioning.getLatest());
+        assertNotNull("Failed to set lastUpdated field!", versioning.getLastUpdated());
+
+        assertNotNull("No versioning information could be found in the metadata!", snapshotVersioning.getVersions().size());
+        assertEquals("Incorrect number of versions stored in metadata!", 1, snapshotVersioning.getVersions().size());
+        assertEquals(version, snapshotVersioning.getLatest());
+        assertNotNull("Failed to set lastUpdated field!", snapshotVersioning.getLastUpdated());
     }
 
     @Test
@@ -132,11 +241,11 @@ public class ArtifactMetadataServiceSnapshotsTest
 
         Versioning versioning = metadata.getVersioning();
 
-        Assert.assertEquals("Incorrect artifactId!", pluginArtifact.getArtifactId(), metadata.getArtifactId());
-        Assert.assertEquals("Incorrect groupId!", pluginArtifact.getGroupId(), metadata.getGroupId());
-        Assert.assertNull("Incorrect latest release version!", versioning.getRelease());
+        assertEquals("Incorrect artifactId!", pluginArtifact.getArtifactId(), metadata.getArtifactId());
+        assertEquals("Incorrect groupId!", pluginArtifact.getGroupId(), metadata.getGroupId());
+        assertNull("Incorrect latest release version!", versioning.getRelease());
 
-        Assert.assertEquals("Incorrect number of versions stored in metadata!", 1, versioning.getVersions().size());
+        assertEquals("Incorrect number of versions stored in metadata!", 1, versioning.getVersions().size());
     }
 
     @Test
@@ -170,11 +279,8 @@ public class ArtifactMetadataServiceSnapshotsTest
 
         assertNotNull(metadata);
 
-        Assert.assertEquals("Incorrect latest release version!", "1.3-SNAPSHOT", metadata.getVersioning().getLatest());
-        // Assert.assertEquals("Incorrect latest release version!", null, metadata.getVersioning().getRelease());
-        Assert.assertEquals("Incorrect number of versions stored in metadata!",
-                            3,
-                            metadata.getVersioning().getVersions().size());
+        assertEquals("Incorrect latest release version!", "1.3-SNAPSHOT", metadata.getVersioning().getLatest());
+        assertEquals("Incorrect number of versions stored in metadata!", 3, metadata.getVersioning().getVersions().size());
     }
 
 }

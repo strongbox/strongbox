@@ -2,6 +2,7 @@ package org.carlspring.strongbox.services;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 import java.io.IOException;
@@ -78,6 +79,44 @@ public interface ArtifactMetadataService extends ConfigurationService
      * @throws XmlPullParserException
      */
     void mergeMetadata(String storageId, String repositoryId, Artifact artifact, Metadata mergeMetadata)
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException;
+
+    /**
+     * Removes an existing version from the metadata file.
+     *
+     * @param storageId
+     * @param repositoryId
+     * @param artifactPath
+     * @param version
+     * @param metadataType
+     * @throws IOException
+     * @throws XmlPullParserException
+     * @throws NoSuchAlgorithmException
+     */
+    void removeVersion(String storageId,
+                       String repositoryId,
+                       String artifactPath,
+                       String version,
+                       MetadataType metadataType)
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException;
+
+    /**
+     * Removes an existing timestamped SNAPSHOT version from the SNAPSHOT metadata file.
+     *
+     * @param storageId
+     * @param repositoryId
+     * @param artifactPath
+     * @param version
+     * @param classifier
+     * @throws IOException
+     * @throws XmlPullParserException
+     * @throws NoSuchAlgorithmException
+     */
+    void removeTimestampedSnapshotVersion(String storageId,
+                                          String repositoryId,
+                                          String artifactPath,
+                                          String version,
+                                          String classifier)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException;
 
 }
