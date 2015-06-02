@@ -11,14 +11,11 @@ import java.io.IOException;
 /**
  * @author mtodorov
  */
-public interface ConfigurationManagementService
+public interface ConfigurationManagementService extends ConfigurationService
 {
 
     void setConfiguration(Configuration configuration)
             throws IOException, JAXBException;
-
-    Configuration getConfiguration()
-            throws IOException;
 
     String getBaseUrl()
             throws IOException;

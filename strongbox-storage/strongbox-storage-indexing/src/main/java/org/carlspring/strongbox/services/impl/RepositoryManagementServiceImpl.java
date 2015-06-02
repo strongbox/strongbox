@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.services.impl;
 
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
@@ -29,9 +28,6 @@ public class RepositoryManagementServiceImpl extends BasicRepositoryServiceImpl
     private static final Logger logger = LoggerFactory.getLogger(RepositoryManagementServiceImpl.class);
 
     @Autowired
-    private ConfigurationManager configurationManager;
-
-    @Autowired
     private RepositoryIndexManager repositoryIndexManager;
 
     @Autowired
@@ -43,7 +39,7 @@ public class RepositoryManagementServiceImpl extends BasicRepositoryServiceImpl
                                  String repositoryId)
             throws IOException
     {
-        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
+        Storage storage = getConfiguration().getStorage(storageId);
 
         final String storageBasedirPath = storage.getBasedir();
         final File repositoryBasedir = new File(storageBasedirPath, repositoryId).getAbsoluteFile();
@@ -120,7 +116,7 @@ public class RepositoryManagementServiceImpl extends BasicRepositoryServiceImpl
                                           String repositoryId)
             throws IOException
     {
-        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
+        Storage storage = getConfiguration().getStorage(storageId);
 
         final String storageBasedirPath = storage.getBasedir();
 

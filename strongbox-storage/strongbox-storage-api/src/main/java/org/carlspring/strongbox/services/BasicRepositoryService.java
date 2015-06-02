@@ -6,7 +6,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 /**
  * @author mtodorov
  */
-public interface BasicRepositoryService
+public interface BasicRepositoryService extends ConfigurationService
 {
 
     boolean containsArtifact(Repository repository, Artifact artifact);

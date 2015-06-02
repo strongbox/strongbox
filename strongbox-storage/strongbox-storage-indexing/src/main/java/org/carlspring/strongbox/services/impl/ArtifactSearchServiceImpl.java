@@ -1,7 +1,9 @@
 package org.carlspring.strongbox.services.impl;
 
+import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.services.ArtifactSearchService;
+import org.carlspring.strongbox.services.ConfigurationService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.*;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -20,7 +22,8 @@ import org.springframework.stereotype.Component;
  * @author mtodorov
  */
 @Component
-public class ArtifactSearchServiceImpl implements ArtifactSearchService
+public class ArtifactSearchServiceImpl
+        implements ArtifactSearchService, ConfigurationService
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactSearchServiceImpl.class);
@@ -40,7 +43,7 @@ public class ArtifactSearchServiceImpl implements ArtifactSearchService
 
         final String repositoryId = searchRequest.getRepositoryId();
 
-        final Collection<Storage> storages = configurationManager.getConfiguration().getStorages().values();
+        final Collection<Storage> storages = getConfiguration().getStorages().values();
         if (repositoryId != null && !repositoryId.isEmpty())
         {
             logger.debug("Repository: {}", repositoryId);
@@ -126,6 +129,12 @@ public class ArtifactSearchServiceImpl implements ArtifactSearchService
     public void setRepositoryIndexManager(RepositoryIndexManager repositoryIndexManager)
     {
         this.repositoryIndexManager = repositoryIndexManager;
+    }
+
+    @Override
+    public Configuration getConfiguration()
+    {
+        return configurationManager.getConfiguration();
     }
 
 }

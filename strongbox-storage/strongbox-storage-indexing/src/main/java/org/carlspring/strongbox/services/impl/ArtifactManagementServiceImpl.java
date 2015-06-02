@@ -365,7 +365,8 @@ public class ArtifactManagementServiceImpl
         }
     }
 
-    private Configuration getConfiguration()
+    @Override
+    public Configuration getConfiguration()
     {
         return configurationManager.getConfiguration();
     }

@@ -55,6 +55,9 @@ public class Repository
     @XmlAttribute(name = "allows-directory-browsing")
     private boolean allowsDirectoryBrowsing = true;
 
+    @XmlAttribute(name = "checksum-headers-enabled")
+    private boolean checksumHeadersEnabled = false;
+
     /**
      * The per-repository proxy settings that override the overall global proxy settings.
      */
@@ -222,6 +225,16 @@ public class Repository
     public void setAllowsDirectoryBrowsing(boolean allowsDirectoryBrowsing)
     {
         this.allowsDirectoryBrowsing = allowsDirectoryBrowsing;
+    }
+
+    public boolean isChecksumHeadersEnabled()
+    {
+        return checksumHeadersEnabled;
+    }
+
+    public void setChecksumHeadersEnabled(boolean checksumHeadersEnabled)
+    {
+        this.checksumHeadersEnabled = checksumHeadersEnabled;
     }
 
     public ProxyConfiguration getProxyConfiguration()

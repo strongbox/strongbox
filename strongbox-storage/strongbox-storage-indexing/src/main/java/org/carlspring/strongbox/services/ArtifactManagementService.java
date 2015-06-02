@@ -6,7 +6,7 @@ import java.io.InputStream;
 /**
  * @author mtodorov
  */
-public interface ArtifactManagementService
+public interface ArtifactManagementService extends ConfigurationService
 {
 
     void store(String storageId,

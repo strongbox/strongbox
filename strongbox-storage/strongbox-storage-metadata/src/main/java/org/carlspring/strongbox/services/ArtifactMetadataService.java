@@ -12,7 +12,7 @@ import java.security.NoSuchAlgorithmException;
 /**
  * @author stodorov
  */
-public interface ArtifactMetadataService
+public interface ArtifactMetadataService extends ConfigurationService
 {
 
     /**

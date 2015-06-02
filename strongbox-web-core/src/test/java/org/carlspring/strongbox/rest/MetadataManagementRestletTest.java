@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.InputStream;
 import java.util.List;
@@ -145,8 +146,18 @@ public class MetadataManagementRestletTest
         assertTrue("Failed to rebuild snapshot metadata!", client.pathExists(metadataPath2));
         assertTrue("Failed to rebuild snapshot metadata!", client.pathExists(metadataPath3));
 
-        InputStream is = client.getResource(metadataPath2);
+        Response resourceWithResponse = client.getResourceWithResponse(metadataPath2);
+        InputStream is = resourceWithResponse.readEntity(InputStream.class);
         Metadata metadata2 = artifactMetadataService.getMetadata(is);
+
+        String md5 = resourceWithResponse.getHeaderString("Checksum-MD5");
+        String sha1 = resourceWithResponse.getHeaderString("Checksum-SHA1");
+
+        assertNotNull("Failed to retrieve MD5 checksum via HTTP header!", md5);
+        assertNotNull("Failed to retrieve SHA-1 checksum via HTTP header!", sha1);
+
+        System.out.println("MD5:   " + md5);
+        System.out.println("SHA-1: " + sha1);
 
         assertNotNull("Incorrect metadata!", metadata2.getVersioning());
         assertNotNull("Incorrect metadata!", metadata2.getVersioning().getLatest());

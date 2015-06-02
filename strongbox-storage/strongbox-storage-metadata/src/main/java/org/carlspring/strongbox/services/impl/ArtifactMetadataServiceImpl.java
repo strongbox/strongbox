@@ -67,11 +67,11 @@ public class ArtifactMetadataServiceImpl
     }
 
     @Override
-    public Metadata getMetadata(String metadataPath)
+    public Metadata getMetadata(String artifactBasePath)
             throws IOException,
                    XmlPullParserException
     {
-        return metadataManager.readMetadata(Paths.get(metadataPath));
+        return metadataManager.readMetadata(Paths.get(artifactBasePath));
     }
 
     @Override
@@ -204,6 +204,7 @@ public class ArtifactMetadataServiceImpl
                                       MetadataType.SNAPSHOT_VERSION_LEVEL);
     }
 
+    @Override
     public Configuration getConfiguration()
     {
         return configurationManager.getConfiguration();
