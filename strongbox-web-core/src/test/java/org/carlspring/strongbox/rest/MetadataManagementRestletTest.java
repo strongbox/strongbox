@@ -179,9 +179,13 @@ public class MetadataManagementRestletTest
         Metadata metadata2SnapshotAfter = artifactMetadataService.getMetadata(is);
         List<SnapshotVersion> metadata2AfterSnapshotVersions = metadata2SnapshotAfter.getVersioning().getSnapshotVersions();
 
+        String timestamp = previousLatestTimestamp.substring(previousLatestTimestamp.indexOf('-') + 1, previousLatestTimestamp.lastIndexOf('-'));
+        String buildNumber = previousLatestTimestamp.substring(previousLatestTimestamp.lastIndexOf('-') + 1, previousLatestTimestamp.length());
+
         assertNotNull("Incorrect metadata!", metadata2SnapshotAfter.getVersioning());
         assertFalse("Failed to remove timestamped SNAPSHOT version!", MetadataHelper.containsVersion(metadata2SnapshotAfter, latestTimestamp));
-        // assertNotNull("Incorrect metadata!", metadata2SnapshotAfter.getVersioning().getLatest());
+        assertEquals("Incorrect metadata!", timestamp, metadata2SnapshotAfter.getVersioning().getSnapshot().getTimestamp());
+        assertEquals("Incorrect metadata!", Integer.parseInt(buildNumber), metadata2SnapshotAfter.getVersioning().getSnapshot().getBuildNumber());
         assertEquals("Incorrect metadata!", previousLatestTimestamp, metadata2AfterSnapshotVersions.get(metadata2AfterSnapshotVersions.size() - 1).getVersion());
     }
 

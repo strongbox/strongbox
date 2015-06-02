@@ -221,8 +221,7 @@ public class ArtifactMetadataServiceSnapshotsTest
         assertEquals(version, versioning.getLatest());
         assertNotNull("Failed to set lastUpdated field!", versioning.getLastUpdated());
 
-        assertNotNull("No versioning information could be found in the metadata!",
-                      snapshotVersioning.getVersions().size());
+        assertNotNull("No versioning information could be found in the metadata!", snapshotVersioning.getVersions().size());
         assertEquals("Incorrect number of versions stored in metadata!", 1, snapshotVersioning.getVersions().size());
         assertEquals(version, snapshotVersioning.getLatest());
         assertNotNull("Failed to set lastUpdated field!", snapshotVersioning.getLastUpdated());
