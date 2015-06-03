@@ -151,7 +151,7 @@ public class MetadataHelper
     {
         SnapshotVersion snapshotVersion = new SnapshotVersion();
         snapshotVersion.setVersion(artifact.getVersion());
-        snapshotVersion.setExtension(FilenameUtils.getExtension(extension));
+        snapshotVersion.setExtension(extension);
         snapshotVersion.setUpdated(MetadataHelper.LAST_UPDATED_FIELD_FORMATTER.format(Calendar.getInstance().getTime()));
 
         if (artifact.getClassifier() != null)

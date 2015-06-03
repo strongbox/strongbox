@@ -167,7 +167,7 @@ public class VersionCollector
 
             String name = filePath.toFile().getName();
 
-            SnapshotVersion snapshotVersion = MetadataHelper.createSnapshotVersion(artifact, name);
+            SnapshotVersion snapshotVersion = MetadataHelper.createSnapshotVersion(artifact, FilenameUtils.getExtension(name));
 
             snapshotVersions.add(snapshotVersion);
         }
