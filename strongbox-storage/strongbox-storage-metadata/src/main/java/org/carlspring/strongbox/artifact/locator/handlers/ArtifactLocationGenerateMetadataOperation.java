@@ -84,9 +84,7 @@ public class ArtifactLocationGenerateMetadataOperation
                 getVisitedRootPaths().put(parentPath, versionDirectories);
 
                 VersionCollector versionCollector = new VersionCollector();
-                VersionCollectionRequest request;
-
-                request = versionCollector.collectVersions(path.getParent().toAbsolutePath());
+                VersionCollectionRequest request = versionCollector.collectVersions(path.getParent().toAbsolutePath());
 
                 if (logger.isDebugEnabled())
                 {

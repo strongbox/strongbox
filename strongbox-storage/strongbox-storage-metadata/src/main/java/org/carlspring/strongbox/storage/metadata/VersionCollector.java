@@ -167,15 +167,7 @@ public class VersionCollector
 
             String name = filePath.toFile().getName();
 
-            SnapshotVersion snapshotVersion = new SnapshotVersion();
-            snapshotVersion.setVersion(artifact.getVersion());
-            snapshotVersion.setExtension(FilenameUtils.getExtension(name));
-            snapshotVersion.setUpdated(MetadataHelper.LAST_UPDATED_FIELD_FORMATTER.format(Calendar.getInstance().getTime()));
-
-            if (artifact.getClassifier() != null)
-            {
-                snapshotVersion.setClassifier(artifact.getClassifier());
-            }
+            SnapshotVersion snapshotVersion = MetadataHelper.createSnapshotVersion(artifact, name);
 
             snapshotVersions.add(snapshotVersion);
         }
@@ -222,88 +214,6 @@ public class VersionCollector
         return versioning;
     }
 
-    public void processPomFiles(List<Path> foundFiles)
-            throws IOException, XmlPullParserException
-    {
-/*        // Add all versions
-        for (Path filePath : foundFiles)
-        {
-            Model pom = getPom(filePath);
-
-            // No pom, no metadata.
-            if (pom != null)
-            {
-                if (artifactIsSnapshot(pom))
-                {
-                    SnapshotVersion snapshotVersion = new SnapshotVersion();
-                    snapshotVersion.setVersion(pom.getVersion());
-
-                    // Add the snapshot version to versioning to follow the standard.
-                    versioning.addVersion(pom.getVersion());
-
-                    // Add the snapshot version to an array so we can later create necessary metadata for the snapshot
-                    snapshots.add(snapshotVersion);
-                }
-                else if (artifactIsPlugin(pom))
-                {
-                    String name = pom.getName() != null ?
-                                  pom.getName() :
-                                  pom.getArtifactId();
-                    String prefix = pom.getArtifactId().replace("maven-plugin", "").replace("-plugin$", "");
-
-                    Plugin plugin = new Plugin();
-                    plugin.setName(name);
-                    plugin.setArtifactId(pom.getArtifactId());
-                    plugin.setPrefix(prefix);
-
-                    if (!plugins.contains(plugin))
-                    {
-                        plugins.add(plugin);
-                    }
-
-                    versioning.addVersion(pom.getVersion());
-                }
-                else
-                {
-                    versioning.addVersion(pom.getVersion());
-                }
-
-            }
-        }
-
-        // Fix sorting
-        Collections.sort(versioning.getVersions(), new MetadataVersionComparator());
-        Collections.sort(snapshots, new SnapshotVersionComparator());
-
-        // Set latest version & latest release version
-        if (versioning.getVersions().size() > 0)
-        {
-            MetadataVersionComparator versionComparator = new MetadataVersionComparator();
-
-            String latestVersion = "0";
-            String latestRelease = "0";
-
-            for (String version : versioning.getVersions())
-            {
-                // Latest version include SNAPSHOT versions as well.
-                if(versionComparator.compare(version, latestVersion) == 1)
-                {
-                    latestVersion = version;
-                }
-
-                // Latest release excludes SNAPSHOT versions
-                if(!version.matches("^(.+)-((?i)snapshot).*$") && versionComparator.compare(version, latestRelease) == 1)
-                {
-                    latestRelease = version;
-                }
-            }
-
-            versioning.setLatest(latestVersion);
-            versioning.setRelease(latestRelease);
-        }*/
-
-    }
-
     private boolean artifactIsPlugin(Model model)
     {
         return model.getPackaging().equals("maven-plugin");
@@ -320,26 +230,5 @@ public class VersionCollector
         MavenXpp3Reader reader = new MavenXpp3Reader();
         return reader.read(new FileReader(filePath.toFile()));
     }
-
-    /*
-    private boolean versionListContains(List<MetadataVersion> versioningList, String version)
-    {
-        boolean contains = false;
-
-        if (versioningList.size() > 0)
-        {
-            for (MetadataVersion metadataVersion : versioningList)
-            {
-                if (metadataVersion.getVersion().equals(version))
-                {
-                    contains = true;
-                    break;
-                }
-            }
-        }
-
-        return contains;
-    }
-    */
 
 }

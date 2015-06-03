@@ -82,6 +82,73 @@ public interface ArtifactMetadataService extends ConfigurationService
             throws IOException, XmlPullParserException, NoSuchAlgorithmException;
 
     /**
+     * Add a version to a metadata and store it to a file.
+     *
+     * @param storageId
+     * @param repositoryId
+     * @param artifactPath
+     * @param version
+     * @param metadataType
+     * @throws IOException
+     * @throws XmlPullParserException
+     * @throws NoSuchAlgorithmException
+     */
+    void addVersion(String storageId,
+                    String repositoryId,
+                    String artifactPath,
+                    String version,
+                    MetadataType metadataType)
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException;
+
+    /**
+     * Add a version to a metadata object.
+     *
+     * @param metadata
+     * @param version
+     * @throws IOException
+     * @throws XmlPullParserException
+     * @throws NoSuchAlgorithmException
+     */
+    void addVersion(Metadata metadata, String version);
+
+    /**
+     * Adds a timestamped SNAPSHOT version to a SNAPSHOT metadata and stores it to a file.
+     *
+     * @param storageId
+     * @param repositoryId
+     * @param artifactPath
+     * @param version
+     * @param classifier
+     * @param extension
+     * @throws IOException
+     * @throws XmlPullParserException
+     * @throws NoSuchAlgorithmException
+     */
+    void addTimestampedSnapshotVersion(String storageId,
+                                       String repositoryId,
+                                       String artifactPath,
+                                       String version,
+                                       String classifier,
+                                       String extension)
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException;
+
+    /**
+     * Adds a timestamped SNAPSHOT version to a SNAPSHOT to a metadata object.
+     *
+     * @param metadata
+     * @param version
+     * @param classifier
+     * @param extension
+     * @throws IOException
+     * @throws XmlPullParserException
+     * @throws NoSuchAlgorithmException
+     */
+    void addTimestampedSnapshotVersion(Metadata metadata,
+                                       String version,
+                                       String classifier,
+                                       String extension);
+
+    /**
      * Removes an existing version from the metadata file.
      *
      * @param storageId

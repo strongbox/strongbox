@@ -156,6 +156,51 @@ public class ArtifactMetadataServiceSnapshotsTest
     }
 
     @Test
+    public void testAddTimestampedSnapshotVersionToMetadata()
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException
+    {
+        // Create snapshot artifacts
+        Artifact addedArtifact = createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR.getAbsolutePath(),
+                                                                   "org.carlspring.strongbox",
+                                                                   "added",
+                                                                   "2.0",
+                                                                   "jar",
+                                                                   CLASSIFIERS,
+                                                                   5);
+
+        changeCreationDate(addedArtifact);
+
+        String artifactPath = "org/carlspring/strongbox/added";
+
+        artifactMetadataService.rebuildMetadata("storage0", "snapshots", artifactPath);
+
+        String metadataPath = artifactPath + "/2.0-SNAPSHOT";
+
+        Metadata metadataBefore = artifactMetadataService.getMetadata("storage0", "snapshots", metadataPath);
+
+        assertTrue(MetadataHelper.containsTimestampedSnapshotVersion(metadataBefore, addedArtifact.getVersion(), null));
+
+        String timestamp = formatter.format(calendar.getTime());
+        String version = "2.0-" + timestamp + "-" + 6;
+
+        addedArtifact = new DetachedArtifact(addedArtifact.getGroupId(),
+                                             addedArtifact.getArtifactId(),
+                                             version);
+
+        artifactMetadataService.addTimestampedSnapshotVersion("storage0",
+                                                              "snapshots",
+                                                              artifactPath,
+                                                              addedArtifact.getVersion(),
+                                                              null,
+                                                              "jar");
+
+        Metadata metadataAfter = artifactMetadataService.getMetadata("storage0", "snapshots", metadataPath);
+
+        assertNotNull(metadataAfter);
+        assertTrue("Failed to add timestamped SNAPSHOT version to metadata!", MetadataHelper.containsTimestampedSnapshotVersion(metadataAfter, addedArtifact.getVersion()));
+    }
+
+    @Test
     public void testDeleteTimestampedSnapshotVersionFromMetadata()
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
