@@ -114,6 +114,106 @@ public class ArtifactMetadataServiceImpl
     }
 
     @Override
+    public void addVersion(String storageId,
+                           String repositoryId,
+                           String artifactPath,
+                           String version,
+                           MetadataType metadataType)
+            throws IOException,
+                   XmlPullParserException,
+                   NoSuchAlgorithmException
+    {
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+
+        Path artifactBasePath = Paths.get(repository.getBasedir(), artifactPath);
+
+        Metadata metadata = getMetadata(artifactBasePath.toAbsolutePath().toString());
+
+        addVersion(metadata, version);
+
+        metadataManager.storeMetadata(artifactBasePath, version, metadata, metadataType);
+    }
+
+    @Override
+    public void addVersion(Metadata metadata, String version)
+    {
+        if (!metadata.getVersioning().getVersions().contains(version))
+        {
+            metadata.getVersioning().getVersions().add(version);
+
+            // Update the latest field
+            MetadataHelper.setLatest(metadata, version);
+            // Update the release field
+            MetadataHelper.setRelease(metadata, version);
+            // Update the lastUpdated field
+            MetadataHelper.setLastUpdated(metadata.getVersioning());
+        }
+        else
+        {
+            // No need to throw an exception here.
+            // Logging the error should suffice.
+            logger.error("Version " + version + " already exists in the metadata file.");
+        }
+    }
+
+    @Override
+    public void addTimestampedSnapshotVersion(String storageId,
+                                              String repositoryId,
+                                              String artifactPath,
+                                              String version,
+                                              String classifier,
+                                              String extension)
+            throws IOException,
+                   XmlPullParserException,
+                   NoSuchAlgorithmException
+    {
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+
+        String snapshot = ArtifactUtils.getSnapshotBaseVersion(version);
+
+        Path artifactBasePath = Paths.get(repository.getBasedir(), artifactPath);
+
+        Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
+
+        Metadata snapshotMetadata = metadataManager.generateSnapshotVersioningMetadata(artifactBasePath,
+                                                                                       artifact,
+                                                                                       snapshot,
+                                                                                       false);
+
+        addTimestampedSnapshotVersion(snapshotMetadata, version, classifier, extension);
+
+        metadataManager.storeMetadata(artifactBasePath,
+                                      snapshot,
+                                      snapshotMetadata,
+                                      MetadataType.SNAPSHOT_VERSION_LEVEL);
+    }
+
+    @Override
+    public void addTimestampedSnapshotVersion(Metadata metadata,
+                                              String version,
+                                              String classifier,
+                                              String extension)
+    {
+        List<SnapshotVersion> snapshotVersions = metadata.getVersioning().getSnapshotVersions();
+
+        SnapshotVersion snapshotVersion = MetadataHelper.createSnapshotVersion(metadata.getGroupId(),
+                                                                               metadata.getArtifactId(),
+                                                                               version,
+                                                                               classifier,
+                                                                               extension);
+
+        snapshotVersions.add(snapshotVersion);
+
+        // Set the snapshot mapping fields (timestamp + buildNumber)
+        MetadataHelper.setupSnapshotVersioning(metadata.getVersioning());
+
+        // Update the lastUpdated field
+        MetadataHelper.setLastUpdated(metadata.getVersioning());
+    }
+
+    @Override
     public void removeVersion(String storageId,
                               String repositoryId,
                               String artifactPath,

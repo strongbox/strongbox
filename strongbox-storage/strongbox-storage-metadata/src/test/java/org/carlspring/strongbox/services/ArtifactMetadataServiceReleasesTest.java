@@ -113,6 +113,38 @@ public class ArtifactMetadataServiceReleasesTest
     }
 
     @Test
+    public void testAddVersionToMetadata()
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException
+    {
+        createRelease("org.carlspring.strongbox:added:1.0:jar");
+        createRelease("org.carlspring.strongbox:added:1.1:jar");
+        createRelease("org.carlspring.strongbox:added:1.2:jar");
+        createRelease("org.carlspring.strongbox:added:1.3:jar");
+
+        String artifactPath = "org/carlspring/strongbox/added";
+
+        artifactMetadataService.rebuildMetadata("storage0", "releases", artifactPath);
+
+        Metadata metadataBefore = artifactMetadataService.getMetadata("storage0", "releases", artifactPath);
+
+        assertNotNull(metadataBefore);
+        assertTrue("Unexpected set of versions!", MetadataHelper.containsVersion(metadataBefore, "1.3"));
+
+        artifactMetadataService.addVersion("storage0",
+                                           "releases",
+                                           artifactPath,
+                                           "1.4",
+                                           MetadataType.ARTIFACT_ROOT_LEVEL);
+
+        Metadata metadataAfter = artifactMetadataService.getMetadata("storage0", "releases", artifactPath);
+
+        assertNotNull(metadataAfter);
+        assertTrue("Unexpected set of versions!", MetadataHelper.containsVersion(metadataAfter, "1.4"));
+        assertEquals("Unexpected set of versions!", "1.4", metadataAfter.getVersioning().getLatest());
+        assertEquals("Unexpected set of versions!", "1.4", metadataAfter.getVersioning().getRelease());
+    }
+
+    @Test
     public void testDeleteVersionFromMetadata()
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {

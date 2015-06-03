@@ -1,9 +1,12 @@
 package org.carlspring.strongbox.storage.metadata;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Snapshot;
 import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.artifact.repository.metadata.Versioning;
+import org.carlspring.maven.commons.DetachedArtifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.springframework.util.StringUtils;
 
@@ -12,6 +15,7 @@ import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -53,16 +57,12 @@ public class MetadataHelper
 
         List<String> versions = versioning.getVersions();
 
-        if (versioning.getLatest() == null)
-        {
-            versioning.setLatest(versions.get(versions.size() - 1));
+        sortVersions(versions);
 
-            return;
-        }
-
-        // Delete mode:
-        if (currentLatest != null && versioning.getLatest().equals(currentLatest))
+        if (currentLatest != null &&
+            versioning.getLatest() != null && versioning.getLatest().equals(currentLatest))
         {
+            // Delete mode:
             if (versions.size() > 1)
             {
                 // TODO: Is this the right thing to do?
@@ -72,6 +72,11 @@ public class MetadataHelper
             {
                 // TODO: Figure out what we should do in case there are no other available versions
             }
+        }
+        else
+        {
+            // Regular mode
+            versioning.setLatest(versions.get(versions.size() - 1));
         }
     }
 
@@ -100,16 +105,12 @@ public class MetadataHelper
 
         List<String> versions = versioning.getVersions();
 
-        if (versioning.getRelease() == null)
-        {
-            versioning.setRelease(versions.get(versions.size() - 1));
+        sortVersions(versions);
 
-            return;
-        }
-
-        // Delete mode:
-        if (currentRelease != null && versioning.getRelease().equals(currentRelease) && versioning.getRelease().equals(currentRelease))
+        if (currentRelease != null &&
+            versioning.getRelease()!= null && versioning.getRelease().equals(currentRelease))
         {
+            // Delete mode:
             if (versions.size() > 1)
             {
                 versioning.setRelease(versions.get(versions.size() - 2));
@@ -119,6 +120,46 @@ public class MetadataHelper
                 // TODO: Figure out what we should do in case there are no other available versions
             }
         }
+        else
+        {
+            // Regular mode
+            versioning.setRelease(versions.get(versions.size() - 1));
+        }
+    }
+
+    private static void sortVersions(List<String> versions)
+    {
+        // Sort the versions in order to set <release> by figuring out the most recent upload
+        if (versions != null)
+        {
+            Collections.sort(versions);
+        }
+    }
+
+    public static SnapshotVersion createSnapshotVersion(String groupId,
+                                                        String artifactId,
+                                                        String version,
+                                                        String classifier,
+                                                        String extension)
+    {
+        Artifact artifact = new DetachedArtifact(groupId, artifactId, version, null, classifier);
+
+        return createSnapshotVersion(artifact, extension);
+    }
+
+    public static SnapshotVersion createSnapshotVersion(Artifact artifact, String extension)
+    {
+        SnapshotVersion snapshotVersion = new SnapshotVersion();
+        snapshotVersion.setVersion(artifact.getVersion());
+        snapshotVersion.setExtension(FilenameUtils.getExtension(extension));
+        snapshotVersion.setUpdated(MetadataHelper.LAST_UPDATED_FIELD_FORMATTER.format(Calendar.getInstance().getTime()));
+
+        if (artifact.getClassifier() != null)
+        {
+            snapshotVersion.setClassifier(artifact.getClassifier());
+        }
+
+        return snapshotVersion;
     }
 
     public static void setupSnapshotVersioning(Versioning snapshotVersioning)
