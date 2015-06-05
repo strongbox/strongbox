@@ -74,7 +74,7 @@ public class ArtifactManagementServiceImpl
     {
         performRepositoryAcceptanceValidation(storageId, repositoryId, path);
 
-        boolean fileIsChecksum = path.endsWith(".md5") || path.endsWith(".sha1");
+        boolean fileIsChecksum = ArtifactUtils.isChecksum(path);
         MultipleDigestInputStream mdis = null;
         try
         {
