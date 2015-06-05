@@ -4,6 +4,7 @@ import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 
 import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Steve Todorov <s.todorov@itnews-bg.com>
@@ -15,7 +16,7 @@ public class MetadataVersion implements Comparable<MetadataVersion>
 
     private FileTime createdDate;
 
-    private ArrayList<SnapshotVersion> snapshots = new ArrayList<SnapshotVersion>();
+    private List<SnapshotVersion> snapshots = new ArrayList<SnapshotVersion>();
 
     public String getVersion()
     {
@@ -37,7 +38,7 @@ public class MetadataVersion implements Comparable<MetadataVersion>
         this.createdDate = createdDate;
     }
 
-    public ArrayList<SnapshotVersion> getSnapshots()
+    public List<SnapshotVersion> getSnapshots()
     {
         return snapshots;
     }
