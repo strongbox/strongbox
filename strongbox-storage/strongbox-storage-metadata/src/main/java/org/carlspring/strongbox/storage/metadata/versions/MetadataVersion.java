@@ -16,7 +16,7 @@ public class MetadataVersion implements Comparable<MetadataVersion>
 
     private FileTime createdDate;
 
-    private List<SnapshotVersion> snapshots = new ArrayList<SnapshotVersion>();
+    private List<SnapshotVersion> snapshots = new ArrayList<>();
 
     public String getVersion()
     {
@@ -43,7 +43,7 @@ public class MetadataVersion implements Comparable<MetadataVersion>
         return snapshots;
     }
 
-    public void setSnapshots(ArrayList<SnapshotVersion> snapshots)
+    public void setSnapshots(List<SnapshotVersion> snapshots)
     {
         this.snapshots = snapshots;
     }
@@ -59,4 +59,5 @@ public class MetadataVersion implements Comparable<MetadataVersion>
 
         return diff;
     }
+
 }
