@@ -89,7 +89,8 @@ public class ArtifactRestlet
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
 
-        // return Response.ok(is).build();
+        // This is not really anything, due to the fact it's only meant to be
+        // used for very basic testing, therefore a simple 200 should suffice:
         return Response.ok().build();
     }
 
