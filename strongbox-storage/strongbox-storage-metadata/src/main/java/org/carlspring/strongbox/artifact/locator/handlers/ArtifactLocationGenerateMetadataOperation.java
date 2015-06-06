@@ -104,7 +104,7 @@ public class ArtifactLocationGenerateMetadataOperation
                 catch (IOException | XmlPullParserException | NoSuchAlgorithmException e)
                 {
                     logger.error("Failed to generate metadata for " + artifactPath);
-                    e.printStackTrace();
+                    logger.trace(e.getMessage(), e);
                 }
             }
         }
