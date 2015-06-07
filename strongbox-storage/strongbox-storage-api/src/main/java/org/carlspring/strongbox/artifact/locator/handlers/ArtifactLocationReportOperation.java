@@ -5,6 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -21,6 +23,8 @@ public class ArtifactLocationReportOperation
     private static final Logger logger = LoggerFactory.getLogger(ArtifactLocationReportOperation.class);
 
     private static String previousPath;
+
+    private OutputStream outputStream = System.out;
 
 
     public ArtifactLocationReportOperation()
@@ -55,7 +59,7 @@ public class ArtifactLocationReportOperation
             if (logger.isDebugEnabled())
             {
                 // We're using System.out.println() here for clarity and due to the length of the lines
-                System.out.println(parentPath);
+                printPath(parentPath);
             }
 
             // The current directory is out of the tree
@@ -78,6 +82,33 @@ public class ArtifactLocationReportOperation
                 System.out.println(path.getParent());
             }
         }
+    }
+
+    private void printPath(String parentPath)
+    {
+        try
+        {
+            synchronized (this)
+            {
+                outputStream.write(parentPath.getBytes());
+                outputStream.write("\n".getBytes());
+                outputStream.flush();
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public OutputStream getOutputStream()
+    {
+        return outputStream;
+    }
+
+    public void setOutputStream(OutputStream outputStream)
+    {
+        this.outputStream = outputStream;
     }
 
 }
