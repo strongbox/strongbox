@@ -184,7 +184,7 @@ public class VersionCollector
     {
         Versioning versioning = new Versioning();
 
-        if (versions.size() > 0)
+        if (!versions.isEmpty())
         {
             // Sort versions naturally (1.1 < 1.2 < 1.3 ...)
             Collections.sort(versions, new MetadataVersionComparator());
@@ -206,7 +206,7 @@ public class VersionCollector
     {
         Versioning versioning = new Versioning();
 
-        if (snapshotVersionList.size() > 0)
+        if (!snapshotVersionList.isEmpty())
         {
             versioning.setSnapshotVersions(snapshotVersionList);
         }

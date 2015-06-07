@@ -5,6 +5,8 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import static org.junit.Assert.assertFalse;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
@@ -25,7 +27,7 @@ public class AuthenticationManagerTest
     {
         assertTrue("Failed to load configuration!", authenticationManager.getConfiguration() != null);
         assertTrue("Failed to load realms!", authenticationManager.getRealms() != null);
-        assertTrue("Failed to load realms!", authenticationManager.getRealms().size() > 0);
+        assertFalse("Failed to load realms!", authenticationManager.getRealms().isEmpty());
         assertTrue("Failed to load settings for anonymous access!",
                    authenticationManager.getAnonymousAccessConfiguration() != null);
         assertTrue("Failed to load settings for anonymous access!",
