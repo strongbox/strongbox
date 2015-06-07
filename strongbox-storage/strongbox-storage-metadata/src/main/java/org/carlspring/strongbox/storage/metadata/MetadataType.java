@@ -43,15 +43,15 @@ public enum MetadataType
             throw new IllegalArgumentException("Invalid metadata type!");
         }
 
-        if (metadataType.equals("artifact"))
+        if (MetadataType.ARTIFACT_ROOT_LEVEL.getType().equals(metadataType))
         {
             return ARTIFACT_ROOT_LEVEL;
         }
-        else if (metadataType.equals("snapshot"))
+        else if (MetadataType.SNAPSHOT_VERSION_LEVEL.getType().equals(metadataType))
         {
             return SNAPSHOT_VERSION_LEVEL;
         }
-        else if (metadataType.equals("plugin"))
+        else if (MetadataType.PLUGIN_GROUP_LEVEL.getType().equals(metadataType))
         {
             return PLUGIN_GROUP_LEVEL;
         }
