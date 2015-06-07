@@ -3,7 +3,6 @@ package org.carlspring.strongbox.io.filters;
 import org.carlspring.maven.commons.io.filters.PomFilenameFilter;
 
 import java.io.File;
-import java.io.FileFilter;
 
 /**
  * @author mtodorov
