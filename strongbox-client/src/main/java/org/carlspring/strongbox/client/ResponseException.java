@@ -6,7 +6,7 @@ package org.carlspring.strongbox.client;
 public class ResponseException extends Exception
 {
 
-    private int statusCode;
+    private final int statusCode;
 
 
     public ResponseException(String message, int statusCode)
@@ -18,11 +18,6 @@ public class ResponseException extends Exception
     public int getStatusCode()
     {
         return statusCode;
-    }
-
-    public void setStatusCode(int statusCode)
-    {
-        this.statusCode = statusCode;
     }
 
 }
