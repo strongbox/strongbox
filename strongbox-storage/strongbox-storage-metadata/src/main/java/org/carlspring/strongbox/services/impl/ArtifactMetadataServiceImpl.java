@@ -277,18 +277,16 @@ public class ArtifactMetadataServiceImpl
         for (Iterator<SnapshotVersion> iterator = snapshotVersions.iterator(); iterator.hasNext();)
         {
             SnapshotVersion snapshotVersion = iterator.next();
-            if (snapshotVersion.getVersion().equals(version))
+            if (snapshotVersion.getVersion().equals(version) &&
+                (classifier == null || snapshotVersion.getClassifier().equals(classifier)))
             {
-                if (classifier == null || snapshotVersion.getClassifier().equals(classifier))
-                {
-                    iterator.remove();
+                iterator.remove();
 
-                    logger.debug("Removed timestamped SNAPSHOT (" + version +
-                                 (classifier != null ? ":" + classifier :
-                                 (snapshotVersion.getClassifier() != null && !snapshotVersion.getClassifier().equals("") ?
-                                  ":" + snapshotVersion.getClassifier() + ":" : ":") +
-                                 snapshotVersion.getExtension()) + ") from metadata.");
-                }
+                logger.debug("Removed timestamped SNAPSHOT (" + version +
+                             (classifier != null ? ":" + classifier :
+                             (snapshotVersion.getClassifier() != null && !snapshotVersion.getClassifier().equals("") ?
+                              ":" + snapshotVersion.getClassifier() + ":" : ":") +
+                             snapshotVersion.getExtension()) + ") from metadata.");
             }
         }
 
