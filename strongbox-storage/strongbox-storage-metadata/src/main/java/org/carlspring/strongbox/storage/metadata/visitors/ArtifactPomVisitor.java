@@ -15,7 +15,7 @@ public class ArtifactPomVisitor
 
     private static final String SEARCH_PATTERN = "glob:*.pom";
 
-    public List<Path> matchingPaths = new ArrayList<>();
+    private List<Path> matchingPaths = new ArrayList<>();
 
     private PathMatcher matcher;
 

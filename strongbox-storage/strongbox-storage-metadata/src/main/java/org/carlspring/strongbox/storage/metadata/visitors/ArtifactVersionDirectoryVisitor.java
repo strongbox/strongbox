@@ -20,7 +20,7 @@ public class ArtifactVersionDirectoryVisitor
     private static final String METADATA_PATTERN = "glob:maven-metadata.*";
     private static final String SNAPSHOT_PATTERN = "glob:*SNAPSHOT*";
 
-    public List<Path> matchingPaths = new ArrayList<>();
+    private List<Path> matchingPaths = new ArrayList<>();
 
     private PathMatcher checksumFileMatcher;
     private PathMatcher metadataFileMatcher;
