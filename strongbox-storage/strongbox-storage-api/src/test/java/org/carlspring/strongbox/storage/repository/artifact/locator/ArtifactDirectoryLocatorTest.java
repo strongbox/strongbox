@@ -98,9 +98,10 @@ public class ArtifactDirectoryLocatorTest
         locator.setOperation(new ArtifactLocationReportOperation("org/carlspring"));
         locator.locateArtifactDirectories();
 
+        os.flush();
+
         String output = new String(os.toByteArray());
 
-        assertFalse(output.contains("org/apache/maven/location-utils"));
         assertFalse(output.contains("org/apache/maven/location-utils"));
         assertTrue(output.contains("org/carlspring/maven/locator-testing"));
         assertTrue(output.contains("org/carlspring/strongbox/locator/foo-locator"));
