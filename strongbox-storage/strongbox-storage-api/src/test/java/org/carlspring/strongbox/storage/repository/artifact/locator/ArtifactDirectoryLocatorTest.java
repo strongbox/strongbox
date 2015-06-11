@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.storage.repository.artifact.locator;
 
+import junit.framework.Assert;
+import org.apache.commons.codec.binary.StringUtils;
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.artifact.locator.handlers.ArtifactLocationReportOperation;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
@@ -10,11 +12,9 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 import java.security.NoSuchAlgorithmException;
+import java.util.regex.Matcher;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertFalse;
@@ -30,7 +30,9 @@ public class ArtifactDirectoryLocatorTest
 
     private ByteArrayOutputStream os;
 
-    private static final PrintStream tempSysOut = System.out;
+    private static PrintStream tempSysOut;
+
+    private boolean INITIALIZED = false;
 
 
     @Before
@@ -48,6 +50,13 @@ public class ArtifactDirectoryLocatorTest
             generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), "org.carlspring.strongbox:locator", new String[] { "5.2.1", "5.2.2", "5.2.2" });
             generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), "org.carlspring.strongbox.locator:foo-locator", new String[] { "1.0", "1.1", "1.2" });
             generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), "org.carlspring.strongbox.locator:utils", new String[] { "2.1", "2.2", "2.3" });
+        }
+
+        if (!INITIALIZED)
+        {
+            tempSysOut = System.out;
+
+            INITIALIZED = true;
         }
 
         os = new ByteArrayOutputStream();
@@ -79,11 +88,11 @@ public class ArtifactDirectoryLocatorTest
 
         String output = new String(os.toByteArray());
 
-        assertTrue(output.contains("org/apache/maven/location-utils"));
-        assertTrue(output.contains("org/carlspring/maven/locator-testing"));
-        assertTrue(output.contains("org/carlspring/strongbox/locator/foo-locator"));
-        assertTrue(output.contains("org/apache/maven/location-utils"));
-        assertTrue(output.contains("org/carlspring/strongbox/locator/utils"));
+        assertTrue(output.contains(normalize("org/apache/maven/location-utils")));
+        assertTrue(output.contains(normalize("org/carlspring/maven/locator-testing")));
+        assertTrue(output.contains(normalize("org/carlspring/strongbox/locator/foo-locator")));
+        assertTrue(output.contains(normalize("org/apache/maven/location-utils")));
+        assertTrue(output.contains(normalize("org/carlspring/strongbox/locator/utils")));
 
         // resetOutput();
         // System.out.println(output);
@@ -102,13 +111,23 @@ public class ArtifactDirectoryLocatorTest
 
         String output = new String(os.toByteArray());
 
-        assertFalse(output.contains("org/apache/maven/location-utils"));
-        assertTrue(output.contains("org/carlspring/maven/locator-testing"));
-        assertTrue(output.contains("org/carlspring/strongbox/locator/foo-locator"));
-        assertTrue(output.contains("org/carlspring/strongbox/locator/utils"));
+        assertFalse(output.contains(normalize("org/apache/maven/location-utils")));
+        assertTrue(output.contains(normalize("org/carlspring/maven/locator-testing")));
+        assertTrue(output.contains(normalize("org/carlspring/strongbox/locator/foo-locator")));
+        assertTrue(output.contains(normalize("org/carlspring/strongbox/locator/utils")));
 
         // resetOutput();
         // System.out.println(output);
+    }
+
+    private String normalize(String path)
+    {
+        if (!File.separator.equals("/"))
+        {
+            path = path.replaceAll("/", Matcher.quoteReplacement(System.getProperty("file.separator")));
+        }
+
+        return path;
     }
 
 }
