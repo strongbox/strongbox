@@ -20,6 +20,12 @@ public interface ArtifactManagementService extends ConfigurationService
                         String path)
             throws IOException;
 
+    InputStream resolve(String storageId,
+                        String repositoryId,
+                        String path,
+                        long offset)
+            throws IOException;
+
     void delete(String storageId,
                 String repositoryId,
                 String artifactPath,

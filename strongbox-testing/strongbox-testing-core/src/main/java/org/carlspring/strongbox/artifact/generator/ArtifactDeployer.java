@@ -1,18 +1,16 @@
 package org.carlspring.strongbox.artifact.generator;
 
+import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactClient;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.security.encryption.EncryptionAlgorithmsEnum;
-import org.carlspring.strongbox.util.MessageDigestUtils;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 import java.io.*;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
-import org.apache.maven.artifact.Artifact;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import java.util.Map;
 
 /**
  * @author mtodorov
@@ -124,13 +122,14 @@ public class ArtifactDeployer extends ArtifactGenerator
                                 Artifact artifact)
             throws ArtifactOperationException, IOException
     {
-        for (MessageDigest digest : ais.getDigests().values())
+        for (Map.Entry entry : ais.getHexDigests().entrySet())
         {
-            final String checksum = MessageDigestUtils.convertToHexadecimalString(digest);
+            final String algorithm = (String) entry.getKey();
+            final String checksum = (String) entry.getValue();
 
             ByteArrayInputStream bais = new ByteArrayInputStream(checksum.getBytes());
 
-            final String extensionForAlgorithm = EncryptionAlgorithmsEnum.fromAlgorithm(digest.getAlgorithm()).getExtension();
+            final String extensionForAlgorithm = EncryptionAlgorithmsEnum.fromAlgorithm(algorithm).getExtension();
 
             String artifactToPath = ArtifactUtils.convertArtifactToPath(artifact) + extensionForAlgorithm;
             String url = client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + artifactToPath;

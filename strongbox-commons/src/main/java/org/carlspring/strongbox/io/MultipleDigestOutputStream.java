@@ -34,6 +34,22 @@ public class MultipleDigestOutputStream extends FilterOutputStream
     private boolean generateChecksumFiles;
 
 
+    public MultipleDigestOutputStream(OutputStream os)
+            throws NoSuchAlgorithmException
+    {
+        super(os);
+
+        addAlgorithms(DEFAULT_ALGORITHMS);
+    }
+
+    public MultipleDigestOutputStream(OutputStream os, String[] algorithms)
+            throws NoSuchAlgorithmException
+    {
+        super(os);
+
+        addAlgorithms(algorithms);
+    }
+
     public MultipleDigestOutputStream(File file, OutputStream os)
             throws NoSuchAlgorithmException, FileNotFoundException
     {
@@ -58,6 +74,12 @@ public class MultipleDigestOutputStream extends FilterOutputStream
         this.path = path;
         this.generateChecksumFiles = generateChecksumFiles;
 
+        addAlgorithms(algorithms);
+    }
+
+    private void addAlgorithms(String[] algorithms)
+            throws NoSuchAlgorithmException
+    {
         for (String algorithm : algorithms)
         {
             addAlgorithm(algorithm);

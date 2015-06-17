@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.storage.checksum;
 
+import org.carlspring.strongbox.security.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import java.io.IOException;
@@ -61,8 +62,8 @@ public class ChecksumCacheManagerTest
     {
         String s = "This is a test.";
 
-        MessageDigest md5Digest = MessageDigest.getInstance("MD5");
-        MessageDigest sha1Digest = MessageDigest.getInstance("SHA-1");
+        MessageDigest md5Digest = MessageDigest.getInstance(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
+        MessageDigest sha1Digest = MessageDigest.getInstance(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
 
         md5Digest.update(s.getBytes());
         sha1Digest.update(s.getBytes());

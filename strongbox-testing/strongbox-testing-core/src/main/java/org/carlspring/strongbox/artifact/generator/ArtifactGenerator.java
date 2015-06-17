@@ -5,10 +5,10 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.io.MultipleDigestInputStream;
 import org.carlspring.strongbox.io.RandomInputStream;
 import org.carlspring.strongbox.resource.ResourceCloser;
+import org.carlspring.strongbox.security.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import java.io.*;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
@@ -239,18 +239,21 @@ public class ArtifactGenerator
             throws NoSuchAlgorithmException, IOException
     {
         InputStream is = new FileInputStream(artifactFile);
-        MultipleDigestInputStream mdis = new MultipleDigestInputStream(is, new String[]{ "MD5", "SHA-1" });
+        MultipleDigestInputStream mdis = new MultipleDigestInputStream(is);
 
-        byte[] bytes = new byte[4096];
+        int size = 4096;
+        byte[] bytes = new byte[size];
 
         //noinspection StatementWithEmptyBody
-        while (mdis.read(bytes, 0, bytes.length) != -1);
+        while (mdis.read(bytes, 0, size) != -1);
 
-        final MessageDigest md5Digest = mdis.getMessageDigest("MD5");
-        final MessageDigest sha1Digest = mdis.getMessageDigest("SHA-1");
+        mdis.close();
 
-        MessageDigestUtils.writeDigestAsHexadecimalString(md5Digest, artifactFile, "md5");
-        MessageDigestUtils.writeDigestAsHexadecimalString(sha1Digest, artifactFile, "sha1");
+        String md5 = mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
+        String sha1 = mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
+
+        MessageDigestUtils.writeChecksum(artifactFile, EncryptionAlgorithmsEnum.MD5.getExtension(), md5);
+        MessageDigestUtils.writeChecksum(artifactFile, EncryptionAlgorithmsEnum.SHA1.getExtension(), sha1);
     }
 
     public String getBasedir()

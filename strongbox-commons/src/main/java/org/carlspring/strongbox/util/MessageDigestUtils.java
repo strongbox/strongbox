@@ -35,7 +35,13 @@ public class MessageDigestUtils
     {
         String checksum = MessageDigestUtils.convertToHexadecimalString(digest);
 
-        final File checksumFile = new File(artifactFile.getAbsolutePath() + "." + checksumFileExtension);
+        writeChecksum(artifactFile, checksumFileExtension, checksum);
+    }
+
+    public static void writeChecksum(File artifactFile, String checksumFileExtension, String checksum)
+            throws IOException
+    {
+        final File checksumFile = new File(artifactFile.getAbsolutePath() + checksumFileExtension);
 
         FileOutputStream fos = null;
 

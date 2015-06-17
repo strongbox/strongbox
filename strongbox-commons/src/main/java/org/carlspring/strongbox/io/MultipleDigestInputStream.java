@@ -64,6 +64,11 @@ public class MultipleDigestInputStream
         return digests;
     }
 
+    public Map<String, String> getHexDigests()
+    {
+        return hexDigests;
+    }
+
     public String getMessageDigestAsHexadecimalString(String algorithm)
     {
         if (hexDigests.containsKey(algorithm))
@@ -120,6 +125,21 @@ public class MultipleDigestInputStream
         }
 
         return numberOfBytesRead;
+    }
+
+    @Override
+    public int read(byte[] bytes)
+            throws IOException
+    {
+        int len = in.read(bytes);
+
+        for (Map.Entry entry : digests.entrySet())
+        {
+            MessageDigest digest = (MessageDigest) entry.getValue();
+            digest.update(bytes, 0, len);
+        }
+
+        return len;
     }
 
 }

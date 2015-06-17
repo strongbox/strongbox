@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.rest;
 
+import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -11,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
@@ -80,13 +82,29 @@ public class ArtifactRestlet
     {
         logger.debug(" repository = " + repositoryId + ", path = " + path);
 
+        long offset = 0;
+
+        if (headers != null)
+        {
+            String contentRange = headers.getRequestHeaders() != null &&
+                                  headers.getRequestHeaders().getFirst("Range") != null ?
+                                  headers.getRequestHeaders().getFirst("Range") : null;
+
+            if (contentRange != null)
+            {
+                offset = Long.parseLong(contentRange.substring("bytes=".length(), contentRange.indexOf('-')));
+
+                logger.debug("Received request for partial download, starting at byte " + offset + ".");
+            }
+        }
+
         handleAuthentication(storageId, repositoryId, path, headers, request);
 
         InputStream is;
 
         try
         {
-            is = artifactManagementService.resolve(storageId, repositoryId, path);
+            is = artifactManagementService.resolve(storageId, repositoryId, path, offset);
         }
         catch (ArtifactResolutionException e)
         {
@@ -94,6 +112,22 @@ public class ArtifactRestlet
         }
 
         Response.ResponseBuilder responseBuilder = Response.ok(is);
+
+        // TODO: This is far from optimal and will need to have a content type approach at some point:
+        if (ArtifactUtils.isChecksum(path))
+        {
+            responseBuilder.type(MediaType.TEXT_PLAIN);
+        }
+        else if (ArtifactUtils.isMetadata(path))
+        {
+            responseBuilder.type(MediaType.APPLICATION_XML);
+        }
+        else
+        {
+            responseBuilder.type(MediaType.APPLICATION_OCTET_STREAM);
+        }
+
+        responseBuilder.header("Accept-Ranges", "bytes");
 
         setHeadersForChecksums(storageId, repositoryId, path, responseBuilder);
 

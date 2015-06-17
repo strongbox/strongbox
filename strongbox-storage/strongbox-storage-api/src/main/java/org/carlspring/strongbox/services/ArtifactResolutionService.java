@@ -15,7 +15,8 @@ public interface ArtifactResolutionService
 
     InputStream getInputStream(String storageId,
                                String repositoryId,
-                               String artifactPath)
+                               String artifactPath,
+                               long offset)
             throws IOException;
 
     OutputStream getOutputStream(String storageId,

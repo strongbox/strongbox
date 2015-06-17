@@ -23,7 +23,8 @@ import java.util.Map;
  * @author mtodorov
  */
 @Component
-public class ArtifactResolutionServiceImpl
+public class
+        ArtifactResolutionServiceImpl
         implements ArtifactResolutionService
 {
 
@@ -53,7 +54,8 @@ public class ArtifactResolutionServiceImpl
     @Override
     public InputStream getInputStream(String storageId,
                                       String repositoryId,
-                                      String artifactPath)
+                                      String artifactPath,
+                                      long offset)
             throws IOException
     {
         artifactOperationsValidator.validate(storageId, repositoryId, artifactPath);
@@ -61,7 +63,7 @@ public class ArtifactResolutionServiceImpl
         final Repository repository = getStorage(storageId).getRepository(repositoryId);
 
         LocationResolver resolver = getResolvers().get(repository.getImplementation());
-        InputStream is = resolver.getInputStream(storageId, repositoryId, artifactPath);
+        InputStream is = resolver.getInputStream(storageId, repositoryId, artifactPath, offset);
 
         if (is == null)
         {

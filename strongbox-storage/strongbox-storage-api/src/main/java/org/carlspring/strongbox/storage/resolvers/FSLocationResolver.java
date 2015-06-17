@@ -34,7 +34,8 @@ public class FSLocationResolver
     @Override
     public InputStream getInputStream(String storageId,
                                       String repositoryId,
-                                      String artifactPath)
+                                      String artifactPath,
+                                      long offset)
             throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
@@ -50,7 +51,16 @@ public class FSLocationResolver
         {
             logger.debug("Resolved " + artifactFile.getCanonicalPath() + "!");
 
-            return new FileInputStream(artifactFile);
+            FileInputStream fis = new FileInputStream(artifactFile);
+
+            if (offset > 0)
+            {
+                long skip = fis.skip(offset);
+
+                logger.debug("Skipped " + skip + " bytes!");
+            }
+
+            return fis;
         }
 
         return null;

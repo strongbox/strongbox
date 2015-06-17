@@ -162,11 +162,21 @@ public class ArtifactManagementServiceImpl
                                String path)
             throws IOException
     {
+        return resolve(storageId, repositoryId, path, 0);
+    }
+
+    @Override
+    public InputStream resolve(String storageId,
+                               String repositoryId,
+                               String path,
+                               long offset)
+            throws IOException
+    {
         InputStream is = null;
 
         try
         {
-            is = artifactResolutionService.getInputStream(storageId, repositoryId, path);
+            is = artifactResolutionService.getInputStream(storageId, repositoryId, path, offset);
             return is;
         }
         catch (IOException e)

@@ -7,7 +7,6 @@ import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -76,6 +75,8 @@ public class ArtifactDirectoryLocatorTest
         locator.setOperation(new ArtifactLocationReportOperation());
         //! locator.locateArtifactDirectories("/java/nexus/sonatype-work/nexus/storage");
         locator.locateArtifactDirectories();
+
+        os.flush();
 
         String output = new String(os.toByteArray());
 

@@ -37,7 +37,8 @@ public class InMemoryLocationResolver
     @Override
     public InputStream getInputStream(String storageId,
                                       String repositoryId,
-                                      String artifactPath)
+                                      String artifactPath,
+                                      long offset)
             throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);

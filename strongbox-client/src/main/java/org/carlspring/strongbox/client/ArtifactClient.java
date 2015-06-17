@@ -2,10 +2,7 @@ package org.carlspring.strongbox.client;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.client.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -188,6 +185,13 @@ public class ArtifactClient
             throws ArtifactTransportException,
                    IOException
     {
+        return getResource(path, 0);
+    }
+
+    public InputStream getResource(String path, long offset)
+            throws ArtifactTransportException,
+                   IOException
+    {
         Client client = ClientBuilder.newClient();
 
         String url = getContextBaseUrl() + (!path.startsWith("/") ? "/" : "") + path;
@@ -196,7 +200,18 @@ public class ArtifactClient
 
         WebTarget webResource = client.target(url);
         setupAuthentication(webResource);
-        Response response = webResource.request(MediaType.TEXT_PLAIN).get();
+
+        Invocation.Builder request = webResource.request();
+        Response response;
+
+        if (offset > 0)
+        {
+            response = request.header("Range", "bytes=" + offset + "-").get();
+        }
+        else
+        {
+            response = request.get();
+        }
 
         return response.readEntity(InputStream.class);
     }

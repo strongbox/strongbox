@@ -10,7 +10,7 @@ import java.io.OutputStream;
 public interface LocationResolver
 {
 
-    InputStream getInputStream(String storageId, String repositoryId, String path)
+    InputStream getInputStream(String storageId, String repositoryId, String path, long offset)
             throws IOException;
 
     OutputStream getOutputStream(String storageId, String repositoryId, String path)

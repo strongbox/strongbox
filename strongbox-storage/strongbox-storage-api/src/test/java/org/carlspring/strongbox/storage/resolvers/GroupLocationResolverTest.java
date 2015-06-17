@@ -74,7 +74,8 @@ public class GroupLocationResolverTest
 
         InputStream is = groupLocationResolver.getInputStream("storage0",
                                                               "group-releases",
-                                                              "com/artifacts/in/releases/with/trash/foo/1.2.3/foo-1.2.3.jar");
+                                                              "com/artifacts/in/releases/with/trash/foo/1.2.3/foo-1.2.3.jar",
+                                                              0);
 
         assertNotNull(is);
 
@@ -92,7 +93,8 @@ public class GroupLocationResolverTest
 
         InputStream is = groupLocationResolver.getInputStream("storage0",
                                                               "group-releases",
-                                                              "com/artifacts/in/releases/foo/1.2.4/foo-1.2.4.jar");
+                                                              "com/artifacts/in/releases/foo/1.2.4/foo-1.2.4.jar",
+                                                              0);
 
         assertThat(logs.contains("Located artifact via wildcard routing rule [storage0:releases]:" +
                                  " [+]: .*(com|org)/artifacts.in.releases.* after 1 hops."), is(true));
@@ -110,7 +112,8 @@ public class GroupLocationResolverTest
 
         InputStream is = groupLocationResolver.getInputStream("storage0",
                                                               "group-releases-nested",
-                                                              "com/artifacts/in/releases/foo/1.2.4/foo-1.2.4.jar");
+                                                              "com/artifacts/in/releases/foo/1.2.4/foo-1.2.4.jar",
+                                                              0);
 
         assertThat(logs.contains("Located artifact via wildcard routing rule [storage0:releases]:" +
                                  " [+]: .*(com|org)/artifacts.in.releases.* after 1 hops."), is(true));
@@ -128,7 +131,8 @@ public class GroupLocationResolverTest
 
         InputStream is = groupLocationResolver.getInputStream("storage0",
                                                               "group-releases",
-                                                              "com/artifacts/denied/in/memory/foo/1.2.5/foo-1.2.5.jar");
+                                                              "com/artifacts/denied/in/memory/foo/1.2.5/foo-1.2.5.jar",
+                                                              0);
 
         assertThat(logs.contains("releases-in-memory/com/artifacts/denied/in/memory/foo/1.2.5/foo-1.2.5.jar"), is(false));
 
@@ -143,7 +147,8 @@ public class GroupLocationResolverTest
 
         InputStream is = groupLocationResolver.getInputStream("storage0",
                                                               "group-releases",
-                                                              "com/artifacts/denied/by/wildcard/foo/1.2.6/foo-1.2.6.jar");
+                                                              "com/artifacts/denied/by/wildcard/foo/1.2.6/foo-1.2.6.jar",
+                                                              0);
 
         assertThat(logs.contains("releases/com/artifacts/denied/by/wildcard/foo/1.2.6/foo-1.2.6.jar"), is(false));
 
