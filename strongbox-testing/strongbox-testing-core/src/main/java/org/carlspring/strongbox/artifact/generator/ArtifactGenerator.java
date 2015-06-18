@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.artifact.generator;
 
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.model.Model;
 import org.carlspring.maven.commons.model.ModelWriter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.io.MultipleDigestInputStream;
@@ -7,18 +9,15 @@ import org.carlspring.strongbox.io.RandomInputStream;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.security.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.strongbox.util.MessageDigestUtils;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.model.Model;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author mtodorov
@@ -106,9 +105,11 @@ public class ArtifactGenerator
     {
         ZipOutputStream zos = null;
 
+        File artifactFile = null;
+
         try
         {
-            File artifactFile = new File(basedir, ArtifactUtils.convertArtifactToPath(artifact));
+            artifactFile = new File(basedir, ArtifactUtils.convertArtifactToPath(artifact));
 
             // Make sure the artifact's parent directory exists before writing the model.
             //noinspection ResultOfMethodCallIgnored
@@ -119,12 +120,12 @@ public class ArtifactGenerator
             createMavenPropertiesFile(artifact, zos);
             addMavenPomFile(artifact, zos);
             createRandomSizeFile(zos);
-
-            generateChecksumsForArtifact(artifactFile);
         }
         finally
         {
             ResourceCloser.close(zos, logger);
+
+            generateChecksumsForArtifact(artifactFile);
         }
     }
 
