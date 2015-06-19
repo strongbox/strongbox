@@ -136,7 +136,7 @@ public class MultipleDigestInputStream
         for (Map.Entry entry : digests.entrySet())
         {
             MessageDigest digest = (MessageDigest) entry.getValue();
-            digest.update(bytes, 0, len);
+            digest.update(bytes);
         }
 
         return len;

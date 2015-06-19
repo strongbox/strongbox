@@ -52,18 +52,18 @@ public class ArtifactGeneratorTest
         String expectedJarMD5 = calculateChecksum(artifactJarFile, "MD5");
         String expectedJarSHA1 = calculateChecksum(artifactJarFile, "SHA1");
 
-        String jarMD5  = MessageDigestUtils.readChecksumFile(artifactJarFileMD5.getAbsolutePath());
-        String jarSHA1 = MessageDigestUtils.readChecksumFile(artifactJarFileSHA1.getAbsolutePath());
+        String jarMd5  = MessageDigestUtils.readChecksumFile(artifactJarFileMD5.getAbsolutePath());
+        String jarSha1 = MessageDigestUtils.readChecksumFile(artifactJarFileSHA1.getAbsolutePath());
 
-        System.out.println("Expected  jar MD5: " + expectedJarMD5);
-        System.out.println("Generated jar MD5: " + jarMD5);
+        System.out.println("Expected  [MD5 ] (jar): " + expectedJarMD5);
+        System.out.println("Generated [MD5 ] (jar): " + jarMd5);
 
-        assertEquals(expectedJarMD5, jarMD5);
+        assertEquals(expectedJarMD5, jarMd5);
 
-        System.out.println("Expected  jar SHA1: " + expectedJarSHA1);
-        System.out.println("Generated jar SHA1: " + jarSHA1);
+        System.out.println("Expected  [SHA1] (jar): " + expectedJarSHA1);
+        System.out.println("Generated [SHA1] (jar): " + jarSha1);
 
-        assertEquals(expectedJarSHA1, jarSHA1);
+        assertEquals(expectedJarSHA1, jarSha1);
 
         String expectedPomMD5 = calculateChecksum(artifactPomFile, "MD5");
         String expectedPomSHA1 = calculateChecksum(artifactPomFile, "SHA1");
@@ -71,13 +71,13 @@ public class ArtifactGeneratorTest
         String pomMD5  = MessageDigestUtils.readChecksumFile(artifactPomFileMD5.getAbsolutePath());
         String pomSHA1 = MessageDigestUtils.readChecksumFile(artifactPomFileSHA1.getAbsolutePath());
 
-        System.out.println("Expected  pom MD5: " + expectedPomMD5);
-        System.out.println("Generated pom MD5: " + pomMD5);
+        System.out.println("Expected  [MD5 ] (pom): " + expectedPomMD5);
+        System.out.println("Generated [MD5 ] (pom): " + pomMD5);
 
         assertEquals(expectedPomMD5, pomMD5);
 
-        System.out.println("Expected  v SHA1: " + expectedPomSHA1);
-        System.out.println("Generated pom SHA1: " + pomSHA1);
+        System.out.println("Expected  [SHA1] (pom): " + expectedPomSHA1);
+        System.out.println("Generated [SHA1] (pom): " + pomSHA1);
 
         assertEquals(expectedPomSHA1, pomSHA1);
     }
