@@ -439,17 +439,10 @@
                             <jettyXml>${dir.jetty.etc}/jetty.xml,${dir.jetty.etc}/jetty-http.xml,${dir.jetty.etc}/jetty-ssl.xml,${dir.jetty.etc}/jetty-https.xml</jettyXml>
                             -->
                             <jettyXml>${dir.jetty.etc}/jetty.xml,${dir.jetty.etc}/jetty-http.xml</jettyXml>
+                            <webAppSourceDirectory>${project.build.directory}/strongbox/webapp</webAppSourceDirectory>
                         </configuration>
 
                         <executions>
-                            <execution>
-                                <id>jetty-start</id>
-
-                                <phase>test-compile</phase>
-                                <goals>
-                                    <goal>start</goal>
-                                </goals>
-                            </execution>
                             <execution>
                                 <id>jetty-stop</id>
 
@@ -496,9 +489,43 @@
             </build>
         </profile>
         <profile>
-            <id>block-jetty</id>
+            <id>jetty-start</id>
             <activation>
-                <activeByDefault>false</activeByDefault>
+                <property>
+                    <name>!jetty.block</name>
+                </property>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.eclipse.jetty</groupId>
+                        <artifactId>jetty-maven-plugin</artifactId>
+
+                        <configuration>
+                            <daemon>true</daemon>
+                        </configuration>
+
+                        <executions>
+                            <execution>
+                                <id>jetty-start</id>
+
+                                <phase>test-compile</phase>
+                                <goals>
+                                    <goal>start</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>jetty-block</id>
+            <activation>
+                <property>
+                    <name>jetty.block</name>
+                </property>
             </activation>
 
             <build>
@@ -510,6 +537,17 @@
                         <configuration>
                             <daemon>false</daemon>
                         </configuration>
+
+                        <executions>
+                            <execution>
+                                <id>jetty-run</id>
+
+                                <phase>test-compile</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
