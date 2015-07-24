@@ -1,8 +1,10 @@
 package org.carlspring.strongbox.storage.resolvers;
 
+import org.carlspring.strongbox.io.ArtifactInputStream;
+
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * @author mtodorov
@@ -10,10 +12,15 @@ import java.io.OutputStream;
 public interface LocationResolver
 {
 
-    InputStream getInputStream(String storageId, String repositoryId, String path, long offset)
-            throws IOException;
+    ArtifactInputStream getInputStream(String storageId,
+                                       String repositoryId,
+                                       String path)
+            throws IOException, NoSuchAlgorithmException;
 
     OutputStream getOutputStream(String storageId, String repositoryId, String path)
+            throws IOException;
+
+    boolean contains(String storageId, String repositoryId, String path)
             throws IOException;
 
     void delete(String storageId, String repositoryId, String path, boolean force)

@@ -16,6 +16,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -68,14 +69,13 @@ public class GroupLocationResolverTest
 
     @Test
     public void testGroupIncludes()
-            throws IOException
+            throws IOException, NoSuchAlgorithmException
     {
         System.out.println("# Testing group includes...");
 
         InputStream is = groupLocationResolver.getInputStream("storage0",
                                                               "group-releases",
-                                                              "com/artifacts/in/releases/with/trash/foo/1.2.3/foo-1.2.3.jar",
-                                                              0);
+                                                              "com/artifacts/in/releases/with/trash/foo/1.2.3/foo-1.2.3.jar");
 
         assertNotNull(is);
 
@@ -87,14 +87,13 @@ public class GroupLocationResolverTest
 
     @Test
     public void testGroupIncludesWildcardRule()
-            throws IOException
+            throws IOException, NoSuchAlgorithmException
     {
         System.out.println("# Testing group includes with wildcard...");
 
         InputStream is = groupLocationResolver.getInputStream("storage0",
                                                               "group-releases",
-                                                              "com/artifacts/in/releases/foo/1.2.4/foo-1.2.4.jar",
-                                                              0);
+                                                              "com/artifacts/in/releases/foo/1.2.4/foo-1.2.4.jar");
 
         assertThat(logs.contains("Located artifact via wildcard routing rule [storage0:releases]:" +
                                  " [+]: .*(com|org)/artifacts.in.releases.* after 1 hops."), is(true));
@@ -106,14 +105,13 @@ public class GroupLocationResolverTest
 
     @Test
     public void testGroupIncludesWildcardRuleAgainstNestedRepository()
-            throws IOException
+            throws IOException, NoSuchAlgorithmException
     {
         System.out.println("# Testing group includes with wildcard against nested repositories...");
 
         InputStream is = groupLocationResolver.getInputStream("storage0",
                                                               "group-releases-nested",
-                                                              "com/artifacts/in/releases/foo/1.2.4/foo-1.2.4.jar",
-                                                              0);
+                                                              "com/artifacts/in/releases/foo/1.2.4/foo-1.2.4.jar");
 
         assertThat(logs.contains("Located artifact via wildcard routing rule [storage0:releases]:" +
                                  " [+]: .*(com|org)/artifacts.in.releases.* after 1 hops."), is(true));
@@ -125,14 +123,13 @@ public class GroupLocationResolverTest
 
     @Test
     public void testGroupExcludes()
-            throws IOException
+            throws IOException, NoSuchAlgorithmException
     {
         System.out.println("# Testing group excludes...");
 
         InputStream is = groupLocationResolver.getInputStream("storage0",
                                                               "group-releases",
-                                                              "com/artifacts/denied/in/memory/foo/1.2.5/foo-1.2.5.jar",
-                                                              0);
+                                                              "com/artifacts/denied/in/memory/foo/1.2.5/foo-1.2.5.jar");
 
         assertThat(logs.contains("releases-in-memory/com/artifacts/denied/in/memory/foo/1.2.5/foo-1.2.5.jar"), is(false));
 
@@ -141,14 +138,13 @@ public class GroupLocationResolverTest
 
     @Test
     public void testGroupExcludesWildcardRule()
-            throws IOException
+            throws IOException, NoSuchAlgorithmException
     {
         System.out.println("# Testing group excludes with wildcard...");
 
         InputStream is = groupLocationResolver.getInputStream("storage0",
                                                               "group-releases",
-                                                              "com/artifacts/denied/by/wildcard/foo/1.2.6/foo-1.2.6.jar",
-                                                              0);
+                                                              "com/artifacts/denied/by/wildcard/foo/1.2.6/foo-1.2.6.jar");
 
         assertThat(logs.contains("releases/com/artifacts/denied/by/wildcard/foo/1.2.6/foo-1.2.6.jar"), is(false));
 

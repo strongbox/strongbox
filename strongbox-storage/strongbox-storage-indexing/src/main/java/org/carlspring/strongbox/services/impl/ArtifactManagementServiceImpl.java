@@ -5,6 +5,7 @@ import org.apache.maven.index.ArtifactInfo;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.http.range.ByteRange;
 import org.carlspring.strongbox.io.MultipleDigestInputStream;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.security.encryption.EncryptionAlgorithmsEnum;
@@ -33,6 +34,7 @@ import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -162,24 +164,14 @@ public class ArtifactManagementServiceImpl
                                String path)
             throws IOException
     {
-        return resolve(storageId, repositoryId, path, 0);
-    }
-
-    @Override
-    public InputStream resolve(String storageId,
-                               String repositoryId,
-                               String path,
-                               long offset)
-            throws IOException
-    {
         InputStream is = null;
 
         try
         {
-            is = artifactResolutionService.getInputStream(storageId, repositoryId, path, offset);
+            is = artifactResolutionService.getInputStream(storageId, repositoryId, path);
             return is;
         }
-        catch (IOException e)
+        catch (IOException | NoSuchAlgorithmException e)
         {
             throw new ArtifactResolutionException(e.getMessage(), e);
         }
@@ -259,6 +251,13 @@ public class ArtifactManagementServiceImpl
         {
             throw new ArtifactStorageException(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public boolean contains(String storageId, String repositoryId, String artifactPath)
+            throws IOException
+    {
+        return false;
     }
 
     private void validateUploadedChecksumAgainstCache(ByteArrayOutputStream baos,

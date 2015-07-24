@@ -3,8 +3,10 @@ package org.carlspring.strongbox.storage.resolvers;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.http.range.ByteRange;
 import org.carlspring.strongbox.io.ArtifactFile;
 import org.carlspring.strongbox.io.ArtifactFileOutputStream;
+import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
@@ -12,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,11 +36,10 @@ public class FSLocationResolver
     }
 
     @Override
-    public InputStream getInputStream(String storageId,
-                                      String repositoryId,
-                                      String artifactPath,
-                                      long offset)
-            throws IOException
+    public ArtifactInputStream getInputStream(String storageId,
+                                              String repositoryId,
+                                              String artifactPath)
+            throws IOException, NoSuchAlgorithmException
     {
         Storage storage = getConfiguration().getStorage(storageId);
 
@@ -51,16 +54,7 @@ public class FSLocationResolver
         {
             logger.debug("Resolved " + artifactFile.getCanonicalPath() + "!");
 
-            FileInputStream fis = new FileInputStream(artifactFile);
-
-            if (offset > 0)
-            {
-                long skip = fis.skip(offset);
-
-                logger.debug("Skipped " + skip + " bytes!");
-            }
-
-            return fis;
+            return new ArtifactInputStream(new FileInputStream(artifactFile));
         }
 
         return null;
@@ -90,6 +84,18 @@ public class FSLocationResolver
         artifactFile.createParents();
 
         return new ArtifactFileOutputStream(artifactFile);
+    }
+
+    @Override
+    public boolean contains(String storageId, String repositoryId, String path)
+            throws IOException
+    {
+        Storage storage = getConfiguration().getStorage(storageId);
+
+        final File repoPath = new File(storage.getRepository(repositoryId).getBasedir());
+        final File artifactFile = new File(repoPath, path).getCanonicalFile();
+
+        return artifactFile.exists();
     }
 
     @Override

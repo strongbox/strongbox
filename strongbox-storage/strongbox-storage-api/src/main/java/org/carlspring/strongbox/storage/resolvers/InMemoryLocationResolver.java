@@ -5,6 +5,7 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.annotations.ArtifactExistenceState;
 import org.carlspring.strongbox.annotations.ArtifactResource;
 import org.carlspring.strongbox.annotations.ArtifactResourceMapper;
+import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.RandomInputStream;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -14,8 +15,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * @author mtodorov
@@ -35,11 +36,10 @@ public class InMemoryLocationResolver
     }
 
     @Override
-    public InputStream getInputStream(String storageId,
-                                      String repositoryId,
-                                      String artifactPath,
-                                      long offset)
-            throws IOException
+    public ArtifactInputStream getInputStream(String storageId,
+                                              String repositoryId,
+                                              String artifactPath)
+            throws IOException, NoSuchAlgorithmException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
@@ -63,7 +63,7 @@ public class InMemoryLocationResolver
             // Create random data.
             logger.debug("Generating stream with " + resource.length() + " bytes.");
 
-            return new RandomInputStream(resource.length());
+            return new ArtifactInputStream(new RandomInputStream(resource.length()));
         }
     }
 
@@ -85,6 +85,13 @@ public class InMemoryLocationResolver
         }
 
         return new ByteArrayOutputStream();
+    }
+
+    @Override
+    public boolean contains(String storageId, String repositoryId, String path)
+            throws IOException
+    {
+        return false;
     }
 
     @Override

@@ -275,7 +275,7 @@ public class ArtifactManagementServiceImplTest
 
     @Test
     public void testArtifactResolutionFromGroup()
-            throws IOException
+            throws IOException, NoSuchAlgorithmException
     {
         InputStream is = artifactManagementService.resolve("storage0",
                                                            "group-releases",
