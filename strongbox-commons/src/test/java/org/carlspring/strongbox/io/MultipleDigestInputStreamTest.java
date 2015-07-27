@@ -88,14 +88,16 @@ public class MultipleDigestInputStreamTest
         assertEquals("Failed to limit byte range!", 1L, len);
 
         ais.reload();
-        ais.setLimit(10);
+        ais.setLimit(3);
+
+        len = 0;
 
         while (ais.read() != -1)
         {
             len++;
         }
 
-        assertEquals("Failed to limit byte range!", 10L, len);
+        assertEquals("Failed to limit byte range!", 2L, len);
     }
 
 }

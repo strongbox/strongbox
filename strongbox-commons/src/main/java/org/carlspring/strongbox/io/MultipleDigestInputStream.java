@@ -32,6 +32,8 @@ public class MultipleDigestInputStream
 
     private Map<String, String> hexDigests = new LinkedHashMap<>();
 
+    private boolean rangedMode = false;
+
     /**
      * The number of bytes to read from the start of the stream, before stopping to read.
      */
@@ -62,6 +64,7 @@ public class MultipleDigestInputStream
         this.reloadableInputStreamHandler = handler;
         this.byteRanges = byteRanges;
         this.currentByteRange = byteRanges.get(0);
+        this.rangedMode = true;
     }
 
     public MultipleDigestInputStream(ReloadableInputStreamHandler handler, List<ByteRange> byteRanges)
@@ -71,6 +74,7 @@ public class MultipleDigestInputStream
         this.reloadableInputStreamHandler = handler;
         this.byteRanges = byteRanges;
         this.currentByteRange = byteRanges.get(0);
+        this.rangedMode = true;
     }
 
     public MultipleDigestInputStream(InputStream is)
@@ -224,6 +228,49 @@ public class MultipleDigestInputStream
         in = reloadableInputStreamHandler.getInputStream();
     }
 
+    @Override
+    public void reposition()
+            throws IOException
+    {
+        if (byteRanges != null && !byteRanges.isEmpty() && currentByteRangeIndex < byteRanges.size())
+        {
+            if (currentByteRangeIndex < byteRanges.size())
+            {
+                ByteRange current = currentByteRange;
+
+                currentByteRangeIndex++;
+                currentByteRange = byteRanges.get(currentByteRangeIndex);
+
+                if (currentByteRange.getOffset() > current.getLimit())
+                {
+                    // If the offset is higher than the current position, skip forward
+                    long bytesToSkip = currentByteRange.getOffset() - current.getLimit();
+
+                    //noinspection ResultOfMethodCallIgnored
+                    in.skip(bytesToSkip);
+                }
+                else
+                {
+                    reloadableInputStreamHandler.reload();
+                    in = reloadableInputStreamHandler.getInputStream();
+                }
+            }
+        }
+    }
+
+    @Override
+    public void reposition(long skipBytes)
+            throws IOException
+    {
+
+    }
+
+    @Override
+    public boolean hasMoreByteRanges()
+    {
+        return currentByteRangeIndex < byteRanges.size();
+    }
+
     private boolean hasReachedLimit()
     {
         return limit > 0 && bytesRead >= limit;
@@ -279,41 +326,14 @@ public class MultipleDigestInputStream
         this.currentByteRange = currentByteRange;
     }
 
-    @Override
-    public void reposition()
-            throws IOException
+    public boolean isRangedMode()
     {
-        if (byteRanges != null && !byteRanges.isEmpty() && currentByteRangeIndex < byteRanges.size())
-        {
-            if (currentByteRangeIndex < byteRanges.size())
-            {
-                ByteRange current = currentByteRange;
-
-                currentByteRangeIndex++;
-                currentByteRange = byteRanges.get(currentByteRangeIndex);
-
-                if (currentByteRange.getOffset() > current.getLimit())
-                {
-                    // If the offset is higher than the current position, skip forward
-                    long bytesToSkip = currentByteRange.getOffset() - current.getLimit();
-
-                    //noinspection ResultOfMethodCallIgnored
-                    in.skip(bytesToSkip);
-                }
-                else
-                {
-                    reloadableInputStreamHandler.reload();
-                    in = reloadableInputStreamHandler.getInputStream();
-                }
-            }
-        }
+        return rangedMode;
     }
 
-    @Override
-    public void reposition(long skipBytes)
-            throws IOException
+    public void setRangedMode(boolean rangedMode)
     {
-
+        this.rangedMode = rangedMode;
     }
 
 }

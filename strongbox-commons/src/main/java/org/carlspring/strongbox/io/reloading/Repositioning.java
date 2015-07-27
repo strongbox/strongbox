@@ -23,4 +23,6 @@ public interface Repositioning
      */
     void reposition(long skipBytes) throws IOException;
 
+    boolean hasMoreByteRanges();
+
 }

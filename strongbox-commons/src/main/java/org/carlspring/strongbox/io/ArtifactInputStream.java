@@ -8,7 +8,6 @@ import org.carlspring.strongbox.io.reloading.ReloadableInputStreamHandler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
 import java.util.List;
 
 /**

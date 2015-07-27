@@ -147,7 +147,8 @@ public class ArtifactRestlet
                                                                           ByteRange byteRange)
             throws IOException
     {
-        if (artifactManagementService.contains(storageId, repositoryId, path))
+        ArtifactInputStream ais = (ArtifactInputStream) artifactManagementService.resolve(storageId, repositoryId, path);
+        if (byteRange.getOffset() < ais.getLength())
         {
             // TODO: If OK: Return: 206 Partial Content
             // TODO:     Set headers:
@@ -157,9 +158,12 @@ public class ArtifactRestlet
             // TODO:         Content-Type: application/jar
             // TODO:         Pragma: no-cache
 
-            ArtifactInputStream ais = null;
+            ais.setCurrentByteRange(byteRange);
+            //noinspection ResultOfMethodCallIgnored
+            ais.skip(byteRange.getOffset());
 
             Response.ResponseBuilder responseBuilder = prepareResponseBuilderForPartialRequest(ais);
+            responseBuilder.header("Content-Length", calculatePartialRangeLength(byteRange, ais.getLength()));
 
             return responseBuilder;
         }
@@ -178,7 +182,9 @@ public class ArtifactRestlet
                                                                              List<ByteRange> byteRanges)
             throws IOException
     {
-        if (artifactManagementService.contains(storageId, repositoryId, path))
+        ArtifactInputStream ais = (ArtifactInputStream) artifactManagementService.resolve(storageId, repositoryId, path);
+        // TODO: This is not the right check
+        if (ais.getCurrentByteRange().getOffset() >= ais.getLength())
         {
             // TODO: If OK: Return: 206 Partial Content
             // TODO:     For each range:
@@ -189,9 +195,9 @@ public class ArtifactRestlet
             // TODO:             Content-Range: bytes 100-64656926/64656927
             // TODO:             Pragma: no-cache
 
-            ArtifactInputStream ais = null;
-
             Response.ResponseBuilder responseBuilder = prepareResponseBuilderForPartialRequest(ais);
+
+            // TODO: Add multipart content here
 
             return responseBuilder;
         }
@@ -204,11 +210,37 @@ public class ArtifactRestlet
         }
     }
 
+    private long calculatePartialRangeLength(ByteRange byteRange, long length)
+    {
+        if (byteRange.getLimit() > 0 && byteRange.getOffset() > 0)
+        {
+            System.out.println();
+            System.out.println("Partial content byteRange.getOffset: " + byteRange.getOffset());
+            System.out.println("Partial content byteRange.getLimit: " + byteRange.getLimit());
+            System.out.println("Partial content length: " + (byteRange.getLimit() - byteRange.getOffset()));
+            System.out.println();
+
+            return byteRange.getLimit() - byteRange.getOffset();
+        }
+        else if (length > 0 && byteRange.getOffset() > 0 && byteRange.getLimit() == 0)
+        {
+            System.out.println();
+            System.out.println("Partial content length: " + (length - byteRange.getOffset()));
+            System.out.println();
+
+            return length - byteRange.getOffset();
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
     private Response.ResponseBuilder prepareResponseBuilderForPartialRequest(ArtifactInputStream ais)
     {
-        Response.ResponseBuilder responseBuilder = Response.ok(ais);
+        Response.ResponseBuilder responseBuilder = Response.ok(ais).status(Response.Status.PARTIAL_CONTENT);
         responseBuilder.header("Accept-Ranges", "bytes");
-        responseBuilder.header("Content-Length", ais.getLength());
+        // responseBuilder.header("Content-Length", ais.getLength());
         responseBuilder.header("Content-Range", ais.getCurrentByteRange().getOffset() + "/" + ais.getLength());
         responseBuilder.header("Content-Type", ais.getLength());
         responseBuilder.header("Pragma", "no-cache");

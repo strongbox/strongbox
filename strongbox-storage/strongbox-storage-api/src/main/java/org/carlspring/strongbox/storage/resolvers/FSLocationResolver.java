@@ -3,7 +3,6 @@ package org.carlspring.strongbox.storage.resolvers;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.http.range.ByteRange;
 import org.carlspring.strongbox.io.ArtifactFile;
 import org.carlspring.strongbox.io.ArtifactFileOutputStream;
 import org.carlspring.strongbox.io.ArtifactInputStream;
@@ -13,9 +12,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -54,7 +55,10 @@ public class FSLocationResolver
         {
             logger.debug("Resolved " + artifactFile.getCanonicalPath() + "!");
 
-            return new ArtifactInputStream(new FileInputStream(artifactFile));
+            ArtifactInputStream ais = new ArtifactInputStream(new FileInputStream(artifactFile));
+            ais.setLength(artifactFile.length());
+            
+            return ais;
         }
 
         return null;
