@@ -164,6 +164,7 @@ public class ArtifactRestlet
 
             Response.ResponseBuilder responseBuilder = prepareResponseBuilderForPartialRequest(ais);
             responseBuilder.header("Content-Length", calculatePartialRangeLength(byteRange, ais.getLength()));
+            responseBuilder.status(Response.Status.PARTIAL_CONTENT);
 
             return responseBuilder;
         }
@@ -182,6 +183,8 @@ public class ArtifactRestlet
                                                                              List<ByteRange> byteRanges)
             throws IOException
     {
+        // TODO: To be handled as part of SB-367.
+
         ArtifactInputStream ais = (ArtifactInputStream) artifactManagementService.resolve(storageId, repositoryId, path);
         // TODO: This is not the right check
         if (ais.getCurrentByteRange().getOffset() >= ais.getLength())
@@ -214,19 +217,15 @@ public class ArtifactRestlet
     {
         if (byteRange.getLimit() > 0 && byteRange.getOffset() > 0)
         {
-            System.out.println();
-            System.out.println("Partial content byteRange.getOffset: " + byteRange.getOffset());
-            System.out.println("Partial content byteRange.getLimit: " + byteRange.getLimit());
-            System.out.println("Partial content length: " + (byteRange.getLimit() - byteRange.getOffset()));
-            System.out.println();
+            logger.debug("Partial content byteRange.getOffset: " + byteRange.getOffset());
+            logger.debug("Partial content byteRange.getLimit: " + byteRange.getLimit());
+            logger.debug("Partial content length: " + (byteRange.getLimit() - byteRange.getOffset()));
 
             return byteRange.getLimit() - byteRange.getOffset();
         }
         else if (length > 0 && byteRange.getOffset() > 0 && byteRange.getLimit() == 0)
         {
-            System.out.println();
-            System.out.println("Partial content length: " + (length - byteRange.getOffset()));
-            System.out.println();
+            logger.debug("Partial content length: " + (length - byteRange.getOffset()));
 
             return length - byteRange.getOffset();
         }
@@ -241,7 +240,7 @@ public class ArtifactRestlet
         Response.ResponseBuilder responseBuilder = Response.ok(ais).status(Response.Status.PARTIAL_CONTENT);
         responseBuilder.header("Accept-Ranges", "bytes");
         // responseBuilder.header("Content-Length", ais.getLength());
-        responseBuilder.header("Content-Range", ais.getCurrentByteRange().getOffset() + "/" + ais.getLength());
+        responseBuilder.header("Content-Range", "bytes " + ais.getCurrentByteRange().getOffset() + "-" + (ais.getLength() - 1) + "/" + ais.getLength());
         responseBuilder.header("Content-Type", ais.getLength());
         responseBuilder.header("Pragma", "no-cache");
 
