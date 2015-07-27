@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.storage.resolvers;
 
+import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.services.BasicRepositoryService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -11,7 +12,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 /**
@@ -36,10 +41,10 @@ public class GroupLocationResolver
     }
 
     @Override
-    public InputStream getInputStream(String storageId,
-                                      String repositoryId,
-                                      String artifactPath)
-            throws IOException
+    public ArtifactInputStream getInputStream(String storageId,
+                                              String repositoryId,
+                                              String artifactPath)
+            throws IOException, NoSuchAlgorithmException
     {
         Storage storage = getConfiguration().getStorage(storageId);
 
@@ -49,17 +54,17 @@ public class GroupLocationResolver
 
         // Check the routing rules first.
         // Check the routing accept rules for the specified repository.
-        final InputStream isRepositoryAccept = getInputStreamFromRepositoryAcceptRules(repositoryId,
-                                                                                       artifactPath,
-                                                                                       storage);
+        final ArtifactInputStream isRepositoryAccept = getInputStreamFromRepositoryAcceptRules(repositoryId,
+                                                                                               artifactPath,
+                                                                                               storage);
+
         if (isRepositoryAccept != null)
         {
             return isRepositoryAccept;
         }
 
         // Check the routing rules for wildcard accept rules
-        final InputStream isWildcardRepositoryAccept = getInputStreamFromWildcardRepositoryAcceptRules(artifactPath,
-                                                                                                       storage);
+        final ArtifactInputStream isWildcardRepositoryAccept = getInputStreamFromWildcardRepositoryAcceptRules(artifactPath, storage);
         if (isWildcardRepositoryAccept != null)
         {
             return isWildcardRepositoryAccept;
@@ -82,7 +87,7 @@ public class GroupLocationResolver
             if (!repositoryRejects(r.getId(), artifactPath, denyRules) &&
                 !repositoryRejects(r.getId(), artifactPath, wildcardDenyRules))
             {
-                final InputStream is = getInputStream(artifactPath, r);
+                final ArtifactInputStream is = getInputStream(r, artifactPath);
                 if (is != null)
                 {
                     return is;
@@ -109,8 +114,8 @@ public class GroupLocationResolver
         return false;
     }
 
-    private InputStream getInputStreamFromWildcardRepositoryAcceptRules(String artifactPath, Storage storage)
-            throws IOException
+    private ArtifactInputStream getInputStreamFromWildcardRepositoryAcceptRules(String artifactPath, Storage storage)
+            throws IOException, NoSuchAlgorithmException
     {
         RuleSet globalAcceptRules = getRoutingRules().getWildcardAcceptedRules();
         if (globalAcceptRules != null && globalAcceptRules.getRoutingRules() != null &&
@@ -130,7 +135,7 @@ public class GroupLocationResolver
                         Repository repository = getConfiguration().getStorage(sId).getRepository(rId);
                         if (basicRepositoryService.containsPath(repository, artifactPath))
                         {
-                            final InputStream is = getInputStream(artifactPath, repository);
+                            final ArtifactInputStream is = getInputStream(repository, artifactPath);
                             if (is != null)
                             {
                                 logger.debug("Located artifact via wildcard routing rule [" + sId + ":" + rId + "]: [+]: " +
@@ -151,10 +156,10 @@ public class GroupLocationResolver
         return null;
     }
 
-    private InputStream getInputStreamFromRepositoryAcceptRules(String repositoryId,
-                                                                String artifactPath,
-                                                                Storage storage)
-            throws IOException
+    private ArtifactInputStream getInputStreamFromRepositoryAcceptRules(String repositoryId,
+                                                                        String artifactPath,
+                                                                        Storage storage)
+            throws IOException, NoSuchAlgorithmException
     {
         RuleSet acceptRules = getRoutingRules().getAcceptRules(repositoryId);
         if (acceptRules != null && acceptRules.getRoutingRules() != null &&
@@ -174,7 +179,7 @@ public class GroupLocationResolver
                         Repository repository = getConfiguration().getStorage(sId).getRepository(rId);
                         if (basicRepositoryService.containsPath(repository, artifactPath))
                         {
-                            final InputStream is = getInputStream(artifactPath, repository);
+                            final ArtifactInputStream is = getInputStream(repository, artifactPath);
                             if (is != null)
                             {
                                 logger.debug("Located artifact via routing rule [" + sId + ":" + rId + "]: [+]: " +
@@ -195,8 +200,8 @@ public class GroupLocationResolver
         return null;
     }
 
-    private InputStream getInputStream(String artifactPath, Repository repository)
-            throws IOException
+    private ArtifactInputStream getInputStream(Repository repository, String artifactPath)
+            throws IOException, NoSuchAlgorithmException
     {
         final File repoPath = new File(repository.getBasedir());
         final File artifactFile = new File(repoPath, artifactPath).getCanonicalFile();
@@ -207,7 +212,7 @@ public class GroupLocationResolver
         {
             logger.debug("Resolved " + artifactFile.getCanonicalPath() + "!");
 
-            return new FileInputStream(artifactFile);
+            return new ArtifactInputStream(new FileInputStream(artifactFile));
         }
 
         return null;
@@ -224,6 +229,13 @@ public class GroupLocationResolver
         // in the repositories within the group.
 
         return null;
+    }
+
+    @Override
+    public boolean contains(String storageId, String repositoryId, String path)
+            throws IOException
+    {
+        return false;
     }
 
     @Override

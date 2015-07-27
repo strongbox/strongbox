@@ -26,6 +26,11 @@ public interface ArtifactManagementService extends ConfigurationService
                 boolean force)
             throws IOException;
 
+    boolean contains(String storageId,
+                     String repositoryId,
+                     String artifactPath)
+            throws IOException;
+
     void deleteTrash(String storageId, String repositoryId)
             throws IOException;
 

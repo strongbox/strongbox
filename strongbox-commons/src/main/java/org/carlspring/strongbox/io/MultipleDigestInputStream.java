@@ -1,5 +1,9 @@
 package org.carlspring.strongbox.io;
 
+import org.carlspring.strongbox.http.range.ByteRange;
+import org.carlspring.strongbox.io.reloading.ReloadableInputStreamHandler;
+import org.carlspring.strongbox.io.reloading.Reloading;
+import org.carlspring.strongbox.io.reloading.Repositioning;
 import org.carlspring.strongbox.security.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
@@ -8,8 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This class is based on java.security.DigestInputStream.
@@ -18,6 +21,8 @@ import java.util.Map;
  */
 public class MultipleDigestInputStream
         extends FilterInputStream
+        implements Reloading,
+                   Repositioning
 {
 
     public static final String[] DEFAULT_ALGORITHMS = { EncryptionAlgorithmsEnum.MD5.getAlgorithm(),
@@ -27,6 +32,50 @@ public class MultipleDigestInputStream
 
     private Map<String, String> hexDigests = new LinkedHashMap<>();
 
+    private boolean rangedMode = false;
+
+    /**
+     * The number of bytes to read from the start of the stream, before stopping to read.
+     */
+    private long limit = 0L;
+
+    /**
+     * The number of bytes read from the stream, or from this byte range.
+     */
+    private long bytesRead = 0L;
+
+    private List<ByteRange> byteRanges = new ArrayList<>();
+
+    private ByteRange currentByteRange;
+
+    private int currentByteRangeIndex = 0;
+
+    private ReloadableInputStreamHandler reloadableInputStreamHandler;
+
+
+    public MultipleDigestInputStream(ReloadableInputStreamHandler handler, ByteRange byteRange)
+            throws IOException, NoSuchAlgorithmException
+    {
+        super(handler.getInputStream());
+
+        List<ByteRange> byteRanges = new ArrayList<>();
+        byteRanges.add(byteRange);
+
+        this.reloadableInputStreamHandler = handler;
+        this.byteRanges = byteRanges;
+        this.currentByteRange = byteRanges.get(0);
+        this.rangedMode = true;
+    }
+
+    public MultipleDigestInputStream(ReloadableInputStreamHandler handler, List<ByteRange> byteRanges)
+            throws IOException, NoSuchAlgorithmException
+    {
+        super(handler.getInputStream());
+        this.reloadableInputStreamHandler = handler;
+        this.byteRanges = byteRanges;
+        this.currentByteRange = byteRanges.get(0);
+        this.rangedMode = true;
+    }
 
     public MultipleDigestInputStream(InputStream is)
             throws NoSuchAlgorithmException
@@ -64,6 +113,11 @@ public class MultipleDigestInputStream
         return digests;
     }
 
+    public Map<String, String> getHexDigests()
+    {
+        return hexDigests;
+    }
+
     public String getMessageDigestAsHexadecimalString(String algorithm)
     {
         if (hexDigests.containsKey(algorithm))
@@ -90,6 +144,11 @@ public class MultipleDigestInputStream
     public int read()
             throws IOException
     {
+        if (hasReachedLimit())
+        {
+            return -1;
+        }
+
         int ch = in.read();
         if (ch != -1)
         {
@@ -100,6 +159,8 @@ public class MultipleDigestInputStream
             }
         }
 
+        bytesRead++;
+
         return ch;
     }
 
@@ -109,6 +170,11 @@ public class MultipleDigestInputStream
                     int len)
             throws IOException
     {
+        if (hasReachedLimit())
+        {
+            return -1;
+        }
+
         int numberOfBytesRead = in.read(bytes, off, len);
         if (numberOfBytesRead != -1)
         {
@@ -119,7 +185,155 @@ public class MultipleDigestInputStream
             }
         }
 
+        if (limit > 0 && bytesRead < limit)
+        {
+            bytesRead += numberOfBytesRead;
+        }
+
         return numberOfBytesRead;
+    }
+
+    @Override
+    public int read(byte[] bytes)
+            throws IOException
+    {
+        if (hasReachedLimit())
+        {
+            return -1;
+        }
+
+        int len = in.read(bytes);
+
+        for (Map.Entry entry : digests.entrySet())
+        {
+            MessageDigest digest = (MessageDigest) entry.getValue();
+            digest.update(bytes);
+        }
+
+        bytesRead += len;
+
+        if (limit > 0 && bytesRead < limit)
+        {
+            bytesRead += len;
+        }
+
+        return len;
+    }
+
+    @Override
+    public void reload()
+            throws IOException
+    {
+        reloadableInputStreamHandler.reload();
+        in = reloadableInputStreamHandler.getInputStream();
+    }
+
+    @Override
+    public void reposition()
+            throws IOException
+    {
+        if (byteRanges != null && !byteRanges.isEmpty() && currentByteRangeIndex < byteRanges.size())
+        {
+            if (currentByteRangeIndex < byteRanges.size())
+            {
+                ByteRange current = currentByteRange;
+
+                currentByteRangeIndex++;
+                currentByteRange = byteRanges.get(currentByteRangeIndex);
+
+                if (currentByteRange.getOffset() > current.getLimit())
+                {
+                    // If the offset is higher than the current position, skip forward
+                    long bytesToSkip = currentByteRange.getOffset() - current.getLimit();
+
+                    //noinspection ResultOfMethodCallIgnored
+                    in.skip(bytesToSkip);
+                }
+                else
+                {
+                    reloadableInputStreamHandler.reload();
+                    in = reloadableInputStreamHandler.getInputStream();
+                }
+            }
+        }
+    }
+
+    @Override
+    public void reposition(long skipBytes)
+            throws IOException
+    {
+
+    }
+
+    @Override
+    public boolean hasMoreByteRanges()
+    {
+        return currentByteRangeIndex < byteRanges.size();
+    }
+
+    private boolean hasReachedLimit()
+    {
+        return limit > 0 && bytesRead >= limit;
+    }
+
+    public long getLimit()
+    {
+        return limit;
+    }
+
+    public void setLimit(long limit)
+    {
+        this.limit = limit;
+    }
+
+    public long getBytesRead()
+    {
+        return bytesRead;
+    }
+
+    public void setBytesRead(long bytesRead)
+    {
+        this.bytesRead = bytesRead;
+    }
+
+    public ReloadableInputStreamHandler getReloadableInputStreamHandler()
+    {
+        return this.reloadableInputStreamHandler;
+    }
+
+    public void setReloadableInputStreamHandler(ReloadableInputStreamHandler reloadableInputStreamHandler)
+    {
+        this.reloadableInputStreamHandler = reloadableInputStreamHandler;
+    }
+
+    public List<ByteRange> getByteRanges()
+    {
+        return byteRanges;
+    }
+
+    public void setByteRanges(List<ByteRange> byteRanges)
+    {
+        this.byteRanges = byteRanges;
+    }
+
+    public ByteRange getCurrentByteRange()
+    {
+        return currentByteRange;
+    }
+
+    public void setCurrentByteRange(ByteRange currentByteRange)
+    {
+        this.currentByteRange = currentByteRange;
+    }
+
+    public boolean isRangedMode()
+    {
+        return rangedMode;
+    }
+
+    public void setRangedMode(boolean rangedMode)
+    {
+        this.rangedMode = rangedMode;
     }
 
 }

@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.storage.repository.artifact.locator;
 
-import junit.framework.Assert;
-import org.apache.commons.codec.binary.StringUtils;
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.artifact.locator.handlers.ArtifactLocationReportOperation;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
@@ -9,10 +7,12 @@ import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.regex.Matcher;
 
@@ -85,6 +85,8 @@ public class ArtifactDirectoryLocatorTest
         locator.setOperation(new ArtifactLocationReportOperation());
         //! locator.locateArtifactDirectories("/java/nexus/sonatype-work/nexus/storage");
         locator.locateArtifactDirectories();
+
+        os.flush();
 
         String output = new String(os.toByteArray());
 

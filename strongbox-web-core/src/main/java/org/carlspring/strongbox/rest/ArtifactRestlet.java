@@ -1,5 +1,9 @@
 package org.carlspring.strongbox.rest;
 
+import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.http.range.ByteRange;
+import org.carlspring.strongbox.http.range.ByteRangeHeaderParser;
+import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -11,10 +15,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.slf4j.Logger;
@@ -78,26 +84,199 @@ public class ArtifactRestlet
                    ClassNotFoundException,
                    AuthenticationException
     {
-        logger.debug(" repository = " + repositoryId + ", path = " + path);
-
         handleAuthentication(storageId, repositoryId, path, headers, request);
 
-        InputStream is;
+        logger.debug(" repository = " + repositoryId + ", path = " + path);
 
+        Response.ResponseBuilder responseBuilder;
+
+        InputStream is;
         try
         {
-            is = artifactManagementService.resolve(storageId, repositoryId, path);
+            if (isRangedRequest(headers))
+            {
+                responseBuilder = handlePartialDownload(storageId, repositoryId, path, headers);
+            }
+            else
+            {
+                is = artifactManagementService.resolve(storageId, repositoryId, path);
+
+                responseBuilder = Response.ok(is);
+            }
         }
         catch (ArtifactResolutionException e)
         {
             throw new WebApplicationException(e, Response.Status.NOT_FOUND);
         }
 
-        Response.ResponseBuilder responseBuilder = Response.ok(is);
+        setMediaTypeHeader(path, responseBuilder);
+
+        responseBuilder.header("Accept-Ranges", "bytes");
 
         setHeadersForChecksums(storageId, repositoryId, path, responseBuilder);
 
         return responseBuilder.build();
+    }
+
+    private Response.ResponseBuilder handlePartialDownload(String storageId,
+                                                           String repositoryId,
+                                                           String path,
+                                                           HttpHeaders headers)
+            throws IOException
+    {
+        ByteRangeHeaderParser parser = new ByteRangeHeaderParser(headers.getRequestHeaders().getFirst("Range"));
+        List<ByteRange> ranges = parser.getRanges();
+
+        if (ranges.size() == 1)
+        {
+            logger.debug("Received request for a partial download with a single range.");
+
+            return handlePartialDownloadWithSingleRange(storageId, repositoryId, path, ranges.get(0));
+        }
+        else
+        {
+            logger.debug("Received request for a partial download with multiple ranges.");
+
+            return handlePartialDownloadWithMultipleRanges(storageId, repositoryId, path, ranges);
+        }
+    }
+
+    private Response.ResponseBuilder handlePartialDownloadWithSingleRange(String storageId,
+                                                                          String repositoryId,
+                                                                          String path,
+                                                                          ByteRange byteRange)
+            throws IOException
+    {
+        ArtifactInputStream ais = (ArtifactInputStream) artifactManagementService.resolve(storageId, repositoryId, path);
+        if (byteRange.getOffset() < ais.getLength())
+        {
+            // TODO: If OK: Return: 206 Partial Content
+            // TODO:     Set headers:
+            // TODO:         Accept-Ranges: bytes
+            // TODO:         Content-Length: 64656927
+            // TODO:         Content-Range: bytes 100-64656926/64656927
+            // TODO:         Content-Type: application/jar
+            // TODO:         Pragma: no-cache
+
+            ais.setCurrentByteRange(byteRange);
+            //noinspection ResultOfMethodCallIgnored
+            ais.skip(byteRange.getOffset());
+
+            Response.ResponseBuilder responseBuilder = prepareResponseBuilderForPartialRequest(ais);
+            responseBuilder.header("Content-Length", calculatePartialRangeLength(byteRange, ais.getLength()));
+            responseBuilder.status(Response.Status.PARTIAL_CONTENT);
+
+            return responseBuilder;
+        }
+        else
+        {
+            // TODO: Else: If the byte-range-set is unsatisfiable, the server SHOULD return
+            // TODO:       a response with a status of 416 (Requested range not satisfiable).
+
+            return Response.status(Response.Status.REQUESTED_RANGE_NOT_SATISFIABLE);
+        }
+    }
+
+    private Response.ResponseBuilder handlePartialDownloadWithMultipleRanges(String storageId,
+                                                                             String repositoryId,
+                                                                             String path,
+                                                                             List<ByteRange> byteRanges)
+            throws IOException
+    {
+        // TODO: To be handled as part of SB-367.
+
+        ArtifactInputStream ais = (ArtifactInputStream) artifactManagementService.resolve(storageId, repositoryId, path);
+        // TODO: This is not the right check
+        if (ais.getCurrentByteRange().getOffset() >= ais.getLength())
+        {
+            // TODO: If OK: Return: 206 Partial Content
+            // TODO:     For each range:
+            // TODO:         Set headers:
+            // TODO:             Content-Type: application/jar
+            // TODO:             Content-Length: 64656927
+            // TODO:             Accept-Ranges: bytes
+            // TODO:             Content-Range: bytes 100-64656926/64656927
+            // TODO:             Pragma: no-cache
+
+            Response.ResponseBuilder responseBuilder = prepareResponseBuilderForPartialRequest(ais);
+
+            // TODO: Add multipart content here
+
+            return responseBuilder;
+        }
+        else
+        {
+            // TODO: Else: If the byte-range-set is unsatisfiable, the server SHOULD return
+            // TODO:       a response with a status of 416 (Requested range not satisfiable).
+
+            return Response.status(Response.Status.REQUESTED_RANGE_NOT_SATISFIABLE);
+        }
+    }
+
+    private long calculatePartialRangeLength(ByteRange byteRange, long length)
+    {
+        if (byteRange.getLimit() > 0 && byteRange.getOffset() > 0)
+        {
+            logger.debug("Partial content byteRange.getOffset: " + byteRange.getOffset());
+            logger.debug("Partial content byteRange.getLimit: " + byteRange.getLimit());
+            logger.debug("Partial content length: " + (byteRange.getLimit() - byteRange.getOffset()));
+
+            return byteRange.getLimit() - byteRange.getOffset();
+        }
+        else if (length > 0 && byteRange.getOffset() > 0 && byteRange.getLimit() == 0)
+        {
+            logger.debug("Partial content length: " + (length - byteRange.getOffset()));
+
+            return length - byteRange.getOffset();
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
+    private Response.ResponseBuilder prepareResponseBuilderForPartialRequest(ArtifactInputStream ais)
+    {
+        Response.ResponseBuilder responseBuilder = Response.ok(ais).status(Response.Status.PARTIAL_CONTENT);
+        responseBuilder.header("Accept-Ranges", "bytes");
+        // responseBuilder.header("Content-Length", ais.getLength());
+        responseBuilder.header("Content-Range", "bytes " + ais.getCurrentByteRange().getOffset() + "-" + (ais.getLength() - 1) + "/" + ais.getLength());
+        responseBuilder.header("Content-Type", ais.getLength());
+        responseBuilder.header("Pragma", "no-cache");
+
+        return responseBuilder;
+    }
+
+    private void setMediaTypeHeader(String path, Response.ResponseBuilder responseBuilder)
+    {
+        // TODO: This is far from optimal and will need to have a content type approach at some point:
+        if (ArtifactUtils.isChecksum(path))
+        {
+            responseBuilder.type(MediaType.TEXT_PLAIN);
+        }
+        else if (ArtifactUtils.isMetadata(path))
+        {
+            responseBuilder.type(MediaType.APPLICATION_XML);
+        }
+        else
+        {
+            responseBuilder.type(MediaType.APPLICATION_OCTET_STREAM);
+        }
+    }
+
+    private boolean isRangedRequest(HttpHeaders headers)
+    {
+        if (headers == null)
+        {
+            return false;
+        }
+
+        String contentRange = headers.getRequestHeaders() != null &&
+                              headers.getRequestHeaders().getFirst("Range") != null ?
+                              headers.getRequestHeaders().getFirst("Range") : null;
+
+        return contentRange != null &&
+               !contentRange.equals("0/*") && !contentRange.equals("0-") && !contentRange.equals("0");
     }
 
     private void setHeadersForChecksums(String storageId,
