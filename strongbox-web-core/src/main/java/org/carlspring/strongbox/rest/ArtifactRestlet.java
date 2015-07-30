@@ -88,6 +88,13 @@ public class ArtifactRestlet
 
         logger.debug(" repository = " + repositoryId + ", path = " + path);
 
+        Storage storage = artifactManagementService.getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+        if (!repository.isInService())
+        {
+            return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
+        }
+
         Response.ResponseBuilder responseBuilder;
 
         InputStream is;

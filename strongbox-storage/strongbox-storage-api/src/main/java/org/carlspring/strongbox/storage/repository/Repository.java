@@ -34,6 +34,9 @@ public class Repository
     @XmlAttribute
     private boolean secured = false;
 
+    @XmlAttribute
+    private String status = RepositoryStatusEnum.IN_SERVICE.getStatus();
+
     @XmlAttribute(name = "trash-enabled")
     private boolean trashEnabled = false;
 
@@ -155,6 +158,31 @@ public class Repository
     public void setSecured(boolean secured)
     {
         this.secured = secured;
+    }
+
+    public String getStatus()
+    {
+        return status;
+    }
+
+    public void setStatus(String status)
+    {
+        this.status = status;
+    }
+
+    public boolean isInService()
+    {
+        return RepositoryStatusEnum.IN_SERVICE.getStatus().equalsIgnoreCase(getStatus());
+    }
+
+    public void putInService()
+    {
+        status = RepositoryStatusEnum.IN_SERVICE.getStatus();
+    }
+
+    public void putOutOfService()
+    {
+        status = RepositoryStatusEnum.OUT_OF_SERVICE.getStatus();
     }
 
     public boolean isTrashEnabled()
