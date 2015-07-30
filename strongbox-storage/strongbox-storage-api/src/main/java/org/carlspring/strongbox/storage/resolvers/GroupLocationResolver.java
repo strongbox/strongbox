@@ -84,7 +84,8 @@ public class GroupLocationResolver
 
             Repository r = getConfiguration().getStorage(sId).getRepository(rId);
 
-            if (!repositoryRejects(r.getId(), artifactPath, denyRules) &&
+            if (r.isInService() &&
+                !repositoryRejects(r.getId(), artifactPath, denyRules) &&
                 !repositoryRejects(r.getId(), artifactPath, wildcardDenyRules))
             {
                 final ArtifactInputStream is = getInputStream(r, artifactPath);
@@ -133,7 +134,7 @@ public class GroupLocationResolver
                         rId = getConfigurationManager().getRepositoryId(rId);
 
                         Repository repository = getConfiguration().getStorage(sId).getRepository(rId);
-                        if (basicRepositoryService.containsPath(repository, artifactPath))
+                        if (repository.isInService() && basicRepositoryService.containsPath(repository, artifactPath))
                         {
                             final ArtifactInputStream is = getInputStream(repository, artifactPath);
                             if (is != null)
@@ -177,7 +178,7 @@ public class GroupLocationResolver
                         rId = getConfigurationManager().getRepositoryId(rId);
 
                         Repository repository = getConfiguration().getStorage(sId).getRepository(rId);
-                        if (basicRepositoryService.containsPath(repository, artifactPath))
+                        if (repository.isInService() && basicRepositoryService.containsPath(repository, artifactPath))
                         {
                             final ArtifactInputStream is = getInputStream(repository, artifactPath);
                             if (is != null)
@@ -212,7 +213,10 @@ public class GroupLocationResolver
         {
             logger.debug("Resolved " + artifactFile.getCanonicalPath() + "!");
 
-            return new ArtifactInputStream(new FileInputStream(artifactFile));
+            ArtifactInputStream ais = new ArtifactInputStream(new FileInputStream(artifactFile));
+            ais.setLength(artifactFile.length());
+
+            return ais;
         }
 
         return null;

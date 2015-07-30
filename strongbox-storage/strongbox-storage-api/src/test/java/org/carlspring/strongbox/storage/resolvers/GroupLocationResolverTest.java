@@ -2,9 +2,12 @@ package org.carlspring.strongbox.storage.resolvers;
 
 import com.carmatechnologies.commons.testing.logging.ExpectedLogs;
 import com.carmatechnologies.commons.testing.logging.api.LogLevel;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.resource.ResourceCloser;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -43,6 +46,9 @@ public class GroupLocationResolverTest
     @Autowired
     private GroupLocationResolver groupLocationResolver;
 
+    @Autowired
+    private ConfigurationManager configurationManager;
+
     @Rule
     public final ExpectedLogs logs = new ExpectedLogs()
     {{
@@ -67,6 +73,17 @@ public class GroupLocationResolverTest
         }
     }
 
+    @After
+    public void tearDown()
+            throws Exception
+    {
+        Repository repository = configurationManager.getConfiguration().getStorage("storage0").getRepository("releases");
+        if (!repository.isInService())
+        {
+            repository.putInService();
+        }
+    }
+
     @Test
     public void testGroupIncludes()
             throws IOException, NoSuchAlgorithmException
@@ -81,6 +98,27 @@ public class GroupLocationResolverTest
 
         assertThat(logs.contains("Located artifact via routing rule [storage0:releases-with-trash]:" +
                                  " [+]: .*(com|org)/artifacts.in.releases.with.trash.* after 2 hops."), is(true));
+
+        ResourceCloser.close(is, null);
+    }
+
+    @Test
+    public void testGroupIncludesWithOutOfServiceRepository()
+            throws IOException, NoSuchAlgorithmException
+    {
+        System.out.println("# Testing group includes with out of service repository...");
+
+        configurationManager.getConfiguration().getStorage("storage0")
+                            .getRepository("releases").putOutOfService();
+
+        InputStream is = groupLocationResolver.getInputStream("storage0",
+                                                              "group-releases",
+                                                              "com/artifacts/in/releases/foo/1.2.4/foo-1.2.4.jar");
+
+        assertNull(is);
+
+        assertThat(logs.contains("Located artifact via wildcard routing rule [storage0:releases]:" +
+                                 " [+]: .*(com|org)/artifacts.in.releases.with.trash.* after 2 hops."), is(false));
 
         ResourceCloser.close(is, null);
     }
