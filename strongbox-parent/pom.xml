@@ -51,7 +51,7 @@
         <version.jcl>1.7.7</version.jcl>
         <version.slf4j>1.7.7</version.slf4j>
         <version.logback>1.1.2</version.logback> 
-        <version.spring>4.1.2.RELEASE</version.spring>
+        <version.spring>4.2.0.RELEASE</version.spring>
     </properties>
 
     <build>
