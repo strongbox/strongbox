@@ -44,7 +44,7 @@
         <version.maven.indexer>6.0-SNAPSHOT</version.maven.indexer>
         <version.maven.commons>1.4-SNAPSHOT</version.maven.commons>
         <version.jackson>2.4.3</version.jackson>
-        <version.jersey>2.13</version.jersey>
+        <version.jersey>2.20</version.jersey>
         <version.jetty>9.3.0.v20150612</version.jetty>
         <version.lucene>4.8.1</version.lucene>
         <version.maven>3.2.5</version.maven>
