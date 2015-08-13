@@ -2,6 +2,8 @@ package org.carlspring.strongbox.client;
 
 import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
+import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,10 +60,10 @@ public class ArtifactClient
 
     public Client getClientInstance()
     {
-        // Extracted here for simpler refactoring in SB-375.
-        Client client = ClientBuilder.newClient();
+        ClientConfig config = new ClientConfig();
+        config.connectorProvider(new ApacheConnectorProvider());
 
-        return client;
+        return ClientBuilder.newClient(config);
     }
 
     public void addArtifact(Artifact artifact,
