@@ -267,6 +267,29 @@ public class GroupLocationResolver
     }
 
     @Override
+    public void undelete(String storageId, String repositoryId, String path)
+            throws IOException
+    {
+        logger.debug("Failed to undelete '" + storageId + ":" + repositoryId + "/" + path + "'," +
+                     " as group repositories cannot perform undelete operations.");
+    }
+
+    @Override
+    public void undeleteTrash(String storageId, String repositoryId)
+            throws IOException
+    {
+        logger.debug("Failed to undelete trash for " + storageId + ":" + repositoryId + "," +
+                     " as group repositories cannot perform undelete operations.");
+    }
+
+    @Override
+    public void undeleteTrash()
+            throws IOException
+    {
+        logger.debug("Failed to undelete trash, as group repositories cannot perform undelete operations.");
+    }
+
+    @Override
     public void initialize()
             throws IOException
     {

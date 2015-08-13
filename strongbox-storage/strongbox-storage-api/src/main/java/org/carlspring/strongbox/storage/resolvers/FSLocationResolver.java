@@ -6,8 +6,10 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.io.ArtifactFile;
 import org.carlspring.strongbox.io.ArtifactFileOutputStream;
 import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.io.filters.DirectoryFilter;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.util.DirUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -179,7 +181,9 @@ public class FSLocationResolver
             File sha1TrashFile = new File(basedirTrash, path + ".sha1").getCanonicalFile();
             FileUtils.moveFile(sha1ChecksumFile, sha1TrashFile);
 
-            logger.debug("Moved /" + repositoryId + "/" + path + ".sha1" + " to trash (" + sha1TrashFile.getAbsolutePath() + ").");
+            logger.debug(
+                    "Moved /" + repositoryId + "/" + path + ".sha1" + " to trash (" + sha1TrashFile.getAbsolutePath() +
+                    ").");
         }
     }
 
@@ -204,6 +208,34 @@ public class FSLocationResolver
             sha1ChecksumFile.delete();
 
             logger.debug("Deleted /" + repositoryId + "/" + path + ".sha1.");
+        }
+    }
+
+    private void restoreChecksumsFromTrash(String storageId,
+                                           String repositoryId,
+                                           String path,
+                                           File artifactFile)
+            throws IOException
+    {
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+
+        File md5ChecksumFile = new File(artifactFile.getAbsolutePath() + ".md5");
+        if (md5ChecksumFile.exists())
+        {
+            File md5RestoredFile = new File(repository.getBasedir(), path + ".md5").getCanonicalFile();
+            FileUtils.moveFile(md5ChecksumFile, md5RestoredFile);
+
+            logger.debug("Restored /" + repositoryId + "/" + path + ".md5" + " from trash (" + md5ChecksumFile.getAbsolutePath() + ").");
+        }
+
+        File sha1ChecksumFile = new File(artifactFile.getAbsolutePath() + ".sha1");
+        if (sha1ChecksumFile.exists())
+        {
+            File sha1RestoredFile = new File(repository.getBasedir(), path + ".sha1").getCanonicalFile();
+            FileUtils.moveFile(sha1ChecksumFile, sha1RestoredFile);
+
+            logger.debug("Restored /" + repositoryId + "/" + path + ".sha1" + " from trash (" + sha1ChecksumFile.getAbsolutePath() + ").");
         }
     }
 
@@ -250,6 +282,108 @@ public class FSLocationResolver
                 {
                     logger.warn("Repository " + repository.getId() + " does not support removal of trash.");
                 }
+            }
+        }
+    }
+
+    @Override
+    public void undelete(String storageId, String repositoryId, String path)
+            throws IOException
+    {
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+
+        final File repoPath = new File(repository.getBasedir());
+        final File artifactFile = new File(repoPath, path).getCanonicalFile();
+        final File artifactFileTrash = new File(repository.getTrashDir(), path);
+
+        logger.debug("Attempting to restore " + artifactFileTrash.getCanonicalPath() + " (from " + storage.getId() + ":" + repository.getId() + ")...");
+
+        if (artifactFileTrash.exists())
+        {
+            if (!artifactFileTrash.isDirectory())
+            {
+                if (repository.isTrashEnabled())
+                {
+                    // File trashFile = new File(basedirTrash, path).getCanonicalFile();
+                    FileUtils.moveFile(artifactFileTrash, artifactFile);
+
+                    logger.debug("Restored /" + storageId + "/" + repositoryId + "/" + path +
+                                 " from trash (" + artifactFileTrash.getAbsolutePath() + ").");
+
+                    // Move the checksums to the trash as well
+                    restoreChecksumsFromTrash(storageId, repositoryId, path, artifactFileTrash);
+
+                    DirUtils.removeEmptyAncestors(artifactFileTrash.getParentFile().getAbsolutePath(), ".trash");
+                }
+                else
+                {
+                    // TODO: Display a message that undeleting is not supported for this repository.
+                }
+            }
+            else
+            {
+                if (repository.isTrashEnabled())
+                {
+                    // File trashFile = new File(basedirTrash, path).getCanonicalFile();
+                    FileUtils.moveDirectory(artifactFileTrash, artifactFile);
+                    DirUtils.removeEmptyAncestors(artifactFileTrash.getAbsolutePath(), ".trash");
+
+                    logger.debug("Moved /" + repositoryId + "/" + path + " to trash (" + artifactFileTrash.getAbsolutePath() + ").");
+                }
+                else
+                {
+                    // TODO: Display a message that undeleting is not supported for this repository.
+                }
+            }
+
+            logger.debug("Restored /" + repositoryId + "/" + path);
+        }
+    }
+
+    @Override
+    public void undeleteTrash(String storageId, String repositoryId)
+            throws IOException
+    {
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+
+        logger.debug("Restoring all artifacts from the trash of " + storageId + ":" + repository.getId() + "...");
+
+        if (repository.isTrashEnabled())
+        {
+            final File basedirTrash = repository.getTrashDir();
+            final File basedirRepository = new File(repository.getBasedir());
+
+            for (File dir : basedirTrash.listFiles(new DirectoryFilter()))
+            {
+                logger.debug("Restoring " + dir.getAbsolutePath() + " to " + basedirRepository);
+
+                File srcDir = new File(dir.getAbsolutePath());
+
+                // Because moving files has to be something so fucking stupidly implemented in Java.
+                FileUtils.copyDirectoryToDirectory(srcDir, basedirRepository);
+                FileUtils.deleteDirectory(srcDir);
+            }
+        }
+        else
+        {
+            logger.warn("Repository " + repository.getId() + " does not support removal of trash.");
+        }
+    }
+
+    @Override
+    public void undeleteTrash()
+            throws IOException
+    {
+        for (Map.Entry entry : getConfiguration().getStorages().entrySet())
+        {
+            Storage storage = (Storage) entry.getValue();
+
+            final Map<String, Repository> repositories = storage.getRepositories();
+            for (Repository repository : repositories.values())
+            {
+                undeleteTrash(storage.getId(), repository.getId());
             }
         }
     }

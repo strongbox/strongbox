@@ -37,4 +37,15 @@ public interface ArtifactManagementService extends ConfigurationService
     void deleteTrash()
             throws IOException;
 
+    void undelete(String storageId,
+                  String repositoryId,
+                  String artifactPath)
+            throws IOException;
+
+    void undeleteTrash(String storageId, String repositoryId)
+            throws IOException;
+
+    void undeleteTrash()
+            throws IOException;
+
 }

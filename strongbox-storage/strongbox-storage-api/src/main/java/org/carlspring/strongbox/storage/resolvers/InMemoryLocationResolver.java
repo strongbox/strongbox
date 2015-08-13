@@ -131,6 +131,27 @@ public class InMemoryLocationResolver
     }
 
     @Override
+    public void undelete(String storageId, String repositoryId, String path)
+            throws IOException
+    {
+        logger.warn("Undeleting not implemented...");
+    }
+
+    @Override
+    public void undeleteTrash(String storageId, String repositoryId)
+            throws IOException
+    {
+        logger.warn("Undeleting not implemented...");
+    }
+
+    @Override
+    public void undeleteTrash()
+            throws IOException
+    {
+        logger.warn("Undeleting not implemented...");
+    }
+
+    @Override
     public void initialize()
     {
         logger.debug("Initialized InMemoryLocationResolver.");

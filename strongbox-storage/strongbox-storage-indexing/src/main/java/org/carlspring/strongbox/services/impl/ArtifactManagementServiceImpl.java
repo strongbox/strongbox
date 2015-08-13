@@ -5,7 +5,6 @@ import org.apache.maven.index.ArtifactInfo;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.http.range.ByteRange;
 import org.carlspring.strongbox.io.MultipleDigestInputStream;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.security.encryption.EncryptionAlgorithmsEnum;
@@ -34,7 +33,6 @@ import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -366,6 +364,82 @@ public class ArtifactManagementServiceImpl
             for (LocationResolver resolver : getResolvers().values())
             {
                 resolver.deleteTrash();
+            }
+        }
+        catch (IOException e)
+        {
+            throw new ArtifactStorageException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void undelete(String storageId, String repositoryId, String artifactPath)
+            throws IOException
+    {
+        artifactOperationsValidator.validate(storageId, repositoryId, artifactPath);
+
+        final Storage storage = getStorage(storageId);
+        final Repository repository = storage.getRepository(repositoryId);
+
+        artifactOperationsValidator.checkAllowsDeletion(repository);
+
+        try
+        {
+            LocationResolver resolver = getResolvers().get(repository.getImplementation());
+
+            resolver.undelete(storageId, repositoryId, artifactPath);
+
+            /*
+            // TODO: This will need further fixing:
+            final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storageId + ":" + repositoryId);
+            if (indexer != null)
+            {
+                final Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
+                final File artifactFile = new File(repository.getBasedir(), artifactPath);
+
+                indexer.addArtifactToIndex(repositoryId, artifactFile, artifact);
+            }
+            */
+        }
+        catch (IOException e)
+        {
+            throw new ArtifactStorageException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void undeleteTrash(String storageId, String repositoryId)
+            throws IOException
+    {
+        artifactOperationsValidator.checkStorageExists(storageId);
+        artifactOperationsValidator.checkRepositoryExists(storageId, repositoryId);
+
+        try
+        {
+            final Storage storage = getStorage(storageId);
+            final Repository repository = storage.getRepository(repositoryId);
+
+            if (repository.isTrashEnabled())
+            {
+                LocationResolver resolver = getResolvers().get(repository.getImplementation());
+                resolver.undeleteTrash(storageId, repositoryId);
+            }
+        }
+        catch (IOException e)
+        {
+            throw new ArtifactStorageException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void undeleteTrash()
+            throws IOException
+    {
+        try
+        {
+            for (LocationResolver resolver : getResolvers().values())
+            {
+                resolver.undeleteTrash();
             }
         }
         catch (IOException e)
