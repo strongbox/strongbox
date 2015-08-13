@@ -118,8 +118,8 @@ public class ArtifactDirectoryLocatorTest
         assertTrue(output.contains(normalize("org/carlspring/strongbox/locator/foo-locator")));
         assertTrue(output.contains(normalize("org/carlspring/strongbox/locator/utils")));
 
-        // resetOutput();
-        // System.out.println(output);
+        resetOutput();
+        System.out.println(output);
     }
 
     private String normalize(String path)
