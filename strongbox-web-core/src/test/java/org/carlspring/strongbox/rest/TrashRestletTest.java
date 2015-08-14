@@ -3,6 +3,7 @@ package org.carlspring.strongbox.rest;
 import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,6 +64,16 @@ public class TrashRestletTest
                       "releases",
                       "org/carlspring/strongbox/test-artifact-to-trash/1.1/test-artifact-to-trash-1.1.jar",
                       true);
+    }
+
+    @After
+    public void tearDown()
+            throws Exception
+    {
+        if (client != null)
+        {
+            client.close();
+        }
     }
 
     @Test

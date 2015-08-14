@@ -12,6 +12,7 @@ import java.security.NoSuchAlgorithmException;
 
 import org.apache.maven.artifact.Artifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,6 +50,16 @@ public class ArtifactDeployerTest
             client.setPassword("password");
             client.setPort(assignedPorts.getPort("port.jetty.listen"));
             client.setContextBaseUrl("http://localhost:" + client.getPort());
+        }
+    }
+
+    @After
+    public void tearDown()
+            throws Exception
+    {
+        if (client != null)
+        {
+            client.close();
         }
     }
 

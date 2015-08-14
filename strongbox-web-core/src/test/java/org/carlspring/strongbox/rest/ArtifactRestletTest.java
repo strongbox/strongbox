@@ -6,6 +6,7 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.security.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.util.MessageDigestUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,6 +44,16 @@ public class ArtifactRestletTest
                              new String[]{ "3.1", "3.2"});
 
             INITIALIZED = true;
+        }
+    }
+
+    @After
+    public void tearDown()
+            throws Exception
+    {
+        if (client != null)
+        {
+            client.close();
         }
     }
 
