@@ -5,6 +5,7 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.generator.ArtifactDeployer;
 import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,7 +26,7 @@ public class SearchRestletTest
 
     public static boolean INITIALIZED = false;
 
-    private static RestClient client = new RestClient();
+    private RestClient client = new RestClient();
 
 
     @Before
@@ -48,6 +49,16 @@ public class SearchRestletTest
             artifactDeployer.generateAndDeployArtifact(artifact3, classifiers, "storage0", "releases", "jar");
 
             INITIALIZED = true;
+        }
+    }
+
+    @After
+    public void tearDown()
+            throws Exception
+    {
+        if (client != null)
+        {
+            client.close();
         }
     }
 

@@ -11,13 +11,14 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.client.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 
 /**
  * @author mtodorov
  */
-public class ArtifactClient
+public class ArtifactClient implements Closeable
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactClient.class);
@@ -37,6 +38,8 @@ public class ArtifactClient
     private String username = "maven";
 
     private String password = "password";
+
+    private Client client;
 
 
     public ArtifactClient()
@@ -60,10 +63,34 @@ public class ArtifactClient
 
     public Client getClientInstance()
     {
+        if (client == null)
+        {
+            ClientConfig config = getClientConfig();
+            client = ClientBuilder.newClient(config);
+
+            return client;
+        }
+        else
+        {
+            return client;
+        }
+    }
+
+    private ClientConfig getClientConfig()
+    {
         ClientConfig config = new ClientConfig();
         config.connectorProvider(new ApacheConnectorProvider());
 
-        return ClientBuilder.newClient(config);
+        return config;
+    }
+
+    @Override
+    public void close()
+    {
+        if (client != null)
+        {
+            client.close();
+        }
     }
 
     public void addArtifact(Artifact artifact,
@@ -98,8 +125,7 @@ public class ArtifactClient
     {
         String contentDisposition = "attachment; filename=\"" + fileName +"\"";
 
-        Client client = getClientInstance();
-        WebTarget resource = client.target(url);
+        WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
         Response response = resource.request(mediaType)
@@ -133,9 +159,7 @@ public class ArtifactClient
 
         logger.debug("Using " + url);
 
-        Client client = getClientInstance();
-
-        WebTarget resource = client.target(url);
+        WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
         Response response = resource.request(MediaType.TEXT_PLAIN).get();
 
@@ -155,9 +179,7 @@ public class ArtifactClient
 
         logger.debug("Getting " + url + "...");
 
-        Client client = getClientInstance();
-
-        WebTarget webResource = client.target(url);
+        WebTarget webResource = getClientInstance().target(url);
         setupAuthentication(webResource);
         Response response = webResource.request(MediaType.TEXT_PLAIN).get();
 
@@ -202,8 +224,7 @@ public class ArtifactClient
 
         logger.debug("Getting " + url + "...");
 
-        Client client = getClientInstance();
-        WebTarget resource = client.target(url);
+        WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
         Invocation.Builder request = resource.request();
@@ -229,8 +250,7 @@ public class ArtifactClient
 
         logger.debug("Getting " + url + "...");
 
-        Client client = getClientInstance();
-        WebTarget resource = client.target(url);
+        WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
         return resource.request(MediaType.TEXT_PLAIN).get();
@@ -242,8 +262,7 @@ public class ArtifactClient
     {
         String url = getUrlForArtifact(artifact, storageId, repositoryId);
 
-        Client client = getClientInstance();
-        WebTarget resource = client.target(url);
+        WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
         resource.request().delete();
@@ -265,19 +284,17 @@ public class ArtifactClient
         String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + path +
                      (force ? "?force=" + force : "");
 
-        Client client = getClientInstance();
-        WebTarget resource = client.target(url);
+        WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
         resource.request().delete();
     }
-    
+
     public void deleteTrash(String storageId, String repositoryId)
     {
         String url = getUrlForTrash(storageId, repositoryId);
 
-        Client client = getClientInstance();
-        WebTarget resource = client.target(url);
+        WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
         resource.request().delete();
@@ -287,8 +304,7 @@ public class ArtifactClient
     {
         String url = getContextBaseUrl() + "/trash";
 
-        Client client = getClientInstance();
-        WebTarget resource = client.target(url);
+        WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
         resource.request().delete();
@@ -301,8 +317,7 @@ public class ArtifactClient
         @SuppressWarnings("ConstantConditions")
         String url = getUrlForTrash(storageId, repositoryId) + "/" + path;
 
-        Client client = getClientInstance();
-        WebTarget resource = client.target(url);
+        WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
         resource.request(MediaType.TEXT_PLAIN).post(Entity.entity("Undelete", MediaType.TEXT_PLAIN));
@@ -312,8 +327,7 @@ public class ArtifactClient
     {
         String url = getUrlForTrash(storageId, repositoryId);
 
-        Client client = getClientInstance();
-        WebTarget resource = client.target(url);
+        WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
         resource.request(MediaType.TEXT_PLAIN).post(Entity.entity("Undelete", MediaType.TEXT_PLAIN));
@@ -323,8 +337,7 @@ public class ArtifactClient
     {
         String url = getContextBaseUrl() + "/trash";
 
-        Client client = getClientInstance();
-        WebTarget resource = client.target(url);
+        WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
         resource.request(MediaType.TEXT_PLAIN).post(Entity.entity("Undelete", MediaType.TEXT_PLAIN));
@@ -352,16 +365,15 @@ public class ArtifactClient
     }
 
     public Response artifactExistsStatusCode(Artifact artifact,
-                                                   String storageId,
-                                                   String repositoryId)
+                                             String storageId,
+                                             String repositoryId)
             throws ResponseException
     {
         String url = getUrlForArtifact(artifact, storageId, repositoryId);
 
         logger.debug("Path to artifact: " + url);
 
-        Client client = getClientInstance();
-        WebTarget resource = client.target(url);
+        WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
         return resource.request(MediaType.TEXT_PLAIN).get();
@@ -373,8 +385,7 @@ public class ArtifactClient
 
         logger.debug("Path to artifact: " + url);
 
-        Client client = getClientInstance();
-        WebTarget resource = client.target(url);
+        WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
         Response response = resource.request(MediaType.TEXT_PLAIN).get();

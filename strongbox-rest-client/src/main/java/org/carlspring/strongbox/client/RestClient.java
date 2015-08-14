@@ -51,13 +51,12 @@ public class RestClient extends ArtifactClient
     {
         String url = getContextBaseUrl() + path;
 
-        Client client = getClientInstance();
-        WebTarget resource = client.target(url);
+        WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        GenericParser<ServerConfiguration> parser = new GenericParser<ServerConfiguration>(classes);
+        GenericParser<ServerConfiguration> parser = new GenericParser<>(classes);
         parser.store(configuration, baos);
 
         Response response = resource.request(MediaType.APPLICATION_XML)
@@ -71,8 +70,7 @@ public class RestClient extends ArtifactClient
     {
         String url = getContextBaseUrl() + path;
 
-        Client client = getClientInstance();
-        WebTarget resource = client.target(url);
+        WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
         final Response response = resource.request(MediaType.APPLICATION_XML).get();
@@ -102,8 +100,7 @@ public class RestClient extends ArtifactClient
     {
         String url = getContextBaseUrl() + "/configuration/strongbox/port/" + port;
 
-        Client client = getClientInstance();
-        WebTarget resource = client.target(url);
+        WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
         Response response = resource.request(MediaType.TEXT_PLAIN).put(Entity.entity(port, MediaType.TEXT_PLAIN));
@@ -119,8 +116,7 @@ public class RestClient extends ArtifactClient
     {
         String url = getContextBaseUrl() + "/configuration/strongbox/port";
 
-        Client client = getClientInstance();
-        WebTarget resource = client.target(url);
+        WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
         return resource.request(MediaType.TEXT_PLAIN).get(Integer.class);
@@ -136,8 +132,7 @@ public class RestClient extends ArtifactClient
     {
         String url = getContextBaseUrl() + "/configuration/strongbox/baseUrl/" + baseUrl;
 
-        Client client = getClientInstance();
-        WebTarget resource = client.target(url);
+        WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
         Response response = resource.request(MediaType.TEXT_PLAIN).put(Entity.entity(baseUrl, MediaType.TEXT_PLAIN));
@@ -154,8 +149,7 @@ public class RestClient extends ArtifactClient
     {
         String url = getContextBaseUrl() + "/configuration/strongbox/baseUrl";
 
-        Client client = getClientInstance();
-        WebTarget resource = client.target(url);
+        WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
         return resource.request(MediaType.TEXT_PLAIN).get(String.class);
@@ -166,8 +160,7 @@ public class RestClient extends ArtifactClient
     {
         String url = getContextBaseUrl() + "/configuration/strongbox/proxy-configuration";
 
-        Client client = getClientInstance();
-        WebTarget resource = client.target(url);
+        WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -188,8 +181,7 @@ public class RestClient extends ArtifactClient
                      (storageId != null && repositoryId != null ?
                       "?storageId=" + storageId + "&repositoryId=" + repositoryId : "");
 
-        Client client = getClientInstance();
-        WebTarget resource = client.target(url);
+        WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
         final Response response = resource.request(MediaType.APPLICATION_XML).get();
@@ -225,8 +217,7 @@ public class RestClient extends ArtifactClient
     {
         String url = getContextBaseUrl() + "/configuration/strongbox/storages";
 
-        Client client = getClientInstance();
-        WebTarget resource = client.target(url);
+        WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -252,8 +243,7 @@ public class RestClient extends ArtifactClient
     {
         String url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId;
 
-        Client client = getClientInstance();
-        WebTarget resource = client.target(url);
+        WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
         final Response response = resource.request(MediaType.APPLICATION_XML).get();
@@ -283,8 +273,7 @@ public class RestClient extends ArtifactClient
     {
         String url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId + (force ? "?force=true" : "");
 
-        Client client = getClientInstance();
-        WebTarget resource = client.target(url);
+        WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
         Response response = resource.request().delete();
@@ -297,8 +286,7 @@ public class RestClient extends ArtifactClient
     {
         String url = getContextBaseUrl() + "/configuration/strongbox/storages/" + repository.getStorage().getId();
 
-        Client client = getClientInstance();
-        WebTarget resource = client.target(url);
+        WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -326,8 +314,7 @@ public class RestClient extends ArtifactClient
     {
         String url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId + "/" + repositoryId;
 
-        Client client = getClientInstance();
-        WebTarget resource = client.target(url);
+        WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
         final Response response = resource.request(MediaType.APPLICATION_XML).get();
@@ -362,8 +349,7 @@ public class RestClient extends ArtifactClient
                      "/configuration/strongbox/storages/" + storageId + "/" + repositoryId +
                      (force ? "?force=true" : "");
 
-        Client client = getClientInstance();
-        WebTarget resource = client.target(url);
+        WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
         Response response = resource.request().delete();
@@ -389,7 +375,7 @@ public class RestClient extends ArtifactClient
                                            .register(JacksonFeature.class)
                                            .build();
 
-        WebTarget webResource = client.target(url);
+        WebTarget webResource = getClientInstance().target(url);
         setupAuthentication(webResource);
 
         final Response response = webResource.request(mediaType).get();
@@ -405,8 +391,7 @@ public class RestClient extends ArtifactClient
     {
         String url = getContextBaseUrl() + "/metadata/" + storageId + "/" + repositoryId + "/" + (basePath != null ? basePath : "");
 
-        Client client = getClientInstance();
-        WebTarget resource = client.target(url);
+        WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
         Response response = resource.request(MediaType.TEXT_PLAIN).post(Entity.entity("Rebuild",
@@ -429,8 +414,7 @@ public class RestClient extends ArtifactClient
                      "?version=" + version + (classifier != null ? "&classifier=" + classifier : "") +
                      "&metadataType=" + metadataType;
 
-        Client client = getClientInstance();
-        WebTarget resource = client.target(url);
+        WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
         Response response = resource.request().delete();
