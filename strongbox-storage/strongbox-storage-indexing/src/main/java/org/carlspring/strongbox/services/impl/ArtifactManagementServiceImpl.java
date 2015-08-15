@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.services.impl;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.index.ArtifactInfo;
 import org.carlspring.maven.commons.util.ArtifactUtils;
@@ -119,23 +120,7 @@ public class ArtifactManagementServiceImpl
             if (!fileIsChecksum && os != null)
             {
                 addChecksumsToCacheManager(mdis, artifactPath);
-
-                if (ArtifactFileUtils.isArtifactFile(path))
-                {
-                    final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storageId + ":" + repositoryId);
-                    if (indexer != null)
-                    {
-                        final Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
-                        final Storage storage = getStorage(storageId);
-                        final File storageBasedir = new File(storage.getBasedir());
-                        final File artifactFile = new File(new File(storageBasedir, repositoryId), path).getCanonicalFile();
-
-                        if (!artifactFile.getName().endsWith(".pom"))
-                        {
-                            indexer.addArtifactToIndex(repositoryId, artifactFile, artifact);
-                        }
-                    }
-                }
+                addArtifactToIndex(storageId, repositoryId, path);
             }
             else
             {
@@ -153,6 +138,27 @@ public class ArtifactManagementServiceImpl
         finally
         {
             ResourceCloser.close(os, logger);
+        }
+    }
+
+    private void addArtifactToIndex(String storageId, String repositoryId, String path)
+            throws IOException
+    {
+        if (ArtifactFileUtils.isArtifactFile(path))
+        {
+            final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storageId + ":" + repositoryId);
+            if (indexer != null)
+            {
+                final Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
+                final Storage storage = getStorage(storageId);
+                final File storageBasedir = new File(storage.getBasedir());
+                final File artifactFile = new File(new File(storageBasedir, repositoryId), path).getCanonicalFile();
+
+                if (!artifactFile.getName().endsWith(".pom"))
+                {
+                    indexer.addArtifactToIndex(repositoryId, artifactFile, artifact);
+                }
+            }
         }
     }
 
@@ -258,6 +264,39 @@ public class ArtifactManagementServiceImpl
         return false;
     }
 
+    @Override
+    public void copy(String srcStorageId,
+                     String srcRepositoryId,
+                     String path,
+                     String destStorageId,
+                     String destRepositoryId)
+            throws IOException
+    {
+        artifactOperationsValidator.validate(srcStorageId, srcRepositoryId, path);
+
+        final Storage srcStorage = getStorage(srcStorageId);
+        final Repository srcRepository = srcStorage.getRepository(srcRepositoryId);
+
+        final Storage destStorage = getStorage(destStorageId);
+        final Repository destRepository = destStorage.getRepository(destRepositoryId);
+
+        File srcFile = new File(srcRepository.getBasedir(), path);
+        File destFile = new File(destRepository.getBasedir(), path);
+
+        if (srcFile.isDirectory())
+        {
+            FileUtils.copyDirectoryToDirectory(srcFile, destFile.getParentFile());
+
+            // TODO: SB-377: Sort out the logic for artifact directory paths
+            // TODO: SB-377: addArtifactToIndex(destStorageId, destRepositoryId, path);
+        }
+        else
+        {
+            FileUtils.copyFile(srcFile, destFile);
+            addArtifactToIndex(destStorageId, destRepositoryId, path);
+        }
+    }
+
     private void validateUploadedChecksumAgainstCache(ByteArrayOutputStream baos,
                                                       String artifactPath)
     {
@@ -289,7 +328,7 @@ public class ArtifactManagementServiceImpl
         }
         else
         {
-            // TODO: Implement event triggering that handles checksums that don't match the upload file.
+            // TODO: Implement event triggering that handles checksums that don't match the uploaded file.
         }
     }
 

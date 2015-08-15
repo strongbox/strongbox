@@ -422,4 +422,23 @@ public class RestClient extends ArtifactClient
         return response.getStatus();
     }
 
+    public void copy(String path,
+                     String srcStorageId,
+                     String srcRepositoryId,
+                     String destStorageId,
+                     String destRepositoryId)
+    {
+        @SuppressWarnings("ConstantConditions")
+        String url = getContextBaseUrl() + "/storages/copy/" + path +
+                     "?srcStorageId=" + srcStorageId +
+                     "&srcRepositoryId=" + srcRepositoryId +
+                     "&destStorageId=" + destStorageId +
+                     "&destRepositoryId=" + destRepositoryId;
+
+        WebTarget resource = getClientInstance().target(url);
+        setupAuthentication(resource);
+
+        resource.request(MediaType.TEXT_PLAIN).post(Entity.entity("Copy", MediaType.TEXT_PLAIN));
+    }
+
 }
