@@ -31,6 +31,13 @@ public interface ArtifactManagementService extends ConfigurationService
                      String artifactPath)
             throws IOException;
 
+    void copy(String srcStorageId,
+              String srcRepositoryId,
+              String path,
+              String destStorageId,
+              String destRepositoryId)
+            throws IOException;
+
     void deleteTrash(String storageId, String repositoryId)
             throws IOException;
 

@@ -16,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -29,7 +30,7 @@ public class ArtifactRestletTest
 
     public static boolean INITIALIZED = false;
 
-    private static RestClient client = new RestClient();
+    private RestClient client = new RestClient();
 
 
     @Before
@@ -39,9 +40,17 @@ public class ArtifactRestletTest
         if (!INITIALIZED)
         {
             // Generate releases
+            // Used by testPartialFetch():
             generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
                              "org.carlspring.strongbox.partial:partial-foo",
-                             new String[]{ "3.1", "3.2"});
+                             new String[]{ "3.1", "3.2", });
+
+            // Used by testCopy*():
+            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                             "org.carlspring.strongbox.copy:copy-foo",
+                             new String[]{ "1.1", // Used by testCopyArtifactFile()
+                                           "1.2"  // Used by testCopyArtifactDirectory()
+                                           });
 
             INITIALIZED = true;
         }
@@ -134,6 +143,54 @@ public class ArtifactRestletTest
 
         assertEquals("Glued partial fetches did not match MD5 checksum!", md5Remote, md5Local);
         assertEquals("Glued partial fetches did not match SHA-1 checksum!", sha1Remote, sha1Local);
+    }
+
+    @Test
+    public void testCopyArtifactFile()
+            throws Exception
+    {
+        final File destRepositoryBasedir = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                    "/storages/storage0/releases-with-trash");
+
+        String artifactPath = "org/carlspring/strongbox/copy/copy-foo/1.1/copy-foo-1.1.jar";
+
+        File artifactFileRestoredFromTrash = new File(destRepositoryBasedir + "/" + artifactPath).getAbsoluteFile();
+
+        assertFalse("Unexpected artifact in repository '" + destRepositoryBasedir + "'!",
+                    artifactFileRestoredFromTrash.exists());
+
+        client.copy(artifactPath,
+                    "storage0",
+                    "releases",
+                    "storage0",
+                    "releases-with-trash");
+
+        assertTrue("Failed to copy artifact to destination repository '" + destRepositoryBasedir + "'!",
+                   artifactFileRestoredFromTrash.exists());
+    }
+
+    @Test
+    public void testCopyArtifactDirectory()
+            throws Exception
+    {
+        final File destRepositoryBasedir = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                    "/storages/storage0/releases-with-trash");
+
+        String artifactPath = "org/carlspring/strongbox/copy/copy-foo/1.2";
+
+        File artifactFileRestoredFromTrash = new File(destRepositoryBasedir + "/" + artifactPath).getAbsoluteFile();
+
+        assertFalse("Unexpected artifact in repository '" + destRepositoryBasedir + "'!",
+                    artifactFileRestoredFromTrash.exists());
+
+        client.copy(artifactPath,
+                    "storage0",
+                    "releases",
+                    "storage0",
+                    "releases-with-trash");
+
+        assertTrue("Failed to copy artifact to destination repository '" + destRepositoryBasedir + "'!",
+                   artifactFileRestoredFromTrash.exists());
     }
 
 }

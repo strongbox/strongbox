@@ -268,8 +268,8 @@ public class RepositoryIndexer
     }
 
     public void addArtifactToIndex(String repositoryId,
-                                   final File artifactFile,
-                                   final Artifact artifact)
+                                   File artifactFile,
+                                   Artifact artifact)
             throws IOException
     {
         String extension = artifactFile.getName().substring(artifactFile.getName().lastIndexOf(".") + 1,
@@ -292,13 +292,18 @@ public class RepositoryIndexer
                                                                               artifact.getClassifier() + ":" +
                                                                               extension,
                                                                               repositoryId,
-                                                                              artifact.getType() });
+                                                                              artifact.getType()});
 
-        getIndexer().addArtifactsToIndex(asList(new ArtifactContext(null,
+        File pomFile = new File(artifactFile.getAbsolutePath() + ".pom");
+        // TODO: Improve this to support timestamped SNAPSHOT-s:
+        File metadataFile = new File(artifactFile.getParentFile().getParentFile(), "maven-metadata.xml");
+
+        getIndexer().addArtifactsToIndex(asList(new ArtifactContext(pomFile.exists()? pomFile : null,
                                                                     artifactFile,
-                                                                    null,
+                                                                    metadataFile.exists() ? metadataFile : null,
                                                                     artifactInfo,
-                                                                    artifactInfo.calculateGav())), indexingContext);
+                                                                    artifactInfo.calculateGav())),
+                                         indexingContext);
     }
 
     private class ReindexArtifactScanningListener

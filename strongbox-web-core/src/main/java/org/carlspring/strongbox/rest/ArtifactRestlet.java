@@ -326,6 +326,31 @@ public class ArtifactRestlet
         }
     }
 
+    @POST
+    @Path("copy/{path:.*}")
+    public Response copy(@PathParam("path") String path,
+                         @QueryParam("srcStorageId") String srcStorageId,
+                         @QueryParam("srcRepositoryId") String srcRepositoryId,
+                         @QueryParam("destStorageId") String destStorageId,
+                         @QueryParam("destRepositoryId") String destRepositoryId)
+            throws IOException
+    {
+        logger.debug("Copying " + path +
+                     " from " + srcStorageId + ":" + srcRepositoryId +
+                     " to " + destStorageId + ":" + destRepositoryId + "...");
+
+        try
+        {
+            artifactManagementService.copy(srcStorageId, srcRepositoryId, path, destStorageId, destRepositoryId);
+        }
+        catch (ArtifactStorageException e)
+        {
+            throw new WebApplicationException(e, Response.Status.NOT_FOUND);
+        }
+
+        return Response.ok().build();
+    }
+
     @DELETE
     @Path("{storageId}/{repositoryId}/{path:.*}")
     public Response delete(@PathParam("storageId") String storageId,
