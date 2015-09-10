@@ -2,10 +2,10 @@ package org.carlspring.strongbox.artifact.generator;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Model;
+import org.carlspring.commons.io.RandomInputStream;
 import org.carlspring.maven.commons.model.ModelWriter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.io.MultipleDigestInputStream;
-import org.carlspring.strongbox.io.RandomInputStream;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.security.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.strongbox.util.MessageDigestUtils;

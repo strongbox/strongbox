@@ -105,6 +105,10 @@
         </dependency>
 
         <dependency>
+            <groupId>org.carlspring.commons</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.carlspring.maven</groupId>
             <artifactId>maven-commons</artifactId>
         </dependency>
