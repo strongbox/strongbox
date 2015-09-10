@@ -1,12 +1,12 @@
 package org.carlspring.strongbox.storage.resolvers;
 
 import org.apache.maven.artifact.Artifact;
+import org.carlspring.commons.io.RandomInputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.annotations.ArtifactExistenceState;
 import org.carlspring.strongbox.annotations.ArtifactResource;
 import org.carlspring.strongbox.annotations.ArtifactResourceMapper;
 import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.io.RandomInputStream;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
