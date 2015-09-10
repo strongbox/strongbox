@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.io.filters;
 
+import org.carlspring.commons.io.filters.DirectoryFilter;
 import org.carlspring.maven.commons.io.filters.PomFilenameFilter;
 
 import java.io.File;
