@@ -37,6 +37,14 @@ Welcome to the Strongbox Maven artifact repository manager's home.
 * Java 1.7.x
 * Maven 3.2.x
 
+# Download
+* Standalone:
+  * [tar.gz](https://github.com/strongbox/strongbox-assembly/releases/download/1.0-SNAPSHOT/strongbox-distribution-1.0-SNAPSHOT.tar.gz), [zip](https://github.com/strongbox/strongbox-assembly/releases/download/1.0-SNAPSHOT/strongbox-distribution-1.0-SNAPSHOT.zip)
+  * [other releases](https://github.com/strongbox/strongbox-assembly/releases)
+* Webapp
+  * [war](https://github.com/strongbox/strongbox-webapp/releases/download/1.0-SNAPSHOT/strongbox-webapp-1.0-SNAPSHOT.war)
+  * [other releases](https://github.com/strongbox/strongbox-webapp/releases)
+
 # Contributing
 Contributions and contributors are always welcome!
 
