@@ -82,7 +82,7 @@ public abstract class BaseRestlet
                                      HttpServletRequest request)
             throws AuthenticationException
     {
-        // SB-3
+        // SB-389: Disable the security settings
         /*
         String protocol = request.getRequestURL().toString().split(":")[0];
 
