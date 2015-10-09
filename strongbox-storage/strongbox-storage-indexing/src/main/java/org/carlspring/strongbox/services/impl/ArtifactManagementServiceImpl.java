@@ -297,6 +297,43 @@ public class ArtifactManagementServiceImpl
         }
     }
 
+    @Override
+    public void move(String srcStorageId,
+                     String srcRepositoryId,
+                     String destStorageId,
+                     String destRepositoryId,
+                     String path)
+            throws IOException
+    {
+        artifactOperationsValidator.validate(srcStorageId, srcRepositoryId, path);
+
+        final Storage srcStorage = getStorage(srcStorageId);
+        final Repository srcRepository = srcStorage.getRepository(srcRepositoryId);
+
+        final Storage destStorage = getStorage(destStorageId);
+        final Repository destRepository = destStorage.getRepository(destRepositoryId);
+
+        File srcFile = new File(srcRepository.getBasedir(), path);
+        File destFile = new File(destRepository.getBasedir(), path);
+
+        if (srcFile.isDirectory())
+        {
+            LocationResolver resolver = getResolvers().get(srcRepository.getImplementation());
+
+            resolver.move(srcStorageId, srcRepositoryId, destStorageId, destRepositoryId, path);
+
+            // TODO: SB-377: Sort out the logic for artifact directory paths
+            // TODO: SB-377: addArtifactToIndex(destStorageId, destRepositoryId, path);
+        }
+        else
+        {
+            FileUtils.copyFile(srcFile, destFile);
+            addArtifactToIndex(destStorageId, destRepositoryId, path);
+
+            throw new UnsupportedOperationException("File moving not supported.");
+        }
+    }
+
     private void validateUploadedChecksumAgainstCache(ByteArrayOutputStream baos,
                                                       String artifactPath)
     {

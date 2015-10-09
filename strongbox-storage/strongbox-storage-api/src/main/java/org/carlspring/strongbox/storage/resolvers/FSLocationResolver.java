@@ -18,6 +18,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
@@ -386,6 +388,29 @@ public class FSLocationResolver
                 undeleteTrash(storage.getId(), repository.getId());
             }
         }
+    }
+
+    @Override
+    public void move(String srcStorageId,
+                     String srcRepositoryId,
+                     String destStorageId,
+                     String destRepositoryId,
+                     String path)
+            throws IOException
+    {
+        Storage srcStorage = getConfiguration().getStorage(srcStorageId);
+        Repository srcRepository = srcStorage.getRepository(srcRepositoryId);
+
+        Storage destStorage = getConfiguration().getStorage(destStorageId);
+        Repository destRepository = destStorage.getRepository(destRepositoryId);
+
+        Path srcPath = Paths.get(srcRepository.getBasedir(), path);
+        Path destPath = Paths.get(destRepository.getBasedir(), path);
+
+        System.out.println("Moving " + srcPath.toFile().getAbsolutePath() +
+                           " to " + destPath.toFile().getAbsolutePath());
+        
+        org.carlspring.commons.io.FileUtils.moveDirectory(srcPath, destPath);
     }
 
     @Override

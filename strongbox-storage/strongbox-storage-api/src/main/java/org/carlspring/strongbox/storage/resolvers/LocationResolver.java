@@ -41,6 +41,13 @@ public interface LocationResolver
     void undeleteTrash()
             throws IOException;
 
+    void move(String srcStorageId,
+              String srcRepositoryId,
+              String destStorageId,
+              String destRepositoryId,
+              String path)
+            throws IOException;
+
     void initialize()
             throws IOException;
 

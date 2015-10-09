@@ -290,6 +290,17 @@ public class GroupLocationResolver
     }
 
     @Override
+    public void move(String srcStorageId,
+                     String srcRepositoryId,
+                     String destStorageId,
+                     String destRepositoryId,
+                     String path)
+            throws IOException
+    {
+        throw new IOException("Group repositories cannot perform move operations.");
+    }
+
+    @Override
     public void initialize()
             throws IOException
     {

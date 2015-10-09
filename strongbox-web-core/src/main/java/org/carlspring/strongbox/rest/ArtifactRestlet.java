@@ -351,6 +351,31 @@ public class ArtifactRestlet
         return Response.ok().build();
     }
 
+    @POST
+    @Path("move/{path:.*}")
+    public Response move(@PathParam("path") String path,
+                         @QueryParam("srcStorageId") String srcStorageId,
+                         @QueryParam("srcRepositoryId") String srcRepositoryId,
+                         @QueryParam("destStorageId") String destStorageId,
+                         @QueryParam("destRepositoryId") String destRepositoryId)
+            throws IOException
+    {
+        logger.debug("Moving " + path +
+                     " from " + srcStorageId + ":" + srcRepositoryId +
+                     " to " + destStorageId + ":" + destRepositoryId + "...");
+
+        try
+        {
+            artifactManagementService.move(srcStorageId, srcRepositoryId, destStorageId, destRepositoryId, path);
+        }
+        catch (ArtifactStorageException e)
+        {
+            throw new WebApplicationException(e, Response.Status.NOT_FOUND);
+        }
+
+        return Response.ok().build();
+    }
+
     @DELETE
     @Path("{storageId}/{repositoryId}/{path:.*}")
     public Response delete(@PathParam("storageId") String storageId,

@@ -52,6 +52,13 @@ public class ArtifactRestletTest
                                            "1.2"  // Used by testCopyArtifactDirectory()
                                            });
 
+            // Used by testMove*():
+            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                             "org.carlspring.strongbox.move:move-foo",
+                             new String[]{ "1.1", // Used by testMoveArtifactFile()
+                                           "1.2"  // Used by testMoveArtifactDirectory()
+                             });
+
             INITIALIZED = true;
         }
     }
@@ -190,6 +197,30 @@ public class ArtifactRestletTest
                     "releases-with-trash");
 
         assertTrue("Failed to copy artifact to destination repository '" + destRepositoryBasedir + "'!",
+                   artifactFileRestoredFromTrash.exists());
+    }
+
+    @Test
+    public void testMoveArtifactDirectory()
+            throws Exception
+    {
+        final File destRepositoryBasedir = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                    "/storages/storage0/releases-with-trash");
+
+        String artifactPath = "org/carlspring/strongbox/move/move-foo/1.2";
+
+        File artifactFileRestoredFromTrash = new File(destRepositoryBasedir + "/" + artifactPath).getAbsoluteFile();
+
+        assertFalse("Unexpected artifact in repository '" + destRepositoryBasedir + "'!",
+                    artifactFileRestoredFromTrash.exists());
+
+        client.move("storage0",
+                    "releases",
+                    "storage0",
+                    "releases-with-trash",
+                    artifactPath);
+
+        assertTrue("Failed to move artifact to destination repository '" + destRepositoryBasedir + "'!",
                    artifactFileRestoredFromTrash.exists());
     }
 
