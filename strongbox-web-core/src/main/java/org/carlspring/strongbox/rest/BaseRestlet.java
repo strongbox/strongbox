@@ -82,6 +82,8 @@ public abstract class BaseRestlet
                                      HttpServletRequest request)
             throws AuthenticationException
     {
+        // SB-3
+        /*
         String protocol = request.getRequestURL().toString().split(":")[0];
 
         if (requiresAuthentication(storageId, repositoryId, path, protocol) &&
@@ -90,6 +92,7 @@ public abstract class BaseRestlet
             // Return HTTP 401
             throw new AuthorizationException("You are not authorized to deploy artifacts to this repository.");
         }
+        */
     }
 
     public boolean handleSSLAuthentication()
