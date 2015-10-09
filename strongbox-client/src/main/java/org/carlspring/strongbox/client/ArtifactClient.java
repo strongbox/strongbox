@@ -27,7 +27,7 @@ public class ArtifactClient implements Closeable
 
     private String protocol = "http";
 
-    private String host = "localhost";
+    private String host = System.getProperty("strongbox.host") != null ? System.getProperty("strongbox.host") : "localhost";
 
     private int port = System.getProperty("port.jetty.listen") != null ?
                        Integer.parseInt(System.getProperty("port.jetty.listen")) :
