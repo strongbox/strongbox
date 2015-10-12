@@ -48,6 +48,10 @@ public class ArtifactClient implements Closeable
 
     public static ArtifactClient getTestInstance()
     {
+        String host = System.getProperty("strongbox.host") != null ?
+                      System.getProperty("strongbox.host") :
+                      "localhost";
+
         int port = System.getProperty("port.jetty.listen") != null ?
                    Integer.parseInt(System.getProperty("port.jetty.listen")) :
                    48080;
@@ -56,7 +60,7 @@ public class ArtifactClient implements Closeable
         client.setUsername("maven");
         client.setPassword("password");
         client.setPort(port);
-        client.setContextBaseUrl("http://localhost:" + client.getPort());
+        client.setContextBaseUrl("http://" + host + ":" + client.getPort());
 
         return client;
     }
