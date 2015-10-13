@@ -29,8 +29,8 @@ public class ArtifactClient implements Closeable
 
     private String host = System.getProperty("strongbox.host") != null ? System.getProperty("strongbox.host") : "localhost";
 
-    private int port = System.getProperty("port.jetty.listen") != null ?
-                       Integer.parseInt(System.getProperty("port.jetty.listen")) :
+    private int port = System.getProperty("strongbox.port") != null ?
+                       Integer.parseInt(System.getProperty("strongbox.port")) :
                        48080;
 
     private String contextBaseUrl;
@@ -52,8 +52,8 @@ public class ArtifactClient implements Closeable
                       System.getProperty("strongbox.host") :
                       "localhost";
 
-        int port = System.getProperty("port.jetty.listen") != null ?
-                   Integer.parseInt(System.getProperty("port.jetty.listen")) :
+        int port = System.getProperty("strongbox.port") != null ?
+                   Integer.parseInt(System.getProperty("strongbox.port")) :
                    48080;
 
         ArtifactClient client = new ArtifactClient();
