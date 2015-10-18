@@ -262,7 +262,6 @@
         </profile>
         <!-- These two profiles need to be on top. -->
 
-
         <profile>
             <!-- Required for the sake of the integration tests: -->
             <id>set-strongbox-host-default</id>
@@ -301,7 +300,6 @@
                 <strongbox.port>${port.jetty.listen}</strongbox.port>
             </properties>
         </profile>
-
 
         <profile>
             <id>run-it-tests</id>
