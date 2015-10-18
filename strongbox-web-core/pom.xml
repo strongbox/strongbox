@@ -262,6 +262,47 @@
         </profile>
         <!-- These two profiles need to be on top. -->
 
+
+        <profile>
+            <!-- Required for the sake of the integration tests: -->
+            <id>set-strongbox-host-default</id>
+            <activation>
+                <property>
+                    <name>!strongbox.host</name>
+                </property>
+            </activation>
+
+            <properties>
+                <strongbox.host>localhost</strongbox.host>
+            </properties>
+        </profile>
+        <profile>
+            <id>set-strongbox-host</id>
+            <activation>
+                <property>
+                    <name>strongbox.host</name>
+                </property>
+            </activation>
+
+            <properties>
+                <strongbox.host>${strongbox.host}</strongbox.host>
+            </properties>
+        </profile>
+        <profile>
+            <!-- Required for the sake of the integration tests: -->
+            <id>set-strongbox-port-default</id>
+            <activation>
+                <property>
+                    <name>!strongbox.port</name>
+                </property>
+            </activation>
+
+            <properties>
+                <strongbox.port>${port.jetty.listen}</strongbox.port>
+            </properties>
+        </profile>
+
+
         <profile>
             <id>run-it-tests</id>
             <activation>
@@ -481,6 +522,8 @@
                                 <strongbox.home>${project.build.directory}/strongbox</strongbox.home>
                                 <strongbox.vault>${project.build.directory}/strongbox-vault</strongbox.vault>
                                 <strongbox.storage.booter.basedir>${project.build.directory}/strongbox-vault/storages</strongbox.storage.booter.basedir>
+                                <strongbox.host>${strongbox.host}</strongbox.host>
+                                <strongbox.port>${strongbox.port}</strongbox.port>
                                 <port.jetty.listen>${port.jetty.listen}</port.jetty.listen>
                             </systemPropertyVariables>
                         </configuration>
