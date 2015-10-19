@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.services;
 
+import org.carlspring.strongbox.storage.Storage;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -54,5 +56,7 @@ public interface ArtifactManagementService extends ConfigurationService
 
     void undeleteTrash()
             throws IOException;
+
+    Storage getStorage(String storageId);
 
 }

@@ -17,6 +17,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
@@ -67,7 +68,8 @@ public class ArtifactRestlet
         {
             // TODO: Figure out if this is the correct response type...
             logger.error(e.getMessage(), e);
-            throw new WebApplicationException(e.getMessage(), Response.Status.FORBIDDEN);
+
+            return Response.status(Response.Status.FORBIDDEN).entity("Access denied!").build();
         }
     }
 
@@ -113,7 +115,7 @@ public class ArtifactRestlet
         }
         catch (ArtifactResolutionException e)
         {
-            throw new WebApplicationException(e, Response.Status.NOT_FOUND);
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
 
         setMediaTypeHeader(path, responseBuilder);
@@ -345,7 +347,43 @@ public class ArtifactRestlet
         }
         catch (ArtifactStorageException e)
         {
-            throw new WebApplicationException(e, Response.Status.NOT_FOUND);
+            if (artifactManagementService.getStorage(srcStorageId) == null)
+            {
+                return Response.status(Response.Status.NOT_FOUND)
+                               .entity("The source storageId does not exist!")
+                               .build();
+            }
+            else if (artifactManagementService.getStorage(destStorageId) == null)
+            {
+                return Response.status(Response.Status.NOT_FOUND)
+                               .entity("The destination storageId does not exist!")
+                               .build();
+            }
+            else if (artifactManagementService.getStorage(srcStorageId).getRepository(srcRepositoryId) == null)
+            {
+                return Response.status(Response.Status.NOT_FOUND)
+                               .entity("The source repositoryId does not exist!")
+                               .build();
+            }
+            else if (artifactManagementService.getStorage(destStorageId).getRepository(destRepositoryId) == null)
+            {
+                return Response.status(Response.Status.NOT_FOUND)
+                               .entity("The destination repositoryId does not exist!")
+                               .build();
+            }
+            else if (artifactManagementService.getStorage(srcStorageId) != null &&
+                     artifactManagementService.getStorage(srcStorageId).getRepository(srcRepositoryId) != null &&
+                     !new File(artifactManagementService.getStorage(srcStorageId)
+                                                        .getRepository(srcRepositoryId).getBasedir(), path).exists())
+            {
+                return Response.status(Response.Status.NOT_FOUND)
+                               .entity("The source path does not exist!")
+                               .build();
+            }
+
+            return Response.status(Response.Status.BAD_REQUEST)
+                           .entity(e.getMessage())
+                           .build();
         }
 
         return Response.ok().build();
@@ -368,7 +406,31 @@ public class ArtifactRestlet
         }
         catch (ArtifactStorageException e)
         {
-            throw new WebApplicationException(e, Response.Status.NOT_FOUND);
+            if (artifactManagementService.getStorage(storageId) == null)
+            {
+                return Response.status(Response.Status.NOT_FOUND)
+                               .entity("The specified storageId does not exist!")
+                               .build();
+            }
+            else if (artifactManagementService.getStorage(storageId).getRepository(repositoryId) == null)
+            {
+                return Response.status(Response.Status.NOT_FOUND)
+                               .entity("The specified repositoryId does not exist!")
+                               .build();
+            }
+            else if (artifactManagementService.getStorage(storageId) != null &&
+                     artifactManagementService.getStorage(storageId).getRepository(repositoryId) != null &&
+                     !new File(artifactManagementService.getStorage(storageId)
+                                                        .getRepository(repositoryId).getBasedir(), path).exists())
+            {
+                return Response.status(Response.Status.NOT_FOUND)
+                               .entity("The specified path does not exist!")
+                               .build();
+            }
+
+            return Response.status(Response.Status.BAD_REQUEST)
+                           .entity(e.getMessage())
+                           .build();
         }
 
         return Response.ok().build();

@@ -488,14 +488,15 @@ public class ArtifactManagementServiceImpl
     }
 
     @Override
+    public Storage getStorage(String storageId)
+    {
+        return getConfiguration().getStorages().get(storageId);
+    }
+
+    @Override
     public Configuration getConfiguration()
     {
         return configurationManager.getConfiguration();
-    }
-
-    private Storage getStorage(String storageId)
-    {
-        return getConfiguration().getStorages().get(storageId);
     }
 
 }
