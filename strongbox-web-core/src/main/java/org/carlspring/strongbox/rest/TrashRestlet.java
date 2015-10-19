@@ -6,6 +6,7 @@ import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
+import java.io.File;
 import java.io.IOException;
 
 import org.slf4j.Logger;
@@ -47,7 +48,22 @@ public class TrashRestlet
             }
             catch (ArtifactStorageException e)
             {
-                throw new WebApplicationException(e, Response.Status.NOT_FOUND);
+                if (artifactManagementService.getStorage(storageId) == null)
+                {
+                    return Response.status(Response.Status.NOT_FOUND)
+                                   .entity("The specified storageId does not exist!")
+                                   .build();
+                }
+                else if (artifactManagementService.getStorage(storageId).getRepository(repositoryId) == null)
+                {
+                    return Response.status(Response.Status.NOT_FOUND)
+                                   .entity("The specified repositoryId does not exist!")
+                                   .build();
+                }
+
+                return Response.status(Response.Status.BAD_REQUEST)
+                               .entity(e.getMessage())
+                               .build();
             }
 
             return Response.ok().build();
@@ -70,7 +86,7 @@ public class TrashRestlet
         }
         catch (ArtifactStorageException e)
         {
-            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
         }
 
         return Response.ok().build();
@@ -94,7 +110,31 @@ public class TrashRestlet
         }
         catch (ArtifactStorageException e)
         {
-            throw new WebApplicationException(e, Response.Status.NOT_FOUND);
+            if (artifactManagementService.getStorage(storageId) == null)
+            {
+                return Response.status(Response.Status.NOT_FOUND)
+                               .entity("The specified storageId does not exist!")
+                               .build();
+            }
+            else if (artifactManagementService.getStorage(storageId).getRepository(repositoryId) == null)
+            {
+                return Response.status(Response.Status.NOT_FOUND)
+                               .entity("The specified repositoryId does not exist!")
+                               .build();
+            }
+            else if (artifactManagementService.getStorage(storageId) != null &&
+                     artifactManagementService.getStorage(storageId).getRepository(repositoryId) != null &&
+                     !new File(artifactManagementService.getStorage(storageId)
+                                                        .getRepository(repositoryId).getBasedir(), path).exists())
+            {
+                return Response.status(Response.Status.NOT_FOUND)
+                               .entity("The specified path does not exist!")
+                               .build();
+            }
+
+            return Response.status(Response.Status.BAD_REQUEST)
+                           .entity(e.getMessage())
+                           .build();
         }
 
         return Response.ok().build();
@@ -116,7 +156,22 @@ public class TrashRestlet
             }
             catch (ArtifactStorageException e)
             {
-                throw new WebApplicationException(e, Response.Status.NOT_FOUND);
+                if (artifactManagementService.getStorage(storageId) == null)
+                {
+                    return Response.status(Response.Status.NOT_FOUND)
+                                   .entity("The specified storageId does not exist!")
+                                   .build();
+                }
+                else if (artifactManagementService.getStorage(storageId).getRepository(repositoryId) == null)
+                {
+                    return Response.status(Response.Status.NOT_FOUND)
+                                   .entity("The specified repositoryId does not exist!")
+                                   .build();
+                }
+
+                return Response.status(Response.Status.BAD_REQUEST)
+                               .entity(e.getMessage())
+                               .build();
             }
 
             return Response.ok().build();
@@ -141,7 +196,9 @@ public class TrashRestlet
         {
             logger.error(e.getMessage(), e);
 
-            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+            return Response.status(Response.Status.BAD_REQUEST)
+                           .entity(e.getMessage())
+                           .build();
         }
 
         return Response.ok().build();
