@@ -25,7 +25,8 @@ public class RedeploymentValidator implements VersionValidator
     {
         if (!repository.allowsRedeployment() && basicRepositoryService.containsArtifact(repository, artifact))
         {
-            throw new VersionValidationException("This repository does not allow artifact re-deployment!");
+            throw new VersionValidationException("The " + repository.getStorage().getId() + ":" + repository.toString() +
+                                                 " repository does not allow artifact re-deployment!");
         }
     }
 

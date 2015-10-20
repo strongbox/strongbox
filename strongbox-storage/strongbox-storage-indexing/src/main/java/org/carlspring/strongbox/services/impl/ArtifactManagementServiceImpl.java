@@ -2,7 +2,6 @@ package org.carlspring.strongbox.services.impl;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.index.ArtifactInfo;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
@@ -33,7 +32,6 @@ import org.springframework.stereotype.Component;
 import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -243,12 +241,15 @@ public class ArtifactManagementServiceImpl
                 String extension = artifactPath.substring(artifactPath.lastIndexOf('.') + 1, artifactPath.length());
 
                 final Artifact a = ArtifactUtils.convertPathToArtifact(artifactPath);
+
+                /* TODO: This needs to be properly fixed:
                 indexer.delete(Collections.singletonList(new ArtifactInfo(repositoryId,
                                                                           a.getGroupId(),
                                                                           a.getArtifactId(),
                                                                           a.getVersion(),
                                                                           a.getClassifier(),
                                                                           extension)));
+                */
             }
         }
         catch (IOException e)

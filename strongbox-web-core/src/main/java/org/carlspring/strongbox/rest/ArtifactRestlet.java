@@ -64,12 +64,13 @@ public class ArtifactRestlet
 
             return Response.ok().build();
         }
-        catch (ArtifactStorageException e)
+        catch (IOException e)
         {
             // TODO: Figure out if this is the correct response type...
-            logger.error(e.getMessage(), e);
+            // logger.error(e.getMessage(), e);
 
-            return Response.status(Response.Status.FORBIDDEN).entity("Access denied!").build();
+            // return Response.status(Response.Status.FORBIDDEN).entity("Access denied!").build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
     }
 
