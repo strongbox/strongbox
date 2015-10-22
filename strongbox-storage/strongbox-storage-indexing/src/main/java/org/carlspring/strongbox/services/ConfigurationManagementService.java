@@ -7,6 +7,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author mtodorov
@@ -48,6 +49,13 @@ public interface ConfigurationManagementService extends ConfigurationService
 
     Repository getRepository(String storageId, String repositoryId)
             throws IOException;
+
+    List<Repository> getGroupRepositories();
+
+    List<Repository> getGroupRepositoriesContaining(String repositoryId);
+
+    void removeRepositoryFromAssociatedGroups(String repositoryId)
+            throws IOException, JAXBException;
 
     void removeRepository(String storageId, String repositoryId)
             throws IOException, JAXBException;
