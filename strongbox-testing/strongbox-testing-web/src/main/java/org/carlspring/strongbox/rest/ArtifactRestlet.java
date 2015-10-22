@@ -62,7 +62,7 @@ public class ArtifactRestlet
         catch (IOException e)
         {
             // TODO: Figure out if this is the correct response type...
-            throw new WebApplicationException(e, Response.Status.FORBIDDEN);
+            return Response.status(Response.Status.FORBIDDEN).entity("Access denied!").build();
         }
         finally
         {
@@ -86,7 +86,7 @@ public class ArtifactRestlet
 
         if (!ArtifactUtils.isArtifact(path))
         {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
 
         // This is not really anything, due to the fact it's only meant to be

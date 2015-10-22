@@ -7,6 +7,7 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,9 @@ import org.springframework.stereotype.Component;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author mtodorov
@@ -145,10 +149,64 @@ public class ConfigurationManagementServiceImpl implements ConfigurationManageme
     }
 
     @Override
+    public List<Repository> getGroupRepositories()
+    {
+        List<Repository> groupRepositories = new ArrayList<>();
+
+        for (Storage storage : configurationManager.getConfiguration().getStorages().values())
+        {
+            groupRepositories.addAll(storage.getRepositories().values().stream()
+                                            .filter(repository -> repository.getType().equals(RepositoryTypeEnum.GROUP.getType()))
+                                            .collect(Collectors.toList()));
+        }
+
+        return groupRepositories;
+    }
+
+    @Override
+    public List<Repository> getGroupRepositoriesContaining(String repositoryId)
+    {
+        List<Repository> groupRepositories = new ArrayList<>();
+
+        for (Storage storage : configurationManager.getConfiguration().getStorages().values())
+        {
+            groupRepositories.addAll(storage.getRepositories().values().stream()
+                                            .filter(repository -> repository.getType()
+                                                                            .equals(RepositoryTypeEnum.GROUP.getType()))
+                                            .filter(repository -> repository.getGroupRepositories()
+                                                                            .contains(repositoryId))
+                                            .collect(Collectors.toList()));
+        }
+
+        return groupRepositories;
+    }
+
+    @Override
+    public void removeRepositoryFromAssociatedGroups(String repositoryId)
+            throws IOException, JAXBException
+    {
+        List<Repository> includedInGroupRepositories = getGroupRepositoriesContaining(repositoryId);
+
+        if (!includedInGroupRepositories.isEmpty())
+        {
+            for (Repository repository : includedInGroupRepositories)
+            {
+                configurationManager.getConfiguration()
+                                    .getStorage(repository.getStorage().getId())
+                                    .getRepository(repository.getId())
+                                    .getGroupRepositories().remove(repositoryId);
+            }
+
+            configurationManager.store();
+        }
+    }
+
+    @Override
     public void removeRepository(String storageId, String repositoryId)
             throws IOException, JAXBException
     {
         configurationManager.getConfiguration().getStorage(storageId).removeRepository(repositoryId);
+        removeRepositoryFromAssociatedGroups(repositoryId);
         configurationManager.store();
     }
 

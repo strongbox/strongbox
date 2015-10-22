@@ -59,7 +59,7 @@ public class MetadataManagementRestlet
         catch (ArtifactStorageException e)
         {
             logger.error(e.getMessage(), e);
-            throw new WebApplicationException(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
         }
     }
 
@@ -97,7 +97,7 @@ public class MetadataManagementRestlet
         catch (ArtifactStorageException e)
         {
             logger.error(e.getMessage(), e);
-            throw new WebApplicationException(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
         }
     }
 
