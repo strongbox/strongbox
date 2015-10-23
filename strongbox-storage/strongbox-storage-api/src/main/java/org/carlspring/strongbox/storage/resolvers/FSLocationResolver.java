@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
@@ -146,7 +147,8 @@ public class FSLocationResolver
                 if ((repository.isTrashEnabled() && !force) || (force && !repository.allowsForceDeletion()))
                 {
                     File trashFile = new File(basedirTrash, path).getCanonicalFile();
-                    FileUtils.moveDirectory(artifactFile, trashFile);
+                    // FileUtils.moveDirectory(artifactFile, trashFile);
+                    org.carlspring.commons.io.FileUtils.moveDirectory(artifactFile.toPath(), trashFile.toPath());
 
                     logger.debug("Moved /" + repositoryId + "/" + path + " to trash (" + trashFile.getAbsolutePath() + ").");
                 }
