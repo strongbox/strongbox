@@ -422,19 +422,10 @@ public class ArtifactClient implements Closeable
         {
             Object entity = response.getEntity();
 
-            if (entity != null/* && entity instanceof String*/)
+            if (entity != null && entity instanceof String)
             {
-//                logger.error((String) entity);
-                System.out.println();
-                System.out.println();
-                System.out.println();
-                System.out.println(entity);
-                System.out.println();
-                System.out.println();
-                System.out.println();
+                logger.error((String) entity);
             }
-
-            // throw new ArtifactOperationException(message);
         }
     }
 
