@@ -32,7 +32,6 @@ public class ReleaseVersionValidatorTest
     public void testReleaseValidation()
             throws VersionValidationException
     {
-
         /**
          * Test valid artifacts
          */

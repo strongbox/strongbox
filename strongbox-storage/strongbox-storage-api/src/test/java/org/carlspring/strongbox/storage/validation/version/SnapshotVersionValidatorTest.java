@@ -95,8 +95,6 @@ public class SnapshotVersionValidatorTest
         catch (VersionValidationException e)
         {
         }
-
-
     }
 
     private Artifact generateArtifact(String version)
