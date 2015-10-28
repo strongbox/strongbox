@@ -12,7 +12,7 @@
                 <repository id="releases" policy="release" implementation="file-system" type="hosted" allows-force-deletion="true" checksum-headers-enabled="true"/>
                 <repository id="releases-in-memory" policy="release" implementation="in-memory" type="hosted"/>
                 <repository id="releases-with-redeployment" policy="release" implementation="file-system" type="hosted" allows-redeployment="true" indexing-enabled="false"/>
-                <repository id="releases-with-trash" policy="release" implementation="file-system" type="hosted" trash-enabled="true"/>
+                <repository id="releases-with-trash" policy="release" implementation="file-system" type="hosted" trash-enabled="true" allows-redeployment="true"/>
                 <repository id="releases-without-deployment" policy="release" implementation="file-system" type="hosted" allows-deployment="false" indexing-enabled="false"/>
                 <repository id="releases-without-redeployment" policy="release" implementation="file-system" type="hosted" allows-deployment="false" indexing-enabled="false"/>
                 <repository id="releases-without-delete" policy="release" implementation="file-system" type="hosted" allows-delete="false" indexing-enabled="false"/>
