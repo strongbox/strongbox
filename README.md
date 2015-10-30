@@ -34,7 +34,7 @@ Welcome to the Strongbox Maven artifact repository manager's home.
 * An assembly with a pre-configured Jetty for standalone mode.
 
 # Requirements:
-* Java 1.7.x
+* Java 1.8.x
 * Maven 3.2.x
 
 # Download
