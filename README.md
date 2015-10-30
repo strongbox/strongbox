@@ -45,6 +45,9 @@ Welcome to the Strongbox Maven artifact repository manager's home.
   * [war](https://github.com/strongbox/strongbox-webapp/releases/download/1.0-SNAPSHOT/strongbox-webapp-1.0-SNAPSHOT.war)
   * [other releases](https://github.com/strongbox/strongbox-webapp/releases)
 
+# Installation
+For detailed instruction on how to install and setup up Strongbox, you can check [here](https://github.com/strongbox/strongbox/wiki/Installation).
+
 # Contributing
 Contributions and contributors are always welcome!
 
