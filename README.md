@@ -34,7 +34,7 @@ Welcome to the Strongbox Maven artifact repository manager's home.
 * An assembly with a pre-configured Jetty for standalone mode.
 
 # Requirements:
-* Java 1.7.x
+* Java 1.8.x
 * Maven 3.2.x
 
 # Download
@@ -44,6 +44,9 @@ Welcome to the Strongbox Maven artifact repository manager's home.
 * Webapp
   * [war](https://github.com/strongbox/strongbox-webapp/releases/download/1.0-SNAPSHOT/strongbox-webapp-1.0-SNAPSHOT.war)
   * [other releases](https://github.com/strongbox/strongbox-webapp/releases)
+
+# Installation
+Please check [here](https://github.com/strongbox/strongbox/wiki/Installation) for detailed instruction on how to install and setup up Strongbox on the supported platforms.
 
 # Contributing
 Contributions and contributors are always welcome!

@@ -41,11 +41,7 @@ public class ArtifactDeployer extends ArtifactGenerator
 
     public void initializeClient()
     {
-        client = new ArtifactClient();
-        client.setUsername("maven");
-        client.setPassword("password");
-        client.setPort(48080);
-        client.setContextBaseUrl("http://localhost:" + client.getPort());
+        client = ArtifactClient.getTestInstance();
     }
 
     public void generateAndDeployArtifact(Artifact artifact,

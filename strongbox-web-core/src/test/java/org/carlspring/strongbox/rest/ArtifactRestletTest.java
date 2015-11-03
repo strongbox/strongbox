@@ -26,7 +26,8 @@ public class ArtifactRestletTest
         extends TestCaseWithArtifactGeneration
 {
 
-    private static final File REPOSITORY_BASEDIR_RELEASES = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/releases");
+    private static final File REPOSITORY_BASEDIR_RELEASES = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                                     "/storages/storage0/releases");
 
     public static boolean INITIALIZED = false;
 
@@ -43,14 +44,23 @@ public class ArtifactRestletTest
             // Used by testPartialFetch():
             generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
                              "org.carlspring.strongbox.partial:partial-foo",
-                             new String[]{ "3.1", "3.2", });
+                             new String[]{ "3.1", // Used by testPartialFetch()
+                                           "3.2"  // Used by testPartialFetch()
+                                         });
 
             // Used by testCopy*():
             generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
                              "org.carlspring.strongbox.copy:copy-foo",
                              new String[]{ "1.1", // Used by testCopyArtifactFile()
                                            "1.2"  // Used by testCopyArtifactDirectory()
-                                           });
+                                         });
+
+            // Used by testDelete():
+            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                             "com.artifacts.to.delete.releases:delete-foo",
+                             new String[]{ "1.2.1", // Used by testDeleteArtifactFile
+                                           "1.2.2"  // Used by testDeleteArtifactDirectory
+                                         });
 
             // Used by testMove*():
             generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
@@ -198,6 +208,36 @@ public class ArtifactRestletTest
 
         assertTrue("Failed to copy artifact to destination repository '" + destRepositoryBasedir + "'!",
                    artifactFileRestoredFromTrash.exists());
+    }
+
+    @Test
+    public void testDeleteArtifactFile()
+            throws Exception
+    {
+        String artifactPath = "com/artifacts/to/delete/releases/delete-foo/1.2.1/delete-foo-1.2.1.jar";
+
+        File deletedArtifact = new File(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/" + artifactPath).getAbsoluteFile();
+
+        assertTrue("Failed to locate artifact file '" + deletedArtifact.getAbsolutePath() + "'!", deletedArtifact.exists());
+
+        client.delete("storage0", "releases", artifactPath);
+
+        assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!", deletedArtifact.exists());
+    }
+
+    @Test
+    public void testDeleteArtifactDirectory()
+            throws Exception
+    {
+        String artifactPath = "com/artifacts/to/delete/releases/delete-foo/1.2.2";
+
+        File deletedArtifact = new File(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/" + artifactPath).getAbsoluteFile();
+
+        assertTrue("Failed to locate artifact file '" + deletedArtifact.getAbsolutePath() + "'!", deletedArtifact.exists());
+
+        client.delete("storage0", "releases", artifactPath);
+
+        assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!", deletedArtifact.exists());
     }
 
     @Test

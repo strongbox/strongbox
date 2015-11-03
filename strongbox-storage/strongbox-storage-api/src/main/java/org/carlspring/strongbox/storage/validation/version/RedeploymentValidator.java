@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.storage.validation.version;
 
 import org.apache.maven.artifact.Artifact;
+import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.services.BasicRepositoryService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,9 @@ public class RedeploymentValidator implements VersionValidator
     {
         if (!repository.allowsRedeployment() && basicRepositoryService.containsArtifact(repository, artifact))
         {
-            throw new VersionValidationException("This repository does not allow artifact re-deployment!");
+            throw new VersionValidationException("The " + repository.getStorage().getId() + ":" + repository.toString() +
+                                                 " repository does not allow artifact re-deployment! (" +
+                                                 ArtifactUtils.convertArtifactToPath(artifact) + ")");
         }
     }
 

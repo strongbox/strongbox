@@ -27,10 +27,10 @@ public class ArtifactClient implements Closeable
 
     private String protocol = "http";
 
-    private String host = "localhost";
+    private String host = System.getProperty("strongbox.host") != null ? System.getProperty("strongbox.host") : "localhost";
 
-    private int port = System.getProperty("port.jetty.listen") != null ?
-                       Integer.parseInt(System.getProperty("port.jetty.listen")) :
+    private int port = System.getProperty("strongbox.port") != null ?
+                       Integer.parseInt(System.getProperty("strongbox.port")) :
                        48080;
 
     private String contextBaseUrl;
@@ -48,15 +48,19 @@ public class ArtifactClient implements Closeable
 
     public static ArtifactClient getTestInstance()
     {
-        int port = System.getProperty("port.jetty.listen") != null ?
-                   Integer.parseInt(System.getProperty("port.jetty.listen")) :
+        String host = System.getProperty("strongbox.host") != null ?
+                      System.getProperty("strongbox.host") :
+                      "localhost";
+
+        int port = System.getProperty("strongbox.port") != null ?
+                   Integer.parseInt(System.getProperty("strongbox.port")) :
                    48080;
 
         ArtifactClient client = new ArtifactClient();
         client.setUsername("maven");
         client.setPassword("password");
         client.setPort(port);
-        client.setContextBaseUrl("http://localhost:" + client.getPort());
+        client.setContextBaseUrl("http://" + host + ":" + client.getPort());
 
         return client;
     }
@@ -132,11 +136,7 @@ public class ArtifactClient implements Closeable
                                     .header("Content-Disposition", contentDisposition)
                                     .put(Entity.entity(is, mediaType));
 
-        int status = response.getStatus();
-        if (status != 200)
-        {
-            throw new ArtifactOperationException("Failed to upload file!");
-        }
+        handleFailures(response, "Failed to upload file!");
     }
 
     /**
@@ -163,11 +163,7 @@ public class ArtifactClient implements Closeable
         setupAuthentication(resource);
         Response response = resource.request(MediaType.TEXT_PLAIN).get();
 
-        int status = response.getStatus();
-        if (status != 200)
-        {
-            throw new ArtifactOperationException("Failed to create artifact!");
-        }
+        handleFailures(response, "Failed to create artifact!");
     }
 
     public void getArtifact(Artifact artifact,
@@ -259,18 +255,22 @@ public class ArtifactClient implements Closeable
     public void deleteArtifact(Artifact artifact,
                                String storageId,
                                String repositoryId)
+            throws ArtifactOperationException
     {
         String url = getUrlForArtifact(artifact, storageId, repositoryId);
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
-        resource.request().delete();
+        Response response = resource.request().delete();
+
+        handleFailures(response, "Failed to delete artifact!");
     }
 
     public void delete(String storageId,
                        String repositoryId,
                        String path)
+            throws ArtifactOperationException
     {
         delete(storageId, repositoryId, path, false);
     }
@@ -279,6 +279,7 @@ public class ArtifactClient implements Closeable
                        String repositoryId,
                        String path,
                        boolean force)
+            throws ArtifactOperationException
     {
         @SuppressWarnings("ConstantConditions")
         String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + path +
@@ -287,32 +288,41 @@ public class ArtifactClient implements Closeable
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
-        resource.request().delete();
+        Response response = resource.request().delete();
+
+        handleFailures(response, "Failed to delete artifact!");
     }
 
     public void deleteTrash(String storageId, String repositoryId)
+            throws ArtifactOperationException
     {
         String url = getUrlForTrash(storageId, repositoryId);
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
-        resource.request().delete();
+        Response response = resource.request().delete();
+
+        handleFailures(response, "Failed to delete the trash for " + storageId + ":" + repositoryId + "!");
     }
 
     public void deleteTrash()
+            throws ArtifactOperationException
     {
         String url = getContextBaseUrl() + "/trash";
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
-        resource.request().delete();
+        Response response = resource.request().delete();
+
+        handleFailures(response, "Failed to delete trash for all repositories!");
     }
 
     public void undelete(String storageId,
                          String repositoryId,
                          String path)
+            throws ArtifactOperationException
     {
         @SuppressWarnings("ConstantConditions")
         String url = getUrlForTrash(storageId, repositoryId) + "/" + path;
@@ -320,27 +330,38 @@ public class ArtifactClient implements Closeable
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
-        resource.request(MediaType.TEXT_PLAIN).post(Entity.entity("Undelete", MediaType.TEXT_PLAIN));
+        Response response = resource.request(MediaType.TEXT_PLAIN)
+                                    .post(Entity.entity("Undelete", MediaType.TEXT_PLAIN));
+
+        handleFailures(response, "Failed to delete the trash for " + storageId + ":" + repositoryId + "!");
     }
 
     public void undeleteTrash(String storageId, String repositoryId)
+            throws ArtifactOperationException
     {
         String url = getUrlForTrash(storageId, repositoryId);
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
-        resource.request(MediaType.TEXT_PLAIN).post(Entity.entity("Undelete", MediaType.TEXT_PLAIN));
+        Response response = resource.request(MediaType.TEXT_PLAIN)
+                                    .post(Entity.entity("Undelete", MediaType.TEXT_PLAIN));
+
+        handleFailures(response, "Failed to delete the trash for " + storageId + ":" + repositoryId + "!");
     }
 
     public void undeleteTrash()
+            throws ArtifactOperationException
     {
         String url = getContextBaseUrl() + "/trash";
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
-        resource.request(MediaType.TEXT_PLAIN).post(Entity.entity("Undelete", MediaType.TEXT_PLAIN));
+        Response response = resource.request(MediaType.TEXT_PLAIN)
+                                    .post(Entity.entity("Undelete", MediaType.TEXT_PLAIN));
+
+        handleFailures(response, "Failed to delete the trash!");
     }
 
     public boolean artifactExists(Artifact artifact,
@@ -391,6 +412,21 @@ public class ArtifactClient implements Closeable
         Response response = resource.request(MediaType.TEXT_PLAIN).get();
 
         return response.getStatus() == 200;
+    }
+
+    private void handleFailures(Response response, String message)
+            throws ArtifactOperationException
+    {
+        int status = response.getStatus();
+        if (status != 200)
+        {
+            Object entity = response.getEntity();
+
+            if (entity != null && entity instanceof String)
+            {
+                logger.error((String) entity);
+            }
+        }
     }
 
     public String getUrlForArtifact(Artifact artifact,
