@@ -18,13 +18,13 @@ Welcome to the Strongbox Maven artifact repository manager's home.
 # What's in the works:
 * Proxy repositories
 * [Metadata](https://github.com/strongbox/strongbox/wiki/Maven-Metadata)
+* Logging:
+  * Configuration over REST
+  * Log tailing over HTTP
 * Deploy as transaction
 
 # Upcoming:
 * Directory browsing
-* Logging:
-  * Configuration over REST
-  * Log tailing over HTTP
 
 # What's not yet implemented:
 * Scheduled tasks
