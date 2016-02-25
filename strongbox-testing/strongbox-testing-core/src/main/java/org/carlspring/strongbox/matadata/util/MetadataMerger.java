@@ -9,10 +9,12 @@ import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.Plugin;
 import org.apache.maven.artifact.repository.metadata.Snapshot;
 import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
+import org.apache.maven.project.artifact.PluginArtifact;
 import org.carlspring.strongbox.client.ArtifactClient;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
@@ -75,6 +77,115 @@ public class MetadataMerger
 
             snapshotVersions
                     .addAll(createNewSnapshotVersions(artifact.getVersion(), timestamp, snapshot.getBuildNumber()));
+
+            // TODO: return the merged metadata to be replaced in remote
+        }
+        catch (ArtifactTransportException | IOException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (XmlPullParserException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    public void updateMetadataAtArtifactLevel(Artifact artifact, ArtifactClient client)
+    {
+        // TODO: figure out how path should be initialized to retrieve artifact
+        // if level metadata given the artifact
+        String path = "";
+        try
+        {
+            // If metadata doesn't exits in remote, I will create it
+            Metadata metadata = null;
+            if (client.pathExists(path))
+            {
+                InputStream is = client.getResource(path);
+                MetadataXpp3Reader reader = new MetadataXpp3Reader();
+                metadata = reader.read(is);
+            }
+            else
+            {
+                metadata = new Metadata();
+                metadata.setGroupId(artifact.getGroupId());
+                metadata.setArtifactId(artifact.getArtifactId());
+            }
+
+            Versioning versioning = metadata.getVersioning();
+            if (versioning == null)
+            {
+                versioning = new Versioning();
+                metadata.setVersioning(versioning);
+            }
+            versioning.setLatest(artifact.getVersion());
+            if (!artifact.isSnapshot())
+            {
+                versioning.setRelease(artifact.getVersion());
+            }
+            List<String> versions = versioning.getVersions();
+            if (!versions.contains(artifact.getVersion()))
+            {
+                versions.add(artifact.getVersion());
+            }
+            versioning.setLastUpdated(
+                    MetadataHelper.LAST_UPDATED_FIELD_FORMATTER.format(Calendar.getInstance().getTime()));
+            // TODO: return the merged metadata to be replaced in remote
+        }
+        catch (ArtifactTransportException | IOException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (XmlPullParserException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    public void updateMetadataAtPluginLevel(PluginArtifact artifact, ArtifactClient client)
+    {
+        // TODO: figure out how path should be initialized to retrieve version
+        // level metadata given the artifact
+        String path = "";
+        try
+        {
+            // If metadata doesn't exits in remote, I will create it
+            Metadata metadata = null;
+            if (client.pathExists(path))
+            {
+                InputStream is = client.getResource(path);
+                MetadataXpp3Reader reader = new MetadataXpp3Reader();
+                metadata = reader.read(is);
+            }
+            else
+            {
+                metadata = new Metadata();
+            }
+            List<Plugin> plugins = metadata.getPlugins();
+            boolean found = false;
+            for (Plugin plugin : plugins)
+            {
+                if (plugin.getArtifactId().equals(artifact.getArtifactId()))
+                {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                Plugin plugin = new Plugin();
+                // TODO: Figure out how to get plugin name from artifact
+                plugin.setName("");
+                plugin.setArtifactId(artifact.getArtifactId());
+                // TODO: Figure out how to get plugin prefix from artifact
+                plugin.setPrefix("");
+
+                plugins.add(plugin);
+            }
         }
         catch (ArtifactTransportException | IOException e)
         {
