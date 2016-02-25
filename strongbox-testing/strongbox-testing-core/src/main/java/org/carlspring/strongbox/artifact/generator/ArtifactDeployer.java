@@ -1,16 +1,28 @@
 package org.carlspring.strongbox.artifact.generator;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.Snapshot;
+import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
+import org.apache.maven.artifact.repository.metadata.Versioning;
+import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
+import org.apache.maven.project.artifact.PluginArtifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactClient;
 import org.carlspring.strongbox.client.ArtifactOperationException;
+import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.security.encryption.EncryptionAlgorithmsEnum;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-
-import java.io.*;
-import java.security.NoSuchAlgorithmException;
-import java.util.Map;
 
 /**
  * @author mtodorov
@@ -94,6 +106,79 @@ public class ArtifactDeployer extends ArtifactGenerator
 
         // TODO: SB-230: Implement metadata merging for the ArtifactDeployer
         // TODO: Update the metadata file on the repositoryId's side.
+        
+        mergeMetada(artifact);
+    }
+
+    private void mergeMetada(Artifact artifact)
+    {
+        if (artifact.isSnapshot()) {
+            updateMetadataAtVersionLevel(artifact);
+        }
+        updateMetadataAtArtifactLevel();
+        if (artifact instanceof PluginArtifact) {
+            updateMetadataAtPluginLevel();
+        }
+    }
+
+    private void updateMetadataAtPluginLevel()
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    private void updateMetadataAtArtifactLevel()
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    private void updateMetadataAtVersionLevel(Artifact artifact)
+    {
+        // TODO: figure out how path should be initialized given the artifact 
+        String path="";
+        try
+        {
+            Metadata metadata = null;
+            if (client.pathExists(path))
+            {
+                InputStream is = client.getResource(path);                
+                MetadataXpp3Reader reader = new MetadataXpp3Reader();
+                metadata = reader.read(is);
+            }
+            else {
+                metadata = new Metadata();
+                //TODO: init metadata 
+            }
+            
+            //Update metadata for both cases of the if above
+            
+            Versioning versioning = metadata.getVersioning();
+            Snapshot snapshot = versioning.getSnapshot();
+            snapshot.setBuildNumber(snapshot.getBuildNumber()+1);
+            //TODO: figure out how to get current timestamp
+            String timestamp=null;
+            snapshot.setTimestamp(timestamp.substring(0,7)+"."+timestamp.substring(8));
+            versioning.setLastUpdated(timestamp);
+            
+            List<SnapshotVersion> snapshotVersions = versioning.getSnapshotVersions();
+            for (SnapshotVersion snapshotVersion : snapshotVersions)
+            {
+            }
+            
+            
+        }
+        catch (ArtifactTransportException | IOException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (XmlPullParserException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
     }
 
     public void deploy(Artifact artifact,
