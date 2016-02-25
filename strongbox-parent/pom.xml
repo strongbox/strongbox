@@ -48,7 +48,7 @@
 
         <version.httpclient>4.5</version.httpclient>
         <version.jackson>2.4.3</version.jackson>
-        <version.jersey>2.22</version.jersey>
+        <version.jersey>2.22.2</version.jersey>
         <version.jetty>9.3.2.v20150730</version.jetty>
         <version.lucene>4.8.1</version.lucene>
         <version.maven>3.2.5</version.maven>
