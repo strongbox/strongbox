@@ -9,12 +9,12 @@
         <groupId>org.carlspring.strongbox</groupId>
         <artifactId>strongbox-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
-        <relativePath>../../strongbox-parent</relativePath>
+        <relativePath>../strongbox-parent</relativePath>
     </parent>
 
-    <artifactId>strongbox-storage-metadata</artifactId>
+    <artifactId>strongbox-metadata-core</artifactId>
 
-    <name>Strongbox: Storage [Metadata]</name>
+    <name>Strongbox: Metadata [Core]</name>
 
     <licenses>
         <license>
@@ -30,7 +30,7 @@
         <url>http://www.carlspring.org/</url>
     </organization>
 
-    <inceptionYear>2015</inceptionYear>
+    <inceptionYear>2016</inceptionYear>
 
     <properties>
         <dir.strongbox>${project.build.directory}/strongbox</dir.strongbox>
@@ -95,7 +95,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>unpack-storage-resources</id>
+                        <id>unpack-common-resources</id>
                         <phase>process-resources</phase>
                         <goals>
                             <goal>unpack</goal>
@@ -111,26 +111,6 @@
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${dir.strongbox}/etc</outputDirectory>
                                     <includes>logback.xml</includes>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>${project.groupId}</groupId>
-                                    <artifactId>strongbox-storage-api-resources</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${dir.strongbox}</outputDirectory>
-                                    <includes>etc/conf/strongbox.xml,META-INF/spring/**</includes>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>${project.groupId}</groupId>
-                                    <artifactId>strongbox-storage-indexing-resources</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${dir.strongbox}</outputDirectory>
-                                    <includes>META-INF/spring/**</includes>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
@@ -160,29 +140,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-storage-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-metadata-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-common-resources</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-storage-api-resources</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-testing-core</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
