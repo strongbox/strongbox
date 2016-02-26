@@ -74,7 +74,6 @@ public class MetadataMerger
             metadata.setVersioning(versioning);
         }
         versioning.setLatest(artifact.getVersion());
-        // TODO: change to ArtifactUtils.isreleaseVersion()
         if (ArtifactUtils.isReleaseVersion(artifact.getVersion()))
         {
             versioning.setRelease(artifact.getVersion());
