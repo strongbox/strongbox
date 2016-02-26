@@ -6,18 +6,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.artifact.repository.metadata.Plugin;
-import org.apache.maven.artifact.repository.metadata.Snapshot;
-import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
-import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
 import org.apache.maven.project.artifact.PluginArtifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
@@ -25,9 +17,8 @@ import org.carlspring.strongbox.client.ArtifactClient;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.matadata.util.MetadataMerger;
 import org.carlspring.strongbox.security.encryption.EncryptionAlgorithmsEnum;
-import org.carlspring.strongbox.storage.metadata.MetadataHelper;
+import org.carlspring.strongbox.storage.metadata.MetadataMerger;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 /**
@@ -100,26 +91,53 @@ public class ArtifactDeployer extends ArtifactGenerator
         }
 
         // TODO: SB-230: Implement metadata merging for the ArtifactDeployer
-        // TODO: Update the metadata file on the repositoryId's side.
-
-        mergeMetada(artifact);
+        // Update the metadata file on the repositoryId's side.
+        try
+        {
+            mergeMetada(artifact);
+        }
+        catch (ArtifactTransportException e)
+        {
+            // TODO: What should we do if we get ArtifactTransportException, IOException or XmlPullParserException
+            e.printStackTrace();
+        }
     }
 
-    private void mergeMetada(Artifact artifact)
+    private void mergeMetada(Artifact artifact) throws ArtifactTransportException, IOException, XmlPullParserException
     {
         if (metadataMerger == null)
         {
             metadataMerger = new MetadataMerger();
         }
-        if (artifact.isSnapshot())
+        Metadata metadata;
+        if (ArtifactUtils.isSnapshot(artifact.getVersion()))
         {
-            metadataMerger.updateMetadataAtVersionLevel(artifact, client);
+            metadata = retrieveMetadata("");
+            metadata = metadataMerger.updateMetadataAtVersionLevel(artifact, metadata);
+            // TODO: submit the metadata
         }
-        metadataMerger.updateMetadataAtArtifactLevel(artifact, client);
+        metadata = retrieveMetadata("");
+        metadataMerger.updateMetadataAtArtifactLevel(artifact, metadata);
+        // TODO: submit the metadata
         if (artifact instanceof PluginArtifact)
         {
-            metadataMerger.updateMetadataAtPluginLevel((PluginArtifact)artifact, client);
+            metadata = retrieveMetadata("");
+            metadata = metadataMerger.updateMetadataAtGroupLevel((PluginArtifact) artifact, metadata);
+            // TODO: submit the metadata
         }
+    }
+
+    private Metadata retrieveMetadata(String path)
+            throws ArtifactTransportException, IOException, XmlPullParserException
+    {
+        if (client.pathExists(path))
+        {
+            InputStream is = client.getResource(path);
+            MetadataXpp3Reader reader = new MetadataXpp3Reader();
+            return reader.read(is);
+
+        }
+        return null;
     }
 
     public void deploy(Artifact artifact, String storageId, String repositoryId)
@@ -131,6 +149,7 @@ public class ArtifactDeployer extends ArtifactGenerator
         client.addArtifact(artifact, storageId, repositoryId, ais);
 
         deployChecksum(ais, storageId, repositoryId, artifact);
+
     }
 
     private void deployChecksum(ArtifactInputStream ais, String storageId, String repositoryId, Artifact artifact)
