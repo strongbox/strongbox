@@ -10,9 +10,11 @@ import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.Plugin;
 import org.apache.maven.artifact.repository.metadata.Snapshot;
 import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.artifact.repository.metadata.Versioning;
+import org.apache.maven.project.artifact.PluginArtifact;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,11 +27,15 @@ public class MetadataHelperTest
 
     private static final String JAR = "jar";
 
-    private static final String VERSION = "1.0";
+    private static final String VERSION = "1.1";
+
+    private static final String PRE_VERSION = "1.0";
 
     private static final String JAVADOC = "javadoc";
 
-    private static final String ARTIFACT_ID = "strongbox-parent";
+    private static final String ANOTHER_ARTIFACT_ID = "mockito-all";
+
+    private static final String ARTIFACT_ID = "strongbox-metadata-core";
 
     private static final String SNAPSHOT_VERSION = "1.0-SNAPSHOT";
 
@@ -39,6 +45,9 @@ public class MetadataHelperTest
 
     @Mock
     private Artifact artifact;
+
+    @Mock
+    private PluginArtifact pluginArtifact;
 
     @Before
     public void setUp()
@@ -91,7 +100,7 @@ public class MetadataHelperTest
     public void versionLevelUpdateExistingMetadataTest()
     {
         // Given
-        Metadata metadata = createMetadata();
+        Metadata metadata = createVersionLevelMetadata();
         when(artifact.getVersion()).thenReturn(SNAPSHOT_VERSION);
 
         // When
@@ -132,24 +141,169 @@ public class MetadataHelperTest
         when(artifact.getGroupId()).thenReturn(GROUP_ID);
         when(artifact.getArtifactId()).thenReturn(ARTIFACT_ID);
         when(artifact.getVersion()).thenReturn(VERSION);
-        
+
         // When
         Metadata metadata = metadataMerger.updateMetadataAtArtifactLevel(artifact, null);
-        
-        //Then
+
+        // Then
         Assert.assertEquals(GROUP_ID, metadata.getGroupId());
         Assert.assertEquals(ARTIFACT_ID, metadata.getArtifactId());
-        
+
         Assert.assertNotNull(metadata.getVersioning());
         Assert.assertEquals(VERSION, metadata.getVersioning().getLatest());
         Assert.assertEquals(VERSION, metadata.getVersioning().getRelease());
         Assert.assertNotNull(metadata.getVersioning().getLastUpdated());
-        
+
         Assert.assertEquals(1, metadata.getVersioning().getVersions().size());
         Assert.assertEquals(VERSION, metadata.getVersioning().getVersions().get(0));
     }
 
-    private Metadata createMetadata()
+    @Test
+    public void artifactLevelUpdateMetadataTest()
+    {
+        // Given
+        Metadata metadata = createArtifactLevelMetadata();
+        when(artifact.getVersion()).thenReturn(VERSION);
+
+        // When
+        metadata = metadataMerger.updateMetadataAtArtifactLevel(artifact, metadata);
+
+        Assert.assertEquals(GROUP_ID, metadata.getGroupId());
+        Assert.assertEquals(ARTIFACT_ID, metadata.getArtifactId());
+        Assert.assertEquals(VERSION, metadata.getVersioning().getLatest());
+        Assert.assertEquals(VERSION, metadata.getVersioning().getRelease());
+        Assert.assertEquals(2, metadata.getVersioning().getVersions().size());
+        Assert.assertTrue(metadata.getVersioning().getVersions().contains(VERSION));
+        Assert.assertTrue(metadata.getVersioning().getVersions().contains(PRE_VERSION));
+        Assert.assertNotNull(metadata.getVersioning().getLastUpdated());
+    }
+
+    @Test
+    public void artifactLevelUpdateMetadataVersionExistsTest()
+    {
+        // Given
+        Metadata metadata = createArtifactLevelMetadata();
+        when(artifact.getVersion()).thenReturn(PRE_VERSION);
+
+        // When
+        metadata = metadataMerger.updateMetadataAtArtifactLevel(artifact, metadata);
+
+        // Then
+        Assert.assertEquals(GROUP_ID, metadata.getGroupId());
+        Assert.assertEquals(ARTIFACT_ID, metadata.getArtifactId());
+        Assert.assertEquals(PRE_VERSION, metadata.getVersioning().getLatest());
+        Assert.assertEquals(PRE_VERSION, metadata.getVersioning().getRelease());
+        Assert.assertEquals(1, metadata.getVersioning().getVersions().size());
+        Assert.assertTrue(metadata.getVersioning().getVersions().contains(PRE_VERSION));
+        Assert.assertNotNull(metadata.getVersioning().getLastUpdated());
+
+    }
+
+    @Test
+    public void artifactLevelUpdateMetadataSnapshotTest()
+    {
+        // Given
+        Metadata metadata = createArtifactLevelMetadata();
+        when(artifact.getVersion()).thenReturn(SNAPSHOT_VERSION);
+
+        // When
+        metadata = metadataMerger.updateMetadataAtArtifactLevel(artifact, metadata);
+
+        Assert.assertEquals(GROUP_ID, metadata.getGroupId());
+        Assert.assertEquals(ARTIFACT_ID, metadata.getArtifactId());
+        Assert.assertEquals(SNAPSHOT_VERSION, metadata.getVersioning().getLatest());
+        Assert.assertEquals(PRE_VERSION, metadata.getVersioning().getRelease());
+        Assert.assertEquals(2, metadata.getVersioning().getVersions().size());
+        Assert.assertTrue(metadata.getVersioning().getVersions().contains(SNAPSHOT_VERSION));
+        Assert.assertTrue(metadata.getVersioning().getVersions().contains(PRE_VERSION));
+        Assert.assertNotNull(metadata.getVersioning().getLastUpdated());
+    }
+
+    @Test
+    public void groupLevelCreateMetadataTest()
+    {
+        // Given
+        when(pluginArtifact.getGroupId()).thenReturn(GROUP_ID);
+        when(pluginArtifact.getArtifactId()).thenReturn(ARTIFACT_ID);
+
+        // When
+        Metadata metadata = metadataMerger.updateMetadataAtGroupLevel((PluginArtifact) pluginArtifact, null);
+
+        // Then
+        Assert.assertNotNull(metadata.getPlugins());
+        Assert.assertEquals(1, metadata.getPlugins().size());
+        Assert.assertEquals(ARTIFACT_ID, metadata.getPlugins().get(0).getArtifactId());
+        Assert.assertNotNull(metadata.getPlugins().get(0).getName());
+        Assert.assertNotNull(metadata.getPlugins().get(0).getPrefix());
+    }
+
+    @Test
+    public void groupLevelUpdateMetadataAddPluginTest()
+    {
+        // Given
+        Metadata metadata = createGroupLevelMetadata();
+        when(pluginArtifact.getArtifactId()).thenReturn(ARTIFACT_ID);
+
+        // When
+        metadata = metadataMerger.updateMetadataAtGroupLevel(pluginArtifact, metadata);
+
+        // Then
+        Assert.assertEquals(2, metadata.getPlugins().size());
+        Assert.assertEquals(ARTIFACT_ID, metadata.getPlugins().get(1).getArtifactId());
+        Assert.assertEquals("", metadata.getPlugins().get(1).getName());
+        Assert.assertEquals("", metadata.getPlugins().get(1).getPrefix());
+    }
+
+    @Test
+    public void groupLevelUpdateMetadataPluginExistsTest()
+    {
+        // Given
+        Metadata metadata = createGroupLevelMetadata();
+        when(pluginArtifact.getArtifactId()).thenReturn(ANOTHER_ARTIFACT_ID);
+
+        // When
+        metadata = metadataMerger.updateMetadataAtGroupLevel(pluginArtifact, metadata);
+
+        // Then
+        Assert.assertEquals(1, metadata.getPlugins().size());
+        Assert.assertEquals(ANOTHER_ARTIFACT_ID, metadata.getPlugins().get(0).getArtifactId());
+        Assert.assertEquals("", metadata.getPlugins().get(0).getName());
+        Assert.assertEquals("", metadata.getPlugins().get(0).getPrefix());
+    }
+
+    private Metadata createGroupLevelMetadata()
+    {
+        Metadata metadata = new Metadata();
+
+        Plugin plugin = new Plugin();
+        plugin.setArtifactId(ANOTHER_ARTIFACT_ID);
+        plugin.setName("");
+        plugin.setPrefix("");
+
+        List<Plugin> plugins = new ArrayList<Plugin>();
+        plugins.add(plugin);
+        metadata.setPlugins(plugins);
+        return metadata;
+    }
+
+    private Metadata createArtifactLevelMetadata()
+    {
+        Metadata metadata = new Metadata();
+
+        metadata.setGroupId(GROUP_ID);
+        metadata.setArtifactId(ARTIFACT_ID);
+        metadata.setVersioning(new Versioning());
+        metadata.getVersioning().setLatest(PRE_VERSION);
+        metadata.getVersioning().setRelease(PRE_VERSION);
+        List<String> versions = new ArrayList<String>();
+        versions.add(PRE_VERSION);
+        metadata.getVersioning().setVersions(versions);
+        metadata.getVersioning()
+                .setLastUpdated(MetadataHelper.LAST_UPDATED_FIELD_FORMATTER.format(Calendar.getInstance().getTime()));
+        return metadata;
+    }
+
+    private Metadata createVersionLevelMetadata()
     {
         Metadata metadata = new Metadata();
         metadata.setGroupId(GROUP_ID);
