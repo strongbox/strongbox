@@ -1,29 +1,40 @@
 package org.carlspring.strongbox.rest;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.http.range.ByteRange;
-import org.carlspring.strongbox.http.range.ByteRangeHeaderParser;
-import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
-import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
-import org.carlspring.strongbox.services.ArtifactManagementService;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.http.range.ByteRange;
+import org.carlspring.strongbox.http.range.ByteRangeHeaderParser;
+import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
+import org.carlspring.strongbox.services.ArtifactManagementService;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.metadata.MetadataManager;
+import org.carlspring.strongbox.storage.metadata.MetadataType;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
+import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
 import org.carlspring.strongbox.util.MessageDigestUtils;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +53,9 @@ public class ArtifactRestlet
 
     @Autowired
     private ArtifactManagementService artifactManagementService;
+    
+    @Autowired
+    private MetadataManager metadataManager;
 
 
     @PUT
@@ -404,6 +418,9 @@ public class ArtifactRestlet
         try
         {
             artifactManagementService.delete(storageId, repositoryId, path, force);
+         
+            // TODO SB-265: update metadata
+            updateMetadata(storageId, repositoryId, path);
         }
         catch (ArtifactStorageException e)
         {
@@ -433,8 +450,41 @@ public class ArtifactRestlet
                            .entity(e.getMessage())
                            .build();
         }
+        catch (NoSuchAlgorithmException | XmlPullParserException e)
+        {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(e.getMessage())
+                    .build();
+        }
 
         return Response.ok().build();
+    }
+    
+    private void updateMetadata(String storageId, String repositoryId, String path)
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException
+    {
+        if (isVersionDirectory(path))
+        {
+            // TODO SB-265: figure out how to obtain the artifact metadata path
+            // given the storageId, repositoryId and path
+            java.nio.file.Path artifactBasePath = null;
+            Metadata metadata = metadataManager.readMetadata(artifactBasePath);
+
+            // TODO SB-265: figure out how to obtain the version from the given
+            // path
+            String version = "";
+            metadata.getVersioning().getVersions().remove(version);
+
+            metadataManager.storeMetadata(artifactBasePath, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
+
+        }
+
+    }
+
+    private boolean isVersionDirectory(String path)
+    {
+        // TODO SB-265: figure out if the given path is a version directory
+        return false;
     }
 
 }
