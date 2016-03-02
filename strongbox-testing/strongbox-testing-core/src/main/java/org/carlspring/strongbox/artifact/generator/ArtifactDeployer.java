@@ -17,9 +17,13 @@ import org.carlspring.strongbox.client.ArtifactClient;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.io.MultipleDigestInputStream;
 import org.carlspring.strongbox.security.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.strongbox.storage.metadata.MetadataMerger;
+import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+
+import com.google.common.primitives.Chars;
 
 /**
  * @author mtodorov
@@ -94,16 +98,17 @@ public class ArtifactDeployer extends ArtifactGenerator
         // Update the metadata file on the repositoryId's side.
         try
         {
-            mergeMetada(artifact);
+            mergeMetada(artifact,storageId,repositoryId);
         }
         catch (ArtifactTransportException e)
         {
-            // TODO: What should we do if we get ArtifactTransportException, IOException or XmlPullParserException
+            // TODO: What should we do if we get ArtifactTransportException,
+            // IOException or XmlPullParserException
             e.printStackTrace();
         }
     }
 
-    private void mergeMetada(Artifact artifact) throws ArtifactTransportException, IOException, XmlPullParserException
+    private void mergeMetada(Artifact artifact, String storageId, String repositoryId) throws ArtifactTransportException, IOException, XmlPullParserException, NoSuchAlgorithmException, ArtifactOperationException
     {
         if (metadataMerger == null)
         {
@@ -112,18 +117,64 @@ public class ArtifactDeployer extends ArtifactGenerator
         Metadata metadata;
         if (ArtifactUtils.isSnapshot(artifact.getVersion()))
         {
-            metadata = retrieveMetadata("");
-            metadata = metadataMerger.updateMetadataAtVersionLevel(artifact, metadata);
-            // TODO: submit the metadata
+            String path = ArtifactUtils.getVersionLevelMetadataPath(artifact);
+            metadata = metadataMerger.updateMetadataAtVersionLevel(artifact, retrieveMetadata(ArtifactUtils.getVersionLevelMetadataPath(artifact)));
+            deployMetadata(metadata, path,storageId,repositoryId);
         }
-        metadata = retrieveMetadata("");
-        metadataMerger.updateMetadataAtArtifactLevel(artifact, metadata);
-        // TODO: submit the metadata
+        String path = ArtifactUtils.getArtifactLevelMetadataPath(artifact);
+        metadata = metadataMerger.updateMetadataAtArtifactLevel(artifact, retrieveMetadata(ArtifactUtils.getArtifactLevelMetadataPath(artifact)));
+        deployMetadata(metadata, path,storageId,repositoryId);
         if (artifact instanceof PluginArtifact)
         {
-            metadata = retrieveMetadata("");
-            metadata = metadataMerger.updateMetadataAtGroupLevel((PluginArtifact) artifact, metadata);
-            // TODO: submit the metadata
+            path = ArtifactUtils.getGroupLevelMetadataPath(artifact);
+            metadata = metadataMerger.updateMetadataAtGroupLevel((PluginArtifact) artifact, retrieveMetadata(ArtifactUtils.getGroupLevelMetadataPath(artifact)));
+            deployMetadata(metadata,path,storageId,repositoryId);
+        }
+    }
+
+    private void deployMetadata(Metadata metadata, String metadataPath, String storageId, String repositoryId) throws IOException, NoSuchAlgorithmException, ArtifactOperationException
+    {
+        File metadataFile = new File(getBasedir(), metadataPath);
+        InputStream is = new FileInputStream(metadataFile);
+        MultipleDigestInputStream mdis = new MultipleDigestInputStream(is);
+
+        int size = 4096;
+        byte[] bytes = new byte[size];
+
+        //noinspection StatementWithEmptyBody
+        while (mdis.read(bytes, 0, size) != -1);
+
+        mdis.close();
+
+        String md5 = mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
+        String sha1 = mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
+
+        MessageDigestUtils.writeChecksum(metadataFile, EncryptionAlgorithmsEnum.MD5.getExtension(), md5);
+        MessageDigestUtils.writeChecksum(metadataFile, EncryptionAlgorithmsEnum.SHA1.getExtension(), sha1);
+        
+        client.deployFile(mdis, metadataPath.replace("/maven-metadata.xml", ""), "maven-metadata.xml");
+        deployChecksum(mdis, storageId, repositoryId, metadataPath.replace("/maven-metadata.xml", ""), "maven-metadata.xml");
+
+    }
+    
+    private void deployChecksum(MultipleDigestInputStream mdis, String storageId, String repositoryId,String path, String metadataFileName)
+            throws ArtifactOperationException, IOException
+    {
+        for (Map.Entry entry : mdis.getHexDigests().entrySet())
+        {
+            final String algorithm = (String) entry.getKey();
+            final String checksum = (String) entry.getValue();
+
+            ByteArrayInputStream bais = new ByteArrayInputStream(checksum.getBytes());
+
+            final String extensionForAlgorithm = EncryptionAlgorithmsEnum.fromAlgorithm(algorithm).getExtension();
+
+            String artifactToPath = path + extensionForAlgorithm;
+            String url = client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/"
+                    + artifactToPath;
+            String artifactFileName = metadataFileName + extensionForAlgorithm;
+
+            client.deployFile(bais, url, artifactFileName);
         }
     }
 
@@ -151,7 +202,7 @@ public class ArtifactDeployer extends ArtifactGenerator
         deployChecksum(ais, storageId, repositoryId, artifact);
 
     }
-
+    
     private void deployChecksum(ArtifactInputStream ais, String storageId, String repositoryId, Artifact artifact)
             throws ArtifactOperationException, IOException
     {
