@@ -7,20 +7,26 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Writer;
 import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Writer;
 import org.apache.maven.model.Model;
 import org.carlspring.commons.io.RandomInputStream;
 import org.carlspring.maven.commons.model.ModelWriter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.io.MultipleDigestInputStream;
+import org.carlspring.strongbox.io.MultipleDigestOutputStream;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.security.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.strongbox.util.MessageDigestUtils;
+import org.codehaus.plexus.util.WriterFactory;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +43,6 @@ public class ArtifactGenerator
 
     private String basedir;
 
-
     public ArtifactGenerator()
     {
     }
@@ -53,9 +58,7 @@ public class ArtifactGenerator
     }
 
     public void generate(String gavtc, String packaging, String... versions)
-            throws IOException,
-                   XmlPullParserException,
-                   NoSuchAlgorithmException
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
         if (packaging == null)
         {
@@ -73,9 +76,7 @@ public class ArtifactGenerator
     }
 
     public void generate(String gavtc, String... versions)
-            throws IOException,
-                   XmlPullParserException,
-                   NoSuchAlgorithmException
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
         for (String version : versions)
         {
@@ -87,27 +88,20 @@ public class ArtifactGenerator
         }
     }
 
-    public void generate(Artifact artifact)
-            throws IOException,
-                   XmlPullParserException,
-                   NoSuchAlgorithmException
+    public void generate(Artifact artifact) throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
         generatePom(artifact, PACKAGING_JAR);
         createArchive(artifact);
     }
 
     public void generate(Artifact artifact, String packaging)
-            throws IOException,
-                   XmlPullParserException,
-                   NoSuchAlgorithmException
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
         generatePom(artifact, packaging);
         createArchive(artifact);
     }
 
-    protected void createArchive(Artifact artifact)
-            throws NoSuchAlgorithmException,
-                   IOException
+    protected void createArchive(Artifact artifact) throws NoSuchAlgorithmException, IOException
     {
         ZipOutputStream zos = null;
 
@@ -117,8 +111,9 @@ public class ArtifactGenerator
         {
             artifactFile = new File(basedir, ArtifactUtils.convertArtifactToPath(artifact));
 
-            // Make sure the artifact's parent directory exists before writing the model.
-            //noinspection ResultOfMethodCallIgnored
+            // Make sure the artifact's parent directory exists before writing
+            // the model.
+            // noinspection ResultOfMethodCallIgnored
             artifactFile.getParentFile().mkdirs();
 
             zos = new ZipOutputStream(new FileOutputStream(artifactFile));
@@ -135,16 +130,50 @@ public class ArtifactGenerator
         }
     }
 
-    private void addMavenPomFile(Artifact artifact, ZipOutputStream zos)
-            throws IOException
+    protected void createMetadataArchive(Metadata metadata, String metadataPath)
+            throws NoSuchAlgorithmException, IOException
+    {
+        OutputStream os = null;
+        Writer writer = null;
+
+        // ZipOutputStream zos = null;
+        File metadataFile = null;
+
+        try
+        {
+            metadataFile = new File(basedir, metadataPath);
+
+            // Make sure the artifact's parent directory exists before writing
+            // the model.
+            // noinspection ResultOfMethodCallIgnored
+            metadataFile.getParentFile().mkdirs();
+
+            os = new MultipleDigestOutputStream(metadataFile, new FileOutputStream(metadataFile));
+            writer = WriterFactory.newXmlWriter(os);
+            MetadataXpp3Writer mappingWriter = new MetadataXpp3Writer();
+            mappingWriter.write(writer, metadata);
+
+            os.flush();
+
+            // zos = new ZipOutputStream(new FileOutputStream(metadataFile));
+
+            // createRandomSizeFile(zos);
+        }
+        finally
+        {
+            ResourceCloser.close(os, logger);
+
+            generateChecksumsForArtifact(metadataFile);
+        }
+    }
+
+    private void addMavenPomFile(Artifact artifact, ZipOutputStream zos) throws IOException
     {
         final Artifact pomArtifact = ArtifactUtils.getPOMArtifact(artifact);
         File pomFile = new File(basedir, ArtifactUtils.convertArtifactToPath(pomArtifact));
 
-        ZipEntry ze = new ZipEntry("META-INF/maven/" +
-                                   artifact.getGroupId() + "/" +
-                                   artifact.getArtifactId() + "/" +
-                                   "pom.xml");
+        ZipEntry ze = new ZipEntry(
+                "META-INF/maven/" + artifact.getGroupId() + "/" + artifact.getArtifactId() + "/" + "pom.xml");
         zos.putNextEntry(ze);
 
         FileInputStream fis = null;
@@ -167,13 +196,10 @@ public class ArtifactGenerator
         }
     }
 
-    private void createMavenPropertiesFile(Artifact artifact, ZipOutputStream zos)
-            throws IOException
+    private void createMavenPropertiesFile(Artifact artifact, ZipOutputStream zos) throws IOException
     {
-        ZipEntry ze = new ZipEntry("META-INF/maven/" +
-                                   artifact.getGroupId() + "/" +
-                                   artifact.getArtifactId() + "/" +
-                                   "pom.properties");
+        ZipEntry ze = new ZipEntry(
+                "META-INF/maven/" + artifact.getGroupId() + "/" + artifact.getArtifactId() + "/" + "pom.properties");
         zos.putNextEntry(ze);
 
         Properties properties = new Properties();
@@ -197,8 +223,7 @@ public class ArtifactGenerator
         zos.closeEntry();
     }
 
-    private void createRandomSizeFile(ZipOutputStream zos)
-            throws IOException
+    private void createRandomSizeFile(ZipOutputStream zos) throws IOException
     {
         ZipEntry ze = new ZipEntry("random-size-file");
         zos.putNextEntry(ze);
@@ -217,15 +242,14 @@ public class ArtifactGenerator
     }
 
     protected void generatePom(Artifact artifact, String packaging)
-            throws IOException,
-                   XmlPullParserException,
-                   NoSuchAlgorithmException
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
         final Artifact pomArtifact = ArtifactUtils.getPOMArtifact(artifact);
         File pomFile = new File(basedir, ArtifactUtils.convertArtifactToPath(pomArtifact));
 
-        // Make sure the artifact's parent directory exists before writing the model.
-        //noinspection ResultOfMethodCallIgnored
+        // Make sure the artifact's parent directory exists before writing the
+        // model.
+        // noinspection ResultOfMethodCallIgnored
         pomFile.getParentFile().mkdirs();
 
         Model model = new Model();
@@ -242,8 +266,7 @@ public class ArtifactGenerator
         generateChecksumsForArtifact(pomFile);
     }
 
-    private void generateChecksumsForArtifact(File artifactFile)
-            throws NoSuchAlgorithmException, IOException
+    private void generateChecksumsForArtifact(File artifactFile) throws NoSuchAlgorithmException, IOException
     {
         InputStream is = new FileInputStream(artifactFile);
         MultipleDigestInputStream mdis = new MultipleDigestInputStream(is);
@@ -251,8 +274,9 @@ public class ArtifactGenerator
         int size = 4096;
         byte[] bytes = new byte[size];
 
-        //noinspection StatementWithEmptyBody
-        while (mdis.read(bytes, 0, size) != -1);
+        // noinspection StatementWithEmptyBody
+        while (mdis.read(bytes, 0, size) != -1)
+            ;
 
         mdis.close();
 

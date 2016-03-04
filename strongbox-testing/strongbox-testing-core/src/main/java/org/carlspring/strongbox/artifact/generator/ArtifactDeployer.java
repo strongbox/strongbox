@@ -23,8 +23,6 @@ import org.carlspring.strongbox.storage.metadata.MetadataMerger;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
-import com.google.common.primitives.Chars;
-
 /**
  * @author mtodorov
  */
@@ -94,15 +92,13 @@ public class ArtifactDeployer extends ArtifactGenerator
             }
         }
 
-        // TODO: SB-230: Implement metadata merging for the ArtifactDeployer
-        // Update the metadata file on the repositoryId's side.
         try
         {
             mergeMetada(artifact,storageId,repositoryId);
         }
         catch (ArtifactTransportException e)
         {
-            // TODO: What should we do if we get ArtifactTransportException,
+            // TODO SB-230: What should we do if we get ArtifactTransportException,
             // IOException or XmlPullParserException
             e.printStackTrace();
         }
@@ -118,16 +114,19 @@ public class ArtifactDeployer extends ArtifactGenerator
         if (ArtifactUtils.isSnapshot(artifact.getVersion()))
         {
             String path = ArtifactUtils.getVersionLevelMetadataPath(artifact);
-            metadata = metadataMerger.updateMetadataAtVersionLevel(artifact, retrieveMetadata(ArtifactUtils.getVersionLevelMetadataPath(artifact)));
+            metadata = metadataMerger.updateMetadataAtVersionLevel(artifact, retrieveMetadata("storages/storage0/releases/" + ArtifactUtils.getVersionLevelMetadataPath(artifact)));
+            createMetadataArchive(metadata, path);
             deployMetadata(metadata, path,storageId,repositoryId);
         }
         String path = ArtifactUtils.getArtifactLevelMetadataPath(artifact);
-        metadata = metadataMerger.updateMetadataAtArtifactLevel(artifact, retrieveMetadata(ArtifactUtils.getArtifactLevelMetadataPath(artifact)));
+        metadata = metadataMerger.updateMetadataAtArtifactLevel(artifact, retrieveMetadata("storages/storage0/releases/" +ArtifactUtils.getArtifactLevelMetadataPath(artifact)));
+        createMetadataArchive(metadata, path);
         deployMetadata(metadata, path,storageId,repositoryId);
         if (artifact instanceof PluginArtifact)
         {
             path = ArtifactUtils.getGroupLevelMetadataPath(artifact);
-            metadata = metadataMerger.updateMetadataAtGroupLevel((PluginArtifact) artifact, retrieveMetadata(ArtifactUtils.getGroupLevelMetadataPath(artifact)));
+            metadata = metadataMerger.updateMetadataAtGroupLevel((PluginArtifact) artifact, retrieveMetadata("storages/storage0/releases/" +ArtifactUtils.getGroupLevelMetadataPath(artifact)));
+            createMetadataArchive(metadata, path);
             deployMetadata(metadata,path,storageId,repositoryId);
         }
     }
@@ -135,25 +134,12 @@ public class ArtifactDeployer extends ArtifactGenerator
     private void deployMetadata(Metadata metadata, String metadataPath, String storageId, String repositoryId) throws IOException, NoSuchAlgorithmException, ArtifactOperationException
     {
         File metadataFile = new File(getBasedir(), metadataPath);
+        
         InputStream is = new FileInputStream(metadataFile);
         MultipleDigestInputStream mdis = new MultipleDigestInputStream(is);
-
-        int size = 4096;
-        byte[] bytes = new byte[size];
-
-        //noinspection StatementWithEmptyBody
-        while (mdis.read(bytes, 0, size) != -1);
-
-        mdis.close();
-
-        String md5 = mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
-        String sha1 = mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
-
-        MessageDigestUtils.writeChecksum(metadataFile, EncryptionAlgorithmsEnum.MD5.getExtension(), md5);
-        MessageDigestUtils.writeChecksum(metadataFile, EncryptionAlgorithmsEnum.SHA1.getExtension(), sha1);
         
-        client.deployFile(mdis, metadataPath.replace("/maven-metadata.xml", ""), "maven-metadata.xml");
-        deployChecksum(mdis, storageId, repositoryId, metadataPath.replace("/maven-metadata.xml", ""), "maven-metadata.xml");
+        client.addMetadata(metadata, metadataPath,storageId, repositoryId, is);
+        deployChecksum(mdis, storageId, repositoryId, metadataPath.substring(0, metadataPath.lastIndexOf("/")), "maven-metadata.xml");
 
     }
     
@@ -183,11 +169,13 @@ public class ArtifactDeployer extends ArtifactGenerator
     {
         if (client.pathExists(path))
         {
+            System.out.println("EXIST!!");
             InputStream is = client.getResource(path);
             MetadataXpp3Reader reader = new MetadataXpp3Reader();
             return reader.read(is);
 
         }
+        System.out.println("DONT EXIST!!");
         return null;
     }
 

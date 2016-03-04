@@ -1,23 +1,31 @@
 package org.carlspring.strongbox.rest;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
+
+import org.apache.maven.artifact.Artifact;
+import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.artifact.generator.ArtifactDeployer;
+import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.io.MultipleDigestOutputStream;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.security.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.util.MessageDigestUtils;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author mtodorov
@@ -42,25 +50,31 @@ public class ArtifactRestletTest
         {
             // Generate releases
             // Used by testPartialFetch():
-            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                             "org.carlspring.strongbox.partial:partial-foo",
-                             new String[]{ "3.1", // Used by testPartialFetch()
-                                           "3.2"  // Used by testPartialFetch()
-                                         });
-
-            // Used by testCopy*():
-            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                             "org.carlspring.strongbox.copy:copy-foo",
-                             new String[]{ "1.1", // Used by testCopyArtifactFile()
-                                           "1.2"  // Used by testCopyArtifactDirectory()
-                                         });
-
-            // Used by testDelete():
-            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                             "com.artifacts.to.delete.releases:delete-foo",
-                             new String[]{ "1.2.1", // Used by testDeleteArtifactFile
-                                           "1.2.2"  // Used by testDeleteArtifactDirectory
-                                         });
+                generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                                 "org.carlspring.strongbox.partial:partial-foo",
+                                 new String[]{ "3.1", // Used by testPartialFetch()
+                                               "3.2"  // Used by testPartialFetch()
+                                             });
+    
+                // Used by testCopy*():
+                generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                                 "org.carlspring.strongbox.copy:copy-foo",
+                                 new String[]{ "1.1", // Used by testCopyArtifactFile()
+                                               "1.2"  // Used by testCopyArtifactDirectory()
+                                             });
+    
+                // Used by testDelete():
+                generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                                 "com.artifacts.to.delete.releases:delete-foo",
+                                 new String[]{ "1.2.1", // Used by testDeleteArtifactFile
+                                               "1.2.2"  // Used by testDeleteArtifactDirectory
+                                             });
+                
+                generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                        "org.carlspring.strongbox.partial:partial-foo",
+                        new String[]{ "3.1", // Used by testPartialFetch()
+                                      "3.2"  // Used by testPartialFetch()
+                                    });
 
             INITIALIZED = true;
         }
@@ -231,6 +245,25 @@ public class ArtifactRestletTest
         client.delete("storage0", "releases", artifactPath);
 
         assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!", deletedArtifact.exists());
+    }
+    
+    @Test
+    @Ignore
+    public void deployArtifactNewMetadataTest() throws NoSuchAlgorithmException, ArtifactOperationException, IOException, XmlPullParserException{
+        Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-foo:3.3");
+        Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-foo:3.4");
+        Artifact artifact4 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-foo:3.5");
+        Artifact artifact5 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-foo:3.6");
+
+        ArtifactDeployer artifactDeployer = new ArtifactDeployer(REPOSITORY_BASEDIR_RELEASES);
+        artifactDeployer.setClient(client);
+
+        artifactDeployer.generateAndDeployArtifact(artifact2, "storage0", "releases");
+        artifactDeployer.generateAndDeployArtifact(artifact3, "storage0", "releases");
+        artifactDeployer.generateAndDeployArtifact(artifact4, "storage0", "releases");
+        artifactDeployer.generateAndDeployArtifact(artifact5, "storage0", "releases");
+        
+        
     }
 
 }

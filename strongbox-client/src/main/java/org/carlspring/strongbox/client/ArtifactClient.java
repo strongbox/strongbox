@@ -1,19 +1,25 @@
 package org.carlspring.strongbox.client;
 
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.client.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * @author mtodorov
@@ -27,11 +33,11 @@ public class ArtifactClient implements Closeable
 
     private String protocol = "http";
 
-    private String host = System.getProperty("strongbox.host") != null ? System.getProperty("strongbox.host") : "localhost";
+    private String host = System.getProperty("strongbox.host") != null ? System.getProperty("strongbox.host")
+            : "localhost";
 
-    private int port = System.getProperty("strongbox.port") != null ?
-                       Integer.parseInt(System.getProperty("strongbox.port")) :
-                       48080;
+    private int port = System.getProperty("strongbox.port") != null
+            ? Integer.parseInt(System.getProperty("strongbox.port")) : 48080;
 
     private String contextBaseUrl;
 
@@ -41,20 +47,16 @@ public class ArtifactClient implements Closeable
 
     private Client client;
 
-
     public ArtifactClient()
     {
     }
 
     public static ArtifactClient getTestInstance()
     {
-        String host = System.getProperty("strongbox.host") != null ?
-                      System.getProperty("strongbox.host") :
-                      "localhost";
+        String host = System.getProperty("strongbox.host") != null ? System.getProperty("strongbox.host") : "localhost";
 
-        int port = System.getProperty("strongbox.port") != null ?
-                   Integer.parseInt(System.getProperty("strongbox.port")) :
-                   48080;
+        int port = System.getProperty("strongbox.port") != null ? Integer.parseInt(System.getProperty("strongbox.port"))
+                : 48080;
 
         ArtifactClient client = new ArtifactClient();
         client.setUsername("maven");
@@ -97,14 +99,11 @@ public class ArtifactClient implements Closeable
         }
     }
 
-    public void addArtifact(Artifact artifact,
-                            String storageId,
-                            String repositoryId,
-                            InputStream is)
+    public void addArtifact(Artifact artifact, String storageId, String repositoryId, InputStream is)
             throws ArtifactOperationException
     {
-        String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" +
-                     ArtifactUtils.convertArtifactToPath(artifact);
+        String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/"
+                + ArtifactUtils.convertArtifactToPath(artifact);
 
         logger.debug("Deploying " + url + "...");
 
@@ -113,49 +112,53 @@ public class ArtifactClient implements Closeable
         deployFile(is, url, fileName);
     }
 
-    public void deployFile(InputStream is,
-                           String url,
-                           String fileName)
+    public void addMetadata(Metadata metadata, String path, String storageId, String repositoryId, InputStream is)
             throws ArtifactOperationException
+    {
+        String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + path;
+
+        logger.debug("Deploying " + url + "...");
+
+        deployMetadata(is, url, path.substring(path.lastIndexOf("/")));
+    }
+
+    public void deployFile(InputStream is, String url, String fileName) throws ArtifactOperationException
     {
         put(is, url, fileName, MediaType.APPLICATION_OCTET_STREAM);
     }
 
-    public void put(InputStream is,
-                    String url,
-                    String fileName,
-                    String mediaType)
-            throws ArtifactOperationException
+    public void deployMetadata(InputStream is, String url, String fileName) throws ArtifactOperationException
     {
-        String contentDisposition = "attachment; filename=\"" + fileName +"\"";
+        put(is, url, fileName, MediaType.APPLICATION_XML);
+    }
+
+    public void put(InputStream is, String url, String fileName, String mediaType) throws ArtifactOperationException
+    {
+        String contentDisposition = "attachment; filename=\"" + fileName + "\"";
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
-        Response response = resource.request(mediaType)
-                                    .header("Content-Disposition", contentDisposition)
-                                    .put(Entity.entity(is, mediaType));
+        Response response = resource.request(mediaType).header("Content-Disposition", contentDisposition)
+                .put(Entity.entity(is, mediaType));
 
         handleFailures(response, "Failed to upload file!");
     }
 
     /**
-     * This method will deploy an artifact with a random length to the remote host.
-     * NOTE: This artifacts file will not be a valid Maven one, but will exist for the sake of testing.
+     * This method will deploy an artifact with a random length to the remote
+     * host. NOTE: This artifacts file will not be a valid Maven one, but will
+     * exist for the sake of testing.
      *
      * @param artifact
      * @param repositoryId
      * @param length
      * @throws ArtifactOperationException
      */
-    public void addArtifact(Artifact artifact,
-                            String repositoryId,
-                            long length)
-            throws ArtifactOperationException
+    public void addArtifact(Artifact artifact, String repositoryId, long length) throws ArtifactOperationException
     {
-        String url = getContextBaseUrl() + MANAGEMENT_URL + "/" +
-                     repositoryId + "/state/EXISTS/length/" + length + "/" +
-                     ArtifactUtils.convertArtifactToPath(artifact);
+        String url = getContextBaseUrl() + MANAGEMENT_URL + "/" + repositoryId + "/state/EXISTS/length/" + length + "/"
+                + ArtifactUtils.convertArtifactToPath(artifact);
 
         logger.debug("Using " + url);
 
@@ -166,10 +169,7 @@ public class ArtifactClient implements Closeable
         handleFailures(response, "Failed to create artifact!");
     }
 
-    public void getArtifact(Artifact artifact,
-                            String repository)
-            throws ArtifactTransportException,
-                   IOException
+    public void getArtifact(Artifact artifact, String repository) throws ArtifactTransportException, IOException
     {
         String url = getContextBaseUrl() + "/" + repository + "/" + ArtifactUtils.convertArtifactToPath(artifact);
 
@@ -205,16 +205,12 @@ public class ArtifactClient implements Closeable
         }
     }
 
-    public InputStream getResource(String path)
-            throws ArtifactTransportException,
-                   IOException
+    public InputStream getResource(String path) throws ArtifactTransportException, IOException
     {
         return getResource(path, 0);
     }
 
-    public InputStream getResource(String path, long offset)
-            throws ArtifactTransportException,
-                   IOException
+    public InputStream getResource(String path, long offset) throws ArtifactTransportException, IOException
     {
         String url = getContextBaseUrl() + (!path.startsWith("/") ? "/" : "") + path;
 
@@ -238,9 +234,7 @@ public class ArtifactClient implements Closeable
         return response.readEntity(InputStream.class);
     }
 
-    public Response getResourceWithResponse(String path)
-            throws ArtifactTransportException,
-                   IOException
+    public Response getResourceWithResponse(String path) throws ArtifactTransportException, IOException
     {
         String url = getContextBaseUrl() + (!path.startsWith("/") ? "/" : "") + path;
 
@@ -252,9 +246,7 @@ public class ArtifactClient implements Closeable
         return resource.request(MediaType.TEXT_PLAIN).get();
     }
 
-    public void deleteArtifact(Artifact artifact,
-                               String storageId,
-                               String repositoryId)
+    public void deleteArtifact(Artifact artifact, String storageId, String repositoryId)
             throws ArtifactOperationException
     {
         String url = getUrlForArtifact(artifact, storageId, repositoryId);
@@ -267,23 +259,17 @@ public class ArtifactClient implements Closeable
         handleFailures(response, "Failed to delete artifact!");
     }
 
-    public void delete(String storageId,
-                       String repositoryId,
-                       String path)
-            throws ArtifactOperationException
+    public void delete(String storageId, String repositoryId, String path) throws ArtifactOperationException
     {
         delete(storageId, repositoryId, path, false);
     }
 
-    public void delete(String storageId,
-                       String repositoryId,
-                       String path,
-                       boolean force)
+    public void delete(String storageId, String repositoryId, String path, boolean force)
             throws ArtifactOperationException
     {
         @SuppressWarnings("ConstantConditions")
-        String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + path +
-                     (force ? "?force=" + force : "");
+        String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + path
+                + (force ? "?force=" + force : "");
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
@@ -293,8 +279,7 @@ public class ArtifactClient implements Closeable
         handleFailures(response, "Failed to delete artifact!");
     }
 
-    public void deleteTrash(String storageId, String repositoryId)
-            throws ArtifactOperationException
+    public void deleteTrash(String storageId, String repositoryId) throws ArtifactOperationException
     {
         String url = getUrlForTrash(storageId, repositoryId);
 
@@ -306,8 +291,7 @@ public class ArtifactClient implements Closeable
         handleFailures(response, "Failed to delete the trash for " + storageId + ":" + repositoryId + "!");
     }
 
-    public void deleteTrash()
-            throws ArtifactOperationException
+    public void deleteTrash() throws ArtifactOperationException
     {
         String url = getContextBaseUrl() + "/trash";
 
@@ -319,10 +303,7 @@ public class ArtifactClient implements Closeable
         handleFailures(response, "Failed to delete trash for all repositories!");
     }
 
-    public void undelete(String storageId,
-                         String repositoryId,
-                         String path)
-            throws ArtifactOperationException
+    public void undelete(String storageId, String repositoryId, String path) throws ArtifactOperationException
     {
         @SuppressWarnings("ConstantConditions")
         String url = getUrlForTrash(storageId, repositoryId) + "/" + path;
@@ -331,13 +312,12 @@ public class ArtifactClient implements Closeable
         setupAuthentication(resource);
 
         Response response = resource.request(MediaType.TEXT_PLAIN)
-                                    .post(Entity.entity("Undelete", MediaType.TEXT_PLAIN));
+                .post(Entity.entity("Undelete", MediaType.TEXT_PLAIN));
 
         handleFailures(response, "Failed to delete the trash for " + storageId + ":" + repositoryId + "!");
     }
 
-    public void undeleteTrash(String storageId, String repositoryId)
-            throws ArtifactOperationException
+    public void undeleteTrash(String storageId, String repositoryId) throws ArtifactOperationException
     {
         String url = getUrlForTrash(storageId, repositoryId);
 
@@ -345,13 +325,12 @@ public class ArtifactClient implements Closeable
         setupAuthentication(resource);
 
         Response response = resource.request(MediaType.TEXT_PLAIN)
-                                    .post(Entity.entity("Undelete", MediaType.TEXT_PLAIN));
+                .post(Entity.entity("Undelete", MediaType.TEXT_PLAIN));
 
         handleFailures(response, "Failed to delete the trash for " + storageId + ":" + repositoryId + "!");
     }
 
-    public void undeleteTrash()
-            throws ArtifactOperationException
+    public void undeleteTrash() throws ArtifactOperationException
     {
         String url = getContextBaseUrl() + "/trash";
 
@@ -359,15 +338,12 @@ public class ArtifactClient implements Closeable
         setupAuthentication(resource);
 
         Response response = resource.request(MediaType.TEXT_PLAIN)
-                                    .post(Entity.entity("Undelete", MediaType.TEXT_PLAIN));
+                .post(Entity.entity("Undelete", MediaType.TEXT_PLAIN));
 
         handleFailures(response, "Failed to delete the trash!");
     }
 
-    public boolean artifactExists(Artifact artifact,
-                                  String storageId,
-                                  String repositoryId)
-            throws ResponseException
+    public boolean artifactExists(Artifact artifact, String storageId, String repositoryId) throws ResponseException
     {
         Response response = artifactExistsStatusCode(artifact, storageId, repositoryId);
 
@@ -385,9 +361,7 @@ public class ArtifactClient implements Closeable
         }
     }
 
-    public Response artifactExistsStatusCode(Artifact artifact,
-                                             String storageId,
-                                             String repositoryId)
+    public Response artifactExistsStatusCode(Artifact artifact, String storageId, String repositoryId)
             throws ResponseException
     {
         String url = getUrlForArtifact(artifact, storageId, repositoryId);
@@ -410,12 +384,11 @@ public class ArtifactClient implements Closeable
         setupAuthentication(resource);
 
         Response response = resource.request(MediaType.TEXT_PLAIN).get();
-
+        System.out.println(response.getStatus());
         return response.getStatus() == 200;
     }
 
-    private void handleFailures(Response response, String message)
-            throws ArtifactOperationException
+    private void handleFailures(Response response, String message) throws ArtifactOperationException
     {
         int status = response.getStatus();
         if (status != 200)
@@ -429,12 +402,10 @@ public class ArtifactClient implements Closeable
         }
     }
 
-    public String getUrlForArtifact(Artifact artifact,
-                                    String storageId,
-                                    String repositoryId)
+    public String getUrlForArtifact(Artifact artifact, String storageId, String repositoryId)
     {
-        return getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" +
-               ArtifactUtils.convertArtifactToPath(artifact);
+        return getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/"
+                + ArtifactUtils.convertArtifactToPath(artifact);
     }
 
     public String getUrlForTrash(String storageId, String repositoryId)
