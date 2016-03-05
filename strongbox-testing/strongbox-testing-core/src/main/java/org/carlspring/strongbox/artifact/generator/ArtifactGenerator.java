@@ -142,6 +142,10 @@ public class ArtifactGenerator
         try
         {
             metadataFile = new File(basedir, metadataPath);
+            
+            if (metadataFile.exists()) {
+                metadataFile.delete();
+            }
 
             // Make sure the artifact's parent directory exists before writing
             // the model.

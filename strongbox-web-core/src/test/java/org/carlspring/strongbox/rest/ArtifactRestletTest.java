@@ -12,9 +12,14 @@ import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
+import org.apache.maven.model.Plugin;
+import org.apache.maven.project.artifact.PluginArtifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.generator.ArtifactDeployer;
 import org.carlspring.strongbox.client.ArtifactOperationException;
+import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.io.MultipleDigestOutputStream;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
@@ -23,6 +28,7 @@ import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -34,6 +40,8 @@ public class ArtifactRestletTest
         extends TestCaseWithArtifactGeneration
 {
 
+    private static final File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
+            "/local");
     private static final File REPOSITORY_BASEDIR_RELEASES = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                                      "/storages/storage0/releases");
 
@@ -246,24 +254,130 @@ public class ArtifactRestletTest
 
         assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!", deletedArtifact.exists());
     }
-    
+
     @Test
     @Ignore
-    public void deployArtifactNewMetadataTest() throws NoSuchAlgorithmException, ArtifactOperationException, IOException, XmlPullParserException{
-        Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-foo:3.3");
-        Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-foo:3.4");
-        Artifact artifact4 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-foo:3.5");
-        Artifact artifact5 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-foo:3.6");
+    public void metadataVersionLevelTests()
+            throws NoSuchAlgorithmException, ArtifactOperationException, IOException, XmlPullParserException
+    {
+        Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-foo:3.1-SNAPSHOT");
+        Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-foo:3.1-SNAPSHOT");
+        Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-foo:3.2-SNAPSHOT");
+        Artifact artifact4 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-foo:3.2-SNAPSHOT");
 
-        ArtifactDeployer artifactDeployer = new ArtifactDeployer(REPOSITORY_BASEDIR_RELEASES);
+        ArtifactDeployer artifactDeployer = new ArtifactDeployer(GENERATOR_BASEDIR);
         artifactDeployer.setClient(client);
 
-        artifactDeployer.generateAndDeployArtifact(artifact2, "storage0", "releases");
-        artifactDeployer.generateAndDeployArtifact(artifact3, "storage0", "releases");
-        artifactDeployer.generateAndDeployArtifact(artifact4, "storage0", "releases");
-        artifactDeployer.generateAndDeployArtifact(artifact5, "storage0", "releases");
-        
-        
+        artifactDeployer.generateAndDeployArtifact(artifact1, "storage0", "snapshots");
+        artifactDeployer.generateAndDeployArtifact(artifact2, "storage0", "snapshots");
+        artifactDeployer.generateAndDeployArtifact(artifact3, "storage0", "snapshots");
+        artifactDeployer.generateAndDeployArtifact(artifact4, "storage0", "snapshots");
+    }
+
+    @Test
+    public void metadataGroupAndArtifactIdLevelTest() throws NoSuchAlgorithmException, XmlPullParserException,
+            IOException, ArtifactOperationException, ArtifactTransportException
+    {
+        // Given
+        // Plugin Artifacts
+        Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-foo-plugin:3.1");
+        Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-faa-plugin:3.1");
+        Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-foo-plugin:3.2");
+        Artifact artifact4 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-faa-plugin:3.2");
+
+        // Artifacts
+        Artifact artifact5 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-foo:3.1");
+        Artifact artifact6 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-foo:3.2");
+
+        Plugin p1 = new Plugin();
+        p1.setGroupId(artifact1.getGroupId());
+        p1.setArtifactId(artifact1.getArtifactId());
+        p1.setVersion(artifact1.getVersion());
+
+        Plugin p2 = new Plugin();
+        p2.setGroupId(artifact2.getGroupId());
+        p2.setArtifactId(artifact2.getArtifactId());
+        p2.setVersion(artifact2.getVersion());
+
+        Plugin p3 = new Plugin();
+        p3.setGroupId(artifact3.getGroupId());
+        p3.setArtifactId(artifact3.getArtifactId());
+        p3.setVersion(artifact3.getVersion());
+
+        Plugin p4 = new Plugin();
+        p4.setGroupId(artifact4.getGroupId());
+        p4.setArtifactId(artifact4.getArtifactId());
+        p4.setVersion(artifact4.getVersion());
+
+        PluginArtifact a = new PluginArtifact(p1, artifact1);
+        PluginArtifact b = new PluginArtifact(p2, artifact2);
+        PluginArtifact c = new PluginArtifact(p3, artifact3);
+        PluginArtifact d = new PluginArtifact(p4, artifact4);
+
+        ArtifactDeployer artifactDeployer = new ArtifactDeployer(GENERATOR_BASEDIR);
+        artifactDeployer.setClient(client);
+
+        String storageId = "storage0";
+        String repositoryId = "releases";
+
+        // When
+        artifactDeployer.generateAndDeployArtifact(a, storageId, repositoryId);
+        artifactDeployer.generateAndDeployArtifact(b, storageId, repositoryId);
+        artifactDeployer.generateAndDeployArtifact(c, storageId, repositoryId);
+        artifactDeployer.generateAndDeployArtifact(d, storageId, repositoryId);
+        artifactDeployer.generateAndDeployArtifact(artifact5, storageId, repositoryId);
+        artifactDeployer.generateAndDeployArtifact(artifact6, storageId, repositoryId);
+
+        // Then
+        // Group level metadata
+        Metadata groupLevelMetadata = retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/"
+                + ArtifactUtils.getGroupLevelMetadataPath(artifact1));
+        Assert.assertNotNull(groupLevelMetadata);
+        Assert.assertEquals(2, groupLevelMetadata.getPlugins().size());
+
+        // Artifact Level metadata
+        Metadata artifactLevelMetadata = retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/"
+                + ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
+        Assert.assertNotNull(artifactLevelMetadata);
+        Assert.assertEquals("org.carlspring.strongbox.juan", artifactLevelMetadata.getGroupId());
+        Assert.assertEquals("juan-foo-plugin", artifactLevelMetadata.getArtifactId());
+        Assert.assertEquals("3.2", artifactLevelMetadata.getVersioning().getLatest());
+        Assert.assertEquals("3.2", artifactLevelMetadata.getVersioning().getRelease());
+        Assert.assertEquals(2, artifactLevelMetadata.getVersioning().getVersions().size());
+        Assert.assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
+
+        artifactLevelMetadata = retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/"
+                + ArtifactUtils.getArtifactLevelMetadataPath(artifact2));
+        Assert.assertNotNull(artifactLevelMetadata);
+        Assert.assertEquals("org.carlspring.strongbox.juan", artifactLevelMetadata.getGroupId());
+        Assert.assertEquals("juan-faa-plugin", artifactLevelMetadata.getArtifactId());
+        Assert.assertEquals("3.2", artifactLevelMetadata.getVersioning().getLatest());
+        Assert.assertEquals("3.2", artifactLevelMetadata.getVersioning().getRelease());
+        Assert.assertEquals(2, artifactLevelMetadata.getVersioning().getVersions().size());
+        Assert.assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
+
+        artifactLevelMetadata = retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/"
+                + ArtifactUtils.getArtifactLevelMetadataPath(artifact5));
+        Assert.assertNotNull(artifactLevelMetadata);
+        Assert.assertEquals("org.carlspring.strongbox.juan", artifactLevelMetadata.getGroupId());
+        Assert.assertEquals("juan-foo", artifactLevelMetadata.getArtifactId());
+        Assert.assertEquals("3.2", artifactLevelMetadata.getVersioning().getLatest());
+        Assert.assertEquals("3.2", artifactLevelMetadata.getVersioning().getRelease());
+        Assert.assertEquals(2, artifactLevelMetadata.getVersioning().getVersions().size());
+        Assert.assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
+    }
+
+    private Metadata retrieveMetadata(String path)
+            throws ArtifactTransportException, IOException, XmlPullParserException
+    {
+        if (client.pathExists(path))
+        {
+            InputStream is = client.getResource(path);
+            MetadataXpp3Reader reader = new MetadataXpp3Reader();
+            return reader.read(is);
+
+        }
+        return null;
     }
 
 }
