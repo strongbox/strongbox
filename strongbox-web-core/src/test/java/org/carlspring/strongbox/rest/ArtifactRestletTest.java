@@ -258,20 +258,30 @@ public class ArtifactRestletTest
     @Test
     @Ignore
     public void metadataVersionLevelTests()
-            throws NoSuchAlgorithmException, ArtifactOperationException, IOException, XmlPullParserException
+            throws NoSuchAlgorithmException, ArtifactOperationException, IOException, XmlPullParserException, ArtifactTransportException
     {
         Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-foo:3.1-SNAPSHOT");
-        Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-foo:3.1-SNAPSHOT");
-        Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-foo:3.2-SNAPSHOT");
-        Artifact artifact4 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-foo:3.2-SNAPSHOT");
 
         ArtifactDeployer artifactDeployer = new ArtifactDeployer(GENERATOR_BASEDIR);
         artifactDeployer.setClient(client);
+        
+        String storageId = "storage0";
+        String repositoryId = "snapshots";
 
-        artifactDeployer.generateAndDeployArtifact(artifact1, "storage0", "snapshots");
-        artifactDeployer.generateAndDeployArtifact(artifact2, "storage0", "snapshots");
-        artifactDeployer.generateAndDeployArtifact(artifact3, "storage0", "snapshots");
-        artifactDeployer.generateAndDeployArtifact(artifact4, "storage0", "snapshots");
+        artifactDeployer.generateAndDeployArtifact(artifact1, storageId, repositoryId);
+        artifactDeployer.generateAndDeployArtifact(artifact1, storageId, repositoryId);
+        artifactDeployer.generateAndDeployArtifact(artifact1, storageId, repositoryId);
+        artifactDeployer.generateAndDeployArtifact(artifact1, storageId, repositoryId);
+        
+        Metadata versionLevelMetadata = retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/"
+                + ArtifactUtils.getVersionLevelMetadataPath(artifact1));
+        
+        Assert.assertNotNull(versionLevelMetadata);
+        Assert.assertEquals("org.carlspring.strongbox.juan", versionLevelMetadata.getGroupId());
+        Assert.assertEquals("juan-foo", versionLevelMetadata.getArtifactId());
+        Assert.assertEquals(4, versionLevelMetadata.getVersioning().getSnapshot().getBuildNumber());
+        Assert.assertNotNull(versionLevelMetadata.getVersioning().getLastUpdated());
+        Assert.assertEquals(12, versionLevelMetadata.getVersioning().getSnapshotVersions().size()    );
     }
 
     @Test
