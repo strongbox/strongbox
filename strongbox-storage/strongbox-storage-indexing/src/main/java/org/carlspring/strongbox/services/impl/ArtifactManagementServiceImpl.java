@@ -208,9 +208,8 @@ public class ArtifactManagementServiceImpl
             }
 
             artifactOperationsValidator.checkAllowsRedeployment(repository, ArtifactUtils.convertPathToArtifact(path));
+            artifactOperationsValidator.checkAllowsDeployment(repository);
         }
-
-//        artifactOperationsValidator.checkAllowsDeployment(repository);
 
         return true;
     }
