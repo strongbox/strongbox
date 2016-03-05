@@ -114,18 +114,18 @@ public class ArtifactDeployer extends ArtifactGenerator
         if (ArtifactUtils.isSnapshot(artifact.getVersion()))
         {
             String path = ArtifactUtils.getVersionLevelMetadataPath(artifact);
-            metadata = metadataMerger.updateMetadataAtVersionLevel(artifact, retrieveMetadata("storages/storage0/releases/" + ArtifactUtils.getVersionLevelMetadataPath(artifact)));
+            metadata = metadataMerger.updateMetadataAtVersionLevel(artifact, retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" + ArtifactUtils.getVersionLevelMetadataPath(artifact)));
             createMetadataArchive(metadata, path);
             deployMetadata(metadata, path,storageId,repositoryId);
         }
         String path = ArtifactUtils.getArtifactLevelMetadataPath(artifact);
-        metadata = metadataMerger.updateMetadataAtArtifactLevel(artifact, retrieveMetadata("storages/storage0/releases/" +ArtifactUtils.getArtifactLevelMetadataPath(artifact)));
+        metadata = metadataMerger.updateMetadataAtArtifactLevel(artifact, retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +ArtifactUtils.getArtifactLevelMetadataPath(artifact)));
         createMetadataArchive(metadata, path);
         deployMetadata(metadata, path,storageId,repositoryId);
         if (artifact instanceof PluginArtifact)
         {
             path = ArtifactUtils.getGroupLevelMetadataPath(artifact);
-            metadata = metadataMerger.updateMetadataAtGroupLevel((PluginArtifact) artifact, retrieveMetadata("storages/storage0/releases/" +ArtifactUtils.getGroupLevelMetadataPath(artifact)));
+            metadata = metadataMerger.updateMetadataAtGroupLevel((PluginArtifact) artifact, retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/"  +ArtifactUtils.getGroupLevelMetadataPath(artifact)));
             createMetadataArchive(metadata, path);
             deployMetadata(metadata,path,storageId,repositoryId);
         }
@@ -169,13 +169,11 @@ public class ArtifactDeployer extends ArtifactGenerator
     {
         if (client.pathExists(path))
         {
-            System.out.println("EXIST!!");
             InputStream is = client.getResource(path);
             MetadataXpp3Reader reader = new MetadataXpp3Reader();
             return reader.read(is);
 
         }
-        System.out.println("DONT EXIST!!");
         return null;
     }
 

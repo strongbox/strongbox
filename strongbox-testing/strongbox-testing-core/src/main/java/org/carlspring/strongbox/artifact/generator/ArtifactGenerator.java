@@ -121,6 +121,7 @@ public class ArtifactGenerator
             createMavenPropertiesFile(artifact, zos);
             addMavenPomFile(artifact, zos);
             createRandomSizeFile(zos);
+            logger.debug("location of the local artifact: " + artifactFile.getAbsolutePath());
         }
         finally
         {
@@ -142,6 +143,10 @@ public class ArtifactGenerator
         try
         {
             metadataFile = new File(basedir, metadataPath);
+            
+            if (metadataFile.exists()) {
+                metadataFile.delete();
+            }
 
             // Make sure the artifact's parent directory exists before writing
             // the model.
