@@ -36,60 +36,61 @@ import org.junit.Test;
 /**
  * @author mtodorov
  */
-public class ArtifactRestletTest extends TestCaseWithArtifactGeneration
+public class ArtifactRestletTest
+        extends TestCaseWithArtifactGeneration
 {
 
-    private static final File REPOSITORY_BASEDIR_RELEASES = new File(
-            ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/releases");
-
-    private static final File GENERATOR_BASEDIR = new File(
-            ConfigurationResourceResolver.getVaultDirectory() + "/local");
+    private static final File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
+            "/local");
+    private static final File REPOSITORY_BASEDIR_RELEASES = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                                     "/storages/storage0/releases");
 
     public static boolean INITIALIZED = false;
 
     private RestClient client = new RestClient();
 
+
     @Before
-    public void setUp() throws Exception
+    public void setUp()
+            throws Exception
     {
         if (!INITIALIZED)
         {
             // Generate releases
             // Used by testPartialFetch():
-            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                    "org.carlspring.strongbox.partial:partial-foo", new String[] { "3.1", // Used
-                                                                                          // by
-                                                                                          // testPartialFetch()
-                            "3.2" // Used by testPartialFetch()
-            });
-
-            // Used by testCopy*():
-            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(), "org.carlspring.strongbox.copy:copy-foo",
-                    new String[] { "1.1", // Used by testCopyArtifactFile()
-                            "1.2" // Used by testCopyArtifactDirectory()
-            });
-
-            // Used by testDelete():
-            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                    "com.artifacts.to.delete.releases:delete-foo", new String[] { "1.2.1", // Used
-                                                                                           // by
-                                                                                           // testDeleteArtifactFile
-                            "1.2.2" // Used by testDeleteArtifactDirectory
-            });
-
-            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                    "org.carlspring.strongbox.partial:partial-foo", new String[] { "3.1", // Used
-                                                                                          // by
-                                                                                          // testPartialFetch()
-                            "3.2" // Used by testPartialFetch()
-            });
+                generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                                 "org.carlspring.strongbox.partial:partial-foo",
+                                 new String[]{ "3.1", // Used by testPartialFetch()
+                                               "3.2"  // Used by testPartialFetch()
+                                             });
+    
+                // Used by testCopy*():
+                generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                                 "org.carlspring.strongbox.copy:copy-foo",
+                                 new String[]{ "1.1", // Used by testCopyArtifactFile()
+                                               "1.2"  // Used by testCopyArtifactDirectory()
+                                             });
+    
+                // Used by testDelete():
+                generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                                 "com.artifacts.to.delete.releases:delete-foo",
+                                 new String[]{ "1.2.1", // Used by testDeleteArtifactFile
+                                               "1.2.2"  // Used by testDeleteArtifactDirectory
+                                             });
+                
+                generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                        "org.carlspring.strongbox.partial:partial-foo",
+                        new String[]{ "3.1", // Used by testPartialFetch()
+                                      "3.2"  // Used by testPartialFetch()
+                                    });
 
             INITIALIZED = true;
         }
     }
 
     @After
-    public void tearDown() throws Exception
+    public void tearDown()
+            throws Exception
     {
         if (client != null)
         {
@@ -98,7 +99,8 @@ public class ArtifactRestletTest extends TestCaseWithArtifactGeneration
     }
 
     @Test
-    public void testPartialFetch() throws Exception
+    public void testPartialFetch()
+            throws Exception
     {
         String artifactPath = "/storages/storage0/releases/org/carlspring/strongbox/partial/partial-foo/3.1/partial-foo-3.1.jar";
 
@@ -154,7 +156,7 @@ public class ArtifactRestletTest extends TestCaseWithArtifactGeneration
 
         System.out.println("Wrote " + total + " bytes.");
         System.out.println("Partial read, terminated after writing " + partialRead + " bytes.");
-        System.out.println("Partial read, continued and wrote " + len2 + "bytes.");
+        System.out.println("Partial read, continued and wrote " + len2 + " bytes.");
         System.out.println("Partial reads: total written bytes: " + (partialRead + len2) + ".");
 
         mdos.close();
@@ -162,8 +164,8 @@ public class ArtifactRestletTest extends TestCaseWithArtifactGeneration
         final String md5Local = mdos.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
         final String sha1Local = mdos.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
 
-        System.out.println("MD5 [Remote]: " + md5Remote);
-        System.out.println("MD5 [Local ]: " + md5Local);
+        System.out.println("MD5   [Remote]: " + md5Remote);
+        System.out.println("MD5   [Local ]: " + md5Local);
 
         System.out.println("SHA-1 [Remote]: " + sha1Remote);
         System.out.println("SHA-1 [Local ]: " + sha1Local);
@@ -173,98 +175,113 @@ public class ArtifactRestletTest extends TestCaseWithArtifactGeneration
 
         assertEquals("Glued partial fetches did not match MD5 checksum!", md5Remote, md5Local);
         assertEquals("Glued partial fetches did not match SHA-1 checksum!", sha1Remote, sha1Local);
-        output.close();
     }
 
     @Test
-    public void testCopyArtifactFile() throws Exception
+    public void testCopyArtifactFile()
+            throws Exception
     {
-        final File destRepositoryBasedir = new File(
-                ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/releases-with-trash");
+        final File destRepositoryBasedir = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                    "/storages/storage0/releases-with-trash");
 
         String artifactPath = "org/carlspring/strongbox/copy/copy-foo/1.1/copy-foo-1.1.jar";
 
         File artifactFileRestoredFromTrash = new File(destRepositoryBasedir + "/" + artifactPath).getAbsoluteFile();
 
         assertFalse("Unexpected artifact in repository '" + destRepositoryBasedir + "'!",
-                artifactFileRestoredFromTrash.exists());
+                    artifactFileRestoredFromTrash.exists());
 
-        client.copy(artifactPath, "storage0", "releases", "storage0", "releases-with-trash");
+        client.copy(artifactPath,
+                    "storage0",
+                    "releases",
+                    "storage0",
+                    "releases-with-trash");
 
         assertTrue("Failed to copy artifact to destination repository '" + destRepositoryBasedir + "'!",
-                artifactFileRestoredFromTrash.exists());
+                   artifactFileRestoredFromTrash.exists());
     }
 
     @Test
-    public void testCopyArtifactDirectory() throws Exception
+    public void testCopyArtifactDirectory()
+            throws Exception
     {
-        final File destRepositoryBasedir = new File(
-                ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/releases-with-trash");
+        final File destRepositoryBasedir = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                    "/storages/storage0/releases-with-trash");
 
         String artifactPath = "org/carlspring/strongbox/copy/copy-foo/1.2";
 
         File artifactFileRestoredFromTrash = new File(destRepositoryBasedir + "/" + artifactPath).getAbsoluteFile();
 
         assertFalse("Unexpected artifact in repository '" + destRepositoryBasedir + "'!",
-                artifactFileRestoredFromTrash.exists());
+                    artifactFileRestoredFromTrash.exists());
 
-        client.copy(artifactPath, "storage0", "releases", "storage0", "releases-with-trash");
+        client.copy(artifactPath,
+                    "storage0",
+                    "releases",
+                    "storage0",
+                    "releases-with-trash");
 
         assertTrue("Failed to copy artifact to destination repository '" + destRepositoryBasedir + "'!",
-                artifactFileRestoredFromTrash.exists());
+                   artifactFileRestoredFromTrash.exists());
     }
 
     @Test
-    public void testDeleteArtifactFile() throws Exception
+    public void testDeleteArtifactFile()
+            throws Exception
     {
         String artifactPath = "com/artifacts/to/delete/releases/delete-foo/1.2.1/delete-foo-1.2.1.jar";
 
-        File deletedArtifact = new File(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/" + artifactPath)
-                .getAbsoluteFile();
+        File deletedArtifact = new File(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/" + artifactPath).getAbsoluteFile();
 
-        assertTrue("Failed to locate artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
-                deletedArtifact.exists());
+        assertTrue("Failed to locate artifact file '" + deletedArtifact.getAbsolutePath() + "'!", deletedArtifact.exists());
 
         client.delete("storage0", "releases", artifactPath);
 
-        assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
-                deletedArtifact.exists());
+        assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!", deletedArtifact.exists());
     }
 
     @Test
-    public void testDeleteArtifactDirectory() throws Exception
+    public void testDeleteArtifactDirectory()
+            throws Exception
     {
         String artifactPath = "com/artifacts/to/delete/releases/delete-foo/1.2.2";
 
-        File deletedArtifact = new File(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/" + artifactPath)
-                .getAbsoluteFile();
+        File deletedArtifact = new File(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/" + artifactPath).getAbsoluteFile();
 
-        assertTrue("Failed to locate artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
-                deletedArtifact.exists());
+        assertTrue("Failed to locate artifact file '" + deletedArtifact.getAbsolutePath() + "'!", deletedArtifact.exists());
 
         client.delete("storage0", "releases", artifactPath);
 
-        assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
-                deletedArtifact.exists());
+        assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!", deletedArtifact.exists());
     }
 
     @Test
     @Ignore
     public void metadataVersionLevelTests()
-            throws NoSuchAlgorithmException, ArtifactOperationException, IOException, XmlPullParserException
+            throws NoSuchAlgorithmException, ArtifactOperationException, IOException, XmlPullParserException, ArtifactTransportException
     {
         Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-foo:3.1-SNAPSHOT");
-        Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-foo:3.1-SNAPSHOT");
-        Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-foo:3.2-SNAPSHOT");
-        Artifact artifact4 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-foo:3.2-SNAPSHOT");
 
         ArtifactDeployer artifactDeployer = new ArtifactDeployer(GENERATOR_BASEDIR);
         artifactDeployer.setClient(client);
+        
+        String storageId = "storage0";
+        String repositoryId = "snapshots";
 
-        artifactDeployer.generateAndDeployArtifact(artifact1, "storage0", "snapshots");
-        artifactDeployer.generateAndDeployArtifact(artifact2, "storage0", "snapshots");
-        artifactDeployer.generateAndDeployArtifact(artifact3, "storage0", "snapshots");
-        artifactDeployer.generateAndDeployArtifact(artifact4, "storage0", "snapshots");
+        artifactDeployer.generateAndDeployArtifact(artifact1, storageId, repositoryId);
+        artifactDeployer.generateAndDeployArtifact(artifact1, storageId, repositoryId);
+        artifactDeployer.generateAndDeployArtifact(artifact1, storageId, repositoryId);
+        artifactDeployer.generateAndDeployArtifact(artifact1, storageId, repositoryId);
+        
+        Metadata versionLevelMetadata = retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/"
+                + ArtifactUtils.getVersionLevelMetadataPath(artifact1));
+        
+        Assert.assertNotNull(versionLevelMetadata);
+        Assert.assertEquals("org.carlspring.strongbox.juan", versionLevelMetadata.getGroupId());
+        Assert.assertEquals("juan-foo", versionLevelMetadata.getArtifactId());
+        Assert.assertEquals(4, versionLevelMetadata.getVersioning().getSnapshot().getBuildNumber());
+        Assert.assertNotNull(versionLevelMetadata.getVersioning().getLastUpdated());
+        Assert.assertEquals(12, versionLevelMetadata.getVersioning().getSnapshotVersions().size()    );
     }
 
     @Test
@@ -372,4 +389,5 @@ public class ArtifactRestletTest extends TestCaseWithArtifactGeneration
         }
         return null;
     }
+
 }
