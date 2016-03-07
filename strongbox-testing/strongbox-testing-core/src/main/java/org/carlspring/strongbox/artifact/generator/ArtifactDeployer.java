@@ -62,9 +62,15 @@ public class ArtifactDeployer extends ArtifactGenerator
         generateAndDeployArtifact(artifact, null, storageId, repositoryId, "jar");
     }
 
-    public void generateAndDeployArtifact(Artifact artifact, String[] classifiers, String storageId,
-            String repositoryId, String packaging)
-                    throws NoSuchAlgorithmException, XmlPullParserException, IOException, ArtifactOperationException
+    public void generateAndDeployArtifact(Artifact artifact,
+                                          String[] classifiers,
+                                          String storageId,
+                                          String repositoryId,
+                                          String packaging)
+                    throws NoSuchAlgorithmException,
+                           XmlPullParserException,
+                           IOException,
+                           ArtifactOperationException
     {
         if (client == null)
         {
@@ -83,9 +89,11 @@ public class ArtifactDeployer extends ArtifactGenerator
             {
                 // We're assuming the type of the classifier is the same as the
                 // one of the main artifact
-                Artifact artifactWithClassifier = ArtifactUtils
-                        .getArtifactFromGAVTC(artifact.getGroupId() + ":" + artifact.getArtifactId() + ":"
-                                + artifact.getVersion() + ":" + artifact.getType() + ":" + classifier);
+                Artifact artifactWithClassifier = ArtifactUtils.getArtifactFromGAVTC(artifact.getGroupId() + ":" +
+                                                                                     artifact.getArtifactId() + ":" +
+                                                                                     artifact.getVersion() + ":" +
+                                                                                     artifact.getType() + ":" +
+                                                                                     classifier);
                 generate(artifactWithClassifier);
 
                 deploy(artifactWithClassifier, storageId, repositoryId);
@@ -104,34 +112,59 @@ public class ArtifactDeployer extends ArtifactGenerator
         }
     }
 
-    private void mergeMetada(Artifact artifact, String storageId, String repositoryId) throws ArtifactTransportException, IOException, XmlPullParserException, NoSuchAlgorithmException, ArtifactOperationException
+    private void mergeMetada(Artifact artifact,
+                             String storageId,
+                             String repositoryId)
+            throws ArtifactTransportException,
+                   IOException,
+                   XmlPullParserException,
+                   NoSuchAlgorithmException,
+                   ArtifactOperationException
     {
         if (metadataMerger == null)
         {
             metadataMerger = new MetadataMerger();
         }
+
         Metadata metadata;
         if (ArtifactUtils.isSnapshot(artifact.getVersion()))
         {
             String path = ArtifactUtils.getVersionLevelMetadataPath(artifact);
-            metadata = metadataMerger.updateMetadataAtVersionLevel(artifact, retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" + ArtifactUtils.getVersionLevelMetadataPath(artifact)));
+            metadata = metadataMerger.updateMetadataAtVersionLevel(artifact,
+                                                                   retrieveMetadata("storages/" + storageId + "/" +
+                                                                                    repositoryId + "/" +
+                                                                                    ArtifactUtils.getVersionLevelMetadataPath(artifact)));
+
             createMetadataArchive(metadata, path);
             deployMetadata(metadata, path,storageId,repositoryId);
         }
+
         String path = ArtifactUtils.getArtifactLevelMetadataPath(artifact);
-        metadata = metadataMerger.updateMetadataAtArtifactLevel(artifact, retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +ArtifactUtils.getArtifactLevelMetadataPath(artifact)));
+        metadata = metadataMerger.updateMetadataAtArtifactLevel(artifact, retrieveMetadata("storages/" + storageId + "/" +
+                                                                                           repositoryId + "/" +
+                                                                                           ArtifactUtils.getArtifactLevelMetadataPath(artifact)));
+
         createMetadataArchive(metadata, path);
         deployMetadata(metadata, path,storageId,repositoryId);
+
         if (artifact instanceof PluginArtifact)
         {
             path = ArtifactUtils.getGroupLevelMetadataPath(artifact);
-            metadata = metadataMerger.updateMetadataAtGroupLevel((PluginArtifact) artifact, retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/"  +ArtifactUtils.getGroupLevelMetadataPath(artifact)));
+            metadata = metadataMerger.updateMetadataAtGroupLevel((PluginArtifact) artifact, retrieveMetadata("storages/" + storageId + "/" +
+                                                                                                             repositoryId + "/" +
+                                                                                                             ArtifactUtils.getGroupLevelMetadataPath(artifact)));
             createMetadataArchive(metadata, path);
             deployMetadata(metadata,path,storageId,repositoryId);
         }
     }
 
-    private void deployMetadata(Metadata metadata, String metadataPath, String storageId, String repositoryId) throws IOException, NoSuchAlgorithmException, ArtifactOperationException
+    private void deployMetadata(Metadata metadata,
+                                String metadataPath,
+                                String storageId,
+                                String repositoryId)
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   ArtifactOperationException
     {
         File metadataFile = new File(getBasedir(), metadataPath);
         
@@ -140,11 +173,15 @@ public class ArtifactDeployer extends ArtifactGenerator
         
         client.addMetadata(metadata, metadataPath,storageId, repositoryId, is);
         deployChecksum(mdis, storageId, repositoryId, metadataPath.substring(0, metadataPath.lastIndexOf("/")), "maven-metadata.xml");
-
     }
     
-    private void deployChecksum(MultipleDigestInputStream mdis, String storageId, String repositoryId,String path, String metadataFileName)
-            throws ArtifactOperationException, IOException
+    private void deployChecksum(MultipleDigestInputStream mdis,
+                                String storageId,
+                                String repositoryId,
+                                String path,
+                                String metadataFileName)
+            throws ArtifactOperationException,
+                   IOException
     {
         for (Map.Entry entry : mdis.getHexDigests().entrySet())
         {
@@ -165,15 +202,18 @@ public class ArtifactDeployer extends ArtifactGenerator
     }
 
     private Metadata retrieveMetadata(String path)
-            throws ArtifactTransportException, IOException, XmlPullParserException
+            throws ArtifactTransportException,
+                   IOException,
+                   XmlPullParserException
     {
         if (client.pathExists(path))
         {
             InputStream is = client.getResource(path);
             MetadataXpp3Reader reader = new MetadataXpp3Reader();
-            return reader.read(is);
 
+            return reader.read(is);
         }
+
         return null;
     }
 
@@ -186,11 +226,14 @@ public class ArtifactDeployer extends ArtifactGenerator
         client.addArtifact(artifact, storageId, repositoryId, ais);
 
         deployChecksum(ais, storageId, repositoryId, artifact);
-
     }
     
-    private void deployChecksum(ArtifactInputStream ais, String storageId, String repositoryId, Artifact artifact)
-            throws ArtifactOperationException, IOException
+    private void deployChecksum(ArtifactInputStream ais,
+                                String storageId,
+                                String repositoryId,
+                                Artifact artifact)
+            throws ArtifactOperationException,
+                   IOException
     {
         for (Map.Entry entry : ais.getHexDigests().entrySet())
         {
@@ -202,16 +245,19 @@ public class ArtifactDeployer extends ArtifactGenerator
             final String extensionForAlgorithm = EncryptionAlgorithmsEnum.fromAlgorithm(algorithm).getExtension();
 
             String artifactToPath = ArtifactUtils.convertArtifactToPath(artifact) + extensionForAlgorithm;
-            String url = client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/"
-                    + artifactToPath;
+            String url = client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + artifactToPath;
             String artifactFileName = ais.getArtifactFileName() + extensionForAlgorithm;
 
             client.deployFile(bais, url, artifactFileName);
         }
     }
 
-    private void deployPOM(Artifact artifact, String storageId, String repositoryId)
-            throws NoSuchAlgorithmException, IOException, ArtifactOperationException
+    private void deployPOM(Artifact artifact,
+                           String storageId,
+                           String repositoryId)
+            throws NoSuchAlgorithmException,
+                   IOException,
+                   ArtifactOperationException
     {
         File pomFile = new File(getBasedir(), ArtifactUtils.convertArtifactToPath(artifact));
 

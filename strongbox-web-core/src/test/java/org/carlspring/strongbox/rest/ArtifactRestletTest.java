@@ -30,7 +30,6 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -40,8 +39,7 @@ public class ArtifactRestletTest
         extends TestCaseWithArtifactGeneration
 {
 
-    private static final File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-            "/local");
+    private static final File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/local");
     private static final File REPOSITORY_BASEDIR_RELEASES = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                                      "/storages/storage0/releases");
 
@@ -58,31 +56,31 @@ public class ArtifactRestletTest
         {
             // Generate releases
             // Used by testPartialFetch():
-                generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                                 "org.carlspring.strongbox.partial:partial-foo",
-                                 new String[]{ "3.1", // Used by testPartialFetch()
-                                               "3.2"  // Used by testPartialFetch()
-                                             });
-    
-                // Used by testCopy*():
-                generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                                 "org.carlspring.strongbox.copy:copy-foo",
-                                 new String[]{ "1.1", // Used by testCopyArtifactFile()
-                                               "1.2"  // Used by testCopyArtifactDirectory()
-                                             });
-    
-                // Used by testDelete():
-                generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                                 "com.artifacts.to.delete.releases:delete-foo",
-                                 new String[]{ "1.2.1", // Used by testDeleteArtifactFile
-                                               "1.2.2"  // Used by testDeleteArtifactDirectory
-                                             });
+            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                             "org.carlspring.strongbox.partial:partial-foo",
+                             new String[]{ "3.1", // Used by testPartialFetch()
+                                           "3.2"  // Used by testPartialFetch()
+                                         });
+
+            // Used by testCopy*():
+            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                             "org.carlspring.strongbox.copy:copy-foo",
+                             new String[]{ "1.1", // Used by testCopyArtifactFile()
+                                           "1.2"  // Used by testCopyArtifactDirectory()
+                                         });
+
+            // Used by testDelete():
+            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                             "com.artifacts.to.delete.releases:delete-foo",
+                             new String[]{ "1.2.1", // Used by testDeleteArtifactFile
+                                           "1.2.2"  // Used by testDeleteArtifactDirectory
+                                         });
                 
-                generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                        "org.carlspring.strongbox.partial:partial-foo",
-                        new String[]{ "3.1", // Used by testPartialFetch()
-                                      "3.2"  // Used by testPartialFetch()
-                                    });
+            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                             "org.carlspring.strongbox.partial:partial-foo",
+                             new String[]{ "3.1", // Used by testPartialFetch()
+                                           "3.2"  // Used by testPartialFetch()
+                                         });
 
             INITIALIZED = true;
         }
@@ -256,11 +254,20 @@ public class ArtifactRestletTest
     }
 
     @Test
-    @Ignore
-    public void metadataVersionLevelTests()
-            throws NoSuchAlgorithmException, ArtifactOperationException, IOException, XmlPullParserException, ArtifactTransportException
+    public void testMetadataAtVersionLevel()
+            throws NoSuchAlgorithmException,
+                   ArtifactOperationException,
+                   IOException,
+                   XmlPullParserException,
+                   ArtifactTransportException
     {
-        Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-foo:3.1-SNAPSHOT");
+        String ga = "org.carlspring.strongbox.juan:juan-foo";
+
+        Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":3.1-SNAPSHOT");
+        Artifact artifact1WithTimestamp1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 1));
+        Artifact artifact1WithTimestamp2 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 2));
+        Artifact artifact1WithTimestamp3 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 3));
+        Artifact artifact1WithTimestamp4 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 4));
 
         ArtifactDeployer artifactDeployer = new ArtifactDeployer(GENERATOR_BASEDIR);
         artifactDeployer.setClient(client);
@@ -268,13 +275,13 @@ public class ArtifactRestletTest
         String storageId = "storage0";
         String repositoryId = "snapshots";
 
-        artifactDeployer.generateAndDeployArtifact(artifact1, storageId, repositoryId);
-        artifactDeployer.generateAndDeployArtifact(artifact1, storageId, repositoryId);
-        artifactDeployer.generateAndDeployArtifact(artifact1, storageId, repositoryId);
-        artifactDeployer.generateAndDeployArtifact(artifact1, storageId, repositoryId);
+        artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp1, storageId, repositoryId);
+        artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp2, storageId, repositoryId);
+        artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp3, storageId, repositoryId);
+        artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp4, storageId, repositoryId);
         
-        Metadata versionLevelMetadata = retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/"
-                + ArtifactUtils.getVersionLevelMetadataPath(artifact1));
+        Metadata versionLevelMetadata = retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
+                                                         ArtifactUtils.getVersionLevelMetadataPath(artifact1));
         
         Assert.assertNotNull(versionLevelMetadata);
         Assert.assertEquals("org.carlspring.strongbox.juan", versionLevelMetadata.getGroupId());
@@ -285,8 +292,12 @@ public class ArtifactRestletTest
     }
 
     @Test
-    public void metadataGroupAndArtifactIdLevelTest() throws NoSuchAlgorithmException, XmlPullParserException,
-            IOException, ArtifactOperationException, ArtifactTransportException
+    public void testMetadataAtGroupAndArtifactIdLevel()
+            throws NoSuchAlgorithmException,
+                   XmlPullParserException,
+                   IOException,
+                   ArtifactOperationException,
+                   ArtifactTransportException
     {
         // Given
         // Plugin Artifacts
@@ -340,14 +351,16 @@ public class ArtifactRestletTest
 
         // Then
         // Group level metadata
-        Metadata groupLevelMetadata = retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/"
-                + ArtifactUtils.getGroupLevelMetadataPath(artifact1));
+        Metadata groupLevelMetadata = retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
+                                                       ArtifactUtils.getGroupLevelMetadataPath(artifact1));
+
         Assert.assertNotNull(groupLevelMetadata);
         Assert.assertEquals(2, groupLevelMetadata.getPlugins().size());
 
         // Artifact Level metadata
-        Metadata artifactLevelMetadata = retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/"
-                + ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
+        Metadata artifactLevelMetadata = retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
+                                                          ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
+
         Assert.assertNotNull(artifactLevelMetadata);
         Assert.assertEquals("org.carlspring.strongbox.juan", artifactLevelMetadata.getGroupId());
         Assert.assertEquals("juan-foo-plugin", artifactLevelMetadata.getArtifactId());
@@ -356,8 +369,9 @@ public class ArtifactRestletTest
         Assert.assertEquals(2, artifactLevelMetadata.getVersioning().getVersions().size());
         Assert.assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
 
-        artifactLevelMetadata = retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/"
-                + ArtifactUtils.getArtifactLevelMetadataPath(artifact2));
+        artifactLevelMetadata = retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
+                                                 ArtifactUtils.getArtifactLevelMetadataPath(artifact2));
+
         Assert.assertNotNull(artifactLevelMetadata);
         Assert.assertEquals("org.carlspring.strongbox.juan", artifactLevelMetadata.getGroupId());
         Assert.assertEquals("juan-faa-plugin", artifactLevelMetadata.getArtifactId());
@@ -366,8 +380,9 @@ public class ArtifactRestletTest
         Assert.assertEquals(2, artifactLevelMetadata.getVersioning().getVersions().size());
         Assert.assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
 
-        artifactLevelMetadata = retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/"
-                + ArtifactUtils.getArtifactLevelMetadataPath(artifact5));
+        artifactLevelMetadata = retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
+                                                 ArtifactUtils.getArtifactLevelMetadataPath(artifact5));
+
         Assert.assertNotNull(artifactLevelMetadata);
         Assert.assertEquals("org.carlspring.strongbox.juan", artifactLevelMetadata.getGroupId());
         Assert.assertEquals("juan-foo", artifactLevelMetadata.getArtifactId());
@@ -378,7 +393,9 @@ public class ArtifactRestletTest
     }
 
     private Metadata retrieveMetadata(String path)
-            throws ArtifactTransportException, IOException, XmlPullParserException
+            throws ArtifactTransportException,
+                   IOException,
+                   XmlPullParserException
     {
         if (client.pathExists(path))
         {
@@ -387,6 +404,7 @@ public class ArtifactRestletTest
             return reader.read(is);
 
         }
+
         return null;
     }
 

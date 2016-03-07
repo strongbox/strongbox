@@ -189,16 +189,9 @@ public class TestCaseWithArtifactGeneration
     {
         Artifact artifact = null;
 
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
-        Calendar calendar = Calendar.getInstance();
-
         for (int i = 0; i < numberOfBuilds; i++)
         {
-            calendar.add(Calendar.SECOND, 7);
-            calendar.add(Calendar.MINUTE, 5);
-
-            String timestamp = formatter.format(calendar.getTime());
-            String version = baseSnapshotVersion + "-" + timestamp + "-" + (i + 1);
+            String version = createSnapshotVersion(baseSnapshotVersion, i + 1);
 
             artifact = new DetachedArtifact(groupId, artifactId, version);
             artifact.setFile(new File(repositoryBasedir + "/" + ArtifactUtils.convertArtifactToPath(artifact)));
@@ -217,6 +210,21 @@ public class TestCaseWithArtifactGeneration
 
         // Return the main artifact
         return artifact;
+    }
+
+    public String createSnapshotVersion(String baseSnapshotVersion, int buildNumber)
+    {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.add(Calendar.SECOND, 7);
+        calendar.add(Calendar.MINUTE, 5);
+
+        String timestamp = formatter.format(calendar.getTime());
+        @SuppressWarnings("UnnecessaryLocalVariable")
+        String version = baseSnapshotVersion + "-" + timestamp + "-" + buildNumber;
+
+        return version;
     }
 
     /**
