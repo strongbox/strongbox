@@ -14,7 +14,9 @@ import javax.ws.rs.core.Response;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
@@ -419,6 +421,20 @@ public class ArtifactClient implements Closeable
         {
             target.register(HttpAuthenticationFeature.basic(username, password));
         }
+    }
+    
+    public Metadata retrieveMetadata(String path)
+            throws ArtifactTransportException,
+                   IOException,
+                   XmlPullParserException
+    {
+        if (pathExists(path))
+        {
+            InputStream is = getResource(path);
+            MetadataXpp3Reader reader = new MetadataXpp3Reader();
+            return reader.read(is);
+        }
+        return null;
     }
 
     public String getProtocol()

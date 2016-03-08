@@ -13,7 +13,6 @@ import java.security.NoSuchAlgorithmException;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.artifact.PluginArtifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
@@ -30,6 +29,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -173,6 +173,7 @@ public class ArtifactRestletTest
 
         assertEquals("Glued partial fetches did not match MD5 checksum!", md5Remote, md5Local);
         assertEquals("Glued partial fetches did not match SHA-1 checksum!", sha1Remote, sha1Local);
+        output.close();
     }
 
     @Test
@@ -261,7 +262,7 @@ public class ArtifactRestletTest
                    XmlPullParserException,
                    ArtifactTransportException
     {
-        String ga = "org.carlspring.strongbox.juan:juan-foo";
+        String ga = "org.carlspring.strongbox.metadata:metadata-foo";
 
         Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":3.1-SNAPSHOT");
         Artifact artifact1WithTimestamp1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 1));
@@ -280,12 +281,12 @@ public class ArtifactRestletTest
         artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp3, storageId, repositoryId);
         artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp4, storageId, repositoryId);
         
-        Metadata versionLevelMetadata = retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
+        Metadata versionLevelMetadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
                                                          ArtifactUtils.getVersionLevelMetadataPath(artifact1));
         
         Assert.assertNotNull(versionLevelMetadata);
-        Assert.assertEquals("org.carlspring.strongbox.juan", versionLevelMetadata.getGroupId());
-        Assert.assertEquals("juan-foo", versionLevelMetadata.getArtifactId());
+        Assert.assertEquals("org.carlspring.strongbox.metadata", versionLevelMetadata.getGroupId());
+        Assert.assertEquals("metadata-foo", versionLevelMetadata.getArtifactId());
         Assert.assertEquals(4, versionLevelMetadata.getVersioning().getSnapshot().getBuildNumber());
         Assert.assertNotNull(versionLevelMetadata.getVersioning().getLastUpdated());
         Assert.assertEquals(12, versionLevelMetadata.getVersioning().getSnapshotVersions().size()    );
@@ -301,14 +302,21 @@ public class ArtifactRestletTest
     {
         // Given
         // Plugin Artifacts
-        Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-foo-plugin:3.1");
-        Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-faa-plugin:3.1");
-        Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-foo-plugin:3.2");
-        Artifact artifact4 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-faa-plugin:3.2");
+        String groupId = "org.carlspring.strongbox.metadata";
+        String artifactId1 = "metadata-foo-plugin";
+        String artifactId2 = "metadata-faa-plugin";
+        String artifactId3 = "metadata-foo";
+        String version1 = "3.1";
+        String version2 = "3.2";
+        
+        Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(groupId+":"+artifactId1+":"+ version1);
+        Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC(groupId+":"+artifactId2+":"+ version1);
+        Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC(groupId+":"+artifactId1+":"+ version2);
+        Artifact artifact4 = ArtifactUtils.getArtifactFromGAVTC(groupId+":"+artifactId2+":"+ version2);
 
         // Artifacts
-        Artifact artifact5 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-foo:3.1");
-        Artifact artifact6 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.juan:juan-foo:3.2");
+        Artifact artifact5 = ArtifactUtils.getArtifactFromGAVTC(groupId+":"+artifactId3+":"+ version1);
+        Artifact artifact6 = ArtifactUtils.getArtifactFromGAVTC(groupId+":"+artifactId3+":"+ version2);
 
         Plugin p1 = new Plugin();
         p1.setGroupId(artifact1.getGroupId());
@@ -351,61 +359,44 @@ public class ArtifactRestletTest
 
         // Then
         // Group level metadata
-        Metadata groupLevelMetadata = retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
+        Metadata groupLevelMetadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
                                                        ArtifactUtils.getGroupLevelMetadataPath(artifact1));
 
         Assert.assertNotNull(groupLevelMetadata);
         Assert.assertEquals(2, groupLevelMetadata.getPlugins().size());
 
         // Artifact Level metadata
-        Metadata artifactLevelMetadata = retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
+        Metadata artifactLevelMetadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
                                                           ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
 
         Assert.assertNotNull(artifactLevelMetadata);
-        Assert.assertEquals("org.carlspring.strongbox.juan", artifactLevelMetadata.getGroupId());
-        Assert.assertEquals("juan-foo-plugin", artifactLevelMetadata.getArtifactId());
-        Assert.assertEquals("3.2", artifactLevelMetadata.getVersioning().getLatest());
-        Assert.assertEquals("3.2", artifactLevelMetadata.getVersioning().getRelease());
+        Assert.assertEquals(groupId, artifactLevelMetadata.getGroupId());
+        Assert.assertEquals(artifactId1, artifactLevelMetadata.getArtifactId());
+        Assert.assertEquals(version2, artifactLevelMetadata.getVersioning().getLatest());
+        Assert.assertEquals(version2, artifactLevelMetadata.getVersioning().getRelease());
         Assert.assertEquals(2, artifactLevelMetadata.getVersioning().getVersions().size());
         Assert.assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
 
-        artifactLevelMetadata = retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
+        artifactLevelMetadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
                                                  ArtifactUtils.getArtifactLevelMetadataPath(artifact2));
 
         Assert.assertNotNull(artifactLevelMetadata);
-        Assert.assertEquals("org.carlspring.strongbox.juan", artifactLevelMetadata.getGroupId());
-        Assert.assertEquals("juan-faa-plugin", artifactLevelMetadata.getArtifactId());
-        Assert.assertEquals("3.2", artifactLevelMetadata.getVersioning().getLatest());
-        Assert.assertEquals("3.2", artifactLevelMetadata.getVersioning().getRelease());
+        Assert.assertEquals(groupId, artifactLevelMetadata.getGroupId());
+        Assert.assertEquals(artifactId2, artifactLevelMetadata.getArtifactId());
+        Assert.assertEquals(version2, artifactLevelMetadata.getVersioning().getLatest());
+        Assert.assertEquals(version2, artifactLevelMetadata.getVersioning().getRelease());
         Assert.assertEquals(2, artifactLevelMetadata.getVersioning().getVersions().size());
         Assert.assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
 
-        artifactLevelMetadata = retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
+        artifactLevelMetadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
                                                  ArtifactUtils.getArtifactLevelMetadataPath(artifact5));
 
         Assert.assertNotNull(artifactLevelMetadata);
-        Assert.assertEquals("org.carlspring.strongbox.juan", artifactLevelMetadata.getGroupId());
-        Assert.assertEquals("juan-foo", artifactLevelMetadata.getArtifactId());
-        Assert.assertEquals("3.2", artifactLevelMetadata.getVersioning().getLatest());
-        Assert.assertEquals("3.2", artifactLevelMetadata.getVersioning().getRelease());
+        Assert.assertEquals(groupId, artifactLevelMetadata.getGroupId());
+        Assert.assertEquals(artifactId3, artifactLevelMetadata.getArtifactId());
+        Assert.assertEquals(version2, artifactLevelMetadata.getVersioning().getLatest());
+        Assert.assertEquals(version2, artifactLevelMetadata.getVersioning().getRelease());
         Assert.assertEquals(2, artifactLevelMetadata.getVersioning().getVersions().size());
         Assert.assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
     }
-
-    private Metadata retrieveMetadata(String path)
-            throws ArtifactTransportException,
-                   IOException,
-                   XmlPullParserException
-    {
-        if (client.pathExists(path))
-        {
-            InputStream is = client.getResource(path);
-            MetadataXpp3Reader reader = new MetadataXpp3Reader();
-            return reader.read(is);
-
-        }
-
-        return null;
-    }
-
 }
