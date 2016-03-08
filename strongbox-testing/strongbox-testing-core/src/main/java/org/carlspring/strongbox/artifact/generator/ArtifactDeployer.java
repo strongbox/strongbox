@@ -20,7 +20,6 @@ import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.MultipleDigestInputStream;
 import org.carlspring.strongbox.security.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.strongbox.storage.metadata.MetadataMerger;
-import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 /**
@@ -28,7 +27,6 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
  */
 public class ArtifactDeployer extends ArtifactGenerator
 {
-
     private String username;
 
     private String password;
@@ -95,11 +93,9 @@ public class ArtifactDeployer extends ArtifactGenerator
                                                                                      artifact.getType() + ":" +
                                                                                      classifier);
                 generate(artifactWithClassifier);
-
                 deploy(artifactWithClassifier, storageId, repositoryId);
             }
         }
-
         try
         {
             mergeMetada(artifact,storageId,repositoryId);
@@ -172,7 +168,7 @@ public class ArtifactDeployer extends ArtifactGenerator
         MultipleDigestInputStream mdis = new MultipleDigestInputStream(is);
         
         client.addMetadata(metadata, metadataPath,storageId, repositoryId, is);
-        deployChecksum(mdis, storageId, repositoryId, metadataPath.substring(0, metadataPath.lastIndexOf("/")), "maven-metadata.xml");
+        deployChecksum(mdis, storageId, repositoryId, metadataPath.substring(0, metadataPath.lastIndexOf("/")+1), "maven-metadata.xml");
     }
     
     private void deployChecksum(MultipleDigestInputStream mdis,
@@ -183,6 +179,9 @@ public class ArtifactDeployer extends ArtifactGenerator
             throws ArtifactOperationException,
                    IOException
     {
+        mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
+        mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
+        
         for (Map.Entry entry : mdis.getHexDigests().entrySet())
         {
             final String algorithm = (String) entry.getKey();
@@ -192,7 +191,7 @@ public class ArtifactDeployer extends ArtifactGenerator
 
             final String extensionForAlgorithm = EncryptionAlgorithmsEnum.fromAlgorithm(algorithm).getExtension();
 
-            String artifactToPath = path + extensionForAlgorithm;
+            String artifactToPath = path + metadataFileName +extensionForAlgorithm;
             String url = client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/"
                     + artifactToPath;
             String artifactFileName = metadataFileName + extensionForAlgorithm;
@@ -235,6 +234,9 @@ public class ArtifactDeployer extends ArtifactGenerator
             throws ArtifactOperationException,
                    IOException
     {
+        ais.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
+        ais.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
+        
         for (Map.Entry entry : ais.getHexDigests().entrySet())
         {
             final String algorithm = (String) entry.getKey();
@@ -243,7 +245,7 @@ public class ArtifactDeployer extends ArtifactGenerator
             ByteArrayInputStream bais = new ByteArrayInputStream(checksum.getBytes());
 
             final String extensionForAlgorithm = EncryptionAlgorithmsEnum.fromAlgorithm(algorithm).getExtension();
-
+            
             String artifactToPath = ArtifactUtils.convertArtifactToPath(artifact) + extensionForAlgorithm;
             String url = client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + artifactToPath;
             String artifactFileName = ais.getArtifactFileName() + extensionForAlgorithm;
