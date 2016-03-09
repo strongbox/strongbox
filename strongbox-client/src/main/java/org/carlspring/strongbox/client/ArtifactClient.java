@@ -309,7 +309,7 @@ public class ArtifactClient implements Closeable
         handleFailures(response, "Failed to delete artifact!");
     }
 
-    public void deleteTrash(String storageId, String repositoryId) 
+    public void deleteTrash(String storageId, String repositoryId)
             throws ArtifactOperationException
     {
         String url = getUrlForTrash(storageId, repositoryId);
@@ -322,7 +322,7 @@ public class ArtifactClient implements Closeable
         handleFailures(response, "Failed to delete the trash for " + storageId + ":" + repositoryId + "!");
     }
 
-    public void deleteTrash() 
+    public void deleteTrash()
             throws ArtifactOperationException
     {
         String url = getContextBaseUrl() + "/trash";

@@ -93,7 +93,7 @@ public class ArtifactGenerator
         }
     }
 
-    public void generate(Artifact artifact) 
+    public void generate(Artifact artifact)
             throws IOException,
                    XmlPullParserException,
                    NoSuchAlgorithmException
