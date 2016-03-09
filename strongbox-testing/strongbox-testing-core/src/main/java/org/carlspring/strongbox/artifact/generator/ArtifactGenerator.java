@@ -43,6 +43,7 @@ public class ArtifactGenerator
 
     private String basedir;
 
+
     public ArtifactGenerator()
     {
     }
@@ -58,7 +59,9 @@ public class ArtifactGenerator
     }
 
     public void generate(String gavtc, String packaging, String... versions)
-            throws IOException, XmlPullParserException, NoSuchAlgorithmException
+            throws IOException,
+                   XmlPullParserException,
+                   NoSuchAlgorithmException
     {
         if (packaging == null)
         {
@@ -76,7 +79,9 @@ public class ArtifactGenerator
     }
 
     public void generate(String gavtc, String... versions)
-            throws IOException, XmlPullParserException, NoSuchAlgorithmException
+            throws IOException,
+                   XmlPullParserException,
+                   NoSuchAlgorithmException
     {
         for (String version : versions)
         {
@@ -88,20 +93,27 @@ public class ArtifactGenerator
         }
     }
 
-    public void generate(Artifact artifact) throws IOException, XmlPullParserException, NoSuchAlgorithmException
+    public void generate(Artifact artifact)
+            throws IOException,
+                   XmlPullParserException,
+                   NoSuchAlgorithmException
     {
         generatePom(artifact, PACKAGING_JAR);
         createArchive(artifact);
     }
 
     public void generate(Artifact artifact, String packaging)
-            throws IOException, XmlPullParserException, NoSuchAlgorithmException
+            throws IOException,
+                   XmlPullParserException,
+                   NoSuchAlgorithmException
     {
         generatePom(artifact, packaging);
         createArchive(artifact);
     }
 
-    protected void createArchive(Artifact artifact) throws NoSuchAlgorithmException, IOException
+    protected void createArchive(Artifact artifact)
+            throws NoSuchAlgorithmException,
+                   IOException
     {
         ZipOutputStream zos = null;
 
@@ -111,9 +123,8 @@ public class ArtifactGenerator
         {
             artifactFile = new File(basedir, ArtifactUtils.convertArtifactToPath(artifact));
 
-            // Make sure the artifact's parent directory exists before writing
-            // the model.
-            // noinspection ResultOfMethodCallIgnored
+            // Make sure the artifact's parent directory exists before writing the model.
+            //noinspection ResultOfMethodCallIgnored
             artifactFile.getParentFile().mkdirs();
 
             zos = new ZipOutputStream(new FileOutputStream(artifactFile));
@@ -121,7 +132,6 @@ public class ArtifactGenerator
             createMavenPropertiesFile(artifact, zos);
             addMavenPomFile(artifact, zos);
             createRandomSizeFile(zos);
-            logger.debug("location of the local artifact: " + artifactFile.getAbsolutePath());
         }
         finally
         {
@@ -177,8 +187,10 @@ public class ArtifactGenerator
         final Artifact pomArtifact = ArtifactUtils.getPOMArtifact(artifact);
         File pomFile = new File(basedir, ArtifactUtils.convertArtifactToPath(pomArtifact));
 
-        ZipEntry ze = new ZipEntry(
-                "META-INF/maven/" + artifact.getGroupId() + "/" + artifact.getArtifactId() + "/" + "pom.xml");
+        ZipEntry ze = new ZipEntry("META-INF/maven/" +
+                                   artifact.getGroupId() + "/" +
+                                   artifact.getArtifactId() + "/" +
+                                   "pom.xml");
         zos.putNextEntry(ze);
 
         FileInputStream fis = null;
@@ -201,10 +213,13 @@ public class ArtifactGenerator
         }
     }
 
-    private void createMavenPropertiesFile(Artifact artifact, ZipOutputStream zos) throws IOException
+    private void createMavenPropertiesFile(Artifact artifact, ZipOutputStream zos)
+            throws IOException
     {
-        ZipEntry ze = new ZipEntry(
-                "META-INF/maven/" + artifact.getGroupId() + "/" + artifact.getArtifactId() + "/" + "pom.properties");
+        ZipEntry ze = new ZipEntry("META-INF/maven/" +
+                                   artifact.getGroupId() + "/" +
+                                   artifact.getArtifactId() + "/" +
+                                   "pom.properties");
         zos.putNextEntry(ze);
 
         Properties properties = new Properties();
@@ -228,7 +243,8 @@ public class ArtifactGenerator
         zos.closeEntry();
     }
 
-    private void createRandomSizeFile(ZipOutputStream zos) throws IOException
+    private void createRandomSizeFile(ZipOutputStream zos)
+            throws IOException
     {
         ZipEntry ze = new ZipEntry("random-size-file");
         zos.putNextEntry(ze);
@@ -247,14 +263,15 @@ public class ArtifactGenerator
     }
 
     protected void generatePom(Artifact artifact, String packaging)
-            throws IOException, XmlPullParserException, NoSuchAlgorithmException
+            throws IOException,
+                   XmlPullParserException,
+                   NoSuchAlgorithmException
     {
         final Artifact pomArtifact = ArtifactUtils.getPOMArtifact(artifact);
         File pomFile = new File(basedir, ArtifactUtils.convertArtifactToPath(pomArtifact));
 
-        // Make sure the artifact's parent directory exists before writing the
-        // model.
-        // noinspection ResultOfMethodCallIgnored
+        // Make sure the artifact's parent directory exists before writing the model.
+        //noinspection ResultOfMethodCallIgnored
         pomFile.getParentFile().mkdirs();
 
         Model model = new Model();
@@ -271,7 +288,8 @@ public class ArtifactGenerator
         generateChecksumsForArtifact(pomFile);
     }
 
-    private void generateChecksumsForArtifact(File artifactFile) throws NoSuchAlgorithmException, IOException
+    private void generateChecksumsForArtifact(File artifactFile)
+            throws NoSuchAlgorithmException, IOException
     {
         InputStream is = new FileInputStream(artifactFile);
         MultipleDigestInputStream mdis = new MultipleDigestInputStream(is);
@@ -279,9 +297,8 @@ public class ArtifactGenerator
         int size = 4096;
         byte[] bytes = new byte[size];
 
-        // noinspection StatementWithEmptyBody
-        while (mdis.read(bytes, 0, size) != -1)
-            ;
+        //noinspection StatementWithEmptyBody
+        while (mdis.read(bytes, 0, size) != -1);
 
         mdis.close();
 
