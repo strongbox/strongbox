@@ -67,21 +67,23 @@ public class MetadataMerger
             metadata.setGroupId(artifact.getGroupId());
             metadata.setArtifactId(artifact.getArtifactId());
         }
+        String newVersion = ArtifactUtils.isReleaseVersion(artifact.getVersion())? artifact.getVersion() : artifact.getVersion().substring(0, artifact.getVersion().indexOf("-") +1).concat("SNAPSHOT");
         Versioning versioning = metadata.getVersioning();
         if (versioning == null)
         {
             versioning = new Versioning();
             metadata.setVersioning(versioning);
         }
-        versioning.setLatest(artifact.getVersion());
+        versioning.setLatest(newVersion);
         if (ArtifactUtils.isReleaseVersion(artifact.getVersion()))
         {
-            versioning.setRelease(artifact.getVersion());
+            versioning.setRelease(newVersion);
         }
         List<String> versions = versioning.getVersions();
-        if (!versions.contains(artifact.getVersion()))
+        
+        if (!versions.contains(newVersion))
         {
-            versions.add(artifact.getVersion());
+            versions.add(newVersion);
         }
         versioning.setLastUpdated(MetadataHelper.LAST_UPDATED_FIELD_FORMATTER.format(Calendar.getInstance().getTime()));
         return metadata;
