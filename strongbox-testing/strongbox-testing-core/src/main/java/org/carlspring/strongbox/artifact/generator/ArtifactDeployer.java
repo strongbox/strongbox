@@ -98,7 +98,7 @@ public class ArtifactDeployer extends ArtifactGenerator
                                                                                      artifact.getType() + ":" +
                                                                                      classifier);
                 generate(artifactWithClassifier);
-                
+
                 deploy(artifactWithClassifier, storageId, repositoryId);
             }
         }
@@ -232,7 +232,7 @@ public class ArtifactDeployer extends ArtifactGenerator
 
         deployChecksum(ais, storageId, repositoryId, artifact);
     }
-    
+
     private void deployChecksum(ArtifactInputStream ais,
                                 String storageId,
                                 String repositoryId,

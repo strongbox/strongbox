@@ -49,7 +49,7 @@ public class ArtifactClient implements Closeable
 
     private Client client;
 
-    
+
     public ArtifactClient()
     {
     }
@@ -143,7 +143,7 @@ public class ArtifactClient implements Closeable
 
     public void put(InputStream is, String url, String fileName, String mediaType) throws ArtifactOperationException
     {
-        String contentDisposition = "attachment; filename=\"" + fileName + "\"";
+        String contentDisposition = "attachment; filename=\"" + fileName +"\"";
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
@@ -229,8 +229,8 @@ public class ArtifactClient implements Closeable
     }
 
     public InputStream getResource(String path, long offset)
-               throws ArtifactTransportException,
-                      IOException
+            throws ArtifactTransportException,
+                   IOException
     {
         String url = getContextBaseUrl() + (!path.startsWith("/") ? "/" : "") + path;
 
@@ -286,7 +286,7 @@ public class ArtifactClient implements Closeable
     public void delete(String storageId,
                        String repositoryId,
                        String path)
-           throws ArtifactOperationException
+            throws ArtifactOperationException
     {
         delete(storageId, repositoryId, path, false);
     }
@@ -322,7 +322,8 @@ public class ArtifactClient implements Closeable
         handleFailures(response, "Failed to delete the trash for " + storageId + ":" + repositoryId + "!");
     }
 
-    public void deleteTrash() throws ArtifactOperationException
+    public void deleteTrash() 
+            throws ArtifactOperationException
     {
         String url = getContextBaseUrl() + "/trash";
 
@@ -337,7 +338,7 @@ public class ArtifactClient implements Closeable
     public void undelete(String storageId,
                          String repositoryId,
                          String path)
-             throws ArtifactOperationException
+            throws ArtifactOperationException
     {
         @SuppressWarnings("ConstantConditions")
         String url = getUrlForTrash(storageId, repositoryId) + "/" + path;
@@ -365,7 +366,7 @@ public class ArtifactClient implements Closeable
         handleFailures(response, "Failed to delete the trash for " + storageId + ":" + repositoryId + "!");
     }
 
-    public void undeleteTrash() 
+    public void undeleteTrash()
             throws ArtifactOperationException
     {
         String url = getContextBaseUrl() + "/trash";
@@ -374,7 +375,7 @@ public class ArtifactClient implements Closeable
         setupAuthentication(resource);
 
         Response response = resource.request(MediaType.TEXT_PLAIN)
-                .post(Entity.entity("Undelete", MediaType.TEXT_PLAIN));
+                                    .post(Entity.entity("Undelete", MediaType.TEXT_PLAIN));
 
         handleFailures(response, "Failed to delete the trash!");
     }
@@ -382,7 +383,7 @@ public class ArtifactClient implements Closeable
     public boolean artifactExists(Artifact artifact,
                                   String storageId,
                                   String repositoryId)
-              throws ResponseException
+            throws ResponseException
     {
         Response response = artifactExistsStatusCode(artifact, storageId, repositoryId);
 
@@ -425,12 +426,12 @@ public class ArtifactClient implements Closeable
         setupAuthentication(resource);
 
         Response response = resource.request(MediaType.TEXT_PLAIN).get();
+
         return response.getStatus() == 200;
     }
 
-    private void handleFailures(Response response, 
-                                String message) 
-             throws ArtifactOperationException
+    private void handleFailures(Response response, String message)
+            throws ArtifactOperationException
     {
         int status = response.getStatus();
         if (status != 200)

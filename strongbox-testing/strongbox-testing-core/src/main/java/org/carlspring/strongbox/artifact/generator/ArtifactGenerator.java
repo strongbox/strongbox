@@ -60,7 +60,7 @@ public class ArtifactGenerator
 
     public void generate(String gavtc, String packaging, String... versions)
             throws IOException,
-                   XmlPullParserException, 
+                   XmlPullParserException,
                    NoSuchAlgorithmException
     {
         if (packaging == null)
@@ -102,10 +102,9 @@ public class ArtifactGenerator
         createArchive(artifact);
     }
 
-    public void generate(Artifact artifact, 
-                         String packaging)
-            throws IOException, 
-                   XmlPullParserException, 
+    public void generate(Artifact artifact, String packaging)
+            throws IOException,
+                   XmlPullParserException,
                    NoSuchAlgorithmException
     {
         generatePom(artifact, packaging);
