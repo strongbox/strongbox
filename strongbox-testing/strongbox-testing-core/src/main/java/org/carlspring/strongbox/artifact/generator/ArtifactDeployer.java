@@ -27,6 +27,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
  */
 public class ArtifactDeployer extends ArtifactGenerator
 {
+    
     private String username;
 
     private String password;
@@ -54,8 +55,13 @@ public class ArtifactDeployer extends ArtifactGenerator
         client = ArtifactClient.getTestInstance();
     }
 
-    public void generateAndDeployArtifact(Artifact artifact, String storageId, String repositoryId)
-            throws NoSuchAlgorithmException, XmlPullParserException, IOException, ArtifactOperationException
+    public void generateAndDeployArtifact(Artifact artifact, 
+                                          String storageId, 
+                                          String repositoryId)
+            throws NoSuchAlgorithmException, 
+                   XmlPullParserException, 
+                   IOException, 
+                   ArtifactOperationException
     {
         generateAndDeployArtifact(artifact, null, storageId, repositoryId, "jar");
     }
@@ -65,10 +71,10 @@ public class ArtifactDeployer extends ArtifactGenerator
                                           String storageId,
                                           String repositoryId,
                                           String packaging)
-                    throws NoSuchAlgorithmException,
-                           XmlPullParserException,
-                           IOException,
-                           ArtifactOperationException
+            throws NoSuchAlgorithmException,
+                   XmlPullParserException,
+                   IOException,
+                   ArtifactOperationException
     {
         if (client == null)
         {
@@ -85,8 +91,7 @@ public class ArtifactDeployer extends ArtifactGenerator
         {
             for (String classifier : classifiers)
             {
-                // We're assuming the type of the classifier is the same as the
-                // one of the main artifact
+                // We're assuming the type of the classifier is the same as the one of the main artifact
                 Artifact artifactWithClassifier = ArtifactUtils.getArtifactFromGAVTC(artifact.getGroupId() + ":" +
                                                                                      artifact.getArtifactId() + ":" +
                                                                                      artifact.getVersion() + ":" +
@@ -231,8 +236,7 @@ public class ArtifactDeployer extends ArtifactGenerator
                                 String storageId,
                                 String repositoryId,
                                 Artifact artifact)
-            throws ArtifactOperationException,
-                   IOException
+            throws ArtifactOperationException, IOException
     {
         ais.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
         ais.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
