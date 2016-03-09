@@ -39,6 +39,7 @@ public class ArtifactRestletTest
 {
 
     private static final File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/local");
+
     private static final File REPOSITORY_BASEDIR_RELEASES = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                                      "/storages/storage0/releases");
 
@@ -398,4 +399,5 @@ public class ArtifactRestletTest
         Assert.assertEquals(2, artifactLevelMetadata.getVersioning().getVersions().size());
         Assert.assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
     }
+
 }
