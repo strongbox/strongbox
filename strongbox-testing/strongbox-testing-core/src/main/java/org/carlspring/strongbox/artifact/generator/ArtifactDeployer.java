@@ -27,7 +27,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
  */
 public class ArtifactDeployer extends ArtifactGenerator
 {
-    
+
     private String username;
 
     private String password;
@@ -55,12 +55,12 @@ public class ArtifactDeployer extends ArtifactGenerator
         client = ArtifactClient.getTestInstance();
     }
 
-    public void generateAndDeployArtifact(Artifact artifact, 
-                                          String storageId, 
+    public void generateAndDeployArtifact(Artifact artifact,
+                                          String storageId,
                                           String repositoryId)
-            throws NoSuchAlgorithmException, 
-                   XmlPullParserException, 
-                   IOException, 
+            throws NoSuchAlgorithmException,
+                   XmlPullParserException,
+                   IOException,
                    ArtifactOperationException
     {
         generateAndDeployArtifact(artifact, null, storageId, repositoryId, "jar");
@@ -98,6 +98,7 @@ public class ArtifactDeployer extends ArtifactGenerator
                                                                                      artifact.getType() + ":" +
                                                                                      classifier);
                 generate(artifactWithClassifier);
+                
                 deploy(artifactWithClassifier, storageId, repositoryId);
             }
         }
@@ -175,7 +176,7 @@ public class ArtifactDeployer extends ArtifactGenerator
         client.addMetadata(metadata, metadataPath,storageId, repositoryId, is);
         deployChecksum(mdis, storageId, repositoryId, metadataPath.substring(0, metadataPath.lastIndexOf("/")+1), "maven-metadata.xml");
     }
-    
+
     private void deployChecksum(MultipleDigestInputStream mdis,
                                 String storageId,
                                 String repositoryId,
@@ -249,7 +250,7 @@ public class ArtifactDeployer extends ArtifactGenerator
             ByteArrayInputStream bais = new ByteArrayInputStream(checksum.getBytes());
 
             final String extensionForAlgorithm = EncryptionAlgorithmsEnum.fromAlgorithm(algorithm).getExtension();
-            
+
             String artifactToPath = ArtifactUtils.convertArtifactToPath(artifact) + extensionForAlgorithm;
             String url = client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + artifactToPath;
             String artifactFileName = ais.getArtifactFileName() + extensionForAlgorithm;
