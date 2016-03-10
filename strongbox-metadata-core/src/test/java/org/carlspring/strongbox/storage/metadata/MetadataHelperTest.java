@@ -63,7 +63,7 @@ public class MetadataHelperTest
         // Given
         when(artifact.getGroupId()).thenReturn(GROUP_ID);
         when(artifact.getArtifactId()).thenReturn(ARTIFACT_ID);
-        when(artifact.getVersion()).thenReturn(VERSION);
+        when(artifact.getVersion()).thenReturn(SNAPSHOT_VERSION);
 
         // When
         Metadata metadata = metadataMerger.updateMetadataAtVersionLevel(artifact, null);
@@ -71,7 +71,7 @@ public class MetadataHelperTest
         // Then
         Assert.assertEquals(GROUP_ID, metadata.getGroupId());
         Assert.assertEquals(ARTIFACT_ID, metadata.getArtifactId());
-        Assert.assertEquals(VERSION, metadata.getVersion());
+        Assert.assertEquals(SNAPSHOT_VERSION, metadata.getVersion());
 
         Assert.assertNotNull(metadata.getVersioning());
         Assert.assertNotNull(metadata.getVersioning().getSnapshot());

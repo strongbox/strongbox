@@ -25,7 +25,8 @@ public class MetadataMerger
             metadata = new Metadata();
             metadata.setGroupId(artifact.getGroupId());
             metadata.setArtifactId(artifact.getArtifactId());
-            metadata.setVersion(artifact.getVersion());
+            String newVersion = artifact.getVersion().substring(0, artifact.getVersion().indexOf("-") +1).concat("SNAPSHOT");
+            metadata.setVersion(newVersion);
         }
         // I generate timestamp once for all the merging
         String timestamp = MetadataHelper.LAST_UPDATED_FIELD_FORMATTER.format(Calendar.getInstance().getTime());
