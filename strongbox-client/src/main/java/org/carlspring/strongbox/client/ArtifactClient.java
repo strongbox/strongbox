@@ -1,19 +1,27 @@
 package org.carlspring.strongbox.client;
 
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.client.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * @author mtodorov
@@ -113,19 +121,27 @@ public class ArtifactClient implements Closeable
         deployFile(is, url, fileName);
     }
 
-    public void deployFile(InputStream is,
-                           String url,
-                           String fileName)
+    public void addMetadata(Metadata metadata, String path, String storageId, String repositoryId, InputStream is)
             throws ArtifactOperationException
+    {
+        String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + path;
+
+        logger.debug("Deploying " + url + "...");
+
+        deployMetadata(is, url, path.substring(path.lastIndexOf("/")));
+    }
+
+    public void deployFile(InputStream is, String url, String fileName) throws ArtifactOperationException
     {
         put(is, url, fileName, MediaType.APPLICATION_OCTET_STREAM);
     }
 
-    public void put(InputStream is,
-                    String url,
-                    String fileName,
-                    String mediaType)
-            throws ArtifactOperationException
+    public void deployMetadata(InputStream is, String url, String fileName) throws ArtifactOperationException
+    {
+        put(is, url, fileName, MediaType.APPLICATION_XML);
+    }
+
+    public void put(InputStream is, String url, String fileName, String mediaType) throws ArtifactOperationException
     {
         String contentDisposition = "attachment; filename=\"" + fileName +"\"";
 
@@ -448,6 +464,17 @@ public class ArtifactClient implements Closeable
         {
             target.register(HttpAuthenticationFeature.basic(username, password));
         }
+    }
+
+    public Metadata retrieveMetadata(String path) throws ArtifactTransportException, IOException, XmlPullParserException
+    {
+        if (pathExists(path))
+        {
+            InputStream is = getResource(path);
+            MetadataXpp3Reader reader = new MetadataXpp3Reader();
+            return reader.read(is);
+        }
+        return null;
     }
 
     public String getProtocol()
