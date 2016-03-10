@@ -31,8 +31,6 @@ public class ArtifactClient implements Closeable
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactClient.class);
 
-    public static final String MANAGEMENT_URL = "/manage/artifact";
-
     private String protocol = "http";
 
     private String host = System.getProperty("strongbox.host") != null ? System.getProperty("strongbox.host") : "localhost";
@@ -153,33 +151,6 @@ public class ArtifactClient implements Closeable
                                     .put(Entity.entity(is, mediaType));
 
         handleFailures(response, "Failed to upload file!");
-    }
-
-    /**
-     * This method will deploy an artifact with a random length to the remote host.
-     * NOTE: This artifacts file will not be a valid Maven one, but will exist for the sake of testing.
-     *
-     * @param artifact
-     * @param repositoryId
-     * @param length
-     * @throws ArtifactOperationException
-     */
-    public void addArtifact(Artifact artifact,
-                            String repositoryId,
-                            long length)
-            throws ArtifactOperationException
-    {
-        String url = getContextBaseUrl() + MANAGEMENT_URL + "/" +
-                     repositoryId + "/state/EXISTS/length/" + length + "/" +
-                     ArtifactUtils.convertArtifactToPath(artifact);
-
-        logger.debug("Using " + url);
-
-        WebTarget resource = getClientInstance().target(url);
-        setupAuthentication(resource);
-        Response response = resource.request(MediaType.TEXT_PLAIN).get();
-
-        handleFailures(response, "Failed to create artifact!");
     }
 
     public void getArtifact(Artifact artifact,
