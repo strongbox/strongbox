@@ -75,7 +75,7 @@ public class ArtifactRestletTest
                              new String[]{ "1.2.1", // Used by testDeleteArtifactFile
                                            "1.2.2"  // Used by testDeleteArtifactDirectory
                                          });
-                
+
             generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
                              "org.carlspring.strongbox.partial:partial-foo",
                              new String[]{ "3.1", // Used by testPartialFetch()
@@ -272,7 +272,7 @@ public class ArtifactRestletTest
 
         ArtifactDeployer artifactDeployer = new ArtifactDeployer(GENERATOR_BASEDIR);
         artifactDeployer.setClient(client);
-        
+
         String storageId = "storage0";
         String repositoryId = "snapshots";
 
@@ -280,16 +280,16 @@ public class ArtifactRestletTest
         artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp2, storageId, repositoryId);
         artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp3, storageId, repositoryId);
         artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp4, storageId, repositoryId);
-        
+
         Metadata versionLevelMetadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
-                                                         ArtifactUtils.getVersionLevelMetadataPath(artifact1));
-        
+                                                                ArtifactUtils.getVersionLevelMetadataPath(artifact1));
+
         Assert.assertNotNull(versionLevelMetadata);
         Assert.assertEquals("org.carlspring.strongbox.metadata", versionLevelMetadata.getGroupId());
         Assert.assertEquals("metadata-foo", versionLevelMetadata.getArtifactId());
         Assert.assertEquals(4, versionLevelMetadata.getVersioning().getSnapshot().getBuildNumber());
         Assert.assertNotNull(versionLevelMetadata.getVersioning().getLastUpdated());
-        Assert.assertEquals(12, versionLevelMetadata.getVersioning().getSnapshotVersions().size()    );
+        Assert.assertEquals(12, versionLevelMetadata.getVersioning().getSnapshotVersions().size());
     }
 
     @Test
@@ -303,20 +303,20 @@ public class ArtifactRestletTest
         // Given
         // Plugin Artifacts
         String groupId = "org.carlspring.strongbox.metadata";
-        String artifactId1 = "metadata-foo-plugin";
-        String artifactId2 = "metadata-faa-plugin";
+        String artifactId1 = "metadata-foo-maven-plugin";
+        String artifactId2 = "metadata-faa-maven-plugin";
         String artifactId3 = "metadata-foo";
         String version1 = "3.1";
         String version2 = "3.2";
-        
-        Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(groupId+":"+artifactId1+":"+ version1);
-        Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC(groupId+":"+artifactId2+":"+ version1);
-        Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC(groupId+":"+artifactId1+":"+ version2);
-        Artifact artifact4 = ArtifactUtils.getArtifactFromGAVTC(groupId+":"+artifactId2+":"+ version2);
+
+        Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(groupId + ":" + artifactId1 + ":" + version1);
+        Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC(groupId + ":" + artifactId2 + ":" + version1);
+        Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC(groupId + ":" + artifactId1 + ":" + version2);
+        Artifact artifact4 = ArtifactUtils.getArtifactFromGAVTC(groupId + ":" + artifactId2 + ":" + version2);
 
         // Artifacts
-        Artifact artifact5 = ArtifactUtils.getArtifactFromGAVTC(groupId+":"+artifactId3+":"+ version1);
-        Artifact artifact6 = ArtifactUtils.getArtifactFromGAVTC(groupId+":"+artifactId3+":"+ version2);
+        Artifact artifact5 = ArtifactUtils.getArtifactFromGAVTC(groupId + ":" + artifactId3 + ":" + version1);
+        Artifact artifact6 = ArtifactUtils.getArtifactFromGAVTC(groupId + ":" + artifactId3 + ":" + version2);
 
         Plugin p1 = new Plugin();
         p1.setGroupId(artifact1.getGroupId());
@@ -360,14 +360,14 @@ public class ArtifactRestletTest
         // Then
         // Group level metadata
         Metadata groupLevelMetadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
-                                                       ArtifactUtils.getGroupLevelMetadataPath(artifact1));
+                                                              ArtifactUtils.getGroupLevelMetadataPath(artifact1));
 
         Assert.assertNotNull(groupLevelMetadata);
         Assert.assertEquals(2, groupLevelMetadata.getPlugins().size());
 
         // Artifact Level metadata
         Metadata artifactLevelMetadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
-                                                          ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
+                                                                 ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
 
         Assert.assertNotNull(artifactLevelMetadata);
         Assert.assertEquals(groupId, artifactLevelMetadata.getGroupId());
@@ -378,7 +378,7 @@ public class ArtifactRestletTest
         Assert.assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
 
         artifactLevelMetadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
-                                                 ArtifactUtils.getArtifactLevelMetadataPath(artifact2));
+                                                        ArtifactUtils.getArtifactLevelMetadataPath(artifact2));
 
         Assert.assertNotNull(artifactLevelMetadata);
         Assert.assertEquals(groupId, artifactLevelMetadata.getGroupId());
@@ -389,7 +389,7 @@ public class ArtifactRestletTest
         Assert.assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
 
         artifactLevelMetadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
-                                                 ArtifactUtils.getArtifactLevelMetadataPath(artifact5));
+                                                        ArtifactUtils.getArtifactLevelMetadataPath(artifact5));
 
         Assert.assertNotNull(artifactLevelMetadata);
         Assert.assertEquals(groupId, artifactLevelMetadata.getGroupId());
