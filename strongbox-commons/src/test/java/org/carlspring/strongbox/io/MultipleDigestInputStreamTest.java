@@ -10,6 +10,7 @@ import org.carlspring.strongbox.io.reloading.FSReloadableInputStreamHandler;
 import org.carlspring.strongbox.io.reloading.ReloadableInputStreamHandler;
 import org.carlspring.strongbox.security.encryption.EncryptionAlgorithmsEnum;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -20,6 +21,17 @@ import static org.junit.Assert.assertEquals;
 public class MultipleDigestInputStreamTest
 {
 
+
+    @Before
+    public void setUp() throws Exception
+    {
+        File testResourcesDir = new File("target/test-resources");
+        if (!testResourcesDir.exists())
+        {
+            //noinspection ResultOfMethodCallIgnored
+            testResourcesDir.mkdirs();
+        }
+    }
 
     @Test
     public void testRead()
