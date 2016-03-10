@@ -19,7 +19,6 @@
     <bean id="artifactOperationsValidator" class="org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator"/>
 
     <!-- Artifact LocationResolvers -->
-    <bean id="memoryLocationResolver" class="org.carlspring.strongbox.storage.resolvers.InMemoryLocationResolver"/>
     <bean id="fsLocationResolver" class="org.carlspring.strongbox.storage.resolvers.FSLocationResolver"/>
     <bean id="groupLocationResolver" class="org.carlspring.strongbox.storage.resolvers.GroupLocationResolver"/>
 
@@ -27,7 +26,6 @@
               key-type="java.lang.String"
               value-type="org.carlspring.strongbox.storage.resolvers.LocationResolver"
               map-class="java.util.LinkedHashMap">
-        <entry key="in-memory" value-ref="memoryLocationResolver"/>
         <entry key="file-system" value-ref="fsLocationResolver"/>
         <entry key="group" value-ref="groupLocationResolver"/>
     </util:map>
