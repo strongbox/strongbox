@@ -3,6 +3,7 @@ package org.carlspring.strongbox.rest;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
@@ -22,6 +23,7 @@ import javax.ws.rs.core.Response;
 
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.http.range.ByteRange;
 import org.carlspring.strongbox.http.range.ByteRangeHeaderParser;
 import org.carlspring.strongbox.io.ArtifactInputStream;
@@ -56,7 +58,9 @@ public class ArtifactRestlet
     
     @Autowired
     private MetadataManager metadataManager;
-
+    
+    @Autowired
+    private ConfigurationManager configurationManager;
 
     @PUT
     @Path("{storageId}/{repositoryId}/{path:.*}")
@@ -418,9 +422,8 @@ public class ArtifactRestlet
         try
         {
             artifactManagementService.delete(storageId, repositoryId, path, force);
-         
-            // TODO SB-265: update metadata
-            updateMetadata(storageId, repositoryId, path);
+            deleteMethodFromMetadaInFS(storageId,repositoryId,path);
+
         }
         catch (ArtifactStorageException e)
         {
@@ -450,41 +453,39 @@ public class ArtifactRestlet
                            .entity(e.getMessage())
                            .build();
         }
-        catch (NoSuchAlgorithmException | XmlPullParserException e)
-        {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(e.getMessage())
-                    .build();
-        }
 
         return Response.ok().build();
     }
     
-    private void updateMetadata(String storageId, String repositoryId, String path)
-            throws IOException, XmlPullParserException, NoSuchAlgorithmException
+    protected void deleteMethodFromMetadaInFS(String storageId, String repositoryId, String metadataPath)
     {
-        if (isVersionDirectory(path))
+        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+        final File repoPath = new File(repository.getBasedir());
+        
+        try
         {
-            // TODO SB-265: figure out how to obtain the artifact metadata path
-            // given the storageId, repositoryId and path
-            java.nio.file.Path artifactBasePath = null;
-            Metadata metadata = metadataManager.readMetadata(artifactBasePath);
-
-            // TODO SB-265: figure out how to obtain the version from the given
-            // path
-            String version = "";
-            metadata.getVersioning().getVersions().remove(version);
-
-            metadataManager.storeMetadata(artifactBasePath, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
-
+            File artifactFile = new File(repoPath, metadataPath).getCanonicalFile();
+            if (artifactFile.isDirectory())
+            {
+                String version = artifactFile.getPath().substring(artifactFile.getPath().lastIndexOf("/"));
+                java.nio.file.Path path = Paths.get(artifactFile.getPath().substring(0, artifactFile.getPath().lastIndexOf("/")+1).concat("maven-metadata.xml"));
+                Metadata metadata = metadataManager.readMetadata(path);
+                if (metadata != null && metadata.getVersioning() != null)
+                {
+                    if (metadata.getVersioning().getVersions().contains(version))
+                    {
+                        metadata.getVersioning().getVersions().remove(version);
+                        metadataManager.storeMetadata(path, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
+                    }
+                }
+            }
+        
         }
-
-    }
-
-    private boolean isVersionDirectory(String path)
-    {
-        // TODO SB-265: figure out if the given path is a version directory
-        return false;
-    }
-
+        catch (IOException | XmlPullParserException | NoSuchAlgorithmException e)
+        {
+            // We wont to do anything in this case because it doesn't have impact in the deletion
+        }
+    }        
 }
+
