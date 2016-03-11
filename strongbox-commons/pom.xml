@@ -82,6 +82,13 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
 
+                <configuration>
+                    <systemPropertyVariables>
+                        <strongbox.home>${project.build.directory}/strongbox</strongbox.home>
+                        <logging.dir>${project.build.directory}/strongbox/logs</logging.dir>
+                    </systemPropertyVariables>
+                </configuration>
+
                 <dependencies>
                     <dependency>
                         <groupId>${project.groupId}</groupId>
