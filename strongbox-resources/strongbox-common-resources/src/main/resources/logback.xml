@@ -13,6 +13,23 @@
         </encoder>
     </appender>
 
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${strongbox.home}/logs/strongbox.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>log_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>50MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%d{HH:mm:ss.SSS dd-MM-yyyy} | %-5.5p | %-20.20t | %-50.50logger{50} | %m%n</pattern>
+        </encoder>
+    </appender>
+
     <logger name="org.springframework">
         <level value="ERROR"/>
     </logger>
@@ -23,6 +40,9 @@
     <logger name="org.carlspring.strongbox">
         <level value="DEBUG"/>
     </logger>
+    <logger name="org.carlspring.logging">
+        <level value="DEBUG"/>
+    </logger>
     <logger name="org.glassfish.jersey">
         <level value="DEBUG"/>
     </logger>
@@ -30,6 +50,7 @@
     <root>
         <level value="INFO"/>
         <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
     </root>
 
 </configuration>
