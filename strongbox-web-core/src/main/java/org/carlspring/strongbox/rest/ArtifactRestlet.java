@@ -466,10 +466,10 @@ public class ArtifactRestlet
         try
         {
             File artifactFile = new File(repoPath, metadataPath).getCanonicalFile();
-            if (artifactFile.isDirectory())
+            if (!artifactFile.isFile())
             {
-                String version = artifactFile.getPath().substring(artifactFile.getPath().lastIndexOf("/"));
-                java.nio.file.Path path = Paths.get(artifactFile.getPath().substring(0, artifactFile.getPath().lastIndexOf("/")+1).concat("maven-metadata.xml"));
+                String version = artifactFile.getPath().substring(artifactFile.getPath().lastIndexOf("/")+1);
+                java.nio.file.Path path = Paths.get(artifactFile.getPath().substring(0, artifactFile.getPath().lastIndexOf("/")));
                 Metadata metadata = metadataManager.readMetadata(path);
                 if (metadata != null && metadata.getVersioning() != null)
                 {
@@ -480,7 +480,6 @@ public class ArtifactRestlet
                     }
                 }
             }
-        
         }
         catch (IOException | XmlPullParserException | NoSuchAlgorithmException e)
         {

@@ -399,5 +399,70 @@ public class ArtifactRestletTest
         Assert.assertEquals(2, artifactLevelMetadata.getVersioning().getVersions().size());
         Assert.assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
     }
+    
+    @Test
+    public void updateMetadataOndeleteReleaseVersionDirectoryTest() throws NoSuchAlgorithmException, XmlPullParserException, IOException, ArtifactOperationException, ArtifactTransportException 
+    {
+        // Given
+        // Plugin Artifacts
+        String groupId = "org.carlspring.strongbox.metadata";
+        String artifactId = "metadata-foo";
+        String version1 = "3.1";
+        String version2 = "3.2";
+        
+        Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(groupId+":"+artifactId+":"+ version1);
+        Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC(groupId+":"+artifactId+":"+ version2);
+        
+        ArtifactDeployer artifactDeployer = new ArtifactDeployer(GENERATOR_BASEDIR);
+        artifactDeployer.setClient(client);
 
+        String storageId = "storage0";
+        String repositoryId = "releases";
+
+
+        artifactDeployer.generateAndDeployArtifact(artifact1, storageId, repositoryId);
+        artifactDeployer.generateAndDeployArtifact(artifact2, storageId, repositoryId);
+
+        // When
+        String path = "org/carlspring/strongbox/metadata/metadata-foo/3.2";
+        client.delete(storageId, repositoryId, path);
+        
+        Metadata metadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
+                ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
+        Assert.assertTrue(!metadata.getVersioning().getVersions().contains("3.2"));
+    }
+    
+    @Test 
+    public void updateMetadataOnDeleteSnapshotVersionDirectoryTest() throws NoSuchAlgorithmException, XmlPullParserException, IOException, ArtifactOperationException, ArtifactTransportException 
+    {
+        //Given
+        String ga = "org.carlspring.strongbox.metadata:metadata-foo";
+
+        Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":3.1-SNAPSHOT");
+        Artifact artifact1WithTimestamp1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 1));
+        Artifact artifact1WithTimestamp2 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 2));
+        Artifact artifact1WithTimestamp3 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 3));
+        Artifact artifact1WithTimestamp4 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 4));
+
+        ArtifactDeployer artifactDeployer = new ArtifactDeployer(GENERATOR_BASEDIR);
+        artifactDeployer.setClient(client);
+        
+        String storageId = "storage0";
+        String repositoryId = "snapshots";
+
+        artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp1, storageId, repositoryId);
+        artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp2, storageId, repositoryId);
+        artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp3, storageId, repositoryId);
+        artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp4, storageId, repositoryId);
+        
+        String path = "org/carlspring/strongbox/metadata/metadata-foo/3.1-SNAPSHOT";
+        
+        //When
+        client.delete(storageId, repositoryId, path);
+            
+        //Then
+        Metadata metadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
+                ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
+        Assert.assertTrue(!metadata.getVersioning().getVersions().contains("3.1-SNAPSHOT"));
+    }
 }
