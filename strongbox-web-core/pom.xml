@@ -451,7 +451,7 @@
                             </httpConnector>
 
                             <systemProperties>
-                                <!--<force>true</force>-->
+                                <force>true</force>
 
                                 <systemProperty>
                                     <name>strongbox.home</name>
