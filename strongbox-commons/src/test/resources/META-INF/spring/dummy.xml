@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<dummy>
-    <name>foo</name>
-    <aliases>
-        <alias>bar</alias>
-        <alias>blah</alias>
-    </aliases>
-</dummy>
