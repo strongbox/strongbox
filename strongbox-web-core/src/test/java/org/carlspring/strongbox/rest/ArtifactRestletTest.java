@@ -397,7 +397,6 @@ public class ArtifactRestletTest
         Assert.assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
     }
 
-    @Ignore
     @Test
     public void updateMetadataOndeleteReleaseVersionDirectoryTest()
             throws NoSuchAlgorithmException,
