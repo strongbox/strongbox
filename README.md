@@ -14,6 +14,9 @@ Welcome to the Strongbox Maven artifact repository manager's home.
   * Manage the server's core configuration
   * Manage repositories
 * Ready-to-use Java-based REST API Client(s) covering each REST command.
+* Logging:
+  * Configuration over REST
+  * Retrieve logs over HTTP
 
 # What's in the works:
 * Proxy repositories
