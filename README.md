@@ -37,7 +37,7 @@ Welcome to the Strongbox Maven artifact repository manager's home.
 
 # Requirements:
 * Java 1.8.x
-* Maven 3.2.x
+* Maven 3.3.9 (or higher)
 
 # Download
 * Standalone:
