@@ -22,7 +22,6 @@ Welcome to the Strongbox Maven artifact repository manager's home.
 * Proxy repositories
 * [Metadata](https://github.com/strongbox/strongbox/wiki/Maven-Metadata)
 * Logging:
-  * Configuration over REST
   * Log tailing over HTTP
 * Deploy as transaction
 
