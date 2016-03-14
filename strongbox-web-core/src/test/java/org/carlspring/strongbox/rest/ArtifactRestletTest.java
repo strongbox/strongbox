@@ -70,7 +70,7 @@ public class ArtifactRestletTest
             generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
                              "com.artifacts.to.delete.releases:delete-foo",
                              new String[]{ "1.2.1", // Used by testDeleteArtifactFile
-                                           "1.2.2"  // Used by testDeleteArtifactDirectory
+                                           "1.2.2",  // Used by testDeleteArtifactDirectory
                                          });
 
             generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
@@ -78,7 +78,6 @@ public class ArtifactRestletTest
                              new String[]{ "3.1", // Used by testPartialFetch()
                                            "3.2"  // Used by testPartialFetch()
                                          });
-
             INITIALIZED = true;
         }
     }
@@ -170,7 +169,6 @@ public class ArtifactRestletTest
 
         assertEquals("Glued partial fetches did not match MD5 checksum!", md5Remote, md5Local);
         assertEquals("Glued partial fetches did not match SHA-1 checksum!", sha1Remote, sha1Local);
-        output.close();
     }
 
     @Test
@@ -397,7 +395,6 @@ public class ArtifactRestletTest
         Assert.assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
     }
 
-    @Ignore
     @Test
     public void updateMetadataOndeleteReleaseVersionDirectoryTest()
             throws NoSuchAlgorithmException,
@@ -407,11 +404,10 @@ public class ArtifactRestletTest
                    ArtifactTransportException
     {
         // Given
-        // Plugin Artifacts
-        String groupId = "org.carlspring.strongbox.metadata";
+        String groupId = "org.carlspring.strongbox.delete-metadata";
         String artifactId = "metadata-foo";
-        String version1 = "3.1";
-        String version2 = "3.2";
+        String version1 = "1.2.1";
+        String version2 = "1.2.2";
         
         Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(groupId+":"+artifactId+":"+ version1);
         Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC(groupId+":"+artifactId+":"+ version2);
@@ -422,17 +418,17 @@ public class ArtifactRestletTest
         String storageId = "storage0";
         String repositoryId = "releases";
 
-
         artifactDeployer.generateAndDeployArtifact(artifact1, storageId, repositoryId);
         artifactDeployer.generateAndDeployArtifact(artifact2, storageId, repositoryId);
 
         // When
-        String path = "org/carlspring/strongbox/metadata/metadata-foo/3.2";
+        String path = "org/carlspring/strongbox/delete-metadata/metadata-foo/1.2.2";
         client.delete(storageId, repositoryId, path);
         
+        //Aca deberiamos mirar el FS y a la mierda
         Metadata metadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
                 ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
-        Assert.assertTrue(!metadata.getVersioning().getVersions().contains("3.2"));
+        Assert.assertTrue(!metadata.getVersioning().getVersions().contains("1.2.2"));
     }
     
     @Test 
