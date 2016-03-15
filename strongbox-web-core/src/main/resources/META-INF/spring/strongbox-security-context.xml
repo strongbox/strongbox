@@ -66,15 +66,17 @@
             entry-point-ref="unauthorizedEntryPoint"
             authentication-manager-ref="authenticationManager">
 
-        <!-- CSRF is disabled until Angular start sending it back -->
+        <!-- CSRF is disabled so that the application security could be tested with the browser.
+        Re-enable it once the Angular app start sending the CSRF token with every request -->
         <security:csrf disabled="true"/>
 
         <!--
-        Use Spring Security's (ugly) login page until prettier one is provided
+        Use Spring Security's (ugly) login page until prettier one is provided (with Angular)
         -->
         <security:form-login/>
 
-        <!-- Enables Spring Security's /logout endpoint that could be used to logout an user -->
+        <!-- Enables Spring Security's /logout endpoint that could be used to logout an user
+        -->
         <security:logout logout-url="/logout" />
 
         <!--
