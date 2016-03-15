@@ -7,18 +7,18 @@ import java.util.List;
  * An application user
  */
 public class StrongboxUser {
-	private String userName;
+	private String username;
 	private String password;
 	private boolean enabled;
 	private String salt;
 	private List<String> roles = new ArrayList<>();
 
-	public String getUserName() {
-		return userName;
+	public String getUsername() {
+		return username;
 	}
 
-	public void setUserName(final String userName) {
-		this.userName = userName;
+	public void setUsername(final String username) {
+		this.username = username;
 	}
 
 	public String getPassword() {
