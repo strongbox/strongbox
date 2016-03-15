@@ -309,13 +309,11 @@
         <dependency>
             <groupId>com.orientechnologies</groupId>
             <artifactId>orientdb-core</artifactId>
-            <version>${version.orientdb}</version>
         </dependency>
 
         <dependency>
             <groupId>com.orientechnologies</groupId>
             <artifactId>orientdb-object</artifactId>
-            <version>${version.orientdb}</version>
         </dependency>
 
         <dependency>
