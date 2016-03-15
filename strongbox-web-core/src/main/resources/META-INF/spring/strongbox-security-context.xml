@@ -17,40 +17,81 @@
     </beans:bean>
 
     <security:authentication-manager alias="authenticationManager">
+
+        <!--
+         Custom authentication provider based on OrientDB as user storage
+         -->
         <security:authentication-provider user-service-ref="userDetailService">
             <security:password-encoder ref="passwordEncoder"/>
         </security:authentication-provider>
+
+        <!--
+        A demo of simple in-memory authentication provider
+        -->
         <security:authentication-provider>
             <security:user-service>
-                <security:user name="martin" password="agent007" authorities="ROLE_ADMIN" />
+                <!-- This user is also setup with OrientDB -->
+                <!--<security:user name="martin" password="agent007" authorities="ROLE_ADMIN" />-->
+
+                <!-- A second user which has no rights to open /configuration/strongbox/** -->
                 <security:user name="james" password="bond" authorities="ROLE_USER" />
             </security:user-service>
         </security:authentication-provider>
+
+        <!--
+         For LDAP authentication see:
+         https://spring.io/guides/gs/authenticating-ldap/
+         https://docs.spring.io/spring-security/site/docs/4.0.x/reference/html/jc.html#ldap-authentication
+         -->
+
+        <!--
+         For Atlassian Crowd see:
+         https://confluence.atlassian.com/display/CROWD/Integrating+Crowd+with+Spring+Security
+         -->
+
+        <!--
+         For CAS see:
+         https://docs.spring.io/spring-security/site/docs/3.0.x/reference/cas.html
+         https://docs.spring.io/spring-security/site/docs/4.0.x/reference/html/sample-apps.html#cas-sample
+        -->
+
     </security:authentication-manager>
 
     <beans:bean id="unauthorizedEntryPoint" class="org.carlspring.strongbox.rest.app.spring.security.UnauthorizedEntryPoint" />
-            <!--auto-config="true"-->
+
     <security:http
             use-expressions="true"
             realm="Strongbox Realm"
             create-session="always"
             entry-point-ref="unauthorizedEntryPoint"
             authentication-manager-ref="authenticationManager">
+
+        <!-- CSRF is disabled until Angular start sending it back -->
         <security:csrf disabled="true"/>
-        <!--<security:http-basic/>-->
-        <security:access-denied-handler error-page="/login"/>
-        <!--<security:headers disabled="true"/>-->
+
+        <!--
+        Use Spring Security's (ugly) login page until prettier one is provided
+        -->
         <security:form-login/>
-        <security:logout />
-        <!--<security:anonymous enabled="false" />-->
+
+        <!-- Enables Spring Security's /logout endpoint that could be used to logout an user -->
+        <security:logout logout-url="/logout" />
+
+        <!--
+        Uncomment to enable any logged in user to be able to request that url
         <security:intercept-url method="GET" pattern="/configuration/strongbox/**" access="isAuthenticated()" />
+        -->
+
+        <!-- Only admins could open this url -->
+        <security:intercept-url method="GET" pattern="/configuration/strongbox/**" access="hasRole('ROLE_ADMIN')" />
+
+        <!--
+        Uncomment to enable anonymous users
+        <security:anonymous enabled="true"/>
+        -->
+
+        <!-- Any user can reach anything else -->
         <security:intercept-url pattern="/**" access="permitAll" />
-        <!--<security:custom-filter ref="authenticationTokenProcessingFilter" position="FORM_LOGIN_FILTER" />-->
-        <!--<security:intercept-url pattern="/rest/user/authenticate" access="permitAll" />-->
-        <!--<security:intercept-url method="GET" pattern="/rest/news/**" access="hasRole('user')" />-->
-        <!--<security:intercept-url method="PUT" pattern="/rest/news/**" access="hasRole('admin')" />-->
-        <!--<security:intercept-url method="POST" pattern="/rest/news/**" access="hasRole('admin')" />-->
-        <!--<security:intercept-url method="DELETE" pattern="/rest/news/**" access="hasRole('admin')" />-->
     </security:http>
 
 

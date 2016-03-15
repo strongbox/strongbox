@@ -23,17 +23,8 @@ public class UserRepository {
 
 	public StrongboxUser findByUserName(final String username) {
 
-		// dummy impl that "finds" only user with username/password: strongbox/strongbox
-		StrongboxUser user;
-		if ("strongbox".equals(username)) {
-			user = new StrongboxUser();
-			user.setEnabled(true);
-			user.setUsername(username);
-			String password = passwordEncoder.encode(username);
-			user.setPassword(password);
-		}
-
-		user = withDatabase(db -> {
+		StrongboxUser user = withDatabase(db -> {
+			// TODO Does OrientDB support parameters ?!
 			OSQLSynchQuery<StrongboxUser> query = new OSQLSynchQuery<>("SELECT * FROM StrongboxUser WHERE username = '"+username+"'");
 			List<StrongboxUser> result = db.query(query);
 			if (!result.isEmpty()) {
@@ -49,6 +40,9 @@ public class UserRepository {
 
 	@PostConstruct
 	public void postConstruct() {
+		// add a user for testing
+		// Usually OrientDB should be setup separately(i.e.remotely) and
+		// users should be added either via REST endpoint or via OrientDB Studio/Console
 		withDatabase(db -> {
 			db.getEntityManager().registerEntityClass(StrongboxUser.class);
 
@@ -64,6 +58,8 @@ public class UserRepository {
 	}
 
 	private <R> R withDatabase(Function<OObjectDatabaseTx, R> code) {
+		// for simplicity use inmemory database
+		// TODO Replace it with remote instance!
 		OObjectDatabaseTx db = new OObjectDatabaseTx("memory:strongbox");
 		try {
 			if (db.exists()) {
