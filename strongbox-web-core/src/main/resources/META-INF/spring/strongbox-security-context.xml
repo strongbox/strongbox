@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:security="http://www.springframework.org/schema/security"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+                                 http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.0.xsd">
+
+    <security:global-method-security authentication-manager-ref="authenticationManager"
+                                     pre-post-annotations="enabled" />
+
+    <beans:bean id="userDao" class="org.carlspring.strongbox.rest.app.spring.security.UserRepository"/>
+
+    <beans:bean id="userDetailService" class="org.carlspring.strongbox.rest.app.spring.security.StrongboxUserDetailService"/>
+
+    <beans:bean id="passwordEncoder" class="org.springframework.security.crypto.password.StandardPasswordEncoder">
+        <beans:constructor-arg value="ThisIsASecretSoChangeMe" />
+    </beans:bean>
+
+    <security:authentication-manager alias="authenticationManager">
+        <security:authentication-provider user-service-ref="userDetailService">
+            <security:password-encoder ref="passwordEncoder"/>
+        </security:authentication-provider>
+        <security:authentication-provider>
+            <security:user-service>
+                <security:user name="martin" password="agent007" authorities="ROLE_ADMIN" />
+                <security:user name="james" password="bond" authorities="ROLE_USER" />
+            </security:user-service>
+        </security:authentication-provider>
+    </security:authentication-manager>
+
+    <beans:bean id="unauthorizedEntryPoint" class="org.carlspring.strongbox.rest.app.spring.security.UnauthorizedEntryPoint" />
+            <!--auto-config="true"-->
+    <security:http
+            use-expressions="true"
+            realm="Strongbox Realm"
+            create-session="always"
+            entry-point-ref="unauthorizedEntryPoint"
+            authentication-manager-ref="authenticationManager">
+        <security:csrf disabled="true"/>
+        <!--<security:http-basic/>-->
+        <security:access-denied-handler error-page="/login"/>
+        <!--<security:headers disabled="true"/>-->
+        <security:form-login/>
+        <security:logout />
+        <!--<security:anonymous enabled="false" />-->
+        <security:intercept-url method="GET" pattern="/configuration/strongbox/**" access="isAuthenticated()" />
+        <security:intercept-url pattern="/**" access="permitAll" />
+        <!--<security:custom-filter ref="authenticationTokenProcessingFilter" position="FORM_LOGIN_FILTER" />-->
+        <!--<security:intercept-url pattern="/rest/user/authenticate" access="permitAll" />-->
+        <!--<security:intercept-url method="GET" pattern="/rest/news/**" access="hasRole('user')" />-->
+        <!--<security:intercept-url method="PUT" pattern="/rest/news/**" access="hasRole('admin')" />-->
+        <!--<security:intercept-url method="POST" pattern="/rest/news/**" access="hasRole('admin')" />-->
+        <!--<security:intercept-url method="DELETE" pattern="/rest/news/**" access="hasRole('admin')" />-->
+    </security:http>
+
+
+</beans:beans>
