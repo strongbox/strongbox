@@ -52,6 +52,9 @@ Welcome to the Strongbox Maven artifact repository manager's home.
 # Installation
 Please check [here](https://github.com/strongbox/strongbox/wiki/Installation) for detailed instruction on how to install and setup up Strongbox on the supported platforms.
 
+# Building
+Instructions on how to build the code, can be found [here](https://github.com/strongbox/strongbox/wiki/Building-the-code).
+
 # Contributing
 Contributions and contributors are always welcome!
 
