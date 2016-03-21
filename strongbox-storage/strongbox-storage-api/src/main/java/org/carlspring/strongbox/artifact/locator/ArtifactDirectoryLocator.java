@@ -5,9 +5,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.regex.Pattern;
+
+import static org.carlspring.strongbox.util.FileUtils.normalizePath;
 
 /**
  * @author mtodorov
@@ -34,7 +38,7 @@ public class ArtifactDirectoryLocator
         Files.walk(Paths.get(getStartingPath()))
              .filter(Files::isDirectory)
              // Skip directories which start with a dot (like, for example: .index)
-             .filter(path -> !path.toAbsolutePath().toString().matches(".*/\\..*"))
+             .filter(path -> !path.getFileName().startsWith("."))
              // Note: Sorting can be expensive:
              .sorted()
              .forEach(operation::execute);
@@ -51,6 +55,7 @@ public class ArtifactDirectoryLocator
     {
         // The root path
         String rootPath = basedir != null ? basedir : getOperation().getRepository().getBasedir();
+        rootPath = normalizePath(rootPath);
 
         // The base path to be appended to the root path
         String basePath = getOperation().getBasePath() != null ? getOperation().getBasePath() : "";
@@ -58,6 +63,8 @@ public class ArtifactDirectoryLocator
         {
             basePath = "/" + basePath;
         }
+
+        basePath = normalizePath(basePath);
 
         System.out.println("basePath = " + rootPath + basePath);
 

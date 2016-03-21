@@ -468,8 +468,8 @@ public class ArtifactRestlet
             File artifactFile = new File(repoPath, metadataPath).getCanonicalFile();
             if (!artifactFile.isFile())
             {
-                String version = artifactFile.getPath().substring(artifactFile.getPath().lastIndexOf("/")+1);
-                java.nio.file.Path path = Paths.get(artifactFile.getPath().substring(0, artifactFile.getPath().lastIndexOf("/")));
+                String version = artifactFile.getPath().substring(artifactFile.getPath().lastIndexOf(File.separatorChar) + 1);
+                java.nio.file.Path path = Paths.get(artifactFile.getPath().substring(0, artifactFile.getPath().lastIndexOf(File.separatorChar)));
                 Metadata metadata = metadataManager.readMetadata(path);
                 if (metadata != null && metadata.getVersioning() != null)
                 {
