@@ -61,4 +61,9 @@ Contributions and contributors are always welcome!
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/strongbox/strongbox?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 # Build Status
-[![Build Status](http://dev.carlspring.org/status/jenkins/strongbox)](https://dev.carlspring.org/jenkins/view/strongbox/job/strongbox/)
+
+| Operating System | Status | 
+| --- | ------ |
+| OpenSuse 13.2 | [![Build Status](http://dev.carlspring.org/status/jenkins/strongbox)](https://dev.carlspring.org/jenkins/view/strongbox/job/strongbox/) |
+| Ubuntu 15.10 | [![Build Status](https://dev.carlspring.org/jenkins/job/strongbox-ubuntu-15.10/badge/icon)](https://dev.carlspring.org/jenkins/job/strongbox-ubuntu-15.10) |
+| Windows x64 | [![Build Status](https://dev.carlspring.org/jenkins/view/strongbox-win64/job/strongbox-win64/badge/icon)](https://dev.carlspring.org/jenkins/view/strongbox-win64/job/strongbox-win64/) |
