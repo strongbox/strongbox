@@ -278,7 +278,7 @@ public class ArtifactMetadataServiceSnapshotsTest
     {
         artifactMetadataService.rebuildMetadata("storage0",
                                                 "snapshots",
-                                                "/org/carlspring/strongbox/maven/strongbox-metadata-plugin");
+                                                "org/carlspring/strongbox/maven/strongbox-metadata-plugin");
 
         Metadata metadata = artifactMetadataService.getMetadata("storage0", "snapshots", "org/carlspring/strongbox/maven/strongbox-metadata-plugin");
 

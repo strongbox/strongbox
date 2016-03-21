@@ -264,6 +264,8 @@ public class ConfigurationManagementRestlet
         {
             try
             {
+                repositoryIndexManager.closeIndexersForStorage(storageId);
+
                 if (force)
                 {
                     storageManagementService.removeStorage(storageId);

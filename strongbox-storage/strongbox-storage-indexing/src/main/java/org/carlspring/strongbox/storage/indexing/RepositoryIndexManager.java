@@ -47,6 +47,24 @@ public class RepositoryIndexManager
         }
     }
 
+    public void closeIndexersForStorage(String storageId)
+    {
+        for (String storageAndRepository : indexes.keySet())
+        {
+            if (storageAndRepository.substring(0, storageAndRepository.indexOf(':')).equals(storageId))
+            {
+                try
+                {
+                    closeIndexer(storageAndRepository);
+                }
+                catch (IOException e)
+                {
+                    logger.error(e.getMessage(), e);
+                }
+            }
+        }
+    }
+
     public void closeIndexer(String storageAndRepository)
             throws IOException
     {
