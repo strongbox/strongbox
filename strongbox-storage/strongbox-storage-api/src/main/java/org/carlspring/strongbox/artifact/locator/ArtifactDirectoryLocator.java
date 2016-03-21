@@ -38,7 +38,6 @@ public class ArtifactDirectoryLocator
         Files.walk(Paths.get(getStartingPath()))
              .filter(Files::isDirectory)
              // Skip directories which start with a dot (like, for example: .index)
-             //.filter(path -> !path.toAbsolutePath().toString().matches(".*" + Pattern.quote(File.separator) + "\\..*"))
              .filter(path -> !path.getFileName().startsWith("."))
              // Note: Sorting can be expensive:
              .sorted()
