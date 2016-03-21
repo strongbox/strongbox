@@ -20,10 +20,10 @@ import org.slf4j.LoggerFactory;
  * @author Martin Todorov
  */
 @Path("/storages")
-public class ArtifactRestlet
+public class DummyArtifactRestlet
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(ArtifactRestlet.class);
+    private static final Logger logger = LoggerFactory.getLogger(DummyArtifactRestlet.class);
 
 
     @PUT
