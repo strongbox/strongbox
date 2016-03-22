@@ -16,7 +16,7 @@ public class CachedUserManager implements UserManager
 
     private static Logger logger = LoggerFactory.getLogger(CachedUserManager.class);
 
-    private Map<String, User> cachedUsers = new LinkedHashMap<String, User>();
+    private Map<String, User> cachedUsers = new LinkedHashMap<>();
 
     /**
      * Specifies how long to keep the cached credentials.
@@ -90,7 +90,7 @@ public class CachedUserManager implements UserManager
 
     private Set<String> getExpiredCredentials()
     {
-        Set<String> expiredCredentials = new LinkedHashSet<String>();
+        Set<String> expiredCredentials = new LinkedHashSet<>();
 
         for (String username : cachedUsers.keySet())
         {

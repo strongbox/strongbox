@@ -22,7 +22,7 @@ public class AssignedPorts
      * K: port key
      * V: the port
      */
-    private Map<String, Integer> ports = new LinkedHashMap<String, Integer>();
+    private Map<String, Integer> ports = new LinkedHashMap<>();
 
 
     public AssignedPorts()

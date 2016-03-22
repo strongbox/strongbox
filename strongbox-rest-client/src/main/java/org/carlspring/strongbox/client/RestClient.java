@@ -82,7 +82,7 @@ public class RestClient extends ArtifactClient
 
             final ByteArrayInputStream bais = new ByteArrayInputStream(xml.getBytes());
 
-            GenericParser<ServerConfiguration> parser = new GenericParser<ServerConfiguration>(classes);
+            GenericParser<ServerConfiguration> parser = new GenericParser<>(classes);
 
             configuration = parser.parse(bais);
         }
@@ -165,7 +165,7 @@ public class RestClient extends ArtifactClient
 
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        GenericParser<ProxyConfiguration> parser = new GenericParser<ProxyConfiguration>(ProxyConfiguration.class);
+        GenericParser<ProxyConfiguration> parser = new GenericParser<>(ProxyConfiguration.class);
         parser.store(proxyConfiguration, baos);
 
         Response response = resource.request(MediaType.APPLICATION_XML)
@@ -193,7 +193,7 @@ public class RestClient extends ArtifactClient
             final String xml = response.readEntity(String.class);
             final ByteArrayInputStream bais = new ByteArrayInputStream(xml.getBytes());
 
-            GenericParser<ProxyConfiguration> parser = new GenericParser<ProxyConfiguration>(ProxyConfiguration.class);
+            GenericParser<ProxyConfiguration> parser = new GenericParser<>(ProxyConfiguration.class);
 
             proxyConfiguration = parser.parse(bais);
         }
@@ -222,7 +222,7 @@ public class RestClient extends ArtifactClient
 
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        GenericParser<Storage> parser = new GenericParser<Storage>(Storage.class);
+        GenericParser<Storage> parser = new GenericParser<>(Storage.class);
         parser.store(storage, baos);
 
         Response response = resource.request(MediaType.APPLICATION_XML)
@@ -255,7 +255,7 @@ public class RestClient extends ArtifactClient
 
             final ByteArrayInputStream bais = new ByteArrayInputStream(xml.getBytes());
 
-            GenericParser<Storage> parser = new GenericParser<Storage>(Storage.class);
+            GenericParser<Storage> parser = new GenericParser<>(Storage.class);
 
             storage = parser.parse(bais);
         }
@@ -291,7 +291,7 @@ public class RestClient extends ArtifactClient
 
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        GenericParser<Repository> parser = new GenericParser<Repository>(Repository.class);
+        GenericParser<Repository> parser = new GenericParser<>(Repository.class);
         parser.store(repository, baos);
 
         Response response = resource.request(MediaType.APPLICATION_XML)
@@ -326,7 +326,7 @@ public class RestClient extends ArtifactClient
 
             final ByteArrayInputStream bais = new ByteArrayInputStream(xml.getBytes());
 
-            GenericParser<Repository> parser = new GenericParser<Repository>(Repository.class);
+            GenericParser<Repository> parser = new GenericParser<>(Repository.class);
 
             repository = parser.parse(bais);
         }

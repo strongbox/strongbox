@@ -21,7 +21,7 @@ public class ParentGroupVisitorTest
         Group group2 = createGroup("developers", "Developers", group1);
         Group group3 = createGroup("java-developers-uk", "Java Developers UK", group2);
 
-        Set<Group> nestedGroups = new LinkedHashSet<Group>();
+        Set<Group> nestedGroups = new LinkedHashSet<>();
         ParentGroupVisitor visitor = new ParentGroupVisitor();
 
         try
