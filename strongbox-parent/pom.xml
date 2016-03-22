@@ -50,7 +50,7 @@
         <version.httpclient>4.5</version.httpclient>
         <version.jackson>2.4.3</version.jackson>
         <version.jersey>2.22.2</version.jersey>
-        <version.jetty>9.3.7.v20160115</version.jetty>
+        <version.jetty>9.3.8.v20160314</version.jetty>
         <version.lucene>4.8.1</version.lucene>
         <version.maven>3.3.9</version.maven>
         <version.jcl>1.7.7</version.jcl>
