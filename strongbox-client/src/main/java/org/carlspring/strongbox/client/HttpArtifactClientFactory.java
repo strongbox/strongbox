@@ -15,6 +15,9 @@ import org.apache.http.impl.client.ProxyAuthenticationStrategy;
 public class HttpArtifactClientFactory
 {
 
+    private HttpArtifactClientFactory() 
+    {
+    }
 
     public static CloseableHttpClient createHttpClientWithAuthentication(String hostName,
                                                                          String username,

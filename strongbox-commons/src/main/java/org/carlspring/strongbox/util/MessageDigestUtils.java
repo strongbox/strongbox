@@ -22,6 +22,10 @@ public class MessageDigestUtils
 
     private static final Logger logger = LoggerFactory.getLogger(MessageDigestUtils.class);
 
+    private MessageDigestUtils() 
+    {
+    }
+
 
     public static String convertToHexadecimalString(MessageDigest md)
     {

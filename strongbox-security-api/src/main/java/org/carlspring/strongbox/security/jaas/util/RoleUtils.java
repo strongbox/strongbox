@@ -12,6 +12,10 @@ import java.util.List;
 public class RoleUtils
 {
 
+    private RoleUtils() 
+    {
+    }
+
     public static List<String> toStringList(Collection<Role> roles)
     {
         List<String> rolesAsStrings = new ArrayList<String>();

@@ -26,6 +26,10 @@ public class MetadataHelper
 
     public static final SimpleDateFormat LAST_UPDATED_FIELD_FORMATTER = new SimpleDateFormat("yyyyMMddHHmmss");
 
+    private MetadataHelper() 
+    {
+    }
+
 
     public static void setLastUpdated(Versioning versioning)
     {

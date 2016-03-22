@@ -8,6 +8,10 @@ import org.apache.maven.index.ArtifactInfo;
 public class ArtifactInfoUtils
 {
 
+    private ArtifactInfoUtils() 
+    {
+    }
+
     public static String convertToGAVTC(ArtifactInfo artifactInfo)
     {
         @SuppressWarnings("UnnecessaryLocalVariable")

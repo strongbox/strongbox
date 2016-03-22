@@ -39,6 +39,10 @@ public class KeyStores
     {
         Authenticator.setDefault(authenticator);
     }
+    
+    private KeyStores() 
+    {
+    }
 
 
     private static KeyStore load(final File fileName,

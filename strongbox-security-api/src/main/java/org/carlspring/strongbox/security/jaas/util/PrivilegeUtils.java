@@ -12,6 +12,10 @@ import java.util.List;
 public class PrivilegeUtils
 {
 
+    private PrivilegeUtils() 
+    {
+    }
+
     public static List<String> toStringList(Collection<Privilege> privileges)
     {
         List<String> privilegesAsStrings = new ArrayList<String>();
