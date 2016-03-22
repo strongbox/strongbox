@@ -27,7 +27,7 @@ public class User implements Serializable
 
     @XmlElement(name = "role")
     @XmlElementWrapper(name = "roles")
-    private List<String> roles = new ArrayList<String>();
+    private List<String> roles = new ArrayList<>();
 
     @XmlElement
     private String fullName;

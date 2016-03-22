@@ -116,7 +116,7 @@ public class KeyStores
                    NoSuchAlgorithmException
     {
         final KeyStore keyStore = load(fileName, password);
-        final Map<String, Certificate> certificates = new HashMap<String, Certificate>();
+        final Map<String, Certificate> certificates = new HashMap<>();
         final Enumeration<String> aliases = keyStore.aliases();
 
         while (aliases.hasMoreElements())
@@ -370,7 +370,7 @@ public class KeyStores
             return credentials.get();
         }
 
-        static final ThreadLocal<PasswordAuthentication> credentials = new ThreadLocal<PasswordAuthentication>();
+        static final ThreadLocal<PasswordAuthentication> credentials = new ThreadLocal<>();
     }
 
 }
