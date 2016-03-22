@@ -60,7 +60,7 @@ public class MetadataManager
     public Metadata readMetadata(Repository repository, Artifact artifact)
             throws IOException, XmlPullParserException
     {
-        Metadata metadata = null;
+        Metadata metadata;
 
         if (basicRepositoryService.containsArtifact(repository, artifact))
         {
