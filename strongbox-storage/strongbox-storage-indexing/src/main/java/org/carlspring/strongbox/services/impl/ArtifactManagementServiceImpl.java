@@ -74,7 +74,7 @@ public class ArtifactManagementServiceImpl
         performRepositoryAcceptanceValidation(storageId, repositoryId, path);
 
         boolean fileIsChecksum = ArtifactUtils.isChecksum(path);
-        MultipleDigestInputStream mdis = null;
+        MultipleDigestInputStream mdis;
         try
         {
             mdis = new MultipleDigestInputStream(is);
@@ -166,7 +166,7 @@ public class ArtifactManagementServiceImpl
                                String path)
             throws IOException
     {
-        InputStream is = null;
+        InputStream is;
 
         try
         {

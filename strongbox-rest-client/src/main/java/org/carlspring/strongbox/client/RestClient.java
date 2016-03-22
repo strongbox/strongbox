@@ -187,7 +187,7 @@ public class RestClient extends ArtifactClient
         final Response response = resource.request(MediaType.APPLICATION_XML).get();
 
         @SuppressWarnings("UnnecessaryLocalVariable")
-        ProxyConfiguration proxyConfiguration = null;
+        ProxyConfiguration proxyConfiguration;
         if (response.getStatus() == 200)
         {
             final String xml = response.readEntity(String.class);
