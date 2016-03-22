@@ -92,12 +92,12 @@ public class CachedUserManager implements UserManager
     {
         Set<String> expiredCredentials = new LinkedHashSet<String>();
 
-        for (String username : cachedUsers.keySet())
+        for (Map.Entry<String, User> stringUserEntry : cachedUsers.entrySet())
         {
-            Credentials credentials = cachedUsers.get(username).getCredentials();
+            Credentials credentials = stringUserEntry.getValue().getCredentials();
             if (System.currentTimeMillis() - credentials.getLastAccessed() > credentialsLifetime)
             {
-                expiredCredentials.add(username);
+                expiredCredentials.add(stringUserEntry.getKey());
             }
         }
 
