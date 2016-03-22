@@ -129,10 +129,10 @@ public class StorageBooter
             basedir = ConfigurationResourceResolver.getVaultDirectory() + "/storages";
         }
 
-        final Map<String,Storage> storages = configurationManager.getConfiguration().getStorages();
-        for (String storageId : storages.keySet())
+        final Map<String,Storage> storageEntry = configurationManager.getConfiguration().getStorages();
+        for (Map.Entry<String, Storage> stringStorageEntry : storageEntry.entrySet())
         {
-            initializeStorage(storages.get(storageId));
+            initializeStorage(stringStorageEntry.getValue());
         }
 
         return new File(basedir).getAbsoluteFile();

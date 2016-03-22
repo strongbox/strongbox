@@ -133,13 +133,13 @@ public class ChecksumCacheManager
     {
         Set<String> expiredChecksums = new LinkedHashSet<String>();
 
-        for (String artifactBasePath : cachedChecksums.keySet())
+        for (Map.Entry<String, ArtifactChecksum> artifactChecksumEntry : cachedChecksums.entrySet())
         {
-            ArtifactChecksum checksum = cachedChecksums.get(artifactBasePath);
+            ArtifactChecksum checksum = artifactChecksumEntry.getValue();
 
             if (System.currentTimeMillis() - checksum.getLastAccessed() > cachedChecksumLifetime)
             {
-                expiredChecksums.add(artifactBasePath);
+                expiredChecksums.add(artifactChecksumEntry.getKey());
             }
         }
 
