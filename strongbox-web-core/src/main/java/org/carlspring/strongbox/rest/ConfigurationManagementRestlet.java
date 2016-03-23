@@ -83,6 +83,7 @@ public class ConfigurationManagementRestlet
 
     @PUT
     @Path("/baseUrl/{baseUrl:.*}")
+    @Produces(MediaType.TEXT_PLAIN)
     public Response setBaseUrl(@PathParam("baseUrl") String baseUrl)
             throws IOException,
                    AuthenticationException,
@@ -123,6 +124,7 @@ public class ConfigurationManagementRestlet
 
     @PUT
     @Path("/port/{port}")
+    @Produces(MediaType.TEXT_PLAIN)
     public Response setPort(@PathParam("port") int port)
             throws IOException, JAXBException
     {
