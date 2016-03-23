@@ -49,7 +49,7 @@ public class ConfigurationManagementRestlet
 
     @PUT
     @Path("/xml")
-    public Response setConfiguration(Configuration configuration)
+    public Response setConfigurationXML(Configuration configuration)
             throws IOException,
                    AuthenticationException,
                    JAXBException
@@ -73,12 +73,12 @@ public class ConfigurationManagementRestlet
     @GET
     @Path("/xml")
     @Produces(MediaType.APPLICATION_XML)
-    public Response getConfiguration()
+    public Response getConfigurationXML()
             throws IOException, ParseException
     {
         logger.debug("Received configuration request.");
 
-        return Response.status(Response.Status.OK).entity(configurationManagementService.getConfiguration()).build();
+        return Response.status(Response.Status.OK).entity(getConfiguration()).build();
     }
 
     @PUT

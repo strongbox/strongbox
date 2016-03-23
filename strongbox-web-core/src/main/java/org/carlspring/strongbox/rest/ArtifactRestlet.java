@@ -23,7 +23,6 @@ import javax.ws.rs.core.Response;
 
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.http.range.ByteRange;
 import org.carlspring.strongbox.http.range.ByteRangeHeaderParser;
 import org.carlspring.strongbox.io.ArtifactInputStream;
@@ -59,8 +58,6 @@ public class ArtifactRestlet
     @Autowired
     private MetadataManager metadataManager;
     
-    @Autowired
-    private ConfigurationManager configurationManager;
 
     @PUT
     @Path("{storageId}/{repositoryId}/{path:.*}")
@@ -74,8 +71,6 @@ public class ArtifactRestlet
                    AuthenticationException,
                    NoSuchAlgorithmException
     {
-        handleAuthentication(storageId, repositoryId, path, headers, request);
-
         try
         {
             artifactManagementService.store(storageId, repositoryId, path, is);
@@ -105,11 +100,9 @@ public class ArtifactRestlet
                    ClassNotFoundException,
                    AuthenticationException
     {
-        handleAuthentication(storageId, repositoryId, path, headers, request);
-
         logger.debug(" repository = " + repositoryId + ", path = " + path);
 
-        Storage storage = artifactManagementService.getConfiguration().getStorage(storageId);
+        Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
         if (!repository.isInService())
         {
@@ -313,7 +306,7 @@ public class ArtifactRestlet
                                         Response.ResponseBuilder responseBuilder)
             throws IOException
     {
-        Storage storage = artifactManagementService.getConfiguration().getStorage(storageId);
+        Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
         if (!repository.isChecksumHeadersEnabled())
         {
@@ -459,7 +452,7 @@ public class ArtifactRestlet
     
     protected void deleteMethodFromMetadaInFS(String storageId, String repositoryId, String metadataPath)
     {
-        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
+        Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
         final File repoPath = new File(repository.getBasedir());
         
