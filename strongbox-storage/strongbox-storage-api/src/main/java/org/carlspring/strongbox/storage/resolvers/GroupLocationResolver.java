@@ -4,6 +4,7 @@ import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.services.BasicRepositoryService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.RuleSet;
@@ -31,10 +32,8 @@ public class GroupLocationResolver
 
     private String alias = "group";
 
-
     @Autowired
     private BasicRepositoryService basicRepositoryService;
-
 
     public GroupLocationResolver()
     {
@@ -47,7 +46,7 @@ public class GroupLocationResolver
             throws IOException, NoSuchAlgorithmException
     {
         Storage storage = getConfiguration().getStorage(storageId);
-
+                
         logger.debug("Checking in " + storage.getId() + ":" + repositoryId + "...");
 
         Repository groupRepository = storage.getRepository(repositoryId);
@@ -88,7 +87,7 @@ public class GroupLocationResolver
                 !repositoryRejects(r.getId(), artifactPath, denyRules) &&
                 !repositoryRejects(r.getId(), artifactPath, wildcardDenyRules))
             {
-                final ArtifactInputStream is = getInputStream(r, artifactPath);
+                final ArtifactInputStream is = searchArtifact(sId,r,artifactPath);
                 if (is != null)
                 {
                     return is;
@@ -136,14 +135,7 @@ public class GroupLocationResolver
                         Repository repository = getConfiguration().getStorage(sId).getRepository(rId);
                         if (repository.isInService() && basicRepositoryService.containsPath(repository, artifactPath))
                         {
-                            final ArtifactInputStream is = getInputStream(repository, artifactPath);
-                            if (is != null)
-                            {
-                                logger.debug("Located artifact via wildcard routing rule [" + sId + ":" + rId + "]: [+]: " +
-                                             rule.getPattern() + " after " + hops + " hops.");
-
-                                return is;
-                            }
+                            final ArtifactInputStream is = searchArtifact(sId,repository,artifactPath);
                         }
 
                         hops++;
@@ -180,14 +172,7 @@ public class GroupLocationResolver
                         Repository repository = getConfiguration().getStorage(sId).getRepository(rId);
                         if (repository.isInService() && basicRepositoryService.containsPath(repository, artifactPath))
                         {
-                            final ArtifactInputStream is = getInputStream(repository, artifactPath);
-                            if (is != null)
-                            {
-                                logger.debug("Located artifact via routing rule [" + sId + ":" + rId + "]: [+]: " +
-                                             rule.getPattern() + " after " + hops + " hops.");
-
-                                return is;
-                            }
+                            final ArtifactInputStream is = searchArtifact(sId,repository,artifactPath);
                         }
 
                         hops++;
@@ -198,6 +183,43 @@ public class GroupLocationResolver
             }
         }
 
+        return null;
+    }
+
+    /**
+     * Returns the artifact associated to artifactPath if repository type isn't GROUP or  
+     * returns the product of calling GroupLocationResolver.getInputStream recursively otherwise
+     * 
+     * @param sId: the storage id
+     * @param repository: the repository
+     * @param artifactPath: the path to the artifact 
+     * @return
+     * @throws NoSuchAlgorithmException
+     * @throws IOException
+     */
+    private ArtifactInputStream searchArtifact(String sId, Repository repository, String artifactPath) throws NoSuchAlgorithmException, IOException
+    {
+        ArtifactInputStream is;
+        if (!RepositoryTypeEnum.GROUP.getType().equals(repository.getType()))
+        {
+            // SB-462: This is not a group repository so we can try to obtain the artifact 
+            is = getInputStream(repository, artifactPath);
+            if (is != null)
+            {
+                logger.debug("Located artifact: [" + sId + ":" + repository.getId() + "]");
+                return is;
+            }
+        }
+        else {
+            // SB-462: We are dealing with a group repository, so we need to do a recursive call
+            //         go deeper in repositories hierarchy
+            is = this.getInputStream(sId,repository.getId(),artifactPath);
+            if (is != null)
+            {
+                logger.debug("Located artifact: [" + sId + ":" + repository.getId() + "]");
+                return is;
+            }
+        }
         return null;
     }
 

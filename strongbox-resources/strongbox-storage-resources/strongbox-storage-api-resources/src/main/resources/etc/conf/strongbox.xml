@@ -9,6 +9,7 @@
         <storage id="storage0">
             <repositories>
                 <!-- Secured repositories do not allow anonymous access -->
+                <repository id="releases-by-juan" policy="release" implementation="file-system" type="hosted" allows-force-deletion="true" checksum-headers-enabled="true"/>
                 <repository id="releases" policy="release" implementation="file-system" type="hosted" allows-force-deletion="true" checksum-headers-enabled="true"/>
                 <repository id="releases-in-memory" policy="release" implementation="in-memory" type="hosted"/>
                 <repository id="releases-with-redeployment" policy="release" implementation="file-system" type="hosted" allows-redeployment="true" indexing-enabled="false"/>
@@ -65,8 +66,23 @@
                 </repository>
                 <repository id="group-releases-nested" policy="release" implementation="group" type="group" secured="true">
                     <group>
-                        <repository>releases-with-options</repository>
-                        <repository>releases-without-options</repository>
+	                    <repository>group-releases-with-options</repository>
+                        <repository>group-releases-without-options</repository>
+                    </group>
+                </repository>
+                <repository id="group-releases-nested-deep-1" policy="release" implementation="group" type="group" secured="true">
+                    <group>
+                        <repository>group-releases-nested-deep-2</repository>
+                    </group>
+                </repository>
+                <repository id="group-releases-nested-deep-2" policy="release" implementation="group" type="group" secured="true">
+                    <group>
+                        <repository>group-releases-nested-deep-3</repository>
+                    </group>
+                </repository>
+                <repository id="group-releases-nested-deep-3" policy="release" implementation="group" type="group" secured="true">
+                    <group>
+                        <repository>releases-by-juan</repository>
                     </group>
                 </repository>
             </repositories>
