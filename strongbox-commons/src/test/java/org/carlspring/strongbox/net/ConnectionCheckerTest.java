@@ -28,6 +28,8 @@ public class ConnectionCheckerTest
     public void testConnectToValidService()
             throws IOException
     {
+        final ServerSocket serverSocket = new ServerSocket(0);
+
         Thread thread = new Thread()
         {
             @Override
@@ -35,8 +37,6 @@ public class ConnectionCheckerTest
             {
                 try
                 {
-                    ServerSocket serverSocket = new ServerSocket(65533);
-
                     //noinspection InfiniteLoopStatement
                     while (true)
                     {
@@ -52,11 +52,11 @@ public class ConnectionCheckerTest
 
         thread.start();
 
-        final boolean availability = ConnectionChecker.checkServiceAvailability("localhost", 65533, 3000);
+        final boolean availability = ConnectionChecker.checkServiceAvailability("localhost", serverSocket.getLocalPort(), 5000);
 
         thread.interrupt();
 
-        assertTrue(availability);
+        assertTrue("Failed to connect!", availability);
     }
 
 }
