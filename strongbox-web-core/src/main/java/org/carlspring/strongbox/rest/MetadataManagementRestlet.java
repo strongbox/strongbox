@@ -48,8 +48,6 @@ public class MetadataManagementRestlet
                    NoSuchAlgorithmException,
                    XmlPullParserException
     {
-        handleAuthentication(storageId, repositoryId, path, headers, request);
-
         try
         {
             artifactMetadataService.rebuildMetadata(storageId, repositoryId, path);
@@ -79,8 +77,6 @@ public class MetadataManagementRestlet
                    NoSuchAlgorithmException,
                    XmlPullParserException
     {
-        handleAuthentication(storageId, repositoryId, path, headers, request);
-
         try
         {
             if (ArtifactUtils.isReleaseVersion(version))

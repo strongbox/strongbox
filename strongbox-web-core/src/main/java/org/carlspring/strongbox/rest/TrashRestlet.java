@@ -28,9 +28,6 @@ public class TrashRestlet
     @Autowired
     private ArtifactManagementService artifactManagementService;
 
-    @Autowired
-    private ConfigurationManager configurationManager;
-
 
     @DELETE
     @Path("{storageId}/{repositoryId}")
@@ -38,7 +35,7 @@ public class TrashRestlet
                            @PathParam("repositoryId") String repositoryId)
             throws IOException
     {
-        if (configurationManager.getConfiguration().getStorage(storageId).getRepository(repositoryId) != null)
+        if (getConfiguration().getStorage(storageId).getRepository(repositoryId) != null)
         {
             try
             {
@@ -146,7 +143,7 @@ public class TrashRestlet
                              @PathParam("repositoryId") String repositoryId)
             throws IOException
     {
-        if (configurationManager.getConfiguration().getStorage(storageId).getRepository(repositoryId) != null)
+        if (getConfiguration().getStorage(storageId).getRepository(repositoryId) != null)
         {
             try
             {

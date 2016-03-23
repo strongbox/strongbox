@@ -1,9 +1,13 @@
 package org.carlspring.strongbox.rest;
 
-import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
 import org.carlspring.strongbox.storage.indexing.SearchResults;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -11,12 +15,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
-
-import org.apache.lucene.queryparser.classic.ParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 @Component
 @Path("/search")
@@ -29,9 +27,6 @@ public class SearchRestlet
 
     @Autowired
     private ArtifactSearchService artifactSearchService;
-
-    @Autowired
-    private ConfigurationManager configurationManager;
 
 
     /**
