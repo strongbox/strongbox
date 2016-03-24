@@ -1,7 +1,9 @@
 
 
 Contributing code to this project means that you accept your contributions to be 
-licensed under the Apache 2.0 license.
+licensed under the Apache 2.0 license. Signing the ICLA below covers contributions to:
+* Any project in the [Strongbox](https://github.com/strongbox) organization on Github
+* Any dependent project in the [carlspring](https://github.com/carlspring) repositories
 
 To accept, please:
 - Sign and scan the [Individual Contributor's License Agreement (ICLA)](https://github.com/strongbox/strongbox/blob/master/ICLA.md)
