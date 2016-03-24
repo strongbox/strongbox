@@ -13,3 +13,4 @@ To accept, please:
 | Name                         | Company                                   | Location                                | Date       |
 |------------------------------|-------------------------------------------|-----------------------------------------|------------|
 | Martin Todorov               | Carlspring Consulting & Developoment Ltd. | London, United Kingdom                  | 2013-08-02 |
+| Dmytro Chyzhykov             |                                           | Frankfurt am Main, Germany              | 2014-06-07 |
