@@ -25,6 +25,7 @@ Welcome to the Strongbox Maven artifact repository manager's home.
   * Log tailing over HTTP
 * Deploy as transaction
 * Maven settings.xml generator over REST API
+* Automated generation of REST API documentation
 
 # Upcoming:
 * Directory browsing
