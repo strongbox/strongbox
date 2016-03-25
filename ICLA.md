@@ -1,7 +1,9 @@
 
 
-               Carlspring Consulting & Development Ltd.
-         Individual Contributor License Agreement ("Agreement") 
+<p align="center">
+Carlspring Consulting & Development Ltd.
+      Individual Contributor License Agreement ("Agreement")
+</p>
 
 This agreement is a (reformated) adaptation  of  the  Apache  Software 
 Foundation ICL agreement where references to ASF have been replaced by
@@ -28,16 +30,18 @@ Please read this document carefully before signing and keep a copy for
 your records.
 
   Full name:       ___________________________________________________
+  
+  Company:         ___________________________________________________
  
   E-Mail:          ___________________________________________________
 
   Mailing Address: ___________________________________________________  
 
-  ____________________________________________________________________  
+  \____________________________________________________________________  
 
-  ____________________________________________________________________
+  \____________________________________________________________________
 
-  ____________________________________________________________________
+  \____________________________________________________________________
 
   Country:         ___________________________________________________
   
