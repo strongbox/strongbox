@@ -11,6 +11,6 @@ To accept, please:
 - Place your name and e-mail below and open a pull request.
 
 | Name                         | Company                                   | Location                                | Date       |
-|------------------------------|-------------------------------------------|-----------------------------------------|------------|
-| Martin Todorov               | Carlspring Consulting & Developoment Ltd. | London, United Kingdom                  | 2013-08-02 |
-| Dmytro Chyzhykov             |                                           | Frankfurt am Main, Germany              | 2014-06-07 |
+|------------------------------|------------------------------------------|-----------------------------------------|------------|
+| Martin Todorov               | Carlspring Consulting & Development Ltd. | London, United Kingdom                  | 2013-08-02 |
+| Dmytro Chyzhykov             |                                          | Frankfurt am Main, Germany              | 2014-06-07 |
