@@ -11,8 +11,7 @@ Carlspring Consulting & Development Ltd..   We  thank   the   ASF  for
 allowing Carlspring Consulting & Development Ltd. to make use of their
 ICL agreement.
 
-Thank          you         for       your        interest           in 
-              Carlspring Consulting & Development Ltd.,
+Thank you for your interest in Carlspring Consulting & Development Ltd.,
 hereafter referred to as just Carlspring.   In   order to  clarify the
 intellectual  property   license   granted with Contributions from any
 person or entity, Carlspring must have a Contributor License Agreement
@@ -29,24 +28,32 @@ United Kingdom, SE10 8QS.
 Please read this document carefully before signing and keep a copy for
 your records.
 
-  Full name:       ___________________________________________________
-  
-  Company:         ___________________________________________________
- 
-  E-Mail:          ___________________________________________________
-
-  Mailing Address: ___________________________________________________  
-
-  \____________________________________________________________________  
-
-  \____________________________________________________________________
-
-  \____________________________________________________________________
-
-  Country:         ___________________________________________________
-  
-  Telephone:       ___________________________________________________
-
+<table>
+ <tr>
+   <td width="20%">Full name</td>
+   <td width="80%"></td>
+ </tr>
+ <tr>
+   <td width="20%">Comapny</td>
+   <td width="80%"></td>
+ </tr>
+ <tr>
+   <td width="20%">E-mail</td>
+   <td width="80%"></td>
+ </tr>
+ <tr>
+   <td width="20%" valign="top">Mailing address</td>
+   <td width="80%" height="100"></td>
+ </tr>
+ <tr>
+   <td width="20%">Country</td>
+   <td width="80%"></td>
+ </tr>
+ <tr>
+   <td width="20%">Telephone</td>
+   <td width="80%"></td>
+ </tr>
+</table>
 
 You accept  and agree to the  following terms and  conditions for Your
 present and  future Contributions   submitted   Carlspring. In return,
@@ -64,10 +71,11 @@ reserve all right, title, and interest in and to Your Contributions.
    by, or are under common control with that entity are considered to 
    be a single Contributor. For  the purposes of this  definition,
    "control" means
-   (i)  the power,  direct  or  indirect, to  cause  the direction  or
+   * (i)  the power,  direct  or  indirect, to  cause  the direction  or
    management  of such entity,  whether by  contract or  otherwise, or
-   (ii) ownership  of fifty percent  (50%) or more of  the outstanding
-   shares, or (iii) beneficial ownership of such entity.
+   * (ii) ownership  of fifty percent  (50%) or more of  the outstanding
+   shares, or
+   * (iii) beneficial ownership of such entity.
 
    "Contribution"  shall   mean  any  original   work  of  authorship,
    including any modifications or  additions to an existing work, that
@@ -146,5 +154,4 @@ reserve all right, title, and interest in and to Your Contributions.
 
 
 Please sign: __________________________________ Date: ________________
-
 
