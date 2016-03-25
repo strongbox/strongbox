@@ -10,7 +10,8 @@ To accept, please:
   and mail it back to [martin.todorov@carlspring.com](mailto:martin.todorov@carlspring.com).
 - Place your name and e-mail below and open a pull request.
 
-| Name                         | Company                                   | Location                                | Date       |
+| Name                         | Company                                  | Location                                | Date       |
 |------------------------------|------------------------------------------|-----------------------------------------|------------|
 | Martin Todorov               | Carlspring Consulting & Development Ltd. | London, United Kingdom                  | 2013-08-02 |
+| Steve Todorov                | Carlspring Consulting & Development Ltd. | Sofia, Bulgaria                         | 2014-01-12 |
 | Dmytro Chyzhykov             |                                          | Frankfurt am Main, Germany              | 2014-06-07 |
