@@ -57,7 +57,7 @@ Please check [here](https://github.com/strongbox/strongbox/wiki/Installation) fo
 Instructions on how to build the code, can be found [here](https://github.com/strongbox/strongbox/wiki/Building-the-code).
 
 # Contributing
-Contributions and contributors are always welcome!
+Contributions and contributors are always welcome! For more details, please check [here](https://github.com/strongbox/strongbox/blob/master/CONTRIBUTING.md).
 
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/strongbox/strongbox?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
