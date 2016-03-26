@@ -15,3 +15,4 @@ To accept, please:
 | Martin Todorov               | Carlspring Consulting & Development Ltd. | London, United Kingdom                  | 2013-08-02 |
 | Steve Todorov                | Carlspring Consulting & Development Ltd. | Sofia, Bulgaria                         | 2014-01-12 |
 | Dmytro Chyzhykov             |                                          | Frankfurt am Main, Germany              | 2014-06-07 |
+| Nicolay Karakulov            |                                          | Kharkhiv, Ukraine                       | 2014-10-05 |
