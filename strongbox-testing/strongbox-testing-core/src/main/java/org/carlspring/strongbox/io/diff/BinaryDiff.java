@@ -46,12 +46,12 @@ public class BinaryDiff
         {
             byte b1[] = new byte[1];
             byte b2[] = new byte[1];
-            int bytesReadFromIS1 = 0;
-            int bytesReadFromIS2 = 0;
+            int bytesReadFromIS1;
+            int bytesReadFromIS2;
             long totalReadFromIS1 = 0L;
             long totalReadFromIS2 = 0L;
 
-            long differencePositionStart = 0L;
+            long differencePositionStart;
 
             // Read byte by byte:
             while ((bytesReadFromIS1 = inputStream1.read(b1)) != -1 &&

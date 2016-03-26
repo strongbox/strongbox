@@ -183,7 +183,7 @@ public class ConfigurationManagementRestlet
                                           @QueryParam("repositoryId") String repositoryId)
             throws IOException, JAXBException
     {
-        ProxyConfiguration proxyConfiguration = null;
+        ProxyConfiguration proxyConfiguration;
         if (storageId == null)
         {
             proxyConfiguration = configurationManagementService.getProxyConfiguration();
