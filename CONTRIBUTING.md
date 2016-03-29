@@ -16,3 +16,4 @@ To accept, please:
 | Steve Todorov                | Carlspring Consulting & Development Ltd. | Sofia, Bulgaria                         | 2014-01-12 |
 | Dmytro Chyzhykov             |                                          | Frankfurt am Main, Germany              | 2014-06-07 |
 | Nicolay Karakulov            |                                          | Kharkhiv, Ukraine                       | 2014-10-05 |
+| Denis Ivaykin                |                                          | Moscow, Russia                          | 2014-04-19 |
