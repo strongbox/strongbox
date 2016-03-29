@@ -17,3 +17,4 @@ To accept, please:
 | Dmytro Chyzhykov             |                                          | Frankfurt am Main, Germany              | 2014-06-07 |
 | Nicolay Karakulov            |                                          | Kharkhiv, Ukraine                       | 2014-10-05 |
 | Denis Ivaykin                |                                          | Moscow, Russia                          | 2014-04-19 |
+| Juan Ignacio Bais            |                                          | Buenos Aires, Argentina                 | 2016-02-24 |
