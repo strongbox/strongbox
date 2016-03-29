@@ -34,7 +34,7 @@ your records.
    <td width="80%"></td>
  </tr>
  <tr>
-   <td width="20%">Comapny</td>
+   <td width="20%">Company</td>
    <td width="80%"></td>
  </tr>
  <tr>
