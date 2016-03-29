@@ -87,7 +87,7 @@ public class GroupLocationResolver
                 !repositoryRejects(r.getId(), artifactPath, denyRules) &&
                 !repositoryRejects(r.getId(), artifactPath, wildcardDenyRules))
             {
-                final ArtifactInputStream is = searchArtifact(sId,r,artifactPath);
+                final ArtifactInputStream is = resolveArtifact(sId,r,artifactPath);
                 if (is != null)
                 {
                     return is;
@@ -135,7 +135,7 @@ public class GroupLocationResolver
                         Repository repository = getConfiguration().getStorage(sId).getRepository(rId);
                         if (repository.isInService() && basicRepositoryService.containsPath(repository, artifactPath))
                         {
-                            final ArtifactInputStream is = searchArtifact(sId,repository,artifactPath);
+                            return resolveArtifact(sId,repository,artifactPath);
                         }
 
                         hops++;
@@ -172,7 +172,7 @@ public class GroupLocationResolver
                         Repository repository = getConfiguration().getStorage(sId).getRepository(rId);
                         if (repository.isInService() && basicRepositoryService.containsPath(repository, artifactPath))
                         {
-                            final ArtifactInputStream is = searchArtifact(sId,repository,artifactPath);
+                            return resolveArtifact(sId,repository,artifactPath);
                         }
 
                         hops++;
@@ -197,7 +197,7 @@ public class GroupLocationResolver
      * @throws NoSuchAlgorithmException
      * @throws IOException
      */
-    private ArtifactInputStream searchArtifact(String sId, Repository repository, String artifactPath) throws NoSuchAlgorithmException, IOException
+    private ArtifactInputStream resolveArtifact(String sId, Repository repository, String artifactPath) throws NoSuchAlgorithmException, IOException
     {
         ArtifactInputStream is;
         if (!RepositoryTypeEnum.GROUP.getType().equals(repository.getType()))
