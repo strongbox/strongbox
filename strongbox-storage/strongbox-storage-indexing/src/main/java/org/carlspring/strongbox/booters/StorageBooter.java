@@ -125,9 +125,9 @@ public class StorageBooter
         }
 
         final Map<String,Storage> storages = configurationManager.getConfiguration().getStorages();
-        for (String storageId : storages.keySet())
+        for (Map.Entry<String, Storage> stringStorageEntry : storages.entrySet())
         {
-            initializeStorage(storages.get(storageId));
+            initializeStorage(stringStorageEntry.getValue());
         }
 
         return new File(basedir).getAbsoluteFile();

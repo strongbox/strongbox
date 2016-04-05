@@ -464,13 +464,10 @@ public class ArtifactRestlet
                 String version = artifactFile.getPath().substring(artifactFile.getPath().lastIndexOf(File.separatorChar) + 1);
                 java.nio.file.Path path = Paths.get(artifactFile.getPath().substring(0, artifactFile.getPath().lastIndexOf(File.separatorChar)));
                 Metadata metadata = metadataManager.readMetadata(path);
-                if (metadata != null && metadata.getVersioning() != null)
+                if (metadata != null && metadata.getVersioning() != null && metadata.getVersioning().getVersions().contains(version))
                 {
-                    if (metadata.getVersioning().getVersions().contains(version))
-                    {
-                        metadata.getVersioning().getVersions().remove(version);
-                        metadataManager.storeMetadata(path, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
-                    }
+                    metadata.getVersioning().getVersions().remove(version);
+                    metadataManager.storeMetadata(path, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
                 }
             }
         }

@@ -232,28 +232,25 @@ public class MultipleDigestInputStream
     public void reposition()
             throws IOException
     {
-        if (byteRanges != null && !byteRanges.isEmpty() && currentByteRangeIndex < byteRanges.size())
+        if (byteRanges != null && !byteRanges.isEmpty() && currentByteRangeIndex < byteRanges.size() && currentByteRangeIndex < byteRanges.size())
         {
-            if (currentByteRangeIndex < byteRanges.size())
+            ByteRange current = currentByteRange;
+
+            currentByteRangeIndex++;
+            currentByteRange = byteRanges.get(currentByteRangeIndex);
+
+            if (currentByteRange.getOffset() > current.getLimit())
             {
-                ByteRange current = currentByteRange;
+                // If the offset is higher than the current position, skip forward
+                long bytesToSkip = currentByteRange.getOffset() - current.getLimit();
 
-                currentByteRangeIndex++;
-                currentByteRange = byteRanges.get(currentByteRangeIndex);
-
-                if (currentByteRange.getOffset() > current.getLimit())
-                {
-                    // If the offset is higher than the current position, skip forward
-                    long bytesToSkip = currentByteRange.getOffset() - current.getLimit();
-
-                    //noinspection ResultOfMethodCallIgnored
-                    in.skip(bytesToSkip);
-                }
-                else
-                {
-                    reloadableInputStreamHandler.reload();
-                    in = reloadableInputStreamHandler.getInputStream();
-                }
+                //noinspection ResultOfMethodCallIgnored
+                in.skip(bytesToSkip);
+            }
+            else
+            {
+                reloadableInputStreamHandler.reload();
+                in = reloadableInputStreamHandler.getInputStream();
             }
         }
     }
