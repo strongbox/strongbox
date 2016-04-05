@@ -100,9 +100,6 @@ public class GroupLocationResolverTest
 
         assertNotNull(is);
 
-//        assertThat(logs.contains("Located artifact via routing rule [storage0:releases-with-trash]:" +
-//                                 " [+]: .*(com|org)/artifacts.in.releases.with.trash.* after 2 hops."), is(true));
-
         ResourceCloser.close(is, null);
     }
 
@@ -121,9 +118,6 @@ public class GroupLocationResolverTest
 
         assertNull(is);
 
-//        assertThat(logs.contains("Located artifact via wildcard routing rule [storage0:releases]:" +
-//                                 " [+]: .*(com|org)/artifacts.in.releases.with.trash.* after 2 hops."), is(false));
-
         ResourceCloser.close(is, null);
     }
 
@@ -136,9 +130,6 @@ public class GroupLocationResolverTest
         InputStream is = groupLocationResolver.getInputStream("storage0",
                                                               "group-releases",
                                                               "com/artifacts/in/releases/foo/1.2.4/foo-1.2.4.jar");
-
-//        assertThat(logs.contains("Located artifact via wildcard routing rule [storage0:releases]:" +
-//                                 " [+]: .*(com|org)/artifacts.in.releases.* after 1 hops."), is(true));
 
         assertNotNull(is);
 
@@ -155,9 +146,6 @@ public class GroupLocationResolverTest
                                                               "group-releases-nested",
                                                               "com/artifacts/in/releases/foo/1.2.4/foo-1.2.4.jar");
 
-//        assertThat(logs.contains("Located artifact via wildcard routing rule [storage0:releases]:" +
-//                                 " [+]: .*(com|org)/artifacts.in.releases.* after 1 hops."), is(true));
-
         assertNotNull(is);
 
         ResourceCloser.close(is, null);
@@ -172,9 +160,6 @@ public class GroupLocationResolverTest
         InputStream is = groupLocationResolver.getInputStream("storage0",
                                                               "group-releases-nested-deep-1",
                                                               "org/carlspring/metadata/by/juan/juancho/1.2.64/juancho-1.2.64.jar");
-
-//        assertThat(logs.contains("Located artifact via wildcard routing rule [storage0:releases]:" +
-//                                 " [+]: .*(com|org)/artifacts.in.releases.* after 1 hops."), is(true));
 
         assertNotNull(is);
 
@@ -191,7 +176,6 @@ public class GroupLocationResolverTest
                                                               "group-releases",
                                                               "com/artifacts/denied/in/memory/foo/1.2.5/foo-1.2.5.jar");
 
-//        assertThat(logs.contains("releases-in-memory/com/artifacts/denied/in/memory/foo/1.2.5/foo-1.2.5.jar"), is(false));
 
         assertNull(is);
     }
@@ -206,7 +190,6 @@ public class GroupLocationResolverTest
                                                               "group-releases",
                                                               "com/artifacts/denied/by/wildcard/foo/1.2.6/foo-1.2.6.jar");
 
-//        assertThat(logs.contains("releases/com/artifacts/denied/by/wildcard/foo/1.2.6/foo-1.2.6.jar"), is(false));
 
         assertNull(is);
     }

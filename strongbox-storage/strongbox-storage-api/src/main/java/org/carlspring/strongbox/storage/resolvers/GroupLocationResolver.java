@@ -121,7 +121,6 @@ public class GroupLocationResolver
         if (globalAcceptRules != null && globalAcceptRules.getRoutingRules() != null &&
             !globalAcceptRules.getRoutingRules().isEmpty())
         {
-            int hops = 1;
             final List<RoutingRule> routingRules = globalAcceptRules.getRoutingRules();
             for (RoutingRule rule : routingRules)
             {
@@ -137,11 +136,7 @@ public class GroupLocationResolver
                         {
                             return resolveArtifact(sId,repository,artifactPath);
                         }
-
-                        hops++;
                     }
-
-                    hops++;
                 }
             }
         }
@@ -158,7 +153,6 @@ public class GroupLocationResolver
         if (acceptRules != null && acceptRules.getRoutingRules() != null &&
             !acceptRules.getRoutingRules().isEmpty())
         {
-            int hops = 1;
             final List<RoutingRule> routingRules = acceptRules.getRoutingRules();
             for (RoutingRule rule : routingRules)
             {
@@ -175,10 +169,8 @@ public class GroupLocationResolver
                             return resolveArtifact(sId,repository,artifactPath);
                         }
 
-                        hops++;
                     }
 
-                    hops++;
                 }
             }
         }
@@ -202,7 +194,6 @@ public class GroupLocationResolver
         ArtifactInputStream is;
         if (!RepositoryTypeEnum.GROUP.getType().equals(repository.getType()))
         {
-            // SB-462: This is not a group repository so we can try to obtain the artifact 
             is = getInputStream(repository, artifactPath);
             if (is != null)
             {
@@ -211,8 +202,6 @@ public class GroupLocationResolver
             }
         }
         else {
-            // SB-462: We are dealing with a group repository, so we need to do a recursive call
-            //         go deeper in repositories hierarchy
             is = this.getInputStream(sId,repository.getId(),artifactPath);
             if (is != null)
             {
