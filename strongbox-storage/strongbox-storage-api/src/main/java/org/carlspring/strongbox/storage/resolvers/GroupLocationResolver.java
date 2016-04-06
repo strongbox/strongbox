@@ -87,7 +87,7 @@ public class GroupLocationResolver
                 !repositoryRejects(r.getId(), artifactPath, denyRules) &&
                 !repositoryRejects(r.getId(), artifactPath, wildcardDenyRules))
             {
-                final ArtifactInputStream is = resolveArtifact(sId,r,artifactPath);
+                final ArtifactInputStream is = resolveArtifact(sId, r.getId(), artifactPath);
                 if (is != null)
                 {
                     return is;
@@ -134,7 +134,7 @@ public class GroupLocationResolver
                         Repository repository = getConfiguration().getStorage(sId).getRepository(rId);
                         if (repository.isInService() && basicRepositoryService.containsPath(repository, artifactPath))
                         {
-                            return resolveArtifact(sId,repository,artifactPath);
+                            return resolveArtifact(sId, repository.getId(), artifactPath);
                         }
                     }
                 }
@@ -166,7 +166,7 @@ public class GroupLocationResolver
                         Repository repository = getConfiguration().getStorage(sId).getRepository(rId);
                         if (repository.isInService() && basicRepositoryService.containsPath(repository, artifactPath))
                         {
-                            return resolveArtifact(sId,repository,artifactPath);
+                            return resolveArtifact(sId, repository.getId(), artifactPath);
                         }
 
                     }
@@ -182,33 +182,41 @@ public class GroupLocationResolver
      * Returns the artifact associated to artifactPath if repository type isn't GROUP or  
      * returns the product of calling GroupLocationResolver.getInputStream recursively otherwise
      * 
-     * @param sId: the storage id
-     * @param repository: the repository
-     * @param artifactPath: the path to the artifact 
+     * @param storageId    The storage id
+     * @param repositoryId The repository
+     * @param artifactPath The path to the artifact
      * @return
      * @throws NoSuchAlgorithmException
      * @throws IOException
      */
-    private ArtifactInputStream resolveArtifact(String sId, Repository repository, String artifactPath) throws NoSuchAlgorithmException, IOException
+    private ArtifactInputStream resolveArtifact(String storageId,
+                                                String repositoryId,
+                                                String artifactPath)
+            throws NoSuchAlgorithmException,
+                   IOException
     {
         ArtifactInputStream is;
+        Repository repository = getStorage(storageId).getRepository(repositoryId);
+
         if (!RepositoryTypeEnum.GROUP.getType().equals(repository.getType()))
         {
             is = getInputStream(repository, artifactPath);
             if (is != null)
             {
-                logger.debug("Located artifact: [" + sId + ":" + repository.getId() + "]");
+                logger.debug("Located artifact: [" + storageId + ":" + repository.getId() + "]");
                 return is;
             }
         }
-        else {
-            is = this.getInputStream(sId,repository.getId(),artifactPath);
+        else
+        {
+            is = this.getInputStream(storageId, repository.getId(), artifactPath);
             if (is != null)
             {
-                logger.debug("Located artifact: [" + sId + ":" + repository.getId() + "]");
+                logger.debug("Located artifact: [" + storageId + ":" + repository.getId() + "]");
                 return is;
             }
         }
+
         return null;
     }
 
