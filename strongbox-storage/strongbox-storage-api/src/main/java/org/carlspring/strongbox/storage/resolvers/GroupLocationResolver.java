@@ -4,6 +4,7 @@ import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.services.BasicRepositoryService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.RuleSet;
@@ -31,10 +32,8 @@ public class GroupLocationResolver
 
     private String alias = "group";
 
-
     @Autowired
     private BasicRepositoryService basicRepositoryService;
-
 
     public GroupLocationResolver()
     {
@@ -47,7 +46,7 @@ public class GroupLocationResolver
             throws IOException, NoSuchAlgorithmException
     {
         Storage storage = getConfiguration().getStorage(storageId);
-
+                
         logger.debug("Checking in " + storage.getId() + ":" + repositoryId + "...");
 
         Repository groupRepository = storage.getRepository(repositoryId);
@@ -88,7 +87,7 @@ public class GroupLocationResolver
                 !repositoryRejects(r.getId(), artifactPath, denyRules) &&
                 !repositoryRejects(r.getId(), artifactPath, wildcardDenyRules))
             {
-                final ArtifactInputStream is = getInputStream(r, artifactPath);
+                final ArtifactInputStream is = resolveArtifact(sId, r.getId(), artifactPath);
                 if (is != null)
                 {
                     return is;
@@ -122,7 +121,6 @@ public class GroupLocationResolver
         if (globalAcceptRules != null && globalAcceptRules.getRoutingRules() != null &&
             !globalAcceptRules.getRoutingRules().isEmpty())
         {
-            int hops = 1;
             final List<RoutingRule> routingRules = globalAcceptRules.getRoutingRules();
             for (RoutingRule rule : routingRules)
             {
@@ -136,20 +134,9 @@ public class GroupLocationResolver
                         Repository repository = getConfiguration().getStorage(sId).getRepository(rId);
                         if (repository.isInService() && basicRepositoryService.containsPath(repository, artifactPath))
                         {
-                            final ArtifactInputStream is = getInputStream(repository, artifactPath);
-                            if (is != null)
-                            {
-                                logger.debug("Located artifact via wildcard routing rule [" + sId + ":" + rId + "]: [+]: " +
-                                             rule.getPattern() + " after " + hops + " hops.");
-
-                                return is;
-                            }
+                            return resolveArtifact(sId, repository.getId(), artifactPath);
                         }
-
-                        hops++;
                     }
-
-                    hops++;
                 }
             }
         }
@@ -166,7 +153,6 @@ public class GroupLocationResolver
         if (acceptRules != null && acceptRules.getRoutingRules() != null &&
             !acceptRules.getRoutingRules().isEmpty())
         {
-            int hops = 1;
             final List<RoutingRule> routingRules = acceptRules.getRoutingRules();
             for (RoutingRule rule : routingRules)
             {
@@ -180,21 +166,54 @@ public class GroupLocationResolver
                         Repository repository = getConfiguration().getStorage(sId).getRepository(rId);
                         if (repository.isInService() && basicRepositoryService.containsPath(repository, artifactPath))
                         {
-                            final ArtifactInputStream is = getInputStream(repository, artifactPath);
-                            if (is != null)
-                            {
-                                logger.debug("Located artifact via routing rule [" + sId + ":" + rId + "]: [+]: " +
-                                             rule.getPattern() + " after " + hops + " hops.");
-
-                                return is;
-                            }
+                            return resolveArtifact(sId, repository.getId(), artifactPath);
                         }
 
-                        hops++;
                     }
 
-                    hops++;
                 }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the artifact associated to artifactPath if repository type isn't GROUP or  
+     * returns the product of calling GroupLocationResolver.getInputStream recursively otherwise
+     * 
+     * @param storageId    The storage id
+     * @param repositoryId The repository
+     * @param artifactPath The path to the artifact
+     * @return
+     * @throws NoSuchAlgorithmException
+     * @throws IOException
+     */
+    private ArtifactInputStream resolveArtifact(String storageId,
+                                                String repositoryId,
+                                                String artifactPath)
+            throws NoSuchAlgorithmException,
+                   IOException
+    {
+        ArtifactInputStream is;
+        Repository repository = getStorage(storageId).getRepository(repositoryId);
+
+        if (!RepositoryTypeEnum.GROUP.getType().equals(repository.getType()))
+        {
+            is = getInputStream(repository, artifactPath);
+            if (is != null)
+            {
+                logger.debug("Located artifact: [" + storageId + ":" + repository.getId() + "]");
+                return is;
+            }
+        }
+        else
+        {
+            is = this.getInputStream(storageId, repository.getId(), artifactPath);
+            if (is != null)
+            {
+                logger.debug("Located artifact: [" + storageId + ":" + repository.getId() + "]");
+                return is;
             }
         }
 
