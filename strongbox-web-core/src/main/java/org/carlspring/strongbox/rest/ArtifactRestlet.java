@@ -22,9 +22,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.carlspring.commons.http.range.ByteRange;
+import org.carlspring.commons.http.range.ByteRangeHeaderParser;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.http.range.ByteRange;
-import org.carlspring.strongbox.http.range.ByteRangeHeaderParser;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
 import org.carlspring.strongbox.services.ArtifactManagementService;

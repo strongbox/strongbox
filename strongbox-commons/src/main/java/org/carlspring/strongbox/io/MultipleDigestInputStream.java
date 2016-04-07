@@ -1,18 +1,18 @@
 package org.carlspring.strongbox.io;
 
-import org.carlspring.strongbox.http.range.ByteRange;
-import org.carlspring.strongbox.io.reloading.ReloadableInputStreamHandler;
-import org.carlspring.strongbox.io.reloading.Reloading;
-import org.carlspring.strongbox.io.reloading.Repositioning;
+import org.carlspring.commons.http.range.ByteRange;
+import org.carlspring.commons.io.ByteRangeInputStream;
+import org.carlspring.commons.io.reloading.ReloadableInputStreamHandler;
 import org.carlspring.strongbox.security.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
-import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This class is based on java.security.DigestInputStream.
@@ -20,9 +20,7 @@ import java.util.*;
  * @author mtodorov
  */
 public class MultipleDigestInputStream
-        extends FilterInputStream
-        implements Reloading,
-                   Repositioning
+        extends ByteRangeInputStream
 {
 
     public static final String[] DEFAULT_ALGORITHMS = { EncryptionAlgorithmsEnum.MD5.getAlgorithm(),
@@ -32,49 +30,17 @@ public class MultipleDigestInputStream
 
     private Map<String, String> hexDigests = new LinkedHashMap<>();
 
-    private boolean rangedMode = false;
-
-    /**
-     * The number of bytes to read from the start of the stream, before stopping to read.
-     */
-    private long limit = 0L;
-
-    /**
-     * The number of bytes read from the stream, or from this byte range.
-     */
-    private long bytesRead = 0L;
-
-    private List<ByteRange> byteRanges = new ArrayList<>();
-
-    private ByteRange currentByteRange;
-
-    private int currentByteRangeIndex = 0;
-
-    private ReloadableInputStreamHandler reloadableInputStreamHandler;
-
 
     public MultipleDigestInputStream(ReloadableInputStreamHandler handler, ByteRange byteRange)
             throws IOException, NoSuchAlgorithmException
     {
-        super(handler.getInputStream());
-
-        List<ByteRange> byteRanges = new ArrayList<>();
-        byteRanges.add(byteRange);
-
-        this.reloadableInputStreamHandler = handler;
-        this.byteRanges = byteRanges;
-        this.currentByteRange = byteRanges.get(0);
-        this.rangedMode = true;
+        super(handler, byteRange);
     }
 
     public MultipleDigestInputStream(ReloadableInputStreamHandler handler, List<ByteRange> byteRanges)
             throws IOException, NoSuchAlgorithmException
     {
-        super(handler.getInputStream());
-        this.reloadableInputStreamHandler = handler;
-        this.byteRanges = byteRanges;
-        this.currentByteRange = byteRanges.get(0);
-        this.rangedMode = true;
+        super(handler, byteRanges);
     }
 
     public MultipleDigestInputStream(InputStream is)
@@ -263,77 +229,6 @@ public class MultipleDigestInputStream
             throws IOException
     {
 
-    }
-
-    @Override
-    public boolean hasMoreByteRanges()
-    {
-        return currentByteRangeIndex < byteRanges.size();
-    }
-
-    private boolean hasReachedLimit()
-    {
-        return limit > 0 && bytesRead >= limit;
-    }
-
-    public long getLimit()
-    {
-        return limit;
-    }
-
-    public void setLimit(long limit)
-    {
-        this.limit = limit;
-    }
-
-    public long getBytesRead()
-    {
-        return bytesRead;
-    }
-
-    public void setBytesRead(long bytesRead)
-    {
-        this.bytesRead = bytesRead;
-    }
-
-    public ReloadableInputStreamHandler getReloadableInputStreamHandler()
-    {
-        return this.reloadableInputStreamHandler;
-    }
-
-    public void setReloadableInputStreamHandler(ReloadableInputStreamHandler reloadableInputStreamHandler)
-    {
-        this.reloadableInputStreamHandler = reloadableInputStreamHandler;
-    }
-
-    public List<ByteRange> getByteRanges()
-    {
-        return byteRanges;
-    }
-
-    public void setByteRanges(List<ByteRange> byteRanges)
-    {
-        this.byteRanges = byteRanges;
-    }
-
-    public ByteRange getCurrentByteRange()
-    {
-        return currentByteRange;
-    }
-
-    public void setCurrentByteRange(ByteRange currentByteRange)
-    {
-        this.currentByteRange = currentByteRange;
-    }
-
-    public boolean isRangedMode()
-    {
-        return rangedMode;
-    }
-
-    public void setRangedMode(boolean rangedMode)
-    {
-        this.rangedMode = rangedMode;
     }
 
 }
