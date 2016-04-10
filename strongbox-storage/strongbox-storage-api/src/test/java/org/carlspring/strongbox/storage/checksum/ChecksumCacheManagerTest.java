@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.storage.checksum;
 
-import org.carlspring.strongbox.security.encryption.EncryptionAlgorithmsEnum;
+import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import java.io.IOException;
@@ -80,14 +80,12 @@ public class ChecksumCacheManagerTest
 
     private class CheckingThread extends Thread
     {
-
         ChecksumCacheManager manager;
 
         int sleepInterval = 100; // 100 ms
         int timeSlept = 0;
         int maxTime = 3000;      // 3 secs
         int tolerance = 1000;    // 1 sec
-
 
         private CheckingThread(ChecksumCacheManager manager)
         {

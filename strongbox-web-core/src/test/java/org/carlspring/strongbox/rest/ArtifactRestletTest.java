@@ -15,14 +15,14 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.artifact.PluginArtifact;
+import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
+import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.generator.ArtifactDeployer;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.client.RestClient;
-import org.carlspring.strongbox.io.MultipleDigestOutputStream;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.security.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -464,4 +464,5 @@ public class ArtifactRestletTest
                 ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
         Assert.assertTrue(!metadata.getVersioning().getVersions().contains("3.1-SNAPSHOT"));
     }
+
 }
