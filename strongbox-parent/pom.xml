@@ -45,6 +45,7 @@
 
         <version.carlspring.maven.commons>1.4-SNAPSHOT</version.carlspring.maven.commons>
         <version.carlspring.commons.io>1.0-SNAPSHOT</version.carlspring.commons.io>
+        <version.carlspring.commons.http>1.0-SNAPSHOT</version.carlspring.commons.http>
         <version.carlspring.logback.config>1.0-SNAPSHOT</version.carlspring.logback.config>
 
         <version.httpclient>4.5</version.httpclient>
@@ -168,6 +169,11 @@
                 <groupId>org.carlspring.commons</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${version.carlspring.commons.io}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.carlspring.commons</groupId>
+                <artifactId>commons-http</artifactId>
+                <version>${version.carlspring.commons.http}</version>
             </dependency>
             <dependency>
                 <groupId>org.carlspring.maven</groupId>
