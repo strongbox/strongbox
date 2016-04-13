@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,6 +38,7 @@ public class MetadataManagementRestlet
 
     @POST
     @Path("{storageId}/{repositoryId}/{path:.*}")
+    @Produces(MediaType.TEXT_PLAIN)
     public Response rebuild(@PathParam("storageId") String storageId,
                             @PathParam("repositoryId") String repositoryId,
                             @PathParam("path") String path,
@@ -63,6 +65,7 @@ public class MetadataManagementRestlet
 
     @DELETE
     @Path("{storageId}/{repositoryId}/{path:.*}")
+    @Produces(MediaType.TEXT_PLAIN)
     public Response delete(@PathParam("storageId") String storageId,
                            @PathParam("repositoryId") String repositoryId,
                            @PathParam("path") String path,

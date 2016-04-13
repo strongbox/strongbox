@@ -14,12 +14,13 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 @Component
 @Path("/search")
 public class SearchRestlet
-        extends BaseRestlet
+        extends BaseArtifactRestlet
 {
 
     private static final Logger logger = LoggerFactory.getLogger(SearchRestlet.class);
@@ -68,14 +69,14 @@ public class SearchRestlet
      */
     @GET
     @Produces({ MediaType.TEXT_PLAIN })
-    public String searchAsPlainText(@QueryParam("storageId") final String storageId,
+    public Response searchAsPlainText(@QueryParam("storageId") final String storageId,
                                     @QueryParam("repositoryId") final String repositoryId,
                                     @QueryParam("q") final String query)
             throws IOException, ParseException
     {
         final SearchResults artifacts = getSearchResults(storageId, repositoryId, query);
 
-        return artifacts.toString();
+        return Response.ok(artifacts.toString()).build();
     }
 
     private SearchResults getSearchResults(String storageId,

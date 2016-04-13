@@ -49,6 +49,7 @@ public class ConfigurationManagementRestlet
 
     @PUT
     @Path("/xml")
+    @Produces(MediaType.TEXT_PLAIN)
     public Response setConfigurationXML(Configuration configuration)
             throws IOException,
                    AuthenticationException,
@@ -258,6 +259,7 @@ public class ConfigurationManagementRestlet
 
     @DELETE
     @Path("/storages/{storageId}")
+    @Produces(MediaType.TEXT_PLAIN)
     public Response removeStorage(@PathParam("storageId") final String storageId,
                                   @QueryParam("force") @DefaultValue("false") final boolean force)
             throws IOException, JAXBException
@@ -348,6 +350,7 @@ public class ConfigurationManagementRestlet
 
     @DELETE
     @Path("/storages/{storageId}/{repositoryId}")
+    @Produces(MediaType.TEXT_PLAIN)
     public Response removeRepository(@PathParam("storageId") final String storageId,
                                      @PathParam("repositoryId") final String repositoryId,
                                      @QueryParam("force") @DefaultValue("false") boolean force)
