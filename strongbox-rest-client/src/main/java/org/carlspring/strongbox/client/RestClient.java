@@ -221,7 +221,7 @@ public class RestClient extends ArtifactClient
         GenericParser<Storage> parser = new GenericParser<Storage>(Storage.class);
         parser.store(storage, baos);
 
-        Response response = resource.request(MediaType.APPLICATION_XML)
+        Response response = resource.request(MediaType.TEXT_PLAIN)
                                     .put(Entity.entity(baos.toString("UTF-8"), MediaType.APPLICATION_XML));
 
         return response.getStatus();
