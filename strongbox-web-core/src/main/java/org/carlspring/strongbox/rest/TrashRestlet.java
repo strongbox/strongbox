@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.rest;
 
+import io.swagger.annotations.*;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
 import org.slf4j.Logger;
@@ -18,6 +19,7 @@ import java.io.IOException;
  */
 @Component
 @Path("/trash")
+@Api(value = "/trash")
 public class TrashRestlet
         extends BaseArtifactRestlet
 {
@@ -31,7 +33,13 @@ public class TrashRestlet
     @DELETE
     @Path("{storageId}/{repositoryId}")
     @Produces(MediaType.TEXT_PLAIN)
-    public Response delete(@PathParam("storageId") String storageId,
+    @ApiOperation(value = "Used to delete the trash for a specified repository.", position = 1, produces = MediaType.TEXT_PLAIN)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The trash for ${storageId}:${repositoryId}' was removed successfully."),
+                            @ApiResponse(code = 400, message = "An error occurred!"),
+                            @ApiResponse(code = 404, message = "The specified (storageId/repositoryId) does not exist!") })
+    public Response delete(@ApiParam(value = "The storageId", required = true)
+                           @PathParam("storageId") String storageId,
+                           @ApiParam(value = "The repositoryId", required = true)
                            @PathParam("repositoryId") String repositoryId)
             throws IOException
     {
@@ -56,16 +64,21 @@ public class TrashRestlet
         }
         catch (ArtifactStorageException e)
         {
-                return Response.status(Response.Status.BAD_REQUEST)
-                               .entity(e.getMessage())
-                               .build();
+            return Response.status(Response.Status.BAD_REQUEST)
+                           .entity(e.getMessage())
+                           .build();
         }
 
-        return Response.ok().build();
+        return Response.ok()
+                       .entity("The trash for '" + storageId + ":" + repositoryId + "' was removed successfully.")
+                       .build();
     }
 
     @DELETE
     @Produces(MediaType.TEXT_PLAIN)
+    @ApiOperation(value = "Used to delete the trash for all repositories.", position = 2, produces = MediaType.TEXT_PLAIN)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The trash for all repositories was successfully removed."),
+                            @ApiResponse(code = 500, message = "An error occurred!") })
     public Response delete()
             throws IOException
     {
@@ -80,14 +93,21 @@ public class TrashRestlet
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
         }
 
-        return Response.ok().build();
+        return Response.ok().entity("The trash for all repositories was successfully removed.").build();
     }
 
     @POST
     @Path("{storageId}/{repositoryId}/{path:.*}")
     @Produces(MediaType.TEXT_PLAIN)
-    public Response undelete(@PathParam("storageId") String storageId,
+    @ApiOperation(value = "Used to undelete the trash for a path under a specified repository.", position = 3, produces = MediaType.TEXT_PLAIN)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The trash for '${storageId}:${repositoryId}' was restored successfully."),
+                            @ApiResponse(code = 400, message = "An error occurred!"),
+                            @ApiResponse(code = 404, message = "The specified (storageId/repositoryId/path) does not exist!") })
+    public Response undelete(@ApiParam(value = "The storageId", required = true)
+                             @PathParam("storageId") String storageId,
+                             @ApiParam(value = "The repositoryId", required = true)
                              @PathParam("repositoryId") String repositoryId,
+                             @ApiParam(value = "The path to restore", required = true)
                              @PathParam("path") String path)
             throws IOException
     {
@@ -106,7 +126,6 @@ public class TrashRestlet
                            .entity("The specified repositoryId does not exist!")
                            .build();
         }
-
         if (!new File(getRepository(storageId, repositoryId).getBasedir() + "/.trash", path).exists())
         {
             return Response.status(Response.Status.NOT_FOUND)
@@ -127,13 +146,21 @@ public class TrashRestlet
                            .build();
         }
 
-        return Response.ok().build();
+        return Response.ok()
+                       .entity("The trash for '" + storageId + ":" + repositoryId +"' was restored successfully.")
+                       .build();
     }
 
     @POST
     @Path("{storageId}/{repositoryId}")
     @Produces(MediaType.TEXT_PLAIN)
-    public Response undelete(@PathParam("storageId") String storageId,
+    @ApiOperation(value = "Used to undelete the trash for a specified repository.", position = 4, produces = MediaType.TEXT_PLAIN)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The trash for '${storageId}:${repositoryId}' was restored successfully."),
+                            @ApiResponse(code = 400, message = "An error occurred!"),
+                            @ApiResponse(code = 404, message = "The specified (storageId/repositoryId) does not exist!") })
+    public Response undelete(@ApiParam(value = "The storageId", required = true)
+                             @PathParam("storageId") String storageId,
+                             @ApiParam(value = "The repositoryId", required = true)
                              @PathParam("repositoryId") String repositoryId)
             throws IOException
     {
@@ -165,7 +192,9 @@ public class TrashRestlet
                                .build();
             }
 
-            return Response.ok().build();
+            return Response.ok()
+                           .entity("The trash for '" + storageId + ":" + repositoryId +"' was been restored successfully.")
+                           .build();
         }
         else
         {
@@ -175,6 +204,9 @@ public class TrashRestlet
 
     @POST
     @Produces(MediaType.TEXT_PLAIN)
+    @ApiOperation(value = "Used to undelete the trash for all repositories.", position = 5, produces = MediaType.TEXT_PLAIN)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The trash for all repositories was successfully restored."),
+                            @ApiResponse(code = 400, message = "An error occurred!") })
     public Response undelete()
             throws IOException
     {
@@ -193,7 +225,9 @@ public class TrashRestlet
                            .build();
         }
 
-        return Response.ok().build();
+        return Response.ok()
+                       .entity("The trash for all repositories was successfully restored.")
+                       .build();
     }
 
 }

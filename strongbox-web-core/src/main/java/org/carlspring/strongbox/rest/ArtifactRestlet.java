@@ -1,9 +1,6 @@
 package org.carlspring.strongbox.rest;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.io.ArtifactInputStream;
@@ -38,6 +35,7 @@ import static org.carlspring.commons.http.range.ByteRangeRequestHandler.*;
  */
 @Component
 @Path("/storages")
+@Api(value = "/storages")
 public class ArtifactRestlet
         extends BaseArtifactRestlet
 {
@@ -47,10 +45,10 @@ public class ArtifactRestlet
 
     @PUT
     @Path("{storageId}/{repositoryId}/{path:.*}")
-    @ApiOperation(value = "Used to deploy an artifact", position = 0)
-    @ApiResponses(value = { @ApiResponse(code = 400, message = "An error occurred."),
-                            @ApiResponse(code = 200, message = "The artifact deployed successfully.") })
-    public Response upload(@ApiParam(value = "The storageIf", required = true)
+    @ApiOperation(value = "Used to deploy an artifact", position = 0, produces = MediaType.TEXT_PLAIN)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deployed successfully."),
+                            @ApiResponse(code = 400, message = "An error occurred.") })
+    public Response upload(@ApiParam(value = "The storageId", required = true)
                            @PathParam("storageId") String storageId,
                            @ApiParam(value = "The repositoryId", required = true)
                            @PathParam("repositoryId") String repositoryId,
@@ -67,7 +65,7 @@ public class ArtifactRestlet
         {
             getArtifactManagementService().store(storageId, repositoryId, path, is);
 
-            return Response.ok().build();
+            return Response.ok().entity("The artifact was deployed successfully.").build();
         }
         catch (IOException e)
         {
@@ -81,9 +79,9 @@ public class ArtifactRestlet
 
     @GET
     @Path("{storageId}/{repositoryId}/{path:.*}")
-    @ApiOperation(value = "Used to retrieve an artifact", position = 1)
+    @ApiOperation(value = "Used to retrieve an artifact", position = 1, produces = MediaType.APPLICATION_OCTET_STREAM)
     @ApiResponses(value = { @ApiResponse(code = 400, message = "An error occurred."),
-                            @ApiResponse(code = 200, message = "The artifact deployed successfully.") })
+                            @ApiResponse(code = 200, message = "") })
     public Response download(@ApiParam(value = "The storageId", required = true)
                              @PathParam("storageId") String storageId,
                              @ApiParam(value = "The repositoryId", required = true)
@@ -199,8 +197,9 @@ public class ArtifactRestlet
     @POST
     @Path("copy/{path:.*}")
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation(value = "Copies a path from one repository to another.", position = 3)
-    @ApiResponses(value = { @ApiResponse(code = 400, message = "Bad request."),
+    @ApiOperation(value = "Copies a path from one repository to another.", position = 4, produces = MediaType.TEXT_PLAIN)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The path was copied successfully."),
+                            @ApiResponse(code = 400, message = "Bad request."),
                             @ApiResponse(code = 404, message = "The source/destination storageId/repositoryId/path does not exist!")})
     public Response copy(@ApiParam(value = "The path", required = true)
                          @PathParam("path") String path,
@@ -262,13 +261,16 @@ public class ArtifactRestlet
                            .build();
         }
 
-        return Response.ok().build();
+        return Response.ok()
+                       .entity("The path was copied successfully.")
+                       .build();
     }
 
     @DELETE
     @Path("{storageId}/{repositoryId}/{path:.*}")
-    @ApiOperation(value = "Deletes a path from a repository.", position = 4)
-    @ApiResponses(value = { @ApiResponse(code = 400, message = "Bad request."),
+    @ApiOperation(value = "Deletes a path from a repository.", position = 3, produces = MediaType.TEXT_PLAIN)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deleted."),
+                            @ApiResponse(code = 400, message = "Bad request."),
                             @ApiResponse(code = 404, message = "The specified storageId/repositoryId/path does not exist!")})
     public Response delete(@ApiParam(value = "The storageId", required = true)
                            @PathParam("storageId") String storageId,
@@ -317,7 +319,9 @@ public class ArtifactRestlet
                            .build();
         }
 
-        return Response.ok().build();
+        return Response.ok()
+                       .entity("The artifact was deleted.")
+                       .build();
     }
     
     private void deleteMethodFromMetadaInFS(String storageId, String repositoryId, String metadataPath)

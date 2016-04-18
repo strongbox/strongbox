@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.rest;
 
+import io.swagger.annotations.*;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
@@ -26,6 +27,7 @@ import java.security.NoSuchAlgorithmException;
  */
 @Component
 @Path("/metadata")
+@Api(value = "/metadata")
 public class MetadataManagementRestlet
         extends BaseRestlet
 {
@@ -39,8 +41,14 @@ public class MetadataManagementRestlet
     @POST
     @Path("{storageId}/{repositoryId}/{path:.*}")
     @Produces(MediaType.TEXT_PLAIN)
-    public Response rebuild(@PathParam("storageId") String storageId,
+    @ApiOperation(value = "Used to rebuild the metadata for a given path.", position = 0, produces = MediaType.TEXT_PLAIN)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The metadata was successfully rebuilt!"),
+                            @ApiResponse(code = 500, message = "An error occurred.") })
+    public Response rebuild(@ApiParam(value = "The storageId", required = true)
+                            @PathParam("storageId") String storageId,
+                            @ApiParam(value = "The repositoryId", required = true)
                             @PathParam("repositoryId") String repositoryId,
+                            @ApiParam(value = "The path to the artifact.", required = true)
                             @PathParam("path") String path,
                             @Context HttpHeaders headers,
                             @Context HttpServletRequest request,
@@ -54,7 +62,7 @@ public class MetadataManagementRestlet
         {
             artifactMetadataService.rebuildMetadata(storageId, repositoryId, path);
 
-            return Response.ok().build();
+            return Response.ok().entity("The metadata was successfully rebuilt!").build();
         }
         catch (ArtifactStorageException e)
         {
@@ -66,11 +74,20 @@ public class MetadataManagementRestlet
     @DELETE
     @Path("{storageId}/{repositoryId}/{path:.*}")
     @Produces(MediaType.TEXT_PLAIN)
-    public Response delete(@PathParam("storageId") String storageId,
+    @ApiOperation(value = "Used to delete metadata entries for an artifact", position = 0)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully removed metadata entry."),
+                            @ApiResponse(code = 500, message = "An error occurred.") })
+    public Response delete(@ApiParam(value = "The storageId", required = true)
+                           @PathParam("storageId") String storageId,
+                           @ApiParam(value = "The repositoryId", required = true)
                            @PathParam("repositoryId") String repositoryId,
+                           @ApiParam(value = "The path to the artifact.", required = true)
                            @PathParam("path") String path,
+                           @ApiParam(value = "The version of the artifact.", required = true)
                            @QueryParam("version") String version,
+                           @ApiParam(value = "The classifier of the artifact.")
                            @QueryParam("classifier") String classifier,
+                           @ApiParam(value = "The type of metadata (artifact/snapshot/plugin).")
                            @QueryParam("metadataType") String metadataType,
                            @Context HttpHeaders headers,
                            @Context HttpServletRequest request,
@@ -91,7 +108,7 @@ public class MetadataManagementRestlet
                 artifactMetadataService.removeTimestampedSnapshotVersion(storageId, repositoryId, path, version, classifier);
             }
 
-            return Response.ok().build();
+            return Response.ok().entity("Successfully removed metadata entry.").build();
         }
         catch (ArtifactStorageException e)
         {

@@ -1,8 +1,10 @@
 package org.carlspring.strongbox.rest;
 
+import io.swagger.annotations.*;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
+import org.carlspring.strongbox.storage.indexing.SearchResult;
 import org.carlspring.strongbox.storage.indexing.SearchResults;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +21,7 @@ import java.io.IOException;
 
 @Component
 @Path("/search")
+@Api(value = "/search")
 public class SearchRestlet
         extends BaseArtifactRestlet
 {
@@ -43,8 +46,14 @@ public class SearchRestlet
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public SearchResults search(@QueryParam("storageId") final String storageId,
+    @ApiOperation(value = "Used to undelete the trash for a path under a specified repository.",
+                  response = SearchResult.class,
+                  produces = MediaType.APPLICATION_XML)
+    public SearchResults search(@ApiParam(value = "The storageId", required = true)
+                                @QueryParam("storageId") final String storageId,
+                                @ApiParam(value = "The repositoryId", required = true)
                                 @QueryParam("repositoryId") final String repositoryId,
+                                @ApiParam(value = "The search query", required = true)
                                 @QueryParam("q") final String query)
             throws IOException, ParseException
     {
@@ -69,9 +78,13 @@ public class SearchRestlet
      */
     @GET
     @Produces({ MediaType.TEXT_PLAIN })
-    public Response searchAsPlainText(@QueryParam("storageId") final String storageId,
-                                    @QueryParam("repositoryId") final String repositoryId,
-                                    @QueryParam("q") final String query)
+    @ApiOperation(value = "Used to undelete the trash for a path under a specified repository.")
+    public Response searchAsPlainText(@ApiParam(value = "The storageId", required = true)
+                                      @QueryParam("storageId") final String storageId,
+                                      @ApiParam(value = "The repositoryId", required = true)
+                                      @QueryParam("repositoryId") final String repositoryId,
+                                      @ApiParam(value = "The search query", required = true)
+                                      @QueryParam("q") final String query)
             throws IOException, ParseException
     {
         final SearchResults artifacts = getSearchResults(storageId, repositoryId, query);

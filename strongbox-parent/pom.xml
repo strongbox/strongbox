@@ -202,7 +202,7 @@
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-core</artifactId>
                 <scope>compile</scope>
-                <version>1.5.3</version>
+                <version>1.5.8</version>
                 <exclusions>
                     <exclusion>
                         <groupId>javax.ws.rs</groupId>
