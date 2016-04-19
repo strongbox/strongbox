@@ -45,7 +45,7 @@ public class ArtifactRestlet
 
     @PUT
     @Path("{storageId}/{repositoryId}/{path:.*}")
-    @ApiOperation(value = "Used to deploy an artifact", position = 0, produces = MediaType.TEXT_PLAIN)
+    @ApiOperation(value = "Used to deploy an artifact", position = 0)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deployed successfully."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     public Response upload(@ApiParam(value = "The storageId", required = true)
@@ -79,7 +79,7 @@ public class ArtifactRestlet
 
     @GET
     @Path("{storageId}/{repositoryId}/{path:.*}")
-    @ApiOperation(value = "Used to retrieve an artifact", position = 1, produces = MediaType.APPLICATION_OCTET_STREAM)
+    @ApiOperation(value = "Used to retrieve an artifact", position = 1)
     @ApiResponses(value = { @ApiResponse(code = 400, message = "An error occurred."),
                             @ApiResponse(code = 200, message = "") })
     public Response download(@ApiParam(value = "The storageId", required = true)
@@ -197,7 +197,7 @@ public class ArtifactRestlet
     @POST
     @Path("copy/{path:.*}")
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation(value = "Copies a path from one repository to another.", position = 4, produces = MediaType.TEXT_PLAIN)
+    @ApiOperation(value = "Copies a path from one repository to another.", position = 4)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The path was copied successfully."),
                             @ApiResponse(code = 400, message = "Bad request."),
                             @ApiResponse(code = 404, message = "The source/destination storageId/repositoryId/path does not exist!")})
@@ -268,7 +268,7 @@ public class ArtifactRestlet
 
     @DELETE
     @Path("{storageId}/{repositoryId}/{path:.*}")
-    @ApiOperation(value = "Deletes a path from a repository.", position = 3, produces = MediaType.TEXT_PLAIN)
+    @ApiOperation(value = "Deletes a path from a repository.", position = 3)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deleted."),
                             @ApiResponse(code = 400, message = "Bad request."),
                             @ApiResponse(code = 404, message = "The specified storageId/repositoryId/path does not exist!")})

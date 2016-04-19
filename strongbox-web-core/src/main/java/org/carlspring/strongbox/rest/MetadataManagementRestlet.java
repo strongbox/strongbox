@@ -41,7 +41,7 @@ public class MetadataManagementRestlet
     @POST
     @Path("{storageId}/{repositoryId}/{path:.*}")
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation(value = "Used to rebuild the metadata for a given path.", position = 0, produces = MediaType.TEXT_PLAIN)
+    @ApiOperation(value = "Used to rebuild the metadata for a given path.", position = 0)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The metadata was successfully rebuilt!"),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     public Response rebuild(@ApiParam(value = "The storageId", required = true)

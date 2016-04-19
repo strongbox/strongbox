@@ -53,9 +53,7 @@ public class ConfigurationManagementRestlet
     @Path("/xml")
     @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation(value = "Upload a strongbox.xml and reload the server's configuration.",
-                  consumes = MediaType.APPLICATION_XML,
-                  produces = MediaType.TEXT_PLAIN)
+    @ApiOperation(value = "Upload a strongbox.xml and reload the server's configuration.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The configuration was updated successfully."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     public Response setConfigurationXML(@ApiParam(value = "The strongbox.xml configuration file", required = true)
@@ -85,8 +83,7 @@ public class ConfigurationManagementRestlet
     @GET
     @Path("/xml")
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    @ApiOperation(value = "Retrieves the strongbox.xml configuration file.",
-                  produces = MediaType.APPLICATION_XML)
+    @ApiOperation(value = "Retrieves the strongbox.xml configuration file.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     public Response getConfigurationXML()
@@ -100,8 +97,7 @@ public class ConfigurationManagementRestlet
     @PUT
     @Path("/baseUrl/{baseUrl:.*}")
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation(value = "Retrieves the strongbox.xml configuration file.",
-                  produces = MediaType.APPLICATION_XML)
+    @ApiOperation(value = "Retrieves the strongbox.xml configuration file.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The base URL was updated."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     public Response setBaseUrl(@ApiParam(value = "The base URL", required = true)
@@ -131,7 +127,7 @@ public class ConfigurationManagementRestlet
     @GET
     @Path("/baseUrl")
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation(value = "Sets the base URL of the service.", produces = MediaType.TEXT_PLAIN )
+    @ApiOperation(value = "Sets the base URL of the service.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "", response = String.class),
                             @ApiResponse(code = 404, message = "No value for baseUrl has been defined yet.") })
     public Response getBaseUrl()
@@ -151,7 +147,7 @@ public class ConfigurationManagementRestlet
     @PUT
     @Path("/port/{port}")
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation(value = "Sets the port of the service.", produces = MediaType.APPLICATION_XML )
+    @ApiOperation(value = "Sets the port of the service.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The port was updated."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     public Response setPort(@ApiParam(value = "The port of the service", required = true)
@@ -179,7 +175,7 @@ public class ConfigurationManagementRestlet
     @GET
     @Path("/port")
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation(value = "Returns the port of the service.", produces = MediaType.TEXT_PLAIN )
+    @ApiOperation(value = "Returns the port of the service.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "", response = Integer.class) })
     public int getPort()
             throws IOException,
@@ -191,9 +187,7 @@ public class ConfigurationManagementRestlet
     @PUT
     @Path("/proxy-configuration")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @ApiOperation(value = "Updates the proxy configuration for a repository, if one is specified, or, otherwise, the global proxy settings.",
-                  consumes = MediaType.APPLICATION_XML,
-                  produces = MediaType.TEXT_PLAIN)
+    @ApiOperation(value = "Updates the proxy configuration for a repository, if one is specified, or, otherwise, the global proxy settings.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The proxy configuration was updated successfully."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     public Response setProxyConfiguration(@ApiParam(value = "The storageId", required = true)
@@ -221,9 +215,7 @@ public class ConfigurationManagementRestlet
     @GET
     @Path("/proxy-configuration")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @ApiOperation(value = "Returns the proxy configuration for a repository, if one is specified, or, otherwise, the global proxy settings.",
-                  consumes = MediaType.APPLICATION_XML,
-                  produces = MediaType.TEXT_PLAIN)
+    @ApiOperation(value = "Returns the proxy configuration for a repository, if one is specified, or, otherwise, the global proxy settings.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 404, message = "The proxy configuration for '${storageId}:${repositoryId}' was not found.") })
     public Response getProxyConfiguration(@ApiParam(value = "The storageId", required = true)
@@ -264,9 +256,7 @@ public class ConfigurationManagementRestlet
     @Path("/storages")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation(value = "Add/update a storage.",
-                  consumes = MediaType.APPLICATION_XML,
-                  produces = MediaType.TEXT_PLAIN)
+    @ApiOperation(value = "Add/update a storage.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The storage was updated successfully."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     public Response addOrUpdateStorage(@ApiParam(value = "The storage object", required = true)
@@ -297,9 +287,7 @@ public class ConfigurationManagementRestlet
     @GET
     @Path("/storages/{storageId}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Retrieve the configuration of a storage.",
-                  consumes = MediaType.APPLICATION_XML,
-                  produces = MediaType.TEXT_PLAIN)
+    @ApiOperation(value = "Retrieve the configuration of a storage.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 404, message = "Storage ${storageId} was not found.") })
     public Response getStorage(@ApiParam(value = "The storageId", required = true)
@@ -323,8 +311,7 @@ public class ConfigurationManagementRestlet
     @DELETE
     @Path("/storages/{storageId}")
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation(value = "Deletes a storage.",
-                  produces = MediaType.TEXT_PLAIN)
+    @ApiOperation(value = "Deletes a storage.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The storage was removed successfully."),
                             @ApiResponse(code = 404, message = "Storage ${storageId} not found!"),
                             @ApiResponse(code = 500, message = "Failed to remove storage ${storageId}!") })
@@ -373,9 +360,7 @@ public class ConfigurationManagementRestlet
     @PUT
     @Path("/storages/{storageId}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @ApiOperation(value = "Updates a repository.",
-                  consumes = MediaType.APPLICATION_XML,
-                  produces = MediaType.TEXT_PLAIN)
+    @ApiOperation(value = "Updates a repository.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The repository was updated successfully."),
                             @ApiResponse(code = 404, message = "Repository ${repositoryId} not found!"),
                             @ApiResponse(code = 500, message = "Failed to remove repository ${repositoryId}!") })
@@ -411,8 +396,7 @@ public class ConfigurationManagementRestlet
     @GET
     @Path("/storages/{storageId}/{repositoryId}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Returns the configuration of a repository.",
-                  produces = MediaType.APPLICATION_XML)
+    @ApiOperation(value = "Returns the configuration of a repository.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The repository was updated successfully.", response = Repository.class),
                             @ApiResponse(code = 404, message = "Repository ${storageId}:${repositoryId} was not found!") })
     public Response getRepository(@ApiParam(value = "The storageId", required = true)
@@ -439,8 +423,7 @@ public class ConfigurationManagementRestlet
     @DELETE
     @Path("/storages/{storageId}/{repositoryId}")
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation(value = "Deletes a repository.",
-                  produces = MediaType.TEXT_PLAIN)
+    @ApiOperation(value = "Deletes a repository.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The repository was deleted successfully."),
                             @ApiResponse(code = 404, message = "Repository ${storageId}:${repositoryId} was not found!"),
                             @ApiResponse(code = 500, message = "Failed to remove repository ${repositoryId}!")})

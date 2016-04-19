@@ -33,7 +33,7 @@ public class TrashRestlet
     @DELETE
     @Path("{storageId}/{repositoryId}")
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation(value = "Used to delete the trash for a specified repository.", position = 1, produces = MediaType.TEXT_PLAIN)
+    @ApiOperation(value = "Used to delete the trash for a specified repository.", position = 1)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The trash for ${storageId}:${repositoryId}' was removed successfully."),
                             @ApiResponse(code = 400, message = "An error occurred!"),
                             @ApiResponse(code = 404, message = "The specified (storageId/repositoryId) does not exist!") })
@@ -76,7 +76,7 @@ public class TrashRestlet
 
     @DELETE
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation(value = "Used to delete the trash for all repositories.", position = 2, produces = MediaType.TEXT_PLAIN)
+    @ApiOperation(value = "Used to delete the trash for all repositories.", position = 2)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The trash for all repositories was successfully removed."),
                             @ApiResponse(code = 500, message = "An error occurred!") })
     public Response delete()
@@ -99,7 +99,7 @@ public class TrashRestlet
     @POST
     @Path("{storageId}/{repositoryId}/{path:.*}")
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation(value = "Used to undelete the trash for a path under a specified repository.", position = 3, produces = MediaType.TEXT_PLAIN)
+    @ApiOperation(value = "Used to undelete the trash for a path under a specified repository.", position = 3)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The trash for '${storageId}:${repositoryId}' was restored successfully."),
                             @ApiResponse(code = 400, message = "An error occurred!"),
                             @ApiResponse(code = 404, message = "The specified (storageId/repositoryId/path) does not exist!") })
@@ -154,7 +154,7 @@ public class TrashRestlet
     @POST
     @Path("{storageId}/{repositoryId}")
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation(value = "Used to undelete the trash for a specified repository.", position = 4, produces = MediaType.TEXT_PLAIN)
+    @ApiOperation(value = "Used to undelete the trash for a specified repository.", position = 4)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The trash for '${storageId}:${repositoryId}' was restored successfully."),
                             @ApiResponse(code = 400, message = "An error occurred!"),
                             @ApiResponse(code = 404, message = "The specified (storageId/repositoryId) does not exist!") })
@@ -204,7 +204,7 @@ public class TrashRestlet
 
     @POST
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation(value = "Used to undelete the trash for all repositories.", position = 5, produces = MediaType.TEXT_PLAIN)
+    @ApiOperation(value = "Used to undelete the trash for all repositories.", position = 5)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The trash for all repositories was successfully restored."),
                             @ApiResponse(code = 400, message = "An error occurred!") })
     public Response undelete()
