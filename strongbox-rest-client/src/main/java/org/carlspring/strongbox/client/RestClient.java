@@ -3,13 +3,10 @@ package org.carlspring.strongbox.client;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.configuration.ServerConfiguration;
-import org.carlspring.strongbox.rest.ObjectMapperProvider;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
@@ -21,7 +18,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-import org.glassfish.jersey.jackson.JacksonFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +55,7 @@ public class RestClient extends ArtifactClient
         GenericParser<ServerConfiguration> parser = new GenericParser<>(classes);
         parser.store(configuration, baos);
 
-        Response response = resource.request(MediaType.APPLICATION_XML)
+        Response response = resource.request(MediaType.TEXT_PLAIN_TYPE)
                                     .put(Entity.entity(baos.toString("UTF-8"), MediaType.APPLICATION_XML));
 
         return response.getStatus();
@@ -225,7 +221,7 @@ public class RestClient extends ArtifactClient
         GenericParser<Storage> parser = new GenericParser<Storage>(Storage.class);
         parser.store(storage, baos);
 
-        Response response = resource.request(MediaType.APPLICATION_XML)
+        Response response = resource.request(MediaType.TEXT_PLAIN)
                                     .put(Entity.entity(baos.toString("UTF-8"), MediaType.APPLICATION_XML));
 
         return response.getStatus();
@@ -369,11 +365,6 @@ public class RestClient extends ArtifactClient
         String url = getContextBaseUrl() + "/search?" +
                      (repositoryId != null ? "repositoryId=" + URLEncoder.encode(repositoryId, "UTF-8") : "") +
                      "&q=" + URLEncoder.encode(query, "UTF-8");
-
-        final Client client = ClientBuilder.newBuilder()
-                                           .register(ObjectMapperProvider.class)
-                                           .register(JacksonFeature.class)
-                                           .build();
 
         WebTarget webResource = getClientInstance().target(url);
         setupAuthentication(webResource);
