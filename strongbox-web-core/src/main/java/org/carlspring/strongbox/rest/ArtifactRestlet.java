@@ -80,8 +80,8 @@ public class ArtifactRestlet
     @GET
     @Path("{storageId}/{repositoryId}/{path:.*}")
     @ApiOperation(value = "Used to retrieve an artifact", position = 1)
-    @ApiResponses(value = { @ApiResponse(code = 400, message = "An error occurred."),
-                            @ApiResponse(code = 200, message = "") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
+                            @ApiResponse(code = 400, message = "An error occurred.") })
     public Response download(@ApiParam(value = "The storageId", required = true)
                              @PathParam("storageId") String storageId,
                              @ApiParam(value = "The repositoryId", required = true)
