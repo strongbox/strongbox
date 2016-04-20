@@ -89,6 +89,7 @@ public class TrashRestletUndeleteTest
                           "when allowsForceDeletion is not enabled!",
                           artifactFile.exists());
     }
+
     @Test
     public void testDeleteArtifactAndEmptyTrashForRepository()
             throws Exception

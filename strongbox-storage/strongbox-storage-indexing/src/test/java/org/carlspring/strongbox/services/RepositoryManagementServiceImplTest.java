@@ -46,7 +46,7 @@ public class RepositoryManagementServiceImplTest
     public void testCreateRepository()
             throws IOException
     {
-        repositoryManagementService.createRepository("storage0", REPOSITORY_ID);
+        repositoryManagementService.createRepository("storage0", "test-releases1");
 
         assertTrue("Failed to create repository '" + REPOSITORY_ID + "'!", REPOSITORY_BASEDIR.exists());
     }
@@ -55,14 +55,19 @@ public class RepositoryManagementServiceImplTest
     public void testCreateAndDelete()
             throws Exception
     {
-        File basedir = new File(STORAGES_BASEDIR + "/storage0");
-        File repositoryDir = new File(basedir, "foo-snapshots");
+        String storageId = "storage0";
+        String repositoryId = "foo-snapshots";
 
-        repositoryManagementService.createRepository("storage0", "foo-snapshots");
+        File basedir = new File(STORAGES_BASEDIR + "/" + storageId);
+        File repositoryDir = new File(basedir, repositoryId);
+
+        repositoryManagementService.createRepository(storageId, repositoryId);
 
         assertTrue("Failed to create the repository \"" + repositoryDir.getAbsolutePath() + "\"!", repositoryDir.exists());
 
-        repositoryManagementService.removeRepository("storage0", "foo-snapshots");
+        repositoryIndexManager.closeIndexer(storageId + ":" + repositoryId);
+
+        repositoryManagementService.removeRepository("storage0", repositoryId);
 
         assertFalse("Failed to remove the repository!", repositoryDir.exists());
     }

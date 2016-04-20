@@ -1,27 +1,32 @@
 package org.carlspring.strongbox.rest;
 
-import org.carlspring.strongbox.configuration.ConfigurationManager;
+import io.swagger.annotations.*;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
+import org.carlspring.strongbox.storage.indexing.SearchResult;
 import org.carlspring.strongbox.storage.indexing.SearchResults;
-
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import java.io.IOException;
-
-import org.apache.lucene.queryparser.classic.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.io.IOException;
+
 @Component
 @Path("/search")
+@Api(value = "/search")
 public class SearchRestlet
-        extends BaseRestlet
+        extends BaseArtifactRestlet
 {
 
     private static final Logger logger = LoggerFactory.getLogger(SearchRestlet.class);
@@ -30,9 +35,6 @@ public class SearchRestlet
     @Autowired
     private ArtifactSearchService artifactSearchService;
 
-    @Autowired
-    private ConfigurationManager configurationManager;
-
 
     /**
      * Performs a search against the Lucene index of a specified repository,
@@ -46,41 +48,34 @@ public class SearchRestlet
      * @throws ParseException
      */
     @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public SearchResults search(@QueryParam("storageId") final String storageId,
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
+    @ApiOperation(value = "Used to search for artifacts.", response = SearchResults.class)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "") })
+    public Response search(@ApiParam(value = "The storageId", required = true)
+                                @QueryParam("storageId") final String storageId,
+                                @ApiParam(value = "The repositoryId", required = true)
                                 @QueryParam("repositoryId") final String repositoryId,
-                                @QueryParam("q") final String query)
+                                @ApiParam(value = "The search query", required = true)
+                                @QueryParam("q") final String query,
+                                @Context HttpHeaders headers,
+                                @Context HttpServletRequest request)
             throws IOException, ParseException
     {
-        // Apparently, the JSON root tag's name is based on the name of the object
-        // which the Jersey method returns, hence this is "artifacts".
-        @SuppressWarnings("UnnecessaryLocalVariable")
-        final SearchResults artifacts = getSearchResults(storageId, repositoryId, query);
+        if (request.getHeader("accept").toLowerCase().equals("text/plain"))
+        {
+            final SearchResults artifacts = getSearchResults(storageId, repositoryId, query);
 
-        return artifacts;
-    }
+            return Response.ok(artifacts.toString()).build();
+        }
+        else
+        {
+            // Apparently, the JSON root tag's name is based on the name of the object
+            // which the Jersey method returns, hence this is "artifacts".
+            @SuppressWarnings("UnnecessaryLocalVariable")
+            final SearchResults artifacts = getSearchResults(storageId, repositoryId, query);
 
-    /**
-     * Performs a search against the Lucene index of a specified repository,
-     * or the Lucene indexes of all repositories.
-     *
-     * @param storageId
-     * @param repositoryId
-     * @param query
-     * @return
-     * @throws IOException
-     * @throws ParseException
-     */
-    @GET
-    @Produces({ MediaType.TEXT_PLAIN })
-    public String searchAsPlainText(@QueryParam("storageId") final String storageId,
-                                    @QueryParam("repositoryId") final String repositoryId,
-                                    @QueryParam("q") final String query)
-            throws IOException, ParseException
-    {
-        final SearchResults artifacts = getSearchResults(storageId, repositoryId, query);
-
-        return artifacts.toString();
+            return Response.ok(artifacts).build();
+        }
     }
 
     private SearchResults getSearchResults(String storageId,
