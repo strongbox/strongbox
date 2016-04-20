@@ -17,6 +17,7 @@ Welcome to the Strongbox Maven artifact repository manager's home.
 * Logging:
   * Configuration over REST
   * Retrieve logs over HTTP
+* Automated generation of REST API documentation using Swagger
 
 # What's in the works:
 * Proxy repositories
@@ -25,7 +26,6 @@ Welcome to the Strongbox Maven artifact repository manager's home.
   * Log tailing over HTTP
 * Deploy as transaction
 * Maven settings.xml generator over REST API
-* Automated generation of REST API documentation
 
 # Upcoming:
 * Directory browsing
