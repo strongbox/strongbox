@@ -59,12 +59,11 @@
 
     <beans:bean id="unauthorizedEntryPoint" class="org.carlspring.strongbox.rest.app.spring.security.UnauthorizedEntryPoint" />
 
-    <security:http
-            use-expressions="true"
-            realm="Strongbox Realm"
-            create-session="always"
-            entry-point-ref="unauthorizedEntryPoint"
-            authentication-manager-ref="authenticationManager">
+    <security:http use-expressions="true"
+                   realm="Strongbox Realm"
+                   create-session="always"
+                   entry-point-ref="unauthorizedEntryPoint"
+                   authentication-manager-ref="authenticationManager">
 
         <!-- CSRF is disabled so that the application security could be tested with the browser.
         Re-enable it once the Angular app start sending the CSRF token with every request -->

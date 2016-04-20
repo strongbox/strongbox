@@ -16,63 +16,80 @@ import java.util.function.Function;
  * DAO for {@link StrongboxUser} entities
  */
 @Repository
-public class UserRepository {
+public class UserRepository
+{
 
-	@Autowired
-	private PasswordEncoder passwordEncoder;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-	public StrongboxUser findByUserName(final String username) {
+    public StrongboxUser findByUserName(final String username)
+    {
 
-		StrongboxUser user = withDatabase(db -> {
-			// TODO Does OrientDB support parameters ?!
-			OSQLSynchQuery<StrongboxUser> query = new OSQLSynchQuery<>("SELECT * FROM StrongboxUser WHERE username = '"+username+"'");
-			List<StrongboxUser> result = db.query(query);
-			if (!result.isEmpty()) {
-				StrongboxUser strongboxUser = result.get(0);
-				strongboxUser = db.detach(strongboxUser, true);
-				return strongboxUser;
-			}
-			return null;
-		});
+        StrongboxUser user = withDatabase(db -> {
+            // TODO Does OrientDB support parameters ?!
+            OSQLSynchQuery<StrongboxUser> query =
+                    new OSQLSynchQuery<>("SELECT * FROM StrongboxUser WHERE username = '" + username + "'");
+            List<StrongboxUser> result = db.query(query);
+            if (!result.isEmpty())
+            {
+                StrongboxUser strongboxUser = result.get(0);
+                strongboxUser = db.detach(strongboxUser, true);
 
-		return user;
-	}
+                return strongboxUser;
+            }
 
-	@PostConstruct
-	public void postConstruct() {
-		// add a user for testing
-		// Usually OrientDB should be setup separately(i.e.remotely) and
-		// users should be added either via REST endpoint or via OrientDB Studio/Console
-		withDatabase(db -> {
-			db.getEntityManager().registerEntityClass(StrongboxUser.class);
+            return null;
+        });
 
-			StrongboxUser martin = db.newInstance(StrongboxUser.class);
-			martin.setUsername("martin" );
-			martin.setPassword( passwordEncoder.encode("agent007"));
-			martin.setRoles(Collections.singletonList("ROLE_ADMIN"));
-			martin.setEnabled(true);
+        return user;
+    }
 
-			db.save(martin);
-			return null;
-		});
-	}
+    @PostConstruct
+    public void postConstruct()
+    {
+        // add a user for testing
+        // Usually OrientDB should be setup separately(i.e.remotely) and
+        // users should be added either via REST endpoint or via OrientDB Studio/Console
+        withDatabase(db -> {
+            db.getEntityManager().registerEntityClass(StrongboxUser.class);
 
-	private <R> R withDatabase(Function<OObjectDatabaseTx, R> code) {
-		// for simplicity use inmemory database
-		// TODO Replace it with remote instance!
-		OObjectDatabaseTx db = new OObjectDatabaseTx("memory:strongbox");
-		try {
-			if (db.exists()) {
-				ODatabaseRecordThreadLocal.INSTANCE.set(db.getUnderlying());
-				db.open("admin", "admin");
-			} else {
-				db.create();
-			}
-			return code.apply(db);
-		} finally {
-			if (!db.isClosed()) {
-				db.close();
-			}
-		}
-	}
+            StrongboxUser martin = db.newInstance(StrongboxUser.class);
+            martin.setUsername("martin");
+            martin.setPassword(passwordEncoder.encode("agent007"));
+            martin.setRoles(Collections.singletonList("ROLE_ADMIN"));
+            martin.setEnabled(true);
+
+            db.save(martin);
+
+            return null;
+        });
+    }
+
+    private <R> R withDatabase(Function<OObjectDatabaseTx, R> code)
+    {
+        // for simplicity use inmemory database
+        // TODO Replace it with remote instance!
+        OObjectDatabaseTx db = new OObjectDatabaseTx("memory:strongbox");
+        try
+        {
+            if (db.exists())
+            {
+                ODatabaseRecordThreadLocal.INSTANCE.set(db.getUnderlying());
+                db.open("admin", "admin");
+            }
+            else
+            {
+                db.create();
+            }
+            return code.apply(db);
+        }
+        finally
+        {
+            if (!db.isClosed())
+            {
+                db.close();
+            }
+        }
+    }
+
 }
