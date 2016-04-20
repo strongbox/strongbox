@@ -5,8 +5,7 @@
              xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
                                  http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.0.xsd">
 
-    <security:global-method-security authentication-manager-ref="authenticationManager"
-                                     pre-post-annotations="enabled" />
+    <security:global-method-security authentication-manager-ref="authenticationManager" pre-post-annotations="enabled" />
 
     <beans:bean id="userDao" class="org.carlspring.strongbox.rest.app.spring.security.UserRepository"/>
 
@@ -94,6 +93,5 @@
         <!-- Any user can reach anything else -->
         <security:intercept-url pattern="/**" access="permitAll" />
     </security:http>
-
 
 </beans:beans>
