@@ -30,13 +30,14 @@ Welcome to the Strongbox Maven artifact repository manager's home.
 # Upcoming:
 * Directory browsing
 * RPM distribution
+* Debian/Ubuntu distribution
 
 # What's not yet implemented:
 * Scheduled tasks
 * Security
   * Currently there is no proper security set up. The only thing that is implemented is a hard-coded check for HTTP Basic authentication with maven/password as credentials.
 * Web UI
-* An assembly with a pre-configured Jetty for standalone mode.
+* Plugins
 
 # Requirements:
 * Java 1.8.x
