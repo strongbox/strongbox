@@ -27,8 +27,9 @@ public class UserRepository
 
         StrongboxUser user = withDatabase(db -> {
             // TODO Does OrientDB support parameters ?!
-            OSQLSynchQuery<StrongboxUser> query =
-                    new OSQLSynchQuery<>("SELECT * FROM StrongboxUser WHERE username = '" + username + "'");
+            OSQLSynchQuery<StrongboxUser> query = new OSQLSynchQuery<>("SELECT *" +
+                                                                       "  FROM StrongboxUser" +
+                                                                       " WHERE username = '" + username + "'");
             List<StrongboxUser> result = db.query(query);
             if (!result.isEmpty())
             {
@@ -53,13 +54,13 @@ public class UserRepository
         withDatabase(db -> {
             db.getEntityManager().registerEntityClass(StrongboxUser.class);
 
-            StrongboxUser martin = db.newInstance(StrongboxUser.class);
-            martin.setUsername("martin");
-            martin.setPassword(passwordEncoder.encode("agent007"));
-            martin.setRoles(Collections.singletonList("ROLE_ADMIN"));
-            martin.setEnabled(true);
+            StrongboxUser user = db.newInstance(StrongboxUser.class);
+            user.setUsername("admin");
+            user.setPassword(passwordEncoder.encode("password"));
+            user.setRoles(Collections.singletonList("ROLE_ADMIN"));
+            user.setEnabled(true);
 
-            db.save(martin);
+            db.save(user);
 
             return null;
         });

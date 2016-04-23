@@ -33,7 +33,7 @@
                 <!--<security:user name="martin" password="agent007" authorities="ROLE_ADMIN" />-->
 
                 <!-- A second user which has no rights to open /configuration/strongbox/** -->
-                <security:user name="james" password="bond" authorities="ROLE_USER" />
+                <security:user name="maven" password="password" authorities="ROLE_USER" />
             </security:user-service>
         </security:authentication-provider>
 
