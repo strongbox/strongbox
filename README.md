@@ -66,6 +66,8 @@ Contributions and contributors are always welcome! For more details, please chec
 
 | Operating System | Status | 
 | --- | ------ |
-| OpenSuse 13.2 | [![Build Status](http://dev.carlspring.org/status/jenkins/strongbox)](https://dev.carlspring.org/jenkins/view/strongbox/job/strongbox/) |
-| Ubuntu 15.10 | [![Build Status](https://dev.carlspring.org/jenkins/job/strongbox-ubuntu-15.10/badge/icon)](https://dev.carlspring.org/jenkins/job/strongbox-ubuntu-15.10) |
-| Windows x64 | [![Build Status](https://dev.carlspring.org/jenkins/view/strongbox-win64/job/strongbox-win64/badge/icon)](https://dev.carlspring.org/jenkins/view/strongbox-win64/job/strongbox-win64/) |
+| OpenSuse 13.2 | [![Build Status](https://dev.carlspring.org/jenkins/buildStatus/icon?job=strongbox/strongbox)](https://dev.carlspring.org/jenkins/job/strongbox/job/strongbox/) |
+| Debian 8.4 | [![Build Status](https://dev.carlspring.org/jenkins/buildStatus/icon?job=strongbox/strongbox-debian-x64)](https://dev.carlspring.org/jenkins/job/strongbox/view/debian-x64/job/strongbox-debian-x64/) |
+| Ubuntu 15.10 | [![Build Status](https://dev.carlspring.org/jenkins/buildStatus/icon?job=strongbox/strongbox-ubuntu-15.10)](https://dev.carlspring.org/jenkins/job/strongbox/view/ubuntu-x64/job/strongbox-ubuntu-15.10/) |
+| CentOS 7.2 | [![Build Status](https://dev.carlspring.org/jenkins/buildStatus/icon?job=strongbox/strongbox-centos-x64)](https://dev.carlspring.org/jenkins/job/strongbox/view/centos-x64/job/strongbox-centos-x64/) |
+| Windows x64 | [![Build Status](https://dev.carlspring.org/jenkins/buildStatus/icon?job=strongbox/strongbox-win64)](https://dev.carlspring.org/jenkins/job/strongbox/view/win-x64/job/strongbox-win64/) |
