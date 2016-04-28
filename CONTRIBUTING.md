@@ -6,7 +6,7 @@ licensed under the Apache 2.0 license. Signing the ICLA below covers contributio
 * Any dependent project in the [carlspring](https://github.com/carlspring) repositories
 
 To accept, please:
-- Sign and scan the [Individual Contributor's License Agreement (ICLA)](https://github.com/strongbox/strongbox/blob/master/ICLA.md)
+- Print, sign and scan the [Individual Contributor's License Agreement (ICLA)](https://github.com/strongbox/strongbox/blob/master/ICLA.md), or, alternatively, fill in the [ICLA PDF](https://github.com/strongbox/strongbox/wiki/resources/pdfs/ICLA.pdf) file
   and mail it back to [martin.todorov@carlspring.com](mailto:martin.todorov@carlspring.com).
 - Place your name and e-mail below and open a pull request.
 
