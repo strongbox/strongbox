@@ -20,7 +20,6 @@ public class AuthenticationManagerTest
     @Autowired
     private AuthenticationManager authenticationManager;
 
-
     @Test
     public void testLoad()
             throws Exception

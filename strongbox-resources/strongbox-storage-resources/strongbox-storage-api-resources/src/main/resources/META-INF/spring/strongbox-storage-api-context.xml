@@ -5,9 +5,6 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
                            http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd">
 
-    <bean id="configurationManager" class="org.carlspring.strongbox.configuration.ConfigurationManager" />
-
-    <bean id="configurationResourceResolver" class="org.carlspring.strongbox.resource.ConfigurationResourceResolver" />
 
     <bean id="checksumCacheManager" class="org.carlspring.strongbox.storage.checksum.ChecksumCacheManager">
         <!-- How often to check if a checksum has expired: -->
@@ -15,12 +12,6 @@
         <!-- The maximum time checksums should be kept in the cache: -->
         <property name="cachedChecksumLifetime" value="60000"/>
     </bean>
-
-    <bean id="artifactOperationsValidator" class="org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator"/>
-
-    <!-- Artifact LocationResolvers -->
-    <bean id="fsLocationResolver" class="org.carlspring.strongbox.storage.resolvers.FSLocationResolver"/>
-    <bean id="groupLocationResolver" class="org.carlspring.strongbox.storage.resolvers.GroupLocationResolver"/>
 
     <util:map id="resolvers"
               key-type="java.lang.String"
@@ -35,19 +26,10 @@
         <property name="resolvers" ref="resolvers"/>
     </bean>
 
-    <!-- Version versionValidators -->
-    <bean id="releaseVersionValidator" class="org.carlspring.strongbox.storage.validation.version.ReleaseVersionValidator"/>
-    <bean id="snapshotVersionValidator" class="org.carlspring.strongbox.storage.validation.version.SnapshotVersionValidator"/>
-    <bean id="redeploymentValidator" class="org.carlspring.strongbox.storage.validation.version.RedeploymentValidator"/>
-
     <util:set id="versionValidators" set-class="java.util.LinkedHashSet">
         <ref bean="releaseVersionValidator"/>
         <ref bean="snapshotVersionValidator"/>
         <ref bean="redeploymentValidator"/>
     </util:set>
-
-    <bean id="versionValidatorService" class="org.carlspring.strongbox.services.impl.VersionValidatorServiceImpl" />
-
-    <bean id="basicRepositoryService" class="org.carlspring.strongbox.services.impl.BasicRepositoryServiceImpl" />
 
 </beans>

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 /**
  * @author mtodorov
  */
-@Component
+@Component("redeploymentValidator")
 public class RedeploymentValidator implements VersionValidator
 {
 

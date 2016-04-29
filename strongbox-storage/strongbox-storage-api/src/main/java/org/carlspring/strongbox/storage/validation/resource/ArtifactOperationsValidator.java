@@ -13,10 +13,9 @@ import org.springframework.stereotype.Component;
 /**
  * @author mtodorov
  */
-@Component
+@Component("artifactOperationsValidator")
 public class ArtifactOperationsValidator
 {
-
 
     @Autowired
     private ConfigurationManager configurationManager;

@@ -3,12 +3,6 @@ package org.carlspring.strongbox.configuration;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.annotation.PostConstruct;
-import javax.xml.bind.JAXBException;
-import java.io.IOException;
-import java.util.Map;
-
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,11 +11,16 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
+import java.util.Map;
+
 /**
  * @author mtodorov
  */
 @Component
-@Scope ("singleton")
+@Scope("singleton")
 public class ConfigurationManager extends AbstractConfigurationManager<Configuration>
 {
 
