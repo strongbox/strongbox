@@ -6,6 +6,6 @@
                            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
 
     <context:property-placeholder ignore-resource-not-found="true" />
-    <context:component-scan base-package="org.carlspring.strongbox,com.carlspring.strongbox,org.carlspring.logging" />
+    <context:component-scan base-package="org.carlspring.strongbox,org.carlspring.logging" />
 
 </beans>
