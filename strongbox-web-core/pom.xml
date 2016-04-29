@@ -531,19 +531,6 @@
                                 </goals>
                             </execution>
                         </executions>
-
-                        <dependencies>
-                            <dependency>
-                                <groupId>org.eclipse.jetty</groupId>
-                                <artifactId>jetty-util</artifactId>
-                                <version>${version.jetty}</version>
-                            </dependency>
-                            <dependency>
-                                <groupId>org.eclipse.jetty</groupId>
-                                <artifactId>jetty-runner</artifactId>
-                                <version>${version.jetty}</version>
-                            </dependency>
-                        </dependencies>
                     </plugin>
 
                     <plugin>
@@ -592,6 +579,24 @@
                                 </goals>
                             </execution>
                         </executions>
+
+                        <dependencies>
+                            <dependency>
+                                <groupId>com.orientechnologies</groupId>
+                                <artifactId>orientdb-server</artifactId>
+                                <version>${version.orientdb}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>com.orientechnologies</groupId>
+                                <artifactId>orientdb-core</artifactId>
+                                <version>${version.orientdb}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>com.orientechnologies</groupId>
+                                <artifactId>orientdb-object</artifactId>
+                                <version>${version.orientdb}</version>
+                            </dependency>
+                        </dependencies>
                     </plugin>
                 </plugins>
             </build>

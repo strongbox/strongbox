@@ -92,6 +92,9 @@
 
         <!-- Any user can reach anything else -->
         <security:intercept-url pattern="/**" access="permitAll" />
+
+        <security:http-basic />
+
     </security:http>
 
 </beans:beans>

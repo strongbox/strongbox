@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.rest;
 
+import org.carlspring.strongbox.client.ArtifactClient;
 import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -28,7 +30,7 @@ import static org.junit.Assert.*;
 public class ConfigurationManagementRestletTest
 {
 
-    private RestClient client = new RestClient();
+    private RestClient client = RestClient.getTestInstanceLoggedInAsAdmin();
 
 
     @After
