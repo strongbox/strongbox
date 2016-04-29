@@ -1,25 +1,24 @@
 package org.carlspring.strongbox.storage.indexing;
 
-import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import java.io.File;
-import java.io.IOException;
-import java.util.Map;
-
 import org.apache.maven.index.Indexer;
 import org.apache.maven.index.Scanner;
 import org.apache.maven.index.context.IndexCreator;
 import org.apache.maven.index.context.IndexingContext;
+import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
+import java.util.Map;
 
 /**
  * @author mtodorov
  */
-@Singleton
+@Component
 public class RepositoryIndexerFactory
 {
 
