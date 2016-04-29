@@ -58,6 +58,8 @@
         <version.slf4j>1.7.7</version.slf4j>
         <version.logback>1.1.2</version.logback> 
         <version.spring>4.2.4.RELEASE</version.spring>
+        <version.spring.security>4.0.4.RELEASE</version.spring.security>
+        <version.orientdb>2.1.13</version.orientdb>
     </properties>
 
     <build>
@@ -171,6 +173,41 @@
 
     <dependencyManagement>
         <dependencies>
+
+            <dependency>
+                <groupId>com.orientechnologies</groupId>
+                <artifactId>orientdb-server</artifactId>
+                <version>${version.orientdb}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.orientechnologies</groupId>
+                <artifactId>orientdb-core</artifactId>
+                <version>${version.orientdb}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.orientechnologies</groupId>
+                <artifactId>orientdb-object</artifactId>
+                <version>${version.orientdb}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-config</artifactId>
+                <version>${version.spring.security}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-core</artifactId>
+                <version>${version.spring.security}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-web</artifactId>
+                <version>${version.spring.security}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.carlspring.commons</groupId>
                 <artifactId>commons-io</artifactId>

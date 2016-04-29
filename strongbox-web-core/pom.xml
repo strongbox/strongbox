@@ -150,10 +150,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.carlspring.commons</groupId>
-            <artifactId>commons-http</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.carlspring.maven</groupId>
             <artifactId>maven-commons</artifactId>
         </dependency>
@@ -194,8 +190,28 @@
         </dependency>
 
         <dependency>
+            <groupId>com.orientechnologies</groupId>
+            <artifactId>orientdb-server</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.orientechnologies</groupId>
+            <artifactId>orientdb-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.orientechnologies</groupId>
+            <artifactId>orientdb-object</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-core</artifactId>
         </dependency>
 
         <dependency>
@@ -208,8 +224,16 @@
         </dependency>
 
         <dependency>
-            <groupId>io.swagger</groupId>
-            <artifactId>swagger-core</artifactId>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-web</artifactId>
         </dependency>
 
         <dependency>
@@ -507,19 +531,6 @@
                                 </goals>
                             </execution>
                         </executions>
-
-                        <dependencies>
-                            <dependency>
-                                <groupId>org.eclipse.jetty</groupId>
-                                <artifactId>jetty-util</artifactId>
-                                <version>${version.jetty}</version>
-                            </dependency>
-                            <dependency>
-                                <groupId>org.eclipse.jetty</groupId>
-                                <artifactId>jetty-runner</artifactId>
-                                <version>${version.jetty}</version>
-                            </dependency>
-                        </dependencies>
                     </plugin>
 
                     <plugin>
@@ -568,6 +579,24 @@
                                 </goals>
                             </execution>
                         </executions>
+
+                        <dependencies>
+                            <dependency>
+                                <groupId>com.orientechnologies</groupId>
+                                <artifactId>orientdb-server</artifactId>
+                                <version>${version.orientdb}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>com.orientechnologies</groupId>
+                                <artifactId>orientdb-core</artifactId>
+                                <version>${version.orientdb}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>com.orientechnologies</groupId>
+                                <artifactId>orientdb-object</artifactId>
+                                <version>${version.orientdb}</version>
+                            </dependency>
+                        </dependencies>
                     </plugin>
                 </plugins>
             </build>

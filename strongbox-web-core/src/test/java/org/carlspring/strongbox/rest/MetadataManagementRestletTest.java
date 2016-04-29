@@ -27,7 +27,7 @@ import static org.junit.Assert.*;
  * @author mtodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"/META-INF/spring/strongbox-*-context.xml", "classpath*:/META-INF/spring/strongbox-*-context.xml"})
+@ContextConfiguration(locations={"classpath*:/META-INF/spring/strongbox-*-context.xml"})
 public class MetadataManagementRestletTest
     extends TestCaseWithArtifactGeneration
 {

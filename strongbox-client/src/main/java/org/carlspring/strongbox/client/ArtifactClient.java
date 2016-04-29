@@ -54,6 +54,16 @@ public class ArtifactClient implements Closeable
 
     public static ArtifactClient getTestInstance()
     {
+        return getTestInstance("maven", "password");
+    }
+
+    public static ArtifactClient getTestInstanceLoggedInAsAdmin()
+    {
+        return getTestInstance("admin", "password");
+    }
+
+    public static ArtifactClient getTestInstance(String username, String password)
+    {
         String host = System.getProperty("strongbox.host") != null ?
                       System.getProperty("strongbox.host") :
                       "localhost";
@@ -63,8 +73,8 @@ public class ArtifactClient implements Closeable
                    48080;
 
         ArtifactClient client = new ArtifactClient();
-        client.setUsername("maven");
-        client.setPassword("password");
+        client.setUsername(username);
+        client.setPassword(password);
         client.setPort(port);
         client.setContextBaseUrl("http://" + host + ":" + client.getPort());
 
