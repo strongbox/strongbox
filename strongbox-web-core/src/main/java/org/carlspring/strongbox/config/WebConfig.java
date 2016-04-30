@@ -10,6 +10,8 @@ import org.springframework.context.annotation.Import;
 @Configuration
 @ComponentScan("org.carlspring.strongbox")
 @Import({
+        CommonConfig.class,
+        SecurityConfig.class
 })
 public class WebConfig {
 }
