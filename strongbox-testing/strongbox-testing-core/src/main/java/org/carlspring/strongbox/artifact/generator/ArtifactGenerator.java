@@ -147,7 +147,6 @@ public class ArtifactGenerator
         OutputStream os = null;
         Writer writer = null;
 
-        // ZipOutputStream zos = null;
         File metadataFile = null;
 
         try
@@ -169,10 +168,6 @@ public class ArtifactGenerator
             mappingWriter.write(writer, metadata);
 
             os.flush();
-
-            // zos = new ZipOutputStream(new FileOutputStream(metadataFile));
-
-            // createRandomSizeFile(zos);
         }
         finally
         {
