@@ -9,12 +9,6 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexerFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.annotation.PostConstruct;
-import java.io.File;
-import java.io.IOException;
-import java.util.Map;
-
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.slf4j.Logger;
@@ -22,10 +16,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import java.io.File;
+import java.io.IOException;
+import java.util.Map;
+
 /**
  * @author mtodorov
  */
-@Component
+@Component("storageBooter")
 public class StorageBooter
 {
 
