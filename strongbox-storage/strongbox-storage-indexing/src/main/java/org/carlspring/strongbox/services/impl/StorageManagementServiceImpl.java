@@ -17,7 +17,7 @@ import java.io.IOException;
 /**
  * @author mtodorov
  */
-@Component
+@Component("storageManagementService")
 public class StorageManagementServiceImpl implements StorageManagementService
 {
 

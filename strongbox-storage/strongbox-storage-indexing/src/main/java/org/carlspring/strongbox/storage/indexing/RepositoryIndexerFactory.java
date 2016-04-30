@@ -18,7 +18,7 @@ import java.util.Map;
 /**
  * @author mtodorov
  */
-@Component
+@Component("repositoryIndexerFactory")
 public class RepositoryIndexerFactory
 {
 

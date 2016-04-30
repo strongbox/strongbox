@@ -1,20 +1,20 @@
 package org.carlspring.strongbox.storage.indexing;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
 import javax.annotation.PreDestroy;
 import javax.inject.Singleton;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
 /**
  * @author mtodorov
  */
 @Singleton
-@Component
+@Component("repositoryIndexManager")
 public class RepositoryIndexManager
 {
 
