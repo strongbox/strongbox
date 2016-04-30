@@ -8,6 +8,8 @@ import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -21,10 +23,14 @@ import static org.junit.Assert.assertTrue;
  * @author mtodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"/META-INF/spring/strongbox-*-context.xml", "classpath*:/META-INF/spring/strongbox-*-context.xml"})
+@ContextConfiguration
 public class RepositoryManagementServiceImplTest
         extends TestCaseWithArtifactGeneration
 {
+
+    @Configuration
+    @ComponentScan(basePackages = {"org.carlspring.strongbox", "org.carlspring.logging"})
+    public static class SpringConfig { }
 
     private static final String REPOSITORY_ID = "releases";
 

@@ -11,11 +11,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
@@ -26,11 +26,14 @@ import static org.junit.Assert.*;
  * @author mtodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "/META-INF/spring/strongbox-*-context.xml",
-                                    "classpath*:/META-INF/spring/strongbox-*-context.xml" })
+@ContextConfiguration
 public class ArtifactManagementServiceImplTest
         extends TestCaseWithArtifactGeneration
 {
+
+    @org.springframework.context.annotation.Configuration
+    @ComponentScan(basePackages = {"org.carlspring.strongbox", "org.carlspring.logging"})
+    public static class SpringConfig { }
 
     private static final File STORAGE_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0");
 

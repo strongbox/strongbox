@@ -5,7 +5,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration
-@ComponentScan("org.carlspring.strongbox")
+@ComponentScan({
+        "org.carlspring.strongbox",
+        "org.carlspring.logging"
+})
 @Import({
         CommonConfig.class,
         SecurityConfig.class,

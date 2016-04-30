@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -69,6 +70,21 @@ public class StorageBooter
         else
         {
             logger.debug("Failed to initialize the repositories. Another JVM may have already done this.");
+        }
+    }
+
+
+    @PreDestroy
+    public void destroy() {
+        logger.info("Destroying lock!");
+        removeLock();
+    }
+
+    private void removeLock() {
+        final File lockFile = new File(ConfigurationResourceResolver.getVaultDirectory(), "storage-booter.lock");
+
+        if (lockFile.exists()) {
+            lockFile.delete();
         }
     }
 
