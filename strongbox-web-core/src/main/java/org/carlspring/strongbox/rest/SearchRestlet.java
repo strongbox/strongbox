@@ -4,7 +4,6 @@ import io.swagger.annotations.*;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
-import org.carlspring.strongbox.storage.indexing.SearchResult;
 import org.carlspring.strongbox.storage.indexing.SearchResults;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
