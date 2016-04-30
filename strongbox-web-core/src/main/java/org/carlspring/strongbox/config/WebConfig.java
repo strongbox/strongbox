@@ -9,7 +9,8 @@ import org.springframework.context.annotation.Import;
 @Import({
         CommonConfig.class,
         SecurityConfig.class,
-        StorageIndexingConfig.class
+        StorageIndexingConfig.class,
+        StorageApiConfig.class
 })
 public class WebConfig {
 }
