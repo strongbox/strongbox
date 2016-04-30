@@ -1,10 +1,11 @@
 package org.carlspring.strongbox.services;
 
+import org.apache.maven.artifact.Artifact;
+import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +26,11 @@ import static org.junit.Assert.assertTrue;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 public class RepositoryManagementServiceImplTest
-        extends TestCaseWithArtifactGeneration
+        extends TestCaseWithArtifactGenerationWithIndexing
 {
 
     @Configuration
-    @ComponentScan(basePackages = {"org.carlspring.strongbox", "org.carlspring.logging"})
+    @ComponentScan(basePackages = { "org.carlspring.strongbox", "org.carlspring.logging"})
     public static class SpringConfig { }
 
     private static final String REPOSITORY_ID = "releases";
@@ -39,20 +40,14 @@ public class RepositoryManagementServiceImplTest
     private static final File REPOSITORY_BASEDIR = new File(STORAGES_BASEDIR + "/storage0/" + REPOSITORY_ID);
 
     @Autowired
-    private RepositoryManagementService repositoryManagementService;
-
-    @Autowired
     private ArtifactSearchService artifactSearchService;
-
-    @Autowired
-    private RepositoryIndexManager repositoryIndexManager;
 
 
     @Test
     public void testCreateRepository()
             throws IOException
     {
-        repositoryManagementService.createRepository("storage0", "test-releases1");
+        getRepositoryManagementService().createRepository("storage0", "test-releases1");
 
         assertTrue("Failed to create repository '" + REPOSITORY_ID + "'!", REPOSITORY_BASEDIR.exists());
     }
@@ -67,13 +62,13 @@ public class RepositoryManagementServiceImplTest
         File basedir = new File(STORAGES_BASEDIR + "/" + storageId);
         File repositoryDir = new File(basedir, repositoryId);
 
-        repositoryManagementService.createRepository(storageId, repositoryId);
+        getRepositoryManagementService().createRepository(storageId, repositoryId);
 
         assertTrue("Failed to create the repository \"" + repositoryDir.getAbsolutePath() + "\"!", repositoryDir.exists());
 
-        repositoryIndexManager.closeIndexer(storageId + ":" + repositoryId);
+        getRepositoryIndexManager().closeIndexer(storageId + ":" + repositoryId);
 
-        repositoryManagementService.removeRepository("storage0", repositoryId);
+        getRepositoryManagementService().removeRepository("storage0", repositoryId);
 
         assertFalse("Failed to remove the repository!", repositoryDir.exists());
     }
@@ -82,32 +77,51 @@ public class RepositoryManagementServiceImplTest
     public void testMerge()
             throws Exception
     {
+        String repositoryId1 = "test-releases-merge-1";
+        String repositoryId2 = "test-releases-merge-2";
+
+        getRepositoryManagementService().createRepository("storage0", repositoryId1);
+        getRepositoryManagementService().createRepository("storage0", repositoryId2);
+
         String gavtc = "org.carlspring.strongbox:strongbox-utils::jar";
 
-        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), gavtc, new String[] {"6.0.1", "6.1.1", "6.2.1", "6.2.2-SNAPSHOT", "7.0", "7.1"});
+        File repo1 = new File(STORAGES_BASEDIR + "/storage0/" + repositoryId1);
+        File repo2 = new File(STORAGES_BASEDIR + "/storage0/" + repositoryId2);
 
-        final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndex("storage0:releases");
-        final int x = repositoryIndexer.index(new File("org/carlspring/strongbox/strongbox-utils"));
+        File artifactFile1 = new File(repo1, "org/carlspring/strongbox/strongbox-utils/6.2.2/strongbox-utils-6.2.2.jar");
+        File artifactFile2 = new File(repo2, "org/carlspring/strongbox/strongbox-utils/6.2.2-SNAPSHOT/strongbox-utils-6.2.2-SNAPSHOT.jar");
+
+        Artifact artifact1 = ArtifactUtils.getArtifactFromGAV("org.carlspring.strongbox:strongbox-utils:6.2.2:jar");
+        Artifact artifact2 = ArtifactUtils.getArtifactFromGAV("org.carlspring.strongbox:strongbox-utils:6.2.2-SNAPSHOT:jar");
+
+        generateArtifact(repo1.getAbsolutePath(), gavtc, new String[] { "6.2.2" });
+        generateArtifact(repo2.getAbsolutePath(), gavtc, new String[] { "6.2.2-SNAPSHOT" });
+
+        RepositoryIndexer indexer1 = getRepositoryIndexManager().getRepositoryIndex("storage0:test-releases-merge-1");
+        RepositoryIndexer indexer2 = getRepositoryIndexManager().getRepositoryIndex("storage0:test-releases-merge-2");
+
+        indexer1.addArtifactToIndex(repositoryId1, artifactFile1, artifact1);
+        indexer2.addArtifactToIndex(repositoryId2, artifactFile2, artifact2);
 
         SearchRequest request = new SearchRequest("storage0",
-                                                  "releases",
-                                                  "+g:org.carlspring.strongbox +a:strongbox-utils +v:6.2.1 +p:jar");
+                                                  repositoryId1,
+                                                  "+g:org.carlspring.strongbox +a:strongbox-utils +v:6.2.2 +p:jar");
 
         assertTrue(artifactSearchService.contains(request));
 
         request = new SearchRequest("storage0",
-                                    "releases-with-trash",
-                                    "+g:org.carlspring.strongbox +a:strongbox-utils +v:6.2.1 +p:jar");
+                                    repositoryId1,
+                                    "+g:org.carlspring.strongbox +a:strongbox-utils +v:6.2.2-SNAPSHOT +p:jar");
 
         assertFalse(artifactSearchService.contains(request));
 
-        repositoryManagementService.mergeRepositoryIndex("storage0", "releases", "storage0", "releases-with-trash");
+        getRepositoryManagementService().mergeRepositoryIndex("storage0", repositoryId2, "storage0", repositoryId1);
 
         request = new SearchRequest("storage0",
-                                    "releases-with-trash",
-                                    "+g:org.carlspring.strongbox +a:strongbox-utils +v:6.2.1 +p:jar");
+                                    repositoryId1,
+                                    "+g:org.carlspring.strongbox +a:strongbox-utils +v:6.2.2-SNAPSHOT +p:jar");
 
-        assertTrue(artifactSearchService.contains(request));
+        assertTrue("Failed to merge!", artifactSearchService.contains(request));
     }
 
 }

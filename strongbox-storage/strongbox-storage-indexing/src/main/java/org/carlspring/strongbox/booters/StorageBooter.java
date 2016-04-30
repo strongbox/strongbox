@@ -75,16 +75,16 @@ public class StorageBooter
 
 
     @PreDestroy
-    public void destroy() {
-        logger.info("Destroying lock!");
-        removeLock();
-    }
-
-    private void removeLock() {
+    public void removeLock()
+    {
         final File lockFile = new File(ConfigurationResourceResolver.getVaultDirectory(), "storage-booter.lock");
 
-        if (lockFile.exists()) {
+        if (lockFile.exists())
+        {
+            //noinspection ResultOfMethodCallIgnored
             lockFile.delete();
+
+            logger.info("Lock removed.");
         }
     }
 
