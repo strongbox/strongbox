@@ -80,6 +80,11 @@ public class ArtifactFile extends File
             getParentFile().mkdirs();
         }
 
+        if (this.exists())
+        {
+            FileUtils.forceDelete(this);
+        }
+
         FileUtils.moveFile(getTemporaryFile(), this);
     }
 

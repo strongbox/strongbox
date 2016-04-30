@@ -4,6 +4,7 @@ import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.services.BasicRepositoryService;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +25,8 @@ public class RedeploymentValidator implements VersionValidator
                          Artifact artifact)
             throws VersionValidationException
     {
-        if (!repository.allowsRedeployment() && basicRepositoryService.containsArtifact(repository, artifact))
+        if (repository.getPolicy().equals(RepositoryPolicyEnum.RELEASE.getPolicy()) &&
+            (!repository.allowsRedeployment() && basicRepositoryService.containsArtifact(repository, artifact)))
         {
             throw new VersionValidationException("The " + repository.getStorage().getId() + ":" + repository.toString() +
                                                  " repository does not allow artifact re-deployment! (" +
