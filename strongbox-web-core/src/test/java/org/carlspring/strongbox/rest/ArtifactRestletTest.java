@@ -19,11 +19,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.*;
 import java.security.NoSuchAlgorithmException;
@@ -33,8 +28,8 @@ import static org.junit.Assert.*;
 /**
  * @author mtodorov
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration
+//@RunWith(SpringJUnit4ClassRunner.class)
+//@ContextConfiguration
 public class ArtifactRestletTest
         extends TestCaseWithArtifactGeneration
 {
@@ -48,9 +43,13 @@ public class ArtifactRestletTest
 
     private RestClient client = new RestClient();
 
-    @Configuration
+/*    @Configuration
     @ComponentScan(basePackages = {"org.carlspring.strongbox", "org.carlspring.logging"})
+    @Import({
+            StorageApiConfig.class
+    })
     public static class SpringConfig { }
+*/
 
     @Before
     public void setUp()

@@ -1,8 +1,11 @@
 package org.carlspring.strongbox.rest;
 
+import org.apache.commons.io.IOUtils;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.resource.ResourceCloser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
@@ -12,10 +15,6 @@ import javax.ws.rs.core.Response;
 import java.io.*;
 import java.security.NoSuchAlgorithmException;
 
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * @author Martin Todorov
  */
@@ -24,7 +23,6 @@ public class DummyArtifactRestlet
 {
 
     private static final Logger logger = LoggerFactory.getLogger(DummyArtifactRestlet.class);
-
 
     @PUT
     @Path("{storageId}/{repositoryId}/{path:.*}")
