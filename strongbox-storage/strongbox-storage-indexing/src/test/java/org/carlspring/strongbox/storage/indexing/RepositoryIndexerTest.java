@@ -4,6 +4,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.index.ArtifactInfo;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactOperationException;
+import org.carlspring.strongbox.config.StorageIndexingConfig;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -11,6 +12,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
@@ -24,10 +27,11 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration
+@ContextConfiguration(classes = StorageIndexingConfig.class)
 public class RepositoryIndexerTest
         extends TestCaseWithArtifactGenerationWithIndexing
 {
+    private static final Logger logger = LoggerFactory.getLogger(RepositoryIndexerTest.class);
 
     @Configuration
     @ComponentScan(basePackages = {"org.carlspring.strongbox", "org.carlspring.logging"})
@@ -55,6 +59,16 @@ public class RepositoryIndexerTest
         generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), artifact1);
         generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), artifact2);
         generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), artifact3);
+
+        final File lockFile = new File(ConfigurationResourceResolver.getVaultDirectory(), "storage-booter.lock");
+
+        if (lockFile.exists())
+        {
+            //noinspection ResultOfMethodCallIgnored
+            boolean delete = lockFile.delete();
+
+            logger.info("Lock removed: {}", delete);
+        }
     }
 
     @Test

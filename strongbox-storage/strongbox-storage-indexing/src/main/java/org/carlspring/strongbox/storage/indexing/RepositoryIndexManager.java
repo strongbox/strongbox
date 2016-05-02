@@ -2,7 +2,6 @@ package org.carlspring.strongbox.storage.indexing;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
@@ -14,7 +13,6 @@ import java.util.Map;
  * @author mtodorov
  */
 @Component("repositoryIndexManager")
-@Scope("singleton")
 public class RepositoryIndexManager
 {
 

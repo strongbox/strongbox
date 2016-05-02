@@ -1,8 +1,11 @@
 package org.carlspring.strongbox.resource;
 
 import org.carlspring.strongbox.booters.ResourcesBooter;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
@@ -19,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 @ContextConfiguration
 public class ResourcesBooterTest
 {
+    private static final Logger logger = LoggerFactory.getLogger(ResourcesBooterTest.class);
 
     @org.springframework.context.annotation.Configuration
     @ComponentScan(basePackages = {"org.carlspring.strongbox", "org.carlspring.logging"})
@@ -28,6 +32,18 @@ public class ResourcesBooterTest
     @Autowired
     private ResourcesBooter resourcesBooter;
 
+    @After
+    public void tearDown() throws Exception {
+        final File lockFile = new File(ConfigurationResourceResolver.getVaultDirectory(), "storage-booter.lock");
+
+        if (lockFile.exists())
+        {
+            //noinspection ResultOfMethodCallIgnored
+            boolean delete = lockFile.delete();
+
+            logger.info("Lock removed: {}", delete);
+        }
+    }
 
     @Test
     public void testResourceBooting()

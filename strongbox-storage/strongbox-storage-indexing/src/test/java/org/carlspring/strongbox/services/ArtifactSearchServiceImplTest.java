@@ -6,12 +6,14 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -28,8 +30,9 @@ import java.security.NoSuchAlgorithmException;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 public class ArtifactSearchServiceImplTest
-        extends TestCaseWithArtifactGenerationWithIndexing
+        extends TestCaseWithArtifactGeneration
 {
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactSearchServiceImplTest.class);
 
     @Configuration
     @ComponentScan(basePackages = {"org.carlspring.strongbox", "org.carlspring.logging"})
@@ -44,7 +47,6 @@ public class ArtifactSearchServiceImplTest
 
     @Autowired
     private ArtifactSearchService artifactSearchService;
-
 
     @Before
     public void init()
@@ -62,6 +64,17 @@ public class ArtifactSearchServiceImplTest
         generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), artifact1);
         generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), artifact2);
         generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), artifact3);
+
+
+        final File lockFile = new File(ConfigurationResourceResolver.getVaultDirectory(), "storage-booter.lock");
+
+        if (lockFile.exists())
+        {
+            //noinspection ResultOfMethodCallIgnored
+            boolean delete = lockFile.delete();
+
+            logger.info("Lock removed: {}", delete);
+        }
     }
 
     @Test

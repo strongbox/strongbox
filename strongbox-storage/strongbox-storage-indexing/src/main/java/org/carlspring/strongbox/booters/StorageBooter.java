@@ -14,10 +14,12 @@ import org.codehaus.plexus.component.repository.exception.ComponentLookupExcepti
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -25,7 +27,9 @@ import java.util.Map;
 /**
  * @author mtodorov
  */
+@Singleton
 @Component("storageBooter")
+@Scope("singleton")
 public class StorageBooter
 {
 
@@ -54,6 +58,7 @@ public class StorageBooter
                    PlexusContainerException,
                    ComponentLookupException
     {
+        logger.info("StorageBooter.initialize()");
         if (!lockExists())
         {
             createLockFile();
@@ -82,9 +87,9 @@ public class StorageBooter
         if (lockFile.exists())
         {
             //noinspection ResultOfMethodCallIgnored
-            lockFile.delete();
+            boolean delete = lockFile.delete();
 
-            logger.info("Lock removed.");
+            logger.info("Lock removed: {}", delete);
         }
     }
 
