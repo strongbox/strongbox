@@ -51,7 +51,8 @@ public class ArtifactManagementServiceImplTest
     private static boolean INITIALIZED = false;
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() throws Exception
+    {
         final File lockFile = new File(ConfigurationResourceResolver.getVaultDirectory(), "storage-booter.lock");
 
         if (lockFile.exists())
