@@ -7,10 +7,12 @@ import org.springframework.security.config.annotation.method.configuration.Globa
 
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class GlobalSecurityConfig extends GlobalMethodSecurityConfiguration {
+public class GlobalSecurityConfig extends GlobalMethodSecurityConfiguration
+{
 
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception
+    {
         auth
                 .inMemoryAuthentication()
                 .withUser("maven").password("password").roles("USER");

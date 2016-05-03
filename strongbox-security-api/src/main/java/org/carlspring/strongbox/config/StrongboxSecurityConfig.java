@@ -7,16 +7,19 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 
 @Configuration
-public class StrongboxSecurityConfig {
+public class StrongboxSecurityConfig
+{
 
     @Bean(name = "authenticationManager", initMethod = "load")
     @Lazy
-    AuthenticationManager authenticationManager() {
+    AuthenticationManager authenticationManager()
+    {
         return new AuthenticationManager();
     }
 
     @Bean(name = "cachedUserManager")
-    CachedUserManager cachedUserManager() {
+    CachedUserManager cachedUserManager()
+    {
         CachedUserManager cachedUserManager = new CachedUserManager();
         cachedUserManager.setCredentialExpiredCheckInterval(60000);
         cachedUserManager.setCredentialsLifetime(300000);

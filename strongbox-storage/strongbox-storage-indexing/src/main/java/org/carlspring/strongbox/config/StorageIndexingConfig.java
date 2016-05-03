@@ -13,60 +13,72 @@ import org.springframework.context.annotation.Configuration;
 import java.util.LinkedHashMap;
 
 @Configuration
-public class StorageIndexingConfig {
+public class StorageIndexingConfig
+{
 
     @Bean(name = "indexer")
-    Indexer indexer() {
+    Indexer indexer()
+    {
         return new DefaultIndexer(searchEngine(), indexerEngine(), queryCreator());
     }
 
     @Bean(name = "scanner")
-    Scanner scanner() {
+    Scanner scanner()
+    {
         return new DefaultScanner(artifactContextProducer());
     }
 
     @Bean(name = "searchEngine")
-    SearchEngine searchEngine() {
+    SearchEngine searchEngine()
+    {
         return new DefaultSearchEngine();
     }
 
     @Bean(name = "indexerEngine")
-    IndexerEngine indexerEngine() {
+    IndexerEngine indexerEngine()
+    {
         return new DefaultIndexerEngine();
     }
 
     @Bean(name = "queryCreator")
-    QueryCreator queryCreator() {
+    QueryCreator queryCreator()
+    {
         return new DefaultQueryCreator();
     }
 
     @Bean(name = "artifactContextProducer")
-    ArtifactContextProducer artifactContextProducer() {
+    ArtifactContextProducer artifactContextProducer()
+    {
         return new DefaultArtifactContextProducer(artifactPackagingMapper());
     }
 
     @Bean(name = "artifactPackagingMapper")
-    ArtifactPackagingMapper artifactPackagingMapper() {
+    ArtifactPackagingMapper artifactPackagingMapper()
+    {
         return new DefaultArtifactPackagingMapper();
     }
 
     @Bean
-    MinimalArtifactInfoIndexCreator minimalArtifactInfoIndexCreator() {
+    MinimalArtifactInfoIndexCreator minimalArtifactInfoIndexCreator()
+    {
         return new MinimalArtifactInfoIndexCreator();
     }
 
     @Bean
-    JarFileContentsIndexCreator jarFileContentsIndexCreator() {
+    JarFileContentsIndexCreator jarFileContentsIndexCreator()
+    {
         return new JarFileContentsIndexCreator();
     }
 
     @Bean
-    MavenPluginArtifactInfoIndexCreator mavenPluginArtifactInfoIndexCreator() {
+    MavenPluginArtifactInfoIndexCreator mavenPluginArtifactInfoIndexCreator()
+    {
         return new MavenPluginArtifactInfoIndexCreator();
     }
 
     @Bean(name = "indexers")
-    LinkedHashMap<String, AbstractIndexCreator> indexers() {
+    LinkedHashMap<String, AbstractIndexCreator> indexers()
+    {
         LinkedHashMap<String, AbstractIndexCreator> indexers = new LinkedHashMap<>();
         indexers.put("min", minimalArtifactInfoIndexCreator());
         indexers.put("jarContent", jarFileContentsIndexCreator());

@@ -17,7 +17,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 @Configuration
-public class StorageApiConfig {
+public class StorageApiConfig
+{
     private static final Logger logger = LoggerFactory.getLogger(StorageApiConfig.class);
 
     @Autowired
@@ -30,7 +31,8 @@ public class StorageApiConfig {
     private List<VersionValidator> versionValidators;
 
     @Bean(name = "checksumCacheManager")
-    ChecksumCacheManager checksumCacheManager() {
+    ChecksumCacheManager checksumCacheManager()
+    {
         ChecksumCacheManager checksumCacheManager = new ChecksumCacheManager();
         checksumCacheManager.setCachedChecksumExpiredCheckInterval(300000);
         checksumCacheManager.setCachedChecksumLifetime(60000);
@@ -39,7 +41,8 @@ public class StorageApiConfig {
     }
 
     @Bean(name = "resolvers")
-    LinkedHashMap<String, LocationResolver> resolvers() {
+    LinkedHashMap<String, LocationResolver> resolvers()
+    {
         LinkedHashMap<String, LocationResolver> resolvers = new LinkedHashMap<>();
         resolvers.put("file-system", fsLocationResolver);
         resolvers.put("group", groupLocationResolver);
@@ -48,7 +51,8 @@ public class StorageApiConfig {
     }
 
     @Bean(name = "artifactResolutionService", initMethod = "listResolvers")
-    ArtifactResolutionServiceImpl artifactResolutionService() {
+    ArtifactResolutionServiceImpl artifactResolutionService()
+    {
         ArtifactResolutionServiceImpl artifactResolutionService = new ArtifactResolutionServiceImpl();
         artifactResolutionService.setResolvers(resolvers());
 
@@ -56,7 +60,8 @@ public class StorageApiConfig {
     }
 
     @Bean(name = "versionValidators")
-    LinkedHashSet<VersionValidator> versionValidators() {
+    LinkedHashSet<VersionValidator> versionValidators()
+    {
         return new LinkedHashSet<>(versionValidators);
     }
 

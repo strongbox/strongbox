@@ -5,10 +5,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class TestingCoreConfig {
+public class TestingCoreConfig
+{
 
     @Bean(name = "assignedPorts")
-    AssignedPorts assignedPorts() {
+    AssignedPorts assignedPorts()
+    {
         return new AssignedPorts();
     }
 

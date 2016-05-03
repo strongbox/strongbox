@@ -19,13 +19,15 @@ import javax.annotation.Resource;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig extends WebSecurityConfigurerAdapter
+{
 
     @Resource(name = "strongboxUserDetailService")
     private StrongboxUserDetailService strongboxUserDetailService;
 
     @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    protected void configure(HttpSecurity http) throws Exception
+    {
         http
         .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
@@ -47,7 +49,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception
+    {
         auth.userDetailsService(strongboxUserDetailService)
                 .passwordEncoder(passwordEncoder())
                 .and()
@@ -56,23 +59,27 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean(name = "userDao")
-    UserRepository userDao() {
+    UserRepository userDao()
+    {
         return  new UserRepository();
     }
 
     @Bean(name = "userDetailsService")
     @Override
-    public UserDetailsService userDetailsService() {
+    public UserDetailsService userDetailsService()
+    {
         return new StrongboxUserDetailService();
     }
 
     @Bean
-    PasswordEncoder passwordEncoder() {
+    PasswordEncoder passwordEncoder()
+    {
         return new StandardPasswordEncoder("ThisIsASecretSoChangeMe");
     }
 
     @Bean(name = "unauthorizedEntryPoint")
-    AuthenticationEntryPoint unauthorizedEntryPoint() {
+    AuthenticationEntryPoint unauthorizedEntryPoint()
+    {
         UnauthorizedEntryPoint unauthorizedEntryPoint = new UnauthorizedEntryPoint();
         unauthorizedEntryPoint.setRealmName("Strongbox Realm");
         return unauthorizedEntryPoint;
