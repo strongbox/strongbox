@@ -8,11 +8,19 @@ import org.apache.maven.index.creator.JarFileContentsIndexCreator;
 import org.apache.maven.index.creator.MavenPluginArtifactInfoIndexCreator;
 import org.apache.maven.index.creator.MinimalArtifactInfoIndexCreator;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.LinkedHashMap;
 
 @Configuration
+@ComponentScan({
+        "org.carlspring.strongbox.booters",
+        "org.carlspring.strongbox.configuration",
+        "org.carlspring.strongbox.services",
+        "org.carlspring.strongbox.storage",
+        "org.carlspring.strongbox.util"
+})
 public class StorageIndexingConfig
 {
 

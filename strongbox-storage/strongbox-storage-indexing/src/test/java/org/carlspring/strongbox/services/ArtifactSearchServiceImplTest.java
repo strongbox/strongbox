@@ -6,7 +6,7 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -15,9 +15,6 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
@@ -28,15 +25,10 @@ import java.security.NoSuchAlgorithmException;
  * @author mtodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration
 public class ArtifactSearchServiceImplTest
-        extends TestCaseWithArtifactGeneration
+        extends TestCaseWithArtifactGenerationWithIndexing
 {
     private static final Logger logger = LoggerFactory.getLogger(ArtifactSearchServiceImplTest.class);
-
-    @Configuration
-    @ComponentScan(basePackages = {"org.carlspring.strongbox", "org.carlspring.logging"})
-    public static class SpringConfig { }
 
     private static final File REPOSITORY_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/releases");
 
@@ -65,16 +57,6 @@ public class ArtifactSearchServiceImplTest
         generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), artifact2);
         generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), artifact3);
 
-
-        final File lockFile = new File(ConfigurationResourceResolver.getVaultDirectory(), "storage-booter.lock");
-
-        if (lockFile.exists())
-        {
-            //noinspection ResultOfMethodCallIgnored
-            boolean delete = lockFile.delete();
-
-            logger.info("Lock removed: {}", delete);
-        }
     }
 
     @Test

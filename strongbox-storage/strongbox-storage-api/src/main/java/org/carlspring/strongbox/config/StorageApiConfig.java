@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.LinkedHashMap;
@@ -17,6 +18,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 @Configuration
+@ComponentScan({
+        "org.carlspring.strongbox.artifact",
+        "org.carlspring.strongbox.configuration",
+        "org.carlspring.strongbox.io",
+        "org.carlspring.strongbox.services",
+        "org.carlspring.strongbox.storage",
+        "org.carlspring.strongbox.xml"
+})
 public class StorageApiConfig
 {
     private static final Logger logger = LoggerFactory.getLogger(StorageApiConfig.class);

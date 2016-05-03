@@ -5,17 +5,14 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
@@ -29,15 +26,10 @@ import static org.junit.Assert.*;
  * @author mtodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration
 public class ArtifactManagementServiceImplTest
-        extends TestCaseWithArtifactGeneration
+        extends TestCaseWithArtifactGenerationWithIndexing
 {
     private static final Logger logger = LoggerFactory.getLogger(ArtifactManagementServiceImplTest.class);
-
-    @org.springframework.context.annotation.Configuration
-    @ComponentScan(basePackages = {"org.carlspring.strongbox", "org.carlspring.logging"})
-    public static class SpringConfig { }
 
     private static final File STORAGE_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0");
 
@@ -49,20 +41,6 @@ public class ArtifactManagementServiceImplTest
     private ArtifactManagementService artifactManagementService;
 
     private static boolean INITIALIZED = false;
-
-    @After
-    public void tearDown() throws Exception
-    {
-        final File lockFile = new File(ConfigurationResourceResolver.getVaultDirectory(), "storage-booter.lock");
-
-        if (lockFile.exists())
-        {
-            //noinspection ResultOfMethodCallIgnored
-            boolean delete = lockFile.delete();
-
-            logger.info("Lock removed: {}", delete);
-        }
-    }
 
     @Before
     public void init()

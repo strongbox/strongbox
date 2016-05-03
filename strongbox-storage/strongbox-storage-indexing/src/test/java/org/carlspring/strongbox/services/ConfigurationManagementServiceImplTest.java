@@ -1,21 +1,16 @@
 package org.carlspring.strongbox.services;
 
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
-import org.junit.After;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.io.File;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -25,32 +20,13 @@ import static org.junit.Assert.assertFalse;
  * @author mtodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration
 public class ConfigurationManagementServiceImplTest
-        extends TestCaseWithArtifactGeneration
+        extends TestCaseWithArtifactGenerationWithIndexing
 {
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationManagementServiceImplTest.class);
 
-    @org.springframework.context.annotation.Configuration
-    @ComponentScan(basePackages = {"org.carlspring.strongbox", "org.carlspring.logging"})
-    public static class SpringConfig { }
-
     @Autowired
     private ConfigurationManagementService configurationManagementService;
-
-    @After
-    public void tearDown() throws Exception
-    {
-        final File lockFile = new File(ConfigurationResourceResolver.getVaultDirectory(), "storage-booter.lock");
-
-        if (lockFile.exists())
-        {
-            //noinspection ResultOfMethodCallIgnored
-            boolean delete = lockFile.delete();
-
-            logger.info("Lock removed: {}", delete);
-        }
-    }
 
     @Test
     public void testGetGroupRepositories() throws Exception

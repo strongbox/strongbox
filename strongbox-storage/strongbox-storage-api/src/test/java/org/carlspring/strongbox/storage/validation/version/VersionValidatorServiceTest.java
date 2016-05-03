@@ -1,10 +1,12 @@
 package org.carlspring.strongbox.storage.validation.version;
 
+import org.carlspring.strongbox.config.CommonConfig;
+import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.services.VersionValidatorService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -19,7 +21,10 @@ public class VersionValidatorServiceTest
 {
 
     @org.springframework.context.annotation.Configuration
-    @ComponentScan(basePackages = {"org.carlspring.strongbox", "org.carlspring.logging"})
+    @Import({
+            StorageApiConfig.class,
+            CommonConfig.class
+    })
     public static class SpringConfig { }
 
     @Autowired
