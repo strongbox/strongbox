@@ -1,4 +1,9 @@
 
+# Code Style
+
+While we appreciate all the help we can get, here are some more details on the [coding conventions](https://github.com/strongbox/strongbox/wiki/Coding-Convention). Please, follow these guidelines and set up your IDE to use the respective code style configuration file.
+
+# Legal
 
 Contributing code to this project means that you accept your contributions to be 
 licensed under the Apache 2.0 license. Signing the ICLA below covers contributions to:
