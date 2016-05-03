@@ -4,6 +4,7 @@
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
                                  http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.0.xsd">
+<!--
 
     <security:global-method-security authentication-manager-ref="authenticationManager" pre-post-annotations="enabled" />
 
@@ -17,42 +18,42 @@
 
     <security:authentication-manager alias="authenticationManager">
 
-        <!--
+        &lt;!&ndash;
          Custom authentication provider based on OrientDB as user storage
-         -->
+         &ndash;&gt;
         <security:authentication-provider user-service-ref="userDetailService">
             <security:password-encoder ref="passwordEncoder"/>
         </security:authentication-provider>
 
-        <!--
+        &lt;!&ndash;
         A demo of simple in-memory authentication provider
-        -->
+        &ndash;&gt;
         <security:authentication-provider>
             <security:user-service>
-                <!-- This user is also setup with OrientDB -->
-                <!--<security:user name="martin" password="agent007" authorities="ROLE_ADMIN" />-->
+                &lt;!&ndash; This user is also setup with OrientDB &ndash;&gt;
+                &lt;!&ndash;<security:user name="martin" password="agent007" authorities="ROLE_ADMIN" />&ndash;&gt;
 
-                <!-- A second user which has no rights to open /configuration/strongbox/** -->
+                &lt;!&ndash; A second user which has no rights to open /configuration/strongbox/** &ndash;&gt;
                 <security:user name="maven" password="password" authorities="ROLE_USER" />
             </security:user-service>
         </security:authentication-provider>
 
-        <!--
+        &lt;!&ndash;
          For LDAP authentication see:
          https://spring.io/guides/gs/authenticating-ldap/
          https://docs.spring.io/spring-security/site/docs/4.0.x/reference/html/jc.html#ldap-authentication
-         -->
+         &ndash;&gt;
 
-        <!--
+        &lt;!&ndash;
          For Atlassian Crowd see:
          https://confluence.atlassian.com/display/CROWD/Integrating+Crowd+with+Spring+Security
-         -->
+         &ndash;&gt;
 
-        <!--
+        &lt;!&ndash;
          For CAS see:
          https://docs.spring.io/spring-security/site/docs/3.0.x/reference/cas.html
          https://docs.spring.io/spring-security/site/docs/4.0.x/reference/html/sample-apps.html#cas-sample
-        -->
+        &ndash;&gt;
 
     </security:authentication-manager>
 
@@ -64,37 +65,38 @@
                    entry-point-ref="unauthorizedEntryPoint"
                    authentication-manager-ref="authenticationManager">
 
-        <!-- CSRF is disabled so that the application security could be tested with the browser.
-        Re-enable it once the Angular app start sending the CSRF token with every request -->
+        &lt;!&ndash; CSRF is disabled so that the application security could be tested with the browser.
+        Re-enable it once the Angular app start sending the CSRF token with every request &ndash;&gt;
         <security:csrf disabled="true"/>
 
-        <!--
+        &lt;!&ndash;
         Use Spring Security's (ugly) login page until prettier one is provided (with Angular)
-        -->
+        &ndash;&gt;
         <security:form-login/>
 
-        <!-- Enables Spring Security's /logout endpoint that could be used to logout an user
-        -->
+        &lt;!&ndash; Enables Spring Security's /logout endpoint that could be used to logout an user
+        &ndash;&gt;
         <security:logout logout-url="/logout" />
 
-        <!--
+        &lt;!&ndash;
         Uncomment to enable any logged in user to be able to request that url
         <security:intercept-url method="GET" pattern="/configuration/strongbox/**" access="isAuthenticated()" />
-        -->
+        &ndash;&gt;
 
-        <!-- Only admins could open this url -->
+        &lt;!&ndash; Only admins could open this url &ndash;&gt;
         <security:intercept-url method="GET" pattern="/configuration/strongbox/**" access="hasRole('ROLE_ADMIN')" />
 
-        <!--
+        &lt;!&ndash;
         Uncomment to enable anonymous users
         <security:anonymous enabled="true"/>
-        -->
+        &ndash;&gt;
 
-        <!-- Any user can reach anything else -->
+        &lt;!&ndash; Any user can reach anything else &ndash;&gt;
         <security:intercept-url pattern="/**" access="permitAll" />
 
         <security:http-basic />
 
     </security:http>
+-->
 
 </beans:beans>

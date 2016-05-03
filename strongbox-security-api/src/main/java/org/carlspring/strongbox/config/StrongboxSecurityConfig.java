@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 
 @Configuration
-public class SecurityConfig {
+public class StrongboxSecurityConfig {
 
     @Bean(name = "authenticationManager", initMethod = "load")
     @Lazy

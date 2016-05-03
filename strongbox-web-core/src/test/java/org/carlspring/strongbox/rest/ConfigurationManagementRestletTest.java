@@ -1,19 +1,15 @@
 package org.carlspring.strongbox.rest;
 
-import org.carlspring.strongbox.client.ArtifactClient;
 import org.carlspring.strongbox.client.RestClient;
-import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -37,9 +33,6 @@ public class ConfigurationManagementRestletTest
 
     @org.springframework.context.annotation.Configuration
     @ComponentScan(basePackages = {"org.carlspring.strongbox", "org.carlspring.logging"})
-    @Import({
-            WebConfig.class
-    })
     public static class SpringConfig { }
 
 

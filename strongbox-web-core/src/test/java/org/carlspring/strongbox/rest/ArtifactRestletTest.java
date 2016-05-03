@@ -28,8 +28,6 @@ import static org.junit.Assert.*;
 /**
  * @author mtodorov
  */
-//@RunWith(SpringJUnit4ClassRunner.class)
-//@ContextConfiguration
 public class ArtifactRestletTest
         extends TestCaseWithArtifactGeneration
 {
@@ -42,14 +40,6 @@ public class ArtifactRestletTest
     public static boolean INITIALIZED = false;
 
     private RestClient client = new RestClient();
-
-/*    @Configuration
-    @ComponentScan(basePackages = {"org.carlspring.strongbox", "org.carlspring.logging"})
-    @Import({
-            StorageApiConfig.class
-    })
-    public static class SpringConfig { }
-*/
 
     @Before
     public void setUp()

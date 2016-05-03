@@ -13,9 +13,11 @@ import org.springframework.context.annotation.Import;
 })
 @Import({
         CommonConfig.class,
-        SecurityConfig.class,
+        StrongboxSecurityConfig.class,
         StorageIndexingConfig.class,
-        StorageApiConfig.class
+        StorageApiConfig.class,
+        GlobalSecurityConfig.class,
+        SecurityConfig.class
 })
 public class WebConfig {
     private static final Logger logger = LoggerFactory.getLogger(WebConfig.class);
