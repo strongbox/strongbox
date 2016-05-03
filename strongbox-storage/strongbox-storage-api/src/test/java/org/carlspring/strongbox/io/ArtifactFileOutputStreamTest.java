@@ -3,6 +3,8 @@ package org.carlspring.strongbox.io;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.config.CommonConfig;
+import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.storage.Storage;
@@ -11,6 +13,7 @@ import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -24,14 +27,20 @@ import static org.junit.Assert.assertTrue;
  * @author mtodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"/META-INF/spring/strongbox-*-context.xml", "classpath*:/META-INF/spring/strongbox-*-context.xml"})
+@ContextConfiguration
 public class ArtifactFileOutputStreamTest
         extends TestCaseWithArtifactGeneration
 {
 
+    @org.springframework.context.annotation.Configuration
+    @Import({
+            StorageApiConfig.class,
+            CommonConfig.class
+    })
+    public static class SpringConfig { }
+
     @Autowired
     private ConfigurationManager configurationManager;
-
 
     @Test
     public void testCreateWithTemporaryLocation()

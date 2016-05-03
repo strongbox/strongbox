@@ -38,7 +38,7 @@ import java.util.Set;
 /**
  * @author mtodorov
  */
-@Component
+@Component("artifactManagementService")
 public class ArtifactManagementServiceImpl
     implements ArtifactManagementService
 {

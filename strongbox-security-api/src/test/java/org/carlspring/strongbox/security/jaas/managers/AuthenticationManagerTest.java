@@ -1,8 +1,12 @@
 package org.carlspring.strongbox.security.jaas.managers;
 
+import org.carlspring.strongbox.config.CommonConfig;
+import org.carlspring.strongbox.config.StrongboxSecurityConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -13,13 +17,18 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
  * @author mtodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"/META-INF/spring/strongbox-*-context.xml", "classpath*:/META-INF/spring/strongbox-*-context.xml"})
+@ContextConfiguration
 public class AuthenticationManagerTest
 {
+    @Configuration
+    @Import({
+            StrongboxSecurityConfig.class,
+            CommonConfig.class
+    })
+    public static class SpringConfig { }
 
     @Autowired
     private AuthenticationManager authenticationManager;
-
 
     @Test
     public void testLoad()

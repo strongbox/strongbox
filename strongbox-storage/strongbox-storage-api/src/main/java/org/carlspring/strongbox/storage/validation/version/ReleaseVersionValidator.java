@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 /**
  * @author stodorov
  */
-@Component
+@Component("releaseVersionValidator")
 public class ReleaseVersionValidator
         implements VersionValidator
 {

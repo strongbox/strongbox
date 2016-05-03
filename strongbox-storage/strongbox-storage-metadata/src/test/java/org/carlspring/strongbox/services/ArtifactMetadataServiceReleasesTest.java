@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -29,7 +30,7 @@ import static org.junit.Assert.assertNotNull;
  * @author stodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"/META-INF/spring/strongbox-*-context.xml", "classpath*:/META-INF/spring/strongbox-*-context.xml"})
+@ContextConfiguration
 public class ArtifactMetadataServiceReleasesTest
         extends TestCaseWithArtifactGeneration
 {
@@ -37,6 +38,10 @@ public class ArtifactMetadataServiceReleasesTest
     private static final File REPOSITORY_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/releases");
 
     private static Artifact artifact;
+
+    @org.springframework.context.annotation.Configuration
+    @ComponentScan(basePackages = {"org.carlspring.strongbox", "org.carlspring.logging"})
+    public static class SpringConfig { }
 
     @Autowired
     private ArtifactMetadataService artifactMetadataService;

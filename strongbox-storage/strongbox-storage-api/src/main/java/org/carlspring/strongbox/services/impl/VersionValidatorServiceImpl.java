@@ -11,7 +11,7 @@ import java.util.Set;
 /**
  * @author mtodorov
  */
-@Component
+@Component("versionValidatorService")
 public class VersionValidatorServiceImpl
         implements VersionValidatorService
 {
