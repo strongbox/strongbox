@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.rest;
 
+import org.carlspring.strongbox.client.ArtifactClient;
 import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.configuration.Configuration;
@@ -8,6 +9,7 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.context.annotation.ComponentScan;
@@ -31,6 +33,8 @@ import static org.junit.Assert.*;
 public class ConfigurationManagementRestletTest
 {
 
+    private RestClient client = RestClient.getTestInstanceLoggedInAsAdmin();
+
     @org.springframework.context.annotation.Configuration
     @ComponentScan(basePackages = {"org.carlspring.strongbox", "org.carlspring.logging"})
     @Import({
@@ -38,8 +42,6 @@ public class ConfigurationManagementRestletTest
     })
     public static class SpringConfig { }
 
-
-    private RestClient client = new RestClient();
 
     @After
     public void tearDown()

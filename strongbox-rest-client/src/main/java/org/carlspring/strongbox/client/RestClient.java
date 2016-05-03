@@ -30,6 +30,35 @@ public class RestClient extends ArtifactClient
     private static final Logger logger = LoggerFactory.getLogger(RestClient.class);
 
 
+    public static RestClient getTestInstance()
+    {
+        return getTestInstance("maven", "password");
+    }
+
+    public static RestClient getTestInstanceLoggedInAsAdmin()
+    {
+        return getTestInstance("admin", "password");
+    }
+
+    public static RestClient getTestInstance(String username, String password)
+    {
+        String host = System.getProperty("strongbox.host") != null ?
+                      System.getProperty("strongbox.host") :
+                      "localhost";
+
+        int port = System.getProperty("strongbox.port") != null ?
+                   Integer.parseInt(System.getProperty("strongbox.port")) :
+                   48080;
+
+        RestClient client = new RestClient();
+        client.setUsername(username);
+        client.setPassword(password);
+        client.setPort(port);
+        client.setContextBaseUrl("http://" + host + ":" + client.getPort());
+
+        return client;
+    }
+
     public int setConfiguration(Configuration configuration)
             throws IOException, JAXBException
     {

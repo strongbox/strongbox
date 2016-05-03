@@ -30,6 +30,7 @@ import static org.junit.Assert.*;
 @ContextConfiguration
 public class ConfigurationManagerTest
 {
+
     @org.springframework.context.annotation.Configuration
     @ComponentScan(basePackages = {"org.carlspring.strongbox", "org.carlspring.logging"})
     public static class SpringConfig { }

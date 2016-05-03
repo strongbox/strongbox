@@ -174,7 +174,10 @@ public class ArtifactDeployer extends ArtifactGenerator
         MultipleDigestInputStream mdis = new MultipleDigestInputStream(is);
         
         client.addMetadata(metadata, metadataPath,storageId, repositoryId, is);
-        deployChecksum(mdis, storageId, repositoryId, metadataPath.substring(0, metadataPath.lastIndexOf("/")+1), "maven-metadata.xml");
+        deployChecksum(mdis,
+                       storageId,
+                       repositoryId,
+                       metadataPath.substring(0, metadataPath.lastIndexOf('/') + 1), "maven-metadata.xml");
     }
 
     private void deployChecksum(MultipleDigestInputStream mdis,

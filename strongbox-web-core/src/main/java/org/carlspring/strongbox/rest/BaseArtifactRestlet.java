@@ -7,8 +7,6 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.core.Response;
-
 /**
  * @author carlspring
  */
