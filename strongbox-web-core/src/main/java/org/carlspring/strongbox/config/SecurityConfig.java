@@ -33,7 +33,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .exceptionHandling()
                 .authenticationEntryPoint(unauthorizedEntryPoint())
                 .and()
-
         .httpBasic()
                 .and()
         .csrf().disable()
@@ -50,7 +49,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(strongboxUserDetailService)
-                .passwordEncoder(passwordEncoder());
+                .passwordEncoder(passwordEncoder())
+                .and()
+                .inMemoryAuthentication()
+                .withUser("maven").password("password").roles("USER");
     }
 
     @Bean(name = "userDao")
@@ -71,6 +73,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean(name = "unauthorizedEntryPoint")
     AuthenticationEntryPoint unauthorizedEntryPoint() {
-        return new UnauthorizedEntryPoint();
+        UnauthorizedEntryPoint unauthorizedEntryPoint = new UnauthorizedEntryPoint();
+        unauthorizedEntryPoint.setRealmName("Strongbox Realm");
+        return unauthorizedEntryPoint;
     }
 }
