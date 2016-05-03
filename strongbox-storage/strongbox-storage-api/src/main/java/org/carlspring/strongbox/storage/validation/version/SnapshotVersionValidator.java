@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 /**
  * @author stodorov
  */
-@Component
+@Component("snapshotVersionValidator")
 public class SnapshotVersionValidator
         implements VersionValidator
 {

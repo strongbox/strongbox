@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * @author mtodorov
  */
-@Component
+@Component("groupLocationResolver")
 public class GroupLocationResolver
         extends AbstractLocationResolver
 {

@@ -1,16 +1,12 @@
 package org.carlspring.strongbox.artifact.generator;
 
+import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactClient;
 import org.carlspring.strongbox.client.ArtifactOperationException;
+import org.carlspring.strongbox.config.TestingCoreConfig;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.testing.AssignedPorts;
-
-import java.io.File;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-
-import org.apache.maven.artifact.Artifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.After;
 import org.junit.Before;
@@ -20,11 +16,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.File;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+
 /**
  * @author mtodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"/META-INF/spring/strongbox-testing-context.xml"})
+//@ContextConfiguration(locations={"/META-INF/spring/strongbox-testing-context.xml"})
+@ContextConfiguration(classes = TestingCoreConfig.class)
 public class ArtifactDeployerTest
 {
 

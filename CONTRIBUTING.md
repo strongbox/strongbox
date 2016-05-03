@@ -18,3 +18,4 @@ To accept, please:
 | Nicolay Karakulov            |                                          | Kharkhiv, Ukraine                       | 2014-10-05 |
 | Denis Ivaykin                |                                          | Moscow, Russia                          | 2014-04-19 |
 | Juan Ignacio Bais            |                                          | Buenos Aires, Argentina                 | 2016-02-24 |
+| Ivan Ursul                   |                                          | Lviv, Ukraine                           | 2016-05-02 |

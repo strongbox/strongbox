@@ -1,7 +1,16 @@
 package org.carlspring.strongbox.security.certificates;
 
+import org.carlspring.strongbox.config.StrongboxSecurityConfig;
 import org.carlspring.strongbox.net.ConnectionChecker;
 import org.carlspring.strongbox.testing.AssignedPorts;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,21 +27,20 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"/META-INF/spring/strongbox-*-context.xml",
-                                 "classpath*:/META-INF/spring/strongbox-*-context.xml"})
+@ContextConfiguration
 public class KeyStoresTest
 {
+
+    @org.springframework.context.annotation.Configuration
+    @Import({
+            StrongboxSecurityConfig.class
+    })
+    public static class SpringConfig { }
+
 
     @Autowired
     private AssignedPorts assignedPorts;

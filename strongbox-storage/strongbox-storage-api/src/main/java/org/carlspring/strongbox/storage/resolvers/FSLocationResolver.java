@@ -18,14 +18,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 /**
  * @author mtodorov
  */
-@Component
+@Component("fsLocationResolver")
 public class FSLocationResolver
         extends AbstractLocationResolver
 {

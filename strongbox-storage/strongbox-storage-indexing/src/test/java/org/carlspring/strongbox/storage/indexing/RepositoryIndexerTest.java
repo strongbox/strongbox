@@ -5,14 +5,14 @@ import org.apache.maven.index.ArtifactInfo;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
@@ -23,17 +23,14 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"/META-INF/spring/strongbox-*-context.xml", "classpath*:/META-INF/spring/strongbox-*-context.xml"})
 public class RepositoryIndexerTest
-        extends TestCaseWithArtifactGeneration
+        extends TestCaseWithArtifactGenerationWithIndexing
 {
+    private static final Logger logger = LoggerFactory.getLogger(RepositoryIndexerTest.class);
 
     private static final File REPOSITORY_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/releases");
 
     private static final File INDEX_DIR = new File(REPOSITORY_BASEDIR, ".index");
-
-    @Autowired
-    private RepositoryIndexManager repositoryIndexManager;
 
 
     @Before
@@ -58,7 +55,7 @@ public class RepositoryIndexerTest
     @Test
     public void testIndex() throws Exception
     {
-        final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndex("storage0:releases");
+        final RepositoryIndexer repositoryIndexer = getRepositoryIndexManager().getRepositoryIndex("storage0:releases");
 
         final int x = repositoryIndexer.index(new File("org/carlspring/strongbox/strongbox-commons"));
 

@@ -15,7 +15,7 @@ import java.io.File;
 /**
  * @author mtodorov
  */
-@Component
+@Component("basicRepositoryService")
 public class BasicRepositoryServiceImpl
         implements BasicRepositoryService
 {
