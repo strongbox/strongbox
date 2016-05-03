@@ -20,7 +20,6 @@
 
     <modules>
         <module>strongbox-storage-api-resources</module>
-        <module>strongbox-storage-indexing-resources</module>
     </modules>
 
 </project>

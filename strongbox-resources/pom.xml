@@ -21,7 +21,6 @@
     <modules>
         <module>strongbox-common-resources</module>
         <module>strongbox-storage-resources</module>
-        <module>strongbox-storage-booter-resources</module>
         <module>strongbox-web-resources</module>
     </modules>
     
