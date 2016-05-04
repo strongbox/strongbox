@@ -1,7 +1,9 @@
 package org.carlspring.strongbox.xml.parsers;
 
+import org.carlspring.strongbox.common.xml.parsers.GenericParser;
 import org.carlspring.strongbox.configuration.AnonymousAccessConfiguration;
 import org.carlspring.strongbox.configuration.AuthenticationConfiguration;
+import org.junit.Test;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -9,7 +11,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 
 /**

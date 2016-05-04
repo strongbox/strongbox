@@ -1,12 +1,12 @@
 package org.carlspring.strongbox.net;
 
+import org.carlspring.strongbox.common.net.ConnectionChecker;
+import org.junit.Test;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 
-import org.junit.Test;
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author mtodorov

@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.storage.resolvers;
 
-import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.common.io.ArtifactInputStream;
 
 import java.io.IOException;
 import java.io.OutputStream;

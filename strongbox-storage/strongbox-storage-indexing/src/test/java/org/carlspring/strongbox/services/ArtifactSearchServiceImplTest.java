@@ -2,7 +2,7 @@ package org.carlspring.strongbox.services;
 
 import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.common.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;

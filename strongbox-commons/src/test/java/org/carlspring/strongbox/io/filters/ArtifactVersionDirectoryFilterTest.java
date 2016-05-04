@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.io.filters;
 
+import org.carlspring.strongbox.common.io.filters.ArtifactVersionDirectoryFilter;
 import org.junit.Before;
 import org.junit.Test;
 

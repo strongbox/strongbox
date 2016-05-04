@@ -1,9 +1,9 @@
 package org.carlspring.strongbox.rest;
 
 import org.carlspring.strongbox.client.RestClient;
+import org.carlspring.strongbox.common.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.junit.After;

@@ -1,14 +1,14 @@
 package org.carlspring.strongbox.configuration;
 
-import org.carlspring.strongbox.xml.parsers.GenericParser;
+import org.carlspring.strongbox.common.configuration.ServerConfiguration;
+import org.carlspring.strongbox.common.xml.parsers.GenericParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
 
 import javax.annotation.PostConstruct;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
 
 /**
  * @author mtodorov

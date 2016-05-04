@@ -2,9 +2,9 @@ package org.carlspring.strongbox.artifact.generator;
 
 import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.common.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.common.util.MessageDigestUtils;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
-import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.junit.Test;
 
 import java.io.File;

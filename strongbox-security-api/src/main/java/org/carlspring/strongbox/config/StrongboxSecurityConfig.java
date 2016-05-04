@@ -1,11 +1,10 @@
 package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.security.jaas.caching.CachedUserManager;
-import org.carlspring.strongbox.security.jaas.managers.AuthenticationManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Import;
 
 @Configuration
 @ComponentScan({
@@ -13,15 +12,11 @@ import org.springframework.context.annotation.Lazy;
         "org.carlspring.strongbox.security",
         "org.carlspring.strongbox.visitors",
 })
+@Import({
+        CommonConfig.class
+})
 public class StrongboxSecurityConfig
 {
-
-    @Bean(name = "authenticationManager", initMethod = "load")
-    @Lazy
-    AuthenticationManager authenticationManager()
-    {
-        return new AuthenticationManager();
-    }
 
     @Bean(name = "cachedUserManager")
     CachedUserManager cachedUserManager()

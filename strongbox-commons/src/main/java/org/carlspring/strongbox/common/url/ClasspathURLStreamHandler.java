@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.url;
+package org.carlspring.strongbox.common.url;
 
 import java.io.IOException;
 import java.net.URL;

@@ -1,14 +1,14 @@
 package org.carlspring.strongbox.storage.checksum;
 
 import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
-import org.carlspring.strongbox.util.MessageDigestUtils;
+import org.carlspring.strongbox.common.util.MessageDigestUtils;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import org.junit.Ignore;
-import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 

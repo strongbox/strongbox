@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.io;
+package org.carlspring.strongbox.common.io;
 
 import org.apache.maven.artifact.Artifact;
 import org.carlspring.commons.http.range.ByteRange;

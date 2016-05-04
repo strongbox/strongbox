@@ -10,7 +10,7 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.carlspring.maven.commons.io.filters.PomFilenameFilter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.io.filters.ArtifactVersionDirectoryFilter;
+import org.carlspring.strongbox.common.io.filters.ArtifactVersionDirectoryFilter;
 import org.carlspring.strongbox.storage.metadata.comparators.MetadataVersionComparator;
 import org.carlspring.strongbox.storage.metadata.comparators.SnapshotVersionComparator;
 import org.carlspring.strongbox.storage.metadata.versions.MetadataVersion;
@@ -26,7 +26,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author stodorov

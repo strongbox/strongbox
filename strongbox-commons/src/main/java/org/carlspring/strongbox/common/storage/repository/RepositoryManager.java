@@ -1,12 +1,12 @@
-package org.carlspring.strongbox.storage.repository;
-
-import java.io.File;
-import java.io.IOException;
+package org.carlspring.strongbox.common.storage.repository;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * @author mtodorov

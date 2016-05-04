@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.services.impl;
 
+import org.carlspring.strongbox.common.io.ArtifactInputStream;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;

@@ -2,7 +2,7 @@ package org.carlspring.strongbox.storage.repository.artifact.locator;
 
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.artifact.locator.handlers.ArtifactLocationReportOperation;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.common.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.After;

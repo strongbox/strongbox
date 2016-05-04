@@ -3,14 +3,14 @@ package org.carlspring.strongbox.rest;
 import io.swagger.annotations.*;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.common.io.ArtifactInputStream;
+import org.carlspring.strongbox.common.util.MessageDigestUtils;
 import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
-import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +28,8 @@ import java.io.InputStream;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 
-import static org.carlspring.commons.http.range.ByteRangeRequestHandler.*;
+import static org.carlspring.commons.http.range.ByteRangeRequestHandler.handlePartialDownload;
+import static org.carlspring.commons.http.range.ByteRangeRequestHandler.isRangedRequest;
 
 /**
  * @author Martin Todorov

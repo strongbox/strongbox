@@ -1,12 +1,12 @@
-package org.carlspring.strongbox.resource;
+package org.carlspring.strongbox.common.resource;
+
+import org.slf4j.Logger;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Method;
-
-import org.slf4j.Logger;
 
 /**
  * A utility class for safely closing resources and logging eventual errors.

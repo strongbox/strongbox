@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.xml;
+package org.carlspring.strongbox.common.xml;
 
 import javax.xml.bind.annotation.*;
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.util;
+package org.carlspring.strongbox.common.util;
 
 /**
  * @author mtodorov

@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.resource;
 
 import org.carlspring.strongbox.booters.ResourcesBooter;
+import org.carlspring.strongbox.common.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 import org.junit.Test;
 import org.junit.runner.RunWith;

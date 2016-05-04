@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.configuration;
 
+import org.carlspring.strongbox.common.configuration.ServerConfiguration;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.xml.StorageMapAdapter;

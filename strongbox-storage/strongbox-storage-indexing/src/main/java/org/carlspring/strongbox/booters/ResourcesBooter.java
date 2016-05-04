@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.booters;
 
 import org.apache.commons.io.FileUtils;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.common.resource.ConfigurationResourceResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
