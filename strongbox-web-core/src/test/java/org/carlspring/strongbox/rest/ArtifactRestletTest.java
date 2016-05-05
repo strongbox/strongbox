@@ -32,6 +32,8 @@ public class ArtifactRestletTest
         extends TestCaseWithArtifactGeneration
 {
 
+    private static final String TEST_RESOURCES = "target/test-resources";
+
     private static final File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/local");
 
     private static final File REPOSITORY_BASEDIR_RELEASES = new File(ConfigurationResourceResolver.getVaultDirectory() +
@@ -47,6 +49,11 @@ public class ArtifactRestletTest
     {
         if (!INITIALIZED)
         {
+            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                             "org.carlspring.strongbox.resolve.only:foo",
+                             new String[]{ "1.1", // Used by testResolveViaProxy()
+                                         });
+
             // Generate releases
             // Used by testPartialFetch():
             generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
@@ -74,6 +81,10 @@ public class ArtifactRestletTest
                              new String[]{ "3.1", // Used by testPartialFetch()
                                            "3.2"  // Used by testPartialFetch()
                                          });
+
+            //noinspection ResultOfMethodCallIgnored
+            new File(TEST_RESOURCES).mkdirs();
+
             INITIALIZED = true;
         }
     }
@@ -86,6 +97,50 @@ public class ArtifactRestletTest
         {
             client.close();
         }
+    }
+
+    @Test
+    public void testResolveViaProxy()
+            throws Exception
+    {
+        String artifactPath = "storages/storage0/proxied-releases/org/carlspring/strongbox/resolve/only/foo/1.1/foo-1.1.jar";
+
+        // assertTrue("Artifact does not exist!", client.pathExists(artifactPath));
+
+        String md5Remote = MessageDigestUtils.readChecksumFile(client.getResource(artifactPath + ".md5"));
+        String sha1Remote = MessageDigestUtils.readChecksumFile(client.getResource(artifactPath + ".sha1"));
+
+        InputStream is = client.getResource(artifactPath);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        MultipleDigestOutputStream mdos = new MultipleDigestOutputStream(baos);
+
+        int len;
+        final int size = 1024;
+        byte[] bytes = new byte[size];
+
+        while ((len = is.read(bytes, 0, size)) != -1)
+        {
+            mdos.write(bytes, 0, len);
+        }
+
+        mdos.flush();
+        mdos.close();
+
+        final String md5Local = mdos.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
+        final String sha1Local = mdos.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
+
+        System.out.println("MD5   [Remote]: " + md5Remote);
+        System.out.println("MD5   [Local ]: " + md5Local);
+
+        System.out.println("SHA-1 [Remote]: " + sha1Remote);
+        System.out.println("SHA-1 [Local ]: " + sha1Local);
+
+        FileOutputStream fos = new FileOutputStream(new File(TEST_RESOURCES, "foo-1.1.jar"));
+        fos.write(baos.toByteArray());
+
+        assertEquals("MD5 checksums did not match!", md5Remote, md5Local);
+        assertEquals("SHA-1 checksums did not match!", sha1Remote, sha1Local);
     }
 
     @Test
@@ -428,9 +483,14 @@ public class ArtifactRestletTest
     }
     
     @Test 
-    public void updateMetadataOnDeleteSnapshotVersionDirectoryTest() throws NoSuchAlgorithmException, XmlPullParserException, IOException, ArtifactOperationException, ArtifactTransportException 
+    public void updateMetadataOnDeleteSnapshotVersionDirectoryTest()
+            throws NoSuchAlgorithmException,
+                   XmlPullParserException,
+                   IOException,
+                   ArtifactOperationException,
+                   ArtifactTransportException
     {
-        //Given
+        // Given
         String ga = "org.carlspring.strongbox.metadata:metadata-foo";
 
         Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":3.1-SNAPSHOT");
@@ -452,12 +512,12 @@ public class ArtifactRestletTest
         
         String path = "org/carlspring/strongbox/metadata/metadata-foo/3.1-SNAPSHOT";
         
-        //When
+        // When
         client.delete(storageId, repositoryId, path);
             
-        //Then
+        // Then
         Metadata metadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
-                ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
+                                                    ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
         Assert.assertTrue(!metadata.getVersioning().getVersions().contains("3.1-SNAPSHOT"));
     }
 
