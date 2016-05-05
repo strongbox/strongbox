@@ -1,25 +1,27 @@
 package org.carlspring.strongbox.security.jaas.managers;
 
+import org.carlspring.strongbox.common.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.common.xml.parsers.GenericParser;
 import org.carlspring.strongbox.configuration.AnonymousAccessConfiguration;
 import org.carlspring.strongbox.configuration.AuthenticationConfiguration;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.xml.parsers.GenericParser;
-
-import javax.xml.bind.JAXBException;
-import java.io.IOException;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * @author mtodorov
  */
 @Component
+@Lazy
 @Scope("singleton")
 public class AuthenticationManager
         implements AuthenticationConfigurationManager
@@ -35,6 +37,7 @@ public class AuthenticationManager
     private GenericParser<AuthenticationConfiguration> parser = new GenericParser<AuthenticationConfiguration>(AuthenticationConfiguration.class);
 
 
+    @PostConstruct
     @Override
     public void load()
             throws IOException, JAXBException

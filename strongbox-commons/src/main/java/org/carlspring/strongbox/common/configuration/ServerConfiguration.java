@@ -1,10 +1,10 @@
-package org.carlspring.strongbox.configuration;
+package org.carlspring.strongbox.common.configuration;
+
+import org.springframework.core.io.Resource;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlTransient;
-
-import org.springframework.core.io.Resource;
 
 /**
  * @author mtodorov

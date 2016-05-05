@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.net;
+package org.carlspring.strongbox.common.net;
 
 import java.io.IOException;
 import java.net.*;

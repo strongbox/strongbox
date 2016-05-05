@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.storage.resolvers;
 
-import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.common.io.ArtifactInputStream;
 import org.carlspring.strongbox.services.BasicRepositoryService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;

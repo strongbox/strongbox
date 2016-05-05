@@ -2,8 +2,8 @@ package org.carlspring.strongbox.rest;
 
 import org.apache.commons.io.IOUtils;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.resource.ResourceCloser;
+import org.carlspring.strongbox.common.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.common.resource.ResourceCloser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

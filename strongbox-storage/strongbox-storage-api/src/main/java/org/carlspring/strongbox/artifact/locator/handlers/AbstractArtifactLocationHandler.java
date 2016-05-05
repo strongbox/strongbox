@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.artifact.locator.handlers;
 
-import org.carlspring.strongbox.io.filters.ArtifactVersionDirectoryFilter;
+import org.carlspring.strongbox.common.io.filters.ArtifactVersionDirectoryFilter;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 

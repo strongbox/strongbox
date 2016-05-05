@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.configuration;
 
+import org.carlspring.strongbox.common.xml.parsers.GenericParser;
 import org.carlspring.strongbox.config.CommonConfig;
 import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
@@ -8,7 +9,6 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.RuleSet;
-import org.carlspring.strongbox.xml.parsers.GenericParser;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

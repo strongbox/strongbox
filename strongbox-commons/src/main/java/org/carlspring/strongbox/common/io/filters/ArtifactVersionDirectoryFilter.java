@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.io.filters;
+package org.carlspring.strongbox.common.io.filters;
 
 import org.carlspring.commons.io.filters.DirectoryFilter;
 import org.carlspring.maven.commons.io.filters.PomFilenameFilter;

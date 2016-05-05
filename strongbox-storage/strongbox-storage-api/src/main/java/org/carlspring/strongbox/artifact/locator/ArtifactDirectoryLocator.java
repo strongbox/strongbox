@@ -9,7 +9,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import static org.carlspring.strongbox.util.FileUtils.normalizePath;
+import static org.carlspring.strongbox.common.util.FileUtils.normalizePath;
+
 
 /**
  * @author mtodorov

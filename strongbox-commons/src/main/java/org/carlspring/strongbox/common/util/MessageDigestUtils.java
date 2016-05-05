@@ -1,6 +1,6 @@
-package org.carlspring.strongbox.util;
+package org.carlspring.strongbox.common.util;
 
-import org.carlspring.strongbox.resource.ResourceCloser;
+import org.carlspring.strongbox.common.resource.ResourceCloser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
