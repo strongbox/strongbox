@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.services;
 
+import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.storage.Storage;
 
 import java.io.IOException;
@@ -20,7 +21,7 @@ public interface ArtifactManagementService extends ConfigurationService
     InputStream resolve(String storageId,
                         String repositoryId,
                         String path)
-            throws IOException;
+            throws IOException, ArtifactTransportException;
 
     void delete(String storageId,
                 String repositoryId,

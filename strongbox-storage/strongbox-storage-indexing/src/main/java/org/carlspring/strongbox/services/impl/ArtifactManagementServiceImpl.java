@@ -5,6 +5,7 @@ import org.apache.maven.artifact.Artifact;
 import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.resource.ResourceCloser;
@@ -164,7 +165,7 @@ public class ArtifactManagementServiceImpl
     public InputStream resolve(String storageId,
                                String repositoryId,
                                String path)
-            throws IOException
+            throws IOException, ArtifactTransportException
     {
         InputStream is = null;
 

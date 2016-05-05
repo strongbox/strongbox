@@ -2,29 +2,30 @@ package org.carlspring.strongbox.storage.resolvers;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
+import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.commons.io.filters.DirectoryFilter;
+import org.carlspring.commons.io.resource.ResourceCloser;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.client.MavenArtifactClient;
 import org.carlspring.strongbox.io.ArtifactFile;
-import org.carlspring.strongbox.io.ArtifactFileOutputStream;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.DirUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 /**
  * @author mtodorov
  */
-@Component
+@Component("proxyLocationResolver")
 public class ProxyLocationResolver
         extends AbstractLocationResolver
 {
@@ -42,19 +43,33 @@ public class ProxyLocationResolver
     public ArtifactInputStream getInputStream(String storageId,
                                               String repositoryId,
                                               String artifactPath)
-            throws IOException, NoSuchAlgorithmException
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   ArtifactTransportException
     {
         Storage storage = getConfiguration().getStorage(storageId);
 
         logger.debug("Checking in " + storage.getId() + ":" + repositoryId + "...");
 
-        final File repoPath = new File(storage.getRepository(repositoryId).getBasedir());
-        final File artifactFile = new File(repoPath, artifactPath).getCanonicalFile();
+        Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
+
+        ArtifactFile artifactFile;
+        if (!ArtifactUtils.isMetadata(artifactPath) && !ArtifactUtils.isChecksum(artifactPath))
+        {
+            Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
+            artifactFile = new ArtifactFile(repository, artifact, true);
+        }
+        else
+        {
+            final File repoPath = new File(storage.getRepository(repositoryId).getBasedir());
+            artifactFile = new ArtifactFile(new File(repoPath, artifactPath).getCanonicalFile());
+        }
 
         logger.debug(" -> Checking for " + artifactFile.getCanonicalPath() + "...");
 
         if (artifactFile.exists())
         {
+            logger.debug("The artifact was found in the local cache.");
             logger.debug("Resolved " + artifactFile.getCanonicalPath() + "!");
 
             ArtifactInputStream ais = new ArtifactInputStream(new FileInputStream(artifactFile));
@@ -64,12 +79,50 @@ public class ProxyLocationResolver
         }
         else
         {
-            // TODO: 1) Attempt to resolve it from the remote host
-            // TODO: 1 a) If it exists on the remote, serve the downloaded artifact
-            // TODO: 2) If the artifact does not exist, return null
-        }
+            logger.debug("The artifact was not found in the local cache.");
 
-        return null;
+            RemoteRepository remoteRepository = repository.getRemoteRepository();
+
+            MavenArtifactClient client = new MavenArtifactClient();
+            client.setRepositoryBaseUrl(remoteRepository.getUrl());
+            client.setUsername(remoteRepository.getUsername());
+            client.setPassword(remoteRepository.getPassword());
+
+            artifactFile.createParents();
+
+            InputStream remoteIs = client.getResource(artifactPath);
+            MultipleDigestOutputStream mdos = new MultipleDigestOutputStream(new FileOutputStream(artifactFile));
+
+            // 1) Attempt to resolve it from the remote host
+            if (remoteIs == null)
+            {
+                // 1 a) If the artifact does not exist, return null
+                // The remote failed to resolve the artifact as well.
+                return null;
+            }
+
+            int len;
+            final int size = 1024;
+            byte[] bytes = new byte[size];
+
+            while ((len = remoteIs.read(bytes, 0, size)) != -1)
+            {
+                mdos.write(bytes, 0, len);
+            }
+
+            ResourceCloser.close(remoteIs, logger);
+            ResourceCloser.close(client, logger);
+
+            // TODO: Add a policy for validating the checksums of downloaded artifacts
+            // TODO: Validate the local checksum against the remote's checksums
+
+            // 1 b) If it exists on the remote, serve the downloaded artifact
+
+            ArtifactInputStream ais = new ArtifactInputStream(new FileInputStream(artifactFile));
+            ais.setLength(artifactFile.length());
+
+            return ais;
+        }
     }
 
     @Override

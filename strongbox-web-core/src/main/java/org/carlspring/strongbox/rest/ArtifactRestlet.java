@@ -3,6 +3,7 @@ package org.carlspring.strongbox.rest;
 import io.swagger.annotations.*;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
 import org.carlspring.strongbox.storage.Storage;
@@ -123,7 +124,7 @@ public class ArtifactRestlet
                 responseBuilder = Response.ok(is);
             }
         }
-        catch (ArtifactResolutionException e)
+        catch (ArtifactResolutionException | ArtifactTransportException e)
         {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -174,7 +175,7 @@ public class ArtifactRestlet
             isMd5 = getArtifactManagementService().resolve(storageId, repositoryId, path + ".md5");
             responseBuilder.header("Checksum-MD5", MessageDigestUtils.readChecksumFile(isMd5));
         }
-        catch (IOException e)
+        catch (IOException | ArtifactTransportException e)
         {
             // This can occur if there is no checksum
             logger.warn("There is no MD5 checksum for "  + storageId + "/" + repositoryId + "/" + path);
@@ -187,7 +188,7 @@ public class ArtifactRestlet
             isSha1 = getArtifactManagementService().resolve(storageId, repositoryId, path + ".sha1");
             responseBuilder.header("Checksum-SHA1", MessageDigestUtils.readChecksumFile(isSha1));
         }
-        catch (IOException e)
+        catch (IOException | ArtifactTransportException e)
         {
             // This can occur if there is no checksum
             logger.warn("There is no SHA1 checksum for "  + storageId + "/" + repositoryId + "/" + path);
