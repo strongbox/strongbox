@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.services;
 
-import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.storage.resolvers.LocationResolver;
 
 import java.io.IOException;
@@ -18,14 +17,12 @@ public interface ArtifactResolutionService
     InputStream getInputStream(String storageId,
                                String repositoryId,
                                String artifactPath)
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   ArtifactTransportException;
+            throws IOException, NoSuchAlgorithmException;
 
     OutputStream getOutputStream(String storageId,
                                  String repositoryId,
                                  String artifactPath)
-            throws IOException;
+                    throws IOException;
 
     Map<String, LocationResolver> getResolvers();
 
