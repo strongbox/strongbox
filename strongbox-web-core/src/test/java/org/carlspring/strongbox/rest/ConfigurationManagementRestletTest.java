@@ -8,10 +8,6 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.junit.After;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -24,17 +20,10 @@ import static org.junit.Assert.*;
 /**
  * @author mtodorov
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration
 public class ConfigurationManagementRestletTest
 {
 
     private RestClient client = RestClient.getTestInstanceLoggedInAsAdmin();
-
-    @org.springframework.context.annotation.Configuration
-    @ComponentScan(basePackages = {"org.carlspring.strongbox", "org.carlspring.logging"})
-    public static class SpringConfig { }
-
 
     @After
     public void tearDown()
