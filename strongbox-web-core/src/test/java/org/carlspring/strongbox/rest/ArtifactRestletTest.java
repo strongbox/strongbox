@@ -12,6 +12,9 @@ import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.storage.repository.RemoteRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -20,6 +23,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.xml.bind.JAXBException;
 import java.io.*;
 import java.security.NoSuchAlgorithmException;
 
@@ -32,6 +36,8 @@ public class ArtifactRestletTest
         extends TestCaseWithArtifactGeneration
 {
 
+    private static final String TEST_RESOURCES = "target/test-resources";
+
     private static final File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/local");
 
     private static final File REPOSITORY_BASEDIR_RELEASES = new File(ConfigurationResourceResolver.getVaultDirectory() +
@@ -41,12 +47,18 @@ public class ArtifactRestletTest
 
     private RestClient client = new RestClient();
 
+
     @Before
     public void setUp()
             throws Exception
     {
         if (!INITIALIZED)
         {
+            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                             "org.carlspring.strongbox.resolve.only:foo",
+                             new String[]{ "1.1", // Used by testResolveViaProxy()
+                                         });
+
             // Generate releases
             // Used by testPartialFetch():
             generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
@@ -74,6 +86,10 @@ public class ArtifactRestletTest
                              new String[]{ "3.1", // Used by testPartialFetch()
                                            "3.2"  // Used by testPartialFetch()
                                          });
+
+            //noinspection ResultOfMethodCallIgnored
+            new File(TEST_RESOURCES).mkdirs();
+
             INITIALIZED = true;
         }
     }
@@ -86,6 +102,77 @@ public class ArtifactRestletTest
         {
             client.close();
         }
+    }
+
+    @Test
+    public void testResolveViaProxy()
+            throws Exception
+    {
+        // Note: Logging in as admin, so that we could alter the strongbox.xml by adding a proxy repository
+        //       This is required because the proxy repository is proxying to a repository in the localhost
+        //       and since the integration tests run on random ports in Jenkins, in order to not fail if there are
+        //       any tests running in parallel, you're forced to have to create these proxy repositories during the tests.
+        client = RestClient.getTestInstanceLoggedInAsAdmin();
+
+        createProxiedRepository("storage0", "proxied-releases", "maven", "password");
+
+        String artifactPath = "storages/storage0/proxied-releases/org/carlspring/strongbox/resolve/only/foo/1.1/foo-1.1.jar";
+
+        String md5Remote = MessageDigestUtils.readChecksumFile(client.getResource(artifactPath + ".md5"));
+        String sha1Remote = MessageDigestUtils.readChecksumFile(client.getResource(artifactPath + ".sha1"));
+
+        InputStream is = client.getResource(artifactPath);
+
+        FileOutputStream fos = new FileOutputStream(new File(TEST_RESOURCES, "foo-1.1.jar"));
+        MultipleDigestOutputStream mdos = new MultipleDigestOutputStream(fos);
+
+        int len;
+        final int size = 1024;
+        byte[] bytes = new byte[size];
+
+        while ((len = is.read(bytes, 0, size)) != -1)
+        {
+            mdos.write(bytes, 0, len);
+        }
+
+        mdos.flush();
+        mdos.close();
+
+        final String md5Local = mdos.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
+        final String sha1Local = mdos.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
+
+        System.out.println("MD5   [Remote]: " + md5Remote);
+        System.out.println("MD5   [Local ]: " + md5Local);
+
+        System.out.println("SHA-1 [Remote]: " + sha1Remote);
+        System.out.println("SHA-1 [Local ]: " + sha1Local);
+
+        assertEquals("MD5 checksums did not match!", md5Remote, md5Local);
+        assertEquals("SHA-1 checksums did not match!", sha1Remote, sha1Local);
+    }
+
+    private void createProxiedRepository(String storageId,
+                                         String repositoryId,
+                                         String username,
+                                         String password)
+            throws IOException, JAXBException
+    {
+        int port = System.getProperty("strongbox.port") != null ?
+                   Integer.parseInt(System.getProperty("strongbox.port")) :
+                   48080;
+
+        RemoteRepository remoteRepository = new RemoteRepository();
+        remoteRepository.setUrl("http://localhost:" + port + "/storages/storage0/releases/");
+        remoteRepository.setUsername(username);
+        remoteRepository.setPassword(password);
+
+        Repository repository = new Repository(repositoryId);
+        repository.setStorage(client.getStorage(storageId));
+        repository.setType(RepositoryTypeEnum.PROXY.getType());
+        repository.setRemoteRepository(remoteRepository);
+        repository.setImplementation("proxy");
+
+        client.addRepository(repository);
     }
 
     @Test
@@ -428,9 +515,14 @@ public class ArtifactRestletTest
     }
     
     @Test 
-    public void updateMetadataOnDeleteSnapshotVersionDirectoryTest() throws NoSuchAlgorithmException, XmlPullParserException, IOException, ArtifactOperationException, ArtifactTransportException 
+    public void updateMetadataOnDeleteSnapshotVersionDirectoryTest()
+            throws NoSuchAlgorithmException,
+                   XmlPullParserException,
+                   IOException,
+                   ArtifactOperationException,
+                   ArtifactTransportException
     {
-        //Given
+        // Given
         String ga = "org.carlspring.strongbox.metadata:metadata-foo";
 
         Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":3.1-SNAPSHOT");
@@ -452,12 +544,12 @@ public class ArtifactRestletTest
         
         String path = "org/carlspring/strongbox/metadata/metadata-foo/3.1-SNAPSHOT";
         
-        //When
+        // When
         client.delete(storageId, repositoryId, path);
             
-        //Then
+        // Then
         Metadata metadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
-                ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
+                                                    ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
         Assert.assertTrue(!metadata.getVersioning().getVersions().contains("3.1-SNAPSHOT"));
     }
 

@@ -2,6 +2,7 @@ package org.carlspring.strongbox.services;
 
 import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
@@ -273,7 +274,9 @@ public class ArtifactManagementServiceImplTest
 
     @Test
     public void testArtifactResolutionFromGroup()
-            throws IOException, NoSuchAlgorithmException
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   ArtifactTransportException
     {
         InputStream is = artifactManagementService.resolve("storage0",
                                                            "group-releases",

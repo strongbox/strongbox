@@ -5,6 +5,7 @@ import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.resolvers.FSLocationResolver;
 import org.carlspring.strongbox.storage.resolvers.GroupLocationResolver;
 import org.carlspring.strongbox.storage.resolvers.LocationResolver;
+import org.carlspring.strongbox.storage.resolvers.ProxyLocationResolver;
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,10 +35,14 @@ public class StorageApiConfig
     private FSLocationResolver fsLocationResolver;
 
     @Autowired
+    private ProxyLocationResolver proxyLocationResolver;
+
+    @Autowired
     private GroupLocationResolver groupLocationResolver;
 
     @Autowired
     private List<VersionValidator> versionValidators;
+
 
     @Bean(name = "checksumCacheManager")
     ChecksumCacheManager checksumCacheManager()
@@ -54,6 +59,7 @@ public class StorageApiConfig
     {
         LinkedHashMap<String, LocationResolver> resolvers = new LinkedHashMap<>();
         resolvers.put("file-system", fsLocationResolver);
+        resolvers.put("proxy", proxyLocationResolver);
         resolvers.put("group", groupLocationResolver);
 
         return resolvers;
@@ -73,7 +79,5 @@ public class StorageApiConfig
     {
         return new LinkedHashSet<>(versionValidators);
     }
-
-
 
 }
