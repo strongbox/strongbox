@@ -43,7 +43,7 @@ public class StorageApiConfig
     @Autowired
     private List<VersionValidator> versionValidators;
 
-    
+
     @Bean(name = "checksumCacheManager")
     ChecksumCacheManager checksumCacheManager()
     {
