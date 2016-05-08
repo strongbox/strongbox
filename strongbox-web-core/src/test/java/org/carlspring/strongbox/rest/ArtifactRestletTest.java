@@ -12,6 +12,9 @@ import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.storage.repository.RemoteRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -20,6 +23,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.xml.bind.JAXBException;
 import java.io.*;
 import java.security.NoSuchAlgorithmException;
 
@@ -42,6 +46,7 @@ public class ArtifactRestletTest
     public static boolean INITIALIZED = false;
 
     private RestClient client = new RestClient();
+
 
     @Before
     public void setUp()
@@ -103,17 +108,23 @@ public class ArtifactRestletTest
     public void testResolveViaProxy()
             throws Exception
     {
-        String artifactPath = "storages/storage0/proxied-releases/org/carlspring/strongbox/resolve/only/foo/1.1/foo-1.1.jar";
+        // Note: Logging in as admin, so that we could alter the strongbox.xml by adding a proxy repository
+        //       This is required because the proxy repository is proxying to a repository in the localhost
+        //       and since the integration tests run on random ports in Jenkins, in order to not fail if there are
+        //       any tests running in parallel, you're forced to have to create these proxy repositories during the tests.
+        client = RestClient.getTestInstanceLoggedInAsAdmin();
 
-        // assertTrue("Artifact does not exist!", client.pathExists(artifactPath));
+        createProxiedRepository("storage0", "proxied-releases", "maven", "password");
+
+        String artifactPath = "storages/storage0/proxied-releases/org/carlspring/strongbox/resolve/only/foo/1.1/foo-1.1.jar";
 
         String md5Remote = MessageDigestUtils.readChecksumFile(client.getResource(artifactPath + ".md5"));
         String sha1Remote = MessageDigestUtils.readChecksumFile(client.getResource(artifactPath + ".sha1"));
 
         InputStream is = client.getResource(artifactPath);
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        MultipleDigestOutputStream mdos = new MultipleDigestOutputStream(baos);
+        FileOutputStream fos = new FileOutputStream(new File(TEST_RESOURCES, "foo-1.1.jar"));
+        MultipleDigestOutputStream mdos = new MultipleDigestOutputStream(fos);
 
         int len;
         final int size = 1024;
@@ -136,11 +147,32 @@ public class ArtifactRestletTest
         System.out.println("SHA-1 [Remote]: " + sha1Remote);
         System.out.println("SHA-1 [Local ]: " + sha1Local);
 
-        FileOutputStream fos = new FileOutputStream(new File(TEST_RESOURCES, "foo-1.1.jar"));
-        fos.write(baos.toByteArray());
-
         assertEquals("MD5 checksums did not match!", md5Remote, md5Local);
         assertEquals("SHA-1 checksums did not match!", sha1Remote, sha1Local);
+    }
+
+    private void createProxiedRepository(String storageId,
+                                         String repositoryId,
+                                         String username,
+                                         String password)
+            throws IOException, JAXBException
+    {
+        int port = System.getProperty("strongbox.port") != null ?
+                   Integer.parseInt(System.getProperty("strongbox.port")) :
+                   48080;
+
+        RemoteRepository remoteRepository = new RemoteRepository();
+        remoteRepository.setUrl("http://localhost:" + port + "/storages/storage0/releases/");
+        remoteRepository.setUsername(username);
+        remoteRepository.setPassword(password);
+
+        Repository repository = new Repository(repositoryId);
+        repository.setStorage(client.getStorage(storageId));
+        repository.setType(RepositoryTypeEnum.PROXY.getType());
+        repository.setRemoteRepository(remoteRepository);
+        repository.setImplementation("proxy");
+
+        client.addRepository(repository);
     }
 
     @Test

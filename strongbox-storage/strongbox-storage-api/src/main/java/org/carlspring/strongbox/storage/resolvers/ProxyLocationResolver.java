@@ -74,7 +74,7 @@ public class ProxyLocationResolver
 
             ArtifactInputStream ais = new ArtifactInputStream(new FileInputStream(artifactFile));
             ais.setLength(artifactFile.length());
-            
+
             return ais;
         }
         else
@@ -91,7 +91,8 @@ public class ProxyLocationResolver
             artifactFile.createParents();
 
             InputStream remoteIs = client.getResource(artifactPath);
-            MultipleDigestOutputStream mdos = new MultipleDigestOutputStream(new FileOutputStream(artifactFile));
+            FileOutputStream fos = new FileOutputStream(artifactFile);
+            MultipleDigestOutputStream mdos = new MultipleDigestOutputStream(fos);
 
             // 1) Attempt to resolve it from the remote host
             if (remoteIs == null)
@@ -110,6 +111,9 @@ public class ProxyLocationResolver
                 mdos.write(bytes, 0, len);
             }
 
+            fos.flush();
+
+            ResourceCloser.close(fos, logger);
             ResourceCloser.close(remoteIs, logger);
             ResourceCloser.close(client, logger);
 

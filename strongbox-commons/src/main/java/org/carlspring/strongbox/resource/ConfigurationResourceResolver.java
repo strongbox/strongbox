@@ -92,8 +92,6 @@ public class ConfigurationResourceResolver
             }
         }
 
-        logger.info("Loading configuration from " + resource.toString() + "...");
-
         return resource;
     }
 

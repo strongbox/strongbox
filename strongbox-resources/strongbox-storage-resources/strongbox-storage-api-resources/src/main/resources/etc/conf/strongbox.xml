@@ -23,6 +23,7 @@
                 <repository id="snapshots" policy="snapshot" implementation="file-system" type="hosted" secured="true" checksum-headers-enabled="true"/>
                 <repository id="snapshots-in-memory" policy="snapshot" implementation="in-memory" type="hosted" secured="true" />
 
+                <!--
                 <repository id="proxied-releases" policy="release" implementation="proxy" type="proxy">
                     <proxy-configuration host="localhost" port="8180" username="testuser" password="password" />
                     <remote-repository url="http://localhost:48080/storages/storage0/releases/"
@@ -32,6 +33,7 @@
                                        auto-blocking="true"
                                        checksum-validation="true" />
                 </repository>
+                -->
 
                 <repository id="group-releases" policy="release" implementation="group" type="group" secured="true">
                     <group>
