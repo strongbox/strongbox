@@ -475,7 +475,7 @@
                                 </systemProperty>
                                 <systemProperty>
                                     <name>repository.config.xml</name>
-                                    <value>${dir.strongbox.home}/etc/conf/strongbox.xml</value>
+                                    <value>${dir.strongbox.vault}/etc/conf/strongbox.xml</value>
                                 </systemProperty>
                                 <systemProperty>
                                     <name>strongbox.storage.booter.basedir</name>

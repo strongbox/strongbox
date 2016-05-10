@@ -1,14 +1,14 @@
 package org.carlspring.strongbox.configuration;
 
 import org.carlspring.strongbox.xml.parsers.GenericParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 
 import javax.annotation.PostConstruct;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
 
 /**
  * @author mtodorov
@@ -24,6 +24,8 @@ public abstract class AbstractConfigurationManager<T>
 
     private GenericParser<T> parser;
 
+    @Autowired
+    protected ConfigurationRepository configurationRepository;
 
     public AbstractConfigurationManager(Class... classes)
     {
@@ -34,13 +36,9 @@ public abstract class AbstractConfigurationManager<T>
     public void init()
             throws IOException, JAXBException
     {
-        Resource resource = getConfigurationResource();
+        this.configuration = configurationRepository.getConfiguration();
+        logger.info("Loading Strongbox configuration from orientdb ...");
 
-        logger.info("Loading Strongbox configuration from " + resource.toString() + "...");
-
-        //noinspection unchecked
-        configuration = (ServerConfiguration<T>) parser.parse(resource.getInputStream());
-        configuration.setResource(resource);
     }
 
     public void store()
@@ -52,10 +50,7 @@ public abstract class AbstractConfigurationManager<T>
     public void store(ServerConfiguration<T> configuration)
             throws IOException, JAXBException
     {
-        Resource resource = getConfigurationResource();
-
-        //noinspection unchecked
-        parser.store((T) configuration, resource.getFile());
+        configurationRepository.updateConfiguration(configuration);
     }
 
     public void store(ServerConfiguration<T> configuration, String file)
