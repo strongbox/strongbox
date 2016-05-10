@@ -4,6 +4,7 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.xml.StorageMapAdapter;
 
+import javax.persistence.Embedded;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -41,6 +42,7 @@ public class Configuration extends ServerConfiguration
      */
     @XmlElement(name = "storages")
     @XmlJavaTypeAdapter(StorageMapAdapter.class)
+    @Embedded
     private Map<String, Storage> storages = new LinkedHashMap<>();
 
     @XmlElement(name = "routing-rules")

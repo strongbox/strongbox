@@ -1,28 +1,17 @@
 package org.carlspring.strongbox.security.jaas.caching;
 
-import org.carlspring.strongbox.config.StrongboxSecurityConfig;
 import org.carlspring.strongbox.security.jaas.Credentials;
 import org.carlspring.strongbox.security.jaas.User;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.junit.Assert.assertEquals;
 
 /**
  * @author mtodorov
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration
 public class CachedUserManagerTest
 {
 
-    @org.springframework.context.annotation.Configuration
-    @Import({
-            StrongboxSecurityConfig.class
-    })
     public static class SpringConfig { }
 
     @Test

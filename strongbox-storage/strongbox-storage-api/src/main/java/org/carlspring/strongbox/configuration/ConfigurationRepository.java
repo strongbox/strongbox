@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.io.File;
 import java.util.List;
 
@@ -23,15 +22,18 @@ import static org.carlspring.strongbox.db.DbUtils.withDatabase;
 public class ConfigurationRepository {
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationRepository.class);
 
+    public ConfigurationRepository() {
+        init();
+    }
+
     public Configuration getConfiguration()
     {
         return withDatabase(db -> {
             List<Configuration> result = db.query(new OSQLSynchQuery<>("select * from Configuration"));
-
             Configuration configuration = result.stream().findFirst()
                     .orElse(null);
 
-            return configuration;
+            return db.<Configuration>detachAll(configuration, true);
         });
     }
 
@@ -47,8 +49,7 @@ public class ConfigurationRepository {
         });
     }
 
-    @PostConstruct
-    public void postConstruct()
+    public void init()
     {
         logger.info("ConfigurationRepository.init()");
 
