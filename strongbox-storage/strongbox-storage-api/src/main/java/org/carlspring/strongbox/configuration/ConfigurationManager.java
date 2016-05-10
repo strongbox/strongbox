@@ -90,7 +90,6 @@ public class ConfigurationManager extends AbstractConfigurationManager<Configura
                 }
             }
         }
-
         configurationRepository.updateConfiguration(configuration);
     }
 

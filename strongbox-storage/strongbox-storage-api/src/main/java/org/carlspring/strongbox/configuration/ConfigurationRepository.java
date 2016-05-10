@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.configuration;
 
 
+import com.google.common.collect.Iterables;
 import com.lambdista.util.Try;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import org.carlspring.strongbox.storage.Storage;
@@ -30,8 +31,7 @@ public class ConfigurationRepository {
     {
         return withDatabase(db -> {
             List<Configuration> result = db.query(new OSQLSynchQuery<>("select * from Configuration"));
-            Configuration configuration = result.stream().findFirst()
-                    .orElse(null);
+            Configuration configuration = !result.isEmpty() ? Iterables.getLast(result) : null;
 
             return db.<Configuration>detachAll(configuration, true);
         });
@@ -82,7 +82,6 @@ public class ConfigurationRepository {
             String filename = System.getProperty(propertyKey);
             GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
             Configuration configuration = Try.apply(() -> parser.parse(new File(filename))).get();
-
 
             withDatabase(db -> {
                 db.save(configuration);
