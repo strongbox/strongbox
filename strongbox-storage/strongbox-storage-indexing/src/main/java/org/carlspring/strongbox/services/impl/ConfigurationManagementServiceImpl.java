@@ -62,7 +62,9 @@ public class ConfigurationManagementServiceImpl implements ConfigurationManageme
     public void setBaseUrl(String baseUrl)
             throws IOException, JAXBException
     {
-        configurationManager.getConfiguration().setBaseUrl(baseUrl);
+        Configuration configuration = configurationManager.getConfiguration();
+        configuration.setBaseUrl(baseUrl);
+        configurationManager.setConfiguration(configuration);
         configurationManager.store();
     }
 
@@ -77,7 +79,9 @@ public class ConfigurationManagementServiceImpl implements ConfigurationManageme
     public void setPort(int port)
             throws IOException, JAXBException
     {
-        configurationManager.getConfiguration().setPort(port);
+        Configuration configuration = configurationManager.getConfiguration();
+        configuration.setPort(port);
+        configurationManager.setConfiguration(configuration);
         configurationManager.store();
     }
 
@@ -87,18 +91,20 @@ public class ConfigurationManagementServiceImpl implements ConfigurationManageme
                                       ProxyConfiguration proxyConfiguration)
             throws IOException, JAXBException
     {
+        Configuration configuration = configurationManager.getConfiguration();
         if (storageId != null && repositoryId != null)
         {
-            configurationManager.getConfiguration()
+            configuration
                                 .getStorage(storageId)
                                 .getRepository(repositoryId)
                                 .setProxyConfiguration(proxyConfiguration);
         }
         else
         {
-            configurationManager.getConfiguration().setProxyConfiguration(proxyConfiguration);
+            configuration.setProxyConfiguration(proxyConfiguration);
         }
 
+        configurationManager.setConfiguration(configuration);
         configurationManager.store();
     }
 
@@ -113,7 +119,9 @@ public class ConfigurationManagementServiceImpl implements ConfigurationManageme
     public void addOrUpdateStorage(Storage storage)
             throws IOException, JAXBException
     {
-        configurationManager.getConfiguration().addStorage(storage);
+        Configuration configuration = configurationManager.getConfiguration();
+        configuration.addStorage(storage);
+        configurationManager.setConfiguration(configuration);
         configurationManager.store();
     }
 
@@ -128,7 +136,9 @@ public class ConfigurationManagementServiceImpl implements ConfigurationManageme
     public void removeStorage(String storageId)
             throws IOException, JAXBException
     {
-        configurationManager.getConfiguration().getStorages().remove(storageId);
+        Configuration configuration = configurationManager.getConfiguration();
+        configuration.getStorages().remove(storageId);
+        configurationManager.setConfiguration(configuration);
         configurationManager.store();
     }
 
@@ -136,7 +146,9 @@ public class ConfigurationManagementServiceImpl implements ConfigurationManageme
     public void addOrUpdateRepository(String storageId, Repository repository)
             throws IOException, JAXBException
     {
-        configurationManager.getConfiguration().getStorage(storageId).addOrUpdateRepository(repository);
+        Configuration configuration = configurationManager.getConfiguration();
+        configuration.getStorage(storageId).addOrUpdateRepository(repository);
+        configurationManager.setConfiguration(configuration);
         configurationManager.store();
     }
 
@@ -189,12 +201,17 @@ public class ConfigurationManagementServiceImpl implements ConfigurationManageme
 
         if (!includedInGroupRepositories.isEmpty())
         {
+            Configuration configuration = configurationManager.getConfiguration();
+
             for (Repository repository : includedInGroupRepositories)
             {
-                configurationManager.getConfiguration()
-                                    .getStorage(repository.getStorage().getId())
-                                    .getRepository(repository.getId())
-                                    .getGroupRepositories().remove(repositoryId);
+                configuration
+                        .getStorage(repository.getStorage().getId())
+                        .getRepository(repository.getId())
+                        .getGroupRepositories().remove(repositoryId);
+
+                configurationManager.setConfiguration(configuration);
+
             }
 
             configurationManager.store();
@@ -205,8 +222,11 @@ public class ConfigurationManagementServiceImpl implements ConfigurationManageme
     public void removeRepository(String storageId, String repositoryId)
             throws IOException, JAXBException
     {
-        configurationManager.getConfiguration().getStorage(storageId).removeRepository(repositoryId);
+        Configuration configuration = configurationManager.getConfiguration();
+        configuration.getStorage(storageId).removeRepository(repositoryId);
         removeRepositoryFromAssociatedGroups(repositoryId);
+
+        configurationManager.setConfiguration(configuration);
         configurationManager.store();
     }
 

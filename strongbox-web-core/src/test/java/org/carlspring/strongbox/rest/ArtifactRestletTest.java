@@ -11,6 +11,8 @@ import org.carlspring.strongbox.artifact.generator.ArtifactDeployer;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.client.RestClient;
+import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.configuration.ConfigurationRepository;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.repository.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -22,6 +24,11 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.xml.bind.JAXBException;
 import java.io.*;
@@ -32,9 +39,15 @@ import static org.junit.Assert.*;
 /**
  * @author mtodorov
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration
 public class ArtifactRestletTest
         extends TestCaseWithArtifactGeneration
 {
+
+    @org.springframework.context.annotation.Configuration
+    @ComponentScan(basePackages = {"org.carlspring.strongbox", "org.carlspring.logging"})
+    public static class SpringConfig { }
 
     private static final String TEST_RESOURCES = "target/test-resources";
 
@@ -47,6 +60,9 @@ public class ArtifactRestletTest
 
     private RestClient client = new RestClient();
 
+
+    @Autowired
+    private ConfigurationRepository configurationRepository;
 
     @Before
     public void setUp()
@@ -173,6 +189,9 @@ public class ArtifactRestletTest
         repository.setImplementation("proxy");
 
         client.addRepository(repository);
+        Configuration configuration = configurationRepository.getConfiguration();
+        configuration.getStorage("storage0")
+                .addOrUpdateRepository(repository);
     }
 
     @Test

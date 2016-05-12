@@ -5,6 +5,7 @@ import com.google.common.collect.Iterables;
 import com.lambdista.util.Try;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
@@ -55,6 +56,7 @@ public class ConfigurationRepository {
 
         withDatabase(db -> {
             db.getEntityManager().registerEntityClass(Configuration.class, true);
+            db.getEntityManager().registerEntityClass(RemoteRepository.class);
             db.getEntityManager().registerEntityClass(Storage.class);
             db.getEntityManager().registerEntityClass(ProxyConfiguration.class);
             db.getEntityManager().registerEntityClass(RoutingRules.class);

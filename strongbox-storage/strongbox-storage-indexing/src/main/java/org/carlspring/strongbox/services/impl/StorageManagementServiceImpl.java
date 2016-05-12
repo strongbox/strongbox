@@ -51,6 +51,7 @@ public class StorageManagementServiceImpl implements StorageManagementService
         for (Repository repository : storage.getRepositories().values())
         {
             repositoryManagementService.removeRepository(storageId, repository.getId());
+
         }
 
         FileUtils.deleteDirectory(new File(storage.getBasedir()));

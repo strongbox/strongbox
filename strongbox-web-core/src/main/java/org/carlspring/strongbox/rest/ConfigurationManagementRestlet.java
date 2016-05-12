@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.rest;
 
 import io.swagger.annotations.*;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
@@ -10,6 +11,10 @@ import org.carlspring.strongbox.services.StorageManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -17,12 +22,6 @@ import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
-
-import org.apache.lucene.queryparser.classic.ParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * @author mtodorov
@@ -448,13 +447,17 @@ public class ConfigurationManagementRestlet
                     repositoryManagementService.removeRepository(storageId, repository.getId());
                 }
 
-                configurationManagementService.getStorage(storageId).removeRepository(repositoryId);
+                Configuration configuration = configurationManagementService.getConfiguration();
+                Storage storage = configuration.getStorage(storageId);
+                storage.removeRepository(repositoryId);
+
+                configurationManagementService.addOrUpdateStorage(storage);
 
                 logger.debug("Removed repository " + storageId + ":" + repositoryId + ".");
 
                 return Response.ok().build();
             }
-            catch (IOException e)
+            catch (IOException | JAXBException e)
             {
                 logger.error(e.getMessage(), e);
 

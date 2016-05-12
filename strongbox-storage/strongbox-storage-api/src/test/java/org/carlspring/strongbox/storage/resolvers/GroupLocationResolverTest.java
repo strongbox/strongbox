@@ -2,21 +2,19 @@ package org.carlspring.strongbox.storage.resolvers;
 
 import com.carmatechnologies.commons.testing.logging.ExpectedLogs;
 import com.carmatechnologies.commons.testing.logging.api.LogLevel;
-import org.carlspring.strongbox.config.CommonConfig;
-import org.carlspring.strongbox.config.StorageApiConfig;
+import org.carlspring.strongbox.BaseStorageApiTest;
+import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.configuration.ConfigurationRepository;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
@@ -31,17 +29,9 @@ import static org.junit.Assert.assertNull;
  * @author mtodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration
 public class GroupLocationResolverTest
-        extends TestCaseWithArtifactGeneration
+        extends BaseStorageApiTest
 {
-
-    @org.springframework.context.annotation.Configuration
-    @Import({
-            StorageApiConfig.class,
-            CommonConfig.class
-    })
-    public static class SpringConfig { }
 
     private static final File STORAGE_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0");
 
@@ -58,6 +48,9 @@ public class GroupLocationResolverTest
 
     @Autowired
     private ConfigurationManager configurationManager;
+
+    @Autowired
+    private ConfigurationRepository configurationRepository;
 
     @Rule
     public final ExpectedLogs logs = new ExpectedLogs()
@@ -89,10 +82,12 @@ public class GroupLocationResolverTest
     public void tearDown()
             throws Exception
     {
-        Repository repository = configurationManager.getConfiguration().getStorage("storage0").getRepository("releases");
+        Configuration configuration = configurationManager.getConfiguration();
+        Repository repository = configuration.getStorage("storage0").getRepository("releases");
         if (!repository.isInService())
         {
             repository.putInService();
+            configurationRepository.updateConfiguration(configuration);
         }
     }
 
@@ -117,8 +112,16 @@ public class GroupLocationResolverTest
     {
         System.out.println("# Testing group includes with out of service repository...");
 
-        configurationManager.getConfiguration().getStorage("storage0")
-                            .getRepository("releases").putOutOfService();
+        /*Repository repository = configurationManager.getConfiguration().getStorage("storage0")
+
+                .getRepository("releases");
+        repository.putOutOfService();
+
+        */
+        Configuration configuration = configurationManager.getConfiguration();
+        configuration.getStorage("storage0").getRepository("releases").putOutOfService();
+
+        configurationRepository.updateConfiguration(configuration);
 
         InputStream is = groupLocationResolver.getInputStream("storage0",
                                                               "group-releases",
