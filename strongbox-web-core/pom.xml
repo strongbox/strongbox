@@ -500,16 +500,6 @@
                             <webAppSourceDirectory>${project.build.directory}/strongbox/webapp</webAppSourceDirectory>
                         </configuration>
 
-                        <executions>
-                            <execution>
-                                <id>jetty-stop</id>
-
-                                <phase>test</phase>
-                                <goals>
-                                    <goal>stop</goal>
-                                </goals>
-                            </execution>
-                        </executions>
                     </plugin>
 
                     <plugin>
