@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.rest;
 
 import io.swagger.annotations.*;
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
+import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -26,8 +28,14 @@ import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Paths;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.nio.file.*;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.regex.Matcher;
 
 import static org.carlspring.commons.http.range.ByteRangeRequestHandler.*;
 
@@ -107,6 +115,11 @@ public class ArtifactRestlet
         }
 
         Response.ResponseBuilder responseBuilder;
+
+        if (repository.allowsDirectoryBrowsing() && probeForDirectoryListing(repository, path))
+        {
+            return generateDirectoryListing(repository, path, request);
+        }
 
         InputStream is;
         try
@@ -192,6 +205,107 @@ public class ArtifactRestlet
         {
             // This can occur if there is no checksum
             logger.warn("There is no SHA1 checksum for "  + storageId + "/" + repositoryId + "/" + path);
+        }
+    }
+
+    private boolean probeForDirectoryListing(Repository repository, String path){
+        String filePath = path.replaceAll("/", Matcher.quoteReplacement(File.separator));
+
+        String dir = repository.getBasedir()+File.separator+filePath;
+
+        File file = new File(dir);
+
+        // Do not allow .index and .trash directories (or any other directory starting with ".") to be browsable.
+        // NB: Files will still be downloadable.
+        if(!file.isHidden() && !path.startsWith(".") && !path.contains("/.")){
+            if(file.exists() && file.isDirectory())
+            {
+                return true;
+            }
+
+            file = new File(dir+File.separator);
+
+            return file.exists() && file.isDirectory();
+        } else {
+            return false;
+        }
+
+    }
+
+    private Response generateDirectoryListing(Repository repository, String path, HttpServletRequest request)
+    {
+        path = path.replaceAll("/", Matcher.quoteReplacement(File.separator));
+
+        String dir = repository.getBasedir() + File.separator + path;
+        String uri = request.getRequestURI();
+
+        File file = new File(dir);
+
+        if (file.isDirectory() && !uri.endsWith("/"))
+        {
+            try
+            {
+                return Response.status(Response.Status.TEMPORARY_REDIRECT).location(new URI(request.getRequestURI()+"/")).build();
+            }
+            catch (URISyntaxException e)
+            {
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            }
+        }
+
+        try
+        {
+            logger.debug(" browsing: " + file.toString());
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("<html>");
+            sb.append("<head>");
+            sb.append("<style>body{font-family: \"Trebuchet MS\", verdana, lucida, arial, helvetica, sans-serif;}</style>");
+            sb.append("<title>Index of " + request.getRequestURI() + "</title>");
+            sb.append("</head>");
+            sb.append("<body>");
+            sb.append("<h1>Index of " + request.getRequestURI() + "</h1>");
+            sb.append("<table cellspacing=\"10\">");
+            sb.append("<tr>");
+            sb.append("<th>Name</th>");
+            sb.append("<th>Last modified</th>");
+            sb.append("<th>Size</th>");
+            sb.append("</tr>");
+            sb.append("<tr>");
+            sb.append("<td colspan=3><a href='..'>..</a></td>");
+            sb.append("</tr>");
+
+            File[] childFiles = file.listFiles();
+            if (childFiles != null)
+            {
+                for (File childFile : childFiles)
+                {
+                    String name = childFile.getName();
+
+                    if (name.startsWith(".") || childFile.isHidden())
+                    {
+                        continue;
+                    }
+
+                    String lastModified = new SimpleDateFormat("dd-MM-yyyy HH-mm-ss").format(new Date(childFile.lastModified()));
+
+                    sb.append("<tr>");
+                    sb.append("<td><a href='" + URLEncoder.encode(name, "UTF-8") + (childFile.isDirectory() ? "/" : "") + "'>" + name + "</a></td>");
+                    sb.append("<td>" + lastModified + "</td>");
+                    sb.append("<td>" + FileUtils.byteCountToDisplaySize(childFile.length()) + "</td>");
+                    sb.append("</tr>");
+                }
+            }
+
+            sb.append("</table>");
+            sb.append("</body>");
+            sb.append("</html>");
+
+            return Response.ok().status(Response.Status.FOUND).type(MediaType.TEXT_HTML).entity(sb.toString()).build();
+        } catch (Exception e)
+        {
+            logger.warn(" error accessing requested directory: " + file.getAbsolutePath());
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
     }
 
