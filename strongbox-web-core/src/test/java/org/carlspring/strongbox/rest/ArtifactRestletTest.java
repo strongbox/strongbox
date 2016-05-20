@@ -349,12 +349,12 @@ public class ArtifactRestletTest
 
         assertTrue("Failed to locate artifact file '" + artifact.getAbsolutePath() + "'!", artifact.exists());
 
-        Response repositoryRoot     = client.getResourceWithResponse("/storages/storage0/releases/");
+        Response repositoryRoot = client.getResourceWithResponse("/storages/storage0/releases/");
         Response trashDirectoryListing = client.getResourceWithResponse("/storages/storage0/releases/.trash");
         Response indexDirectoryListing = client.getResourceWithResponse("/storages/storage0/releases/.index");
-        Response directoryListing   = client.getResourceWithResponse("/storages/storage0/releases/org/carlspring/strongbox/browse");
-        Response fileListing        = client.getResourceWithResponse("/storages/storage0/releases/org/carlspring/strongbox/browse/foo-bar/1.0");
-        Response invalidPath        = client.getResourceWithResponse("/storages/storage0/releases/org/carlspring/strongbox/browse/1.0");
+        Response directoryListing = client.getResourceWithResponse("/storages/storage0/releases/org/carlspring/strongbox/browse");
+        Response fileListing = client.getResourceWithResponse("/storages/storage0/releases/org/carlspring/strongbox/browse/foo-bar/1.0");
+        Response invalidPath = client.getResourceWithResponse("/storages/storage0/releases/org/carlspring/strongbox/browse/1.0");
 
         String repositoryRootContent = repositoryRoot.readEntity(String.class);
         String directoryListingContent = directoryListing.readEntity(String.class);
@@ -371,7 +371,6 @@ public class ArtifactRestletTest
         assertTrue(fileListingContent.contains("foo-bar-1.0.pom"));
 
         assertTrue(invalidPath.getStatus() == 404);
-
     }
 
     @Test
