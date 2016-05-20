@@ -208,7 +208,8 @@ public class ArtifactRestlet
         }
     }
 
-    private boolean probeForDirectoryListing(Repository repository, String path){
+    private boolean probeForDirectoryListing(Repository repository, String path)
+    {
         String filePath = path.replaceAll("/", Matcher.quoteReplacement(File.separator));
 
         String dir = repository.getBasedir() + File.separator + filePath;
