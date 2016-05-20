@@ -211,25 +211,27 @@ public class ArtifactRestlet
     private boolean probeForDirectoryListing(Repository repository, String path){
         String filePath = path.replaceAll("/", Matcher.quoteReplacement(File.separator));
 
-        String dir = repository.getBasedir()+File.separator+filePath;
+        String dir = repository.getBasedir() + File.separator + filePath;
 
         File file = new File(dir);
 
         // Do not allow .index and .trash directories (or any other directory starting with ".") to be browsable.
         // NB: Files will still be downloadable.
-        if(!file.isHidden() && !path.startsWith(".") && !path.contains("/.")){
-            if(file.exists() && file.isDirectory())
+        if (!file.isHidden() && !path.startsWith(".") && !path.contains("/."))
+        {
+            if (file.exists() && file.isDirectory())
             {
                 return true;
             }
 
-            file = new File(dir+File.separator);
+            file = new File(dir + File.separator);
 
             return file.exists() && file.isDirectory();
-        } else {
+        }
+        else
+        {
             return false;
         }
-
     }
 
     private Response generateDirectoryListing(Repository repository, String path, HttpServletRequest request)
@@ -245,11 +247,14 @@ public class ArtifactRestlet
         {
             try
             {
-                return Response.status(Response.Status.TEMPORARY_REDIRECT).location(new URI(request.getRequestURI()+"/")).build();
+                return Response.status(Response.Status.TEMPORARY_REDIRECT)
+                               .location(new URI(request.getRequestURI() + "/"))
+                               .build();
             }
             catch (URISyntaxException e)
             {
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                               .build();
             }
         }
 
@@ -301,11 +306,17 @@ public class ArtifactRestlet
             sb.append("</body>");
             sb.append("</html>");
 
-            return Response.ok().status(Response.Status.FOUND).type(MediaType.TEXT_HTML).entity(sb.toString()).build();
-        } catch (Exception e)
+            return Response.ok()
+                           .status(Response.Status.FOUND)
+                           .type(MediaType.TEXT_HTML)
+                           .entity(sb.toString())
+                           .build();
+        }
+        catch (Exception e)
         {
             logger.warn(" error accessing requested directory: " + file.getAbsolutePath());
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.status(Response.Status.NOT_FOUND)
+                           .build();
         }
     }
 
