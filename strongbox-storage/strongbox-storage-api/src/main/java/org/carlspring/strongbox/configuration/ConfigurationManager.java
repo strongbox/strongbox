@@ -1,10 +1,12 @@
 package org.carlspring.strongbox.configuration;
 
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -23,6 +25,10 @@ public class ConfigurationManager extends AbstractConfigurationManager<Configura
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationManager.class);
+
+    @Autowired
+    private ConfigurationResourceResolver configurationResourceResolver;
+
 
     public ConfigurationManager()
     {
@@ -136,7 +142,7 @@ public class ConfigurationManager extends AbstractConfigurationManager<Configura
 
     @Override
     public Resource getConfigurationResource() throws IOException {
-        return null;
+        return configurationResourceResolver.getConfigurationResource("repository.config.xml", "etc/conf/strongbox.xml");
     }
 
 }

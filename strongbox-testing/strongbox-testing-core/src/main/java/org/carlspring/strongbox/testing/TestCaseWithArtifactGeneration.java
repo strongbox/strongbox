@@ -21,7 +21,6 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author mtodorov
  */
-
 public class TestCaseWithArtifactGeneration
 {
 

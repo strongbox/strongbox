@@ -205,8 +205,7 @@ public class ConfigurationManagementServiceImpl implements ConfigurationManageme
 
             for (Repository repository : includedInGroupRepositories)
             {
-                configuration
-                        .getStorage(repository.getStorage().getId())
+                configuration.getStorage(repository.getStorage().getId())
                         .getRepository(repository.getId())
                         .getGroupRepositories().remove(repositoryId);
 
