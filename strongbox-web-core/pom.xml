@@ -411,7 +411,7 @@
 
                                             <overWrite>true</overWrite>
                                             <outputDirectory>${dir.strongbox.vault}</outputDirectory>
-                                            <includes>etc/conf/strongbox.xml,META-INF/spring/**</includes>
+                                            <includes>etc/conf/strongbox.xml</includes>
                                         </artifactItem>
                                     </artifactItems>
                                 </configuration>
