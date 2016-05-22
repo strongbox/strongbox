@@ -2,6 +2,7 @@ package org.carlspring.strongbox.rest;
 
 import io.swagger.annotations.*;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.comparator.DirectoryFileComparator;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
@@ -34,6 +35,7 @@ import java.net.URLEncoder;
 import java.nio.file.*;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.regex.Matcher;
 
@@ -266,7 +268,7 @@ public class ArtifactRestlet
             StringBuilder sb = new StringBuilder();
             sb.append("<html>");
             sb.append("<head>");
-            sb.append("<style>body{font-family: \"Trebuchet MS\", verdana, lucida, arial, helvetica, sans-serif;}</style>");
+            sb.append("<style>body{font-family: \"Trebuchet MS\", verdana, lucida, arial, helvetica, sans-serif;} table tr {text-align: left;}</style>");
             sb.append("<title>Index of " + request.getRequestURI() + "</title>");
             sb.append("</head>");
             sb.append("<body>");
@@ -284,6 +286,8 @@ public class ArtifactRestlet
             File[] childFiles = file.listFiles();
             if (childFiles != null)
             {
+                Arrays.sort(childFiles, DirectoryFileComparator.DIRECTORY_COMPARATOR);
+
                 for (File childFile : childFiles)
                 {
                     String name = childFile.getName();
@@ -296,7 +300,7 @@ public class ArtifactRestlet
                     String lastModified = new SimpleDateFormat("dd-MM-yyyy HH-mm-ss").format(new Date(childFile.lastModified()));
 
                     sb.append("<tr>");
-                    sb.append("<td><a href='" + URLEncoder.encode(name, "UTF-8") + (childFile.isDirectory() ? "/" : "") + "'>" + name + "</a></td>");
+                    sb.append("<td><a href='" + URLEncoder.encode(name, "UTF-8") + (childFile.isDirectory() ? "/" : "") + "'>" + name + (childFile.isDirectory() ? "/" : "") + "</a></td>");
                     sb.append("<td>" + lastModified + "</td>");
                     sb.append("<td>" + FileUtils.byteCountToDisplaySize(childFile.length()) + "</td>");
                     sb.append("</tr>");
