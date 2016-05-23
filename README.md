@@ -31,7 +31,6 @@ Welcome to the Strongbox Maven artifact repository manager's home.
 * Maven settings.xml generator over REST API
 
 # Upcoming:
-* Directory browsing
 * RPM distribution
 * Debian/Ubuntu distribution
 
