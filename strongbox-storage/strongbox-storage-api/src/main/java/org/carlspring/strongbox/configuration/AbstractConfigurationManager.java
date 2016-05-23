@@ -27,7 +27,7 @@ public abstract class AbstractConfigurationManager<T>
 
     public AbstractConfigurationManager(Class... classes)
     {
-        parser = new GenericParser<T>(classes);
+        parser = new GenericParser<>(classes);
     }
 
     @PostConstruct

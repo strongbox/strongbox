@@ -28,7 +28,7 @@ public class GenericParser<T>
 
     private ReentrantLock lock = new ReentrantLock();
 
-    private Set<Class> classes = new LinkedHashSet<Class>();
+    private Set<Class> classes = new LinkedHashSet<>();
 
     private JAXBContext context;
 

@@ -14,7 +14,7 @@ public class AuthenticationConfiguration
 
     @XmlElement(name = "realm")
     @XmlElementWrapper(name = "realms")
-    private List<String> realms = new ArrayList<String>();
+    private List<String> realms = new ArrayList<>();
 
     @XmlElement(name = "anonymous-access")
     private AnonymousAccessConfiguration anonymousAccessConfiguration;

@@ -30,11 +30,11 @@ public class Role implements Serializable
      */
     @XmlElement(name = "role")
     @XmlElementWrapper(name = "roles")
-    private List<String> roles = new ArrayList<String>();
+    private List<String> roles = new ArrayList<>();
 
     @XmlElement(name = "privilege")
     @XmlElementWrapper(name = "privileges")
-    private List<String> privileges = new ArrayList<String>();
+    private List<String> privileges = new ArrayList<>();
 
 
     public Role()
