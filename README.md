@@ -7,6 +7,7 @@ Welcome to the Strongbox Maven artifact repository manager's home.
     * Support for repository ordering
     * Support for routing rules
     * Support for nested group repositories
+* Directory browsing
 * Indexing
   * Currently using Lucene just for the sake of the PoC, but will be re-worked with OrientDB, or Titan.
 * REST API features:
