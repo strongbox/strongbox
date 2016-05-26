@@ -10,7 +10,7 @@ Welcome to the Strongbox Maven artifact repository manager's home.
 * Directory browsing
 * Indexing
   * Currently using Lucene just for the sake of the PoC, but will be re-worked with OrientDB, or Titan.
-* REST API features:
+* [REST API](https://github.com/strongbox/strongbox/wiki/REST-API) features:
   * Search for artifacts
   * Manage the server's core configuration
   * Manage repositories
