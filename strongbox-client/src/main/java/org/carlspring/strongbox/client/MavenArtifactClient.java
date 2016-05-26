@@ -83,45 +83,6 @@ public class MavenArtifactClient implements Closeable
         }
     }
 
-    public void getArtifact(Artifact artifact,
-                            String repository)
-            throws ArtifactTransportException,
-                   IOException
-    {
-        String url = getRepositoryBaseUrl() + "/" + repository + "/" + ArtifactUtils.convertArtifactToPath(artifact);
-
-        logger.debug("Getting " + url + "...");
-
-        WebTarget webResource = getClientInstance().target(url);
-        setupAuthentication(webResource);
-        Response response = webResource.request(MediaType.TEXT_PLAIN).get();
-
-        final InputStream is = response.readEntity(InputStream.class);
-
-        int total = 0;
-        int len;
-        final int size = 4096;
-        byte[] bytes = new byte[size];
-
-        while ((len = is.read(bytes, 0, size)) != -1)
-        {
-            total += len;
-        }
-
-        logger.debug("Response code: " + response.getStatus() + ". Read: " + total + " bytes.");
-
-        int status = response.getStatus();
-        if (status != 200)
-        {
-            throw new ArtifactTransportException("Failed to resolve artifact!");
-        }
-
-        if (total == 0)
-        {
-            throw new ArtifactTransportException("Artifact size was zero!");
-        }
-    }
-
     public InputStream getResource(String path)
             throws ArtifactTransportException,
                    IOException
@@ -133,7 +94,7 @@ public class MavenArtifactClient implements Closeable
             throws ArtifactTransportException,
                    IOException
     {
-        String url = getRepositoryBaseUrl() + (!path.startsWith("/") ? "/" : "") + path;
+        String url = escapeUrl(path);
 
         logger.debug("Getting " + url + "...");
 
@@ -159,14 +120,14 @@ public class MavenArtifactClient implements Closeable
             throws ArtifactTransportException,
                    IOException
     {
-        String url = getRepositoryBaseUrl() + (!path.startsWith("/") ? "/" : "") + path;
+        String url = escapeUrl(path);
 
         logger.debug("Getting " + url + "...");
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
-        return resource.request(MediaType.TEXT_PLAIN).get();
+        return resource.request().get();
     }
 
     public boolean artifactExists(Artifact artifact,
@@ -207,7 +168,7 @@ public class MavenArtifactClient implements Closeable
 
     public boolean pathExists(String path)
     {
-        String url = getRepositoryBaseUrl() + (path.startsWith("/") ? path : '/' + path);
+        String url = escapeUrl(path);
 
         logger.debug("Path to artifact: " + url);
 
@@ -219,11 +180,20 @@ public class MavenArtifactClient implements Closeable
         return response.getStatus() == 200;
     }
 
+    private String escapeUrl(String path)
+    {
+        String baseUrl = getRepositoryBaseUrl() + (getRepositoryBaseUrl().endsWith("/") ? "" : "/");
+        String p = (path.startsWith("/") ? path.substring(1, path.length()) : path);
+
+        return baseUrl + p;
+    }
+
     public String getUrlForArtifact(Artifact artifact,
                                     String storageId,
                                     String repositoryId)
     {
-        return getRepositoryBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" +
+        return getRepositoryBaseUrl() +
+               "storages/" + storageId + "/" + repositoryId + "/" +
                ArtifactUtils.convertArtifactToPath(artifact);
     }
 
@@ -253,7 +223,14 @@ public class MavenArtifactClient implements Closeable
 
     public void setRepositoryBaseUrl(String repositoryBaseUrl)
     {
-        this.repositoryBaseUrl = repositoryBaseUrl;
+        if (repositoryBaseUrl.endsWith("/"))
+        {
+            this.repositoryBaseUrl = repositoryBaseUrl;
+        }
+        else
+        {
+            this.repositoryBaseUrl = repositoryBaseUrl + "/";
+        }
     }
 
     public String getUsername()
