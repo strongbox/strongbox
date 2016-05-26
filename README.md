@@ -35,7 +35,6 @@ Welcome to the Strongbox Maven artifact repository manager's home.
 * Debian/Ubuntu distribution
 
 # What's not yet implemented:
-* Scheduled tasks
 * Security
   * Currently there is no proper security set up. The only thing that is implemented is a hard-coded check for HTTP Basic authentication with maven/password as credentials.
 * Web UI
