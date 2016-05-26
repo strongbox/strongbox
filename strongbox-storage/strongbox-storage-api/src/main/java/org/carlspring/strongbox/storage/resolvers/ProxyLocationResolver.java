@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import javax.ws.rs.core.Response;
 import java.io.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
@@ -53,17 +54,8 @@ public class ProxyLocationResolver
 
         Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
 
-        ArtifactFile artifactFile;
-        if (!ArtifactUtils.isMetadata(artifactPath) && !ArtifactUtils.isChecksum(artifactPath))
-        {
-            Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
-            artifactFile = new ArtifactFile(repository, artifact, true);
-        }
-        else
-        {
-            final File repoPath = new File(storage.getRepository(repositoryId).getBasedir());
-            artifactFile = new ArtifactFile(new File(repoPath, artifactPath).getCanonicalFile());
-        }
+        Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
+        ArtifactFile artifactFile = new ArtifactFile(repository, artifact, true);
 
         logger.debug(" -> Checking for " + artifactFile.getCanonicalPath() + "...");
 
@@ -88,10 +80,18 @@ public class ProxyLocationResolver
             client.setUsername(remoteRepository.getUsername());
             client.setPassword(remoteRepository.getPassword());
 
+            Response response = client.getResourceWithResponse(artifactPath);
+            if (response.getStatus() != 200 || response.getEntity() == null)
+            {
+                return null;
+            }
+
+            System.out.println("Creating " + artifactFile.getTemporaryFile().getParentFile().getAbsolutePath());
+
             artifactFile.createParents();
 
-            InputStream remoteIs = client.getResource(artifactPath);
-            FileOutputStream fos = new FileOutputStream(artifactFile);
+            InputStream remoteIs = response.readEntity(InputStream.class);
+            FileOutputStream fos = new FileOutputStream(artifactFile.getTemporaryFile());
             MultipleDigestOutputStream mdos = new MultipleDigestOutputStream(fos);
 
             // 1) Attempt to resolve it from the remote host
@@ -116,6 +116,8 @@ public class ProxyLocationResolver
             ResourceCloser.close(fos, logger);
             ResourceCloser.close(remoteIs, logger);
             ResourceCloser.close(client, logger);
+
+            artifactFile.moveTempFileToOriginalDestination();
 
             // TODO: Add a policy for validating the checksums of downloaded artifacts
             // TODO: Validate the local checksum against the remote's checksums

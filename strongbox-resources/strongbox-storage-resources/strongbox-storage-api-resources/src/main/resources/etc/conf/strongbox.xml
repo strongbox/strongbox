@@ -34,6 +34,13 @@
                                        checksum-validation="true" />
                 </repository>
                 -->
+                <repository id="maven-central" policy="release" implementation="proxy" type="proxy">
+                    <proxy-configuration host="localhost" port="8180" username="testuser" password="password" />
+                    <remote-repository url="https://repo.maven.apache.org/maven2/"
+                                       download-remote-indexes="true"
+                                       auto-blocking="true"
+                                       checksum-validation="true" />
+                </repository>
 
                 <repository id="group-releases" policy="release" implementation="group" type="group" secured="true">
                     <group>
