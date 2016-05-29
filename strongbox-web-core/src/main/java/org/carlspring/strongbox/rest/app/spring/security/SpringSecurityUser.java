@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.rest.app.spring.security;
 
+import org.carlspring.strongbox.data.domain.StrongboxUser;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

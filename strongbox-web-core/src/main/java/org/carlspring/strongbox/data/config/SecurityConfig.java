@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.config;
+package org.carlspring.strongbox.data.config;
 
 import org.carlspring.strongbox.rest.app.spring.security.StrongboxUserDetailService;
 import org.carlspring.strongbox.rest.app.spring.security.UnauthorizedEntryPoint;
