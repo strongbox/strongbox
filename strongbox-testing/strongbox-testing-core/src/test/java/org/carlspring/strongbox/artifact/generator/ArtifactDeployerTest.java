@@ -24,7 +24,6 @@ import java.security.NoSuchAlgorithmException;
  * @author mtodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-//@ContextConfiguration(locations={"/META-INF/spring/strongbox-testing-context.xml"})
 @ContextConfiguration(classes = TestingCoreConfig.class)
 public class ArtifactDeployerTest
 {
