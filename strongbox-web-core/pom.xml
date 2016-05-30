@@ -543,6 +543,7 @@
 
                         <configuration>
                             <daemon>true</daemon>
+                            <skip>${skipTests}</skip>
                         </configuration>
 
                         <executions>
