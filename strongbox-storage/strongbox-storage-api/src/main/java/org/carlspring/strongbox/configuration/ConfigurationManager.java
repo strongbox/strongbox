@@ -137,7 +137,7 @@ public class ConfigurationManager extends AbstractConfigurationManager<Configura
     @Override
     public Configuration getConfiguration()
     {
-        return configurationRepository.getConfiguration();
+        return (Configuration) this.configuration;
     }
 
     @Override

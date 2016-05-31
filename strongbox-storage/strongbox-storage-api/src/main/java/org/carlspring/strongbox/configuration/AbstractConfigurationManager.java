@@ -20,7 +20,7 @@ public abstract class AbstractConfigurationManager<T>
 
     private String configurationPath;
 
-    private ServerConfiguration<T> configuration;
+    protected ServerConfiguration<T> configuration;
 
     private GenericParser<T> parser;
 

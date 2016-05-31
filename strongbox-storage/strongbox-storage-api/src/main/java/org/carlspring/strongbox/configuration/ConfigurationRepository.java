@@ -4,6 +4,7 @@ package org.carlspring.strongbox.configuration;
 import com.google.common.collect.Iterables;
 import com.lambdista.util.Try;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -13,6 +14,7 @@ import org.carlspring.strongbox.storage.routing.RuleSet;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -79,15 +81,30 @@ public class ConfigurationRepository {
     }
 
     private void createSettings(String propertyKey) {
+        GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
+
         if (System.getProperty(propertyKey) != null)
         {
             String filename = System.getProperty(propertyKey);
-            GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
-            Configuration configuration = Try.apply(() -> parser.parse(new File(filename))).get();
+            File file = new File(filename);
+            Configuration configuration = Try.apply(() -> parser.parse(file)).get();
 
             withDatabase(db -> {
                 db.save(configuration);
             });
+
+        } else {
+            ConfigurationResourceResolver resourceResolver = new ConfigurationResourceResolver();
+            Resource resource = Try.apply(() -> resourceResolver.getConfigurationResource("repository.config.xml", "etc/conf/strongbox.xml")).get();
+            File file = Try.apply(() -> resource.getFile()).get();
+
+            Configuration configuration = Try.apply(() -> parser.parse(file)).get();
+
+            withDatabase(db -> {
+                db.save(configuration);
+            });
+
         }
+
     }
 }
