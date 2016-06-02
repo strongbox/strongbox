@@ -3,11 +3,14 @@ package org.carlspring.strongbox.data.service;
 import java.io.Serializable;
 import java.util.Optional;
 
+import org.springframework.transaction.annotation.Transactional;
+
 /**
  * Copy of {@link org.springframework.data.repository.CrudRepository} from API functions set point of view.
  *
  * @author Alex Oreshkevich
  */
+@Transactional
 public interface CrudService<T, ID extends Serializable>
 {
 
@@ -19,9 +22,9 @@ public interface CrudService<T, ID extends Serializable>
 
     boolean exists(ID var1);
 
-    Iterable<T> findAll();
+    Optional<Iterable<T>> findAll();
 
-    Iterable<T> findAll(Iterable<ID> var1);
+    Optional<Iterable<T>> findAll(Iterable<ID> var1);
 
     long count();
 

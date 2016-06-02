@@ -5,6 +5,8 @@ import org.carlspring.strongbox.data.repository.StrongboxUserRepository;
 
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,10 +22,13 @@ class StrongboxUserServiceImpl
         implements StrongboxUserService
 {
 
+    private static final Logger logger = LoggerFactory.getLogger(StrongboxUserService.class);
+
     @Autowired
     StrongboxUserRepository repository;
 
     @Override
+    @Transactional
     public Optional<StrongboxUser> findByUserName(String username)
     {
         try
@@ -33,11 +38,13 @@ class StrongboxUserServiceImpl
         }
         catch (Exception e)
         {
+            logger.warn("Internal spring-data-orientdb exception: " + e.getMessage());
             return Optional.empty();
         }
     }
 
     @Override
+    @Transactional
     public <S extends StrongboxUser> S save(S var1)
     {
         return repository.save(var1);
@@ -50,6 +57,7 @@ class StrongboxUserServiceImpl
     }
 
     @Override
+    @Transactional
     public Optional<StrongboxUser> findOne(String var1)
     {
         return Optional.ofNullable(repository.findOne(var1));
@@ -62,15 +70,15 @@ class StrongboxUserServiceImpl
     }
 
     @Override
-    public Iterable<StrongboxUser> findAll()
+    public Optional<Iterable<StrongboxUser>> findAll()
     {
-        return repository.findAll();
+        return Optional.ofNullable(repository.findAll());
     }
 
     @Override
-    public Iterable<StrongboxUser> findAll(Iterable<String> var1)
+    public Optional<Iterable<StrongboxUser>> findAll(Iterable<String> var1)
     {
-        return repository.findAll(var1);
+        return Optional.ofNullable(repository.findAll(var1));
     }
 
     @Override

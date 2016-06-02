@@ -8,21 +8,23 @@ import org.springframework.context.annotation.Import;
 
 @Configuration
 @ComponentScan
-({
-        "org.carlspring.strongbox",
-        "org.carlspring.logging"
-})
+        ({
+                 "org.carlspring.strongbox",
+                 "org.carlspring.logging"
+         })
 @Import
-({
-        CommonConfig.class,
-        StrongboxSecurityConfig.class,
-        StorageIndexingConfig.class,
-        StorageApiConfig.class,
-        GlobalSecurityConfig.class,
-        SecurityConfig.class
-})
+        ({
+                 DataServiceConfig.class,
+                 CommonConfig.class,
+                 StrongboxSecurityConfig.class,
+                 StorageIndexingConfig.class,
+                 StorageApiConfig.class,
+                 GlobalSecurityConfig.class,
+                 SecurityConfig.class
+         })
 public class WebConfig
 {
+
     private static final Logger logger = LoggerFactory.getLogger(WebConfig.class);
 
     public WebConfig()

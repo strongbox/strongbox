@@ -2,7 +2,7 @@ package org.carlspring.strongbox.data.config;
 
 import org.carlspring.strongbox.rest.app.spring.security.StrongboxUserDetailService;
 import org.carlspring.strongbox.rest.app.spring.security.UnauthorizedEntryPoint;
-import org.carlspring.strongbox.rest.app.spring.security.UserRepository;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -15,53 +15,45 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.password.StandardPasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
-import javax.annotation.Resource;
-
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter
+public class SecurityConfig
+        extends WebSecurityConfigurerAdapter
 {
 
-    @Resource(name = "strongboxUserDetailService")
-    private StrongboxUserDetailService strongboxUserDetailService;
-
     @Override
-    protected void configure(HttpSecurity http) throws Exception
+    protected void configure(HttpSecurity http)
+            throws Exception
     {
         http
-        .sessionManagement()
+                .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
                 .and()
-        .exceptionHandling()
+                .exceptionHandling()
                 .authenticationEntryPoint(unauthorizedEntryPoint())
                 .and()
-        .httpBasic()
+                .httpBasic()
                 .and()
-        .csrf().disable()
-        .formLogin()
+                .csrf().disable()
+                .formLogin()
                 .and()
-        .logout()
+                .logout()
                 .logoutUrl("/logout")
                 .and()
-        .authorizeRequests()
+                .authorizeRequests()
                 .antMatchers("/configuration/strongbox/**").hasRole("ADMIN")
                 .antMatchers("/**").permitAll();
     }
 
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception
+    protected void configure(AuthenticationManagerBuilder auth)
+            throws Exception
     {
-        auth.userDetailsService(strongboxUserDetailService)
-                .passwordEncoder(passwordEncoder())
-                .and()
-                .inMemoryAuthentication()
-                .withUser("maven").password("password").roles("USER");
-    }
-
-    @Bean(name = "userDao")
-    UserRepository userDao()
-    {
-        return  new UserRepository();
+        auth.userDetailsService(userDetailsService())
+            .passwordEncoder(passwordEncoder())
+            .and()
+            .inMemoryAuthentication()
+            .withUser("maven").password("password").roles("USER");
     }
 
     @Bean(name = "userDetailsService")

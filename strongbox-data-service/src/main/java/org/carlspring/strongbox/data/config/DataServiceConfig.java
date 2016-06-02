@@ -1,10 +1,14 @@
 package org.carlspring.strongbox.data.config;
 
 import org.carlspring.strongbox.data.domain.StrongboxUser;
+import org.carlspring.strongbox.data.tx.CustomOrientTransactionManager;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
 
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.client.remote.OServerAdmin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -29,10 +33,15 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 public class DataServiceConfig
 {
 
+    private static final Logger logger = LoggerFactory.getLogger(DataServiceConfig.class);
+
     private final String DOMAIN_PACKAGE = StrongboxUser.class.getPackage().getName();
 
     @Value("${org.carlspring.strongbox.data.orientdb.host}")
     String host;
+
+    @Value("${org.carlspring.strongbox.data.orientdb.port}")
+    Integer port;
 
     @Value("${org.carlspring.strongbox.data.orientdb.database}")
     String database;
@@ -42,18 +51,6 @@ public class DataServiceConfig
 
     @Value("${org.carlspring.strongbox.data.orientdb.password}")
     String password;
-
-    public DataServiceConfig()
-    {
-
-        // create database if not initialized
-        ODatabaseDocumentTx db = new ODatabaseDocumentTx(getConnectionUrl());
-        if (!db.exists())
-        {
-            db.create();
-            db.close();
-        }
-    }
 
     @Bean
     public OrientObjectDatabaseFactory factory()
@@ -68,7 +65,7 @@ public class DataServiceConfig
     @Bean
     public OrientTransactionManager transactionManager()
     {
-        return new OrientTransactionManager(factory());
+        return new CustomOrientTransactionManager(factory());
     }
 
     @Bean
@@ -79,14 +76,24 @@ public class DataServiceConfig
 
     @PostConstruct
     public void registerEntities()
+            throws IOException
     {
+
+        // create database if not initialized
+        OServerAdmin serverAdmin = new OServerAdmin(getConnectionUrl()).connect("root", "root");
+        if (!serverAdmin.existsDatabase())
+        {
+            logger.debug("Create database " + database);
+            serverAdmin.createDatabase(database, "document", "plocal").close();
+        }
 
         // register all domain entities
         factory().db().getEntityManager().registerEntityClasses(DOMAIN_PACKAGE);
     }
 
-    private final String getConnectionUrl()
+    private String getConnectionUrl()
     {
-        return "plocal:data/" + database;
+        return "remote:" + host + ":" + port + "/" + database;
     }
+
 }
