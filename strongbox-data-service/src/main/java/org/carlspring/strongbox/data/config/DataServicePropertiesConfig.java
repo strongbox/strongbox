@@ -6,11 +6,13 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 @Configuration
-@PropertySource(value = {"classpath:application.properties"})
-public class DataServicePropertiesConfig {
+@PropertySource(value = { "classpath:application.properties" })
+public class DataServicePropertiesConfig
+{
 
     @Bean
-    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer()
+    {
         return new PropertySourcesPlaceholderConfigurer();
     }
 }

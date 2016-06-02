@@ -1,16 +1,18 @@
 package org.carlspring.strongbox.data.domain;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
-
 import java.util.LinkedList;
 import java.util.List;
+
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
 
 /**
  * An application user
  */
-public class StrongboxUser extends StrongboxEntity
+public class StrongboxUser
+        extends StrongboxEntity
 {
+
     private String username;
 
     private String password;
@@ -21,11 +23,18 @@ public class StrongboxUser extends StrongboxEntity
 
     private List<String> roles;
 
-    public StrongboxUser(){
+    public StrongboxUser()
+    {
         roles = new LinkedList<>();
     }
 
-    public StrongboxUser(String id, String username, String password, boolean enabled, String salt, List<String> roles) {
+    public StrongboxUser(String id,
+                         String username,
+                         String password,
+                         boolean enabled,
+                         String salt,
+                         List<String> roles)
+    {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -84,45 +93,50 @@ public class StrongboxUser extends StrongboxEntity
         this.roles = roles;
     }
 
-    public String getId() {
+    public String getId()
+    {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(String id)
+    {
         this.id = id;
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(Object o)
+    {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         StrongboxUser user = (StrongboxUser) o;
         return enabled == user.enabled &&
-                Objects.equal(id, user.id) &&
-                Objects.equal(username, user.username) &&
-                Objects.equal(password, user.password) &&
-                Objects.equal(salt, user.salt) &&
-                Objects.equal(roles, user.roles) &&
-                Objects.equal(detachAll, user.detachAll);
+               Objects.equal(id, user.id) &&
+               Objects.equal(username, user.username) &&
+               Objects.equal(password, user.password) &&
+               Objects.equal(salt, user.salt) &&
+               Objects.equal(roles, user.roles) &&
+               Objects.equal(detachAll, user.detachAll);
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         return Objects.hashCode(id, username, password, enabled, salt, roles, detachAll);
     }
 
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return MoreObjects.toStringHelper(this)
-                .add("id", getId())
-                .add("username", getUsername())
-                .add("password", getPassword())
-                .add("enabled", isEnabled())
-                .add("salt", getSalt())
-                .add("roles", getRoles())
-                .add("detachAll", detachAll)
-                .add("version", version)
-                .toString();
+                          .add("id", getId())
+                          .add("username", getUsername())
+                          .add("password", getPassword())
+                          .add("enabled", isEnabled())
+                          .add("salt", getSalt())
+                          .add("roles", getRoles())
+                          .add("detachAll", detachAll)
+                          .add("version", version)
+                          .toString();
     }
 }

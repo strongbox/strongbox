@@ -1,12 +1,12 @@
 package org.carlspring.strongbox.data.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
 import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Base class for all entity classes in OrientDB.
@@ -15,14 +15,15 @@ import java.io.Serializable;
  */
 @MappedSuperclass
 @Inheritance
-public abstract class StrongboxEntity implements Serializable {
+public abstract class StrongboxEntity
+        implements Serializable
+{
 
     @Id
     protected String id;
 
     /**
-     * Added to avoid a runtime error whereby the detachAll property is checked
-     * for existence but not actually used.
+     * Added to avoid a runtime error whereby the detachAll property is checked for existence but not actually used.
      */
     protected String detachAll;
 
@@ -30,6 +31,7 @@ public abstract class StrongboxEntity implements Serializable {
     @JsonIgnore
     protected Long version;
 
-    public StrongboxEntity() {
+    public StrongboxEntity()
+    {
     }
 }

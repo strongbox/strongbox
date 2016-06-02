@@ -9,5 +9,8 @@ import org.springframework.data.repository.NoRepositoryBean;
  * @author Alex Oreshkevich
  */
 @NoRepositoryBean
-public interface OrientRepository<T> extends OrientObjectRepository<T> {
+public interface OrientRepository<T>
+        extends OrientObjectRepository<T>
+{
+
 }

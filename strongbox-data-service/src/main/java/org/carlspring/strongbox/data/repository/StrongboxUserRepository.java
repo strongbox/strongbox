@@ -7,7 +7,9 @@ import org.carlspring.strongbox.data.domain.StrongboxUser;
  *
  * @author Alex Oreshkevich
  */
-public interface StrongboxUserRepository extends OrientRepository<StrongboxUser> {
+public interface StrongboxUserRepository
+        extends OrientRepository<StrongboxUser>
+{
 
     // select * from StrongboxUser where username = 'admin'
     StrongboxUser findByUsername(String userName);

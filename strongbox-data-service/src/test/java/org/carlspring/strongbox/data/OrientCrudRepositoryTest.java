@@ -3,6 +3,10 @@ package org.carlspring.strongbox.data;
 import org.carlspring.strongbox.data.config.DataServiceConfig;
 import org.carlspring.strongbox.data.domain.StrongboxUser;
 import org.carlspring.strongbox.data.service.StrongboxUserService;
+
+import javax.inject.Inject;
+import java.util.Optional;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -10,15 +14,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.inject.Inject;
-import java.util.Optional;
-
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {DataServiceConfig.class})
-public class OrientCrudRepositoryTest {
+@ContextConfiguration(classes = { DataServiceConfig.class })
+public class OrientCrudRepositoryTest
+{
 
     private static final Logger logger = LoggerFactory.getLogger(OrientCrudRepositoryTest.class);
 
@@ -27,7 +28,9 @@ public class OrientCrudRepositoryTest {
 
     @Test
     @Transactional
-    public void testCreateAndDeleteUserOperations() throws Exception {
+    public void testCreateAndDeleteUserOperations()
+            throws Exception
+    {
 
         // remove test user if already exists
         userService.findByUserName("test").ifPresent(user -> userService.delete(user));
@@ -51,7 +54,8 @@ public class OrientCrudRepositoryTest {
     }
 
     @Test
-    public void displayUsers(){
+    public void displayUsers()
+    {
         userService.findAll().forEach(user -> logger.debug(user.toString()));
     }
 }

@@ -8,7 +8,8 @@ import java.util.Optional;
  *
  * @author Alex Oreshkevich
  */
-public interface CrudService<T, ID extends Serializable> {
+public interface CrudService<T, ID extends Serializable>
+{
 
     <S extends T> S save(S var1);
 

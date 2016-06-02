@@ -1,7 +1,10 @@
 package org.carlspring.strongbox.data.config;
 
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import org.carlspring.strongbox.data.domain.StrongboxUser;
+
+import javax.annotation.PostConstruct;
+
+import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -13,8 +16,6 @@ import org.springframework.data.orient.object.OrientObjectDatabaseFactory;
 import org.springframework.data.orient.object.OrientObjectTemplate;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import javax.annotation.PostConstruct;
-
 /**
  * Spring configuration for data service project.
  *
@@ -23,9 +24,10 @@ import javax.annotation.PostConstruct;
 @Configuration
 @EnableTransactionManagement
 @EnableOrientRepositories(basePackages = "org.carlspring.strongbox.data.repository")
-@ComponentScan({"org.carlspring.strongbox.data"})
+@ComponentScan({ "org.carlspring.strongbox.data" })
 @Import(DataServicePropertiesConfig.class)
-public class DataServiceConfig {
+public class DataServiceConfig
+{
 
     private final String DOMAIN_PACKAGE = StrongboxUser.class.getPackage().getName();
 
@@ -41,18 +43,21 @@ public class DataServiceConfig {
     @Value("${org.carlspring.strongbox.data.orientdb.password}")
     String password;
 
-    public DataServiceConfig(){
+    public DataServiceConfig()
+    {
 
         // create database if not initialized
         ODatabaseDocumentTx db = new ODatabaseDocumentTx(getConnectionUrl());
-        if (!db.exists()) {
+        if (!db.exists())
+        {
             db.create();
             db.close();
         }
     }
 
     @Bean
-    public OrientObjectDatabaseFactory factory() {
+    public OrientObjectDatabaseFactory factory()
+    {
         OrientObjectDatabaseFactory factory = new OrientObjectDatabaseFactory();
         factory.setUrl(getConnectionUrl());
         factory.setUsername(user);
@@ -61,23 +66,27 @@ public class DataServiceConfig {
     }
 
     @Bean
-    public OrientTransactionManager transactionManager() {
+    public OrientTransactionManager transactionManager()
+    {
         return new OrientTransactionManager(factory());
     }
 
     @Bean
-    public OrientObjectTemplate objectTemplate() {
+    public OrientObjectTemplate objectTemplate()
+    {
         return new OrientObjectTemplate(factory());
     }
 
     @PostConstruct
-    public void registerEntities() {
+    public void registerEntities()
+    {
 
         // register all domain entities
         factory().db().getEntityManager().registerEntityClasses(DOMAIN_PACKAGE);
     }
 
-    private final String getConnectionUrl(){
+    private final String getConnectionUrl()
+    {
         return "plocal:data/" + database;
     }
 }
