@@ -1,5 +1,45 @@
-.idea/
+# common ignore
+*~
+MANIFEST.MF
+target/
+tmp/
+builds/
+build/
+pom.xml.orig
+*.versionsBackup
+
+# Java Files #
+*.jar
+*.war
+*.class
+
+# eclipse specific
+.settings
+.project
+.classpath
+.metadata
+
+# idea specific
+.idea
+!.idea/codeStyleSettings.xml
 *.iml
-target
+*.ipr
+*.iws
+
+# Locally stored "Eclipse launch configurations"
+*.launch
+
+# unix specific
 .DS_Store
+.directory
+
+# static plugins
+.pmd
+
+# log files
+logs
+*.log
+config/
 lib/
+
+*.sh
