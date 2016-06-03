@@ -61,6 +61,7 @@
         <version.spring.security>4.0.4.RELEASE</version.spring.security>
         <version.spring.data>0.10.0-SNAPSHOT</version.spring.data>
         <version.orientdb>2.1.16</version.orientdb>
+        <version.guava>19.0</version.guava>
     </properties>
 
     <build>
@@ -177,12 +178,18 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>19.0</version>
+                <version>${version.guava}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.orientechnologies</groupId>
                 <artifactId>orientdb-server</artifactId>
+                <version>${version.orientdb}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.orientechnologies</groupId>
+                <artifactId>orientdb-enterprise</artifactId>
                 <version>${version.orientdb}</version>
             </dependency>
 
