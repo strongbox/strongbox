@@ -74,8 +74,7 @@ public class EmbeddedOrientDbServer
         // add users (incl system-level root user)
         List<OServerUserConfiguration> users = new LinkedList<>();
         users.add(buildUser(user, password, "*"));
-        users.add(buildUser("root", "root", "*"));
-        System.setProperty("ORIENTDB_ROOT_PASSWORD", "root");
+        System.setProperty("ORIENTDB_ROOT_PASSWORD", user);
         serverConfiguration.users = users.toArray(new OServerUserConfiguration[users.size()]);
 
         // add other properties
