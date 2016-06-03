@@ -65,6 +65,7 @@ public class DataServiceConfig
         factory.setUrl(getConnectionUrl());
         factory.setUsername(user);
         factory.setPassword(password);
+        
         return factory;
     }
 
@@ -84,7 +85,6 @@ public class DataServiceConfig
     public void registerEntities()
             throws IOException
     {
-
         embeddableServer.start();
 
         // create database if not initialized
@@ -100,7 +100,8 @@ public class DataServiceConfig
     }
 
     @PreDestroy
-    public void shutDown(){
+    public void shutDown()
+    {
         embeddableServer.shutDown();
     }
 
