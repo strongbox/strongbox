@@ -9,8 +9,8 @@ import com.google.common.base.Objects;
 /**
  * An application user
  */
-public class StrongboxUser
-        extends StrongboxEntity
+public class User
+        extends GenericEntity
 {
 
     private String username;
@@ -23,17 +23,17 @@ public class StrongboxUser
 
     private List<String> roles;
 
-    public StrongboxUser()
+    public User()
     {
         roles = new LinkedList<>();
     }
 
-    public StrongboxUser(String id,
-                         String username,
-                         String password,
-                         boolean enabled,
-                         String salt,
-                         List<String> roles)
+    public User(String id,
+                String username,
+                String password,
+                boolean enabled,
+                String salt,
+                List<String> roles)
     {
         this.id = id;
         this.username = username;
@@ -108,7 +108,7 @@ public class StrongboxUser
     {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        StrongboxUser user = (StrongboxUser) o;
+        User user = (User) o;
         return enabled == user.enabled &&
                Objects.equal(id, user.id) &&
                Objects.equal(username, user.username) &&

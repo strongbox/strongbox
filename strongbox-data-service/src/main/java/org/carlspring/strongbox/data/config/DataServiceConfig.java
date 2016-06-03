@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.data.config;
 
-import org.carlspring.strongbox.data.domain.StrongboxUser;
+import org.carlspring.strongbox.data.domain.User;
 import org.carlspring.strongbox.data.tx.CustomOrientTransactionManager;
 
 import javax.annotation.PostConstruct;
@@ -35,7 +35,7 @@ public class DataServiceConfig
 
     private static final Logger logger = LoggerFactory.getLogger(DataServiceConfig.class);
 
-    private final String DOMAIN_PACKAGE = StrongboxUser.class.getPackage().getName();
+    private final String DOMAIN_PACKAGE = User.class.getPackage().getName();
 
     @Value("${org.carlspring.strongbox.data.orientdb.host}")
     String host;
@@ -80,7 +80,7 @@ public class DataServiceConfig
     {
 
         // create database if not initialized
-        OServerAdmin serverAdmin = new OServerAdmin(getConnectionUrl()).connect("root", "root");
+        OServerAdmin serverAdmin = new OServerAdmin(getConnectionUrl()).connect(user, password);
         if (!serverAdmin.existsDatabase())
         {
             logger.debug("Create database " + database);

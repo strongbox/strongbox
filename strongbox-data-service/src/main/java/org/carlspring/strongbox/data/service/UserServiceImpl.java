@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.data.service;
 
-import org.carlspring.strongbox.data.domain.StrongboxUser;
-import org.carlspring.strongbox.data.repository.StrongboxUserRepository;
+import org.carlspring.strongbox.data.domain.User;
+import org.carlspring.strongbox.data.repository.UserRepository;
 
 import java.util.Optional;
 
@@ -12,28 +12,28 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * DAO implementation for {@link StrongboxUser} entities.
+ * DAO implementation for {@link User} entities.
  *
  * @author Alex Oreshkevich
  */
 @Service
 @Transactional
-class StrongboxUserServiceImpl
-        implements StrongboxUserService
+class UserServiceImpl
+        implements UserService
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(StrongboxUserService.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
-    StrongboxUserRepository repository;
+    UserRepository repository;
 
     @Override
     @Transactional
-    public Optional<StrongboxUser> findByUserName(String username)
+    public Optional<User> findByUserName(String username)
     {
         try
         {
-            StrongboxUser user = repository.findByUsername(username);
+            User user = repository.findByUsername(username);
             return Optional.ofNullable(user);
         }
         catch (Exception e)
@@ -45,20 +45,20 @@ class StrongboxUserServiceImpl
 
     @Override
     @Transactional
-    public <S extends StrongboxUser> S save(S var1)
+    public <S extends User> S save(S var1)
     {
         return repository.save(var1);
     }
 
     @Override
-    public <S extends StrongboxUser> Iterable<S> save(Iterable<S> var1)
+    public <S extends User> Iterable<S> save(Iterable<S> var1)
     {
         return repository.save(var1);
     }
 
     @Override
     @Transactional
-    public Optional<StrongboxUser> findOne(String var1)
+    public Optional<User> findOne(String var1)
     {
         return Optional.ofNullable(repository.findOne(var1));
     }
@@ -70,13 +70,13 @@ class StrongboxUserServiceImpl
     }
 
     @Override
-    public Optional<Iterable<StrongboxUser>> findAll()
+    public Optional<Iterable<User>> findAll()
     {
         return Optional.ofNullable(repository.findAll());
     }
 
     @Override
-    public Optional<Iterable<StrongboxUser>> findAll(Iterable<String> var1)
+    public Optional<Iterable<User>> findAll(Iterable<String> var1)
     {
         return Optional.ofNullable(repository.findAll(var1));
     }
@@ -94,13 +94,13 @@ class StrongboxUserServiceImpl
     }
 
     @Override
-    public void delete(StrongboxUser var1)
+    public void delete(User var1)
     {
         repository.delete(var1);
     }
 
     @Override
-    public void delete(Iterable<? extends StrongboxUser> var1)
+    public void delete(Iterable<? extends User> var1)
     {
         repository.delete(var1);
     }

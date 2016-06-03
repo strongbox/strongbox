@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.data;
 
-import org.carlspring.strongbox.data.domain.StrongboxUser;
-import org.carlspring.strongbox.data.service.StrongboxUserService;
+import org.carlspring.strongbox.data.domain.User;
+import org.carlspring.strongbox.data.service.UserService;
 
 import java.util.Optional;
 
@@ -26,7 +26,7 @@ public class OrientCrudRepositoryTest
     final String testUserName = "TEST";
 
     @Autowired
-    StrongboxUserService userService;
+    UserService userService;
 
     @Before
     public void setup()
@@ -40,17 +40,17 @@ public class OrientCrudRepositoryTest
             throws Exception
     {
 
-        final StrongboxUser user = new StrongboxUser();
+        final User user = new User();
         user.setEnabled(true);
         user.setUsername(testUserName);
         user.setPassword("test-pwd");
-        final StrongboxUser savedUser = userService.save(user);
+        final User savedUser = userService.save(user);
         assertNotNull(savedUser);
 
         String id = savedUser.getId();
         System.out.println("\n\n" + savedUser + "\n\n");
 
-        Optional<StrongboxUser> optional = userService.findOne(id);
+        Optional<User> optional = userService.findOne(id);
         optional.ifPresent(storedUser -> {
             logger.debug("Found stored user\n\t" + storedUser + "\n");
             assertEquals(user.getUsername(), storedUser.getUsername());

@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.data;
 
-import org.carlspring.strongbox.data.domain.StrongboxUser;
-import org.carlspring.strongbox.data.repository.StrongboxUserRepository;
+import org.carlspring.strongbox.data.domain.User;
+import org.carlspring.strongbox.data.repository.UserRepository;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +23,7 @@ public class RemoteStorageTest
     final String testUserName = "TEST";
 
     @Autowired
-    StrongboxUserRepository repository;
+    UserRepository repository;
 
     @Test
     @Transactional
@@ -32,12 +32,12 @@ public class RemoteStorageTest
     {
 
         // prepare
-        final StrongboxUser user = buildTestUser();
+        final User user = buildTestUser();
 
         // if such user already exists, drop it
         try
         {
-            StrongboxUser oldUser = repository.findByUsername(user.getUsername());
+            User oldUser = repository.findByUsername(user.getUsername());
             if (oldUser != null)
             {
                 repository.delete(oldUser.getId());
@@ -50,7 +50,7 @@ public class RemoteStorageTest
 
         final String id = repository.save(user).getId();
 
-        StrongboxUser storedUser = repository.findOne(id);
+        User storedUser = repository.findOne(id);
         assertNotNull(storedUser);
 
         logger.warn("Found user {}", storedUser);
@@ -58,9 +58,9 @@ public class RemoteStorageTest
         assertEquals(user.getPassword(), storedUser.getPassword());
     }
 
-    private StrongboxUser buildTestUser()
+    private User buildTestUser()
     {
-        final StrongboxUser user = new StrongboxUser();
+        final User user = new User();
         user.setEnabled(true);
         user.setUsername(testUserName);
         user.setPassword("pwd");
