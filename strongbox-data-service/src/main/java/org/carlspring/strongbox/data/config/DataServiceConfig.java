@@ -1,14 +1,17 @@
 package org.carlspring.strongbox.data.config;
 
 import org.carlspring.strongbox.data.domain.User;
+import org.carlspring.strongbox.data.server.EmbeddedOrientDbServer;
 import org.carlspring.strongbox.data.tx.CustomOrientTransactionManager;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.io.IOException;
 
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -52,6 +55,9 @@ public class DataServiceConfig
     @Value("${org.carlspring.strongbox.data.orientdb.password}")
     String password;
 
+    @Autowired
+    EmbeddedOrientDbServer embeddableServer;
+
     @Bean
     public OrientObjectDatabaseFactory factory()
     {
@@ -59,6 +65,7 @@ public class DataServiceConfig
         factory.setUrl(getConnectionUrl());
         factory.setUsername(user);
         factory.setPassword(password);
+        
         return factory;
     }
 
@@ -78,6 +85,7 @@ public class DataServiceConfig
     public void registerEntities()
             throws IOException
     {
+        embeddableServer.start();
 
         // create database if not initialized
         OServerAdmin serverAdmin = new OServerAdmin(getConnectionUrl()).connect(user, password);
@@ -89,6 +97,12 @@ public class DataServiceConfig
 
         // register all domain entities
         factory().db().getEntityManager().registerEntityClasses(DOMAIN_PACKAGE);
+    }
+
+    @PreDestroy
+    public void shutDown()
+    {
+        embeddableServer.shutDown();
     }
 
     private String getConnectionUrl()
