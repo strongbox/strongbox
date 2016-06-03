@@ -14,10 +14,10 @@ import org.carlspring.strongbox.storage.routing.RuleSet;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 
 import static org.carlspring.strongbox.db.DbUtils.withDatabase;
@@ -95,10 +95,9 @@ public class ConfigurationRepository {
 
         } else {
             ConfigurationResourceResolver resourceResolver = new ConfigurationResourceResolver();
-            Resource resource = Try.apply(() -> resourceResolver.getConfigurationResource("repository.config.xml", "etc/conf/strongbox.xml")).get();
-            File file = Try.apply(() -> resource.getFile()).get();
+            InputStream is = getClass().getClassLoader().getResourceAsStream("etc/conf/strongbox.xml");
 
-            Configuration configuration = Try.apply(() -> parser.parse(file)).get();
+            Configuration configuration = Try.apply(() -> parser.parse(is)).get();
 
             withDatabase(db -> {
                 db.save(configuration);

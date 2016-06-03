@@ -1,0 +1,855 @@
+Listening for transport dt_socket at address: 5005
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] Strongbox: Parent
+[INFO] Strongbox: Resources [Common]
+[INFO] Strongbox: Resources [Storage API]
+[INFO] Strongbox: Resources [Storage]
+[INFO] Strongbox: Resources [Web]
+[INFO] Strongbox: Resources
+[INFO] Strongbox: Commons
+[INFO] Strongbox: Metadata [Core]
+[INFO] Strongbox: Event API
+[INFO] Strongbox: Client
+[INFO] Strongbox: Testing [Web]
+[INFO] Strongbox: Testing [Core]
+[INFO] Strongbox: Security API
+[INFO] Strongbox: Testing
+[INFO] Strongbox: Storage [API]
+[INFO] Strongbox: REST Client
+[INFO] Strongbox: Storage [Indexing]
+[INFO] Strongbox: Storage [Metadata]
+[INFO] Strongbox: Storage
+[INFO] Strongbox: Web Core
+[INFO] Strongbox: Masterbuild
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building Strongbox: Parent 1.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- maven-clean-plugin:2.5:clean (default-clean) @ strongbox-parent ---
+[INFO] 
+[INFO] --- maven-source-plugin:2.2.1:jar-no-fork (attach-sources) @ strongbox-parent ---
+[INFO] 
+[INFO] >>> maven-source-plugin:2.2.1:jar (attach-sources) > generate-sources @ strongbox-parent >>>
+[INFO] 
+[INFO] <<< maven-source-plugin:2.2.1:jar (attach-sources) < generate-sources @ strongbox-parent <<<
+[INFO] 
+[INFO] --- maven-source-plugin:2.2.1:jar (attach-sources) @ strongbox-parent ---
+[INFO] 
+[INFO] --- maven-install-plugin:2.4:install (default-install) @ strongbox-parent ---
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-parent/pom.xml to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-parent/1.0-SNAPSHOT/strongbox-parent-1.0-SNAPSHOT.pom
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building Strongbox: Resources [Common] 1.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- maven-clean-plugin:2.5:clean (default-clean) @ strongbox-common-resources ---
+[INFO] Deleting /Users/ivanursul/git/opensource/strongbox/strongbox-resources/strongbox-common-resources/target
+[INFO] 
+[INFO] --- maven-resources-plugin:2.7:resources (default-resources) @ strongbox-common-resources ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 4 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.2:compile (default-compile) @ strongbox-common-resources ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- maven-resources-plugin:2.7:testResources (default-testResources) @ strongbox-common-resources ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /Users/ivanursul/git/opensource/strongbox/strongbox-resources/strongbox-common-resources/src/test/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.2:testCompile (default-testCompile) @ strongbox-common-resources ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.18.1:test (default-test) @ strongbox-common-resources ---
+[INFO] No tests to run.
+[INFO] 
+[INFO] --- maven-jar-plugin:2.5:jar (default-jar) @ strongbox-common-resources ---
+[INFO] Building jar: /Users/ivanursul/git/opensource/strongbox/strongbox-resources/strongbox-common-resources/target/strongbox-common-resources-1.0-SNAPSHOT.jar
+[INFO] 
+[INFO] --- maven-source-plugin:2.2.1:jar-no-fork (attach-sources) @ strongbox-common-resources ---
+[INFO] Building jar: /Users/ivanursul/git/opensource/strongbox/strongbox-resources/strongbox-common-resources/target/strongbox-common-resources-1.0-SNAPSHOT-sources.jar
+[INFO] 
+[INFO] >>> maven-source-plugin:2.2.1:jar (attach-sources) > generate-sources @ strongbox-common-resources >>>
+[INFO] 
+[INFO] <<< maven-source-plugin:2.2.1:jar (attach-sources) < generate-sources @ strongbox-common-resources <<<
+[INFO] 
+[INFO] --- maven-source-plugin:2.2.1:jar (attach-sources) @ strongbox-common-resources ---
+[INFO] 
+[INFO] --- maven-install-plugin:2.4:install (default-install) @ strongbox-common-resources ---
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-resources/strongbox-common-resources/target/strongbox-common-resources-1.0-SNAPSHOT.jar to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-common-resources/1.0-SNAPSHOT/strongbox-common-resources-1.0-SNAPSHOT.jar
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-resources/strongbox-common-resources/pom.xml to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-common-resources/1.0-SNAPSHOT/strongbox-common-resources-1.0-SNAPSHOT.pom
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-resources/strongbox-common-resources/target/strongbox-common-resources-1.0-SNAPSHOT-sources.jar to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-common-resources/1.0-SNAPSHOT/strongbox-common-resources-1.0-SNAPSHOT-sources.jar
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-resources/strongbox-common-resources/target/strongbox-common-resources-1.0-SNAPSHOT-sources.jar to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-common-resources/1.0-SNAPSHOT/strongbox-common-resources-1.0-SNAPSHOT-sources.jar
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building Strongbox: Resources [Storage API] 1.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- maven-clean-plugin:2.5:clean (default-clean) @ strongbox-storage-api-resources ---
+[INFO] Deleting /Users/ivanursul/git/opensource/strongbox/strongbox-resources/strongbox-storage-resources/strongbox-storage-api-resources/target
+[INFO] 
+[INFO] --- maven-resources-plugin:2.7:resources (default-resources) @ strongbox-storage-api-resources ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 1 resource
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.2:compile (default-compile) @ strongbox-storage-api-resources ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- maven-resources-plugin:2.7:testResources (default-testResources) @ strongbox-storage-api-resources ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /Users/ivanursul/git/opensource/strongbox/strongbox-resources/strongbox-storage-resources/strongbox-storage-api-resources/src/test/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.2:testCompile (default-testCompile) @ strongbox-storage-api-resources ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.18.1:test (default-test) @ strongbox-storage-api-resources ---
+[INFO] No tests to run.
+[INFO] 
+[INFO] --- maven-jar-plugin:2.5:jar (default-jar) @ strongbox-storage-api-resources ---
+[INFO] Building jar: /Users/ivanursul/git/opensource/strongbox/strongbox-resources/strongbox-storage-resources/strongbox-storage-api-resources/target/strongbox-storage-api-resources-1.0-SNAPSHOT.jar
+[INFO] 
+[INFO] >>> maven-source-plugin:2.2.1:jar (attach-sources) > generate-sources @ strongbox-storage-api-resources >>>
+[INFO] 
+[INFO] <<< maven-source-plugin:2.2.1:jar (attach-sources) < generate-sources @ strongbox-storage-api-resources <<<
+[INFO] 
+[INFO] --- maven-source-plugin:2.2.1:jar (attach-sources) @ strongbox-storage-api-resources ---
+[INFO] Building jar: /Users/ivanursul/git/opensource/strongbox/strongbox-resources/strongbox-storage-resources/strongbox-storage-api-resources/target/strongbox-storage-api-resources-1.0-SNAPSHOT-sources.jar
+[INFO] 
+[INFO] --- maven-source-plugin:2.2.1:jar-no-fork (attach-sources) @ strongbox-storage-api-resources ---
+[INFO] 
+[INFO] --- maven-install-plugin:2.4:install (default-install) @ strongbox-storage-api-resources ---
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-resources/strongbox-storage-resources/strongbox-storage-api-resources/target/strongbox-storage-api-resources-1.0-SNAPSHOT.jar to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-storage-api-resources/1.0-SNAPSHOT/strongbox-storage-api-resources-1.0-SNAPSHOT.jar
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-resources/strongbox-storage-resources/strongbox-storage-api-resources/pom.xml to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-storage-api-resources/1.0-SNAPSHOT/strongbox-storage-api-resources-1.0-SNAPSHOT.pom
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-resources/strongbox-storage-resources/strongbox-storage-api-resources/target/strongbox-storage-api-resources-1.0-SNAPSHOT-sources.jar to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-storage-api-resources/1.0-SNAPSHOT/strongbox-storage-api-resources-1.0-SNAPSHOT-sources.jar
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-resources/strongbox-storage-resources/strongbox-storage-api-resources/target/strongbox-storage-api-resources-1.0-SNAPSHOT-sources.jar to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-storage-api-resources/1.0-SNAPSHOT/strongbox-storage-api-resources-1.0-SNAPSHOT-sources.jar
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building Strongbox: Resources [Storage] 1.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- maven-clean-plugin:2.5:clean (default-clean) @ strongbox-storage-resources ---
+[INFO] 
+[INFO] --- maven-source-plugin:2.2.1:jar-no-fork (attach-sources) @ strongbox-storage-resources ---
+[INFO] 
+[INFO] >>> maven-source-plugin:2.2.1:jar (attach-sources) > generate-sources @ strongbox-storage-resources >>>
+[INFO] 
+[INFO] <<< maven-source-plugin:2.2.1:jar (attach-sources) < generate-sources @ strongbox-storage-resources <<<
+[INFO] 
+[INFO] --- maven-source-plugin:2.2.1:jar (attach-sources) @ strongbox-storage-resources ---
+[INFO] 
+[INFO] --- maven-install-plugin:2.4:install (default-install) @ strongbox-storage-resources ---
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-resources/strongbox-storage-resources/pom.xml to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-storage-resources/1.0-SNAPSHOT/strongbox-storage-resources-1.0-SNAPSHOT.pom
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building Strongbox: Resources [Web] 1.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- maven-clean-plugin:2.5:clean (default-clean) @ strongbox-web-resources ---
+[INFO] Deleting /Users/ivanursul/git/opensource/strongbox/strongbox-resources/strongbox-web-resources/target
+[INFO] 
+[INFO] --- maven-resources-plugin:2.7:resources (default-resources) @ strongbox-web-resources ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 1 resource
+[INFO] Copying 4 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.2:compile (default-compile) @ strongbox-web-resources ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- maven-resources-plugin:2.7:testResources (default-testResources) @ strongbox-web-resources ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /Users/ivanursul/git/opensource/strongbox/strongbox-resources/strongbox-web-resources/src/test/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.2:testCompile (default-testCompile) @ strongbox-web-resources ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.18.1:test (default-test) @ strongbox-web-resources ---
+[INFO] No tests to run.
+[INFO] 
+[INFO] --- maven-jar-plugin:2.5:jar (default-jar) @ strongbox-web-resources ---
+[INFO] Building jar: /Users/ivanursul/git/opensource/strongbox/strongbox-resources/strongbox-web-resources/target/strongbox-web-resources-1.0-SNAPSHOT.jar
+[INFO] 
+[INFO] --- maven-source-plugin:2.2.1:jar-no-fork (attach-sources) @ strongbox-web-resources ---
+[INFO] Building jar: /Users/ivanursul/git/opensource/strongbox/strongbox-resources/strongbox-web-resources/target/strongbox-web-resources-1.0-SNAPSHOT-sources.jar
+[INFO] 
+[INFO] >>> maven-source-plugin:2.2.1:jar (attach-sources) > generate-sources @ strongbox-web-resources >>>
+[INFO] 
+[INFO] <<< maven-source-plugin:2.2.1:jar (attach-sources) < generate-sources @ strongbox-web-resources <<<
+[INFO] 
+[INFO] --- maven-source-plugin:2.2.1:jar (attach-sources) @ strongbox-web-resources ---
+[INFO] 
+[INFO] --- maven-install-plugin:2.4:install (default-install) @ strongbox-web-resources ---
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-resources/strongbox-web-resources/target/strongbox-web-resources-1.0-SNAPSHOT.jar to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-web-resources/1.0-SNAPSHOT/strongbox-web-resources-1.0-SNAPSHOT.jar
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-resources/strongbox-web-resources/pom.xml to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-web-resources/1.0-SNAPSHOT/strongbox-web-resources-1.0-SNAPSHOT.pom
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-resources/strongbox-web-resources/target/strongbox-web-resources-1.0-SNAPSHOT-sources.jar to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-web-resources/1.0-SNAPSHOT/strongbox-web-resources-1.0-SNAPSHOT-sources.jar
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-resources/strongbox-web-resources/target/strongbox-web-resources-1.0-SNAPSHOT-sources.jar to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-web-resources/1.0-SNAPSHOT/strongbox-web-resources-1.0-SNAPSHOT-sources.jar
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building Strongbox: Resources 1.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- maven-clean-plugin:2.5:clean (default-clean) @ strongbox-resources ---
+[INFO] 
+[INFO] --- maven-source-plugin:2.2.1:jar-no-fork (attach-sources) @ strongbox-resources ---
+[INFO] 
+[INFO] >>> maven-source-plugin:2.2.1:jar (attach-sources) > generate-sources @ strongbox-resources >>>
+[INFO] 
+[INFO] <<< maven-source-plugin:2.2.1:jar (attach-sources) < generate-sources @ strongbox-resources <<<
+[INFO] 
+[INFO] --- maven-source-plugin:2.2.1:jar (attach-sources) @ strongbox-resources ---
+[INFO] 
+[INFO] --- maven-install-plugin:2.4:install (default-install) @ strongbox-resources ---
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-resources/pom.xml to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-resources/1.0-SNAPSHOT/strongbox-resources-1.0-SNAPSHOT.pom
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building Strongbox: Commons 1.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- maven-clean-plugin:2.5:clean (default-clean) @ strongbox-commons ---
+[INFO] Deleting /Users/ivanursul/git/opensource/strongbox/strongbox-commons/target
+[INFO] 
+[INFO] --- maven-resources-plugin:2.7:resources (default-resources) @ strongbox-commons ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 1 resource
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.2:compile (default-compile) @ strongbox-commons ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 18 source files to /Users/ivanursul/git/opensource/strongbox/strongbox-commons/target/classes
+[INFO] /Users/ivanursul/git/opensource/strongbox/strongbox-commons/src/main/java/org/carlspring/strongbox/xml/parsers/GenericParser.java: /Users/ivanursul/git/opensource/strongbox/strongbox-commons/src/main/java/org/carlspring/strongbox/xml/parsers/GenericParser.java uses unchecked or unsafe operations.
+[INFO] /Users/ivanursul/git/opensource/strongbox/strongbox-commons/src/main/java/org/carlspring/strongbox/xml/parsers/GenericParser.java: Recompile with -Xlint:unchecked for details.
+[INFO] 
+[INFO] --- maven-resources-plugin:2.7:testResources (default-testResources) @ strongbox-commons ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /Users/ivanursul/git/opensource/strongbox/strongbox-commons/src/test/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.2:testCompile (default-testCompile) @ strongbox-commons ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 2 source files to /Users/ivanursul/git/opensource/strongbox/strongbox-commons/target/test-classes
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.18.1:test (default-test) @ strongbox-commons ---
+[INFO] Surefire report directory: /Users/ivanursul/git/opensource/strongbox/strongbox-commons/target/surefire-reports
+
+-------------------------------------------------------
+ T E S T S
+-------------------------------------------------------
+Running org.carlspring.strongbox.io.filters.ArtifactVersionDirectoryFilterTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 sec - in org.carlspring.strongbox.io.filters.ArtifactVersionDirectoryFilterTest
+Running org.carlspring.strongbox.net.ConnectionCheckerTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 sec - in org.carlspring.strongbox.net.ConnectionCheckerTest
+
+Results :
+
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+
+[INFO] 
+[INFO] --- maven-jar-plugin:2.5:jar (default-jar) @ strongbox-commons ---
+[INFO] Building jar: /Users/ivanursul/git/opensource/strongbox/strongbox-commons/target/strongbox-commons-1.0-SNAPSHOT.jar
+[INFO] 
+[INFO] --- maven-source-plugin:2.2.1:jar-no-fork (attach-sources) @ strongbox-commons ---
+[INFO] Building jar: /Users/ivanursul/git/opensource/strongbox/strongbox-commons/target/strongbox-commons-1.0-SNAPSHOT-sources.jar
+[INFO] 
+[INFO] >>> maven-source-plugin:2.2.1:jar (attach-sources) > generate-sources @ strongbox-commons >>>
+[INFO] 
+[INFO] <<< maven-source-plugin:2.2.1:jar (attach-sources) < generate-sources @ strongbox-commons <<<
+[INFO] 
+[INFO] --- maven-source-plugin:2.2.1:jar (attach-sources) @ strongbox-commons ---
+[INFO] Building jar: /Users/ivanursul/git/opensource/strongbox/strongbox-commons/target/strongbox-commons-1.0-SNAPSHOT-sources.jar
+[INFO] 
+[INFO] --- maven-install-plugin:2.4:install (default-install) @ strongbox-commons ---
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-commons/target/strongbox-commons-1.0-SNAPSHOT.jar to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-commons/1.0-SNAPSHOT/strongbox-commons-1.0-SNAPSHOT.jar
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-commons/pom.xml to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-commons/1.0-SNAPSHOT/strongbox-commons-1.0-SNAPSHOT.pom
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-commons/target/strongbox-commons-1.0-SNAPSHOT-sources.jar to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-commons/1.0-SNAPSHOT/strongbox-commons-1.0-SNAPSHOT-sources.jar
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-commons/target/strongbox-commons-1.0-SNAPSHOT-sources.jar to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-commons/1.0-SNAPSHOT/strongbox-commons-1.0-SNAPSHOT-sources.jar
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building Strongbox: Metadata [Core] 1.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- maven-clean-plugin:2.5:clean (default-clean) @ strongbox-metadata-core ---
+[INFO] Deleting /Users/ivanursul/git/opensource/strongbox/strongbox-metadata-core/target
+[INFO] 
+[INFO] --- maven-resources-plugin:2.7:resources (default-resources) @ strongbox-metadata-core ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /Users/ivanursul/git/opensource/strongbox/strongbox-metadata-core/src/main/resources
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.9:unpack (unpack-resources-logging) @ strongbox-metadata-core ---
+[INFO] Configured Artifact: org.carlspring.strongbox:strongbox-common-resources:1.0-SNAPSHOT:jar
+[INFO] Unpacking /Users/ivanursul/git/opensource/strongbox/strongbox-resources/strongbox-common-resources/target/strongbox-common-resources-1.0-SNAPSHOT.jar to /Users/ivanursul/git/opensource/strongbox/strongbox-metadata-core/target/strongbox/etc with includes "logback.xml" and excludes ""
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.9:unpack (unpack-resources-etc) @ strongbox-metadata-core ---
+[INFO] Configured Artifact: org.carlspring.strongbox:strongbox-common-resources:1.0-SNAPSHOT:jar
+[INFO] Unpacking /Users/ivanursul/git/opensource/strongbox/strongbox-resources/strongbox-common-resources/target/strongbox-common-resources-1.0-SNAPSHOT.jar to /Users/ivanursul/git/opensource/strongbox/strongbox-metadata-core/target/strongbox with includes "etc/**" and excludes ""
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.9:unpack (unpack-common-resources) @ strongbox-metadata-core ---
+[INFO] Configured Artifact: org.carlspring.strongbox:strongbox-common-resources:1.0-SNAPSHOT:jar
+[INFO] Unpacking /Users/ivanursul/git/opensource/strongbox/strongbox-resources/strongbox-common-resources/target/strongbox-common-resources-1.0-SNAPSHOT.jar to /Users/ivanursul/git/opensource/strongbox/strongbox-metadata-core/target/strongbox/etc with includes "logback.xml" and excludes ""
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.2:compile (default-compile) @ strongbox-metadata-core ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 11 source files to /Users/ivanursul/git/opensource/strongbox/strongbox-metadata-core/target/classes
+[INFO] 
+[INFO] --- maven-resources-plugin:2.7:testResources (default-testResources) @ strongbox-metadata-core ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /Users/ivanursul/git/opensource/strongbox/strongbox-metadata-core/src/test/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.2:testCompile (default-testCompile) @ strongbox-metadata-core ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 1 source file to /Users/ivanursul/git/opensource/strongbox/strongbox-metadata-core/target/test-classes
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.18.1:test (default-test) @ strongbox-metadata-core ---
+[INFO] Surefire report directory: /Users/ivanursul/git/opensource/strongbox/strongbox-metadata-core/target/surefire-reports
+
+-------------------------------------------------------
+ T E S T S
+-------------------------------------------------------
+Running org.carlspring.strongbox.storage.metadata.MetadataHelperTest
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.178 sec - in org.carlspring.strongbox.storage.metadata.MetadataHelperTest
+
+Results :
+
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0
+
+[INFO] 
+[INFO] --- maven-jar-plugin:2.5:jar (default-jar) @ strongbox-metadata-core ---
+[INFO] Building jar: /Users/ivanursul/git/opensource/strongbox/strongbox-metadata-core/target/strongbox-metadata-core-1.0-SNAPSHOT.jar
+[INFO] 
+[INFO] --- maven-source-plugin:2.2.1:jar-no-fork (attach-sources) @ strongbox-metadata-core ---
+[INFO] Building jar: /Users/ivanursul/git/opensource/strongbox/strongbox-metadata-core/target/strongbox-metadata-core-1.0-SNAPSHOT-sources.jar
+[INFO] 
+[INFO] >>> maven-source-plugin:2.2.1:jar (attach-sources) > generate-sources @ strongbox-metadata-core >>>
+[INFO] 
+[INFO] <<< maven-source-plugin:2.2.1:jar (attach-sources) < generate-sources @ strongbox-metadata-core <<<
+[INFO] 
+[INFO] --- maven-source-plugin:2.2.1:jar (attach-sources) @ strongbox-metadata-core ---
+[INFO] Building jar: /Users/ivanursul/git/opensource/strongbox/strongbox-metadata-core/target/strongbox-metadata-core-1.0-SNAPSHOT-sources.jar
+[INFO] 
+[INFO] --- maven-install-plugin:2.4:install (default-install) @ strongbox-metadata-core ---
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-metadata-core/target/strongbox-metadata-core-1.0-SNAPSHOT.jar to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-metadata-core/1.0-SNAPSHOT/strongbox-metadata-core-1.0-SNAPSHOT.jar
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-metadata-core/pom.xml to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-metadata-core/1.0-SNAPSHOT/strongbox-metadata-core-1.0-SNAPSHOT.pom
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-metadata-core/target/strongbox-metadata-core-1.0-SNAPSHOT-sources.jar to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-metadata-core/1.0-SNAPSHOT/strongbox-metadata-core-1.0-SNAPSHOT-sources.jar
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-metadata-core/target/strongbox-metadata-core-1.0-SNAPSHOT-sources.jar to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-metadata-core/1.0-SNAPSHOT/strongbox-metadata-core-1.0-SNAPSHOT-sources.jar
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building Strongbox: Event API 1.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- maven-clean-plugin:2.5:clean (default-clean) @ strongbox-event-api ---
+[INFO] Deleting /Users/ivanursul/git/opensource/strongbox/strongbox-event-api/target
+[INFO] 
+[INFO] --- maven-resources-plugin:2.7:resources (default-resources) @ strongbox-event-api ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 1 resource
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.2:compile (default-compile) @ strongbox-event-api ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 8 source files to /Users/ivanursul/git/opensource/strongbox/strongbox-event-api/target/classes
+[INFO] 
+[INFO] --- maven-resources-plugin:2.7:testResources (default-testResources) @ strongbox-event-api ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /Users/ivanursul/git/opensource/strongbox/strongbox-event-api/src/test/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.2:testCompile (default-testCompile) @ strongbox-event-api ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.18.1:test (default-test) @ strongbox-event-api ---
+[INFO] No tests to run.
+[INFO] 
+[INFO] --- maven-jar-plugin:2.5:jar (default-jar) @ strongbox-event-api ---
+[INFO] Building jar: /Users/ivanursul/git/opensource/strongbox/strongbox-event-api/target/strongbox-event-api-1.0-SNAPSHOT.jar
+[INFO] 
+[INFO] >>> maven-source-plugin:2.2.1:jar (attach-sources) > generate-sources @ strongbox-event-api >>>
+[INFO] 
+[INFO] <<< maven-source-plugin:2.2.1:jar (attach-sources) < generate-sources @ strongbox-event-api <<<
+[INFO] 
+[INFO] --- maven-source-plugin:2.2.1:jar (attach-sources) @ strongbox-event-api ---
+[INFO] Building jar: /Users/ivanursul/git/opensource/strongbox/strongbox-event-api/target/strongbox-event-api-1.0-SNAPSHOT-sources.jar
+[INFO] 
+[INFO] --- maven-source-plugin:2.2.1:jar-no-fork (attach-sources) @ strongbox-event-api ---
+[INFO] Building jar: /Users/ivanursul/git/opensource/strongbox/strongbox-event-api/target/strongbox-event-api-1.0-SNAPSHOT-sources.jar
+[INFO] 
+[INFO] --- maven-install-plugin:2.4:install (default-install) @ strongbox-event-api ---
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-event-api/target/strongbox-event-api-1.0-SNAPSHOT.jar to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-event-api/1.0-SNAPSHOT/strongbox-event-api-1.0-SNAPSHOT.jar
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-event-api/pom.xml to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-event-api/1.0-SNAPSHOT/strongbox-event-api-1.0-SNAPSHOT.pom
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-event-api/target/strongbox-event-api-1.0-SNAPSHOT-sources.jar to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-event-api/1.0-SNAPSHOT/strongbox-event-api-1.0-SNAPSHOT-sources.jar
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-event-api/target/strongbox-event-api-1.0-SNAPSHOT-sources.jar to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-event-api/1.0-SNAPSHOT/strongbox-event-api-1.0-SNAPSHOT-sources.jar
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building Strongbox: Client 1.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- maven-clean-plugin:2.5:clean (default-clean) @ strongbox-client ---
+[INFO] Deleting /Users/ivanursul/git/opensource/strongbox/strongbox-client/target
+[INFO] 
+[INFO] --- maven-resources-plugin:2.7:resources (default-resources) @ strongbox-client ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 1 resource
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.2:compile (default-compile) @ strongbox-client ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 6 source files to /Users/ivanursul/git/opensource/strongbox/strongbox-client/target/classes
+[INFO] 
+[INFO] --- maven-resources-plugin:2.7:testResources (default-testResources) @ strongbox-client ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /Users/ivanursul/git/opensource/strongbox/strongbox-client/src/test/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.2:testCompile (default-testCompile) @ strongbox-client ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 1 source file to /Users/ivanursul/git/opensource/strongbox/strongbox-client/target/test-classes
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.18.1:test (default-test) @ strongbox-client ---
+[INFO] Surefire report directory: /Users/ivanursul/git/opensource/strongbox/strongbox-client/target/surefire-reports
+
+-------------------------------------------------------
+ T E S T S
+-------------------------------------------------------
+Running org.carlspring.strongbox.client.HttpArtifactClientFactoryTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0.001 sec - in org.carlspring.strongbox.client.HttpArtifactClientFactoryTest
+
+Results :
+
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 1
+
+[INFO] 
+[INFO] --- maven-jar-plugin:2.5:jar (default-jar) @ strongbox-client ---
+[INFO] Building jar: /Users/ivanursul/git/opensource/strongbox/strongbox-client/target/strongbox-client-1.0-SNAPSHOT.jar
+[INFO] 
+[INFO] --- maven-source-plugin:2.2.1:jar-no-fork (attach-sources) @ strongbox-client ---
+[INFO] Building jar: /Users/ivanursul/git/opensource/strongbox/strongbox-client/target/strongbox-client-1.0-SNAPSHOT-sources.jar
+[INFO] 
+[INFO] >>> maven-source-plugin:2.2.1:jar (attach-sources) > generate-sources @ strongbox-client >>>
+[INFO] 
+[INFO] <<< maven-source-plugin:2.2.1:jar (attach-sources) < generate-sources @ strongbox-client <<<
+[INFO] 
+[INFO] --- maven-source-plugin:2.2.1:jar (attach-sources) @ strongbox-client ---
+[INFO] Building jar: /Users/ivanursul/git/opensource/strongbox/strongbox-client/target/strongbox-client-1.0-SNAPSHOT-sources.jar
+[INFO] 
+[INFO] --- maven-install-plugin:2.4:install (default-install) @ strongbox-client ---
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-client/target/strongbox-client-1.0-SNAPSHOT.jar to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-client/1.0-SNAPSHOT/strongbox-client-1.0-SNAPSHOT.jar
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-client/pom.xml to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-client/1.0-SNAPSHOT/strongbox-client-1.0-SNAPSHOT.pom
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-client/target/strongbox-client-1.0-SNAPSHOT-sources.jar to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-client/1.0-SNAPSHOT/strongbox-client-1.0-SNAPSHOT-sources.jar
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-client/target/strongbox-client-1.0-SNAPSHOT-sources.jar to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-client/1.0-SNAPSHOT/strongbox-client-1.0-SNAPSHOT-sources.jar
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building Strongbox: Testing [Web] 1.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- maven-clean-plugin:2.5:clean (default-clean) @ strongbox-testing-web ---
+[INFO] Deleting /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-web/target
+[INFO] 
+[INFO] --- maven-resources-plugin:2.7:resources (default-resources) @ strongbox-testing-web ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 2 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.2:compile (default-compile) @ strongbox-testing-web ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 2 source files to /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-web/target/classes
+[INFO] 
+[INFO] --- maven-resources-plugin:2.7:testResources (default-testResources) @ strongbox-testing-web ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-web/src/test/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.2:testCompile (default-testCompile) @ strongbox-testing-web ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.18.1:test (default-test) @ strongbox-testing-web ---
+[INFO] No tests to run.
+[INFO] 
+[INFO] --- maven-jar-plugin:2.5:jar (default-jar) @ strongbox-testing-web ---
+[INFO] Building jar: /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-web/target/strongbox-testing-web-1.0-SNAPSHOT.jar
+[INFO] 
+[INFO] --- maven-source-plugin:2.2.1:jar-no-fork (attach-sources) @ strongbox-testing-web ---
+[INFO] Building jar: /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-web/target/strongbox-testing-web-1.0-SNAPSHOT-sources.jar
+[INFO] 
+[INFO] >>> maven-source-plugin:2.2.1:jar (attach-sources) > generate-sources @ strongbox-testing-web >>>
+[INFO] 
+[INFO] <<< maven-source-plugin:2.2.1:jar (attach-sources) < generate-sources @ strongbox-testing-web <<<
+[INFO] 
+[INFO] --- maven-source-plugin:2.2.1:jar (attach-sources) @ strongbox-testing-web ---
+[INFO] Building jar: /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-web/target/strongbox-testing-web-1.0-SNAPSHOT-sources.jar
+[INFO] 
+[INFO] --- maven-install-plugin:2.4:install (default-install) @ strongbox-testing-web ---
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-web/target/strongbox-testing-web-1.0-SNAPSHOT.jar to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-testing-web/1.0-SNAPSHOT/strongbox-testing-web-1.0-SNAPSHOT.jar
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-web/pom.xml to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-testing-web/1.0-SNAPSHOT/strongbox-testing-web-1.0-SNAPSHOT.pom
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-web/target/strongbox-testing-web-1.0-SNAPSHOT-sources.jar to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-testing-web/1.0-SNAPSHOT/strongbox-testing-web-1.0-SNAPSHOT-sources.jar
+[INFO] Installing /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-web/target/strongbox-testing-web-1.0-SNAPSHOT-sources.jar to /Users/ivanursul/.m2/repository/org/carlspring/strongbox/strongbox-testing-web/1.0-SNAPSHOT/strongbox-testing-web-1.0-SNAPSHOT-sources.jar
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building Strongbox: Testing [Core] 1.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- maven-clean-plugin:2.5:clean (default-clean) @ strongbox-testing-core ---
+[INFO] Deleting /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target
+[INFO] 
+[INFO] --- maven-resources-plugin:2.7:resources (default-resources) @ strongbox-testing-core ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 1 resource
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.9:unpack (unpack-resources-logging) @ strongbox-testing-core ---
+[INFO] Configured Artifact: org.carlspring.strongbox:strongbox-common-resources:1.0-SNAPSHOT:jar
+[INFO] Unpacking /Users/ivanursul/git/opensource/strongbox/strongbox-resources/strongbox-common-resources/target/strongbox-common-resources-1.0-SNAPSHOT.jar to /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target/strongbox/etc with includes "" and excludes ""
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.9:unpack (unpack-testing-web) @ strongbox-testing-core ---
+[INFO] Configured Artifact: org.carlspring.strongbox:strongbox-testing-web:1.0-SNAPSHOT:jar
+[INFO] Configured Artifact: org.carlspring.strongbox:strongbox-testing-web:1.0-SNAPSHOT:jar
+[INFO] Unpacking /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-web/target/strongbox-testing-web-1.0-SNAPSHOT.jar to /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target/dependency with includes "" and excludes "webapp/**"
+[INFO] Unpacking /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-web/target/strongbox-testing-web-1.0-SNAPSHOT.jar to /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target/strongbox with includes "webapp/**" and excludes ""
+[INFO] 
+[INFO] --- build-helper-maven-plugin:1.9.1:reserve-network-port (reserve-network-port) @ strongbox-testing-core ---
+[INFO] Reserved port 55301 for port.jetty.listen
+[INFO] Reserved port 55302 for port.jetty.shutdown
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.2:compile (default-compile) @ strongbox-testing-core ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 5 source files to /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target/classes
+[INFO] 
+[INFO] --- maven-resources-plugin:2.7:testResources (default-testResources) @ strongbox-testing-core ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/src/test/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.2:testCompile (default-testCompile) @ strongbox-testing-core ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 2 source files to /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target/test-classes
+[INFO] 
+[INFO] >>> jetty-maven-plugin:9.3.7.v20160115:start (jetty-start) > validate @ strongbox-testing-core >>>
+[INFO] 
+[INFO] <<< jetty-maven-plugin:9.3.7.v20160115:start (jetty-start) < validate @ strongbox-testing-core <<<
+[INFO] 
+[INFO] --- jetty-maven-plugin:9.3.7.v20160115:start (jetty-start) @ strongbox-testing-core ---
+[INFO] Logging initialized @8682ms
+[INFO] Configuring Jetty for project: Strongbox: Testing [Core]
+[INFO] webAppSourceDirectory not set. Trying src/main/webapp
+[INFO] webAppSourceDirectory /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/src/main/webapp does not exist. Trying /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target/webapp-tmp
+[INFO] Reload Mechanic: automatic
+[INFO] Classes = /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target/classes
+[INFO] Context path = /
+[INFO] Tmp directory = /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target/tmp
+[INFO] Web defaults = org/eclipse/jetty/webapp/webdefault.xml
+[INFO] Web overrides =  none
+[INFO] web.xml file = /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target/strongbox/webapp/WEB-INF/web.xml
+[INFO] Webapp directory = /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target/webapp-tmp
+[INFO] jetty-9.3.7.v20160115
+[INFO] No Spring WebApplicationInitializer types detected on classpath
+[INFO] Started o.e.j.m.p.JettyWebAppContext@6f64c40c{/,file:///Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target/webapp-tmp/,AVAILABLE}{file:///Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target/webapp-tmp/}
+[INFO] Started ServerConnector@45198fd9{HTTP/1.1,[http/1.1]}{0.0.0.0:55301}
+[INFO] Started @10903ms
+[INFO] Started Jetty Server
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.18.1:test (default-test) @ strongbox-testing-core ---
+[INFO] Surefire report directory: /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target/surefire-reports
+
+-------------------------------------------------------
+ T E S T S
+-------------------------------------------------------
+Running org.carlspring.strongbox.artifact.generator.ArtifactDeployerTest
+19:01:30.948 03-06-2016 | DEBUG | main                 | org.carlspring.strongbox.testing.AssignedPorts     | Discovered port 'port.jetty.listen' = '55301'.
+19:01:30.999 03-06-2016 | DEBUG | main                 | o.c.strongbox.artifact.generator.ArtifactGenerator | Generating pom file for org.carlspring.strongbox:test:1.2.3:jar...
+19:01:31.065 03-06-2016 | DEBUG | main                 | org.carlspring.strongbox.client.ArtifactClient     | Deploying http://localhost:55301/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3.jar...
+Jun 03, 2016 7:01:31 PM org.glassfish.jersey.filter.LoggingFilter log
+INFO: 1 * Server has received a request on thread qtp175291188-33
+1 > PUT http://localhost:55301/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3.jar
+1 > Accept: application/octet-stream
+1 > Accept-Encoding: gzip,deflate
+1 > Authorization: Basic bWF2ZW46cGFzc3dvcmQ=
+1 > Connection: keep-alive
+1 > Content-Disposition: attachment; filename="test-1.2.3.jar"
+1 > Content-Type: application/octet-stream
+1 > Host: localhost:55301
+1 > Transfer-Encoding: chunked
+1 > User-Agent: Jersey/2.22 (Apache HttpClient 4.5)
+
+19:01:31.716 03-06-2016 | DEBUG | qtp175291188-33      | org.carlspring.strongbox.rest.DummyArtifactRestlet | Deploying to storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3.jar...
+19:01:31.720 03-06-2016 | DEBUG | qtp175291188-33      | org.carlspring.strongbox.rest.DummyArtifactRestlet | Storing to /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target/strongbox-vault/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3.jar...
+Jun 03, 2016 7:01:31 PM org.glassfish.jersey.filter.LoggingFilter log
+INFO: 1 * Server responded with a response on thread qtp175291188-33
+1 < 200
+
+Jun 03, 2016 7:01:31 PM org.glassfish.jersey.filter.LoggingFilter log
+INFO: 2 * Server has received a request on thread qtp175291188-41
+2 > PUT http://localhost:55301/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3.jar.md5
+2 > Accept: application/octet-stream
+2 > Accept-Encoding: gzip,deflate
+2 > Authorization: Basic bWF2ZW46cGFzc3dvcmQ=
+2 > Connection: keep-alive
+2 > Content-Disposition: attachment; filename="test-1.2.3.jar.md5"
+2 > Content-Type: application/octet-stream
+2 > Host: localhost:55301
+2 > Transfer-Encoding: chunked
+2 > User-Agent: Jersey/2.22 (Apache HttpClient 4.5)
+
+19:01:31.791 03-06-2016 | DEBUG | qtp175291188-41      | org.carlspring.strongbox.rest.DummyArtifactRestlet | Deploying to storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3.jar.md5...
+19:01:31.792 03-06-2016 | DEBUG | qtp175291188-41      | org.carlspring.strongbox.rest.DummyArtifactRestlet | Storing to /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target/strongbox-vault/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3.jar.md5...
+Jun 03, 2016 7:01:31 PM org.glassfish.jersey.filter.LoggingFilter log
+INFO: 2 * Server responded with a response on thread qtp175291188-41
+2 < 200
+
+Jun 03, 2016 7:01:31 PM org.glassfish.jersey.filter.LoggingFilter log
+INFO: 3 * Server has received a request on thread qtp175291188-36
+3 > PUT http://localhost:55301/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3.jar.sha1
+3 > Accept: application/octet-stream
+3 > Accept-Encoding: gzip,deflate
+3 > Authorization: Basic bWF2ZW46cGFzc3dvcmQ=
+3 > Connection: keep-alive
+3 > Content-Disposition: attachment; filename="test-1.2.3.jar.sha1"
+3 > Content-Type: application/octet-stream
+3 > Host: localhost:55301
+3 > Transfer-Encoding: chunked
+3 > User-Agent: Jersey/2.22 (Apache HttpClient 4.5)
+
+19:01:31.820 03-06-2016 | DEBUG | qtp175291188-36      | org.carlspring.strongbox.rest.DummyArtifactRestlet | Deploying to storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3.jar.sha1...
+19:01:31.820 03-06-2016 | DEBUG | qtp175291188-36      | org.carlspring.strongbox.rest.DummyArtifactRestlet | Storing to /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target/strongbox-vault/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3.jar.sha1...
+Jun 03, 2016 7:01:31 PM org.glassfish.jersey.filter.LoggingFilter log
+INFO: 3 * Server responded with a response on thread qtp175291188-36
+3 < 200
+
+19:01:31.822 03-06-2016 | DEBUG | main                 | org.carlspring.strongbox.client.ArtifactClient     | Deploying http://localhost:55301/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3.pom...
+Jun 03, 2016 7:01:31 PM org.glassfish.jersey.filter.LoggingFilter log
+INFO: 4 * Server has received a request on thread qtp175291188-33
+4 > PUT http://localhost:55301/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3.pom
+4 > Accept: application/octet-stream
+4 > Accept-Encoding: gzip,deflate
+4 > Authorization: Basic bWF2ZW46cGFzc3dvcmQ=
+4 > Connection: keep-alive
+4 > Content-Disposition: attachment; filename="test-1.2.3.pom"
+4 > Content-Type: application/octet-stream
+4 > Host: localhost:55301
+4 > Transfer-Encoding: chunked
+4 > User-Agent: Jersey/2.22 (Apache HttpClient 4.5)
+
+19:01:31.847 03-06-2016 | DEBUG | qtp175291188-33      | org.carlspring.strongbox.rest.DummyArtifactRestlet | Deploying to storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3.pom...
+19:01:31.848 03-06-2016 | DEBUG | qtp175291188-33      | org.carlspring.strongbox.rest.DummyArtifactRestlet | Storing to /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target/strongbox-vault/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3.pom...
+Jun 03, 2016 7:01:31 PM org.glassfish.jersey.filter.LoggingFilter log
+INFO: 4 * Server responded with a response on thread qtp175291188-33
+4 < 200
+
+Jun 03, 2016 7:01:31 PM org.glassfish.jersey.filter.LoggingFilter log
+INFO: 5 * Server has received a request on thread qtp175291188-41
+5 > PUT http://localhost:55301/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3.pom.md5
+5 > Accept: application/octet-stream
+5 > Accept-Encoding: gzip,deflate
+5 > Authorization: Basic bWF2ZW46cGFzc3dvcmQ=
+5 > Connection: keep-alive
+5 > Content-Disposition: attachment; filename="test-1.2.3.pom.md5"
+5 > Content-Type: application/octet-stream
+5 > Host: localhost:55301
+5 > Transfer-Encoding: chunked
+5 > User-Agent: Jersey/2.22 (Apache HttpClient 4.5)
+
+19:01:31.874 03-06-2016 | DEBUG | qtp175291188-41      | org.carlspring.strongbox.rest.DummyArtifactRestlet | Deploying to storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3.pom.md5...
+19:01:31.874 03-06-2016 | DEBUG | qtp175291188-41      | org.carlspring.strongbox.rest.DummyArtifactRestlet | Storing to /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target/strongbox-vault/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3.pom.md5...
+Jun 03, 2016 7:01:31 PM org.glassfish.jersey.filter.LoggingFilter log
+INFO: 5 * Server responded with a response on thread qtp175291188-41
+5 < 200
+
+Jun 03, 2016 7:01:31 PM org.glassfish.jersey.filter.LoggingFilter log
+INFO: 6 * Server has received a request on thread qtp175291188-36
+6 > PUT http://localhost:55301/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3.pom.sha1
+6 > Accept: application/octet-stream
+6 > Accept-Encoding: gzip,deflate
+6 > Authorization: Basic bWF2ZW46cGFzc3dvcmQ=
+6 > Connection: keep-alive
+6 > Content-Disposition: attachment; filename="test-1.2.3.pom.sha1"
+6 > Content-Type: application/octet-stream
+6 > Host: localhost:55301
+6 > Transfer-Encoding: chunked
+6 > User-Agent: Jersey/2.22 (Apache HttpClient 4.5)
+
+19:01:31.898 03-06-2016 | DEBUG | qtp175291188-36      | org.carlspring.strongbox.rest.DummyArtifactRestlet | Deploying to storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3.pom.sha1...
+19:01:31.898 03-06-2016 | DEBUG | qtp175291188-36      | org.carlspring.strongbox.rest.DummyArtifactRestlet | Storing to /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target/strongbox-vault/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3.pom.sha1...
+Jun 03, 2016 7:01:31 PM org.glassfish.jersey.filter.LoggingFilter log
+INFO: 6 * Server responded with a response on thread qtp175291188-36
+6 < 200
+
+19:01:31.901 03-06-2016 | DEBUG | main                 | o.c.strongbox.artifact.generator.ArtifactGenerator | Generating pom file for org.carlspring.strongbox:test:1.2.3:jar:javadocs...
+Deleting /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target/strongbox-vault/storages/storage0/releases/.temp/org/carlspring/strongbox/test/1.2.3/test-1.2.3.pom
+19:01:31.925 03-06-2016 | DEBUG | main                 | org.carlspring.strongbox.client.ArtifactClient     | Deploying http://localhost:55301/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3-javadocs.jar...
+Jun 03, 2016 7:01:31 PM org.glassfish.jersey.filter.LoggingFilter log
+INFO: 7 * Server has received a request on thread qtp175291188-33
+7 > PUT http://localhost:55301/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3-javadocs.jar
+7 > Accept: application/octet-stream
+7 > Accept-Encoding: gzip,deflate
+7 > Authorization: Basic bWF2ZW46cGFzc3dvcmQ=
+7 > Connection: keep-alive
+7 > Content-Disposition: attachment; filename="test-1.2.3-javadocs.jar"
+7 > Content-Type: application/octet-stream
+7 > Host: localhost:55301
+7 > Transfer-Encoding: chunked
+7 > User-Agent: Jersey/2.22 (Apache HttpClient 4.5)
+
+19:01:31.949 03-06-2016 | DEBUG | qtp175291188-33      | org.carlspring.strongbox.rest.DummyArtifactRestlet | Deploying to storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3-javadocs.jar...
+19:01:31.949 03-06-2016 | DEBUG | qtp175291188-33      | org.carlspring.strongbox.rest.DummyArtifactRestlet | Storing to /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target/strongbox-vault/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3-javadocs.jar...
+Jun 03, 2016 7:01:31 PM org.glassfish.jersey.filter.LoggingFilter log
+INFO: 7 * Server responded with a response on thread qtp175291188-33
+7 < 200
+
+Jun 03, 2016 7:01:31 PM org.glassfish.jersey.filter.LoggingFilter log
+INFO: 8 * Server has received a request on thread qtp175291188-41
+8 > PUT http://localhost:55301/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3-javadocs.jar.md5
+8 > Accept: application/octet-stream
+8 > Accept-Encoding: gzip,deflate
+8 > Authorization: Basic bWF2ZW46cGFzc3dvcmQ=
+8 > Connection: keep-alive
+8 > Content-Disposition: attachment; filename="test-1.2.3-javadocs.jar.md5"
+8 > Content-Type: application/octet-stream
+8 > Host: localhost:55301
+8 > Transfer-Encoding: chunked
+8 > User-Agent: Jersey/2.22 (Apache HttpClient 4.5)
+
+19:01:31.971 03-06-2016 | DEBUG | qtp175291188-41      | org.carlspring.strongbox.rest.DummyArtifactRestlet | Deploying to storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3-javadocs.jar.md5...
+19:01:31.972 03-06-2016 | DEBUG | qtp175291188-41      | org.carlspring.strongbox.rest.DummyArtifactRestlet | Storing to /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target/strongbox-vault/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3-javadocs.jar.md5...
+Jun 03, 2016 7:01:31 PM org.glassfish.jersey.filter.LoggingFilter log
+INFO: 8 * Server responded with a response on thread qtp175291188-41
+8 < 200
+
+Jun 03, 2016 7:01:31 PM org.glassfish.jersey.filter.LoggingFilter log
+INFO: 9 * Server has received a request on thread qtp175291188-36
+9 > PUT http://localhost:55301/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3-javadocs.jar.sha1
+9 > Accept: application/octet-stream
+9 > Accept-Encoding: gzip,deflate
+9 > Authorization: Basic bWF2ZW46cGFzc3dvcmQ=
+9 > Connection: keep-alive
+9 > Content-Disposition: attachment; filename="test-1.2.3-javadocs.jar.sha1"
+9 > Content-Type: application/octet-stream
+9 > Host: localhost:55301
+9 > Transfer-Encoding: chunked
+9 > User-Agent: Jersey/2.22 (Apache HttpClient 4.5)
+
+19:01:31.999 03-06-2016 | DEBUG | qtp175291188-36      | org.carlspring.strongbox.rest.DummyArtifactRestlet | Deploying to storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3-javadocs.jar.sha1...
+19:01:31.999 03-06-2016 | DEBUG | qtp175291188-36      | org.carlspring.strongbox.rest.DummyArtifactRestlet | Storing to /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target/strongbox-vault/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3-javadocs.jar.sha1...
+Jun 03, 2016 7:01:31 PM org.glassfish.jersey.filter.LoggingFilter log
+INFO: 9 * Server responded with a response on thread qtp175291188-36
+9 < 200
+
+19:01:32.000 03-06-2016 | DEBUG | main                 | o.c.strongbox.artifact.generator.ArtifactGenerator | Generating pom file for org.carlspring.strongbox:test:1.2.3:jar:jdk14...
+Deleting /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target/strongbox-vault/storages/storage0/releases/.temp/org/carlspring/strongbox/test/1.2.3/test-1.2.3.pom
+19:01:32.006 03-06-2016 | DEBUG | main                 | org.carlspring.strongbox.client.ArtifactClient     | Deploying http://localhost:55301/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3-jdk14.jar...
+Jun 03, 2016 7:01:32 PM org.glassfish.jersey.filter.LoggingFilter log
+INFO: 10 * Server has received a request on thread qtp175291188-33
+10 > PUT http://localhost:55301/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3-jdk14.jar
+10 > Accept: application/octet-stream
+10 > Accept-Encoding: gzip,deflate
+10 > Authorization: Basic bWF2ZW46cGFzc3dvcmQ=
+10 > Connection: keep-alive
+10 > Content-Disposition: attachment; filename="test-1.2.3-jdk14.jar"
+10 > Content-Type: application/octet-stream
+10 > Host: localhost:55301
+10 > Transfer-Encoding: chunked
+10 > User-Agent: Jersey/2.22 (Apache HttpClient 4.5)
+
+19:01:32.021 03-06-2016 | DEBUG | qtp175291188-33      | org.carlspring.strongbox.rest.DummyArtifactRestlet | Deploying to storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3-jdk14.jar...
+19:01:32.022 03-06-2016 | DEBUG | qtp175291188-33      | org.carlspring.strongbox.rest.DummyArtifactRestlet | Storing to /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target/strongbox-vault/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3-jdk14.jar...
+Jun 03, 2016 7:01:32 PM org.glassfish.jersey.filter.LoggingFilter log
+INFO: 10 * Server responded with a response on thread qtp175291188-33
+10 < 200
+
+Jun 03, 2016 7:01:32 PM org.glassfish.jersey.filter.LoggingFilter log
+INFO: 11 * Server has received a request on thread qtp175291188-41
+11 > PUT http://localhost:55301/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3-jdk14.jar.md5
+11 > Accept: application/octet-stream
+11 > Accept-Encoding: gzip,deflate
+11 > Authorization: Basic bWF2ZW46cGFzc3dvcmQ=
+11 > Connection: keep-alive
+11 > Content-Disposition: attachment; filename="test-1.2.3-jdk14.jar.md5"
+11 > Content-Type: application/octet-stream
+11 > Host: localhost:55301
+11 > Transfer-Encoding: chunked
+11 > User-Agent: Jersey/2.22 (Apache HttpClient 4.5)
+
+19:01:32.096 03-06-2016 | DEBUG | qtp175291188-41      | org.carlspring.strongbox.rest.DummyArtifactRestlet | Deploying to storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3-jdk14.jar.md5...
+19:01:32.096 03-06-2016 | DEBUG | qtp175291188-41      | org.carlspring.strongbox.rest.DummyArtifactRestlet | Storing to /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target/strongbox-vault/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3-jdk14.jar.md5...
+Jun 03, 2016 7:01:32 PM org.glassfish.jersey.filter.LoggingFilter log
+INFO: 11 * Server responded with a response on thread qtp175291188-41
+11 < 200
+
+Jun 03, 2016 7:01:32 PM org.glassfish.jersey.filter.LoggingFilter log
+INFO: 12 * Server has received a request on thread qtp175291188-36
+12 > PUT http://localhost:55301/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3-jdk14.jar.sha1
+12 > Accept: application/octet-stream
+12 > Accept-Encoding: gzip,deflate
+12 > Authorization: Basic bWF2ZW46cGFzc3dvcmQ=
+12 > Connection: keep-alive
+12 > Content-Disposition: attachment; filename="test-1.2.3-jdk14.jar.sha1"
+12 > Content-Type: application/octet-stream
+12 > Host: localhost:55301
+12 > Transfer-Encoding: chunked
+12 > User-Agent: Jersey/2.22 (Apache HttpClient 4.5)
+
+19:01:32.113 03-06-2016 | DEBUG | qtp175291188-36      | org.carlspring.strongbox.rest.DummyArtifactRestlet | Deploying to storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3-jdk14.jar.sha1...
+19:01:32.113 03-06-2016 | DEBUG | qtp175291188-36      | org.carlspring.strongbox.rest.DummyArtifactRestlet | Storing to /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target/strongbox-vault/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3-jdk14.jar.sha1...
+Jun 03, 2016 7:01:32 PM org.glassfish.jersey.filter.LoggingFilter log
+INFO: 12 * Server responded with a response on thread qtp175291188-36
+12 < 200
+
+19:01:32.114 03-06-2016 | DEBUG | main                 | o.c.strongbox.artifact.generator.ArtifactGenerator | Generating pom file for org.carlspring.strongbox:test:1.2.3:jar:tests...
+Deleting /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target/strongbox-vault/storages/storage0/releases/.temp/org/carlspring/strongbox/test/1.2.3/test-1.2.3.pom
+19:01:32.138 03-06-2016 | DEBUG | main                 | org.carlspring.strongbox.client.ArtifactClient     | Deploying http://localhost:55301/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3-tests.jar...
+Jun 03, 2016 7:01:32 PM org.glassfish.jersey.filter.LoggingFilter log
+INFO: 13 * Server has received a request on thread qtp175291188-33
+13 > PUT http://localhost:55301/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3-tests.jar
+13 > Accept: application/octet-stream
+13 > Accept-Encoding: gzip,deflate
+13 > Authorization: Basic bWF2ZW46cGFzc3dvcmQ=
+13 > Connection: keep-alive
+13 > Content-Disposition: attachment; filename="test-1.2.3-tests.jar"
+13 > Content-Type: application/octet-stream
+13 > Host: localhost:55301
+13 > Transfer-Encoding: chunked
+13 > User-Agent: Jersey/2.22 (Apache HttpClient 4.5)
+
+19:01:32.154 03-06-2016 | DEBUG | qtp175291188-33      | org.carlspring.strongbox.rest.DummyArtifactRestlet | Deploying to storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3-tests.jar...
+19:01:32.155 03-06-2016 | DEBUG | qtp175291188-33      | org.carlspring.strongbox.rest.DummyArtifactRestlet | Storing to /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target/strongbox-vault/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3-tests.jar...
+Jun 03, 2016 7:01:32 PM org.glassfish.jersey.filter.LoggingFilter log
+INFO: 13 * Server responded with a response on thread qtp175291188-33
+13 < 200
+
+Jun 03, 2016 7:01:32 PM org.glassfish.jersey.filter.LoggingFilter log
+INFO: 14 * Server has received a request on thread qtp175291188-41
+14 > PUT http://localhost:55301/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3-tests.jar.md5
+14 > Accept: application/octet-stream
+14 > Accept-Encoding: gzip,deflate
+14 > Authorization: Basic bWF2ZW46cGFzc3dvcmQ=
+14 > Connection: keep-alive
+14 > Content-Disposition: attachment; filename="test-1.2.3-tests.jar.md5"
+14 > Content-Type: application/octet-stream
+14 > Host: localhost:55301
+14 > Transfer-Encoding: chunked
+14 > User-Agent: Jersey/2.22 (Apache HttpClient 4.5)
+
+19:01:32.174 03-06-2016 | DEBUG | qtp175291188-41      | org.carlspring.strongbox.rest.DummyArtifactRestlet | Deploying to storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3-tests.jar.md5...
+19:01:32.174 03-06-2016 | DEBUG | qtp175291188-41      | org.carlspring.strongbox.rest.DummyArtifactRestlet | Storing to /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target/strongbox-vault/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3-tests.jar.md5...
+Jun 03, 2016 7:01:32 PM org.glassfish.jersey.filter.LoggingFilter log
+INFO: 14 * Server responded with a response on thread qtp175291188-41
+14 < 200
+
+Jun 03, 2016 7:01:32 PM org.glassfish.jersey.filter.LoggingFilter log
+INFO: 15 * Server has received a request on thread qtp175291188-36
+15 > PUT http://localhost:55301/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3-tests.jar.sha1
+15 > Accept: application/octet-stream
+15 > Accept-Encoding: gzip,deflate
+15 > Authorization: Basic bWF2ZW46cGFzc3dvcmQ=
+15 > Connection: keep-alive
+15 > Content-Disposition: attachment; filename="test-1.2.3-tests.jar.sha1"
+15 > Content-Type: application/octet-stream
+15 > Host: localhost:55301
+15 > Transfer-Encoding: chunked
+15 > User-Agent: Jersey/2.22 (Apache HttpClient 4.5)
+
+19:01:32.193 03-06-2016 | DEBUG | qtp175291188-36      | org.carlspring.strongbox.rest.DummyArtifactRestlet | Deploying to storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3-tests.jar.sha1...
+19:01:32.194 03-06-2016 | DEBUG | qtp175291188-36      | org.carlspring.strongbox.rest.DummyArtifactRestlet | Storing to /Users/ivanursul/git/opensource/strongbox/strongbox-testing/strongbox-testing-core/target/strongbox-vault/storages/storage0/releases/org/carlspring/strongbox/test/1.2.3/test-1.2.3-tests.jar.sha1...
+Jun 03, 2016 7:01:32 PM org.glassfish.jersey.filter.LoggingFilter log
+INFO: 15 * Server responded with a response on thread qtp175291188-36
+15 < 200
+
+19:01:32.196 03-06-2016 | DEBUG | main                 | org.carlspring.strongbox.client.ArtifactClient     | Path to artifact: http://localhost:55301/storages/storage0/releases/org/carlspring/strongbox/test/maven-metadata.xml
+Jun 03, 2016 7:01:32 PM org.glassfish.jersey.filter.LoggingFilter log
+INFO: 16 * Server has received a request on thread qtp175291188-33
+16 > GET http://localhost:55301/storages/storage0/releases/org/carlspring/strongbox/test/maven-metadata.xml
+16 > Accept: text/plain
+16 > Accept-Encoding: gzip,deflate
+16 > Authorization: Basic bWF2ZW46cGFzc3dvcmQ=
+16 > Connection: keep-alive
+16 > Host: localhost:55301
+16 > User-Agent: Jersey/2.22 (Apache HttpClient 4.5)
+
+19:01:32.218 03-06-2016 | DEBUG | qtp175291188-33      | org.carlspring.strongbox.rest.DummyArtifactRestlet |  repositoryId = releases, path = org/carlspring/strongbox/test/maven-metadata.xml
