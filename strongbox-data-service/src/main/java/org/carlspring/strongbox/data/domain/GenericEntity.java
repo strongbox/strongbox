@@ -15,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 @MappedSuperclass
 @Inheritance
-public abstract class StrongboxEntity
+public abstract class GenericEntity
         implements Serializable
 {
 
@@ -31,7 +31,7 @@ public abstract class StrongboxEntity
     @JsonIgnore
     protected Long version;
 
-    public StrongboxEntity()
+    public GenericEntity()
     {
     }
 }

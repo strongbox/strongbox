@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.rest.app.spring.security;
 
-import org.carlspring.strongbox.data.domain.StrongboxUser;
-import org.carlspring.strongbox.data.service.StrongboxUserService;
+import org.carlspring.strongbox.data.domain.User;
+import org.carlspring.strongbox.data.service.UserService;
 
 import javax.annotation.PostConstruct;
 import java.util.Collections;
@@ -27,7 +27,7 @@ public class StrongboxUserDetailService
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private StrongboxUserService userService;
+    private UserService userService;
 
     @PostConstruct
     void setup()
@@ -40,7 +40,7 @@ public class StrongboxUserDetailService
         // users should be added either via REST endpoint or via OrientDB Studio/Console
         if (!userService.findByUserName(admin).isPresent())
         {
-            StrongboxUser user = new StrongboxUser();
+            User user = new User();
             user.setUsername(admin);
             user.setPassword(passwordEncoder.encode("password"));
             user.setRoles(Collections.singletonList("ROLE_ADMIN"));
@@ -56,10 +56,10 @@ public class StrongboxUserDetailService
     {
 
         logger.info("Loading user by user name: {}", username);
-        Optional<StrongboxUser> optionalUser = userService.findByUserName(username);
+        Optional<User> optionalUser = userService.findByUserName(username);
         optionalUser.orElseThrow(() -> new UsernameNotFoundException("Cannot find user with that username"));
 
-        StrongboxUser user = optionalUser.get();
+        User user = optionalUser.get();
 
         logger.info("user roles: {}", user.getRoles());
 

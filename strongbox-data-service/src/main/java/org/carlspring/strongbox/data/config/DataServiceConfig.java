@@ -1,17 +1,14 @@
 package org.carlspring.strongbox.data.config;
 
-import org.carlspring.strongbox.data.domain.StrongboxUser;
-import org.carlspring.strongbox.data.server.EmbeddedOrientDbServer;
+import org.carlspring.strongbox.data.domain.User;
 import org.carlspring.strongbox.data.tx.CustomOrientTransactionManager;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.io.IOException;
 
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -38,7 +35,7 @@ public class DataServiceConfig
 
     private static final Logger logger = LoggerFactory.getLogger(DataServiceConfig.class);
 
-    private final String DOMAIN_PACKAGE = StrongboxUser.class.getPackage().getName();
+    private final String DOMAIN_PACKAGE = User.class.getPackage().getName();
 
     @Value("${org.carlspring.strongbox.data.orientdb.host}")
     String host;
@@ -54,9 +51,6 @@ public class DataServiceConfig
 
     @Value("${org.carlspring.strongbox.data.orientdb.password}")
     String password;
-
-    @Autowired
-    EmbeddedOrientDbServer embeddableServer;
 
     @Bean
     public OrientObjectDatabaseFactory factory()
@@ -85,8 +79,6 @@ public class DataServiceConfig
             throws IOException
     {
 
-        embeddableServer.start();
-
         // create database if not initialized
         OServerAdmin serverAdmin = new OServerAdmin(getConnectionUrl()).connect(user, password);
         if (!serverAdmin.existsDatabase())
@@ -97,11 +89,6 @@ public class DataServiceConfig
 
         // register all domain entities
         factory().db().getEntityManager().registerEntityClasses(DOMAIN_PACKAGE);
-    }
-
-    @PreDestroy
-    public void shutDown(){
-        embeddableServer.shutDown();
     }
 
     private String getConnectionUrl()

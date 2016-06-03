@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.rest.app.spring.security;
 
-import org.carlspring.strongbox.data.domain.StrongboxUser;
+import org.carlspring.strongbox.data.domain.User;
 
 import java.util.Collection;
 import java.util.List;
@@ -13,7 +13,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 /**
- * A wrapper of {@link StrongboxUser} that is used by Spring Security
+ * A wrapper of {@link User} that is used by Spring Security
  */
 class SpringSecurityUser
         implements UserDetails
