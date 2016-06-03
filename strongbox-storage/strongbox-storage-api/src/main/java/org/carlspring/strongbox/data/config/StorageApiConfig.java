@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.config;
+package org.carlspring.strongbox.data.config;
 
 import org.carlspring.strongbox.services.impl.ArtifactResolutionServiceImpl;
 import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;

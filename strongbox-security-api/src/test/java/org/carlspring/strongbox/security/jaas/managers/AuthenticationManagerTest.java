@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.security.jaas.managers;
 
-import org.carlspring.strongbox.config.CommonConfig;
-import org.carlspring.strongbox.config.StrongboxSecurityConfig;
+import org.carlspring.strongbox.data.config.CommonConfig;
+import org.carlspring.strongbox.data.config.StrongboxSecurityConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

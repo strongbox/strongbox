@@ -4,7 +4,7 @@ import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactClient;
 import org.carlspring.strongbox.client.ArtifactOperationException;
-import org.carlspring.strongbox.config.TestingCoreConfig;
+import org.carlspring.strongbox.data.config.TestingCoreConfig;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.testing.AssignedPorts;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
