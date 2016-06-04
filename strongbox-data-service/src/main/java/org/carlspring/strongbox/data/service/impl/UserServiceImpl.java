@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.data.service;
+package org.carlspring.strongbox.data.service.impl;
 
 import org.carlspring.strongbox.data.domain.User;
 import org.carlspring.strongbox.data.repository.UserRepository;

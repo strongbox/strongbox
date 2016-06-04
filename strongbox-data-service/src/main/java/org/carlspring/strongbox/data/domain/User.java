@@ -23,6 +23,7 @@ public class User
 
     private List<String> roles;
 
+
     public User()
     {
         roles = new LinkedList<>();
@@ -139,4 +140,5 @@ public class User
                           .add("version", version)
                           .toString();
     }
+
 }

@@ -43,6 +43,7 @@ public class EmbeddedOrientDbServer
     @Value("${org.carlspring.strongbox.data.orientdb.password}")
     String password;
 
+
     @PostConstruct
     public void init()
             throws Exception
@@ -94,6 +95,7 @@ public class EmbeddedOrientDbServer
         user.name = name;
         user.password = password;
         user.resources = resources;
+
         return user;
     }
 
@@ -103,6 +105,7 @@ public class EmbeddedOrientDbServer
         OServerEntryConfiguration property = new OServerEntryConfiguration();
         property.name = name;
         property.value = value;
+
         return property;
     }
 
@@ -137,4 +140,5 @@ public class EmbeddedOrientDbServer
     {
         shutDown();
     }
+
 }

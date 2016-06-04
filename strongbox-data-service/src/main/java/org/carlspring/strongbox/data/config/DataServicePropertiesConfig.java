@@ -15,4 +15,5 @@ public class DataServicePropertiesConfig
     {
         return new PropertySourcesPlaceholderConfigurer();
     }
+
 }
