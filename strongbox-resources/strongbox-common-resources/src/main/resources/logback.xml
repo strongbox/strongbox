@@ -37,10 +37,7 @@
     <logger name="org.apache.commons.httpclient">
         <level value="INFO"/>
     </logger>
-    <logger name="org.carlspring.strongbox">
-        <level value="DEBUG"/>
-    </logger>
-    <logger name="org.carlspring.logging">
+    <logger name="org.carlspring">
         <level value="DEBUG"/>
     </logger>
     <logger name="org.glassfish.jersey">

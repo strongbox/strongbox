@@ -1,12 +1,7 @@
 package org.carlspring.strongbox.rest;
 
-import io.swagger.annotations.*;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -14,12 +9,20 @@ import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.IOException;
 
+import io.swagger.annotations.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Component;
+
 /**
  * @author Martin Todorov
  */
 @Component
 @Path("/trash")
 @Api(value = "/trash")
+@PreAuthorize("permitAll")
 public class TrashRestlet
         extends BaseArtifactRestlet
 {

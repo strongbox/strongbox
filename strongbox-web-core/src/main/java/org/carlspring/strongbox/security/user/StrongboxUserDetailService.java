@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.rest.app.spring.security;
+package org.carlspring.strongbox.security.user;
 
 import org.carlspring.strongbox.data.domain.User;
 import org.carlspring.strongbox.data.service.UserService;

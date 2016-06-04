@@ -1,12 +1,12 @@
-package org.carlspring.strongbox.rest.app.spring.security;
-
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
+package org.carlspring.strongbox.security.authentication;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 
 /**
  * An entry point used when an unauthorized access is attempted

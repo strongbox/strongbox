@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.rest;
 
-import io.swagger.annotations.*;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
@@ -18,10 +17,12 @@ import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 
+import io.swagger.annotations.*;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 /**
@@ -30,6 +31,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Path("/configuration/strongbox")
 @Api(value = "/configuration/strongbox")
+@PreAuthorize("hasRole('ARTIFACTS_DELETE')")
 public class ConfigurationManagementRestlet
         extends BaseRestlet
 {

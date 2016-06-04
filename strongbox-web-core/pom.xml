@@ -221,7 +221,10 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -447,6 +450,7 @@
                             <daemon>true</daemon>
 
                             <webApp>
+                                <!-- <defaultsDescriptor>src/main/resources/default.web.xml</defaultsDescriptor> -->
                                 <contextPath>/</contextPath>
                                 <descriptor>${dir.strongbox.home}/webapp/WEB-INF/web.xml</descriptor>
                             </webApp>

@@ -1,14 +1,15 @@
 package org.carlspring.strongbox.rest;
 
-import io.swagger.annotations.*;
 import org.carlspring.logging.rest.AbstractLoggingManagementRestlet;
-import org.springframework.stereotype.Component;
 
 import javax.ws.rs.Path;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
+
+import io.swagger.annotations.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Component;
 
 /**
  * @author carlspring
@@ -16,6 +17,7 @@ import java.io.InputStream;
 @Component
 @Path("/logging")
 @Api(value = "/logging")
+@PreAuthorize("permitAll")
 public class LoggingManagementRestlet extends AbstractLoggingManagementRestlet
 {
 
