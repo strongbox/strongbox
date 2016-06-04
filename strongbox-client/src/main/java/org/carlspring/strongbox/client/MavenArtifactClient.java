@@ -1,12 +1,11 @@
 package org.carlspring.strongbox.client;
 
+import org.apache.http.HttpStatus;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
-import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,44 +33,26 @@ public class MavenArtifactClient implements Closeable
 
     private Client client;
 
-
-    public MavenArtifactClient()
+    public MavenArtifactClient(Client client)
     {
+        this.client = client;
     }
 
-    public static MavenArtifactClient getTestInstance(String repositoryBaseUrl,
+    public static MavenArtifactClient getTestInstance(Client client, String repositoryBaseUrl,
                                                       String username,
                                                       String password)
     {
-        MavenArtifactClient client = new MavenArtifactClient();
-        client.setUsername(username);
-        client.setPassword(password);
-        client.setRepositoryBaseUrl(repositoryBaseUrl);
+        MavenArtifactClient mavenArtifactClient = new MavenArtifactClient(client);
+        mavenArtifactClient.setUsername(username);
+        mavenArtifactClient.setPassword(password);
+        mavenArtifactClient.setRepositoryBaseUrl(repositoryBaseUrl);
 
-        return client;
+        return mavenArtifactClient;
     }
 
     public Client getClientInstance()
     {
-        if (client == null)
-        {
-            ClientConfig config = getClientConfig();
-            client = ClientBuilder.newClient(config);
-
-            return client;
-        }
-        else
-        {
-            return client;
-        }
-    }
-
-    private ClientConfig getClientConfig()
-    {
-        ClientConfig config = new ClientConfig();
-        config.connectorProvider(new ApacheConnectorProvider());
-
-        return config;
+        return client;
     }
 
     @Override
@@ -113,21 +94,21 @@ public class MavenArtifactClient implements Closeable
             response = request.get();
         }
 
-        return response.readEntity(InputStream.class);
-    }
-
-    public Response getResourceWithResponse(String path)
-            throws ArtifactTransportException,
-                   IOException
-    {
-        String url = escapeUrl(path);
-
-        logger.debug("Getting " + url + "...");
-
-        WebTarget resource = getClientInstance().target(url);
-        setupAuthentication(resource);
-
-        return resource.request().get();
+        try
+        {
+            if (response.getStatus() != HttpStatus.SC_OK || response.getEntity() == null)
+            {
+                return null;
+            }
+            else
+            {
+                return response.readEntity(InputStream.class);
+            }
+        }
+        finally
+        {
+            response.close();
+        }
     }
 
     public boolean artifactExists(Artifact artifact,
@@ -137,23 +118,28 @@ public class MavenArtifactClient implements Closeable
     {
         Response response = artifactExistsStatusCode(artifact, storageId, repositoryId);
 
-        if (response.getStatus() == 200)
+        try
         {
-            return true;
+            if (response.getStatus() == HttpStatus.SC_OK)
+            {
+                return true;
+            }
+            else if (response.getStatus() == HttpStatus.SC_NOT_FOUND)
+            {
+                return false;
+            }
+            else
+            {
+                throw new ResponseException(response.getStatusInfo().getReasonPhrase(), response.getStatus());
+            }
         }
-        else if (response.getStatus() == 404)
+        finally
         {
-            return false;
-        }
-        else
-        {
-            throw new ResponseException(response.getStatusInfo().getReasonPhrase(), response.getStatus());
+            response.close();
         }
     }
 
-    public Response artifactExistsStatusCode(Artifact artifact,
-                                             String storageId,
-                                             String repositoryId)
+    private Response artifactExistsStatusCode(Artifact artifact, String storageId, String repositoryId)
             throws ResponseException
     {
         String url = getUrlForArtifact(artifact, storageId, repositoryId);
@@ -176,8 +162,14 @@ public class MavenArtifactClient implements Closeable
         setupAuthentication(resource);
 
         Response response = resource.request(MediaType.TEXT_PLAIN).get();
-
-        return response.getStatus() == 200;
+        try
+        {
+            return response.getStatus() == HttpStatus.SC_OK;
+        }
+        finally
+        {
+            response.close();
+        }
     }
 
     private String escapeUrl(String path)
@@ -210,8 +202,15 @@ public class MavenArtifactClient implements Closeable
         if (pathExists(path))
         {
             InputStream is = getResource(path);
-            MetadataXpp3Reader reader = new MetadataXpp3Reader();
-            return reader.read(is);
+            try
+            {
+                MetadataXpp3Reader reader = new MetadataXpp3Reader();
+                return reader.read(is);
+            }
+            finally
+            {
+                is.close();
+            }
         }
         return null;
     }
