@@ -30,6 +30,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
 import java.io.*;
 import java.security.NoSuchAlgorithmException;
@@ -103,6 +104,12 @@ public class ArtifactRestletTest
                                            "3.2"  // Used by testPartialFetch()
                                          });
 
+            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                             "org.carlspring.strongbox.browse:foo-bar",
+                             new String[]{ "1.0", // Used by testDirectoryListing()
+                                           "2.4"  // Used by testDirectoryListing()
+                                         });
+
             //noinspection ResultOfMethodCallIgnored
             new File(TEST_RESOURCES).mkdirs();
 
@@ -153,6 +160,56 @@ public class ArtifactRestletTest
 
         mdos.flush();
         mdos.close();
+
+        final String md5Local = mdos.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
+        final String sha1Local = mdos.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
+
+        System.out.println("MD5   [Remote]: " + md5Remote);
+        System.out.println("MD5   [Local ]: " + md5Local);
+
+        System.out.println("SHA-1 [Remote]: " + sha1Remote);
+        System.out.println("SHA-1 [Local ]: " + sha1Local);
+
+        assertEquals("MD5 checksums did not match!", md5Remote, md5Local);
+        assertEquals("SHA-1 checksums did not match!", sha1Remote, sha1Local);
+    }
+
+    /**
+     * Note: This test requires access to the Internet.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testResolveViaProxyToMavenCentral()
+            throws Exception
+    {
+        client = RestClient.getTestInstance();
+
+        String artifactPath = "storages/storage0/maven-central/org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.jar";
+
+        InputStream is = client.getResource(artifactPath);
+        if (is == null)
+        {
+            fail("Failed to resolve 'derby-maven-plugin:1.10:jar' from Maven Central!");
+        }
+
+        FileOutputStream fos = new FileOutputStream(new File(TEST_RESOURCES, "derby-maven-plugin-1.10.jar"));
+        MultipleDigestOutputStream mdos = new MultipleDigestOutputStream(fos);
+
+        int len;
+        final int size = 1024;
+        byte[] bytes = new byte[size];
+
+        while ((len = is.read(bytes, 0, size)) != -1)
+        {
+            mdos.write(bytes, 0, len);
+        }
+
+        mdos.flush();
+        mdos.close();
+
+        String md5Remote = MessageDigestUtils.readChecksumFile(client.getResource(artifactPath + ".md5"));
+        String sha1Remote = MessageDigestUtils.readChecksumFile(client.getResource(artifactPath + ".sha1"));
 
         final String md5Local = mdos.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
         final String sha1Local = mdos.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
@@ -349,6 +406,40 @@ public class ArtifactRestletTest
         client.delete("storage0", "releases", artifactPath);
 
         assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!", deletedArtifact.exists());
+    }
+
+    @Test
+    public void testDirectoryListing()
+            throws Exception
+    {
+        String artifactPath = "org/carlspring/strongbox/browse/foo-bar";
+
+        File artifact = new File(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/" + artifactPath).getAbsoluteFile();
+
+        assertTrue("Failed to locate artifact file '" + artifact.getAbsolutePath() + "'!", artifact.exists());
+
+        Response repositoryRoot = client.getResourceWithResponse("/storages/storage0/releases/");
+        Response trashDirectoryListing = client.getResourceWithResponse("/storages/storage0/releases/.trash");
+        Response indexDirectoryListing = client.getResourceWithResponse("/storages/storage0/releases/.index");
+        Response directoryListing = client.getResourceWithResponse("/storages/storage0/releases/org/carlspring/strongbox/browse");
+        Response fileListing = client.getResourceWithResponse("/storages/storage0/releases/org/carlspring/strongbox/browse/foo-bar/1.0");
+        Response invalidPath = client.getResourceWithResponse("/storages/storage0/releases/org/carlspring/strongbox/browse/1.0");
+
+        String repositoryRootContent = repositoryRoot.readEntity(String.class);
+        String directoryListingContent = directoryListing.readEntity(String.class);
+        String fileListingContent = fileListing.readEntity(String.class);
+
+        assertFalse(".trash directory should not be visible in directory listing!", repositoryRootContent.contains(".trash"));
+        assertTrue(".trash directory should not be browsable!", trashDirectoryListing.getStatus() == 404);
+
+        assertFalse(".index directory should not be visible in directory listing!", repositoryRootContent.contains(".index"));
+        assertTrue(".index directory should not be browsable!", indexDirectoryListing.getStatus() == 404);
+
+        assertTrue(directoryListingContent.contains("/storages/storage0/releases/org/carlspring/strongbox/browse"));
+        assertTrue(fileListingContent.contains("foo-bar-1.0.jar"));
+        assertTrue(fileListingContent.contains("foo-bar-1.0.pom"));
+
+        assertTrue(invalidPath.getStatus() == 404);
     }
 
     @Test

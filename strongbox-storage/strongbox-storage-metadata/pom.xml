@@ -121,7 +121,7 @@
 
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${dir.strongbox}</outputDirectory>
-                                    <includes>etc/conf/strongbox.xml,META-INF/spring/**</includes>
+                                    <includes>etc/conf/strongbox.xml</includes>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>${project.groupId}</groupId>

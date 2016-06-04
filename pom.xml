@@ -51,6 +51,7 @@
         <module>strongbox-rest-client</module>
         <module>strongbox-storage</module>
         <module>strongbox-web-core</module>
+        <module>strongbox-data-service</module>
     </modules>
 
 </project>

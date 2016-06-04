@@ -50,7 +50,27 @@
 
     <filter-mapping>
         <filter-name>jersey-serlvet</filter-name>
-        <url-pattern>/*</url-pattern>
+        <url-pattern>/storages/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>jersey-serlvet</filter-name>
+        <url-pattern>/configuration/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>jersey-serlvet</filter-name>
+        <url-pattern>/logging/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>jersey-serlvet</filter-name>
+        <url-pattern>/metadata/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>jersey-serlvet</filter-name>
+        <url-pattern>/search/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>jersey-serlvet</filter-name>
+        <url-pattern>/trash/*</url-pattern>
     </filter-mapping>
 
     <welcome-file-list>

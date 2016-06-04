@@ -77,6 +77,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-data-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-security-api</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -179,21 +184,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.orientechnologies</groupId>
-            <artifactId>orientdb-server</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.orientechnologies</groupId>
-            <artifactId>orientdb-core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.orientechnologies</groupId>
-            <artifactId>orientdb-object</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
         </dependency>
@@ -201,6 +191,13 @@
         <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-core</artifactId>
+
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -411,7 +408,7 @@
 
                                             <overWrite>true</overWrite>
                                             <outputDirectory>${dir.strongbox.vault}</outputDirectory>
-                                            <includes>etc/conf/strongbox.xml,META-INF/spring/**</includes>
+                                            <includes>etc/conf/strongbox.xml</includes>
                                         </artifactItem>
                                     </artifactItems>
                                 </configuration>
@@ -500,16 +497,6 @@
                             <webAppSourceDirectory>${project.build.directory}/strongbox/webapp</webAppSourceDirectory>
                         </configuration>
 
-                        <executions>
-                            <execution>
-                                <id>jetty-stop</id>
-
-                                <phase>test</phase>
-                                <goals>
-                                    <goal>stop</goal>
-                                </goals>
-                            </execution>
-                        </executions>
                     </plugin>
 
                     <plugin>
@@ -546,6 +533,7 @@
 
                         <configuration>
                             <daemon>true</daemon>
+                            <skip>${skipTests}</skip>
                         </configuration>
 
                         <executions>

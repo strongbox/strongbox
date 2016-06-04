@@ -50,16 +50,18 @@
 
         <version.httpclient>4.5</version.httpclient>
         <version.jackson>2.4.3</version.jackson>
-        <version.jersey>2.22</version.jersey>
+        <version.jersey>2.23</version.jersey>
         <version.jetty>9.3.7.v20160115</version.jetty>
         <version.lucene>4.8.1</version.lucene>
         <version.maven>3.3.9</version.maven>
         <version.jcl>1.7.7</version.jcl>
         <version.slf4j>1.7.7</version.slf4j>
-        <version.logback>1.1.2</version.logback> 
+        <version.logback>1.1.2</version.logback>
         <version.spring>4.2.4.RELEASE</version.spring>
         <version.spring.security>4.0.4.RELEASE</version.spring.security>
+        <version.spring.data>0.10.0-SNAPSHOT</version.spring.data>
         <version.orientdb>2.1.16</version.orientdb>
+        <version.guava>19.0</version.guava>
     </properties>
 
     <build>
@@ -173,10 +175,21 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${version.guava}</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.orientechnologies</groupId>
                 <artifactId>orientdb-server</artifactId>
+                <version>${version.orientdb}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.orientechnologies</groupId>
+                <artifactId>orientdb-enterprise</artifactId>
                 <version>${version.orientdb}</version>
             </dependency>
 
@@ -191,7 +204,7 @@
                 <artifactId>orientdb-object</artifactId>
                 <version>${version.orientdb}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-config</artifactId>
@@ -222,6 +235,20 @@
                 <groupId>org.carlspring.maven</groupId>
                 <artifactId>maven-commons</artifactId>
                 <version>${version.carlspring.maven.commons}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.carlspring.logging</groupId>
@@ -375,9 +402,9 @@
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
-                 <artifactId>jul-to-slf4j</artifactId>
+                <artifactId>jul-to-slf4j</artifactId>
                 <version>${version.jcl}</version>
-            </dependency>        
+            </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
@@ -427,6 +454,22 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-web</artifactId>
                 <version>${version.spring}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-orientdb-document</artifactId>
+                <version>${version.spring.data}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-orientdb-object</artifactId>
+                <version>${version.spring.data}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-orientdb-graph</artifactId>
+                <version>${version.spring.data}</version>
             </dependency>
 
             <dependency>

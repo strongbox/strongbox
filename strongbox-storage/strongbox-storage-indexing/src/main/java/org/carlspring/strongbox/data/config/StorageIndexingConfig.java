@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.config;
+package org.carlspring.strongbox.data.config;
 
 import org.apache.maven.index.*;
 import org.apache.maven.index.artifact.ArtifactPackagingMapper;

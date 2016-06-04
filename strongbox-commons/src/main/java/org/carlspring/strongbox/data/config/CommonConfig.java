@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.config;
+package org.carlspring.strongbox.data.config;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;

@@ -163,11 +163,11 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
             <exclusions>
-              <!-- Exclude Commons Logging -->
-              <exclusion>
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-              </exclusion>
+                <!-- Exclude Commons Logging -->
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
