@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.security.user;
 
-import org.carlspring.strongbox.data.domain.User;
+import org.carlspring.strongbox.users.domain.User;
 
 import java.util.Collection;
 import java.util.List;
@@ -31,6 +31,15 @@ class SpringSecurityUser
 
     SpringSecurityUser()
     {
+    }
+
+    SpringSecurityUser(User user)
+    {
+        this.setEnabled(user.isEnabled());
+        this.setPassword(user.getPassword());
+        this.setRoles(user.getRoles());
+        this.setSalt(user.getSalt());
+        this.setUsername(user.getUsername());
     }
 
     @Override

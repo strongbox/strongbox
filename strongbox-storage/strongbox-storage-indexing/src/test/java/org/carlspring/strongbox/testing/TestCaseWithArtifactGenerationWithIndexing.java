@@ -2,9 +2,9 @@ package org.carlspring.strongbox.testing;
 
 import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.data.config.CommonConfig;
-import org.carlspring.strongbox.data.config.StorageApiConfig;
-import org.carlspring.strongbox.data.config.StorageIndexingConfig;
+import org.carlspring.strongbox.users.data.config.CommonConfig;
+import org.carlspring.strongbox.users.data.config.StorageApiConfig;
+import org.carlspring.strongbox.users.data.config.StorageIndexingConfig;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;

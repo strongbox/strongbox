@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.security.jaas.caching;
 
-import org.carlspring.strongbox.data.config.StrongboxSecurityConfig;
+import org.carlspring.strongbox.users.data.config.StrongboxSecurityConfig;
 import org.carlspring.strongbox.security.jaas.Credentials;
 import org.carlspring.strongbox.security.jaas.User;
 import org.junit.Test;

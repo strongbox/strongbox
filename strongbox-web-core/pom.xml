@@ -82,6 +82,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-user-management-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-security-api</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -450,7 +455,6 @@
                             <daemon>true</daemon>
 
                             <webApp>
-                                <!-- <defaultsDescriptor>src/main/resources/default.web.xml</defaultsDescriptor> -->
                                 <contextPath>/</contextPath>
                                 <descriptor>${dir.strongbox.home}/webapp/WEB-INF/web.xml</descriptor>
                             </webApp>

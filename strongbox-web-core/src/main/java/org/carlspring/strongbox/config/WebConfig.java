@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.config;
 
-import org.carlspring.strongbox.data.config.*;
+import org.carlspring.strongbox.users.config.UsersConfig;
+import org.carlspring.strongbox.users.data.config.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ import org.springframework.context.annotation.Import;
                  StrongboxSecurityConfig.class,
                  StorageIndexingConfig.class,
                  StorageApiConfig.class,
+                 UsersConfig.class,
                  SecurityConfig.class
          })
 public class WebConfig
