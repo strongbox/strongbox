@@ -13,12 +13,16 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
+
 /**
  * @author mtodorov
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Configuration extends ServerConfiguration
+public class Configuration
+        extends ServerConfiguration
 {
 
     @XmlElement
@@ -128,4 +132,36 @@ public class Configuration extends ServerConfiguration
         this.routingRules = routingRules;
     }
 
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Configuration that = (Configuration) o;
+        return port == that.port &&
+               Objects.equal(version, that.version) &&
+               Objects.equal(baseUrl, that.baseUrl) &&
+               Objects.equal(proxyConfiguration, that.proxyConfiguration) &&
+               Objects.equal(storages, that.storages) &&
+               Objects.equal(routingRules, that.routingRules);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hashCode(version, baseUrl, port, proxyConfiguration, storages, routingRules);
+    }
+
+    @Override
+    public String toString()
+    {
+        return MoreObjects.toStringHelper(this)
+                          .add("version", version)
+                          .add("baseUrl", baseUrl)
+                          .add("port", port)
+                          .add("proxyConfiguration", proxyConfiguration)
+                          .add("storages", storages)
+                          .add("routingRules", routingRules)
+                          .toString();
+    }
 }

@@ -9,6 +9,8 @@ import javax.annotation.PreDestroy;
 import java.io.IOException;
 
 import com.orientechnologies.orient.client.remote.OServerAdmin;
+import com.orientechnologies.orient.core.entity.OEntityManager;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,6 +99,16 @@ public class DataServiceConfig
 
         // register all domain entities
         factory().db().getEntityManager().registerEntityClasses(DOMAIN_PACKAGE);
+    }
+
+    @Bean
+    public OObjectDatabaseTx objectDatabaseTx(){
+        return factory().db();
+    }
+
+    @Bean
+    public OEntityManager entityManager() {
+        return objectDatabaseTx().getEntityManager();
     }
 
     @PreDestroy

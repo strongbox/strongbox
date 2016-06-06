@@ -1,9 +1,9 @@
 package org.carlspring.strongbox.storage;
 
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.xml.RepositoryMapAdapter;
 import org.carlspring.strongbox.xml.StorageMapAdapter;
-import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;

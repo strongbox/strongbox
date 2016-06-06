@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class ServerConfiguration<T>
+
 {
 
 }

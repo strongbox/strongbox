@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.configuration;
 
 import org.carlspring.strongbox.BaseStorageApiTest;
+import org.carlspring.strongbox.data.config.DataServiceConfig;
+import org.carlspring.strongbox.data.config.StorageApiConfig;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -8,11 +10,6 @@ import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.RuleSet;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.xml.bind.JAXBException;
 import java.io.ByteArrayOutputStream;
@@ -20,11 +17,19 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.*;
 
 /**
  * @author mtodorov
  */
+@ContextConfiguration(classes = { StorageApiConfig.class,
+                                  DataServiceConfig.class })
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ConfigurationManagerTest extends BaseStorageApiTest
 {
