@@ -1,6 +1,6 @@
-package org.carlspring.strongbox.data.config;
+package org.carlspring.strongbox.config;
 
-import org.carlspring.strongbox.security.config.SecurityConfig;
+import org.carlspring.strongbox.data.config.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
