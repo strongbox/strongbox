@@ -2,7 +2,11 @@ package org.carlspring.strongbox.client;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 
-import javax.ws.rs.client.*;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.Closeable;
@@ -295,22 +299,16 @@ public class ArtifactClient
                        boolean force)
             throws ArtifactOperationException
     {
-        try
-        {
-            @SuppressWarnings("ConstantConditions")
-            String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + path +
-                         (force ? "?force=" + force : "");
+        @SuppressWarnings("ConstantConditions")
+        String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + path +
+                     (force ? "?force=" + force : "");
 
-            WebTarget resource = getClientInstance().target(url);
-            setupAuthentication(resource);
+        WebTarget resource = getClientInstance().target(url);
+        setupAuthentication(resource);
 
-            Response response = resource.request().delete();
+        Response response = resource.request().delete();
 
-            handleFailures(response, "Failed to delete artifact!");
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
+        handleFailures(response, "Failed to delete artifact!");
     }
 
     public void deleteTrash(String storageId,
@@ -455,7 +453,8 @@ public class ArtifactClient
             StringBuilder messageBuilder = new StringBuilder();
             messageBuilder.append("\n ERROR ").append(status).append(" ").append(message).append("\n");
             Object entity = response.getEntity();
-            if (entity != null) {
+            if (entity != null)
+            {
                 messageBuilder.append(entity.toString());
             }
             logger.error(messageBuilder.toString());
