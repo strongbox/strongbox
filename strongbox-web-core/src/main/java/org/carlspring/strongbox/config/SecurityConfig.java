@@ -30,8 +30,6 @@ public class SecurityConfig
         extends WebSecurityConfigurerAdapter
 {
 
-    // test
-
     @Override
     protected void configure(HttpSecurity http)
             throws Exception
@@ -58,7 +56,9 @@ public class SecurityConfig
     {
         auth
                 .inMemoryAuthentication()
-                .withUser("maven").password("password").roles(Roles.all());
+                .withUser("maven").password("password").roles(Roles.all())
+                .and()
+                .withUser("admin").password("password").roles(Roles.all());
     }
 
     @Override
