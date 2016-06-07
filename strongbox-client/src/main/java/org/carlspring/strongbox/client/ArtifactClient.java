@@ -481,9 +481,13 @@ public class ArtifactClient
         if (username != null && password != null)
         {
             logger.debug("[setupAuthentication] " + username + "@" + password);
-            target.register(HttpAuthenticationFeature.basic(username, password));
+
+            HttpAuthenticationFeature authFeature = HttpAuthenticationFeature.universal(username, password);
+
+            target.register(authFeature);
         }
-        else {
+        else
+        {
             throw new ServerErrorException("Unable to setup authentication", Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
