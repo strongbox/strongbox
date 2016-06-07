@@ -34,4 +34,5 @@ public abstract class GenericEntity
     public GenericEntity()
     {
     }
+
 }

@@ -2,7 +2,18 @@ package org.carlspring.strongbox;
 
 import java.util.LinkedHashMap;
 
-import org.apache.maven.index.*;
+import org.apache.maven.index.ArtifactContextProducer;
+import org.apache.maven.index.DefaultArtifactContextProducer;
+import org.apache.maven.index.DefaultIndexer;
+import org.apache.maven.index.DefaultIndexerEngine;
+import org.apache.maven.index.DefaultQueryCreator;
+import org.apache.maven.index.DefaultScanner;
+import org.apache.maven.index.DefaultSearchEngine;
+import org.apache.maven.index.Indexer;
+import org.apache.maven.index.IndexerEngine;
+import org.apache.maven.index.QueryCreator;
+import org.apache.maven.index.Scanner;
+import org.apache.maven.index.SearchEngine;
 import org.apache.maven.index.artifact.ArtifactPackagingMapper;
 import org.apache.maven.index.artifact.DefaultArtifactPackagingMapper;
 import org.apache.maven.index.creator.AbstractIndexCreator;

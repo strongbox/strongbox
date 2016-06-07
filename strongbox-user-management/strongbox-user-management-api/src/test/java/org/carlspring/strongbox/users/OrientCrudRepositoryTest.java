@@ -69,4 +69,5 @@ public class OrientCrudRepositoryTest
             strongboxUsers.forEach(user -> logger.debug(user.toString()));
         });
     }
+
 }

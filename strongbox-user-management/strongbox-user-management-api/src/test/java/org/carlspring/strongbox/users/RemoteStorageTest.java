@@ -25,12 +25,12 @@ public class RemoteStorageTest
     @Autowired
     UserRepository repository;
 
+
     @Test
     @Transactional
     public synchronized void testSaveOperation()
             throws Exception
     {
-
         // prepare
         final User user = buildTestUser();
 
@@ -53,7 +53,8 @@ public class RemoteStorageTest
         User storedUser = repository.findOne(id);
         assertNotNull(storedUser);
 
-        logger.warn("Found user {}", storedUser);
+        logger.debug("Found user {}", storedUser);
+
         assertEquals(user.getUsername(), storedUser.getUsername());
         assertEquals(user.getPassword(), storedUser.getPassword());
     }
@@ -64,6 +65,8 @@ public class RemoteStorageTest
         user.setEnabled(true);
         user.setUsername(testUserName);
         user.setPassword("pwd");
+
         return user;
     }
+
 }

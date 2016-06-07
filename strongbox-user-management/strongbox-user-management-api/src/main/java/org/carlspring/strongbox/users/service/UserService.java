@@ -19,4 +19,5 @@ public interface UserService
 
     @Transactional
     Optional<User> findByUserName(final String username);
+
 }

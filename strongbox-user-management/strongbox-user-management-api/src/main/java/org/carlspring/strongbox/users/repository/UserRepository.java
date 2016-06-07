@@ -17,5 +17,6 @@ public interface UserRepository
 
     // select * from User where username = 'admin'
     User findByUsername(String userName);
+
 }
 

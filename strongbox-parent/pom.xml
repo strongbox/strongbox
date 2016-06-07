@@ -476,6 +476,12 @@
                 <groupId>org.springframework.data</groupId>
                 <artifactId>spring-data-orientdb-graph</artifactId>
                 <version>${version.spring.data}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.codehaus.groovy</groupId>
+                        <artifactId>groovy</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
