@@ -4,7 +4,6 @@ import org.carlspring.strongbox.data.server.EmbeddedOrientDbServer;
 import org.carlspring.strongbox.data.tx.CustomOrientTransactionManager;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.io.IOException;
 
 import com.orientechnologies.orient.client.remote.OServerAdmin;
@@ -119,15 +118,8 @@ public class DataServiceConfig
         }
     }
 
-    @PreDestroy
-    public void shutDown()
-    {
-        //embeddableServer.shutDown();
-    }
-
     private String getConnectionUrl()
     {
         return "remote:" + host + ":" + port + "/" + database;
     }
-
 }

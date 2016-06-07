@@ -11,7 +11,6 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -19,19 +18,13 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
-/**
- * Configures annotation-based security for every method based on Spring Secured annotation.
- *
- * @see {@linkplain http://docs.spring.io/autorepo/docs/spring-security/4.1.x/reference/htmlsingle/#enableglobalmethodsecurity}
- */
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig
         extends WebSecurityConfigurerAdapter
 {
 
-    String TOKEN =           "strongbox-token";
+    String TOKEN = "strongbox-token";
 
     @Autowired
     private UserDetailsService userDetailService;
@@ -68,12 +61,14 @@ public class SecurityConfig
     }
 
     @Bean
-    public RememberMeAuthenticationProvider rememberMeAuthenticationProvider(){
+    public RememberMeAuthenticationProvider rememberMeAuthenticationProvider()
+    {
         return new RememberMeAuthenticationProvider(TOKEN);
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider() {
+    public AuthenticationProvider authenticationProvider()
+    {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(userDetailService);
         //authenticationProvider.setPasswordEncoder(passwordEncoder());
@@ -81,7 +76,8 @@ public class SecurityConfig
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
+    public PasswordEncoder passwordEncoder()
+    {
         return new ShaPasswordEncoder();
     }
 

@@ -43,7 +43,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Path("/configuration/strongbox")
 @Api(value = "/configuration/strongbox")
-@PreAuthorize("hasRole('ARTIFACTS_DELETE')")
+@PreAuthorize("hasAuthority('ROOT')")
 public class ConfigurationManagementRestlet
         extends BaseRestlet
 {

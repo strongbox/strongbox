@@ -53,7 +53,6 @@ public class ArtifactClient
 
     private Client client;
 
-
     public ArtifactClient()
     {
     }
@@ -480,8 +479,7 @@ public class ArtifactClient
     {
         if (username != null && password != null)
         {
-            logger.debug("[setupAuthentication] " + username + "@" + password);
-
+            logger.trace("[setupAuthentication] " + username + "@" + password);
             target.register(HttpAuthenticationFeature.basic(username, password));
         }
         else

@@ -30,17 +30,15 @@ import org.springframework.stereotype.Component;
 @Component
 @Path("/search")
 @Api(value = "/search")
-@PreAuthorize("permitAll")
+@PreAuthorize("hasAuthority('ROOT')")
 public class SearchRestlet
         extends BaseArtifactRestlet
 {
 
     private static final Logger logger = LoggerFactory.getLogger(SearchRestlet.class);
 
-
     @Autowired
     private ArtifactSearchService artifactSearchService;
-
 
     /**
      * Performs a search against the Lucene index of a specified repository,

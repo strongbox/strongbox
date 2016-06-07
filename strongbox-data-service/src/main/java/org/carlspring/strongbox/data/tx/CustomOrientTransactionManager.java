@@ -45,7 +45,7 @@ public class CustomOrientTransactionManager
             TransactionSynchronizationManager.bindResource(getDatabaseFactory(), db);
         }
 
-        logger.debug("beginning transaction, db.hashCode() = {}", db.hashCode() + " URL: " + db.getURL());
+        logger.trace("beginning transaction, db.hashCode() = {}", db.hashCode() + " URL: " + db.getURL());
 
         db.activateOnCurrentThread();
         if (db.isClosed())

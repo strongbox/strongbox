@@ -4,7 +4,6 @@ import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.security.encryption.EncryptionAlgorithms;
 import org.carlspring.strongbox.security.jaas.Credentials;
 import org.carlspring.strongbox.security.jaas.Users;
-import org.carlspring.strongbox.users.domain.Roles;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
@@ -14,7 +13,6 @@ import java.io.File;
 import java.util.Optional;
 
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
-import edu.emory.mathcs.backport.java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,20 +60,22 @@ public class UsersConfig
 
         // load users from xml file if schema do not exists
         boolean needToSaveInDb = userService.count() == 0;
-            logger.warn("Load users from XML file...");
-            Optional<Users> optionalUsers = loadUsersFromConfigFile();
-            optionalUsers.ifPresent(
-                    users -> users.getUsers().stream().forEach(user -> {
-                        obtainUser(user, needToSaveInDb);
-                    }));
+        logger.warn("Load users from XML file...");
+        Optional<Users> optionalUsers = loadUsersFromConfigFile();
+        optionalUsers.ifPresent(
+                users -> users.getUsers().stream().forEach(user -> {
+                    obtainUser(user, needToSaveInDb);
+                }));
     }
 
     @Transactional
     private void obtainUser(org.carlspring.strongbox.security.jaas.User user,
-                            boolean needToSaveInDb){
+                            boolean needToSaveInDb)
+    {
 
         User internalUser = toInternalUser(user);
-        if (needToSaveInDb){
+        if (needToSaveInDb)
+        {
             userService.save(internalUser);
         }
 
@@ -115,8 +115,7 @@ public class UsersConfig
             // TODO process other cases
         }
         internalUser.setEnabled(true);
-        // internalUser.setRoles(user.getRoles());
-        internalUser.setRoles(Arrays.asList(Roles.all())); // TODO for testing purpose
+        internalUser.setRoles(user.getRoles());
         internalUser.setSalt(user.getSeed() + "");
         return internalUser;
     }

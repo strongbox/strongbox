@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Path("/logging")
 @Api(value = "/logging")
-@PreAuthorize("permitAll")
+@PreAuthorize("hasAuthority('ROOT')")
 public class LoggingManagementRestlet extends AbstractLoggingManagementRestlet
 {
 

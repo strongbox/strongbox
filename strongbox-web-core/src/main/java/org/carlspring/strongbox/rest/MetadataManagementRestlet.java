@@ -39,7 +39,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Path("/metadata")
 @Api(value = "/metadata")
-@PreAuthorize("permitAll")
+@PreAuthorize("hasAuthority('ROOT')")
 public class MetadataManagementRestlet
         extends BaseRestlet
 {

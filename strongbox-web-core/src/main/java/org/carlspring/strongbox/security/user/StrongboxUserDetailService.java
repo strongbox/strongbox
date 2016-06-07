@@ -46,7 +46,7 @@ public class StrongboxUserDetailService
 
         // transform roles to authorities
         List<GrantedAuthority> authorities = new LinkedList<>();
-        user.getRoles().forEach(role -> authorities.add(new SimpleGrantedAuthority(role)));
+        user.getRoles().forEach(role -> authorities.add(new SimpleGrantedAuthority(role.toUpperCase())));
 
         // extract (detach) user in current transaction
         SpringSecurityUser springUser = new SpringSecurityUser();
@@ -56,7 +56,7 @@ public class StrongboxUserDetailService
         springUser.setUsername(user.getUsername());
         springUser.setAuthorities(authorities);
 
-        logger.info("Authorise under " + springUser);
+        logger.trace("Authorise under " + springUser);
 
         return springUser;
     }

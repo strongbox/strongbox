@@ -122,6 +122,12 @@ public class ArtifactRestletTest
     }
 
     @Test
+    public void testUserAuth() throws Exception {
+        client.greet();
+    }
+
+    @Test
+    @Ignore
     public void testResolveViaProxy()
             throws Exception
     {

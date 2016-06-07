@@ -30,7 +30,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Path("/trash")
 @Api(value = "/trash")
-@PreAuthorize("permitAll")
+@PreAuthorize("hasAuthority('ROOT')")
 public class TrashRestlet
         extends BaseArtifactRestlet
 {
