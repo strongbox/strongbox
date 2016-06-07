@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.users.data.service;
+package org.carlspring.strongbox.data.service;
 
 import java.io.Serializable;
 import java.util.Optional;

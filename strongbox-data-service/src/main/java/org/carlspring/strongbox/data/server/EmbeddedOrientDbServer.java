@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.users.data.server;
+package org.carlspring.strongbox.data.server;
 
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 

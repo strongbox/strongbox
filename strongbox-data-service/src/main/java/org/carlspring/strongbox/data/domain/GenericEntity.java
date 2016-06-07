@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.users.data.domain;
+package org.carlspring.strongbox.data.domain;
 
 import javax.persistence.Id;
 import javax.persistence.Inheritance;

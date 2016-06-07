@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.users.data.repository;
+package org.carlspring.strongbox.data.repository;
 
 import org.springframework.data.orient.object.repository.OrientObjectRepository;
 import org.springframework.data.repository.NoRepositoryBean;

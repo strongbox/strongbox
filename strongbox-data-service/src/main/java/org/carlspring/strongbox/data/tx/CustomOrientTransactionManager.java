@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.users.data.tx;
+package org.carlspring.strongbox.data.tx;
 
 import com.orientechnologies.orient.core.db.ODatabase;
 import org.slf4j.Logger;

@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.users.domain;
 
-import org.carlspring.strongbox.users.data.domain.GenericEntity;
+import org.carlspring.strongbox.data.domain.GenericEntity;
 
 import java.util.LinkedList;
 import java.util.List;
