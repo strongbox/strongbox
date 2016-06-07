@@ -47,7 +47,7 @@ class UserServiceImpl
     @Transactional
     public <S extends User> S save(S var1)
     {
-        System.out.println("\nSaving user\n\t" + var1 + "\n");
+        logger.debug("\nSaving user\n\t" + var1 + "\n");
         return repository.save(var1);
     }
 

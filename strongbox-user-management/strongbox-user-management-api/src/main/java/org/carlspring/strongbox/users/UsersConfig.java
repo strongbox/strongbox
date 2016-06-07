@@ -57,20 +57,12 @@ public class UsersConfig
         databaseTx.getEntityManager().registerEntityClasses(User.class.getPackage().getName());
 
         // load users from xml file if schema do not exists
-
-        /* if (userService.count() == 0) */
+        if (userService.count() == 0)
         {
-            logger.warn("Reload users from XML file...");
+            logger.warn("Load users from XML file...");
             Optional<Users> optionalUsers = loadUsersFromConfigFile();
             optionalUsers.ifPresent(
-                    users -> users.getUsers().stream().forEach(user -> {
-
-                        userService.findByUserName(user.getUsername()).ifPresent(user1 -> {
-                            userService.delete(user1);
-                        });
-
-                        userService.save(toInternalUser(user));
-                    }));
+                    users -> users.getUsers().stream().forEach(user -> userService.save(toInternalUser(user))));
         }
     }
 
