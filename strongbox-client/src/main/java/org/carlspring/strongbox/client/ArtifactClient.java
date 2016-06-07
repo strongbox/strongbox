@@ -482,9 +482,7 @@ public class ArtifactClient
         {
             logger.debug("[setupAuthentication] " + username + "@" + password);
 
-            HttpAuthenticationFeature authFeature = HttpAuthenticationFeature.universal(username, password);
-
-            target.register(authFeature);
+            target.register(HttpAuthenticationFeature.basic(username, password));
         }
         else
         {

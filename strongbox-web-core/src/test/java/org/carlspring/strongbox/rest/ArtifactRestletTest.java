@@ -121,7 +121,6 @@ public class ArtifactRestletTest
         }
     }
 
-    @Ignore
     @Test
     public void testResolveViaProxy()
             throws Exception
