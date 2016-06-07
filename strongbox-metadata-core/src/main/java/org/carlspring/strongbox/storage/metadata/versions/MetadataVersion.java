@@ -1,10 +1,10 @@
 package org.carlspring.strongbox.storage.metadata.versions;
 
-import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
-
 import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 
 /**
  * @author Steve Todorov <s.todorov@itnews-bg.com>

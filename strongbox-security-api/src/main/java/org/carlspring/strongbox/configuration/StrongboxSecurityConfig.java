@@ -2,6 +2,7 @@ package org.carlspring.strongbox.configuration;
 
 import org.carlspring.strongbox.security.jaas.caching.CachedUserManager;
 import org.carlspring.strongbox.security.jaas.managers.AuthenticationManager;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;

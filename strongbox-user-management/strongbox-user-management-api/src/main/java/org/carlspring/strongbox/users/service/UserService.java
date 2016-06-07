@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.users.service;
 
-import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.data.service.CrudService;
+import org.carlspring.strongbox.users.domain.User;
 
 import java.util.Optional;
 

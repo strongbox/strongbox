@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.storage.resolvers;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.maven.artifact.Artifact;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.commons.io.filters.DirectoryFilter;
 import org.carlspring.commons.io.resource.ResourceCloser;
@@ -14,14 +12,22 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.DirUtils;
+
+import javax.ws.rs.core.Response;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.maven.artifact.Artifact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import javax.ws.rs.core.Response;
-import java.io.*;
-import java.security.NoSuchAlgorithmException;
-import java.util.Map;
 
 /**
  * @author mtodorov

@@ -2,6 +2,7 @@ package org.carlspring.strongbox.client;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 
+import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -480,6 +481,9 @@ public class ArtifactClient
         if (username != null && password != null)
         {
             target.register(HttpAuthenticationFeature.basic(username, password));
+        }
+        else {
+            throw new ServerErrorException("Unable to setup authentication", Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 

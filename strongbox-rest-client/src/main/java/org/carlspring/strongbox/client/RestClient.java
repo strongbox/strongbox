@@ -7,6 +7,7 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
+import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
@@ -309,9 +310,22 @@ public class RestClient extends ArtifactClient
     public int addRepository(Repository repository)
             throws IOException, JAXBException
     {
-        String url = getContextBaseUrl() + "/configuration/strongbox/storages/" + repository.getStorage().getId();
+        if (repository == null) {
+            logger.error("Unable to add non-existing repository.");
+            throw new ServerErrorException("Unable to add non-existing repository.", Response.Status.INTERNAL_SERVER_ERROR);
+        }
 
-        WebTarget resource = getClientInstance().target(url);
+        WebTarget resource;
+
+        try
+        {
+            String url = getContextBaseUrl() + "/configuration/strongbox/storages/" + repository.getStorage().getId();
+            resource = getClientInstance().target(url);
+        }
+        catch (RuntimeException e){
+            logger.error("Unable to create web resource.", e);
+            throw new ServerErrorException(Response.Status.INTERNAL_SERVER_ERROR);
+        }
         setupAuthentication(resource);
 
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();

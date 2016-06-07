@@ -3,12 +3,12 @@ package org.carlspring.strongbox.security.jaas.caching;
 import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
 import org.carlspring.strongbox.security.jaas.Credentials;
 import org.carlspring.strongbox.security.jaas.User;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
 import static org.junit.Assert.assertEquals;
 
 /**

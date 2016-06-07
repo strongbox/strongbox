@@ -1,13 +1,19 @@
 package org.carlspring.strongbox.rest;
 
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
+
+import javax.ws.rs.core.Response;
+import java.io.File;
+import java.io.InputStream;
+import java.util.List;
+
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,13 +22,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import javax.ws.rs.core.Response;
-import java.io.File;
-import java.io.InputStream;
-import java.util.List;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author mtodorov
