@@ -317,6 +317,10 @@ public class RestClient extends ArtifactClient
 
         WebTarget resource;
 
+        if (repository.getStorage() == null){
+            throw new ServerErrorException("Storage associated with repo is null", Response.Status.INTERNAL_SERVER_ERROR);
+        }
+
         try
         {
             String url = getContextBaseUrl() + "/configuration/strongbox/storages/" + repository.getStorage().getId();
