@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.storage.validation.version;
 
-import org.carlspring.strongbox.users.data.config.CommonConfig;
+import org.carlspring.strongbox.CommonConfig;
 import org.carlspring.strongbox.users.data.config.StorageApiConfig;
 import org.carlspring.strongbox.services.VersionValidatorService;
 import org.junit.Test;

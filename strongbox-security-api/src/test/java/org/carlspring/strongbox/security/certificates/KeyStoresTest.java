@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.security.certificates;
 
-import org.carlspring.strongbox.users.data.config.StrongboxSecurityConfig;
+import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
 import org.carlspring.strongbox.net.ConnectionChecker;
 import org.carlspring.strongbox.testing.AssignedPorts;
 import org.junit.Before;
