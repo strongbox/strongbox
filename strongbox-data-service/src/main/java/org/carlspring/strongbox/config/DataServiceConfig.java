@@ -13,10 +13,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.ehcache.EhCacheCacheManager;
+import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.orient.commons.core.OrientTransactionManager;
 import org.springframework.data.orient.object.OrientObjectDatabaseFactory;
 import org.springframework.data.orient.object.OrientObjectTemplate;
@@ -31,8 +36,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 @ComponentScan({ "org.carlspring.strongbox.data" })
 @Import(DataServicePropertiesConfig.class)
+@EnableCaching
 public class DataServiceConfig
 {
+
     private static final Logger logger = LoggerFactory.getLogger(DataServiceConfig.class);
 
     @Value("${org.carlspring.strongbox.data.orientdb.host}")
@@ -60,7 +67,7 @@ public class DataServiceConfig
         factory.setUrl(getConnectionUrl());
         factory.setUsername(user);
         factory.setPassword(password);
-        
+
         return factory;
     }
 
@@ -77,8 +84,24 @@ public class DataServiceConfig
     }
 
     @Bean
-    public OObjectDatabaseTx objectDatabaseTx(){
+    public OObjectDatabaseTx objectDatabaseTx()
+    {
         return factory().db();
+    }
+
+    @Bean
+    public CacheManager cacheManager()
+    {
+        return new EhCacheCacheManager(ehCacheCacheManager().getObject());
+    }
+
+    @Bean
+    public EhCacheManagerFactoryBean ehCacheCacheManager()
+    {
+        EhCacheManagerFactoryBean cmfb = new EhCacheManagerFactoryBean();
+        cmfb.setConfigLocation(new ClassPathResource("ehcache.xml"));
+        cmfb.setShared(true);
+        return cmfb;
     }
 
     @PostConstruct
@@ -99,7 +122,7 @@ public class DataServiceConfig
     @PreDestroy
     public void shutDown()
     {
-        embeddableServer.shutDown();
+        //embeddableServer.shutDown();
     }
 
     private String getConnectionUrl()

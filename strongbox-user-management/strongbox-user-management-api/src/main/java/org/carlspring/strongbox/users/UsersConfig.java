@@ -18,6 +18,7 @@ import edu.emory.mathcs.backport.java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -45,6 +46,9 @@ public class UsersConfig
     @Autowired
     UserService userService;
 
+    @Autowired
+    CacheManager cacheManager;
+
     private GenericParser<Users> parser = new GenericParser<>(Users.class);
 
     @PostConstruct
@@ -57,13 +61,26 @@ public class UsersConfig
         databaseTx.getEntityManager().registerEntityClasses(User.class.getPackage().getName());
 
         // load users from xml file if schema do not exists
-        if (userService.count() == 0)
-        {
+        boolean needToSaveInDb = userService.count() == 0;
             logger.warn("Load users from XML file...");
             Optional<Users> optionalUsers = loadUsersFromConfigFile();
             optionalUsers.ifPresent(
-                    users -> users.getUsers().stream().forEach(user -> userService.save(toInternalUser(user))));
+                    users -> users.getUsers().stream().forEach(user -> {
+                        obtainUser(user, needToSaveInDb);
+                    }));
+    }
+
+    @Transactional
+    private void obtainUser(org.carlspring.strongbox.security.jaas.User user,
+                            boolean needToSaveInDb){
+
+        User internalUser = toInternalUser(user);
+        if (needToSaveInDb){
+            userService.save(internalUser);
         }
+
+        logger.debug("Putting user " + internalUser.getUsername() + " to cache...");
+        cacheManager.getCache("users").put(internalUser.getUsername(), internalUser);
     }
 
     @Transactional

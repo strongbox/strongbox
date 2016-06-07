@@ -480,6 +480,7 @@ public class ArtifactClient
     {
         if (username != null && password != null)
         {
+            logger.debug("[setupAuthentication] " + username + "@" + password);
             target.register(HttpAuthenticationFeature.basic(username, password));
         }
         else {

@@ -29,7 +29,7 @@ import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.artifact.PluginArtifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,7 +59,7 @@ public class ArtifactRestletTest
 
     public static boolean INITIALIZED = false;
 
-    private RestClient client = new RestClient();
+    private static RestClient client = new RestClient();
 
 
     @Before
@@ -114,8 +114,8 @@ public class ArtifactRestletTest
         }
     }
 
-    @After
-    public void tearDown()
+    @AfterClass
+    public static void tearDown()
             throws Exception
     {
         if (client != null)

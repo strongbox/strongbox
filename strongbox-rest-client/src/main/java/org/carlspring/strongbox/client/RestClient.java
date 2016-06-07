@@ -112,6 +112,10 @@ public class RestClient extends ArtifactClient
 
             configuration = parser.parse(bais);
         }
+        else {
+            displayResponseError(response);
+            throw new ServerErrorException("Unable to getServerConfiguration()", Response.Status.INTERNAL_SERVER_ERROR);
+        }
 
         return configuration;
     }
@@ -285,8 +289,18 @@ public class RestClient extends ArtifactClient
 
             storage = parser.parse(bais);
         }
+        else {
+            displayResponseError(response);
+            throw new ServerErrorException("Unable to getStorage()", Response.Status.INTERNAL_SERVER_ERROR);
+        }
 
         return storage;
+    }
+
+    private static void displayResponseError(Response response){
+        logger.error("Status code " + response.getStatus());
+        logger.error("Status info " + response.getStatusInfo().getReasonPhrase());
+        logger.error("Response message " + response.readEntity(String.class));
     }
 
     /**
@@ -372,6 +386,10 @@ public class RestClient extends ArtifactClient
             GenericParser<Repository> parser = new GenericParser<Repository>(Repository.class);
 
             repository = parser.parse(bais);
+        }
+        else {
+            displayResponseError(response);
+            throw new ServerErrorException("Unable to getRepository()", Response.Status.INTERNAL_SERVER_ERROR);
         }
 
         return repository;

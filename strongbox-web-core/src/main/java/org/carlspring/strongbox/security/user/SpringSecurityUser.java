@@ -3,13 +3,9 @@ package org.carlspring.strongbox.security.user;
 import org.carlspring.strongbox.users.domain.User;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
-import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 /**
@@ -27,25 +23,10 @@ class SpringSecurityUser
 
     private String salt;
 
-    private List<String> roles;
+    private Collection<? extends GrantedAuthority> authorities;
 
     SpringSecurityUser()
     {
-    }
-
-    SpringSecurityUser(User user)
-    {
-        this.setEnabled(user.isEnabled());
-        this.setPassword(user.getPassword());
-        this.setRoles(user.getRoles());
-        this.setSalt(user.getSalt());
-        this.setUsername(user.getUsername());
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities()
-    {
-        return roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
     }
 
     @Override
@@ -109,9 +90,15 @@ class SpringSecurityUser
         this.salt = salt;
     }
 
-    public void setRoles(List<String> roles)
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities()
     {
-        this.roles = roles;
+        return authorities;
+    }
+
+    public void setAuthorities(Collection<? extends GrantedAuthority> authorities)
+    {
+        this.authorities = authorities;
     }
 
     @Override
@@ -124,24 +111,25 @@ class SpringSecurityUser
                Objects.equal(username, that.username) &&
                Objects.equal(password, that.password) &&
                Objects.equal(salt, that.salt) &&
-               Objects.equal(roles, that.roles);
+               Objects.equal(authorities, that.authorities);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hashCode(username, password, enabled, salt, roles);
+        return Objects.hashCode(username, password, enabled, salt, authorities);
     }
 
     @Override
     public String toString()
     {
-        return MoreObjects.toStringHelper(this)
-                          .add("username", username)
-                          .add("password", password)
-                          .add("enabled", enabled)
-                          .add("salt", salt)
-                          .add("roles", roles)
-                          .toString();
+        final StringBuilder sb = new StringBuilder("SpringSecurityUser{");
+        sb.append("\n\tusername='").append(username).append('\'');
+        sb.append(", \n\tpassword='").append(password).append('\'');
+        sb.append(", \n\tenabled=").append(enabled);
+        sb.append(", \n\tsalt='").append(salt).append('\'');
+        sb.append(", \n\tauthorities=").append(authorities);
+        sb.append('}');
+        return sb.toString();
     }
 }

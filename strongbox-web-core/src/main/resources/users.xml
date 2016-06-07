@@ -17,7 +17,6 @@
             <encryption-algorithm>plain</encryption-algorithm>
         </credentials>
         <roles>
-            <role>user</role>
             <role>root</role>
         </roles>
     </user>

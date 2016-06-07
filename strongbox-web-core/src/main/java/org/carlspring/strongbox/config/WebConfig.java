@@ -8,6 +8,7 @@ import org.carlspring.strongbox.users.UsersConfig;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -28,6 +29,7 @@ import org.springframework.context.annotation.Import;
                  UsersConfig.class,
                  SecurityConfig.class
          })
+@EnableCaching
 public class WebConfig
 {
 
@@ -37,5 +39,4 @@ public class WebConfig
     {
         logger.info("WebConfig init...");
     }
-
 }

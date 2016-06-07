@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,17 +30,17 @@ class UserServiceImpl
 
     @Override
     @Transactional
-    public Optional<User> findByUserName(String username)
+    @Cacheable(value = "users", key = "#name")
+    public User findByUserName(String name)
     {
         try
         {
-            User user = repository.findByUsername(username);
-            return Optional.ofNullable(user);
+            return repository.findByUsername(name);
         }
         catch (Exception e)
         {
             logger.warn("Internal spring-data-orientdb exception: " + e.getMessage());
-            return Optional.empty();
+            return null;
         }
     }
 

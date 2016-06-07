@@ -3,8 +3,6 @@ package org.carlspring.strongbox.users.service;
 import org.carlspring.strongbox.data.service.CrudService;
 import org.carlspring.strongbox.users.domain.User;
 
-import java.util.Optional;
-
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -18,6 +16,6 @@ public interface UserService
 {
 
     @Transactional
-    Optional<User> findByUserName(final String username);
+    User findByUserName(final String username);
 
 }

@@ -31,17 +31,17 @@
     </appender>
 
     <logger name="org.springframework">
-        <level value="ERROR"/>
+        <level value="INFO"/>
     </logger>
 
     <logger name="org.apache.commons.httpclient">
         <level value="INFO"/>
     </logger>
     <logger name="org.carlspring">
-        <level value="DEBUG"/>
+        <level value="INFO"/>
     </logger>
     <logger name="org.glassfish.jersey">
-        <level value="DEBUG"/>
+        <level value="INFO"/>
     </logger>
 
     <root>
