@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.data.server;
 
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.LinkedList;
@@ -109,8 +111,8 @@ public class EmbeddedOrientDbServer
 
     private String getDatabasePath()
     {
-        return "/Users/neo/Projects/strongbox/strongbox-data-service/db";
-        //return ConfigurationResourceResolver.getVaultDirectory() + "/db";
+        //return "/Users/neo/Projects/strongbox/strongbox-data-service/db";
+        return ConfigurationResourceResolver.getVaultDirectory() + "/db";
     }
 
     public void start()
