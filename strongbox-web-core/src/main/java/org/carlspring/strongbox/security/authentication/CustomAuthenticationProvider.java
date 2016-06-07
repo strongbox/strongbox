@@ -11,6 +11,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Alex Oreshkevich
@@ -26,20 +27,23 @@ public class CustomAuthenticationProvider
     UserDetailsService userService;
 
     @Override
+    @Transactional
     public Authentication authenticate(Authentication authentication)
             throws AuthenticationException
     {
         String username = authentication.getName();
         String password = (String) authentication.getCredentials();
 
-        logger.debug("[authenticate] user " + username);
+        logger.debug("[authenticate] Trying to authorise user " + username);
 
         UserDetails user = userService.loadUserByUsername(username);
         if (!password.equals(user.getPassword()))
         {
+            logger.error("[authenticate] ERROR Wrong password.");
             throw new BadCredentialsException("Wrong password.");
         }
 
+        logger.debug("[authenticate] SUCCESS");
         return new UsernamePasswordAuthenticationToken(user, password, user.getAuthorities());
     }
 

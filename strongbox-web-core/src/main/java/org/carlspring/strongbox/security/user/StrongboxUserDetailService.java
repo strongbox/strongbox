@@ -41,14 +41,24 @@ public class StrongboxUserDetailService
 
         logger.info("Loading user by user name: {}", username);
         Optional<User> optionalUser = userService.findByUserName(username);
-        optionalUser.orElseThrow(() -> new UsernameNotFoundException("Cannot find user with that username"));
+        if (!optionalUser.isPresent()){
+            logger.error("[authenticate] ERROR Cannot find user with that username " + username);
+            throw new UsernameNotFoundException("Cannot find user with that username");
+        }
 
         User user = databaseTx.detach(optionalUser.get());
 
         logger.info("user roles: {}", user.getRoles());
 
         // extract (detach) user in current transaction
-        SpringSecurityUser springUser = new SpringSecurityUser(user);
-        return springUser;
+        try
+        {
+            SpringSecurityUser springUser = new SpringSecurityUser(user);
+            return springUser;
+        }
+        catch (Exception e){
+            logger.error("[authenticate] ERROR Unable detach user from db", e);
+            return null;
+        }
     }
 }
