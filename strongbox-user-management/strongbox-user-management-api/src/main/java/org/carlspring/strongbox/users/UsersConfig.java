@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.users.config;
+package org.carlspring.strongbox.users;
 
 import org.carlspring.strongbox.security.encryption.EncryptionAlgorithms;
 import org.carlspring.strongbox.security.jaas.Credentials;

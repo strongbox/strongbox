@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.users;
 
-import org.carlspring.strongbox.users.config.UsersConfig;
 import org.carlspring.strongbox.users.data.config.DataServiceConfig;
 
 import java.lang.annotation.ElementType;
