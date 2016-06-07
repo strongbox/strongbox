@@ -4,7 +4,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.CommonConfig;
-import org.carlspring.strongbox.users.data.config.StorageApiConfig;
+import org.carlspring.strongbox.StorageApiConfig;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.storage.Storage;

@@ -3,7 +3,7 @@ package org.carlspring.strongbox.storage.resolvers;
 import com.carmatechnologies.commons.testing.logging.ExpectedLogs;
 import com.carmatechnologies.commons.testing.logging.api.LogLevel;
 import org.carlspring.strongbox.CommonConfig;
-import org.carlspring.strongbox.users.data.config.StorageApiConfig;
+import org.carlspring.strongbox.StorageApiConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.resource.ResourceCloser;

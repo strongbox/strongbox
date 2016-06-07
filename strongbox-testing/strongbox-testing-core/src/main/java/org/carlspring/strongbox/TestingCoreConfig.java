@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.users.data.config;
+package org.carlspring.strongbox;
 
 import org.carlspring.strongbox.testing.AssignedPorts;
 import org.springframework.context.annotation.Bean;
