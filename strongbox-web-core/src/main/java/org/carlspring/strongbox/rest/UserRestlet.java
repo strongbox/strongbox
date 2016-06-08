@@ -5,6 +5,7 @@ import org.carlspring.strongbox.users.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -171,6 +172,30 @@ public class UserRestlet
         cacheManager.getCache("users").put(user.getUsername(), user);
 
         return toResponse(user);
+    }
+
+    // ----------------------------------------------------------------------------------------------------------------
+    // Delete user by name
+    @DELETE
+    @Path("user/{name}")
+    @ApiOperation(value = "Deletes a user from a repository.", position = 3)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The user was deleted."),
+                            @ApiResponse(code = 400, message = "Bad request.")
+    })
+    @PreAuthorize("hasAuthority('ROOT')")
+    public Response delete(@ApiParam(value = "The name of the user", required = true)
+                           @PathParam("name") String name)
+            throws Exception
+    {
+        User user = userService.findByUserName(name);
+        if (user == null || user.getId() == null)
+        {
+            return toError("The specified user does not exist!");
+        }
+
+        userService.delete(user.getId());
+
+        return Response.ok().build();
     }
 
     // ----------------------------------------------------------------------------------------------------------------

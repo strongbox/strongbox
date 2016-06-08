@@ -19,7 +19,6 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -147,6 +146,21 @@ public class UserRestletTest
         User updatedUser = objectMapper.readValue(rawResponse, User.class);
 
         assertEquals(createdUser, updatedUser);
+    }
+
+    @Test
+    public synchronized void testDeleteUser()
+            throws Exception
+    {
+        // create new user
+        User test = buildUser("test-update", "password-update");
+        Entity entity = Entity.entity(objectMapper.writeValueAsString(test), MediaType.TEXT_PLAIN);
+        Response response = client.prepareTarget("/users/user").request(
+                MediaType.TEXT_PLAIN).post(entity);
+        assertTrue(response.getStatus() == HttpStatus.SC_OK);
+
+        Response deleteResponse = client.prepareTarget("/users/user/" + test.getUsername()).request().delete();
+        assertTrue(deleteResponse.getStatus() == HttpStatus.SC_OK);
     }
 
     private User buildUser(String name,
