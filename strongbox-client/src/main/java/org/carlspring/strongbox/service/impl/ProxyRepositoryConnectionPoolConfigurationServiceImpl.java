@@ -4,12 +4,20 @@ import org.apache.http.HttpHost;
 import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.pool.PoolStats;
+import org.carlspring.strongbox.data.domain.PoolConfiguration;
+import org.carlspring.strongbox.data.service.PoolConfigurationService;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.glassfish.jersey.apache.connector.ApacheClientProperties;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -18,6 +26,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -32,15 +41,31 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
             .getLogger(ProxyRepositoryConnectionPoolConfigurationServiceImpl.class);
 
     private PoolingHttpClientConnectionManager poolingHttpClientConnectionManager;
-
     private IdleConnectionMonitorThread idleConnectionMonitorThread;
+
+    @Value("${pool.maxConnections:200}")
+    private Integer maxTotal;
+    @Value("${pool.defaultConnectionsPerRoute:5}")
+    private Integer defaultMaxPerRoute;
+    @Autowired
+    private PoolConfigurationService poolConfigurationService;
 
     @PostConstruct
     public void init()
     {
         poolingHttpClientConnectionManager = new PoolingHttpClientConnectionManager();
-        poolingHttpClientConnectionManager.setMaxTotal(200); //TODO some value that depends on threads count?
-        poolingHttpClientConnectionManager.setDefaultMaxPerRoute(5);
+        poolingHttpClientConnectionManager.setMaxTotal(maxTotal); //TODO  alue that depends on number of threads?
+        poolingHttpClientConnectionManager.setDefaultMaxPerRoute(defaultMaxPerRoute);
+
+        // set all repositories configurations on start
+        Optional<Iterable<PoolConfiguration>> poolConfigurationsOptional = poolConfigurationService.findAll();
+        poolConfigurationsOptional.ifPresent(poolConfigurations -> {
+            for(PoolConfiguration poolConfiguration : poolConfigurations)
+            {
+                HttpRoute httpRoute = getHttpRouteFromRepository(poolConfiguration.getRepositoryUrl());
+                poolingHttpClientConnectionManager.setMaxPerRoute(httpRoute, poolConfiguration.getMaxConnections());
+            }
+        });
 
         // thread for monitoring unused connections
         idleConnectionMonitorThread = new IdleConnectionMonitorThread(poolingHttpClientConnectionManager);
@@ -92,6 +117,7 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
     public void setMaxPerRepository(String repository, int max)
     {
         HttpRoute httpRoute = getHttpRouteFromRepository(repository);
+        poolConfigurationService.createOrUpdateNumberOfConnectionsForRepository(repository, max);
         poolingHttpClientConnectionManager.setMaxPerRoute(httpRoute, max);
     }
 
@@ -141,12 +167,12 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
             }
 
             HttpHost httpHost = new HttpHost(uri.getHost(), port, uri.getScheme());
-            // TODO check whether we need this InetAddress here
+            // TODO check whether we need second param InetAddress
             return new HttpRoute(httpHost, null, secure);
         }
         catch (URISyntaxException e)
         {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.getMessage(), e);
         }
 
         // default http route creation
@@ -175,9 +201,9 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
                 {
                     synchronized (this)
                     {
-                        wait(1000);
+                        wait(5000);
                         poolingHttpClientConnectionManager.closeExpiredConnections();
-                        poolingHttpClientConnectionManager.closeIdleConnections(30, TimeUnit.SECONDS);
+                        poolingHttpClientConnectionManager.closeIdleConnections(60, TimeUnit.SECONDS);
                     }
                 }
             }

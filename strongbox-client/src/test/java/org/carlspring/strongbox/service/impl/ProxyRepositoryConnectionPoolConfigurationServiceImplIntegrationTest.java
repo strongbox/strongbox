@@ -1,16 +1,28 @@
 package org.carlspring.strongbox.service.impl;
 
+import org.carlspring.strongbox.config.ClientPropertiesConfig;
+import org.carlspring.strongbox.data.domain.PoolConfiguration;
+import org.carlspring.strongbox.data.service.PoolConfigurationService;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
+
+import java.util.Collections;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 
@@ -23,14 +35,29 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImplIntegrationTes
 {
 
     @Configuration
-    @ComponentScan(basePackages = { "org.carlspring.strongbox.service.impl" })
+    @ComponentScan(basePackages = { "org.carlspring.strongbox.service.impl", "org.carlspring.strongbox.data"})
+    @Import(ClientPropertiesConfig.class)
     public static class SpringConfig
     {
 
     }
 
+    @Mock
+    private PoolConfigurationService poolConfigurationService;
+
     @Autowired
+    @InjectMocks
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
+
+    @Before
+    public void init()
+    {
+        MockitoAnnotations.initMocks(this);
+        Mockito.when(poolConfigurationService.findAll()).thenReturn(Optional.empty());
+        Mockito.when(poolConfigurationService
+                .createOrUpdateNumberOfConnectionsForRepository(Mockito.anyString(), Mockito.anyInt()))
+                .thenReturn(new PoolConfiguration());
+    }
 
     @Test
     public void setMaxPoolSize()
@@ -54,6 +81,7 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImplIntegrationTes
         assertEquals(3, proxyRepositoryConnectionPoolConfigurationService.getPoolStats(repositoryUrl).getMax());
     }
 
+    // integration test, external call to repo
     @Test
     public void connectionsReleasedTest()
     {
@@ -70,6 +98,7 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImplIntegrationTes
         assertEquals(0, proxyRepositoryConnectionPoolConfigurationService.getTotalStats().getLeased());
     }
 
+    // integration test, external call to repo
     @Test
     public void connectionsLeakedTest()
     {

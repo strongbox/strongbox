@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.data.config;
 
+import org.carlspring.strongbox.config.ClientPropertiesConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.ComponentScan;
@@ -20,7 +21,8 @@ import org.springframework.context.annotation.Import;
                  StorageIndexingConfig.class,
                  StorageApiConfig.class,
                  GlobalSecurityConfig.class,
-                 SecurityConfig.class
+                 SecurityConfig.class,
+                 ClientPropertiesConfig.class
          })
 public class WebConfig
 {

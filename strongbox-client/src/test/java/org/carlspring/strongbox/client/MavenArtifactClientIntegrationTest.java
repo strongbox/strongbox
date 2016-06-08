@@ -1,19 +1,29 @@
 package org.carlspring.strongbox.client;
 
+import org.carlspring.strongbox.config.ClientPropertiesConfig;
+import org.carlspring.strongbox.data.domain.PoolConfiguration;
+import org.carlspring.strongbox.data.service.PoolConfigurationService;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 
@@ -28,7 +38,8 @@ public class MavenArtifactClientIntegrationTest
     private static final Logger LOGGER = LoggerFactory.getLogger(MavenArtifactClientIntegrationTest.class);
 
     @Configuration
-    @ComponentScan(basePackages = { "org.carlspring.strongbox.service.impl" })
+    @ComponentScan(basePackages = { "org.carlspring.strongbox.service.impl", "org.carlspring.strongbox.data"})
+    @Import(ClientPropertiesConfig.class)
     public static class SpringConfig
     {
 
@@ -39,16 +50,26 @@ public class MavenArtifactClientIntegrationTest
     // fake url
     private String repositoryUrl = "https://repo.maven.apache.org/maven2/";
 
+    @Mock
+    private PoolConfigurationService poolConfigurationService;
+
     @Autowired
+    @InjectMocks
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
 
     @Before
     public void setUp()
     {
+        MockitoAnnotations.initMocks(this);
+        Mockito.when(poolConfigurationService.findAll()).thenReturn(Optional.empty());
+        Mockito.when(poolConfigurationService
+                        .createOrUpdateNumberOfConnectionsForRepository(Mockito.anyString(), Mockito.anyInt()))
+                .thenReturn(new PoolConfiguration());
 
         proxyRepositoryConnectionPoolConfigurationService.setMaxTotal(100);
         proxyRepositoryConnectionPoolConfigurationService.setDefaultMaxPerRepository(10);
         proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(repositoryUrl, 3);
+
         mavenArtifactClient = MavenArtifactClient
                 .getTestInstance(proxyRepositoryConnectionPoolConfigurationService.getClient(), repositoryUrl, null,
                         null);

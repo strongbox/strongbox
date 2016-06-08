@@ -2,6 +2,7 @@ package org.carlspring.strongbox.testing;
 
 import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.config.ClientPropertiesConfig;
 import org.carlspring.strongbox.data.config.CommonConfig;
 import org.carlspring.strongbox.data.config.StorageApiConfig;
 import org.carlspring.strongbox.data.config.StorageIndexingConfig;
@@ -9,6 +10,7 @@ import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
@@ -28,8 +30,10 @@ public class TestCaseWithArtifactGenerationWithIndexing
     @Import({
             StorageIndexingConfig.class,
             StorageApiConfig.class,
-            CommonConfig.class
+            CommonConfig.class,
+            ClientPropertiesConfig.class
     })
+    @ComponentScan(basePackages = { "org.carlspring.strongbox.service.impl", "org.carlspring.strongbox.data"})
     public static class SpringConfig { }
 
     @Autowired

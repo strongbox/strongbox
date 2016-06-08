@@ -1,9 +1,6 @@
 package org.carlspring.strongbox.data.domain;
 
-import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.Version;
+import javax.persistence.*;
 import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -33,5 +30,15 @@ public abstract class GenericEntity
 
     public GenericEntity()
     {
+    }
+
+    public String getId()
+    {
+        return id;
+    }
+
+    public void setId(String id)
+    {
+        this.id = id;
     }
 }
