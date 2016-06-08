@@ -117,13 +117,6 @@ public class RestClient
 
             configuration = parser.parse(bais);
         }
-        /*
-        else
-        {
-            displayResponseError(response);
-            throw new ServerErrorException("Unable to getServerConfiguration()", Response.Status.INTERNAL_SERVER_ERROR);
-        }
-        */
 
         return configuration;
     }
@@ -299,13 +292,6 @@ public class RestClient
 
             storage = parser.parse(bais);
         }
-        /*
-        else
-        {
-            displayResponseError(response);
-            throw new ServerErrorException("Unable to getStorage()", Response.Status.INTERNAL_SERVER_ERROR);
-        }
-        */
 
         return storage;
     }
@@ -409,13 +395,6 @@ public class RestClient
 
             repository = parser.parse(bais);
         }
-        /*
-        else
-        {
-            displayResponseError(response);
-            throw new ServerErrorException("Unable to getRepository()", Response.Status.INTERNAL_SERVER_ERROR);
-        }
-        */
 
         return repository;
     }
