@@ -8,6 +8,7 @@ import org.springframework.data.orient.commons.core.OrientTransaction;
 import org.springframework.data.orient.commons.core.OrientTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionException;
+import org.springframework.transaction.support.DefaultTransactionStatus;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
@@ -56,4 +57,13 @@ public class CustomOrientTransactionManager
         db.begin();
     }
 
+    @Override
+    protected synchronized void doCommit(DefaultTransactionStatus status)
+            throws TransactionException
+    {
+        OrientTransaction tx = (OrientTransaction)status.getTransaction();
+        ODatabase db = tx.getDatabase();
+        db.activateOnCurrentThread();
+        db.commit();
+    }
 }

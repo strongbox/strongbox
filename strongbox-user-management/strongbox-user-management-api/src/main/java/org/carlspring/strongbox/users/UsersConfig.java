@@ -56,7 +56,7 @@ public class UsersConfig
 
     @PostConstruct
     @Transactional
-    public void init()
+    public synchronized void init()
     {
         logger.debug("Configure users...");
 
@@ -67,7 +67,7 @@ public class UsersConfig
     }
 
     @Transactional
-    private void loadUsersFromConfigFile()
+    private synchronized void loadUsersFromConfigFile()
     {
         try
         {
@@ -83,24 +83,23 @@ public class UsersConfig
     }
 
     @Transactional
-    private void obtainUser(org.carlspring.strongbox.security.jaas.User user,
+    private synchronized void obtainUser(org.carlspring.strongbox.security.jaas.User user,
                             boolean needToSaveInDb)
     {
         User internalUser = toInternalUser(user);
         if (needToSaveInDb)
         {
-            userService.save(internalUser);
+            internalUser = userService.save(internalUser);
+            databaseTx.activateOnCurrentThread();
+            internalUser = databaseTx.detach(internalUser, true);
         }
 
-        // TODO Workaround of write to cache error caused by undetached instance
-        // that returned from spring-data-orientdb repository method implementations
-        logger.debug("Putting user " + internalUser.getUsername() + " to cache...");
         cacheManager.getCache("users").put(internalUser.getUsername(), internalUser);
     }
 
 
     @Transactional
-    private User toInternalUser(org.carlspring.strongbox.security.jaas.User user)
+    private synchronized User toInternalUser(org.carlspring.strongbox.security.jaas.User user)
     {
         User internalUser = new User();
         internalUser.setUsername(user.getUsername());
@@ -121,7 +120,7 @@ public class UsersConfig
         return internalUser;
     }
 
-    private File getUsersConfigFile()
+    private synchronized File getUsersConfigFile()
             throws IOException
     {
         return configurationResourceResolver.getConfigurationResource("users.config.xml", "etc/conf/security-users.xml").getFile();

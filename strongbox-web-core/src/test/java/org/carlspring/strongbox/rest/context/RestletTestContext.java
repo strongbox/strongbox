@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Retention(RetentionPolicy.RUNTIME)
 @ContextConfiguration(classes = { WebConfig.class })
 @Transactional
-@Rollback(false)
+@Rollback
 public @interface RestletTestContext
 {
 

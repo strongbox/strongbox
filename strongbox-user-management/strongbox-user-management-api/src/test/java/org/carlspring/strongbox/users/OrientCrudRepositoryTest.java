@@ -36,7 +36,7 @@ public class OrientCrudRepositoryTest
 
     @Test
     @Transactional
-    public void testCreateAndDeleteUserOperations()
+    public synchronized void testCreateAndDeleteUserOperations()
             throws Exception
     {
 
@@ -63,7 +63,7 @@ public class OrientCrudRepositoryTest
 
     @Test
     @Transactional
-    public void displayUsers()
+    public synchronized void displayUsers()
     {
         userService.findAll().ifPresent(strongboxUsers -> {
             strongboxUsers.forEach(user -> logger.debug(user.toString()));
