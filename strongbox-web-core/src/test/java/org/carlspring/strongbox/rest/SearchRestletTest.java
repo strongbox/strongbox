@@ -4,6 +4,7 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.generator.ArtifactDeployer;
 import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.rest.context.RestletTestContext;
 
 import javax.ws.rs.core.MediaType;
 import java.io.File;
@@ -13,10 +14,14 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * @author mtodorov
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@RestletTestContext
 public class SearchRestletTest
 {
 

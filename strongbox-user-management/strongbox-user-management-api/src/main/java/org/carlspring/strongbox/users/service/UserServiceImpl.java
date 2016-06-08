@@ -39,7 +39,7 @@ class UserServiceImpl
         }
         catch (Exception e)
         {
-            logger.warn("Internal spring-data-orientdb exception: " + e.getMessage());
+            logger.warn("Internal spring-data-orientdb exception.", e);
             return null;
         }
     }

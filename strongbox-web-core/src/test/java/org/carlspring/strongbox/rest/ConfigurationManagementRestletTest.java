@@ -4,6 +4,7 @@ import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.rest.context.RestletTestContext;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
@@ -15,6 +16,8 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -24,6 +27,8 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author mtodorov
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@RestletTestContext
 public class ConfigurationManagementRestletTest
 {
 

@@ -10,11 +10,11 @@ import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
-import java.util.Optional;
 
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanInstantiationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.ComponentScan;
@@ -53,50 +53,48 @@ public class UsersConfig
     @Transactional
     public void init()
     {
-        logger.debug("\nStarting to configure users...\n");
+        logger.debug("Configure users...");
 
         // register all domain entities
         databaseTx.getEntityManager().registerEntityClasses(User.class.getPackage().getName());
 
-        // load users from xml file if schema do not exists
-        boolean needToSaveInDb = userService.count() == 0;
-        logger.warn("Load users from XML file...");
-        Optional<Users> optionalUsers = loadUsersFromConfigFile();
-        optionalUsers.ifPresent(
-                users -> users.getUsers().stream().forEach(user -> {
-                    obtainUser(user, needToSaveInDb);
-                }));
+        loadUsersFromConfigFile();
+    }
+
+    @Transactional
+    private void loadUsersFromConfigFile()
+    {
+        try
+        {
+            // save loaded users to the database if schema do not exists
+            boolean needToSaveInDb = userService.count() == 0;
+
+            Users users = parser.parse(new File(new ClassPathResource(getUsersConfigFilePath()).getURI()));
+            users.getUsers().stream().forEach(user -> obtainUser(user, needToSaveInDb));
+        }
+        catch (Exception e)
+        {
+            logger.error("Unable to load users from configuration file.", e);
+            throw new BeanInstantiationException(getClass(), "Unable to load users from configuration file.", e);
+        }
     }
 
     @Transactional
     private void obtainUser(org.carlspring.strongbox.security.jaas.User user,
                             boolean needToSaveInDb)
     {
-
         User internalUser = toInternalUser(user);
         if (needToSaveInDb)
         {
             userService.save(internalUser);
         }
 
+        // TODO Workaround of write to cache error caused by undetached instance
+        // that returned from spring-data-orientdb repository method implementations
         logger.debug("Putting user " + internalUser.getUsername() + " to cache...");
         cacheManager.getCache("users").put(internalUser.getUsername(), internalUser);
     }
 
-    @Transactional
-    private Optional<Users> loadUsersFromConfigFile()
-    {
-        try
-        {
-            Users users = parser.parse(new File(new ClassPathResource(getUsersConfigFilePath()).getURI()));
-            return Optional.of(users);
-        }
-        catch (Exception e)
-        {
-            logger.error("Unable to load users from configuration file.", e);
-        }
-        return Optional.empty();
-    }
 
     @Transactional
     private User toInternalUser(org.carlspring.strongbox.security.jaas.User user)

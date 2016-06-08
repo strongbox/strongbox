@@ -17,5 +17,4 @@ public interface UserService
 
     @Transactional
     User findByUserName(final String username);
-
 }
