@@ -66,6 +66,8 @@ public class UserRestlet
         return toResponse(userService.findByUserName(name));
     }
 
+    // test
+
     private Response toResponse(Object arg)
     {
         try
