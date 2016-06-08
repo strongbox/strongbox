@@ -71,7 +71,7 @@ public class TestCaseWithArtifactGeneration
         generator.generate(artifact, packaging);
     }
 
-    public void generateArtifact(String basedir, String gavtc, String... versions)
+    public static void generateArtifact(String basedir, String gavtc, String... versions)
             throws IOException,
                    XmlPullParserException,
                    NoSuchAlgorithmException

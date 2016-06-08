@@ -48,19 +48,15 @@ public class ArtifactRestletTest
     private static final File REPOSITORY_BASEDIR_RELEASES = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                                      "/storages/storage0/releases");
 
-    public static boolean INITIALIZED = false;
-
     private static RestClient client = new RestClient();
 
     @Autowired
     PasswordEncoder passwordEncoder;
 
-    @Before
-    public void setUp()
+    @BeforeClass
+    public static void setUp()
             throws Exception
     {
-        if (!INITIALIZED)
-        {
             generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
                              "org.carlspring.strongbox.resolve.only:foo",
                              new String[]{ "1.1", // Used by testResolveViaProxy()
@@ -102,9 +98,6 @@ public class ArtifactRestletTest
 
             //noinspection ResultOfMethodCallIgnored
             new File(TEST_RESOURCES).mkdirs();
-
-            INITIALIZED = true;
-        }
     }
 
     @AfterClass
