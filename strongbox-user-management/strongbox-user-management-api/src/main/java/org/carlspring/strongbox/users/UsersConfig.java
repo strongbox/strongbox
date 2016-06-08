@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.users;
 
+import org.carlspring.strongbox.CommonConfig;
 import org.carlspring.strongbox.config.DataServiceConfig;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.security.encryption.EncryptionAlgorithms;
 import org.carlspring.strongbox.security.jaas.Credentials;
 import org.carlspring.strongbox.security.jaas.Users;
@@ -10,6 +12,7 @@ import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
+import java.io.IOException;
 
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.slf4j.Logger;
@@ -20,7 +23,6 @@ import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.orient.commons.repository.config.EnableOrientRepositories;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.users" })
 @EnableOrientRepositories(basePackages = "org.carlspring.strongbox.users.repository")
-@Import(DataServiceConfig.class)
+@Import({DataServiceConfig.class, CommonConfig.class})
 public class UsersConfig
 {
 
@@ -46,6 +48,9 @@ public class UsersConfig
 
     @Autowired
     CacheManager cacheManager;
+
+    @Autowired
+    ConfigurationResourceResolver configurationResourceResolver;
 
     private GenericParser<Users> parser = new GenericParser<>(Users.class);
 
@@ -68,9 +73,7 @@ public class UsersConfig
         {
             // save loaded users to the database if schema do not exists
             boolean needToSaveInDb = userService.count() == 0;
-
-            Users users = parser.parse(new File(new ClassPathResource(getUsersConfigFilePath()).getURI()));
-            users.getUsers().stream().forEach(user -> obtainUser(user, needToSaveInDb));
+            parser.parse(getUsersConfigFile()).getUsers().stream().forEach(user -> obtainUser(user, needToSaveInDb));
         }
         catch (Exception e)
         {
@@ -118,11 +121,10 @@ public class UsersConfig
         return internalUser;
     }
 
-    @Transactional
-    private String getUsersConfigFilePath()
+    private File getUsersConfigFile()
+            throws IOException
     {
-        // TODO How to receive path correctly ?
-        return "users.xml";
+        return configurationResourceResolver.getConfigurationResource("users.config.xml", "etc/conf/security-users.xml").getFile();
     }
 
 }
