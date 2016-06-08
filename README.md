@@ -22,7 +22,7 @@ Welcome to the Strongbox Maven artifact repository manager's home.
 
 # What's in the works:
 * Proxy repositories
-* [Metadata](https://github.com/strongbox/strongbox/wiki/Maven-Metadata)
+* [Maven Metadata](https://github.com/strongbox/strongbox/wiki/Maven-Metadata)
 * Initial implementation of security via Spring Security
 * Cron tasks
 * Logging:
