@@ -3,13 +3,11 @@ package org.carlspring.strongbox.storage.validation.version;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.junit.Before;
 import org.junit.Test;
-
-import org.apache.maven.artifact.Artifact;
-
 import static org.junit.Assert.fail;
 
 

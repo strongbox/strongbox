@@ -1,13 +1,14 @@
 package org.carlspring.strongbox.services;
 
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
+
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 /**
  * @author stodorov

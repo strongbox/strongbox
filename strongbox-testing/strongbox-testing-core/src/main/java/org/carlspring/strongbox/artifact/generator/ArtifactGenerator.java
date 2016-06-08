@@ -1,5 +1,14 @@
 package org.carlspring.strongbox.artifact.generator;
 
+import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
+import org.carlspring.commons.io.MultipleDigestInputStream;
+import org.carlspring.commons.io.MultipleDigestOutputStream;
+import org.carlspring.commons.io.RandomInputStream;
+import org.carlspring.maven.commons.model.ModelWriter;
+import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.resource.ResourceCloser;
+import org.carlspring.strongbox.util.MessageDigestUtils;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -18,14 +27,6 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Writer;
 import org.apache.maven.model.Model;
-import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
-import org.carlspring.commons.io.MultipleDigestInputStream;
-import org.carlspring.commons.io.MultipleDigestOutputStream;
-import org.carlspring.commons.io.RandomInputStream;
-import org.carlspring.maven.commons.model.ModelWriter;
-import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.resource.ResourceCloser;
-import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.codehaus.plexus.util.WriterFactory;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;

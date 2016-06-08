@@ -1,9 +1,8 @@
 package org.carlspring.strongbox.client;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStream;
+import org.carlspring.maven.commons.util.ArtifactUtils;
 
+import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -11,29 +10,36 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
-import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import static org.apache.http.HttpStatus.SC_FORBIDDEN;
+import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
 
 /**
  * @author mtodorov
  */
-public class ArtifactClient implements Closeable
+public class ArtifactClient
+        implements Closeable
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactClient.class);
 
     private String protocol = "http";
 
-    private String host = System.getProperty("strongbox.host") != null ? System.getProperty("strongbox.host") : "localhost";
+    private String host =
+            System.getProperty("strongbox.host") != null ? System.getProperty("strongbox.host") : "localhost";
 
     private int port = System.getProperty("strongbox.port") != null ?
                        Integer.parseInt(System.getProperty("strongbox.port")) :
@@ -46,7 +52,6 @@ public class ArtifactClient implements Closeable
     private String password = "password";
 
     private Client client;
-
 
     public ArtifactClient()
     {
@@ -62,7 +67,8 @@ public class ArtifactClient implements Closeable
         return getTestInstance("admin", "password");
     }
 
-    public static ArtifactClient getTestInstance(String username, String password)
+    public static ArtifactClient getTestInstance(String username,
+                                                 String password)
     {
         String host = System.getProperty("strongbox.host") != null ?
                       System.getProperty("strongbox.host") :
@@ -129,7 +135,11 @@ public class ArtifactClient implements Closeable
         deployFile(is, url, fileName);
     }
 
-    public void addMetadata(Metadata metadata, String path, String storageId, String repositoryId, InputStream is)
+    public void addMetadata(Metadata metadata,
+                            String path,
+                            String storageId,
+                            String repositoryId,
+                            InputStream is)
             throws ArtifactOperationException
     {
         String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + path;
@@ -139,19 +149,29 @@ public class ArtifactClient implements Closeable
         deployMetadata(is, url, path.substring(path.lastIndexOf("/")));
     }
 
-    public void deployFile(InputStream is, String url, String fileName) throws ArtifactOperationException
+    public void deployFile(InputStream is,
+                           String url,
+                           String fileName)
+            throws ArtifactOperationException
     {
         put(is, url, fileName, MediaType.APPLICATION_OCTET_STREAM);
     }
 
-    public void deployMetadata(InputStream is, String url, String fileName) throws ArtifactOperationException
+    public void deployMetadata(InputStream is,
+                               String url,
+                               String fileName)
+            throws ArtifactOperationException
     {
         put(is, url, fileName, MediaType.APPLICATION_XML);
     }
 
-    public void put(InputStream is, String url, String fileName, String mediaType) throws ArtifactOperationException
+    public void put(InputStream is,
+                    String url,
+                    String fileName,
+                    String mediaType)
+            throws ArtifactOperationException
     {
-        String contentDisposition = "attachment; filename=\"" + fileName +"\"";
+        String contentDisposition = "attachment; filename=\"" + fileName + "\"";
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
@@ -209,7 +229,8 @@ public class ArtifactClient implements Closeable
         return getResource(path, 0);
     }
 
-    public InputStream getResource(String path, long offset)
+    public InputStream getResource(String path,
+                                   long offset)
             throws ArtifactTransportException,
                    IOException
     {
@@ -290,7 +311,8 @@ public class ArtifactClient implements Closeable
         handleFailures(response, "Failed to delete artifact!");
     }
 
-    public void deleteTrash(String storageId, String repositoryId)
+    public void deleteTrash(String storageId,
+                            String repositoryId)
             throws ArtifactOperationException
     {
         String url = getUrlForTrash(storageId, repositoryId);
@@ -333,7 +355,8 @@ public class ArtifactClient implements Closeable
         handleFailures(response, "Failed to delete the trash for " + storageId + ":" + repositoryId + "!");
     }
 
-    public void undeleteTrash(String storageId, String repositoryId)
+    public void undeleteTrash(String storageId,
+                              String repositoryId)
             throws ArtifactOperationException
     {
         String url = getUrlForTrash(storageId, repositoryId);
@@ -411,18 +434,30 @@ public class ArtifactClient implements Closeable
         return response.getStatus() == 200;
     }
 
-    private void handleFailures(Response response, String message)
-            throws ArtifactOperationException
+    private void handleFailures(Response response,
+                                String message)
+            throws ArtifactOperationException, AuthenticationServiceException
     {
-        int status = response.getStatus();
-        if (status != 200)
-        {
-            Object entity = response.getEntity();
 
-            if (entity != null && entity instanceof String)
+        int status = response.getStatus();
+
+        if (status == SC_UNAUTHORIZED || status == SC_FORBIDDEN)
+        {
+            // TODO Handle authentication exceptions in a right way
+            throw new AuthenticationServiceException(message +
+                                                     "\nUser is unauthorized to execute that operation. " +
+                                                     "Check assigned roles and privileges.");
+        }
+        else if (status != 200)
+        {
+            StringBuilder messageBuilder = new StringBuilder();
+            messageBuilder.append("\n ERROR ").append(status).append(" ").append(message).append("\n");
+            Object entity = response.getEntity();
+            if (entity != null)
             {
-                logger.error((String) entity);
+                messageBuilder.append(entity.toString());
             }
+            logger.error(messageBuilder.toString());
         }
     }
 
@@ -434,7 +469,8 @@ public class ArtifactClient implements Closeable
                ArtifactUtils.convertArtifactToPath(artifact);
     }
 
-    public String getUrlForTrash(String storageId, String repositoryId)
+    public String getUrlForTrash(String storageId,
+                                 String repositoryId)
     {
         return getContextBaseUrl() + "/trash/" + storageId + "/" + repositoryId;
     }
@@ -443,11 +479,17 @@ public class ArtifactClient implements Closeable
     {
         if (username != null && password != null)
         {
+            logger.trace("[setupAuthentication] " + username + "@" + password);
             target.register(HttpAuthenticationFeature.basic(username, password));
+        }
+        else
+        {
+            throw new ServerErrorException("Unable to setup authentication", Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
-    public Metadata retrieveMetadata(String path) throws ArtifactTransportException, IOException, XmlPullParserException
+    public Metadata retrieveMetadata(String path)
+            throws ArtifactTransportException, IOException, XmlPullParserException
     {
         if (pathExists(path))
         {
