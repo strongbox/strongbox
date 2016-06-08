@@ -45,7 +45,7 @@ public class ConfigurationManagementRestletTest
     }
 
     @Test
-    public void testSetAndGetPort()
+    public synchronized void testSetAndGetPort()
             throws Exception
     {
         int newPort = 18080;
@@ -57,7 +57,7 @@ public class ConfigurationManagementRestletTest
     }
 
     @Test
-    public void testSetAndGetBaseUrl()
+    public synchronized void testSetAndGetBaseUrl()
             throws Exception
     {
         String baseUrl = "http://localhost:" + 40080 + "/newurl";
@@ -72,7 +72,7 @@ public class ConfigurationManagementRestletTest
     }
 
     @Test
-    public void testSetAndGetGlobalProxyConfiguration()
+    public synchronized void testSetAndGetGlobalProxyConfiguration()
             throws Exception
     {
         List<String> nonProxyHosts = new ArrayList<>();
@@ -94,11 +94,12 @@ public class ConfigurationManagementRestletTest
         assertEquals("Failed to get proxy configuration!", proxyConfiguration.getUsername(), pc.getUsername());
         assertEquals("Failed to get proxy configuration!", proxyConfiguration.getPassword(), pc.getPassword());
         assertEquals("Failed to get proxy configuration!", proxyConfiguration.getType(), pc.getType());
-        assertEquals("Failed to get proxy configuration!", proxyConfiguration.getNonProxyHosts(), pc.getNonProxyHosts());
+        assertEquals("Failed to get proxy configuration!", proxyConfiguration.getNonProxyHosts(),
+                     pc.getNonProxyHosts());
     }
 
     @Test
-    public void testAddGetStorage()
+    public synchronized void testAddGetStorage()
             throws Exception
     {
         String storageId = "storage1";
@@ -129,9 +130,12 @@ public class ConfigurationManagementRestletTest
         assertFalse("Failed to get storage (" + storageId + ")!", storage.getRepositories().isEmpty());
         assertTrue("Failed to get storage (" + storageId + ")!",
                    storage.getRepositories().get("repository0").allowsRedeployment());
-        assertTrue("Failed to get storage (" + storageId + ")!", storage.getRepositories().get("repository0").isSecured());
-        assertTrue("Failed to get storage (" + storageId + ")!", storage.getRepositories().get("repository1").allowsForceDeletion());
-        assertTrue("Failed to get storage (" + storageId + ")!", storage.getRepositories().get("repository1").isTrashEnabled());
+        assertTrue("Failed to get storage (" + storageId + ")!",
+                   storage.getRepositories().get("repository0").isSecured());
+        assertTrue("Failed to get storage (" + storageId + ")!",
+                   storage.getRepositories().get("repository1").allowsForceDeletion());
+        assertTrue("Failed to get storage (" + storageId + ")!",
+                   storage.getRepositories().get("repository1").isTrashEnabled());
 
         assertNotNull("Failed to get storage (" + storageId + ")!",
                       storage.getRepositories().get("repository1").getProxyConfiguration().getHost());
@@ -141,7 +145,7 @@ public class ConfigurationManagementRestletTest
     }
 
     @Test
-    public void testCreateAndDeleteStorage()
+    public synchronized void testCreateAndDeleteStorage()
             throws IOException, JAXBException
     {
         final String storageId = "storage2";
@@ -206,7 +210,7 @@ public class ConfigurationManagementRestletTest
     }
 
     @Test
-    public void testGetAndSetConfiguration()
+    public synchronized void testGetAndSetConfiguration()
             throws IOException, JAXBException
     {
         final Configuration configuration = client.getConfiguration();

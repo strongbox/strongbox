@@ -2,11 +2,11 @@ package org.carlspring.strongbox.users.service.impl;
 
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.repository.UserRepository;
+import org.carlspring.strongbox.users.service.UserService;
 
 import java.util.List;
 import java.util.Optional;
 
-import org.carlspring.strongbox.users.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,63 +73,63 @@ class UserServiceImpl
 
     @Override
     @Transactional
-    public Optional<User> findOne(String var1)
+    public synchronized Optional<User> findOne(String var1)
     {
         return Optional.ofNullable(repository.findOne(var1));
     }
 
     @Override
     @Transactional
-    public boolean exists(String var1)
+    public synchronized boolean exists(String var1)
     {
         return repository.exists(var1);
     }
 
     @Override
     @Transactional
-    public Optional<List<User>> findAll()
+    public synchronized Optional<List<User>> findAll()
     {
         return Optional.ofNullable(repository.findAll());
     }
 
     @Override
     @Transactional
-    public Optional<List<User>> findAll(List<String> var1)
+    public synchronized Optional<List<User>> findAll(List<String> var1)
     {
         return Optional.ofNullable(repository.findAll(var1));
     }
 
     @Override
     @Transactional
-    public long count()
+    public synchronized long count()
     {
         return repository.count();
     }
 
     @Override
     @Transactional
-    public void delete(String var1)
+    public synchronized void delete(String var1)
     {
         repository.delete(var1);
     }
 
     @Override
     @Transactional
-    public void delete(User var1)
+    public synchronized void delete(User var1)
     {
         repository.delete(var1);
     }
 
     @Override
     @Transactional
-    public void delete(Iterable<? extends User> var1)
+    public synchronized void delete(Iterable<? extends User> var1)
     {
         repository.delete(var1);
     }
 
     @Override
     @Transactional
-    public void deleteAll()
+    public synchronized void deleteAll()
     {
         repository.deleteAll();
     }
