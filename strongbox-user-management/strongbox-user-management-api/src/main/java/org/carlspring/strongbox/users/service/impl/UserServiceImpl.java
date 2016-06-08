@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.users.service;
+package org.carlspring.strongbox.users.service.impl;
 
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.repository.UserRepository;
@@ -6,6 +6,7 @@ import org.carlspring.strongbox.users.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
 
+import org.carlspring.strongbox.users.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
