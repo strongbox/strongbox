@@ -296,7 +296,7 @@ public class RestClient
         return storage;
     }
 
-    private static void displayResponseError(Response response)
+    public static void displayResponseError(Response response)
     {
         logger.error("Status code " + response.getStatus());
         logger.error("Status info " + response.getStatusInfo().getReasonPhrase());
@@ -525,4 +525,11 @@ public class RestClient
         }
     }
 
+    public WebTarget prepareTarget(String arg){
+        String url = getContextBaseUrl() + arg;
+        logger.debug("Prepare target URL " + url);
+        WebTarget resource = getClientInstance().target(url);
+        setupAuthentication(resource);
+        return resource;
+    }
 }

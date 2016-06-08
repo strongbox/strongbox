@@ -32,7 +32,7 @@
     </filter-mapping>
 
     <filter>
-        <filter-name>jersey-serlvet</filter-name>
+        <filter-name>jersey-servlet</filter-name>
         <filter-class>org.glassfish.jersey.servlet.ServletContainer</filter-class>
         <init-param>
             <param-name>javax.ws.rs.Application</param-name>
@@ -53,29 +53,10 @@
         </init-param>
     </filter>
 
+    <!-- Catch all requests -->
     <filter-mapping>
-        <filter-name>jersey-serlvet</filter-name>
-        <url-pattern>/storages/*</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>jersey-serlvet</filter-name>
-        <url-pattern>/configuration/*</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>jersey-serlvet</filter-name>
-        <url-pattern>/logging/*</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>jersey-serlvet</filter-name>
-        <url-pattern>/metadata/*</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>jersey-serlvet</filter-name>
-        <url-pattern>/search/*</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>jersey-serlvet</filter-name>
-        <url-pattern>/trash/*</url-pattern>
+        <filter-name>jersey-servlet</filter-name>
+        <url-pattern>/*</url-pattern>
     </filter-mapping>
 
     <welcome-file-list>
