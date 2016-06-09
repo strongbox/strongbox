@@ -1,13 +1,12 @@
 package org.carlspring.strongbox.io;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import java.io.File;
 import java.io.IOException;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.maven.artifact.Artifact;
 
 /**
  * @author mtodorov

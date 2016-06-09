@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.data.service;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -23,9 +22,9 @@ public interface CrudService<T, ID extends Serializable>
 
     boolean exists(ID var1);
 
-    Optional<List<T>> findAll();
+    Optional<Iterable<T>> findAll();
 
-    Optional<List<T>> findAll(List<ID> var1);
+    Optional<Iterable<T>> findAll(Iterable<ID> var1);
 
     long count();
 

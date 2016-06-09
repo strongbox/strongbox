@@ -1,20 +1,14 @@
 package org.carlspring.strongbox.storage.resolvers;
 
-import org.carlspring.strongbox.CommonConfig;
-import org.carlspring.strongbox.StorageApiConfig;
+import com.carmatechnologies.commons.testing.logging.ExpectedLogs;
+import com.carmatechnologies.commons.testing.logging.api.LogLevel;
+import org.carlspring.strongbox.data.config.CommonConfig;
+import org.carlspring.strongbox.data.config.StorageApiConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.NoSuchAlgorithmException;
-
-import com.carmatechnologies.commons.testing.logging.ExpectedLogs;
-import com.carmatechnologies.commons.testing.logging.api.LogLevel;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -24,6 +18,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
+
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 

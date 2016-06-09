@@ -1,15 +1,11 @@
 package org.carlspring.strongbox.storage;
 
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.xml.RepositoryMapAdapter;
 import org.carlspring.strongbox.xml.StorageMapAdapter;
+import org.carlspring.strongbox.storage.repository.Repository;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.File;
 import java.util.LinkedHashMap;

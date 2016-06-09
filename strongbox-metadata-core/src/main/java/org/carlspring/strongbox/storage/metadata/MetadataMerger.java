@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.storage.metadata;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -14,6 +12,8 @@ import org.apache.maven.artifact.repository.metadata.Snapshot;
 import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.apache.maven.project.artifact.PluginArtifact;
+import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 
 public class MetadataMerger
 {

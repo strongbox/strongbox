@@ -35,13 +35,16 @@
     </logger>
 
     <logger name="org.apache.commons.httpclient">
-        <level value="ERROR"/>
+        <level value="INFO"/>
     </logger>
-    <logger name="org.carlspring">
+    <logger name="org.carlspring.strongbox">
+        <level value="DEBUG"/>
+    </logger>
+    <logger name="org.carlspring.logging">
         <level value="DEBUG"/>
     </logger>
     <logger name="org.glassfish.jersey">
-        <level value="WARN"/>
+        <level value="DEBUG"/>
     </logger>
 
     <root>

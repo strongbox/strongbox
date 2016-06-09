@@ -3,12 +3,18 @@ package org.carlspring.strongbox.data.server;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.util.LinkedList;
 import java.util.List;
 
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.OServerMain;
-import com.orientechnologies.orient.server.config.*;
+import com.orientechnologies.orient.server.config.OServerConfiguration;
+import com.orientechnologies.orient.server.config.OServerEntryConfiguration;
+import com.orientechnologies.orient.server.config.OServerNetworkConfiguration;
+import com.orientechnologies.orient.server.config.OServerNetworkListenerConfiguration;
+import com.orientechnologies.orient.server.config.OServerNetworkProtocolConfiguration;
+import com.orientechnologies.orient.server.config.OServerUserConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -112,11 +118,8 @@ public class EmbeddedOrientDbServer
     {
         try
         {
-            if (!server.isActive())
-            {
-                server.startup(serverConfiguration);
-                server.activate();
-            }
+            server.startup(serverConfiguration);
+            server.activate();
         }
         catch (Exception e)
         {
@@ -124,9 +127,6 @@ public class EmbeddedOrientDbServer
         }
     }
 
-    // actually there is no need for manual shutdown
-    // it's executed as a part of build / execution of app server finalisation
-    @SuppressWarnings("unused")
     public void shutDown()
     {
         if (server.isActive())
@@ -134,4 +134,11 @@ public class EmbeddedOrientDbServer
             server.shutdown();
         }
     }
+
+    @PreDestroy
+    public void destroy()
+    {
+        shutDown();
+    }
+
 }

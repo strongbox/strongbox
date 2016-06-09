@@ -8,7 +8,6 @@ import org.springframework.data.orient.commons.core.OrientTransaction;
 import org.springframework.data.orient.commons.core.OrientTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionException;
-import org.springframework.transaction.support.DefaultTransactionStatus;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
@@ -46,7 +45,7 @@ public class CustomOrientTransactionManager
             TransactionSynchronizationManager.bindResource(getDatabaseFactory(), db);
         }
 
-        logger.trace("beginning transaction, db.hashCode() = {}", db.hashCode() + " URL: " + db.getURL());
+        logger.debug("beginning transaction, db.hashCode() = {}", db.hashCode() + " URL: " + db.getURL());
 
         db.activateOnCurrentThread();
         if (db.isClosed())
@@ -57,13 +56,4 @@ public class CustomOrientTransactionManager
         db.begin();
     }
 
-    @Override
-    protected synchronized void doCommit(DefaultTransactionStatus status)
-            throws TransactionException
-    {
-        OrientTransaction tx = (OrientTransaction)status.getTransaction();
-        ODatabase db = tx.getDatabase();
-        db.activateOnCurrentThread();
-        db.commit();
-    }
 }

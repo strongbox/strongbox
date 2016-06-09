@@ -1,8 +1,7 @@
 package org.carlspring.strongbox.services;
 
-import org.carlspring.strongbox.storage.repository.Repository;
-
 import org.apache.maven.artifact.Artifact;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 /**
  * @author mtodorov
