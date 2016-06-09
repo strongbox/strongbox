@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.io;
 
+import org.apache.maven.artifact.Artifact;
 import org.carlspring.commons.http.range.ByteRange;
 import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.commons.io.reloading.ReloadableInputStreamHandler;
@@ -9,8 +10,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
-
-import org.apache.maven.artifact.Artifact;
 
 /**
  * @author mtodorov

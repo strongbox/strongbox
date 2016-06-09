@@ -1,5 +1,9 @@
 package org.carlspring.strongbox.rest;
 
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.model.Plugin;
+import org.apache.maven.project.artifact.PluginArtifact;
 import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
@@ -8,35 +12,27 @@ import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.rest.context.RestletTestContext;
 import org.carlspring.strongbox.storage.repository.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.util.MessageDigestUtils;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
 import java.io.*;
 import java.security.NoSuchAlgorithmException;
 
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.model.Plugin;
-import org.apache.maven.project.artifact.PluginArtifact;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.*;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.*;
 
 /**
  * @author mtodorov
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@RestletTestContext
 public class ArtifactRestletTest
         extends TestCaseWithArtifactGeneration
 {
@@ -48,15 +44,17 @@ public class ArtifactRestletTest
     private static final File REPOSITORY_BASEDIR_RELEASES = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                                      "/storages/storage0/releases");
 
-    private static RestClient client = new RestClient();
+    public static boolean INITIALIZED = false;
 
-    @Autowired
-    PasswordEncoder passwordEncoder;
+    private RestClient client = new RestClient();
 
-    @BeforeClass
-    public static void setUp()
+
+    @Before
+    public void setUp()
             throws Exception
     {
+        if (!INITIALIZED)
+        {
             generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
                              "org.carlspring.strongbox.resolve.only:foo",
                              new String[]{ "1.1", // Used by testResolveViaProxy()
@@ -98,10 +96,13 @@ public class ArtifactRestletTest
 
             //noinspection ResultOfMethodCallIgnored
             new File(TEST_RESOURCES).mkdirs();
+
+            INITIALIZED = true;
+        }
     }
 
-    @AfterClass
-    public static void tearDown()
+    @After
+    public void tearDown()
             throws Exception
     {
         if (client != null)
@@ -111,12 +112,6 @@ public class ArtifactRestletTest
     }
 
     @Test
-    public void testUserAuth() throws Exception {
-        client.greet();
-    }
-
-    @Test
-    @Ignore
     public void testResolveViaProxy()
             throws Exception
     {
