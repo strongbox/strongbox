@@ -1,10 +1,8 @@
 package org.carlspring.strongbox.testing;
 
-import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.DetachedArtifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.generator.ArtifactGenerator;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,6 +15,9 @@ import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
+
+import org.apache.maven.artifact.Artifact;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 /**
  * @author mtodorov
@@ -70,7 +71,7 @@ public class TestCaseWithArtifactGeneration
         generator.generate(artifact, packaging);
     }
 
-    public void generateArtifact(String basedir, String gavtc, String... versions)
+    public static void generateArtifact(String basedir, String gavtc, String... versions)
             throws IOException,
                    XmlPullParserException,
                    NoSuchAlgorithmException

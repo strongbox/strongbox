@@ -82,6 +82,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-user-management-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-security-api</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -221,7 +226,10 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -410,6 +418,16 @@
                                             <outputDirectory>${dir.strongbox.vault}</outputDirectory>
                                             <includes>etc/conf/strongbox.xml</includes>
                                         </artifactItem>
+                                        <artifactItem>
+                                            <groupId>${project.groupId}</groupId>
+                                            <artifactId>strongbox-storage-api-resources</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>jar</type>
+
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${dir.strongbox.vault}</outputDirectory>
+                                            <includes>etc/conf/security-users.xml</includes>
+                                        </artifactItem>
                                     </artifactItems>
                                 </configuration>
                             </execution>
@@ -486,6 +504,10 @@
                                     <name>logging.config.file</name>
                                     <value>${dir.strongbox.home}/etc/logback.xml</value>
                                 </systemProperty>
+                                <systemProperty>
+                                    <name>java.io.tmpdir</name>
+                                    <value>${dir.strongbox.home}/tmp</value>
+                                </systemProperty>
                             </systemProperties>
 
                             <useTestScope>true</useTestScope>
@@ -511,6 +533,7 @@
                                 <strongbox.port>${strongbox.port}</strongbox.port>
                                 <logging.dir>${project.build.directory}/strongbox/logs</logging.dir>
                                 <logging.config.file>${project.build.directory}/strongbox/etc/logback.xml</logging.config.file>
+                                <java.io.tmpdir>${dir.strongbox.home}/tmp</java.io.tmpdir>
                             </systemPropertyVariables>
                         </configuration>
                     </plugin>

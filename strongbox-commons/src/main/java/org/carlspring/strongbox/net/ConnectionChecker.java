@@ -1,7 +1,10 @@
 package org.carlspring.strongbox.net;
 
 import java.io.IOException;
-import java.net.*;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 
 /**
  * @author mtodorov

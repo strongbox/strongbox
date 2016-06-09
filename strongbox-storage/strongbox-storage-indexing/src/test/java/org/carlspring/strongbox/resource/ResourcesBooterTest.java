@@ -2,15 +2,15 @@ package org.carlspring.strongbox.resource;
 
 import org.carlspring.strongbox.booters.ResourcesBooter;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
+
+import java.io.File;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import java.io.File;
-
 import static org.junit.Assert.assertTrue;
 
 /**
