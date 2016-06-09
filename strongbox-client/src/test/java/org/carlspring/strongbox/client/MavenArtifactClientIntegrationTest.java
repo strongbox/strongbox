@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.client;
 
 import org.carlspring.strongbox.config.ClientPropertiesConfig;
+import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.data.domain.PoolConfiguration;
 import org.carlspring.strongbox.data.service.PoolConfigurationService;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
@@ -15,9 +16,7 @@ import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.*;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -38,11 +37,22 @@ public class MavenArtifactClientIntegrationTest
     private static final Logger LOGGER = LoggerFactory.getLogger(MavenArtifactClientIntegrationTest.class);
 
     @Configuration
-    @ComponentScan(basePackages = { "org.carlspring.strongbox.service.impl", "org.carlspring.strongbox.data"})
-    @Import(ClientPropertiesConfig.class)
+    @ComponentScan(basePackages = { "org.carlspring.strongbox.service.impl"})
+    @Import(DataServiceConfig.class)
+    @PropertySource(value = { "classpath:META-INF/strongbox-client.properties" })
     public static class SpringConfig
     {
+        @Bean
+        public PoolConfigurationService poolConfigurationService()
+        {
+            PoolConfigurationService poolConfigurationService = Mockito.mock(PoolConfigurationService.class);
+            Mockito.when(poolConfigurationService.findAll()).thenReturn(Optional.empty());
+            Mockito.when(poolConfigurationService
+                    .createOrUpdateNumberOfConnectionsForRepository(Mockito.anyString(), Mockito.anyInt()))
+                    .thenReturn(new PoolConfiguration());
 
+            return poolConfigurationService;
+        }
     }
 
     private MavenArtifactClient mavenArtifactClient;
@@ -50,26 +60,15 @@ public class MavenArtifactClientIntegrationTest
     // fake url
     private String repositoryUrl = "https://repo.maven.apache.org/maven2/";
 
-    @Mock
+    @Autowired
     private PoolConfigurationService poolConfigurationService;
 
     @Autowired
-    @InjectMocks
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
 
     @Before
     public void setUp()
     {
-        MockitoAnnotations.initMocks(this);
-        Mockito.when(poolConfigurationService.findAll()).thenReturn(Optional.empty());
-        Mockito.when(poolConfigurationService
-                        .createOrUpdateNumberOfConnectionsForRepository(Mockito.anyString(), Mockito.anyInt()))
-                .thenReturn(new PoolConfiguration());
-
-        proxyRepositoryConnectionPoolConfigurationService.setMaxTotal(100);
-        proxyRepositoryConnectionPoolConfigurationService.setDefaultMaxPerRepository(10);
-        proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(repositoryUrl, 3);
-
         mavenArtifactClient = MavenArtifactClient
                 .getTestInstance(proxyRepositoryConnectionPoolConfigurationService.getClient(), repositoryUrl, null,
                         null);

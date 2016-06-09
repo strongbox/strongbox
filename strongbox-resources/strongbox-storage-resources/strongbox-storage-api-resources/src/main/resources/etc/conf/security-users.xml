@@ -1,0 +1,23 @@
+<?xml version="1.0" standalone="yes"?>
+<users>
+    <user>
+        <username>admin</username>
+        <credentials>
+            <password>password</password>
+            <encryption-algorithm>plain</encryption-algorithm>
+        </credentials>
+        <roles>
+            <role>root</role>
+        </roles>
+    </user>
+    <user>
+        <username>maven</username>
+        <credentials>
+            <password>password</password>
+            <encryption-algorithm>plain</encryption-algorithm>
+        </credentials>
+        <roles>
+            <role>root</role>
+        </roles>
+    </user>
+</users>

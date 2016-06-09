@@ -10,10 +10,19 @@ Welcome to the Strongbox Maven artifact repository manager's home.
 * Directory browsing
 * Indexing
   * Currently using Lucene just for the sake of the PoC, but will be re-worked with OrientDB, or Titan.
+* Persistence
+  * All necessary data persisted using customised open-source spring-data-orientdb connector in OrientDB
+* Caching
+  * For performance optimisation and for resolving concurrency issues when authenticate using OrientDB second-level cache EhCache is used
+* Security
+  * HTTP Basic authentication
+  * Custom authentication provider based on users that resides in second-level cache that exists in OrientDB
+  * Users are predefined in /etc/conf/security-users.xml file
 * [REST API](https://github.com/strongbox/strongbox/wiki/REST-API) features:
   * Search for artifacts
   * Manage the server's core configuration
   * Manage repositories
+  * Manage users
 * Ready-to-use Java-based REST API Client(s) covering each REST command.
 * Logging:
   * Configuration over REST
@@ -22,21 +31,20 @@ Welcome to the Strongbox Maven artifact repository manager's home.
 
 # What's in the works:
 * Proxy repositories
-* [Metadata](https://github.com/strongbox/strongbox/wiki/Maven-Metadata)
-* Initial implementation of security via Spring Security
+* [Maven Metadata](https://github.com/strongbox/strongbox/wiki/Maven-Metadata)
 * Cron tasks
 * Logging:
   * Log tailing over HTTP
 * Deploy as transaction
 * Maven settings.xml generator over REST API
+* Security
+  * Expression-based roles and privileges subsystem
 
 # Upcoming:
 * RPM distribution
 * Debian/Ubuntu distribution
 
 # What's not yet implemented:
-* Security
-  * Currently there is no proper security set up. The only thing that is implemented is a hard-coded check for HTTP Basic authentication with maven/password as credentials.
 * Web UI
 * Plugins
 

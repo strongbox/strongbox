@@ -1,44 +1,53 @@
 package org.carlspring.strongbox.rest;
 
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.rest.context.RestletTestContext;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author mtodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration
+@RestletTestContext
 public class MetadataManagementRestletTest
-    extends TestCaseWithArtifactGeneration
+        extends TestCaseWithArtifactGeneration
 {
 
     @org.springframework.context.annotation.Configuration
-    @ComponentScan(basePackages = {"org.carlspring.strongbox", "org.carlspring.logging"})
-    public static class SpringConfig { }
+    @ComponentScan(basePackages = { "org.carlspring.strongbox",
+                                    "org.carlspring.logging" })
+    public static class SpringConfig
+    {
 
-    private static final File REPOSITORY_BASEDIR_RELEASES = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/releases");
-    private static final File REPOSITORY_BASEDIR_SNAPSHOTS = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/snapshots");
+    }
+
+    private static final File REPOSITORY_BASEDIR_RELEASES = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                                     "/storages/storage0/releases");
+    private static final File REPOSITORY_BASEDIR_SNAPSHOTS = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                                      "/storages/storage0/snapshots");
 
     public static boolean INITIALIZED = false;
 
@@ -55,12 +64,19 @@ public class MetadataManagementRestletTest
         if (!INITIALIZED)
         {
             // Generate releases
-            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(), "org.carlspring.strongbox.metadata:strongbox-metadata", new String[]{"3.0.1", "3.0.2", "3.1", "3.2"});
+            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                             "org.carlspring.strongbox.metadata:strongbox-metadata", new String[]{ "3.0.1",
+                                                                                                   "3.0.2",
+                                                                                                   "3.1",
+                                                                                                   "3.2" });
 
             // Generate snapshots
-            createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_SNAPSHOTS.getAbsolutePath(), "org.carlspring.strongbox.metadata", "strongbox-metadata", "3.0.1", 3);
-            createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_SNAPSHOTS.getAbsolutePath(), "org.carlspring.strongbox.metadata", "strongbox-metadata", "3.0.2", 4);
-            createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_SNAPSHOTS.getAbsolutePath(), "org.carlspring.strongbox.metadata", "strongbox-metadata", "3.1", 5);
+            createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_SNAPSHOTS.getAbsolutePath(),
+                                              "org.carlspring.strongbox.metadata", "strongbox-metadata", "3.0.1", 3);
+            createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_SNAPSHOTS.getAbsolutePath(),
+                                              "org.carlspring.strongbox.metadata", "strongbox-metadata", "3.0.2", 4);
+            createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_SNAPSHOTS.getAbsolutePath(),
+                                              "org.carlspring.strongbox.metadata", "strongbox-metadata", "3.1", 5);
 
             INITIALIZED = true;
         }
@@ -77,7 +93,7 @@ public class MetadataManagementRestletTest
     }
 
     @Test
-    public void testRebuildReleaseMetadataAndDeleteAVersion()
+    public synchronized void testRebuildReleaseMetadataAndDeleteAVersion()
             throws Exception
     {
         String metadataPath = "/storages/storage0/releases/org/carlspring/strongbox/metadata/strongbox-metadata/maven-metadata.xml";
@@ -100,7 +116,8 @@ public class MetadataManagementRestletTest
         assertNotNull("Incorrect metadata!", metadataBefore.getVersioning().getLatest());
         assertEquals("Incorrect metadata!", "3.2", metadataBefore.getVersioning().getLatest());
 
-        response = client.removeVersionFromMetadata("storage0", "releases", artifactPath, "3.2", null, MetadataType.ARTIFACT_ROOT_LEVEL.getType());
+        response = client.removeVersionFromMetadata("storage0", "releases", artifactPath, "3.2", null,
+                                                    MetadataType.ARTIFACT_ROOT_LEVEL.getType());
 
         assertEquals("Received unexpected response!", 200, response);
 
@@ -114,7 +131,7 @@ public class MetadataManagementRestletTest
     }
 
     @Test
-    public void testRebuildSnapshotMetadata()
+    public synchronized void testRebuildSnapshotMetadata()
             throws Exception
     {
         String metadataPath = "/storages/storage0/snapshots/org/carlspring/strongbox/metadata/strongbox-metadata/maven-metadata.xml";
@@ -136,13 +153,19 @@ public class MetadataManagementRestletTest
     }
 
     @Test
-    public void testRebuildSnapshotMetadataWithBasePath()
+    public synchronized void testRebuildSnapshotMetadataWithBasePath()
             throws Exception
     {
         // Generate snapshots in nested dirs
-        createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_SNAPSHOTS.getAbsolutePath(), "org.carlspring.strongbox.metadata.foo", "strongbox-metadata-bar", "1.2.3", 5);
-        createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_SNAPSHOTS.getAbsolutePath(), "org.carlspring.strongbox.metadata.foo.bar", "strongbox-metadata-foo", "2.1", 5);
-        createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_SNAPSHOTS.getAbsolutePath(), "org.carlspring.strongbox.metadata.foo.bar", "strongbox-metadata-foo-bar", "5.4", 4);
+        createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_SNAPSHOTS.getAbsolutePath(),
+                                          "org.carlspring.strongbox.metadata.foo", "strongbox-metadata-bar", "1.2.3",
+                                          5);
+        createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_SNAPSHOTS.getAbsolutePath(),
+                                          "org.carlspring.strongbox.metadata.foo.bar", "strongbox-metadata-foo", "2.1",
+                                          5);
+        createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_SNAPSHOTS.getAbsolutePath(),
+                                          "org.carlspring.strongbox.metadata.foo.bar", "strongbox-metadata-foo-bar",
+                                          "5.4", 4);
 
         String metadataPath1 = "/storages/storage0/snapshots/org/carlspring/strongbox/metadata/foo/strongbox-metadata-bar/maven-metadata.xml";
         String metadataPath2 = "/storages/storage0/snapshots/org/carlspring/strongbox/metadata/foo/bar/strongbox-metadata-foo/maven-metadata.xml";
@@ -190,7 +213,8 @@ public class MetadataManagementRestletTest
         List<SnapshotVersion> metadata2SnapshotVersions = metadata2SnapshotBefore.getVersioning().getSnapshotVersions();
         // This is minus three because in this case there are no classifiers, there's just a pom and a jar,
         // thus two and therefore getting the element before them would be three:
-        String previousLatestTimestamp = metadata2SnapshotVersions.get(metadata2SnapshotVersions.size() - 3).getVersion();
+        String previousLatestTimestamp = metadata2SnapshotVersions.get(
+                metadata2SnapshotVersions.size() - 3).getVersion();
         String latestTimestamp = metadata2SnapshotVersions.get(metadata2SnapshotVersions.size() - 1).getVersion();
 
         response = client.removeVersionFromMetadata("storage0",
@@ -206,14 +230,20 @@ public class MetadataManagementRestletTest
         Metadata metadata2SnapshotAfter = artifactMetadataService.getMetadata(is);
         List<SnapshotVersion> metadata2AfterSnapshotVersions = metadata2SnapshotAfter.getVersioning().getSnapshotVersions();
 
-        String timestamp = previousLatestTimestamp.substring(previousLatestTimestamp.indexOf('-') + 1, previousLatestTimestamp.lastIndexOf('-'));
-        String buildNumber = previousLatestTimestamp.substring(previousLatestTimestamp.lastIndexOf('-') + 1, previousLatestTimestamp.length());
+        String timestamp = previousLatestTimestamp.substring(previousLatestTimestamp.indexOf('-') + 1,
+                                                             previousLatestTimestamp.lastIndexOf('-'));
+        String buildNumber = previousLatestTimestamp.substring(previousLatestTimestamp.lastIndexOf('-') + 1,
+                                                               previousLatestTimestamp.length());
 
         assertNotNull("Incorrect metadata!", metadata2SnapshotAfter.getVersioning());
-        assertFalse("Failed to remove timestamped SNAPSHOT version!", MetadataHelper.containsVersion(metadata2SnapshotAfter, latestTimestamp));
-        assertEquals("Incorrect metadata!", timestamp, metadata2SnapshotAfter.getVersioning().getSnapshot().getTimestamp());
-        assertEquals("Incorrect metadata!", Integer.parseInt(buildNumber), metadata2SnapshotAfter.getVersioning().getSnapshot().getBuildNumber());
-        assertEquals("Incorrect metadata!", previousLatestTimestamp, metadata2AfterSnapshotVersions.get(metadata2AfterSnapshotVersions.size() - 1).getVersion());
+        assertFalse("Failed to remove timestamped SNAPSHOT version!",
+                    MetadataHelper.containsVersion(metadata2SnapshotAfter, latestTimestamp));
+        assertEquals("Incorrect metadata!", timestamp,
+                     metadata2SnapshotAfter.getVersioning().getSnapshot().getTimestamp());
+        assertEquals("Incorrect metadata!", Integer.parseInt(buildNumber),
+                     metadata2SnapshotAfter.getVersioning().getSnapshot().getBuildNumber());
+        assertEquals("Incorrect metadata!", previousLatestTimestamp,
+                     metadata2AfterSnapshotVersions.get(metadata2AfterSnapshotVersions.size() - 1).getVersion());
     }
 
 }

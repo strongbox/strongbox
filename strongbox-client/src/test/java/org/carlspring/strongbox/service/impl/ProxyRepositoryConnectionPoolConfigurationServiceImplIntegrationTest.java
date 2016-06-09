@@ -1,7 +1,9 @@
 package org.carlspring.strongbox.service.impl;
 
 import org.carlspring.strongbox.config.ClientPropertiesConfig;
+import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.data.domain.PoolConfiguration;
+import org.carlspring.strongbox.data.repository.PoolConfigurationRepository;
 import org.carlspring.strongbox.data.service.PoolConfigurationService;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.junit.Before;
@@ -12,9 +14,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.*;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -35,29 +35,29 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImplIntegrationTes
 {
 
     @Configuration
-    @ComponentScan(basePackages = { "org.carlspring.strongbox.service.impl", "org.carlspring.strongbox.data"})
-    @Import(ClientPropertiesConfig.class)
+    @ComponentScan(basePackages = { "org.carlspring.strongbox.service.impl"})
+    @Import(DataServiceConfig.class)
+    @PropertySource(value = { "classpath:META-INF/strongbox-client.properties" })
     public static class SpringConfig
     {
+        @Bean
+        public PoolConfigurationService poolConfigurationService()
+        {
+            PoolConfigurationService poolConfigurationService = Mockito.mock(PoolConfigurationService.class);
+            Mockito.when(poolConfigurationService.findAll()).thenReturn(Optional.empty());
+            Mockito.when(poolConfigurationService
+                    .createOrUpdateNumberOfConnectionsForRepository(Mockito.anyString(), Mockito.anyInt()))
+                    .thenReturn(new PoolConfiguration());
 
+            return poolConfigurationService;
+        }
     }
 
-    @Mock
+    @Autowired
     private PoolConfigurationService poolConfigurationService;
 
     @Autowired
-    @InjectMocks
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
-
-    @Before
-    public void init()
-    {
-        MockitoAnnotations.initMocks(this);
-        Mockito.when(poolConfigurationService.findAll()).thenReturn(Optional.empty());
-        Mockito.when(poolConfigurationService
-                .createOrUpdateNumberOfConnectionsForRepository(Mockito.anyString(), Mockito.anyInt()))
-                .thenReturn(new PoolConfiguration());
-    }
 
     @Test
     public void setMaxPoolSize()

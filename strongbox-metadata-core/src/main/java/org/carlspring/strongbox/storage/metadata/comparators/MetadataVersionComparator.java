@@ -1,9 +1,10 @@
 package org.carlspring.strongbox.storage.metadata.comparators;
 
-import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.carlspring.strongbox.storage.metadata.versions.MetadataVersion;
 
 import java.util.Comparator;
+
+import org.apache.maven.artifact.versioning.ComparableVersion;
 
 /**
  * @author Steve Todorov <s.todorov@itnews-bg.com>
