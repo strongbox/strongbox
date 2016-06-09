@@ -1,14 +1,8 @@
 package org.carlspring.strongbox.rest;
 
-import io.swagger.annotations.*;
-import org.apache.lucene.queryparser.classic.ParseException;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
 import org.carlspring.strongbox.storage.indexing.SearchResults;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
@@ -21,19 +15,30 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Component;
+
 @Component
 @Path("/search")
 @Api(value = "/search")
+@PreAuthorize("hasAuthority('ROOT')")
 public class SearchRestlet
         extends BaseArtifactRestlet
 {
 
     private static final Logger logger = LoggerFactory.getLogger(SearchRestlet.class);
 
-
     @Autowired
     private ArtifactSearchService artifactSearchService;
-
 
     /**
      * Performs a search against the Lucene index of a specified repository,

@@ -1,15 +1,17 @@
 package org.carlspring.strongbox.data.service;
 
-import org.carlspring.strongbox.data.DataServiceTestContext;
+import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.data.domain.PoolConfiguration;
 import org.carlspring.strongbox.data.repository.PoolConfigurationRepository;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
@@ -22,10 +24,9 @@ import static org.junit.Assert.*;
 /**
  * @author korest
  */
-@DataServiceTestContext
 @RunWith(SpringJUnit4ClassRunner.class)
-// TODO not working in transaction, why?!
-@Transactional(propagation = Propagation.NOT_SUPPORTED)
+@ContextConfiguration(classes = { DataServiceConfig.class })
+@Rollback
 public class PoolConfigurationServiceTest
 {
 

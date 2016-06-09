@@ -1,7 +1,9 @@
 package org.carlspring.strongbox.service.impl;
 
 import org.carlspring.strongbox.config.ClientPropertiesConfig;
+import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.data.domain.PoolConfiguration;
+import org.carlspring.strongbox.data.repository.PoolConfigurationRepository;
 import org.carlspring.strongbox.data.service.PoolConfigurationService;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.junit.Before;
@@ -35,8 +37,8 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImplIntegrationTes
 {
 
     @Configuration
-    @ComponentScan(basePackages = { "org.carlspring.strongbox.service.impl", "org.carlspring.strongbox.data"})
-    @Import(ClientPropertiesConfig.class)
+    @ComponentScan(basePackages = { "org.carlspring.strongbox.service.impl"})
+    @Import({ClientPropertiesConfig.class, DataServiceConfig.class})
     public static class SpringConfig
     {
 

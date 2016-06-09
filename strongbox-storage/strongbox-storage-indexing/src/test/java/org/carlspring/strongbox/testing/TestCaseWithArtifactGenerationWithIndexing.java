@@ -2,10 +2,11 @@ package org.carlspring.strongbox.testing;
 
 import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.CommonConfig;
+import org.carlspring.strongbox.StorageApiConfig;
+import org.carlspring.strongbox.StorageIndexingConfig;
 import org.carlspring.strongbox.config.ClientPropertiesConfig;
-import org.carlspring.strongbox.data.config.CommonConfig;
-import org.carlspring.strongbox.data.config.StorageApiConfig;
-import org.carlspring.strongbox.data.config.StorageIndexingConfig;
+import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
@@ -31,9 +32,10 @@ public class TestCaseWithArtifactGenerationWithIndexing
             StorageIndexingConfig.class,
             StorageApiConfig.class,
             CommonConfig.class,
-            ClientPropertiesConfig.class
+            ClientPropertiesConfig.class,
+            DataServiceConfig.class
     })
-    @ComponentScan(basePackages = { "org.carlspring.strongbox.service.impl", "org.carlspring.strongbox.data"})
+    @ComponentScan(basePackages = { "org.carlspring.strongbox.service.impl"})
     public static class SpringConfig { }
 
     @Autowired
