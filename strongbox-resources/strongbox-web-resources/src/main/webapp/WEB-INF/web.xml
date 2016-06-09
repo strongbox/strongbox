@@ -32,7 +32,7 @@
     </filter-mapping>
 
     <filter>
-        <filter-name>jersey-serlvet</filter-name>
+        <filter-name>jersey-servlet</filter-name>
         <filter-class>org.glassfish.jersey.servlet.ServletContainer</filter-class>
         <init-param>
             <param-name>javax.ws.rs.Application</param-name>
@@ -46,31 +46,17 @@
             <param-name>jersey.config.server.provider.packages</param-name>
             <param-value>org.carlspring.strongbox,com.carlspring.strongbox</param-value>
         </init-param>
+        <!-- See 4.7.1. Servlet 2.x Container section of https://jersey.java.net/documentation/latest/deployment.html -->
+        <init-param>
+            <param-name>jersey.config.servlet.filter.contextPath</param-name>
+            <param-value>/</param-value>
+        </init-param>
     </filter>
 
+    <!-- Catch all requests -->
     <filter-mapping>
-        <filter-name>jersey-serlvet</filter-name>
-        <url-pattern>/storages/*</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>jersey-serlvet</filter-name>
-        <url-pattern>/configuration/*</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>jersey-serlvet</filter-name>
-        <url-pattern>/logging/*</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>jersey-serlvet</filter-name>
-        <url-pattern>/metadata/*</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>jersey-serlvet</filter-name>
-        <url-pattern>/search/*</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>jersey-serlvet</filter-name>
-        <url-pattern>/trash/*</url-pattern>
+        <filter-name>jersey-servlet</filter-name>
+        <url-pattern>/*</url-pattern>
     </filter-mapping>
 
     <welcome-file-list>

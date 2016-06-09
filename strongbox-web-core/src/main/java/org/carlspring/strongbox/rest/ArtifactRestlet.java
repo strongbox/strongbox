@@ -1,9 +1,5 @@
 package org.carlspring.strongbox.rest;
 
-import io.swagger.annotations.*;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.comparator.DirectoryFileComparator;
-import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
@@ -14,14 +10,17 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
 import org.carlspring.strongbox.util.MessageDigestUtils;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -32,14 +31,28 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
-import java.nio.file.*;
+import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.regex.Matcher;
 
-import static org.carlspring.commons.http.range.ByteRangeRequestHandler.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.comparator.DirectoryFileComparator;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Component;
+import static org.carlspring.commons.http.range.ByteRangeRequestHandler.handlePartialDownload;
+import static org.carlspring.commons.http.range.ByteRangeRequestHandler.isRangedRequest;
 
 /**
  * @author Martin Todorov
@@ -53,6 +66,12 @@ public class ArtifactRestlet
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactRestlet.class);
 
+    @GET
+    @Path("greet")
+    @PreAuthorize("hasAuthority('ROOT')")
+    public Response greet(@Context HttpHeaders headers, @Context HttpServletRequest request){
+        return Response.status(Response.Status.OK).entity("success").build();
+    }
 
     @PUT
     @Path("{storageId}/{repositoryId}/{path:.*}")
@@ -93,6 +112,7 @@ public class ArtifactRestlet
     @ApiOperation(value = "Used to retrieve an artifact", position = 1)
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 400, message = "An error occurred.") })
+    @PreAuthorize("hasAuthority('ROOT')")
     public Response download(@ApiParam(value = "The storageId", required = true)
                              @PathParam("storageId") String storageId,
                              @ApiParam(value = "The repositoryId", required = true)
@@ -332,6 +352,7 @@ public class ArtifactRestlet
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The path was copied successfully."),
                             @ApiResponse(code = 400, message = "Bad request."),
                             @ApiResponse(code = 404, message = "The source/destination storageId/repositoryId/path does not exist!")})
+    @PreAuthorize("hasAuthority('ROOT')")
     public Response copy(@ApiParam(value = "The path", required = true)
                          @PathParam("path") String path,
                          @ApiParam(value = "The source storageId", required = true)
@@ -403,6 +424,7 @@ public class ArtifactRestlet
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deleted."),
                             @ApiResponse(code = 400, message = "Bad request."),
                             @ApiResponse(code = 404, message = "The specified storageId/repositoryId/path does not exist!")})
+    @PreAuthorize("hasAuthority('ROOT')")
     public Response delete(@ApiParam(value = "The storageId", required = true)
                            @PathParam("storageId") String storageId,
                            @ApiParam(value = "The repositoryId", required = true)

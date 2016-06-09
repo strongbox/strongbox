@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.configuration;
 
-import org.carlspring.strongbox.security.jaas.Credentials;
 import org.carlspring.strongbox.security.encryption.EncryptionAlgorithms;
+import org.carlspring.strongbox.security.jaas.Credentials;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

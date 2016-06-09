@@ -1,17 +1,17 @@
 package org.carlspring.strongbox.artifact.generator;
 
-import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.util.MessageDigestUtils;
-import org.junit.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 
+import org.apache.maven.artifact.Artifact;
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 

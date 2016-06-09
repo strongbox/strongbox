@@ -52,6 +52,7 @@
         <module>strongbox-storage</module>
         <module>strongbox-web-core</module>
         <module>strongbox-data-service</module>
+        <module>strongbox-user-management</module>
     </modules>
 
 </project>
