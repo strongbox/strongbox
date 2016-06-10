@@ -10,6 +10,10 @@ public class DirUtils
 {
 
 
+    private DirUtils() 
+    {
+    }
+
     public static void removeEmptyAncestors(String path, String stopAtPath)
             throws IOException
     {

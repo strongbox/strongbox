@@ -13,6 +13,10 @@ public class ConnectionChecker
 {
 
 
+    private ConnectionChecker() 
+    {
+    }
+
     public static boolean checkServiceAvailability(String host, int port, int timeout)
             throws IOException
     {
