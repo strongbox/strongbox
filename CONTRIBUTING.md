@@ -25,3 +25,4 @@ To accept, please:
 | Juan Ignacio Bais            |                                          | Buenos Aires, Argentina                 | 2016-02-24 |
 | Ivan Ursul                   |                                          | Lviv, Ukraine                           | 2016-05-02 |
 | Alex Oreshkevich             | redsoft.pro                              | Minsk, Republic of Belarus              | 2016-05-12 |
+| Faisal Hameed                | DevFactory                               | Lahore, Islamic Republic of Pakistan    | 2016-06-10 |
