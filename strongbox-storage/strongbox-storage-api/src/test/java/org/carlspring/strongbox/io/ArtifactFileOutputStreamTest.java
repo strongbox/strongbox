@@ -5,6 +5,7 @@ import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.CommonConfig;
 import org.carlspring.strongbox.StorageApiConfig;
+import org.carlspring.strongbox.config.ClientPropertiesConfig;
 import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
@@ -16,7 +17,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -31,7 +31,6 @@ import static org.junit.Assert.assertTrue;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
-@PropertySource(value = { "classpath:META-INF/strongbox-client.properties" })
 public class ArtifactFileOutputStreamTest
         extends TestCaseWithArtifactGeneration
 {
@@ -40,6 +39,7 @@ public class ArtifactFileOutputStreamTest
     @Import({
             StorageApiConfig.class,
             CommonConfig.class,
+            ClientPropertiesConfig.class,
             DataServiceConfig.class
     })
     @ComponentScan(basePackages = { "org.carlspring.strongbox.service.impl"})

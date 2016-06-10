@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.service.impl;
 
+import org.carlspring.strongbox.config.ClientPropertiesConfig;
 import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.data.domain.PoolConfiguration;
 import org.carlspring.strongbox.data.service.PoolConfigurationService;
@@ -28,8 +29,7 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImplIntegrationTes
 
     @Configuration
     @ComponentScan(basePackages = { "org.carlspring.strongbox.service.impl"})
-    @Import(DataServiceConfig.class)
-    @PropertySource(value = { "classpath:META-INF/strongbox-client.properties" })
+    @Import({DataServiceConfig.class, ClientPropertiesConfig.class})
     public static class SpringConfig
     {
         @Bean
