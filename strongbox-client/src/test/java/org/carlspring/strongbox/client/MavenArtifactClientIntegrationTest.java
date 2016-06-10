@@ -1,18 +1,13 @@
 package org.carlspring.strongbox.client;
 
-import org.carlspring.strongbox.config.ClientPropertiesConfig;
 import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.data.domain.PoolConfiguration;
 import org.carlspring.strongbox.data.service.PoolConfigurationService;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +16,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
