@@ -122,7 +122,7 @@ public class MetadataMerger
 
     private Collection<SnapshotVersion> createNewSnapshotVersions(String version, String timestamp, int buildNumber)
     {
-        Collection<SnapshotVersion> toReturn = new ArrayList<SnapshotVersion>();
+        Collection<SnapshotVersion> toReturn = new ArrayList<>();
 
         SnapshotVersion sv1 = new SnapshotVersion();
         SnapshotVersion sv2 = new SnapshotVersion();

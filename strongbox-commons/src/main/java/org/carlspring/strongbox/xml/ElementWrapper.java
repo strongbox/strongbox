@@ -16,7 +16,7 @@ public class ElementWrapper<T>
 {
 
     @XmlAnyElement(lax = true)
-    private List<T> elements = new ArrayList<T>();
+    private List<T> elements = new ArrayList<>();
 
 
     public ElementWrapper()

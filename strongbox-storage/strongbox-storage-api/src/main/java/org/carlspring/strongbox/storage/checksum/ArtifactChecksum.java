@@ -14,7 +14,7 @@ public class ArtifactChecksum
      * Key:   Algorithm
      * Value: Checksum
      */
-    private Map<String, String> checksums = new LinkedHashMap<String, String>();
+    private Map<String, String> checksums = new LinkedHashMap<>();
 
     /**
      * The last time this checksum object was accessed in any way.

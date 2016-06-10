@@ -26,7 +26,7 @@ public class AuthenticationConfigurationParserTest
 
     public static final String XML_OUTPUT_FILE = CONFIGURATION_BASEDIR + "/security-authentication-saved.xml";
 
-    private GenericParser<AuthenticationConfiguration> parser = new GenericParser<AuthenticationConfiguration>(AuthenticationConfiguration.class);
+    private GenericParser<AuthenticationConfiguration> parser = new GenericParser<>(AuthenticationConfiguration.class);
 
 
     @Test
@@ -47,7 +47,7 @@ public class AuthenticationConfigurationParserTest
     public void testStoreAuthenticationConfiguration()
             throws IOException, JAXBException
     {
-        List<String> realms = new ArrayList<String>();
+        List<String> realms = new ArrayList<>();
         realms.add("org.carlspring.strongbox.jaas.xml.XMLUserRealm");
         realms.add("org.carlspring.strongbox.jaas.xml.LDAPUserRealm");
         realms.add("org.carlspring.strongbox.jaas.xml.ADUserRealm");

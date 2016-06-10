@@ -17,7 +17,7 @@ public class RoleUtilsTest
     @Test
     public void testRolesToString()
     {
-        List<Role> roles = new ArrayList<Role>();
+        List<Role> roles = new ArrayList<>();
         roles.add(new Role("Admin", "Admin role"));
         roles.add(new Role("Deployer", "Deployer role"));
 

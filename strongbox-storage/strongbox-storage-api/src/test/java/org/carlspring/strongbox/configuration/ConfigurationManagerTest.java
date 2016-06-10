@@ -55,7 +55,7 @@ public class ConfigurationManagerTest
 
     public static final String STORAGE_BASEDIR = TEST_CLASSES + "/storages/storage0";
 
-    private GenericParser<Configuration> parser = new GenericParser<Configuration>(Configuration.class);
+    private GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
 
     @Autowired
     private ConfigurationManager configurationManager;

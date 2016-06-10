@@ -17,7 +17,7 @@ public class PrivilegeUtilsTest
     @Test
     public void testPrivilegesToString()
     {
-        List<Privilege> privileges = new ArrayList<Privilege>();
+        List<Privilege> privileges = new ArrayList<>();
         privileges.add(new Privilege("read", "Read permission"));
         privileges.add(new Privilege("write", "Write permission"));
         privileges.add(new Privilege("deploy", "Deploy permission"));

@@ -34,7 +34,7 @@ public class ParentGroupVisitor implements Visitor
     public void endVisit(Group group, Set<Group> hierarchy)
     {
         // Invert the list, so it's top to bottom instead.
-        List<Group> list = new ArrayList<Group>(hierarchy);
+        List<Group> list = new ArrayList<>(hierarchy);
         Collections.reverse(list);
 
         hierarchy.clear();
