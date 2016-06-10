@@ -200,12 +200,10 @@ public class MetadataHelper
     {
         for (SnapshotVersion snapshotVersion : metadata.getVersioning().getSnapshotVersions())
         {
-            if (snapshotVersion.getVersion().equals(timestampedSnapshotVersion))
+            if (snapshotVersion.getVersion().equals(timestampedSnapshotVersion) 
+                && classifier == null || snapshotVersion.getClassifier().equals(classifier))
             {
-                if (classifier == null || snapshotVersion.getClassifier().equals(classifier))
-                {
-                    return true;
-                }
+                return true;
             }
         }
 
