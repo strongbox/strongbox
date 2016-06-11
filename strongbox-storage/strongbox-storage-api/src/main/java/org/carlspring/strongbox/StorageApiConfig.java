@@ -1,5 +1,6 @@
 package org.carlspring.strongbox;
 
+import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.services.impl.ArtifactResolutionServiceImpl;
 import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.resolvers.FSLocationResolver;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 @Configuration
 @ComponentScan({
@@ -26,8 +28,10 @@ import org.springframework.context.annotation.Configuration;
         "org.carlspring.strongbox.io",
         "org.carlspring.strongbox.services",
         "org.carlspring.strongbox.storage",
-        "org.carlspring.strongbox.xml"
+        "org.carlspring.strongbox.xml",
+        "org.carlspring.strongbox.data"
 })
+@Import(DataServiceConfig.class)
 public class StorageApiConfig
 {
     private static final Logger logger = LoggerFactory.getLogger(StorageApiConfig.class);

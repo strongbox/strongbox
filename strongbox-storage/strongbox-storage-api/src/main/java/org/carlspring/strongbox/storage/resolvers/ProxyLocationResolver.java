@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.storage.resolvers;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.maven.artifact.Artifact;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.commons.io.filters.DirectoryFilter;
 import org.carlspring.commons.io.resource.ResourceCloser;
@@ -20,9 +18,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
+import javax.ws.rs.core.Response;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.maven.artifact.Artifact;
 
 /**
  * @author mtodorov
@@ -78,8 +85,7 @@ public class ProxyLocationResolver
 
             RemoteRepository remoteRepository = repository.getRemoteRepository();
 
-            MavenArtifactClient client =
-                    new MavenArtifactClient(proxyRepositoryConnectionPoolConfigurationService.getClient());
+            MavenArtifactClient client = new MavenArtifactClient(proxyRepositoryConnectionPoolConfigurationService.getClient());
             client.setRepositoryBaseUrl(remoteRepository.getUrl());
             client.setUsername(remoteRepository.getUsername());
             client.setPassword(remoteRepository.getPassword());

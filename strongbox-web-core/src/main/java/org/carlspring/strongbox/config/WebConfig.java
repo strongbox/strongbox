@@ -4,8 +4,8 @@ import org.carlspring.strongbox.CommonConfig;
 import org.carlspring.strongbox.StorageApiConfig;
 import org.carlspring.strongbox.StorageIndexingConfig;
 import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
-import org.carlspring.strongbox.users.UsersConfig;
 
+import org.carlspring.strongbox.users.UsersConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.EnableCaching;
@@ -40,4 +40,5 @@ public class WebConfig
     {
         logger.info("WebConfig init...");
     }
+
 }

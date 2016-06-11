@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.data.server;
 
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-
 import javax.annotation.PostConstruct;
 import java.util.LinkedList;
 import java.util.List;
@@ -105,7 +103,10 @@ public class EmbeddedOrientDbServer
 
     private String getDatabasePath()
     {
-        return ConfigurationResourceResolver.getVaultDirectory() + "/db";
+        String databasePath = System.getProperty("user.dir") + "/target/db";
+        logger.debug("OrientDB database " + databasePath);
+        // return ConfigurationResourceResolver.getVaultDirectory() + "/db";
+        return databasePath;
     }
 
     public void start()

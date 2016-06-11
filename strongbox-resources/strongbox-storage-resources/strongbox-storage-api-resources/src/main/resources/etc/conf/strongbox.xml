@@ -8,7 +8,6 @@
     <storages>
         <storage id="storage0">
             <repositories>
-                <!-- Secured repositories do not allow anonymous access -->
                 <repository id="releases-by-juan" policy="release" implementation="file-system" type="hosted" allows-force-deletion="true" checksum-headers-enabled="true"/>
                 <repository id="releases" policy="release" implementation="file-system" type="hosted" allows-force-deletion="true" checksum-headers-enabled="true"/>
                 <repository id="releases-in-memory" policy="release" implementation="in-memory" type="hosted"/>

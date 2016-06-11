@@ -7,6 +7,7 @@ import org.carlspring.strongbox.artifact.generator.ArtifactDeployer;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.client.RestClient;
+import org.carlspring.strongbox.configuration.ConfigurationRepository;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.context.RestletTestContext;
 import org.carlspring.strongbox.storage.repository.RemoteRepository;
@@ -47,16 +48,23 @@ public class ArtifactRestletTest
 
     private static final File REPOSITORY_BASEDIR_RELEASES = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                                      "/storages/storage0/releases");
+    public static boolean INITIALIZED = false;
 
     private static RestClient client = new RestClient();
 
     @Autowired
     PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private ConfigurationRepository configurationRepository;
+
+
     @BeforeClass
     public static void setUp()
             throws Exception
     {
+        if (!INITIALIZED)
+        {
             generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
                              "org.carlspring.strongbox.resolve.only:foo",
                              new String[]{ "1.1", // Used by testResolveViaProxy()
@@ -98,6 +106,9 @@ public class ArtifactRestletTest
 
             //noinspection ResultOfMethodCallIgnored
             new File(TEST_RESOURCES).mkdirs();
+
+            INITIALIZED = true;
+        }
     }
 
     @AfterClass
@@ -111,12 +122,13 @@ public class ArtifactRestletTest
     }
 
     @Test
-    public void testUserAuth() throws Exception {
+    public void testUserAuth() throws Exception
+    {
         client.greet();
     }
 
-    @Test
     @Ignore
+    @Test
     public void testResolveViaProxy()
             throws Exception
     {

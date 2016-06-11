@@ -19,7 +19,6 @@ public class ConfigurationResourceResolver
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationResourceResolver.class);
 
-
     public ConfigurationResourceResolver()
     {
     }
