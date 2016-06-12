@@ -96,17 +96,10 @@ public class MetadataManager
     {
         File metadataFile = MetadataHelper.getMetadataFile(artifactBasePath);
         Metadata metadata = null;
-        FileInputStream fis = null;
 
-        try
+        try (FileInputStream fis = new FileInputStream(metadataFile))
         {
-            fis = new FileInputStream(metadataFile);
-
             metadata = readMetadata(fis);
-        }
-        finally
-        {
-            ResourceCloser.close(fis, logger);
         }
 
         return metadata;
