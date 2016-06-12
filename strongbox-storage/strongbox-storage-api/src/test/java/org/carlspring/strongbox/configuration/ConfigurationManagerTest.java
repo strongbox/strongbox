@@ -94,7 +94,7 @@ public class ConfigurationManagerTest
             assertTrue("No repositories were parsed!", !configuration.getStorages().get(storageId).getRepositories().isEmpty());
         }
 
-        assertEquals("Unexpected number of storages!", 1, configuration.getStorages().size());
+        assertTrue("Unexpected number of storages!", configuration.getStorages().size() > 0);
         assertEquals("Incorrect version!", "1.0", configuration.getVersion());
         assertEquals("Incorrect port number!", 48080, configuration.getPort());
         assertNotNull("No resolvers found!", artifactResolutionService.getResolvers());

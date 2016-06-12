@@ -33,17 +33,23 @@ public class StorageApiConfig
     private static final Logger logger = LoggerFactory.getLogger(StorageApiConfig.class);
 
     @Autowired
+    private List<VersionValidator> versionValidators;
+
+    @Autowired
     private FSLocationResolver fsLocationResolver;
 
     @Autowired
     private ProxyLocationResolver proxyLocationResolver;
 
-    @Autowired
-    private GroupLocationResolver groupLocationResolver;
 
-    @Autowired
-    private List<VersionValidator> versionValidators;
+    @Bean(name = "groupLocationResolver")
+    GroupLocationResolver groupLocationResolver()
+    {
+        GroupLocationResolver groupLocationResolver = new GroupLocationResolver();
+        groupLocationResolver.setArtifactResolutionService(artifactResolutionService());
 
+        return groupLocationResolver;
+    }
 
     @Bean(name = "checksumCacheManager")
     ChecksumCacheManager checksumCacheManager()
@@ -61,7 +67,7 @@ public class StorageApiConfig
         LinkedHashMap<String, LocationResolver> resolvers = new LinkedHashMap<>();
         resolvers.put("file-system", fsLocationResolver);
         resolvers.put("proxy", proxyLocationResolver);
-        resolvers.put("group", groupLocationResolver);
+        resolvers.put("group", groupLocationResolver());
 
         return resolvers;
     }
