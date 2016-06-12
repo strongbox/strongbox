@@ -65,7 +65,7 @@ public class SearchRestlet
                                 @Context HttpServletRequest request)
             throws IOException, ParseException
     {
-        if (request.getHeader("accept").toLowerCase().equals("text/plain"))
+        if (request.getHeader("accept").equalsIgnoreCase("text/plain"))
         {
             final SearchResults artifacts = getSearchResults(storageId, repositoryId, query);
 

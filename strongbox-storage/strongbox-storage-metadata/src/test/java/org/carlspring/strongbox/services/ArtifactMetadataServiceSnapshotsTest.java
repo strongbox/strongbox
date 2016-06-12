@@ -45,7 +45,7 @@ public class ArtifactMetadataServiceSnapshotsTest
 
     private static final File REPOSITORY_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/snapshots");
 
-    public static final String[] CLASSIFIERS = { "javadoc", "sources", "source-release" };
+    private static final String[] CLASSIFIERS = { "javadoc", "sources", "source-release" };
 
     public static final String ARTIFACT_BASE_PATH_STRONGBOX_METADATA = "org/carlspring/strongbox/strongbox-metadata";
 
