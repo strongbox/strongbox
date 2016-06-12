@@ -189,10 +189,8 @@ public class ArtifactGenerator
                                    "pom.xml");
         zos.putNextEntry(ze);
 
-        FileInputStream fis = null;
-        try
+        try (FileInputStream fis = new FileInputStream(pomFile))
         {
-            fis = new FileInputStream(pomFile);
 
             byte[] buffer = new byte[4096];
             int len;
@@ -203,8 +201,6 @@ public class ArtifactGenerator
         }
         finally
         {
-            ResourceCloser.close(fis, logger);
-
             zos.closeEntry();
         }
     }

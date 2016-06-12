@@ -50,54 +50,28 @@ public class MessageDigestUtils
     {
         final File checksumFile = new File(artifactFile.getAbsolutePath() + checksumFileExtension);
 
-        FileOutputStream fos = null;
-
-        try
+        try (FileOutputStream fos = new FileOutputStream(checksumFile))
         {
-            fos = new FileOutputStream(checksumFile);
-
             fos.write((checksum + "\n").getBytes());
             fos.flush();
-            fos.close();
-        }
-        finally
-        {
-            ResourceCloser.close(fos, logger);
         }
     }
 
     public static String readChecksumFile(String path)
             throws IOException
     {
-        InputStream is = null;
-
-        try
+        try (InputStream is = new FileInputStream(path))
         {
-            is = new FileInputStream(path);
-
             return readChecksumFile(is);
-        }
-        finally
-        {
-            ResourceCloser.close(is, null);
         }
     }
 
     public static String readChecksumFile(InputStream is)
             throws IOException
     {
-        BufferedReader br = null;
-
-        try
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(is)))
         {
-            br = new BufferedReader(new InputStreamReader(is));
-
             return br.readLine();
-        }
-        finally
-        {
-            ResourceCloser.close(br, null);
-            ResourceCloser.close(is, null);
         }
     }
 
