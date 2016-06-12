@@ -321,7 +321,7 @@ public class RepositoryIndexer
             implements ArtifactScanningListener
     {
 
-        int totalFiles = 0;
+        int totalFiles;
         private IndexingContext context;
 
         @Override

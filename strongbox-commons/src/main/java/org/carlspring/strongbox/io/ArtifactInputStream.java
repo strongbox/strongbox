@@ -20,7 +20,7 @@ public class ArtifactInputStream extends MultipleDigestInputStream
 
     private Artifact artifact;
 
-    private long length = 0L;
+    private long length;
 
 
     public ArtifactInputStream(ReloadableInputStreamHandler handler, List<ByteRange> byteRanges)

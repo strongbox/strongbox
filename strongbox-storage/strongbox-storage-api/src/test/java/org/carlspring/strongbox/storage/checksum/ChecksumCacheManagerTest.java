@@ -83,7 +83,7 @@ public class ChecksumCacheManagerTest
         ChecksumCacheManager manager;
 
         int sleepInterval = 100; // 100 ms
-        int timeSlept = 0;
+        int timeSlept;
         int maxTime = 3000;      // 3 secs
         int tolerance = 1000;    // 1 sec
 
