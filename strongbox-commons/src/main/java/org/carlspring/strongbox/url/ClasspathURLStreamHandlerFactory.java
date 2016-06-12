@@ -25,6 +25,7 @@ public class ClasspathURLStreamHandlerFactory
         protocolHandlers.put(protocol, urlHandler);
     }
 
+    @Override
     public URLStreamHandler createURLStreamHandler(String protocol)
     {
         return protocolHandlers.get(protocol);

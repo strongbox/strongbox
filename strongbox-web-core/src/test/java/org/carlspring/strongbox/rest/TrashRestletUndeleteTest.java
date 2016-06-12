@@ -24,13 +24,13 @@ public class TrashRestletUndeleteTest
         extends TestCaseWithArtifactGeneration
 {
 
-    private final static File BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory()).getAbsoluteFile();
+    private static final File BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory()).getAbsoluteFile();
 
     private static final String STORAGE = "storage0";
 
     private static final String REPOSITORY_WITH_TRASH = "releases-with-trash";
 
-    private final static String REPOSITORY_WITH_TRASH_BASEDIR = BASEDIR.getAbsolutePath() +
+    private static final String REPOSITORY_WITH_TRASH_BASEDIR = BASEDIR.getAbsolutePath() +
                                                                 "/storages/" + STORAGE + "/" + REPOSITORY_WITH_TRASH;
 
     private RestClient client = new RestClient();
