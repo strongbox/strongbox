@@ -22,7 +22,7 @@ public class ArtifactGeneratorTest
         extends TestCaseWithArtifactGeneration
 {
 
-    private final static File BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/releases");
+    private static final File BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/releases");
 
 
     @Test
