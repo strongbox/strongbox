@@ -25,7 +25,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class SearchRestletTest
 {
 
-    public static boolean INITIALIZED = false;
+    public static boolean INITIALIZED;
 
     private RestClient client = new RestClient();
 

@@ -47,7 +47,7 @@ public class FSLocationResolverTest
     @Autowired
     private ConfigurationManager configurationManager;
 
-    public static boolean INITIALIZED = false;
+    public static boolean INITIALIZED;
 
 
     @Before

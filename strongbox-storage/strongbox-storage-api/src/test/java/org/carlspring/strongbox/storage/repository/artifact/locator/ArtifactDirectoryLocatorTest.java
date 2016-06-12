@@ -32,7 +32,7 @@ public class ArtifactDirectoryLocatorTest
 
     private static PrintStream tempSysOut;
 
-    private boolean INITIALIZED = false;
+    private boolean INITIALIZED;
 
 
     @Before

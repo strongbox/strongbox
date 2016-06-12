@@ -65,7 +65,7 @@ public class GroupLocationResolverTest
         captureFor(GroupLocationResolver.class, LogLevel.DEBUG);
     }};
 
-    public static boolean INITIALIZED = false;
+    public static boolean INITIALIZED;
 
 
     @Before

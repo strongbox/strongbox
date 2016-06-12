@@ -21,7 +21,7 @@ public class ArtifactFile extends File
 
     private long temporaryTimestamp;
 
-    private boolean temporaryMode = false;
+    private boolean temporaryMode;
 
 
     public ArtifactFile(Repository repository, Artifact artifact)
