@@ -25,8 +25,8 @@ public class ChecksumCacheManagerTest
             throws Exception
     {
         ChecksumCacheManager manager = new ChecksumCacheManager();
-        manager.setCachedChecksumLifetime(3000l);
-        manager.setCachedChecksumExpiredCheckInterval(500l);
+        manager.setCachedChecksumLifetime(3000L);
+        manager.setCachedChecksumExpiredCheckInterval(500L);
 
         CheckingThread checkerThread = new CheckingThread(manager);
 
@@ -42,7 +42,7 @@ public class ChecksumCacheManagerTest
 
         checkerThread.start();
 
-        Thread.sleep(3000l);
+        Thread.sleep(3000L);
 
         manager.getArtifactChecksum(artifact1BasePath, "md5");
 
