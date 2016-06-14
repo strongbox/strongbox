@@ -12,6 +12,7 @@ import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Optional;
 
 import com.lambdista.util.Try;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
@@ -122,16 +123,19 @@ public class ConfigurationRepository
         return null;
     }
 
-    public synchronized <T> void updateConfiguration(ServerConfiguration<T> configuration)
+    public synchronized <T> Optional<Configuration> updateConfiguration(ServerConfiguration<T> configuration)
     {
         try
         {
             OObjectDatabaseTx db = getDatabase();
             db.save(configuration);
+
+            return Optional.ofNullable(getConfiguration());
         }
         catch (Exception e)
         {
             logger.error("Unable to update configuration.", e);
+            return Optional.empty();
         }
     }
 

@@ -50,7 +50,9 @@ public abstract class AbstractConfigurationManager<T>
     public void store(ServerConfiguration<T> configuration)
             throws IOException, JAXBException
     {
-        configurationRepository.updateConfiguration(configuration);
+        configurationRepository.updateConfiguration(configuration).ifPresent(updatedConfiguration -> {
+            this.configuration = updatedConfiguration;
+        });
     }
 
     public void store(ServerConfiguration<T> configuration, String file)

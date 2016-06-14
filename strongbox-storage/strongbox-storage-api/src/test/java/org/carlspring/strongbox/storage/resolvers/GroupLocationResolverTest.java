@@ -1,23 +1,14 @@
 package org.carlspring.strongbox.storage.resolvers;
 
+import com.carmatechnologies.commons.testing.logging.ExpectedLogs;
+import com.carmatechnologies.commons.testing.logging.api.LogLevel;
 import org.carlspring.strongbox.BaseStorageApiTest;
 import org.carlspring.strongbox.CommonConfig;
 import org.carlspring.strongbox.StorageApiConfig;
-import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.configuration.ConfigurationRepository;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.repository.Repository;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.NoSuchAlgorithmException;
-
-import com.carmatechnologies.commons.testing.logging.ExpectedLogs;
-import com.carmatechnologies.commons.testing.logging.api.LogLevel;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -27,6 +18,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import javax.xml.bind.JAXBException;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
+
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
@@ -62,9 +60,6 @@ public class GroupLocationResolverTest
     @Autowired
     private ConfigurationManager configurationManager;
 
-    @Autowired
-    private ConfigurationRepository configurationRepository;
-
     @Rule
     public final ExpectedLogs logs = new ExpectedLogs()
     {{
@@ -95,12 +90,12 @@ public class GroupLocationResolverTest
     public void tearDown()
             throws Exception
     {
-        Configuration configuration = configurationManager.getConfiguration();
-        Repository repository = configuration.getStorage("storage0").getRepository("releases");
+        Repository repository = configurationManager.getConfiguration()
+                .getStorage("storage0").getRepository("releases");
         if (!repository.isInService())
         {
             repository.putInService();
-            configurationRepository.updateConfiguration(configuration);
+            configurationManager.store();
         }
     }
 
@@ -121,14 +116,12 @@ public class GroupLocationResolverTest
 
     @Test
     public void testGroupIncludesWithOutOfServiceRepository()
-            throws IOException, NoSuchAlgorithmException
+            throws IOException, NoSuchAlgorithmException, JAXBException
     {
         System.out.println("# Testing group includes with out of service repository...");
 
-        Configuration configuration = configurationManager.getConfiguration();
-        configuration.getStorage("storage0").getRepository("releases").putOutOfService();
-
-        configurationRepository.updateConfiguration(configuration);
+        configurationManager.getConfiguration().getStorage("storage0").getRepository("releases").putOutOfService();
+        configurationManager.store();
 
         InputStream is = groupLocationResolver.getInputStream("storage0",
                                                               "group-releases",
