@@ -45,5 +45,4 @@ public abstract class GenericEntity
     {
         this.id = id;
     }
-
 }

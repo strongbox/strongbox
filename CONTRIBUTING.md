@@ -5,7 +5,7 @@ While we appreciate all the help we can get, here are some more details on the [
 
 # Legal
 
-Contributing code to this project means that you accept your contributions to be 
+Contributing code to this project means that you accept your contributions to be
 licensed under the Apache 2.0 license. Signing the ICLA below covers contributions to:
 * Any project in the [Strongbox](https://github.com/strongbox) organization on Github
 * Any dependent project in the [carlspring](https://github.com/carlspring) repositories
@@ -25,3 +25,6 @@ To accept, please:
 | Juan Ignacio Bais            |                                          | Buenos Aires, Argentina                 | 2016-02-24 |
 | Ivan Ursul                   |                                          | Lviv, Ukraine                           | 2016-05-02 |
 | Alex Oreshkevich             | redsoft.pro                              | Minsk, Republic of Belarus              | 2016-05-12 |
+| Faisal Hameed                | DevFactory                               | Lahore, Islamic Republic of Pakistan
+| 2016-06-10 |
+| 2016-05-28 |                 |                                          | Lviv, Ukraine

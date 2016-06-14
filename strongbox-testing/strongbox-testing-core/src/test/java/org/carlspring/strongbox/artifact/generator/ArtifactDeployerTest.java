@@ -29,7 +29,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class ArtifactDeployerTest
 {
 
-    private final static File BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/releases/.temp");
+    private static final File BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/releases/.temp");
 
     @Autowired
     private AssignedPorts assignedPorts;

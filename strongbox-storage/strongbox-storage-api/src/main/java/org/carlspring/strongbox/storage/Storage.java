@@ -32,7 +32,7 @@ public class Storage
 
     @XmlElement(name = "repositories")
     @XmlJavaTypeAdapter(RepositoryMapAdapter.class)
-    private Map<String, Repository> repositories = new LinkedHashMap<String, Repository>();
+    private Map<String, Repository> repositories = new LinkedHashMap<>();
 
 
     public Storage()

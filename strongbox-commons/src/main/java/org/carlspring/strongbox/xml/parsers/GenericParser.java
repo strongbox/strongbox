@@ -33,7 +33,7 @@ public class GenericParser<T>
 
     private ReentrantLock lock = new ReentrantLock();
 
-    private Set<Class> classes = new LinkedHashSet<Class>();
+    private Set<Class> classes = new LinkedHashSet<>();
 
     private JAXBContext context;
 
@@ -60,19 +60,13 @@ public class GenericParser<T>
     }
 
     public T parse(File file)
-            throws JAXBException, FileNotFoundException
+            throws JAXBException, IOException
     {
-        FileInputStream is = null;
         T object = null;
 
-        try
+        try (FileInputStream is = new FileInputStream(file))
         {
-            is = new FileInputStream(file);
             object = parse(is);
-        }
-        finally
-        {
-            ResourceCloser.close(is, logger);
         }
 
         return object;
@@ -81,17 +75,10 @@ public class GenericParser<T>
     public T parse(URL url)
             throws IOException, JAXBException
     {
-        InputStream is = null;
 
-        try
+        try (InputStream is = url.openStream())
         {
-            is = url.openStream();
-
             return parse(is);
-        }
-        finally
-        {
-            ResourceCloser.close(is, logger);
         }
     }
 
@@ -118,24 +105,18 @@ public class GenericParser<T>
     }
 
     public void store(T object, String path)
-            throws JAXBException, FileNotFoundException
+            throws JAXBException, IOException
     {
         store(object, new File(path).getAbsoluteFile());
     }
 
     public void store(T object, File file)
-            throws JAXBException, FileNotFoundException
+            throws JAXBException, IOException
     {
-        FileOutputStream os = null;
 
-        try
+        try (FileOutputStream os = new FileOutputStream(file))
         {
-            os = new FileOutputStream(file);
             store(object, os);
-        }
-        finally
-        {
-            ResourceCloser.close(os, logger);
         }
     }
 

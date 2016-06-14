@@ -7,6 +7,10 @@ public class ArtifactFileUtils
 {
 
 
+    private ArtifactFileUtils() 
+    {
+    }
+
     public static boolean isArtifactFile(String path)
     {
         return !isMetadataFile(path) && !isChecksum(path);

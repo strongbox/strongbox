@@ -26,6 +26,10 @@ public class MetadataHelper
 
     public static final SimpleDateFormat LAST_UPDATED_FIELD_FORMATTER = new SimpleDateFormat("yyyyMMddHHmmss");
 
+    private MetadataHelper() 
+    {
+    }
+
 
     public static void setLastUpdated(Versioning versioning)
     {
@@ -196,12 +200,10 @@ public class MetadataHelper
     {
         for (SnapshotVersion snapshotVersion : metadata.getVersioning().getSnapshotVersions())
         {
-            if (snapshotVersion.getVersion().equals(timestampedSnapshotVersion))
+            if (snapshotVersion.getVersion().equals(timestampedSnapshotVersion) 
+                && classifier == null || snapshotVersion.getClassifier().equals(classifier))
             {
-                if (classifier == null || snapshotVersion.getClassifier().equals(classifier))
-                {
-                    return true;
-                }
+                return true;
             }
         }
 

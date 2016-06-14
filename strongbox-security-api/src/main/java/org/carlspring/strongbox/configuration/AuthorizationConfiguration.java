@@ -19,10 +19,10 @@ public class AuthorizationConfiguration
 {
 
     @XmlElement(name = "roles")
-    private List<Role> roles = new ArrayList<Role>();
+    private List<Role> roles = new ArrayList<>();
 
     @XmlElement(name = "privileges")
-    private List<Privilege> privileges = new ArrayList<Privilege>();
+    private List<Privilege> privileges = new ArrayList<>();
 
 
     public AuthorizationConfiguration()

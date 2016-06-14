@@ -89,7 +89,7 @@ public class RepositoryIndexer
     public void delete(final Collection<ArtifactInfo> artifactInfos)
             throws IOException
     {
-        final List<ArtifactContext> delete = new ArrayList<ArtifactContext>();
+        final List<ArtifactContext> delete = new ArrayList<>();
         for (final ArtifactInfo artifactInfo : artifactInfos)
         {
             logger.debug("Deleting artifact: {}; ctx id: {}; idx dir: {}",
@@ -321,7 +321,7 @@ public class RepositoryIndexer
             implements ArtifactScanningListener
     {
 
-        int totalFiles = 0;
+        int totalFiles;
         private IndexingContext context;
 
         @Override

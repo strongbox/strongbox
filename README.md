@@ -23,16 +23,20 @@ Welcome to the Strongbox Maven artifact repository manager's home.
   * Manage the server's core configuration
   * Manage repositories
   * Manage users
+  * Manage logging
+  * Manage cron tasks
+* Cron tasks
+  * Implementations:
+    * Java
+    * Groovy
 * Ready-to-use Java-based REST API Client(s) covering each REST command.
 * Logging:
-  * Configuration over REST
   * Retrieve logs over HTTP
 * Automated generation of REST API documentation using Swagger
 
 # What's in the works:
 * Proxy repositories
 * [Maven Metadata](https://github.com/strongbox/strongbox/wiki/Maven-Metadata)
-* Cron tasks
 * Logging:
   * Log tailing over HTTP
 * Deploy as transaction

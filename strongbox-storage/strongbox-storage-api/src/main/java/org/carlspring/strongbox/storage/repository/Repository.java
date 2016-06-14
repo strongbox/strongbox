@@ -38,25 +38,25 @@ public class Repository
     private String type = RepositoryTypeEnum.HOSTED.getType();
 
     @XmlAttribute
-    private boolean secured = false;
+    private boolean secured;
 
     @XmlAttribute
     private String status = RepositoryStatusEnum.IN_SERVICE.getStatus();
 
     @XmlAttribute(name = "trash-enabled")
-    private boolean trashEnabled = false;
+    private boolean trashEnabled;
 
     @XmlAttribute(name = "indexing-enabled")
-    private boolean indexingEnabled = false;
+    private boolean indexingEnabled;
 
     @XmlAttribute(name = "allows-force-deletion")
-    private boolean allowsForceDeletion = false;
+    private boolean allowsForceDeletion;
 
     @XmlAttribute(name = "allows-deployment")
     private boolean allowsDeployment = true;
 
     @XmlAttribute(name = "allows-redeployment")
-    private boolean allowsRedeployment = false;
+    private boolean allowsRedeployment;
 
     @XmlAttribute(name = "allows-delete")
     private boolean allowsDelete = true;
@@ -65,7 +65,7 @@ public class Repository
     private boolean allowsDirectoryBrowsing = true;
 
     @XmlAttribute(name = "checksum-headers-enabled")
-    private boolean checksumHeadersEnabled = false;
+    private boolean checksumHeadersEnabled;
 
     /**
      * The per-repository proxy settings that override the overall global proxy settings.

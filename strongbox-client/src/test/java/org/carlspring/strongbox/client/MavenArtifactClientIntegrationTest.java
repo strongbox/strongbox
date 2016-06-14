@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.client;
 
-import org.carlspring.strongbox.config.ClientPropertiesConfig;
+import org.carlspring.strongbox.config.ClientConfig;
 import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.data.domain.PoolConfiguration;
 import org.carlspring.strongbox.data.service.PoolConfigurationService;
@@ -32,8 +32,7 @@ public class MavenArtifactClientIntegrationTest
     private static final Logger LOGGER = LoggerFactory.getLogger(MavenArtifactClientIntegrationTest.class);
 
     @Configuration
-    @ComponentScan(basePackages = { "org.carlspring.strongbox.service.impl"})
-    @Import({DataServiceConfig.class, ClientPropertiesConfig.class})
+    @Import({DataServiceConfig.class, ClientConfig.class})
     public static class SpringConfig
     {
         @Bean

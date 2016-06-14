@@ -1,7 +1,16 @@
 package org.carlspring.strongbox.client;
 
 import org.apache.http.HttpStatus;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Invocation;
@@ -11,16 +20,6 @@ import javax.ws.rs.core.Response;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author mtodorov

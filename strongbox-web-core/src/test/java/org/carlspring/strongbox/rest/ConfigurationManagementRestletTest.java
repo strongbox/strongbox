@@ -2,7 +2,6 @@ package org.carlspring.strongbox.rest;
 
 import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.configuration.ConfigurationRepository;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.context.RestletTestContext;
@@ -25,10 +24,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
 /**
  * @author mtodorov
  */
@@ -37,14 +32,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class ConfigurationManagementRestletTest
 {
 
-    @org.springframework.context.annotation.Configuration
-    @ComponentScan(basePackages = {"org.carlspring.strongbox", "org.carlspring.logging"})
-    public static class SpringConfig { }
-
     private RestClient client = RestClient.getTestInstanceLoggedInAsAdmin();
-
-    @Autowired
-    private ConfigurationRepository configurationRepository;
 
     @After
     public void tearDown()
@@ -106,7 +94,8 @@ public class ConfigurationManagementRestletTest
         assertEquals("Failed to get proxy configuration!", proxyConfiguration.getUsername(), pc.getUsername());
         assertEquals("Failed to get proxy configuration!", proxyConfiguration.getPassword(), pc.getPassword());
         assertEquals("Failed to get proxy configuration!", proxyConfiguration.getType(), pc.getType());
-        assertEquals("Failed to get proxy configuration!", proxyConfiguration.getNonProxyHosts(), pc.getNonProxyHosts());
+        assertEquals("Failed to get proxy configuration!", proxyConfiguration.getNonProxyHosts(),
+                     pc.getNonProxyHosts());
     }
 
     @Test
@@ -132,15 +121,8 @@ public class ConfigurationManagementRestletTest
         r2.setStorage(storage1);
         r2.setProxyConfiguration(createProxyConfiguration());
 
-        Configuration configuration = configurationRepository.getConfiguration();
-        configuration.addStorage(storage1);
-
         client.addRepository(r1);
         client.addRepository(r2);
-
-        configuration.getStorage(storageId).addOrUpdateRepository(r1);
-        configuration.getStorage(storageId).addOrUpdateRepository(r2);
-        configurationRepository.updateConfiguration(configuration);
 
         Storage storage = client.getStorage(storageId);
 
@@ -148,9 +130,12 @@ public class ConfigurationManagementRestletTest
         assertFalse("Failed to get storage (" + storageId + ")!", storage.getRepositories().isEmpty());
         assertTrue("Failed to get storage (" + storageId + ")!",
                    storage.getRepositories().get("repository0").allowsRedeployment());
-        assertTrue("Failed to get storage (" + storageId + ")!", storage.getRepositories().get("repository0").isSecured());
-        assertTrue("Failed to get storage (" + storageId + ")!", storage.getRepositories().get("repository1").allowsForceDeletion());
-        assertTrue("Failed to get storage (" + storageId + ")!", storage.getRepositories().get("repository1").isTrashEnabled());
+        assertTrue("Failed to get storage (" + storageId + ")!",
+                   storage.getRepositories().get("repository0").isSecured());
+        assertTrue("Failed to get storage (" + storageId + ")!",
+                   storage.getRepositories().get("repository1").allowsForceDeletion());
+        assertTrue("Failed to get storage (" + storageId + ")!",
+                   storage.getRepositories().get("repository1").isTrashEnabled());
 
         assertNotNull("Failed to get storage (" + storageId + ")!",
                       storage.getRepositories().get("repository1").getProxyConfiguration().getHost());
@@ -184,16 +169,8 @@ public class ConfigurationManagementRestletTest
         r2.setSecured(true);
         r2.setStorage(storage2);
 
-        Configuration configuration = configurationRepository.getConfiguration();
-
-        configuration.addStorage(storage2);
-
         client.addRepository(r1);
         client.addRepository(r2);
-
-        configuration.getStorage(storageId).addOrUpdateRepository(r1);
-        configuration.getStorage(storageId).addOrUpdateRepository(r2);
-        configurationRepository.updateConfiguration(configuration);
 
         final ProxyConfiguration pc = client.getProxyConfiguration(storageId, repositoryId1);
 

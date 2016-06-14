@@ -16,6 +16,10 @@ public class EncryptionUtils
 
     private static Logger logger = LoggerFactory.getLogger(EncryptionUtils.class);
 
+    private EncryptionUtils() 
+    {
+    }
+
 
     /**
      * Encrypts a String using the MD5 algorithm.

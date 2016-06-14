@@ -46,8 +46,8 @@ public class ConfigurationResourceResolver
                                              String propertyDefaultValue)
             throws IOException
     {
-        String filename = null;
-        Resource resource = null;
+        String filename;
+        Resource resource;
 
         if (configurationPath != null &&
             (!configurationPath.startsWith("classpath") && !(new File(configurationPath)).exists()))
