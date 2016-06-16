@@ -37,6 +37,7 @@ Welcome to the Strongbox Maven artifact repository manager's home.
 # What's in the works:
 * Proxy repositories
 * [Maven Metadata](https://github.com/strongbox/strongbox/wiki/Maven-Metadata)
+* Web UI
 * Logging:
   * Log tailing over HTTP
 * Deploy as transaction
@@ -49,8 +50,8 @@ Welcome to the Strongbox Maven artifact repository manager's home.
 * Debian/Ubuntu distribution
 
 # What's not yet implemented:
-* Web UI
 * Plugins
+* Event handling
 
 # Requirements:
 * Java 1.8.x
