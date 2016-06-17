@@ -26,16 +26,20 @@ public class EmbeddedOrientDbServer
     private static final Logger logger = LoggerFactory.getLogger(EmbeddedOrientDbServer.class);
 
     @Value("${org.carlspring.strongbox.data.orientdb.host}")
-    String host;
+    private String host;
 
-    private OServer server;
-    private OServerConfiguration serverConfiguration;
+    @Value("${org.carlspring.strongbox.data.orientdb.port}")
+    private int port;
 
     @Value("${org.carlspring.strongbox.data.orientdb.user}")
-    String user;
+    private String user;
 
     @Value("${org.carlspring.strongbox.data.orientdb.password}")
-    String password;
+    private String password;
+
+    private OServer server;
+
+    private OServerConfiguration serverConfiguration;
 
 
     @PostConstruct
@@ -45,32 +49,27 @@ public class EmbeddedOrientDbServer
         server = OServerMain.create();
         serverConfiguration = new OServerConfiguration();
 
-        // prepare network configuration
-        OServerNetworkConfiguration networkConfiguration = new OServerNetworkConfiguration();
-        serverConfiguration.network = networkConfiguration;
-
-        networkConfiguration.protocols = new LinkedList<>();
-
-        OServerNetworkProtocolConfiguration binaryProtocol = new OServerNetworkProtocolConfiguration();
-        binaryProtocol.name = "binary";
-        binaryProtocol.implementation = "com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary";
-
-        networkConfiguration.protocols.add(binaryProtocol);
-
-        networkConfiguration.listeners = new LinkedList<>();
-
         OServerNetworkListenerConfiguration binaryListener = new OServerNetworkListenerConfiguration();
         binaryListener.ipAddress = "0.0.0.0";
         binaryListener.portRange = "2424-2430";
         binaryListener.protocol = "binary";
         binaryListener.socket = "default";
+
+        OServerNetworkProtocolConfiguration binaryProtocol = new OServerNetworkProtocolConfiguration();
+        binaryProtocol.name = "binary";
+        binaryProtocol.implementation = "com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary";
+
+        // prepare network configuration
+        OServerNetworkConfiguration networkConfiguration = new OServerNetworkConfiguration();
+        networkConfiguration.protocols = new LinkedList<>();
+        networkConfiguration.protocols.add(binaryProtocol);
+        networkConfiguration.listeners = new LinkedList<>();
         networkConfiguration.listeners.add(binaryListener);
 
         // add users (incl system-level root user)
         List<OServerUserConfiguration> users = new LinkedList<>();
         users.add(buildUser(user, password, "*"));
         System.setProperty("ORIENTDB_ROOT_PASSWORD", user);
-        serverConfiguration.users = users.toArray(new OServerUserConfiguration[users.size()]);
 
         // add other properties
         List<OServerEntryConfiguration> properties = new LinkedList<>();
@@ -78,6 +77,9 @@ public class EmbeddedOrientDbServer
         properties.add(buildProperty("plugin.dynamic", "false"));
         properties.add(buildProperty("log.console.level", "info"));
         properties.add(buildProperty("log.file.level", "fine"));
+
+        serverConfiguration.network = networkConfiguration;
+        serverConfiguration.users = users.toArray(new OServerUserConfiguration[users.size()]);
         serverConfiguration.properties = properties.toArray(new OServerEntryConfiguration[properties.size()]);
     }
 
@@ -120,7 +122,7 @@ public class EmbeddedOrientDbServer
         }
         catch (Exception e)
         {
-            throw new RuntimeException("Unable to start embedded OrientDb server", e);
+            throw new RuntimeException("Unable to start the embedded OrientDb server!", e);
         }
     }
 
@@ -134,4 +136,5 @@ public class EmbeddedOrientDbServer
             server.shutdown();
         }
     }
+
 }
