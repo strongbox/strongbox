@@ -17,7 +17,7 @@ Welcome to the Strongbox Maven artifact repository manager's home.
 * Security
   * HTTP Basic authentication
   * Custom authentication provider based on users that resides in second-level cache that exists in OrientDB
-  * Users are predefined in /etc/conf/security-users.xml file
+  * Users are predefined in the `etc/conf/security-users.xml` file
 * [REST API](https://github.com/strongbox/strongbox/wiki/REST-API) features:
   * Search for artifacts
   * Manage the server's core configuration
