@@ -14,20 +14,18 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration
-@ComponentScan
-        ({
-                 "org.carlspring.strongbox",
-                 "org.carlspring.logging"
-         })
-@Import
-        ({
-                 DataServiceConfig.class,
-                 CommonConfig.class,
-                 StrongboxSecurityConfig.class,
-                 StorageIndexingConfig.class,
-                 StorageApiConfig.class,
-                 UsersConfig.class,
-                 SecurityConfig.class
+@ComponentScan ({
+                  "org.carlspring.strongbox",
+                  "org.carlspring.logging"
+                })
+@Import ({
+           DataServiceConfig.class,
+           CommonConfig.class,
+           StrongboxSecurityConfig.class,
+           StorageIndexingConfig.class,
+           StorageApiConfig.class,
+           UsersConfig.class,
+           SecurityConfig.class
          })
 @EnableCaching
 public class WebConfig
@@ -37,6 +35,7 @@ public class WebConfig
 
     public WebConfig()
     {
-        logger.info("WebConfig init...");
+        logger.debug("Initialized web configuration.");
     }
+
 }
