@@ -18,21 +18,22 @@ Welcome to the Strongbox Maven artifact repository manager's home.
   * HTTP Basic authentication
   * Custom authentication provider based on users that resides in second-level cache that exists in OrientDB
   * Users are predefined in the `etc/conf/security-users.xml` file
-* [REST API](https://github.com/strongbox/strongbox/wiki/REST-API) features:
-  * Search for artifacts
-  * Manage the server's core configuration
-  * Manage repositories
-  * Manage users
-  * Manage logging
-  * Manage cron tasks
+* [REST API](https://github.com/strongbox/strongbox/wiki/REST-API):
+  * Features:
+    * Search for artifacts
+    * Manage the server's core configuration
+    * Manage repositories
+    * Manage users
+    * Manage logging
+    * Manage cron tasks
+  * Automated generation of documentation using Swagger
+  * Ready-to-use Java-based client(s) covering each REST command.
 * Cron tasks
   * Implementations:
     * Java
     * Groovy
-* Ready-to-use Java-based REST API Client(s) covering each REST command.
 * Logging:
   * Retrieve logs over HTTP
-* Automated generation of REST API documentation using Swagger
 
 # What's in the works:
 * Proxy repositories
