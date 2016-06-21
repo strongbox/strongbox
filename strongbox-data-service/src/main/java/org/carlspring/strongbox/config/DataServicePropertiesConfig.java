@@ -6,7 +6,6 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 @Configuration
-@PropertySource(value = { "classpath:META-INF/strongbox-db.properties" })
 public class DataServicePropertiesConfig
 {
 

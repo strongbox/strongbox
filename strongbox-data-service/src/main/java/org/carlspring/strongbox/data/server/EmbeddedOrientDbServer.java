@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.data.server;
 
+import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 
 import javax.annotation.PostConstruct;
@@ -11,7 +12,7 @@ import com.orientechnologies.orient.server.OServerMain;
 import com.orientechnologies.orient.server.config.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -25,17 +26,8 @@ public class EmbeddedOrientDbServer
 
     private static final Logger logger = LoggerFactory.getLogger(EmbeddedOrientDbServer.class);
 
-    @Value("${org.carlspring.strongbox.data.orientdb.host}")
-    private String host;
-
-    @Value("${org.carlspring.strongbox.data.orientdb.port}")
-    private int port;
-
-    @Value("${org.carlspring.strongbox.data.orientdb.user}")
-    private String user;
-
-    @Value("${org.carlspring.strongbox.data.orientdb.password}")
-    private String password;
+    @Autowired
+    private DataServiceConfig dataServiceConfig;
 
     private OServer server;
 
@@ -68,8 +60,8 @@ public class EmbeddedOrientDbServer
 
         // add users (incl system-level root user)
         List<OServerUserConfiguration> users = new LinkedList<>();
-        users.add(buildUser(user, password, "*"));
-        System.setProperty("ORIENTDB_ROOT_PASSWORD", user);
+        users.add(buildUser(dataServiceConfig.getUsername(), dataServiceConfig.getPassword(), "*"));
+        System.setProperty("ORIENTDB_ROOT_PASSWORD", dataServiceConfig.getUsername());
 
         // add other properties
         List<OServerEntryConfiguration> properties = new LinkedList<>();
