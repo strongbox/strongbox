@@ -131,9 +131,9 @@ public class Storage
         {
             storagesBasedir = basedir;
         }
-        else if (System.getProperty("strongbox.storage.booter.storagesBasedir") != null)
+        else if (System.getProperty("strongbox.storage.booter.storages.basedir") != null)
         {
-            storagesBasedir = System.getProperty("strongbox.storage.booter.storagesBasedir");
+            storagesBasedir = System.getProperty("strongbox.storage.booter.storages.basedir");
         }
         else
         {
