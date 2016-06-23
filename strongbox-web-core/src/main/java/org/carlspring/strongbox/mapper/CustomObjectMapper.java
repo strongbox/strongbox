@@ -11,7 +11,9 @@ import org.springframework.stereotype.Component;
 public class CustomObjectMapper extends ObjectMapper
 {
 
-    public CustomObjectMapper(){
+    public CustomObjectMapper()
+    {
         disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
     }
+
 }
