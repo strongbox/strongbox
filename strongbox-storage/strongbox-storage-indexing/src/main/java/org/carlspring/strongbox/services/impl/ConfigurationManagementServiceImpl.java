@@ -6,6 +6,7 @@ import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.HttpConnectionPool;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 
@@ -227,6 +228,18 @@ public class ConfigurationManagementServiceImpl implements ConfigurationManageme
         removeRepositoryFromAssociatedGroups(repositoryId);
 
         configurationManager.setConfiguration(configuration);
+        configurationManager.store();
+    }
+
+    @Override
+    public void setProxyRepositoryMaxConnections(Repository repository, int numberOfConnections) throws IOException, JAXBException
+    {
+        if(repository.getHttpConnectionPool() == null)
+        {
+            repository.setHttpConnectionPool(new HttpConnectionPool());
+        }
+
+        repository.getHttpConnectionPool().setAllocatedConnections(numberOfConnections);
         configurationManager.store();
     }
 

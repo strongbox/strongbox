@@ -6,6 +6,9 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.apache.http.pool.PoolStats;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
+import org.carlspring.strongbox.services.ConfigurationManagementService;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.HttpConnectionPool;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -13,6 +16,8 @@ import org.springframework.stereotype.Component;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
 
 /**
  * @author korest
@@ -20,8 +25,11 @@ import javax.ws.rs.core.Response;
 @Component
 @Path("/configuration/proxy/connection-pool")
 @Api(value = "/configuration/proxy/connection-pool")
-public class ProxyRepositoryConnectionPoolConfigurationManagmentRestlet extends BaseRestlet
+public class ProxyRepositoryConnectionPoolConfigurationManagementRestlet extends BaseRestlet
 {
+
+    @Autowired
+    private ConfigurationManagementService configurationManagementService;
 
     @Autowired
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
@@ -35,9 +43,27 @@ public class ProxyRepositoryConnectionPoolConfigurationManagmentRestlet extends 
             @ApiResponse(code = 500, message = "An error occurred.") })
     public Response setNumberOfConnectionsForProxyRepository(@PathParam(value = "storageId") String storageId,
             @PathParam(value = "repositoryId") String repositoryId, @PathParam(value = "numberOfConnections") int numberOfConnections)
+            throws IOException, JAXBException
     {
-        Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
-        proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(repository.getRemoteRepository().getUrl(), numberOfConnections);
+        Storage storage = getConfiguration().getStorage(storageId);
+        if(storage == null)
+        {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("The storage does not exist!")
+                    .build();
+        }
+        Repository repository = storage.getRepository(repositoryId);
+        if(repository == null)
+        {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("The repository does not exist!")
+                    .build();
+        }
+
+        configurationManagementService.setProxyRepositoryMaxConnections(repository, numberOfConnections);
+        proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(
+                repository.getRemoteRepository().getUrl(), numberOfConnections);
+
         return Response.ok().entity("Number of pool connections for repository was updated successfully.").build();
     }
 
@@ -51,7 +77,21 @@ public class ProxyRepositoryConnectionPoolConfigurationManagmentRestlet extends 
     public Response getPoolStatsForProxyRepository(@PathParam(value = "storageId") String storageId,
             @PathParam(value = "repositoryId") String repositoryId)
     {
-        Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
+        Storage storage = getConfiguration().getStorage(storageId);
+        if(storage == null)
+        {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("The storage does not exist!")
+                    .build();
+        }
+        Repository repository = storage.getRepository(repositoryId);
+        if(repository == null)
+        {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("The repository does not exist!")
+                    .build();
+        }
+
         PoolStats poolStats = proxyRepositoryConnectionPoolConfigurationService
                 .getPoolStats(repository.getRemoteRepository().getUrl());
 

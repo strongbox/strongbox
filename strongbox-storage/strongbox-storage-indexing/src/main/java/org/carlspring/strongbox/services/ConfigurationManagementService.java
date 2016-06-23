@@ -63,4 +63,7 @@ public interface ConfigurationManagementService extends ConfigurationService
     ProxyConfiguration getProxyConfiguration()
             throws IOException, JAXBException;
 
+    void setProxyRepositoryMaxConnections(Repository repository, int numberOfConnections)
+            throws IOException, JAXBException;
+
 }

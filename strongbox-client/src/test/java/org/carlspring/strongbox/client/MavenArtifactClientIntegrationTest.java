@@ -35,26 +35,12 @@ public class MavenArtifactClientIntegrationTest
     @Import({DataServiceConfig.class, ClientConfig.class})
     public static class SpringConfig
     {
-        @Bean
-        public PoolConfigurationService poolConfigurationService()
-        {
-            PoolConfigurationService poolConfigurationService = Mockito.mock(PoolConfigurationService.class);
-            Mockito.when(poolConfigurationService.findAll()).thenReturn(Optional.empty());
-            Mockito.when(poolConfigurationService
-                    .createOrUpdateNumberOfConnectionsForRepository(Mockito.anyString(), Mockito.anyInt()))
-                    .thenReturn(new PoolConfiguration());
-
-            return poolConfigurationService;
-        }
     }
 
     private MavenArtifactClient mavenArtifactClient;
 
     // fake url
     private String repositoryUrl = "https://repo.maven.apache.org/maven2/";
-
-    @Autowired
-    private PoolConfigurationService poolConfigurationService;
 
     @Autowired
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;

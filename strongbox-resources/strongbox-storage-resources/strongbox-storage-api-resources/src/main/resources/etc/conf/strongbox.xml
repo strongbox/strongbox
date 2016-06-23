@@ -39,6 +39,11 @@
                                        download-remote-indexes="true"
                                        auto-blocking="true"
                                        checksum-validation="true" />
+
+                    <http-connection-pool allocated-connections="200"
+                                          extend-pool-by-factor="0.25"
+                                          extend-pool-when-usage-above="0.75"
+                                          extended-pool-connection-inactivity-timeout="300"/>
                 </repository>
 
                 <repository id="group-releases" policy="release" implementation="group" type="group" secured="true">

@@ -4,20 +4,13 @@ import org.apache.http.HttpHost;
 import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.pool.PoolStats;
-import org.carlspring.strongbox.data.domain.PoolConfiguration;
-import org.carlspring.strongbox.data.service.PoolConfigurationService;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.glassfish.jersey.apache.connector.ApacheClientProperties;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -26,7 +19,6 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -47,25 +39,13 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
     private Integer maxTotal;
     @Value("${pool.defaultConnectionsPerRoute:5}")
     private Integer defaultMaxPerRoute;
-    @Autowired
-    private PoolConfigurationService poolConfigurationService;
 
     @PostConstruct
     public void init()
     {
         poolingHttpClientConnectionManager = new PoolingHttpClientConnectionManager();
-        poolingHttpClientConnectionManager.setMaxTotal(maxTotal); //TODO  alue that depends on number of threads?
+        poolingHttpClientConnectionManager.setMaxTotal(maxTotal); //TODO value that depends on number of threads?
         poolingHttpClientConnectionManager.setDefaultMaxPerRoute(defaultMaxPerRoute);
-
-        // set all repositories configurations on start
-        Optional<Iterable<PoolConfiguration>> poolConfigurationsOptional = poolConfigurationService.findAll();
-        poolConfigurationsOptional.ifPresent(poolConfigurations -> {
-            for(PoolConfiguration poolConfiguration : poolConfigurations)
-            {
-                HttpRoute httpRoute = getHttpRouteFromRepository(poolConfiguration.getRepositoryUrl());
-                poolingHttpClientConnectionManager.setMaxPerRoute(httpRoute, poolConfiguration.getMaxConnections());
-            }
-        });
 
         // thread for monitoring unused connections
         idleConnectionMonitorThread = new IdleConnectionMonitorThread(poolingHttpClientConnectionManager);
@@ -117,7 +97,6 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
     public void setMaxPerRepository(String repository, int max)
     {
         HttpRoute httpRoute = getHttpRouteFromRepository(repository);
-        poolConfigurationService.createOrUpdateNumberOfConnectionsForRepository(repository, max);
         poolingHttpClientConnectionManager.setMaxPerRoute(httpRoute, max);
     }
 
