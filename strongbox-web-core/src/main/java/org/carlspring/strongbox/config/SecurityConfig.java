@@ -28,20 +28,22 @@ public class SecurityConfig
     protected void configure(HttpSecurity http)
             throws Exception
     {
-        http
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
-                .and()
-                .exceptionHandling()
-                .authenticationEntryPoint(unauthorizedEntryPoint())
-                .and()
-                .httpBasic()
-                .and()
-                .csrf().disable()
-                .formLogin()
-                .and()
-                .logout()
-                .logoutUrl("/logout");
+        http.sessionManagement()
+            .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
+            .and()
+            .exceptionHandling()
+            .authenticationEntryPoint(unauthorizedEntryPoint())
+            .and()
+            .httpBasic()
+            .and()
+            .csrf().disable()
+            .formLogin()
+            .and()
+            .authorizeRequests()
+            .antMatchers("/docs/**").permitAll()
+            .and()
+            .logout()
+            .logoutUrl("/logout");
     }
 
     @Autowired
@@ -62,6 +64,8 @@ public class SecurityConfig
     {
         UnauthorizedEntryPoint unauthorizedEntryPoint = new UnauthorizedEntryPoint();
         unauthorizedEntryPoint.setRealmName("Strongbox Realm");
+
         return unauthorizedEntryPoint;
     }
+
 }

@@ -22,6 +22,7 @@ import org.springframework.data.orient.commons.core.OrientTransactionManager;
 import org.springframework.data.orient.commons.repository.config.EnableOrientRepositories;
 import org.springframework.data.orient.object.OrientObjectDatabaseFactory;
 import org.springframework.data.orient.object.OrientObjectTemplate;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.annotation.PostConstruct;
@@ -38,24 +39,25 @@ import java.io.IOException;
 @EnableOrientRepositories(basePackages = "org.carlspring.strongbox.data.repository")
 @Import(DataServicePropertiesConfig.class)
 @EnableCaching
+@Service
 public class DataServiceConfig
 {
 
     private static final Logger logger = LoggerFactory.getLogger(DataServiceConfig.class);
 
-    @Value("${org.carlspring.strongbox.data.orientdb.host}")
+    @Value("${strongbox.orientdb.host:127.0.0.1}")
     String host;
 
-    @Value("${org.carlspring.strongbox.data.orientdb.port}")
+    @Value("${strongbox.orientdb.port:2424}")
     Integer port;
 
-    @Value("${org.carlspring.strongbox.data.orientdb.database}")
+    @Value("${strongbox.orientdb.database:strongbox}")
     String database;
 
-    @Value("${org.carlspring.strongbox.data.orientdb.user}")
-    String user;
+    @Value("${strongbox.orientdb.username:admin}")
+    String username;
 
-    @Value("${org.carlspring.strongbox.data.orientdb.password}")
+    @Value("${strongbox.orientdb.password:password}")
     String password;
 
     @Autowired
@@ -66,7 +68,7 @@ public class DataServiceConfig
     {
         OrientObjectDatabaseFactory factory = new OrientObjectDatabaseFactory();
         factory.setUrl(getConnectionUrl());
-        factory.setUsername(user);
+        factory.setUsername(username);
         factory.setPassword(password);
 
         return factory;
@@ -112,7 +114,7 @@ public class DataServiceConfig
         embeddableServer.start();
 
         // create database if not initialized
-        OServerAdmin serverAdmin = new OServerAdmin(getConnectionUrl()).connect(user, password);
+        OServerAdmin serverAdmin = new OServerAdmin(getConnectionUrl()).connect(username, password);
         if (!serverAdmin.existsDatabase())
         {
             logger.debug("Create database " + database);
@@ -126,4 +128,55 @@ public class DataServiceConfig
     {
         return "remote:" + host + ":" + port + "/" + database;
     }
+
+    public String getHost()
+    {
+        return host;
+    }
+
+    public void setHost(String host)
+    {
+        this.host = host;
+    }
+
+    public Integer getPort()
+    {
+        return port;
+    }
+
+    public void setPort(Integer port)
+    {
+        this.port = port;
+    }
+
+    public String getDatabase()
+    {
+        return database;
+    }
+
+    public void setDatabase(String database)
+    {
+        this.database = database;
+    }
+
+    public String getUsername()
+    {
+        return username;
+    }
+
+    public void setUsername(String username)
+    {
+        this.username = username;
+    }
+
+    public String getPassword()
+    {
+        return password;
+    }
+
+    public void setPassword(String password)
+    {
+        this.password = password;
+    }
+
 }

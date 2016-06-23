@@ -330,21 +330,21 @@ public class RestClient
         if (repository == null)
         {
             logger.error("Unable to add non-existing repository.");
-            throw new ServerErrorException("Unable to add non-existing repository.",
-                                           Response.Status.INTERNAL_SERVER_ERROR);
+            throw new ServerErrorException("Unable to add non-existing repository.", Response.Status.INTERNAL_SERVER_ERROR);
         }
 
         WebTarget resource;
 
         if (repository.getStorage() == null)
         {
-            throw new ServerErrorException("Storage associated with repo is null",
-                                           Response.Status.INTERNAL_SERVER_ERROR);
+            logger.error("Storage associated with repo is null.");
+            throw new ServerErrorException("Storage associated with repo is null.", Response.Status.INTERNAL_SERVER_ERROR);
         }
 
         try
         {
-            String url = getContextBaseUrl() + "/configuration/strongbox/storages/" + repository.getStorage().getId();
+            String url = getContextBaseUrl() + "/configuration/strongbox/storages/" + repository.getStorage().getId() + "/" + repository.getId();
+
             resource = getClientInstance().target(url);
         }
         catch (RuntimeException e)

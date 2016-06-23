@@ -82,7 +82,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-user-management-api</artifactId>
+            <artifactId>strongbox-user-management</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -421,6 +421,27 @@
                                         <artifactItem>
                                             <groupId>${project.groupId}</groupId>
                                             <artifactId>strongbox-storage-api-resources</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>jar</type>
+
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${dir.strongbox.vault}</outputDirectory>
+                                            <includes>etc/conf/security-users.xml</includes>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>unpack-user-management</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>${project.groupId}</groupId>
+                                            <artifactId>strongbox-user-management</artifactId>
                                             <version>${project.version}</version>
                                             <type>jar</type>
 

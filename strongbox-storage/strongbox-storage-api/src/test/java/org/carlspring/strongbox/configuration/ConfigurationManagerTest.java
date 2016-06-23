@@ -7,6 +7,7 @@ import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.resolvers.LocationResolverRegistry;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.RuleSet;
@@ -58,6 +59,9 @@ public class ConfigurationManagerTest
     @Autowired
     private ArtifactResolutionService artifactResolutionService;
 
+    @Autowired
+    private LocationResolverRegistry locationResolverRegistry;
+
 
     @Before
     public void setUp()
@@ -89,12 +93,12 @@ public class ConfigurationManagerTest
             assertTrue("No repositories were parsed!", !configuration.getStorages().get(storageId).getRepositories().isEmpty());
         }
 
-        assertEquals("Unexpected number of storages!", 1, configuration.getStorages().size());
+        assertTrue("Unexpected number of storages!", configuration.getStorages().size() > 0);
         assertEquals("Incorrect version!", "1.0", configuration.getVersion());
         assertEquals("Incorrect port number!", 48080, configuration.getPort());
-        assertNotNull("No resolvers found!", artifactResolutionService.getResolvers());
+        assertNotNull("No resolvers found!", locationResolverRegistry.getResolvers());
         // The test repository group should have at least two repositories in it:
-        assertTrue("Incorrect number of resolvers found!", artifactResolutionService.getResolvers().size() >= 2);
+        assertTrue("Incorrect number of resolvers found!", locationResolverRegistry.getResolvers().size() >= 2);
         assertTrue("Repository should have required authentication!",
                    configuration.getStorages().get("storage0").getRepositories().get("snapshots").isSecured());
 

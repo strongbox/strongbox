@@ -21,15 +21,8 @@ import org.springframework.context.annotation.Import;
          })
 @Import
         ({
-                 DataServiceConfig.class,
-                 CommonConfig.class,
-                 StrongboxSecurityConfig.class,
-                 StorageIndexingConfig.class,
-                 StorageApiConfig.class,
-                 UsersConfig.class,
-                 SecurityConfig.class,
-                ClientConfig.class
-         })
+                DataServiceConfig.class, CommonConfig.class, StrongboxSecurityConfig.class, StorageIndexingConfig.class,
+                StorageApiConfig.class, UsersConfig.class, SecurityConfig.class, ClientConfig.class })
 @EnableCaching
 public class WebConfig
 {
@@ -38,6 +31,7 @@ public class WebConfig
 
     public WebConfig()
     {
-        logger.info("WebConfig init...");
+        logger.debug("Initialized web configuration.");
     }
+
 }

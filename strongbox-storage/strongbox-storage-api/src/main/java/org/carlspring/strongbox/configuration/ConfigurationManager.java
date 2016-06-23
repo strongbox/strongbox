@@ -7,6 +7,7 @@ import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 
 import javax.annotation.PostConstruct;
 import javax.xml.bind.JAXBException;
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
@@ -107,19 +108,27 @@ public class ConfigurationManager extends AbstractConfigurationManager<Configura
     {
         logger.info("Configuration version: " + getConfiguration().getVersion());
 
-        if (!getConfiguration().getStorages().isEmpty())
+        final File lockFile = new File(ConfigurationResourceResolver.getVaultDirectory(), "storage-booter.lock");
+        if (!lockFile.exists())
         {
-            logger.info("Loading storages...");
-            for (String storageKey : getConfiguration().getStorages().keySet())
+            if (!getConfiguration().getStorages().isEmpty())
             {
-                logger.info(" -> Storage: " + storageKey);
-
-                Storage storage = getConfiguration().getStorages().get(storageKey);
-                for (String repositoryKey : storage.getRepositories().keySet())
+                logger.info("Loading storages...");
+                for (String storageKey : getConfiguration().getStorages().keySet())
                 {
-                    logger.info("    -> Repository: " + repositoryKey);
+                    logger.info(" -> Storage: " + storageKey);
+
+                    Storage storage = getConfiguration().getStorages().get(storageKey);
+                    for (String repositoryKey : storage.getRepositories().keySet())
+                    {
+                        logger.info("    -> Repository: " + repositoryKey);
+                    }
                 }
             }
+        }
+        else
+        {
+            logger.warn("Storages and repositories appear to have already been loaded. (" + lockFile.getAbsolutePath() + " already exists).");
         }
     }
 
