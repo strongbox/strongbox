@@ -116,7 +116,6 @@ public class ArtifactRestletTest
     }
 
     @Test
-    @Ignore
     public void testResolveViaProxy()
             throws Exception
     {
@@ -174,7 +173,7 @@ public class ArtifactRestletTest
     {
         client = RestClient.getTestInstance();
 
-        String artifactPath = "storages/storage0/maven-central/org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.jar";
+        String artifactPath = "storages/storage-common-proxies/maven-central/org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.jar";
 
         InputStream is = client.getResource(artifactPath);
         if (is == null)

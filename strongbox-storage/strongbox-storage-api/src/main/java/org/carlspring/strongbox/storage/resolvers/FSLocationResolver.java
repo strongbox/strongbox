@@ -20,7 +20,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
 
 /**
  * @author mtodorov
@@ -34,9 +37,27 @@ public class FSLocationResolver
 
     private String alias = "file-system";
 
+    @Autowired
+    private LocationResolverRegistry locationResolverRegistry;
+
 
     public FSLocationResolver()
     {
+    }
+
+    @PostConstruct
+    @Override
+    public void register()
+    {
+        locationResolverRegistry.addResolver(alias, this);
+
+        logger.info("Registered resolver '" + getClass().getCanonicalName() + "' with alias '" + alias + "'.");
+    }
+
+    @Override
+    public LocationResolverRegistry getLocationResolverRegistry()
+    {
+        return locationResolverRegistry;
     }
 
     @Override

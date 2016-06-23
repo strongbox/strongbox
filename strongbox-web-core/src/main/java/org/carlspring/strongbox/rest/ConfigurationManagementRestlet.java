@@ -372,16 +372,17 @@ public class ConfigurationManagementRestlet
     }
 
     @PUT
-    @Path("/storages/{storageId}")
+    @Path("/storages/{storageId}/{repositoryId}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @ApiOperation(value = "Updates a repository.")
+    @ApiOperation(value = "Adds or updates a repository.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The repository was updated successfully."),
                             @ApiResponse(code = 404, message = "Repository ${repositoryId} not found!"),
                             @ApiResponse(code = 500, message = "Failed to remove repository ${repositoryId}!") })
-    public Response addOrUpdateRepository(@ApiParam(value = "The storageId", required = true)
-                                          @PathParam("storageId") final String storageId,
-                                          @ApiParam(value = "The repository object", required = true)
-                                          Repository repository)
+    public Response addOrUpdateRepository(@ApiParam(value = "The repositoryId", required = true)
+                                          @PathParam("storageId") String storageId,
+                                          @ApiParam(value = "The repositoryId", required = true)
+                                          @PathParam("repositoryId") String repositoryId,
+                                          @ApiParam(value = "The repository object", required = true) Repository repository)
             throws IOException, JAXBException
     {
         try

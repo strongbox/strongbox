@@ -34,6 +34,7 @@ public class ConfigurationManagementRestletTest
 
     private RestClient client = RestClient.getTestInstanceLoggedInAsAdmin();
 
+
     @After
     public void tearDown()
             throws Exception
@@ -45,7 +46,7 @@ public class ConfigurationManagementRestletTest
     }
 
     @Test
-    public synchronized void testSetAndGetPort()
+    public void testSetAndGetPort()
             throws Exception
     {
         int newPort = 18080;
@@ -57,7 +58,7 @@ public class ConfigurationManagementRestletTest
     }
 
     @Test
-    public synchronized void testSetAndGetBaseUrl()
+    public void testSetAndGetBaseUrl()
             throws Exception
     {
         String baseUrl = "http://localhost:" + 40080 + "/newurl";
@@ -72,7 +73,7 @@ public class ConfigurationManagementRestletTest
     }
 
     @Test
-    public synchronized void testSetAndGetGlobalProxyConfiguration()
+    public void testSetAndGetGlobalProxyConfiguration()
             throws Exception
     {
         List<String> nonProxyHosts = new ArrayList<>();
@@ -99,7 +100,7 @@ public class ConfigurationManagementRestletTest
     }
 
     @Test
-    public synchronized void testAddGetStorage()
+    public void testAddGetStorage()
             throws Exception
     {
         String storageId = "storage1";
@@ -145,7 +146,7 @@ public class ConfigurationManagementRestletTest
     }
 
     @Test
-    public synchronized void testCreateAndDeleteStorage()
+    public void testCreateAndDeleteStorage()
             throws IOException, JAXBException
     {
         final String storageId = "storage2";
@@ -210,7 +211,7 @@ public class ConfigurationManagementRestletTest
     }
 
     @Test
-    public synchronized void testGetAndSetConfiguration()
+    public void testGetAndSetConfiguration()
             throws IOException, JAXBException
     {
         final Configuration configuration = client.getConfiguration();

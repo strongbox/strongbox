@@ -56,13 +56,13 @@ public class SearchRestlet
     @ApiOperation(value = "Used to search for artifacts.", response = SearchResults.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "") })
     public Response search(@ApiParam(value = "The storageId", required = true)
-                                @QueryParam("storageId") final String storageId,
-                                @ApiParam(value = "The repositoryId", required = true)
-                                @QueryParam("repositoryId") final String repositoryId,
-                                @ApiParam(value = "The search query", required = true)
-                                @QueryParam("q") final String query,
-                                @Context HttpHeaders headers,
-                                @Context HttpServletRequest request)
+                           @QueryParam("storageId") final String storageId,
+                           @ApiParam(value = "The repositoryId", required = true)
+                           @QueryParam("repositoryId") final String repositoryId,
+                           @ApiParam(value = "The search query", required = true)
+                           @QueryParam("q") final String query,
+                           @Context HttpHeaders headers,
+                           @Context HttpServletRequest request)
             throws IOException, ParseException
     {
         if (request.getHeader("accept").equalsIgnoreCase("text/plain"))

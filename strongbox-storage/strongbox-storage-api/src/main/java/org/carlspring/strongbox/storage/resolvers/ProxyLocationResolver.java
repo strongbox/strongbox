@@ -13,6 +13,7 @@ import org.carlspring.strongbox.storage.repository.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.DirUtils;
 
+import javax.annotation.PostConstruct;
 import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,6 +28,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -41,9 +43,27 @@ public class ProxyLocationResolver
 
     private String alias = "proxy";
 
+    @Autowired
+    private LocationResolverRegistry locationResolverRegistry;
+
 
     public ProxyLocationResolver()
     {
+    }
+
+    @PostConstruct
+    @Override
+    public void register()
+    {
+        locationResolverRegistry.addResolver(alias, this);
+
+        logger.info("Registered resolver '" + getClass().getCanonicalName() + "' with alias '" + alias + "'.");
+    }
+
+    @Override
+    public LocationResolverRegistry getLocationResolverRegistry()
+    {
+        return locationResolverRegistry;
     }
 
     @Override
@@ -92,7 +112,7 @@ public class ProxyLocationResolver
                 return null;
             }
 
-            System.out.println("Creating " + artifactFile.getTemporaryFile().getParentFile().getAbsolutePath());
+            logger.debug("Creating " + artifactFile.getTemporaryFile().getParentFile().getAbsolutePath() + "...");
 
             artifactFile.createParents();
 
