@@ -13,6 +13,10 @@ import java.security.NoSuchAlgorithmException;
 public interface LocationResolver
 {
 
+    void register();
+
+    LocationResolverRegistry getLocationResolverRegistry();
+
     ArtifactInputStream getInputStream(String storageId,
                                        String repositoryId,
                                        String path)

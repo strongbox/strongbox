@@ -18,19 +18,6 @@ public abstract class AbstractLocationResolver implements LocationResolver
     @Autowired
     private ConfigurationManager configurationManager;
 
-    @Autowired
-    private ArtifactResolutionService artifactResolutionService;
-
-
-    public ArtifactResolutionService getArtifactResolutionService()
-    {
-        return artifactResolutionService;
-    }
-
-    public void setArtifactResolutionService(ArtifactResolutionService artifactResolutionService)
-    {
-        this.artifactResolutionService = artifactResolutionService;
-    }
 
     public ConfigurationManager getConfigurationManager()
     {

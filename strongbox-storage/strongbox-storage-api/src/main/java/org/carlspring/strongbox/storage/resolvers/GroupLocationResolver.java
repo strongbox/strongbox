@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
@@ -34,9 +35,27 @@ public class GroupLocationResolver
     @Autowired
     private BasicRepositoryService basicRepositoryService;
 
+    @Autowired
+    private LocationResolverRegistry locationResolverRegistry;
+
 
     public GroupLocationResolver()
     {
+    }
+
+    @PostConstruct
+    @Override
+    public void register()
+    {
+        locationResolverRegistry.addResolver(alias, this);
+
+        logger.info("Registered resolver '" + getClass().getCanonicalName() + "' with alias '" + alias + "'.");
+    }
+
+    @Override
+    public LocationResolverRegistry getLocationResolverRegistry()
+    {
+        return locationResolverRegistry;
     }
 
     @Override
@@ -230,9 +249,10 @@ public class GroupLocationResolver
         // TODO: Resolve via the implementation provider, not the filesystem
         // repository.getImplementation()
 
-        return (ArtifactInputStream) getArtifactResolutionService().getInputStream(repository.getStorage().getId(),
-                                                                                   repository.getId(),
-                                                                                   artifactPath);
+        return locationResolverRegistry.getResolver(repository.getImplementation())
+                                       .getInputStream(repository.getStorage().getId(),
+                                                       repository.getId(),
+                                                       artifactPath);
     }
 
     @Override
