@@ -75,6 +75,8 @@ public class TrashRestlet
         }
         catch (ArtifactStorageException e)
         {
+            logger.error(e.getMessage(), e);
+
             return Response.status(Response.Status.BAD_REQUEST)
                            .entity(e.getMessage())
                            .build();
@@ -101,6 +103,8 @@ public class TrashRestlet
         }
         catch (ArtifactStorageException e)
         {
+            logger.error(e.getMessage(), e);
+
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
         }
 
