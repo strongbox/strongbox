@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.xml.parsers;
 
-import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.url.ClasspathURLStreamHandler;
 import org.carlspring.strongbox.url.ClasspathURLStreamHandlerFactory;
 import org.slf4j.Logger;
@@ -12,7 +11,6 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
