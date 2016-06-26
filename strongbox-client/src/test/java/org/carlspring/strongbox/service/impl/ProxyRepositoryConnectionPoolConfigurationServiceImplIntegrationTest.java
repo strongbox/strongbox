@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.service.impl;
 
 import org.carlspring.strongbox.config.ClientConfig;
-import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,7 +24,7 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImplIntegrationTes
 {
 
     @Configuration
-    @Import({DataServiceConfig.class, ClientConfig.class})
+    @Import({ClientConfig.class})
     public static class SpringConfig
     {
     }

@@ -1,23 +1,19 @@
 package org.carlspring.strongbox.client;
 
 import org.carlspring.strongbox.config.ClientConfig;
-import org.carlspring.strongbox.config.DataServiceConfig;
-import org.carlspring.strongbox.data.domain.PoolConfiguration;
-import org.carlspring.strongbox.data.service.PoolConfigurationService;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.IOException;
-import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 
@@ -32,7 +28,7 @@ public class MavenArtifactClientIntegrationTest
     private static final Logger LOGGER = LoggerFactory.getLogger(MavenArtifactClientIntegrationTest.class);
 
     @Configuration
-    @Import({DataServiceConfig.class, ClientConfig.class})
+    @Import({ClientConfig.class})
     public static class SpringConfig
     {
     }

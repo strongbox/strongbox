@@ -3,6 +3,7 @@ package org.carlspring.strongbox.data.service;
 import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.data.domain.PoolConfiguration;
 import org.carlspring.strongbox.data.repository.PoolConfigurationRepository;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -25,6 +26,7 @@ import static org.junit.Assert.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { DataServiceConfig.class })
 @Rollback
+@Ignore
 public class PoolConfigurationServiceTest
 {
 
