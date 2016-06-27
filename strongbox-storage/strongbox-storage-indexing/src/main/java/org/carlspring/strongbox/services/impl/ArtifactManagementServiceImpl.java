@@ -17,10 +17,7 @@ import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
-import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
-import org.carlspring.strongbox.storage.resolvers.LocationResolver;
-import org.carlspring.strongbox.storage.resolvers.LocationResolverRegistry;
+import org.carlspring.strongbox.storage.resolvers.*;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
 import org.carlspring.strongbox.storage.validation.version.VersionValidationException;
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
@@ -401,7 +398,10 @@ public class ArtifactManagementServiceImpl
         {
             for (LocationResolver resolver : locationResolverRegistry.getResolvers().values())
             {
-                resolver.deleteTrash();
+                if (!resolver.getAlias().equals(GroupLocationResolver.ALIAS))
+                {
+                    resolver.deleteTrash();
+                }
             }
         }
         catch (IOException e)

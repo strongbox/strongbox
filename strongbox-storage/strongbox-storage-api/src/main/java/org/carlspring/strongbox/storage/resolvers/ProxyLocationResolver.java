@@ -41,7 +41,7 @@ public class ProxyLocationResolver
 
     private static final Logger logger = LoggerFactory.getLogger(ProxyLocationResolver.class);
 
-    private String alias = "proxy";
+    public static final String ALIAS = "proxy";
 
     @Autowired
     private LocationResolverRegistry locationResolverRegistry;
@@ -55,9 +55,9 @@ public class ProxyLocationResolver
     @Override
     public void register()
     {
-        locationResolverRegistry.addResolver(alias, this);
+        locationResolverRegistry.addResolver(ALIAS, this);
 
-        logger.info("Registered resolver '" + getClass().getCanonicalName() + "' with alias '" + alias + "'.");
+        logger.info("Registered resolver '" + getClass().getCanonicalName() + "' with ALIAS '" + ALIAS + "'.");
     }
 
     @Override
@@ -477,13 +477,7 @@ public class ProxyLocationResolver
     @Override
     public String getAlias()
     {
-        return alias;
-    }
-
-    @Override
-    public void setAlias(String alias)
-    {
-        this.alias = alias;
+        return ALIAS;
     }
 
 }

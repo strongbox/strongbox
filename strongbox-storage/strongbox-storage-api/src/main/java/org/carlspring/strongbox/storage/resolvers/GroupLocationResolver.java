@@ -30,7 +30,7 @@ public class GroupLocationResolver
 
     private static final Logger logger = LoggerFactory.getLogger(GroupLocationResolver.class);
 
-    private String alias = "group";
+    public static final String ALIAS = "group";
 
     @Autowired
     private BasicRepositoryService basicRepositoryService;
@@ -47,9 +47,9 @@ public class GroupLocationResolver
     @Override
     public void register()
     {
-        locationResolverRegistry.addResolver(alias, this);
+        locationResolverRegistry.addResolver(ALIAS, this);
 
-        logger.info("Registered resolver '" + getClass().getCanonicalName() + "' with alias '" + alias + "'.");
+        logger.info("Registered resolver '" + getClass().getCanonicalName() + "' with ALIAS '" + ALIAS + "'.");
     }
 
     @Override
@@ -332,13 +332,7 @@ public class GroupLocationResolver
     @Override
     public String getAlias()
     {
-        return alias;
-    }
-
-    @Override
-    public void setAlias(String alias)
-    {
-        this.alias = alias;
+        return ALIAS;
     }
 
     public RoutingRules getRoutingRules()
