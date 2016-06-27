@@ -139,7 +139,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-configuration</artifactId>
+            <artifactId>strongbox-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
 
