@@ -232,8 +232,9 @@ public class ConfigurationManagementServiceImpl implements ConfigurationManageme
     }
 
     @Override
-    public void setProxyRepositoryMaxConnections(Repository repository, int numberOfConnections) throws IOException, JAXBException
+    public void setProxyRepositoryMaxConnections(String storageId, String repositoryId, int numberOfConnections) throws IOException, JAXBException
     {
+        Repository repository = getRepository(storageId, repositoryId);
         if(repository.getHttpConnectionPool() == null)
         {
             repository.setHttpConnectionPool(new HttpConnectionPool());
@@ -241,6 +242,14 @@ public class ConfigurationManagementServiceImpl implements ConfigurationManageme
 
         repository.getHttpConnectionPool().setAllocatedConnections(numberOfConnections);
         configurationManager.store();
+    }
+
+    @Override
+    public HttpConnectionPool getHttpConnectionPoolConfiguration(String storageId, String repositoryId)
+            throws IOException, JAXBException
+    {
+        Repository repository = getRepository(storageId, repositoryId);
+        return repository.getHttpConnectionPool();
     }
 
     public ConfigurationManager getConfigurationManager()

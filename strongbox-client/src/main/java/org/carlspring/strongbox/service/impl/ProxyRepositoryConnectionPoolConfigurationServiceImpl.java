@@ -36,9 +36,11 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
     private IdleConnectionMonitorThread idleConnectionMonitorThread;
 
     @Value("${pool.maxConnections:200}")
-    private Integer maxTotal;
+    private int maxTotal;
     @Value("${pool.defaultConnectionsPerRoute:5}")
-    private Integer defaultMaxPerRoute;
+    private int defaultMaxPerRoute;
+    @Value("${pool.idleConnectionsTimeoutInSeconds:60}")
+    private int idleConnectionsTimeoutInSeconds;
 
     @PostConstruct
     public void init()
@@ -48,7 +50,8 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
         poolingHttpClientConnectionManager.setDefaultMaxPerRoute(defaultMaxPerRoute);
 
         // thread for monitoring unused connections
-        idleConnectionMonitorThread = new IdleConnectionMonitorThread(poolingHttpClientConnectionManager);
+        idleConnectionMonitorThread =
+                new IdleConnectionMonitorThread(poolingHttpClientConnectionManager, idleConnectionsTimeoutInSeconds);
         idleConnectionMonitorThread.setDaemon(true);
         idleConnectionMonitorThread.start();
     }
@@ -165,10 +168,14 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
 
         private volatile boolean shutdown;
 
-        IdleConnectionMonitorThread(PoolingHttpClientConnectionManager poolingHttpClientConnectionManager)
+        private int idleConnectionsTimeout;
+
+        IdleConnectionMonitorThread(PoolingHttpClientConnectionManager poolingHttpClientConnectionManager,
+                int idleConnectionsTimeout)
         {
             super();
             this.poolingHttpClientConnectionManager = poolingHttpClientConnectionManager;
+            this.idleConnectionsTimeout = idleConnectionsTimeout;
         }
 
         @Override
@@ -182,7 +189,7 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
                     {
                         wait(5000);
                         poolingHttpClientConnectionManager.closeExpiredConnections();
-                        poolingHttpClientConnectionManager.closeIdleConnections(60, TimeUnit.SECONDS);
+                        poolingHttpClientConnectionManager.closeIdleConnections(idleConnectionsTimeout, TimeUnit.SECONDS);
                     }
                 }
             }

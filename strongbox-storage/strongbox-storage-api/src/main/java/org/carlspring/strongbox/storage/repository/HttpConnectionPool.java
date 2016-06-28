@@ -14,10 +14,6 @@ public class HttpConnectionPool
 {
     @XmlAttribute(name = "allocated-connections")
     private int allocatedConnections;
-    @XmlAttribute(name = "extend-pool-by-factor")
-    private double extendPoolByFactor;
-    @XmlAttribute(name = "extend-pool-when-usage-above")
-    private double extendPoolWhenUsageAbove;
 
     public int getAllocatedConnections()
     {
@@ -27,25 +23,5 @@ public class HttpConnectionPool
     public void setAllocatedConnections(int allocatedConnections)
     {
         this.allocatedConnections = allocatedConnections;
-    }
-
-    public double getExtendPoolWhenUsageAbove()
-    {
-        return extendPoolWhenUsageAbove;
-    }
-
-    public void setExtendPoolWhenUsageAbove(double extendPoolWhenUsageAbove)
-    {
-        this.extendPoolWhenUsageAbove = extendPoolWhenUsageAbove;
-    }
-
-    public double getExtendPoolByFactor()
-    {
-        return extendPoolByFactor;
-    }
-
-    public void setExtendPoolByFactor(double extendPoolByFactor)
-    {
-        this.extendPoolByFactor = extendPoolByFactor;
     }
 }

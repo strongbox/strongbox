@@ -1,10 +1,12 @@
 package org.carlspring.strongbox.services;
 
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.HttpConnectionPool;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.junit.Test;
@@ -13,8 +15,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import javax.xml.bind.JAXBException;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author mtodorov
@@ -93,6 +99,25 @@ public class ConfigurationManagementServiceImplTest
 
         configurationManagementService.removeRepository("storage0", groupRepository1.getId());
         configurationManagementService.removeRepository("storage0", groupRepository2.getId());
+    }
+
+    @Test
+    public void testSetProxyRepositoryMaxConnections() throws IOException, JAXBException
+    {
+        Storage storage = configurationManagementService.getStorage("storage0");
+
+        Repository repository = new Repository("test-repository-releases");
+        repository.setType(RepositoryTypeEnum.HOSTED.getType());
+        repository.setStorage(storage);
+
+        configurationManagementService.addOrUpdateRepository("storage0", repository);
+
+        configurationManagementService.setProxyRepositoryMaxConnections(storage.getId(), repository.getId(), 10);
+
+        HttpConnectionPool httpConnectionPool =
+                configurationManagementService.getHttpConnectionPoolConfiguration(storage.getId(), repository.getId());
+        assertNotNull(httpConnectionPool);
+        assertEquals(10, httpConnectionPool.getAllocatedConnections());
     }
 
 }

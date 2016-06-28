@@ -35,7 +35,7 @@ public class ProxyRepositoryConnectionPoolConfigurationManagementRestlet extends
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
 
     @PUT
-    @Path("/{storageId}/{repositoryId}/{numberOfConnections}")
+    @Path("{storageId}/{repositoryId}/{numberOfConnections}")
     @Produces(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Update number of pool connections pool for proxy repository")
     @ApiResponses(value = {
@@ -53,14 +53,20 @@ public class ProxyRepositoryConnectionPoolConfigurationManagementRestlet extends
                     .build();
         }
         Repository repository = storage.getRepository(repositoryId);
-        if(repository == null)
+        if(storage.getRepository(repositoryId) == null)
         {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity("The repository does not exist!")
                     .build();
         }
+        if(storage.getRepository(repositoryId).getRemoteRepository() == null)
+        {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Repository doesn't have remote repository!")
+                    .build();
+        }
 
-        configurationManagementService.setProxyRepositoryMaxConnections(repository, numberOfConnections);
+        configurationManagementService.setProxyRepositoryMaxConnections(storageId, repositoryId, numberOfConnections);
         proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(
                 repository.getRemoteRepository().getUrl(), numberOfConnections);
 
@@ -68,7 +74,7 @@ public class ProxyRepositoryConnectionPoolConfigurationManagementRestlet extends
     }
 
     @GET
-    @Path("/{storageId}/{repositoryId}")
+    @Path("{storageId}/{repositoryId}")
     @Produces(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Get proxy repository pool stats")
     @ApiResponses(value = {
@@ -91,6 +97,12 @@ public class ProxyRepositoryConnectionPoolConfigurationManagementRestlet extends
                     .entity("The repository does not exist!")
                     .build();
         }
+        if(storage.getRepository(repositoryId).getRemoteRepository() == null)
+        {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Repository doesn't have remote repository!")
+                    .build();
+        }
 
         PoolStats poolStats = proxyRepositoryConnectionPoolConfigurationService
                 .getPoolStats(repository.getRemoteRepository().getUrl());
@@ -99,7 +111,7 @@ public class ProxyRepositoryConnectionPoolConfigurationManagementRestlet extends
     }
 
     @PUT
-    @Path("/default/{numberOfConnections}")
+    @Path("default/{numberOfConnections}")
     @Produces(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Update default number of connections for proxy repository")
     @ApiResponses(value = {
@@ -112,7 +124,7 @@ public class ProxyRepositoryConnectionPoolConfigurationManagementRestlet extends
     }
 
     @GET
-    @Path("/default-number")
+    @Path("default-number")
     @Produces(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Get default number of connections for proxy repository")
     @ApiResponses(value = {
@@ -125,7 +137,7 @@ public class ProxyRepositoryConnectionPoolConfigurationManagementRestlet extends
     }
 
     @PUT
-    @Path("/max/{numberOfConnections}")
+    @Path("max/{numberOfConnections}")
     @Produces(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Update max number of connections for proxy repository")
     @ApiResponses(value = {
@@ -138,7 +150,6 @@ public class ProxyRepositoryConnectionPoolConfigurationManagementRestlet extends
     }
 
     @GET
-    @Path("/")
     @Produces(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Get max number of connections for proxy repository")
     @ApiResponses(value = {
