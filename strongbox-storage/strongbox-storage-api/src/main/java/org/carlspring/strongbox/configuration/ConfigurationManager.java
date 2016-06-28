@@ -104,9 +104,7 @@ public class ConfigurationManager extends AbstractConfigurationManager<Configura
             }
         }
 
-        configurationRepository.updateConfiguration(configuration).ifPresent(updatedConfiguration -> {
-            this.configuration = (ServerConfiguration<Configuration>) updatedConfiguration;
-        });
+        configurationRepository.updateConfiguration(configuration);
     }
 
     private void setProxyRepositoryConnectionPoolConfigurations()
