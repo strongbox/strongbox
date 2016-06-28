@@ -51,6 +51,4 @@ public interface LocationResolver
 
     String getAlias();
 
-    void setAlias(String alias);
-
 }
