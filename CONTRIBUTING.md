@@ -27,4 +27,5 @@ To accept, please:
 | Alex Oreshkevich             | redsoft.pro                              | Minsk, Republic of Belarus              | 2016-05-12 |
 | Faisal Hameed                | DevFactory                               | Lahore, Islamic Republic of Pakistan
 | 2016-06-10 |
-| 2016-05-28 |                 |                                          | Lviv, Ukraine
+| Orest Kyrylchuk              |                                          | Lviv, Ukraine                           |
+2016-05-28 
