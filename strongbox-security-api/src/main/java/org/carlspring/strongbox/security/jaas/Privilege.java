@@ -52,4 +52,13 @@ public class Privilege implements Serializable
         this.description = description;
     }
 
+    @Override
+    public String toString()
+    {
+        final StringBuilder sb = new StringBuilder("\n\t\tPrivilege{");
+        sb.append("name='").append(name).append('\'');
+        sb.append(", description='").append(description).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
 }

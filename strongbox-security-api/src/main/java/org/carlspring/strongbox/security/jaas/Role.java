@@ -9,6 +9,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.base.Objects;
+
 /**
  * @author mtodorov
  */
@@ -50,6 +52,21 @@ public class Role implements Serializable
     {
         this.name = name;
         this.description = description;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Role role = (Role) o;
+        return Objects.equal(name, role.name);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hashCode(name);
     }
 
     public String getName()
@@ -135,13 +152,13 @@ public class Role implements Serializable
     @Override
     public String toString()
     {
-        return "Role{" +
-               "name='" + name + '\'' +
-               ", description='" + description + '\'' +
-               ", repository='" + repository + '\'' +
-               ", roles=" + roles +
-               ", privileges=" + privileges +
-               '}';
+        final StringBuilder sb = new StringBuilder("\n\t\tRole{");
+        sb.append("name='").append(name).append('\'');
+        sb.append(", description='").append(description).append('\'');
+        sb.append(", repository='").append(repository).append('\'');
+        sb.append(", roles=").append(roles);
+        sb.append(", privileges=").append(privileges);
+        sb.append('}');
+        return sb.toString();
     }
-
 }
