@@ -1,7 +1,6 @@
 package org.carlspring.strongbox;
 
 import org.carlspring.strongbox.config.ClientConfig;
-import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
@@ -14,7 +13,6 @@ public class BaseStorageApiTest extends TestCaseWithArtifactGeneration
     @Import({
             StorageApiConfig.class,
             CommonConfig.class,
-            DataServiceConfig.class,
             ClientConfig.class
     })
     public static class SpringConfig { }

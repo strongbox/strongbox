@@ -5,7 +5,6 @@ import org.carlspring.strongbox.StorageApiConfig;
 import org.carlspring.strongbox.StorageIndexingConfig;
 import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
 import org.carlspring.strongbox.users.UsersConfig;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.EnableCaching;
@@ -21,7 +20,7 @@ import org.springframework.context.annotation.Import;
          })
 @Import
         ({
-                DataServiceConfig.class, CommonConfig.class, StrongboxSecurityConfig.class, StorageIndexingConfig.class,
+                CommonConfig.class, StrongboxSecurityConfig.class, StorageIndexingConfig.class,
                 StorageApiConfig.class, UsersConfig.class, SecurityConfig.class, ClientConfig.class })
 @EnableCaching
 public class WebConfig

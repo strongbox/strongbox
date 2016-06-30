@@ -2,7 +2,6 @@ package org.carlspring.strongbox.config;
 
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
-import org.carlspring.strongbox.data.domain.PoolConfiguration;
 import org.carlspring.strongbox.data.server.EmbeddedOrientDbServer;
 import org.carlspring.strongbox.data.tx.CustomOrientTransactionManager;
 import org.slf4j.Logger;
@@ -19,7 +18,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.orient.commons.core.OrientTransactionManager;
-import org.springframework.data.orient.commons.repository.config.EnableOrientRepositories;
 import org.springframework.data.orient.object.OrientObjectDatabaseFactory;
 import org.springframework.data.orient.object.OrientObjectTemplate;
 import org.springframework.stereotype.Service;
@@ -36,7 +34,6 @@ import java.io.IOException;
 @Configuration
 @EnableTransactionManagement
 @ComponentScan({ "org.carlspring.strongbox.data" })
-@EnableOrientRepositories(basePackages = "org.carlspring.strongbox.data.repository")
 @Import(DataServicePropertiesConfig.class)
 @EnableCaching
 @Service
@@ -120,8 +117,6 @@ public class DataServiceConfig
             logger.debug("Create database " + database);
             serverAdmin.createDatabase(database, "document", "plocal").close();
         }
-
-        objectDatabaseTx().getEntityManager().registerEntityClasses(PoolConfiguration.class.getPackage().getName());
     }
 
     private String getConnectionUrl()
