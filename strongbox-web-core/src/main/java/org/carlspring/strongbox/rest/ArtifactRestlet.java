@@ -68,7 +68,7 @@ public class ArtifactRestlet
 
     @GET
     @Path("greet")
-    @PreAuthorize("hasAuthority('ROOT')")
+    @PreAuthorize("authenticated")
     public Response greet(@Context HttpHeaders headers, @Context HttpServletRequest request){
         return Response.status(Response.Status.OK).entity("success").build();
     }
@@ -78,6 +78,7 @@ public class ArtifactRestlet
     @ApiOperation(value = "Used to deploy an artifact", position = 0)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deployed successfully."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
+    @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
     public Response upload(@ApiParam(value = "The storageId", required = true)
                            @PathParam("storageId") String storageId,
                            @ApiParam(value = "The repositoryId", required = true)
@@ -112,7 +113,7 @@ public class ArtifactRestlet
     @ApiOperation(value = "Used to retrieve an artifact", position = 1)
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 400, message = "An error occurred.") })
-    @PreAuthorize("hasAuthority('ROOT')")
+    @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     public Response download(@ApiParam(value = "The storageId", required = true)
                              @PathParam("storageId") String storageId,
                              @ApiParam(value = "The repositoryId", required = true)
@@ -352,7 +353,7 @@ public class ArtifactRestlet
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The path was copied successfully."),
                             @ApiResponse(code = 400, message = "Bad request."),
                             @ApiResponse(code = 404, message = "The source/destination storageId/repositoryId/path does not exist!")})
-    @PreAuthorize("hasAuthority('ROOT')")
+    @PreAuthorize("hasAuthority('ARTIFACTS_COPY')")
     public Response copy(@ApiParam(value = "The path", required = true)
                          @PathParam("path") String path,
                          @ApiParam(value = "The source storageId", required = true)
@@ -424,7 +425,7 @@ public class ArtifactRestlet
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deleted."),
                             @ApiResponse(code = 400, message = "Bad request."),
                             @ApiResponse(code = 404, message = "The specified storageId/repositoryId/path does not exist!")})
-    @PreAuthorize("hasAuthority('ROOT')")
+    @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
     public Response delete(@ApiParam(value = "The storageId", required = true)
                            @PathParam("storageId") String storageId,
                            @ApiParam(value = "The repositoryId", required = true)

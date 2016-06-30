@@ -30,7 +30,6 @@ import org.springframework.stereotype.Component;
 @Component
 @Path("/search")
 @Api(value = "/search")
-@PreAuthorize("hasAuthority('ROOT')")
 public class SearchRestlet
         extends BaseArtifactRestlet
 {
@@ -55,6 +54,7 @@ public class SearchRestlet
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
     @ApiOperation(value = "Used to search for artifacts.", response = SearchResults.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "") })
+    @PreAuthorize("hasAuthority('SEARCH_ARTIFACTS')")
     public Response search(@ApiParam(value = "The storageId", required = true)
                            @QueryParam("storageId") final String storageId,
                            @ApiParam(value = "The repositoryId", required = true)

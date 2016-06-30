@@ -1,16 +1,16 @@
 package org.carlspring.strongbox.security.user;
 
+import org.carlspring.strongbox.users.domain.Privileges;
+import org.carlspring.strongbox.users.domain.Roles;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.service.UserService;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -46,8 +46,21 @@ public class StrongboxUserDetailService
         }
 
         // thread-safe transformation of roles to authorities
-        List<GrantedAuthority> authorities = new LinkedList<>();
-        user.getRoles().forEach(role -> authorities.add(new SimpleGrantedAuthority(role.toUpperCase())));
+        Set<Privileges> authorities = new HashSet<>();
+        user.getRoles().forEach(role -> {
+
+            // load role by name
+            String roleName = role.toUpperCase();
+            try
+            {
+                Roles configuredRole = Roles.valueOf(roleName);
+                authorities.addAll(configuredRole.getPrivileges());
+            }
+            catch (IllegalArgumentException e)
+            {
+                logger.warn("Unable to find role " + roleName, e);
+            }
+        });
 
         // extract (detach) user in current transaction
         SpringSecurityUser springUser = new SpringSecurityUser();
@@ -57,7 +70,7 @@ public class StrongboxUserDetailService
         springUser.setUsername(user.getUsername());
         springUser.setAuthorities(authorities);
 
-        logger.trace("Authorise under " + springUser);
+        logger.debug("Authorise under " + springUser);
 
         return springUser;
     }

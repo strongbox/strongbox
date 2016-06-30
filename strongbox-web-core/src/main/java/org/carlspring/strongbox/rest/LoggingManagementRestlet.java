@@ -7,11 +7,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
@@ -21,8 +17,8 @@ import org.springframework.stereotype.Component;
 @Component
 @Path("/logging")
 @Api(value = "/logging")
-@PreAuthorize("hasAuthority('ROOT')")
-public class LoggingManagementRestlet extends AbstractLoggingManagementRestlet
+public class LoggingManagementRestlet
+        extends AbstractLoggingManagementRestlet
 {
 
 
@@ -30,12 +26,13 @@ public class LoggingManagementRestlet extends AbstractLoggingManagementRestlet
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger was added successfully."),
                             @ApiResponse(code = 500, message = "Failed to add logger!") })
     @Override
+    @PreAuthorize("hasAuthority('CONFIGURATION_ADD_LOGGER')")
     public Response addLogger(@ApiParam(value = "The package to log", required = true)
-                              String loggerPackage,
+                                      String loggerPackage,
                               @ApiParam(value = "The logging level", required = true)
-                              String level,
+                                      String level,
                               @ApiParam(value = "The name of the appender", required = true)
-                              String appenderName)
+                                      String appenderName)
     {
         return super.addLogger(loggerPackage, level, appenderName);
     }
@@ -45,10 +42,11 @@ public class LoggingManagementRestlet extends AbstractLoggingManagementRestlet
                             @ApiResponse(code = 400, message = "Failed to update logger!"),
                             @ApiResponse(code = 404, message = "Logger '${loggerPackage}' not found.") })
     @Override
+    @PreAuthorize("hasAuthority('CONFIGURATION_UPDATE_LOGGER')")
     public Response updateLogger(@ApiParam(value = "The package to log", required = true)
-                                 String loggerPackage,
+                                         String loggerPackage,
                                  @ApiParam(value = "The logging level", required = true)
-                                 String level)
+                                         String level)
     {
         return super.updateLogger(loggerPackage, level);
     }
@@ -58,8 +56,10 @@ public class LoggingManagementRestlet extends AbstractLoggingManagementRestlet
                             @ApiResponse(code = 400, message = "Failed to delete the logger!"),
                             @ApiResponse(code = 404, message = "Logger '${loggerPackage}' not found.") })
     @Override
+    @PreAuthorize("hasAuthority('CONFIGURATION_DELETE_LOGGER')")
     public Response deleteLogger(@ApiParam(value = "The logger to delete", required = true)
-                                 String loggerPackage) throws IOException
+                                         String loggerPackage)
+            throws IOException
     {
         return super.deleteLogger(loggerPackage);
     }
@@ -68,16 +68,18 @@ public class LoggingManagementRestlet extends AbstractLoggingManagementRestlet
     @ApiResponses(value = { @ApiResponse(code = 200, message = "", response = String.class),
                             @ApiResponse(code = 400, message = "Failed to resolve the log!") })
     @Override
+    @PreAuthorize("hasAuthority('CONFIGURATION_RETRIEVE_LOG')")
     public Response downloadLog(@ApiParam(value = "The relative path to the log file", required = true)
-                                String path)
+                                        String path)
     {
         return super.downloadLog(path);
     }
 
     @ApiOperation(value = "Used to download the Logback configuration file.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
-                            @ApiResponse(code = 400, message = "Failed to resolve the logging configuration!")})
+                            @ApiResponse(code = 400, message = "Failed to resolve the logging configuration!") })
     @Override
+    @PreAuthorize("hasAuthority('CONFIGURATION_RETRIEVE_LOGBACK_CFG')")
     public Response downloadLogbackConfiguration()
     {
         return super.downloadLogbackConfiguration();
@@ -85,12 +87,13 @@ public class LoggingManagementRestlet extends AbstractLoggingManagementRestlet
 
     @ApiOperation(value = "Used to upload and re-load a Logback configuration file.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Logback configuration uploaded successfully."),
-                            @ApiResponse(code = 400, message = "Failed to resolve the logging configuration!")  })
+                            @ApiResponse(code = 400, message = "Failed to resolve the logging configuration!") })
     @Override
-    public Response uploadLogbackConfiguration(@ApiParam(value = "The input stream of the the Logback configuration file to load", required = true)
-                                               InputStream is)
+    @PreAuthorize("hasAuthority('CONFIGURATION_UPLOAD_LOGBACK_CFG')")
+    public Response uploadLogbackConfiguration(
+                                                      @ApiParam(value = "The input stream of the the Logback configuration file to load", required = true)
+                                                              InputStream is)
     {
         return super.uploadLogbackConfiguration(is);
     }
-
 }

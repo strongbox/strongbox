@@ -30,7 +30,6 @@ import org.springframework.stereotype.Component;
 @Component
 @Path("/trash")
 @Api(value = "/trash")
-@PreAuthorize("hasAuthority('ROOT')")
 public class TrashRestlet
         extends BaseArtifactRestlet
 {
@@ -48,6 +47,7 @@ public class TrashRestlet
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The trash for ${storageId}:${repositoryId}' was removed successfully."),
                             @ApiResponse(code = 400, message = "An error occurred!"),
                             @ApiResponse(code = 404, message = "The specified (storageId/repositoryId) does not exist!") })
+    @PreAuthorize("hasAuthority('MANAGEMENT_DELETE_TRASH')")
     public Response delete(@ApiParam(value = "The storageId", required = true)
                            @PathParam("storageId") String storageId,
                            @ApiParam(value = "The repositoryId", required = true)
@@ -92,6 +92,7 @@ public class TrashRestlet
     @ApiOperation(value = "Used to delete the trash for all repositories.", position = 2)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The trash for all repositories was successfully removed."),
                             @ApiResponse(code = 500, message = "An error occurred!") })
+    @PreAuthorize("hasAuthority('MANAGEMENT_DELETE_ALL_TRASHES')")
     public Response delete()
             throws IOException
     {
@@ -118,6 +119,7 @@ public class TrashRestlet
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The trash for '${storageId}:${repositoryId}' was restored successfully."),
                             @ApiResponse(code = 400, message = "An error occurred!"),
                             @ApiResponse(code = 404, message = "The specified (storageId/repositoryId/path) does not exist!") })
+    @PreAuthorize("hasAuthority('MANAGEMENT_UNDELETE_TRASH')")
     public Response undelete(@ApiParam(value = "The storageId", required = true)
                              @PathParam("storageId") String storageId,
                              @ApiParam(value = "The repositoryId", required = true)
@@ -173,6 +175,7 @@ public class TrashRestlet
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The trash for '${storageId}:${repositoryId}' was restored successfully."),
                             @ApiResponse(code = 400, message = "An error occurred!"),
                             @ApiResponse(code = 404, message = "The specified (storageId/repositoryId) does not exist!") })
+    @PreAuthorize("hasAuthority('MANAGEMENT_UNDELETE_TRASH')")
     public Response undelete(@ApiParam(value = "The storageId", required = true)
                              @PathParam("storageId") String storageId,
                              @ApiParam(value = "The repositoryId", required = true)
@@ -222,6 +225,7 @@ public class TrashRestlet
     @ApiOperation(value = "Used to undelete the trash for all repositories.", position = 5)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The trash for all repositories was successfully restored."),
                             @ApiResponse(code = 400, message = "An error occurred!") })
+    @PreAuthorize("hasAuthority('MANAGEMENT_UNDELETE_ALL_TRASHES')")
     public Response undelete()
             throws IOException
     {
