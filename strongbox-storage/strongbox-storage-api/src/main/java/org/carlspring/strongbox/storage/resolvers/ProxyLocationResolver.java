@@ -57,7 +57,7 @@ public class ProxyLocationResolver
     {
         locationResolverRegistry.addResolver(ALIAS, this);
 
-        logger.info("Registered resolver '" + getClass().getCanonicalName() + "' with ALIAS '" + ALIAS + "'.");
+        logger.info("Registered resolver '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
     }
 
     @Override
