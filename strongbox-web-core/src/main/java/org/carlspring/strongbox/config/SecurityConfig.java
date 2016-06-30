@@ -41,6 +41,7 @@ public class SecurityConfig
             .and()
             .authorizeRequests()
             .antMatchers("/docs/**").permitAll()
+            .anyRequest().authenticated()
             .and()
             .logout()
             .logoutUrl("/logout");
