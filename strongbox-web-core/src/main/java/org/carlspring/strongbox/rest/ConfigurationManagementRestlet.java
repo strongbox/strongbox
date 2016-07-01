@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.rest;
 
-import io.swagger.annotations.*;
-import org.apache.lucene.queryparser.classic.ParseException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
@@ -11,10 +9,6 @@ import org.carlspring.strongbox.services.StorageManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -23,12 +17,21 @@ import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 
+import io.swagger.annotations.*;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Component;
+
 /**
  * @author mtodorov
  */
 @Component
 @Path("/configuration/strongbox")
 @Api(value = "/configuration/strongbox")
+@PreAuthorize("hasAuthority('ROOT')")
 public class ConfigurationManagementRestlet
         extends BaseRestlet
 {
@@ -223,7 +226,7 @@ public class ConfigurationManagementRestlet
                                           @QueryParam("repositoryId") String repositoryId)
             throws IOException, JAXBException
     {
-        ProxyConfiguration proxyConfiguration = null;
+        ProxyConfiguration proxyConfiguration;
         if (storageId == null)
         {
             proxyConfiguration = configurationManagementService.getProxyConfiguration();
@@ -357,16 +360,17 @@ public class ConfigurationManagementRestlet
     }
 
     @PUT
-    @Path("/storages/{storageId}")
+    @Path("/storages/{storageId}/{repositoryId}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @ApiOperation(value = "Updates a repository.")
+    @ApiOperation(value = "Adds or updates a repository.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The repository was updated successfully."),
                             @ApiResponse(code = 404, message = "Repository ${repositoryId} not found!"),
                             @ApiResponse(code = 500, message = "Failed to remove repository ${repositoryId}!") })
-    public Response addOrUpdateRepository(@ApiParam(value = "The storageId", required = true)
-                                          @PathParam("storageId") final String storageId,
-                                          @ApiParam(value = "The repository object", required = true)
-                                          Repository repository)
+    public Response addOrUpdateRepository(@ApiParam(value = "The repositoryId", required = true)
+                                          @PathParam("storageId") String storageId,
+                                          @ApiParam(value = "The repositoryId", required = true)
+                                          @PathParam("repositoryId") String repositoryId,
+                                          @ApiParam(value = "The repository object", required = true) Repository repository)
             throws IOException, JAXBException
     {
         try

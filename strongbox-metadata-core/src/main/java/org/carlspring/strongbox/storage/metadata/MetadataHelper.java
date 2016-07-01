@@ -1,13 +1,7 @@
 package org.carlspring.strongbox.storage.metadata;
 
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.artifact.repository.metadata.Snapshot;
-import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
-import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.carlspring.maven.commons.DetachedArtifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -17,6 +11,13 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.Snapshot;
+import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
+import org.apache.maven.artifact.repository.metadata.Versioning;
+import org.springframework.util.StringUtils;
+
 /**
  * @author mtodorov
  */
@@ -24,6 +25,10 @@ public class MetadataHelper
 {
 
     public static final SimpleDateFormat LAST_UPDATED_FIELD_FORMATTER = new SimpleDateFormat("yyyyMMddHHmmss");
+
+    private MetadataHelper() 
+    {
+    }
 
 
     public static void setLastUpdated(Versioning versioning)
@@ -195,12 +200,10 @@ public class MetadataHelper
     {
         for (SnapshotVersion snapshotVersion : metadata.getVersioning().getSnapshotVersions())
         {
-            if (snapshotVersion.getVersion().equals(timestampedSnapshotVersion))
+            if (snapshotVersion.getVersion().equals(timestampedSnapshotVersion) 
+                && classifier == null || snapshotVersion.getClassifier().equals(classifier))
             {
-                if (classifier == null || snapshotVersion.getClassifier().equals(classifier))
-                {
-                    return true;
-                }
+                return true;
             }
         }
 

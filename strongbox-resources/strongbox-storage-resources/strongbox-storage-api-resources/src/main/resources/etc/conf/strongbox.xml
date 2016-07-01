@@ -10,7 +10,6 @@
             <repositories>
                 <repository id="releases-by-juan" policy="release" implementation="file-system" type="hosted" allows-force-deletion="true" checksum-headers-enabled="true"/>
                 <repository id="releases" policy="release" implementation="file-system" type="hosted" allows-force-deletion="true" checksum-headers-enabled="true"/>
-                <repository id="releases-in-memory" policy="release" implementation="in-memory" type="hosted"/>
                 <repository id="releases-with-redeployment" policy="release" implementation="file-system" type="hosted" allows-redeployment="true" indexing-enabled="false"/>
                 <repository id="releases-with-trash" policy="release" implementation="file-system" type="hosted" trash-enabled="true" allows-redeployment="true"/>
                 <repository id="releases-without-deployment" policy="release" implementation="file-system" type="hosted" allows-deployment="false" indexing-enabled="false"/>
@@ -20,9 +19,7 @@
                 <repository id="releases-without-browsing" policy="release" implementation="file-system" type="hosted" allows-directory-browsing="false" indexing-enabled="false"/>
 
                 <repository id="snapshots" policy="snapshot" implementation="file-system" type="hosted" secured="true" checksum-headers-enabled="true"/>
-                <repository id="snapshots-in-memory" policy="snapshot" implementation="in-memory" type="hosted" secured="true" />
 
-                <!--
                 <repository id="proxied-releases" policy="release" implementation="proxy" type="proxy">
                     <proxy-configuration host="localhost" port="8180" username="testuser" password="password" />
                     <remote-repository url="http://localhost:48080/storages/storage0/releases/"
@@ -32,19 +29,10 @@
                                        auto-blocking="true"
                                        checksum-validation="true" />
                 </repository>
-                -->
-                <repository id="maven-central" policy="release" implementation="proxy" type="proxy">
-                    <proxy-configuration host="localhost" port="8180" username="testuser" password="password" />
-                    <remote-repository url="https://repo.maven.apache.org/maven2/"
-                                       download-remote-indexes="true"
-                                       auto-blocking="true"
-                                       checksum-validation="true" />
-                </repository>
 
                 <repository id="group-releases" policy="release" implementation="group" type="group" secured="true">
                     <group>
                         <repository>releases</repository>
-                        <repository>releases-in-memory</repository>
                         <repository>releases-with-redeployment</repository>
                         <repository>releases-with-trash</repository>
                         <repository>releases-without-deployment</repository>
@@ -58,7 +46,6 @@
                 <repository id="group-releases-with-options" policy="release" implementation="group" type="group" secured="true">
                     <group>
                         <repository>releases</repository>
-                        <repository>releases-in-memory</repository>
                         <repository>releases-with-redeployment</repository>
                         <repository>releases-with-trash</repository>
                     </group>
@@ -95,6 +82,128 @@
                 </repository>
             </repositories>
         </storage>
+        <storage id="storage-common-proxies">
+            <repositories>
+                <repository id="maven-central" policy="release" implementation="proxy" type="proxy">
+                    <remote-repository url="https://repo.maven.apache.org/maven2/"
+                                       download-remote-indexes="true"
+                                       auto-blocking="true"
+                                       checksum-validation="true" />
+                </repository>
+
+                <repository id="apache-snapshots" policy="snapshot" implementation="proxy" type="proxy">
+                    <remote-repository url="https://repository.apache.org/snapshots/"
+                                       download-remote-indexes="true"
+                                       auto-blocking="true"
+                                       checksum-validation="true" />
+                </repository>
+
+                <repository id="jboss-public-releases" policy="release" implementation="proxy" type="proxy">
+                    <remote-repository url="http://repository.jboss.org/nexus/content/groups/public-jboss/"
+                                       download-remote-indexes="true"
+                                       auto-blocking="true"
+                                       checksum-validation="true" />
+                </repository>
+
+                <repository id="group-common-proxies" policy="release" implementation="group" type="group" secured="true">
+                    <group>
+                        <repository>maven-central</repository>
+                        <repository>apache-snapshots</repository>
+                        <repository>jboss-public-releases</repository>
+                    </group>
+                </repository>
+            </repositories>
+        </storage>
+        <storage id="storage-springsource-proxies">
+            <repositories>
+                <repository id="springsource-snapshots" policy="snapshot" implementation="proxy" type="proxy">
+                    <remote-repository url="http://repo.spring.io/snapshot"
+                                       download-remote-indexes="true"
+                                       auto-blocking="true"
+                                       checksum-validation="true" />
+                </repository>
+                <repository id="springsource-releases" policy="release" implementation="proxy" type="proxy">
+                    <remote-repository url="http://repo.spring.io/libs-release"
+                                       download-remote-indexes="true"
+                                       auto-blocking="true"
+                                       checksum-validation="true" />
+                </repository>
+                <repository id="springsource-milestones" policy="release" implementation="proxy" type="proxy">
+                    <remote-repository url="http://repo.spring.io/milestone"
+                                       download-remote-indexes="true"
+                                       auto-blocking="true"
+                                       checksum-validation="true" />
+                </repository>
+
+                <repository id="springsource-proxies" policy="mixed" implementation="group" type="group" secured="true">
+                    <group>
+                        <repository>springsource-snapshots</repository>
+                        <repository>springsource-releases</repository>
+                        <repository>springsource-milestones</repository>
+                    </group>
+                </repository>
+            </repositories>
+        </storage>
+        <storage id="storage-ivy-proxies">
+            <repositories>
+                <repository id="typesafe-releases" policy="release" implementation="proxy" type="proxy">
+                    <remote-repository url="https://repo.typesafe.com/typesafe/releases"
+                                       download-remote-indexes="true"
+                                       auto-blocking="true"
+                                       checksum-validation="true" />
+                </repository>
+                <repository id="typesafe-ivy-releases" policy="release" implementation="proxy" type="proxy">
+                    <remote-repository url="https://repo.typesafe.com/typesafe/ivy-releases"
+                                       download-remote-indexes="true"
+                                       auto-blocking="true"
+                                       checksum-validation="true" />
+                </repository>
+
+                <repository id="group-ivy-proxies" policy="release" implementation="group" type="group" secured="true">
+                    <group>
+                        <repository>typesafe-releases</repository>
+                        <repository>typesafe-ivy-releases</repository>
+                        <repository>sbt-plugin-releases</repository>
+                    </group>
+                </repository>
+            </repositories>
+        </storage>
+        <storage id="storage-sbt-proxies">
+            <repositories>
+                <repository id="sbt-plugin-releases" policy="release" implementation="proxy" type="proxy">
+                    <remote-repository url="https://repo.scala-sbt.org/scalasbt/sbt-plugin-releases"
+                                       download-remote-indexes="true"
+                                       auto-blocking="true"
+                                       checksum-validation="true" />
+                </repository>
+
+                <repository id="group-sbt-proxies" policy="release" implementation="group" type="group" secured="true">
+                    <group>
+                        <repository>storage-ivy-proxies</repository>
+                        <repository>sbt-plugin-releases</repository>
+                    </group>
+                </repository>
+            </repositories>
+        </storage>
+        <storage id="storage-third-party">
+            <repositories>
+                <repository id="third-party" policy="release" implementation="file-system" type="hosted" allows-force-deletion="true" checksum-headers-enabled="true" />
+            </repositories>
+        </storage>
+
+        <storage id="public">
+            <repositories>
+                <repository id="public-group" policy="mixed" implementation="group" type="group" secured="true">
+                    <group>
+                        <repository>storage-common-proxies:group-common-proxies</repository>
+                        <repository>storage-springsource-proxies:springsource-proxies</repository>
+                        <repository>storage-ivy-proxies:group-ivy-proxies</repository>
+                        <repository>storage-sbt-proxies:group-sbt-proxies</repository>
+                        <repository>storage-third-party:third-party</repository>
+                    </group>
+                </repository>
+            </repositories>
+        </storage>
     </storages>
 
     <routing-rules>
@@ -102,7 +211,6 @@
             <rule-set group-repository="group-releases">
                 <rule pattern=".*(com|org)/artifacts.in.releases.with.trash.*">
                     <repositories>
-                        <repository>releases-in-memory</repository>
                         <repository>releases-with-trash</repository>
                         <repository>releases-with-redeployment</repository>
                     </repositories>
@@ -117,6 +225,7 @@
             </rule-set>
         </accepted>
         <denied>
+            <!--
             <rule-set group-repository="group-releases">
                 <rule pattern=".*(com|org)/artifacts.denied.in.memory.*">
                     <repositories>
@@ -124,6 +233,7 @@
                     </repositories>
                 </rule>
             </rule-set>
+            -->
             <rule-set group-repository="*">
                 <rule pattern=".*(com|org)/artifacts.denied.by.wildcard.*">
                     <repositories>

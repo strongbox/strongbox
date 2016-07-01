@@ -1,12 +1,13 @@
 package org.carlspring.strongbox.io;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import java.io.File;
 import java.io.IOException;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.maven.artifact.Artifact;
 
 /**
  * @author mtodorov
@@ -20,7 +21,7 @@ public class ArtifactFile extends File
 
     private long temporaryTimestamp;
 
-    private boolean temporaryMode = false;
+    private boolean temporaryMode;
 
 
     public ArtifactFile(Repository repository, Artifact artifact)

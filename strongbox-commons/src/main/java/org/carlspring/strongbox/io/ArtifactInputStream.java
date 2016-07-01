@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.io;
 
-import org.apache.maven.artifact.Artifact;
 import org.carlspring.commons.http.range.ByteRange;
 import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.commons.io.reloading.ReloadableInputStreamHandler;
@@ -11,6 +10,8 @@ import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
+import org.apache.maven.artifact.Artifact;
+
 /**
  * @author mtodorov
  */
@@ -19,7 +20,7 @@ public class ArtifactInputStream extends MultipleDigestInputStream
 
     private Artifact artifact;
 
-    private long length = 0L;
+    private long length;
 
 
     public ArtifactInputStream(ReloadableInputStreamHandler handler, List<ByteRange> byteRanges)

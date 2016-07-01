@@ -1,25 +1,31 @@
 package org.carlspring.strongbox.rest;
 
-import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.generator.ArtifactDeployer;
 import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.carlspring.strongbox.rest.context.RestletTestContext;
 
 import javax.ws.rs.core.MediaType;
 import java.io.File;
 
+import org.apache.maven.artifact.Artifact;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
 /**
  * @author mtodorov
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@RestletTestContext
 public class SearchRestletTest
 {
 
-    public static boolean INITIALIZED = false;
+    public static boolean INITIALIZED;
 
     private RestClient client = new RestClient();
 

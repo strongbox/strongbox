@@ -5,7 +5,11 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.xml.RepositoryMapAdapter;
 import org.carlspring.strongbox.xml.StorageMapAdapter;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.File;
 import java.util.LinkedHashMap;
@@ -28,7 +32,7 @@ public class Storage
 
     @XmlElement(name = "repositories")
     @XmlJavaTypeAdapter(RepositoryMapAdapter.class)
-    private Map<String, Repository> repositories = new LinkedHashMap<String, Repository>();
+    private Map<String, Repository> repositories = new LinkedHashMap<>();
 
 
     public Storage()
@@ -127,9 +131,9 @@ public class Storage
         {
             storagesBasedir = basedir;
         }
-        else if (System.getProperty("strongbox.storage.booter.storagesBasedir") != null)
+        else if (System.getProperty("strongbox.storage.booter.storages.basedir") != null)
         {
-            storagesBasedir = System.getProperty("strongbox.storage.booter.storagesBasedir");
+            storagesBasedir = System.getProperty("strongbox.storage.booter.storages.basedir");
         }
         else
         {

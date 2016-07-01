@@ -7,6 +7,7 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
+import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
@@ -24,7 +25,8 @@ import org.slf4j.LoggerFactory;
 /**
  * @author mtodorov
  */
-public class RestClient extends ArtifactClient
+public class RestClient
+        extends ArtifactClient
 {
 
     private static final Logger logger = LoggerFactory.getLogger(RestClient.class);
@@ -40,7 +42,8 @@ public class RestClient extends ArtifactClient
         return getTestInstance("admin", "password");
     }
 
-    public static RestClient getTestInstance(String username, String password)
+    public static RestClient getTestInstance(String username,
+                                             String password)
     {
         String host = System.getProperty("strongbox.host") != null ?
                       System.getProperty("strongbox.host") :
@@ -71,7 +74,9 @@ public class RestClient extends ArtifactClient
         return (Configuration) getServerConfiguration("/configuration/strongbox/xml", Configuration.class);
     }
 
-    public int setServerConfiguration(ServerConfiguration configuration, String path, Class... classes)
+    public int setServerConfiguration(ServerConfiguration configuration,
+                                      String path,
+                                      Class... classes)
             throws IOException, JAXBException
     {
         String url = getContextBaseUrl() + path;
@@ -90,7 +95,8 @@ public class RestClient extends ArtifactClient
         return response.getStatus();
     }
 
-    public ServerConfiguration getServerConfiguration(String path, Class... classes)
+    public ServerConfiguration getServerConfiguration(String path,
+                                                      Class... classes)
             throws IOException, JAXBException
     {
         String url = getContextBaseUrl() + path;
@@ -107,7 +113,7 @@ public class RestClient extends ArtifactClient
 
             final ByteArrayInputStream bais = new ByteArrayInputStream(xml.getBytes());
 
-            GenericParser<ServerConfiguration> parser = new GenericParser<ServerConfiguration>(classes);
+            GenericParser<ServerConfiguration> parser = new GenericParser<>(classes);
 
             configuration = parser.parse(bais);
         }
@@ -118,8 +124,8 @@ public class RestClient extends ArtifactClient
     /**
      * Sets the listening port.
      *
-     * @param port  The port to listen on.
-     * @return      The response from the server.
+     * @param port The port to listen on.
+     * @return The response from the server.
      */
     public int setListeningPort(int port)
     {
@@ -135,7 +141,8 @@ public class RestClient extends ArtifactClient
 
     /**
      * Get the port on which the server is listening.
-     * @return      The port on which the server is listening.
+     *
+     * @return The port on which the server is listening.
      */
     public int getListeningPort()
     {
@@ -150,8 +157,8 @@ public class RestClient extends ArtifactClient
     /**
      * Sets the base URL of the server.
      *
-     * @param baseUrl   The base URL.
-     * @return          The response code.
+     * @param baseUrl The base URL.
+     * @return The response code.
      */
     public int setBaseUrl(String baseUrl)
     {
@@ -168,7 +175,7 @@ public class RestClient extends ArtifactClient
     /**
      * Gets the base URL of the server.
      *
-     * @return          The response code.
+     * @return The response code.
      */
     public String getBaseUrl()
     {
@@ -190,7 +197,7 @@ public class RestClient extends ArtifactClient
 
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        GenericParser<ProxyConfiguration> parser = new GenericParser<ProxyConfiguration>(ProxyConfiguration.class);
+        GenericParser<ProxyConfiguration> parser = new GenericParser<>(ProxyConfiguration.class);
         parser.store(proxyConfiguration, baos);
 
         Response response = resource.request(MediaType.APPLICATION_XML)
@@ -199,7 +206,8 @@ public class RestClient extends ArtifactClient
         return response.getStatus();
     }
 
-    public ProxyConfiguration getProxyConfiguration(String storageId, String repositoryId)
+    public ProxyConfiguration getProxyConfiguration(String storageId,
+                                                    String repositoryId)
             throws JAXBException
     {
         String url = getContextBaseUrl() + "/configuration/strongbox/proxy-configuration" +
@@ -212,13 +220,13 @@ public class RestClient extends ArtifactClient
         final Response response = resource.request(MediaType.APPLICATION_XML).get();
 
         @SuppressWarnings("UnnecessaryLocalVariable")
-        ProxyConfiguration proxyConfiguration = null;
+        ProxyConfiguration proxyConfiguration;
         if (response.getStatus() == 200)
         {
             final String xml = response.readEntity(String.class);
             final ByteArrayInputStream bais = new ByteArrayInputStream(xml.getBytes());
 
-            GenericParser<ProxyConfiguration> parser = new GenericParser<ProxyConfiguration>(ProxyConfiguration.class);
+            GenericParser<ProxyConfiguration> parser = new GenericParser<>(ProxyConfiguration.class);
 
             proxyConfiguration = parser.parse(bais);
         }
@@ -233,8 +241,8 @@ public class RestClient extends ArtifactClient
     /**
      * Creates a new storage.
      *
-     * @param storage   The storage object to create.
-     * @return          The response code.
+     * @param storage The storage object to create.
+     * @return The response code.
      * @throws IOException
      */
     public int addStorage(Storage storage)
@@ -247,7 +255,7 @@ public class RestClient extends ArtifactClient
 
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        GenericParser<Storage> parser = new GenericParser<Storage>(Storage.class);
+        GenericParser<Storage> parser = new GenericParser<>(Storage.class);
         parser.store(storage, baos);
 
         Response response = resource.request(MediaType.TEXT_PLAIN)
@@ -280,7 +288,7 @@ public class RestClient extends ArtifactClient
 
             final ByteArrayInputStream bais = new ByteArrayInputStream(xml.getBytes());
 
-            GenericParser<Storage> parser = new GenericParser<Storage>(Storage.class);
+            GenericParser<Storage> parser = new GenericParser<>(Storage.class);
 
             storage = parser.parse(bais);
         }
@@ -288,15 +296,25 @@ public class RestClient extends ArtifactClient
         return storage;
     }
 
+    public static void displayResponseError(Response response)
+    {
+        logger.error("Status code " + response.getStatus());
+        logger.error("Status info " + response.getStatusInfo().getReasonPhrase());
+        logger.error("Response message " + response.readEntity(String.class));
+        logger.error(response.toString());
+    }
+
     /**
      * Deletes a storage.
      *
-     * @param storageId     The storage to delete.
+     * @param storageId The storage to delete.
      * @return
      */
-    public int deleteStorage(String storageId, boolean force)
+    public int deleteStorage(String storageId,
+                             boolean force)
     {
-        String url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId + (force ? "?force=true" : "");
+        String url =
+                getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId + (force ? "?force=true" : "");
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
@@ -309,14 +327,36 @@ public class RestClient extends ArtifactClient
     public int addRepository(Repository repository)
             throws IOException, JAXBException
     {
-        String url = getContextBaseUrl() + "/configuration/strongbox/storages/" + repository.getStorage().getId();
+        if (repository == null)
+        {
+            logger.error("Unable to add non-existing repository.");
+            throw new ServerErrorException("Unable to add non-existing repository.", Response.Status.INTERNAL_SERVER_ERROR);
+        }
 
-        WebTarget resource = getClientInstance().target(url);
+        WebTarget resource;
+
+        if (repository.getStorage() == null)
+        {
+            logger.error("Storage associated with repo is null.");
+            throw new ServerErrorException("Storage associated with repo is null.", Response.Status.INTERNAL_SERVER_ERROR);
+        }
+
+        try
+        {
+            String url = getContextBaseUrl() + "/configuration/strongbox/storages/" + repository.getStorage().getId() + "/" + repository.getId();
+
+            resource = getClientInstance().target(url);
+        }
+        catch (RuntimeException e)
+        {
+            logger.error("Unable to create web resource.", e);
+            throw new ServerErrorException(Response.Status.INTERNAL_SERVER_ERROR);
+        }
         setupAuthentication(resource);
 
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        GenericParser<Repository> parser = new GenericParser<Repository>(Repository.class);
+        GenericParser<Repository> parser = new GenericParser<>(Repository.class);
         parser.store(repository, baos);
 
         Response response = resource.request(MediaType.APPLICATION_XML)
@@ -351,7 +391,7 @@ public class RestClient extends ArtifactClient
 
             final ByteArrayInputStream bais = new ByteArrayInputStream(xml.getBytes());
 
-            GenericParser<Repository> parser = new GenericParser<Repository>(Repository.class);
+            GenericParser<Repository> parser = new GenericParser<>(Repository.class);
 
             repository = parser.parse(bais);
         }
@@ -362,8 +402,8 @@ public class RestClient extends ArtifactClient
     /**
      * Deletes a repository.
      *
-     * @param storageId         The storage in which the repository to delete is under.
-     * @param repositoryId      The repository to delete.
+     * @param storageId    The storage in which the repository to delete is under.
+     * @param repositoryId The repository to delete.
      * @return
      */
     public int deleteRepository(String storageId,
@@ -382,13 +422,16 @@ public class RestClient extends ArtifactClient
         return response.getStatus();
     }
 
-    public String search(String query, MediaType mediaType)
+    public String search(String query,
+                         MediaType mediaType)
             throws UnsupportedEncodingException
     {
         return search(null, query, mediaType);
     }
 
-    public String search(String repositoryId, String query, MediaType mediaType)
+    public String search(String repositoryId,
+                         String query,
+                         MediaType mediaType)
             throws UnsupportedEncodingException
     {
         String url = getContextBaseUrl() + "/search?" +
@@ -406,10 +449,13 @@ public class RestClient extends ArtifactClient
         return asText;
     }
 
-    public int rebuildMetadata(String storageId, String repositoryId, String basePath)
+    public int rebuildMetadata(String storageId,
+                               String repositoryId,
+                               String basePath)
             throws IOException, JAXBException
     {
-        String url = getContextBaseUrl() + "/metadata/" + storageId + "/" + repositoryId + "/" + (basePath != null ? basePath : "");
+        String url = getContextBaseUrl() + "/metadata/" + storageId + "/" + repositoryId + "/" +
+                     (basePath != null ? basePath : "");
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
@@ -461,4 +507,29 @@ public class RestClient extends ArtifactClient
         resource.request(MediaType.TEXT_PLAIN).post(Entity.entity("Copy", MediaType.TEXT_PLAIN));
     }
 
+    public String greet()
+    {
+        String url = getContextBaseUrl() + "/storages/greet";
+        WebTarget resource = getClientInstance().target(url);
+        setupAuthentication(resource);
+
+        Response response = resource.request(MediaType.TEXT_PLAIN).get();
+        if (response.getStatus() != 200)
+        {
+            displayResponseError(response);
+            throw new ServerErrorException(response.getStatus() + " | Unable to greet()", Response.Status.INTERNAL_SERVER_ERROR);
+        }
+        else
+        {
+            return response.getEntity().toString();
+        }
+    }
+
+    public WebTarget prepareTarget(String arg){
+        String url = getContextBaseUrl() + arg;
+        logger.debug("Prepare target URL " + url);
+        WebTarget resource = getClientInstance().target(url);
+        setupAuthentication(resource);
+        return resource;
+    }
 }

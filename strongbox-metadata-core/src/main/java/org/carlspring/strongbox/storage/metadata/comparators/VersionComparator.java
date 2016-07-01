@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.storage.metadata.comparators;
 
-import org.apache.maven.artifact.versioning.ComparableVersion;
-
 import java.util.Comparator;
+
+import org.apache.maven.artifact.versioning.ComparableVersion;
 
 /**
  * @author carlspring
@@ -11,6 +11,7 @@ public class VersionComparator
         implements Comparator<String>
 {
 
+    @Override
     public int compare(String v1, String v2)
     {
         if (v1 == null || v2 == null)

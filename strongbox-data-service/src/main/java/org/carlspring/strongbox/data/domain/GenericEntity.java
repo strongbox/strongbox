@@ -22,6 +22,7 @@ public abstract class GenericEntity
     /**
      * Added to avoid a runtime error whereby the detachAll property is checked for existence but not actually used.
      */
+    @JsonIgnore
     protected String detachAll;
 
     @Version

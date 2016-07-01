@@ -43,6 +43,7 @@
         <module>strongbox-parent</module>
         <module>strongbox-resources</module>
         <module>strongbox-commons</module>
+        <module>strongbox-configuration</module>
         <module>strongbox-metadata-core</module>
         <module>strongbox-event-api</module>
         <module>strongbox-security-api</module>
@@ -52,6 +53,7 @@
         <module>strongbox-storage</module>
         <module>strongbox-web-core</module>
         <module>strongbox-data-service</module>
+        <module>strongbox-user-management</module>
     </modules>
 
 </project>

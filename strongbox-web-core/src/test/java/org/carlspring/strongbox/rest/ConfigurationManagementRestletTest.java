@@ -5,6 +5,7 @@ import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationRepository;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.rest.context.RestletTestContext;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.junit.After;
@@ -12,22 +13,26 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import javax.xml.bind.JAXBException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author mtodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration
+@RestletTestContext
 public class ConfigurationManagementRestletTest
 {
 
@@ -100,7 +105,8 @@ public class ConfigurationManagementRestletTest
         assertEquals("Failed to get proxy configuration!", proxyConfiguration.getUsername(), pc.getUsername());
         assertEquals("Failed to get proxy configuration!", proxyConfiguration.getPassword(), pc.getPassword());
         assertEquals("Failed to get proxy configuration!", proxyConfiguration.getType(), pc.getType());
-        assertEquals("Failed to get proxy configuration!", proxyConfiguration.getNonProxyHosts(), pc.getNonProxyHosts());
+        assertEquals("Failed to get proxy configuration!", proxyConfiguration.getNonProxyHosts(),
+                     pc.getNonProxyHosts());
     }
 
     @Test
@@ -145,9 +151,12 @@ public class ConfigurationManagementRestletTest
         assertFalse("Failed to get storage (" + storageId + ")!", storage.getRepositories().isEmpty());
         assertTrue("Failed to get storage (" + storageId + ")!",
                    storage.getRepositories().get("repository0").allowsRedeployment());
-        assertTrue("Failed to get storage (" + storageId + ")!", storage.getRepositories().get("repository0").isSecured());
-        assertTrue("Failed to get storage (" + storageId + ")!", storage.getRepositories().get("repository1").allowsForceDeletion());
-        assertTrue("Failed to get storage (" + storageId + ")!", storage.getRepositories().get("repository1").isTrashEnabled());
+        assertTrue("Failed to get storage (" + storageId + ")!",
+                   storage.getRepositories().get("repository0").isSecured());
+        assertTrue("Failed to get storage (" + storageId + ")!",
+                   storage.getRepositories().get("repository1").allowsForceDeletion());
+        assertTrue("Failed to get storage (" + storageId + ")!",
+                   storage.getRepositories().get("repository1").isTrashEnabled());
 
         assertNotNull("Failed to get storage (" + storageId + ")!",
                       storage.getRepositories().get("repository1").getProxyConfiguration().getHost());

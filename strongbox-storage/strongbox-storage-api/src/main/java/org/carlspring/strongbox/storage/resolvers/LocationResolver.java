@@ -13,6 +13,10 @@ import java.security.NoSuchAlgorithmException;
 public interface LocationResolver
 {
 
+    void register();
+
+    LocationResolverRegistry getLocationResolverRegistry();
+
     ArtifactInputStream getInputStream(String storageId,
                                        String repositoryId,
                                        String path)
@@ -46,7 +50,5 @@ public interface LocationResolver
             throws IOException;
 
     String getAlias();
-
-    void setAlias(String alias);
 
 }

@@ -32,7 +32,7 @@ public class AuthenticationManager
 
     private AuthenticationConfiguration configuration;
 
-    private GenericParser<AuthenticationConfiguration> parser = new GenericParser<AuthenticationConfiguration>(AuthenticationConfiguration.class);
+    private GenericParser<AuthenticationConfiguration> parser = new GenericParser<>(AuthenticationConfiguration.class);
 
 
     @Override

@@ -1,6 +1,10 @@
 package org.carlspring.strongbox.security.jaas;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,11 +34,11 @@ public class Role implements Serializable
      */
     @XmlElement(name = "role")
     @XmlElementWrapper(name = "roles")
-    private List<String> roles = new ArrayList<String>();
+    private List<String> roles = new ArrayList<>();
 
     @XmlElement(name = "privilege")
     @XmlElementWrapper(name = "privileges")
-    private List<String> privileges = new ArrayList<String>();
+    private List<String> privileges = new ArrayList<>();
 
 
     public Role()

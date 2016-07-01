@@ -17,9 +17,7 @@ import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
-import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
-import org.carlspring.strongbox.storage.resolvers.LocationResolver;
+import org.carlspring.strongbox.storage.resolvers.*;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
 import org.carlspring.strongbox.storage.validation.version.VersionValidationException;
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
@@ -33,7 +31,6 @@ import org.springframework.stereotype.Component;
 import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -64,6 +61,9 @@ public class ArtifactManagementServiceImpl
     @Autowired
     private ArtifactOperationsValidator artifactOperationsValidator;
 
+    @Autowired
+    private LocationResolverRegistry locationResolverRegistry;
+
 
     @Override
     public void store(String storageId,
@@ -75,7 +75,7 @@ public class ArtifactManagementServiceImpl
         performRepositoryAcceptanceValidation(storageId, repositoryId, path);
 
         boolean fileIsChecksum = ArtifactUtils.isChecksum(path);
-        MultipleDigestInputStream mdis = null;
+        MultipleDigestInputStream mdis;
         try
         {
             mdis = new MultipleDigestInputStream(is);
@@ -167,7 +167,7 @@ public class ArtifactManagementServiceImpl
                                String path)
             throws IOException, ArtifactTransportException
     {
-        InputStream is = null;
+        InputStream is;
 
         try
         {
@@ -231,7 +231,7 @@ public class ArtifactManagementServiceImpl
 
         try
         {
-            LocationResolver resolver = getResolvers().get(repository.getImplementation());
+            LocationResolver resolver = locationResolverRegistry.getResolvers().get(repository.getImplementation());
 
             resolver.delete(storageId, repositoryId, artifactPath, force);
 
@@ -365,11 +365,6 @@ public class ArtifactManagementServiceImpl
         checksumCacheManager.addArtifactChecksum(artifactPath, EncryptionAlgorithmsEnum.SHA1.getAlgorithm(), sha1);
     }
 
-    private Map<String, LocationResolver> getResolvers()
-    {
-        return artifactResolutionService.getResolvers();
-    }
-
     // TODO: This should have restricted access.
     @Override
     public void deleteTrash(String storageId, String repositoryId)
@@ -385,7 +380,7 @@ public class ArtifactManagementServiceImpl
 
             artifactOperationsValidator.checkAllowsDeletion(repository);
 
-            LocationResolver resolver = getResolvers().get(repository.getImplementation());
+            LocationResolver resolver = locationResolverRegistry.getResolvers().get(repository.getImplementation());
             resolver.deleteTrash(storageId, repositoryId);
         }
         catch (IOException e)
@@ -401,9 +396,12 @@ public class ArtifactManagementServiceImpl
     {
         try
         {
-            for (LocationResolver resolver : getResolvers().values())
+            for (LocationResolver resolver : locationResolverRegistry.getResolvers().values())
             {
-                resolver.deleteTrash();
+                if (!resolver.getAlias().equals(GroupLocationResolver.ALIAS))
+                {
+                    resolver.deleteTrash();
+                }
             }
         }
         catch (IOException e)
@@ -425,7 +423,7 @@ public class ArtifactManagementServiceImpl
 
         try
         {
-            LocationResolver resolver = getResolvers().get(repository.getImplementation());
+            LocationResolver resolver = locationResolverRegistry.getResolvers().get(repository.getImplementation());
 
             resolver.undelete(storageId, repositoryId, artifactPath);
 
@@ -461,7 +459,7 @@ public class ArtifactManagementServiceImpl
 
             if (repository.isTrashEnabled())
             {
-                LocationResolver resolver = getResolvers().get(repository.getImplementation());
+                LocationResolver resolver = locationResolverRegistry.getResolvers().get(repository.getImplementation());
                 resolver.undeleteTrash(storageId, repositoryId);
             }
         }
@@ -477,7 +475,7 @@ public class ArtifactManagementServiceImpl
     {
         try
         {
-            for (LocationResolver resolver : getResolvers().values())
+            for (LocationResolver resolver : locationResolverRegistry.getResolvers().values())
             {
                 resolver.undeleteTrash();
             }

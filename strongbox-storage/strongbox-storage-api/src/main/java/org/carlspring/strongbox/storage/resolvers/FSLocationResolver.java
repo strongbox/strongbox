@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.storage.resolvers;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.maven.artifact.Artifact;
 import org.carlspring.commons.io.filters.DirectoryFilter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.io.ArtifactFile;
@@ -10,9 +8,6 @@ import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.DirUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,6 +15,15 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.maven.artifact.Artifact;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
 
 /**
  * @author mtodorov
@@ -31,11 +35,29 @@ public class FSLocationResolver
 
     private static final Logger logger = LoggerFactory.getLogger(FSLocationResolver.class);
 
-    private String alias = "file-system";
+    public static final String ALIAS = "file-system";
+
+    @Autowired
+    private LocationResolverRegistry locationResolverRegistry;
 
 
     public FSLocationResolver()
     {
+    }
+
+    @PostConstruct
+    @Override
+    public void register()
+    {
+        locationResolverRegistry.addResolver(ALIAS, this);
+
+        logger.info("Registered resolver '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
+    }
+
+    @Override
+    public LocationResolverRegistry getLocationResolverRegistry()
+    {
+        return locationResolverRegistry;
     }
 
     @Override
@@ -399,13 +421,7 @@ public class FSLocationResolver
     @Override
     public String getAlias()
     {
-        return alias;
-    }
-
-    @Override
-    public void setAlias(String alias)
-    {
-        this.alias = alias;
+        return ALIAS;
     }
 
 }

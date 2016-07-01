@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.storage.resolvers;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.maven.artifact.Artifact;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.commons.io.filters.DirectoryFilter;
 import org.carlspring.commons.io.resource.ResourceCloser;
@@ -14,14 +12,24 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.DirUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import javax.ws.rs.core.Response;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.maven.artifact.Artifact;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * @author mtodorov
@@ -33,11 +41,29 @@ public class ProxyLocationResolver
 
     private static final Logger logger = LoggerFactory.getLogger(ProxyLocationResolver.class);
 
-    private String alias = "proxy";
+    public static final String ALIAS = "proxy";
+
+    @Autowired
+    private LocationResolverRegistry locationResolverRegistry;
 
 
     public ProxyLocationResolver()
     {
+    }
+
+    @PostConstruct
+    @Override
+    public void register()
+    {
+        locationResolverRegistry.addResolver(ALIAS, this);
+
+        logger.info("Registered resolver '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
+    }
+
+    @Override
+    public LocationResolverRegistry getLocationResolverRegistry()
+    {
+        return locationResolverRegistry;
     }
 
     @Override
@@ -86,7 +112,7 @@ public class ProxyLocationResolver
                 return null;
             }
 
-            System.out.println("Creating " + artifactFile.getTemporaryFile().getParentFile().getAbsolutePath());
+            logger.debug("Creating " + artifactFile.getTemporaryFile().getParentFile().getAbsolutePath() + "...");
 
             artifactFile.createParents();
 
@@ -451,13 +477,7 @@ public class ProxyLocationResolver
     @Override
     public String getAlias()
     {
-        return alias;
-    }
-
-    @Override
-    public void setAlias(String alias)
-    {
-        this.alias = alias;
+        return ALIAS;
     }
 
 }

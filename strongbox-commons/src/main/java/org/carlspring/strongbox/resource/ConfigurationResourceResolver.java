@@ -1,14 +1,14 @@
 package org.carlspring.strongbox.resource;
 
+import java.io.File;
+import java.io.IOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
-
-import java.io.File;
-import java.io.IOException;
 
 /**
  * @author mtodorov
@@ -46,8 +46,8 @@ public class ConfigurationResourceResolver
                                              String propertyDefaultValue)
             throws IOException
     {
-        String filename = null;
-        Resource resource = null;
+        String filename;
+        Resource resource;
 
         if (configurationPath != null &&
             (!configurationPath.startsWith("classpath") && !(new File(configurationPath)).exists()))

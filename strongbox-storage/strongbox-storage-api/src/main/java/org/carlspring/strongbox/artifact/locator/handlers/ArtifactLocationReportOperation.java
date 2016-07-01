@@ -1,14 +1,15 @@
 package org.carlspring.strongbox.artifact.locator.handlers;
 
 import org.carlspring.maven.commons.io.filters.PomFilenameFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author mtodorov

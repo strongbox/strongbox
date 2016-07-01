@@ -17,6 +17,10 @@ import org.slf4j.Logger;
 public class ResourceCloser
 {
 
+    private ResourceCloser() 
+    {
+    }
+
     public static void close(Closeable resource, Logger logger)
     {
         if (resource != null)

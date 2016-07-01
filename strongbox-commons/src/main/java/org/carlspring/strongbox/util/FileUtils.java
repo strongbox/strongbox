@@ -8,6 +8,10 @@ import java.io.File;
 public class FileUtils
 {
 
+    private FileUtils() 
+    {
+    }
+
     public static String normalizePath(String path)
     {
         if (path.contains("\\") && !File.separator.equals("\\"))

@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.storage.metadata;
 
+import org.carlspring.maven.commons.util.ArtifactUtils;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -12,8 +14,6 @@ import org.apache.maven.artifact.repository.metadata.Snapshot;
 import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.apache.maven.project.artifact.PluginArtifact;
-import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 
 public class MetadataMerger
 {
@@ -122,7 +122,7 @@ public class MetadataMerger
 
     private Collection<SnapshotVersion> createNewSnapshotVersions(String version, String timestamp, int buildNumber)
     {
-        Collection<SnapshotVersion> toReturn = new ArrayList<SnapshotVersion>();
+        Collection<SnapshotVersion> toReturn = new ArrayList<>();
 
         SnapshotVersion sv1 = new SnapshotVersion();
         SnapshotVersion sv2 = new SnapshotVersion();

@@ -2,8 +2,14 @@ package org.carlspring.strongbox.storage.resolvers;
 
 import com.carmatechnologies.commons.testing.logging.ExpectedLogs;
 import com.carmatechnologies.commons.testing.logging.api.LogLevel;
+<<<<<<< HEAD
 import org.carlspring.strongbox.BaseStorageApiTest;
 import org.carlspring.strongbox.configuration.Configuration;
+=======
+import org.carlspring.strongbox.CommonConfig;
+import org.carlspring.strongbox.StorageApiConfig;
+import org.carlspring.strongbox.client.ArtifactTransportException;
+>>>>>>> upstream/master
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.configuration.ConfigurationRepository;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
@@ -58,7 +64,7 @@ public class GroupLocationResolverTest
         captureFor(GroupLocationResolver.class, LogLevel.DEBUG);
     }};
 
-    public static boolean INITIALIZED = false;
+    public static boolean INITIALIZED;
 
 
     @Before
@@ -93,7 +99,7 @@ public class GroupLocationResolverTest
 
     @Test
     public void testGroupIncludes()
-            throws IOException, NoSuchAlgorithmException
+            throws IOException, NoSuchAlgorithmException, ArtifactTransportException
     {
         System.out.println("# Testing group includes...");
 
@@ -108,7 +114,7 @@ public class GroupLocationResolverTest
 
     @Test
     public void testGroupIncludesWithOutOfServiceRepository()
-            throws IOException, NoSuchAlgorithmException
+            throws IOException, NoSuchAlgorithmException, ArtifactTransportException
     {
         System.out.println("# Testing group includes with out of service repository...");
 
@@ -134,7 +140,7 @@ public class GroupLocationResolverTest
 
     @Test
     public void testGroupIncludesWildcardRule()
-            throws IOException, NoSuchAlgorithmException
+            throws IOException, NoSuchAlgorithmException, ArtifactTransportException
     {
         System.out.println("# Testing group includes with wildcard...");
 
@@ -149,7 +155,7 @@ public class GroupLocationResolverTest
 
     @Test
     public void testGroupIncludesWildcardRuleAgainstNestedRepository()
-            throws IOException, NoSuchAlgorithmException
+            throws IOException, NoSuchAlgorithmException, ArtifactTransportException
     {
         System.out.println("# Testing group includes with wildcard against nested repositories...");
 
@@ -164,7 +170,7 @@ public class GroupLocationResolverTest
     
     @Test
     public void testGroupAgainstNestedRepository()
-            throws IOException, NoSuchAlgorithmException
+            throws IOException, NoSuchAlgorithmException, ArtifactTransportException
     {
         System.out.println("# Testing group includes with wildcard against nested repositories...");
 
@@ -179,7 +185,7 @@ public class GroupLocationResolverTest
 
     @Test
     public void testGroupExcludes()
-            throws IOException, NoSuchAlgorithmException
+            throws IOException, NoSuchAlgorithmException, ArtifactTransportException
     {
         System.out.println("# Testing group excludes...");
 
@@ -193,7 +199,7 @@ public class GroupLocationResolverTest
 
     @Test
     public void testGroupExcludesWildcardRule()
-            throws IOException, NoSuchAlgorithmException
+            throws IOException, NoSuchAlgorithmException, ArtifactTransportException
     {
         System.out.println("# Testing group excludes with wildcard...");
 

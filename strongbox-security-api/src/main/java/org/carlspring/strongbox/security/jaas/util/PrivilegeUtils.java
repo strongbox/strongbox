@@ -12,9 +12,13 @@ import java.util.List;
 public class PrivilegeUtils
 {
 
+    private PrivilegeUtils() 
+    {
+    }
+
     public static List<String> toStringList(Collection<Privilege> privileges)
     {
-        List<String> privilegesAsStrings = new ArrayList<String>();
+        List<String> privilegesAsStrings = new ArrayList<>();
 
         for (Privilege privilege : privileges)
         {
@@ -26,7 +30,7 @@ public class PrivilegeUtils
 
     public static List<Privilege> toList(Collection<Privilege> privileges)
     {
-        List<Privilege> privilegesList = new ArrayList<Privilege>();
+        List<Privilege> privilegesList = new ArrayList<>();
         privilegesList.addAll(privileges);
         
         return privilegesList;

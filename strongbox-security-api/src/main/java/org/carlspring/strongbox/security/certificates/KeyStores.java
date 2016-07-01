@@ -1,8 +1,24 @@
 package org.carlspring.strongbox.security.certificates;
 
-import javax.net.ssl.*;
-import java.io.*;
-import java.net.*;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Authenticator;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.PasswordAuthentication;
+import java.net.Proxy;
+import java.net.Socket;
+import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -22,6 +38,10 @@ public class KeyStores
     static
     {
         Authenticator.setDefault(authenticator);
+    }
+    
+    private KeyStores() 
+    {
     }
 
 
@@ -100,7 +120,7 @@ public class KeyStores
                    NoSuchAlgorithmException
     {
         final KeyStore keyStore = load(fileName, password);
-        final Map<String, Certificate> certificates = new HashMap<String, Certificate>();
+        final Map<String, Certificate> certificates = new HashMap<>();
         final Enumeration<String> aliases = keyStore.aliases();
 
         while (aliases.hasMoreElements())
@@ -354,7 +374,7 @@ public class KeyStores
             return credentials.get();
         }
 
-        static final ThreadLocal<PasswordAuthentication> credentials = new ThreadLocal<PasswordAuthentication>();
+        static final ThreadLocal<PasswordAuthentication> credentials = new ThreadLocal<>();
     }
 
 }

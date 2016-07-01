@@ -12,9 +12,13 @@ import java.util.List;
 public class RoleUtils
 {
 
+    private RoleUtils() 
+    {
+    }
+
     public static List<String> toStringList(Collection<Role> roles)
     {
-        List<String> rolesAsStrings = new ArrayList<String>();
+        List<String> rolesAsStrings = new ArrayList<>();
 
         for (Role role : roles)
         {
@@ -26,7 +30,7 @@ public class RoleUtils
 
     public static List<Role> toList(Collection<Role> roles)
     {
-        List<Role> rolesList = new ArrayList<Role>();
+        List<Role> rolesList = new ArrayList<>();
         rolesList.addAll(roles);
 
         return rolesList;

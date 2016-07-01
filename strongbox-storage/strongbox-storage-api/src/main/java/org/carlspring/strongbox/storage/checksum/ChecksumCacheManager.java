@@ -36,7 +36,7 @@ public class ChecksumCacheManager
      * Key:     Artifact path
      * Value:   Artifact checksum.
      */
-    private Map<String, ArtifactChecksum> cachedChecksums = new LinkedHashMap<String, ArtifactChecksum>();
+    private Map<String, ArtifactChecksum> cachedChecksums = new LinkedHashMap<>();
 
     /**
      * Specifies how long to keep the cached checksums.
@@ -131,15 +131,15 @@ public class ChecksumCacheManager
 
     private Set<String> getExpiredChecksums()
     {
-        Set<String> expiredChecksums = new LinkedHashSet<String>();
+        Set<String> expiredChecksums = new LinkedHashSet<>();
 
-        for (String artifactBasePath : cachedChecksums.keySet())
+        for (Map.Entry<String, ArtifactChecksum> artifactChecksumEntry : cachedChecksums.entrySet())
         {
-            ArtifactChecksum checksum = cachedChecksums.get(artifactBasePath);
+            ArtifactChecksum checksum = artifactChecksumEntry.getValue();
 
             if (System.currentTimeMillis() - checksum.getLastAccessed() > cachedChecksumLifetime)
             {
-                expiredChecksums.add(artifactBasePath);
+                expiredChecksums.add(artifactChecksumEntry.getKey());
             }
         }
 

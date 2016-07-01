@@ -2,34 +2,40 @@ package org.carlspring.strongbox.rest;
 
 import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.rest.context.RestletTestContext;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
+
+import java.io.File;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.File;
-
+import org.junit.runner.RunWith;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertFalse;
 
 /**
  * @author mtodorov
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@RestletTestContext
 public class TrashRestletTest
         extends TestCaseWithArtifactGeneration
 {
 
     public static class SpringConfig { }
 
-    private final static File BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory()).getAbsoluteFile();
+    private static final File BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory()).getAbsoluteFile();
 
     private static final String STORAGE = "storage0";
 
     private static final String REPOSITORY_WITH_TRASH = "releases-with-trash";
 
-    private final static String REPOSITORY_WITH_TRASH_BASEDIR = BASEDIR.getAbsolutePath() +
+    private static final String REPOSITORY_WITH_TRASH_BASEDIR = BASEDIR.getAbsolutePath() +
                                                                 "/storages/" + STORAGE + "/" + REPOSITORY_WITH_TRASH;
-    private RestClient client = new RestClient();
+
+    private RestClient client = RestClient.getTestInstanceLoggedInAsAdmin();
 
     private static final File ARTIFACT_FILE_IN_TRASH = new File(REPOSITORY_WITH_TRASH_BASEDIR + "/.trash/" +
                                                                 "org/carlspring/strongbox/test-artifact-to-trash/1.0/" +

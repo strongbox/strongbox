@@ -1,8 +1,5 @@
 package org.carlspring.strongbox.storage.metadata;
 
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -19,6 +16,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class MetadataHelperTest
 {
@@ -280,7 +279,7 @@ public class MetadataHelperTest
         plugin.setName("");
         plugin.setPrefix("");
 
-        List<Plugin> plugins = new ArrayList<Plugin>();
+        List<Plugin> plugins = new ArrayList<>();
         plugins.add(plugin);
         metadata.setPlugins(plugins);
         return metadata;
@@ -295,7 +294,7 @@ public class MetadataHelperTest
         metadata.setVersioning(new Versioning());
         metadata.getVersioning().setLatest(PRE_VERSION);
         metadata.getVersioning().setRelease(PRE_VERSION);
-        List<String> versions = new ArrayList<String>();
+        List<String> versions = new ArrayList<>();
         versions.add(PRE_VERSION);
         metadata.getVersioning().setVersions(versions);
         metadata.getVersioning()
@@ -316,7 +315,7 @@ public class MetadataHelperTest
         snapshot.setBuildNumber(1);
         snapshot.setTimestamp(timestamp.substring(0, 7) + "." + timestamp.substring(8));
 
-        List<SnapshotVersion> snapshotVersions = new ArrayList<SnapshotVersion>();
+        List<SnapshotVersion> snapshotVersions = new ArrayList<>();
         snapshotVersions.addAll(createNewSnapshotVersions(SNAPSHOT_VERSION, timestamp, 1));
 
         Versioning versioning = new Versioning();
@@ -330,7 +329,7 @@ public class MetadataHelperTest
 
     private Collection<SnapshotVersion> createNewSnapshotVersions(String version, String timestamp, int buildNumber)
     {
-        Collection<SnapshotVersion> toReturn = new ArrayList<SnapshotVersion>();
+        Collection<SnapshotVersion> toReturn = new ArrayList<>();
 
         SnapshotVersion sv1 = new SnapshotVersion();
         SnapshotVersion sv2 = new SnapshotVersion();
