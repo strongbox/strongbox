@@ -1,7 +1,8 @@
 package org.carlspring.strongbox.configuration;
 
-import org.carlspring.strongbox.CommonConfig;
+import org.carlspring.strongbox.BaseStorageApiTest;
 import org.carlspring.strongbox.StorageApiConfig;
+import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -15,38 +16,24 @@ import javax.xml.bind.JAXBException;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author mtodorov
  */
+@ContextConfiguration(classes = { StorageApiConfig.class,
+                                  DataServiceConfig.class })
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration
-public class ConfigurationManagerTest
+public class ConfigurationManagerTest extends BaseStorageApiTest
 {
-
-    @org.springframework.context.annotation.Configuration
-    @Import({
-            StorageApiConfig.class,
-            CommonConfig.class
-    })
-    public static class SpringConfig { }
 
     public static final String TEST_CLASSES = "target/test-classes";
 

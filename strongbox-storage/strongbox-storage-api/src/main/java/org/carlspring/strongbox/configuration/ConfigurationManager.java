@@ -98,6 +98,7 @@ public class ConfigurationManager extends AbstractConfigurationManager<Configura
                 }
             }
         }
+        configurationRepository.updateConfiguration(configuration);
     }
 
     public void dump()
@@ -146,12 +147,11 @@ public class ConfigurationManager extends AbstractConfigurationManager<Configura
     @Override
     public Configuration getConfiguration()
     {
-        return (Configuration) super.getConfiguration();
+        return (Configuration) this.configuration;
     }
 
-    public Resource getConfigurationResource()
-            throws IOException
-    {
+    @Override
+    public Resource getConfigurationResource() throws IOException {
         return configurationResourceResolver.getConfigurationResource("repository.config.xml", "etc/conf/strongbox.xml");
     }
 

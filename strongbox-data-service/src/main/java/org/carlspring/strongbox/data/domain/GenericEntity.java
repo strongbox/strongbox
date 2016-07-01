@@ -6,8 +6,6 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
 import java.io.Serializable;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 /**
  * Base class for all entity classes in OrientDB.
  *
@@ -18,7 +16,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public abstract class GenericEntity
         implements Serializable
 {
-
     @Id
     protected String id;
 
@@ -29,7 +26,6 @@ public abstract class GenericEntity
     protected String detachAll;
 
     @Version
-    @JsonIgnore
     protected Long version;
 
     public GenericEntity()

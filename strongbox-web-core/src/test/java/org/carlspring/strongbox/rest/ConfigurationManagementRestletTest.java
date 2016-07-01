@@ -2,22 +2,26 @@ package org.carlspring.strongbox.rest;
 
 import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.configuration.ConfigurationRepository;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.context.RestletTestContext;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.junit.After;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import javax.xml.bind.JAXBException;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -32,8 +36,14 @@ import static org.junit.Assert.assertTrue;
 public class ConfigurationManagementRestletTest
 {
 
+    @org.springframework.context.annotation.Configuration
+    @ComponentScan(basePackages = {"org.carlspring.strongbox", "org.carlspring.logging"})
+    public static class SpringConfig { }
+
     private RestClient client = RestClient.getTestInstanceLoggedInAsAdmin();
 
+    @Autowired
+    private ConfigurationRepository configurationRepository;
 
     @After
     public void tearDown()
@@ -122,8 +132,18 @@ public class ConfigurationManagementRestletTest
         r2.setStorage(storage1);
         r2.setProxyConfiguration(createProxyConfiguration());
 
+        Configuration configuration = configurationRepository.getConfiguration();
+        configuration.addStorage(storage1);
+
         client.addRepository(r1);
         client.addRepository(r2);
+
+        configuration.getStorage(storageId)
+                .addOrUpdateRepository(r1);
+        configuration.getStorage(storageId)
+                .addOrUpdateRepository(r2);
+        configurationRepository.updateConfiguration(configuration);
+
 
         Storage storage = client.getStorage(storageId);
 
@@ -146,7 +166,7 @@ public class ConfigurationManagementRestletTest
     }
 
     @Test
-    public void testCreateAndDeleteStorage()
+    public void     testCreateAndDeleteStorage()
             throws IOException, JAXBException
     {
         final String storageId = "storage2";
@@ -170,8 +190,19 @@ public class ConfigurationManagementRestletTest
         r2.setSecured(true);
         r2.setStorage(storage2);
 
+        Configuration configuration = configurationRepository.getConfiguration();
+
+        configuration.addStorage(storage2);
+
         client.addRepository(r1);
         client.addRepository(r2);
+
+        configuration.getStorage(storageId)
+                .addOrUpdateRepository(r1);
+        configuration.getStorage(storageId)
+                .addOrUpdateRepository(r2);
+        configurationRepository.updateConfiguration(configuration);
+
 
         final ProxyConfiguration pc = client.getProxyConfiguration(storageId, repositoryId1);
 
