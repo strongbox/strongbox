@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.config;
 
-import org.carlspring.strongbox.CommonConfig;
 import org.carlspring.strongbox.StorageApiConfig;
 import org.carlspring.strongbox.StorageIndexingConfig;
 import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
@@ -19,8 +18,6 @@ import org.springframework.context.annotation.Import;
                   "org.carlspring.logging"
                 })
 @Import ({
-           DataServiceConfig.class,
-           CommonConfig.class,
            StrongboxSecurityConfig.class,
            StorageIndexingConfig.class,
            StorageApiConfig.class,

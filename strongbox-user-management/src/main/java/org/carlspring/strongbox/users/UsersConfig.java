@@ -23,6 +23,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.Resource;
 import org.springframework.data.orient.commons.repository.config.EnableOrientRepositories;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,10 +38,13 @@ import org.springframework.transaction.annotation.Transactional;
 @EnableOrientRepositories(basePackages = "org.carlspring.strongbox.users.repository")
 @Import({ DataServiceConfig.class,
           CommonConfig.class })
+@Scope("singleton")
 public class UsersConfig
 {
 
     private static final Logger logger = LoggerFactory.getLogger(UsersConfig.class);
+
+    private static volatile boolean initialized;
 
     @Autowired
     private OObjectDatabaseTx databaseTx;
@@ -63,6 +67,13 @@ public class UsersConfig
     @Transactional
     public synchronized void init()
     {
+        if (initialized)
+        {
+            return;
+        }
+
+        initialized = true;
+
         logger.debug("Loading users...");
 
         // register all domain entities

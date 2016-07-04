@@ -63,6 +63,7 @@
         <version.orientdb>2.1.16</version.orientdb>
         <version.guava>19.0</version.guava>
         <version.servlet.api>2.5</version.servlet.api>
+        <version.rest.assured>3.0.0</version.rest.assured>
     </properties>
 
     <build>
@@ -454,6 +455,12 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-test</artifactId>
                 <version>${version.spring}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.rest-assured</groupId>
+                <artifactId>rest-assured</artifactId>
+                <version>${version.rest.assured}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
