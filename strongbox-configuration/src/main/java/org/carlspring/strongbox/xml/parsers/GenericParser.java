@@ -2,6 +2,8 @@ package org.carlspring.strongbox.xml.parsers;
 
 import org.carlspring.strongbox.url.ClasspathURLStreamHandler;
 import org.carlspring.strongbox.url.ClasspathURLStreamHandlerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -18,9 +20,6 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author mtodorov

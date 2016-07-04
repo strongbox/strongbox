@@ -3,6 +3,7 @@ package org.carlspring.strongbox.services;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.HttpConnectionPool;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.xml.bind.JAXBException;
@@ -63,4 +64,9 @@ public interface ConfigurationManagementService extends ConfigurationService
     ProxyConfiguration getProxyConfiguration()
             throws IOException, JAXBException;
 
+    void setProxyRepositoryMaxConnections(String storageId, String repositoryId, int numberOfConnections)
+            throws IOException, JAXBException;
+
+    HttpConnectionPool getHttpConnectionPoolConfiguration(String storageId, String repositoryId)
+            throws IOException, JAXBException;
 }

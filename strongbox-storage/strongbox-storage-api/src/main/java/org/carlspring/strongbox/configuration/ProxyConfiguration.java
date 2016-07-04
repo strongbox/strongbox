@@ -9,6 +9,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
+
 /**
  * @author mtodorov
  */
@@ -109,4 +112,36 @@ public class ProxyConfiguration
         nonProxyHosts.add(host);
     }
 
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ProxyConfiguration that = (ProxyConfiguration) o;
+        return port == that.port &&
+               Objects.equal(host, that.host) &&
+               Objects.equal(username, that.username) &&
+               Objects.equal(password, that.password) &&
+               Objects.equal(type, that.type) &&
+               Objects.equal(nonProxyHosts, that.nonProxyHosts);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hashCode(host, port, username, password, type, nonProxyHosts);
+    }
+
+    @Override
+    public String toString()
+    {
+        return MoreObjects.toStringHelper(this)
+                          .add("host", host)
+                          .add("port", port)
+                          .add("username", username)
+                          .add("password", password)
+                          .add("type", type)
+                          .add("nonProxyHosts", nonProxyHosts)
+                          .toString();
+    }
 }

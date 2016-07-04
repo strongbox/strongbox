@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.configuration;
 
+import org.apache.commons.collections.MapUtils;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
@@ -31,6 +33,8 @@ public class ConfigurationManager extends AbstractConfigurationManager<Configura
     @Autowired
     private ConfigurationResourceResolver configurationResourceResolver;
 
+    @Autowired
+    private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
 
     public ConfigurationManager()
     {
@@ -46,6 +50,7 @@ public class ConfigurationManager extends AbstractConfigurationManager<Configura
 
         setRepositoryStorageRelationships();
         setAllows();
+        setProxyRepositoryConnectionPoolConfigurations();
 
         dump();
     }
@@ -98,6 +103,24 @@ public class ConfigurationManager extends AbstractConfigurationManager<Configura
                 }
             }
         }
+
+        configurationRepository.updateConfiguration(configuration);
+    }
+
+    private void setProxyRepositoryConnectionPoolConfigurations()
+    {
+        final Configuration configuration = getConfiguration();
+        configuration.getStorages().values().stream()
+                .filter(storage -> MapUtils.isNotEmpty(storage.getRepositories()))
+                .flatMap(storage -> storage.getRepositories().values().stream())
+                .forEach(repository -> {
+                    if(repository.getHttpConnectionPool() != null
+                            && repository.getRemoteRepository() != null && repository.getRemoteRepository().getUrl() != null)
+                    {
+                        proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(
+                                repository.getRemoteRepository().getUrl(), repository.getHttpConnectionPool().getAllocatedConnections());
+                    }
+                });
     }
 
     public void dump()
@@ -146,12 +169,10 @@ public class ConfigurationManager extends AbstractConfigurationManager<Configura
     @Override
     public Configuration getConfiguration()
     {
-        return (Configuration) super.getConfiguration();
+        return (Configuration) this.configuration;
     }
-
-    public Resource getConfigurationResource()
-            throws IOException
-    {
+    @Override
+    public Resource getConfigurationResource() throws IOException {
         return configurationResourceResolver.getConfigurationResource("repository.config.xml", "etc/conf/strongbox.xml");
     }
 

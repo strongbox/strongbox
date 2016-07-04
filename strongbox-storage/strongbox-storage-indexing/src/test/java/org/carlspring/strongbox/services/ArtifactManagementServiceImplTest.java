@@ -43,7 +43,7 @@ public class ArtifactManagementServiceImplTest
     @Autowired
     private ArtifactManagementService artifactManagementService;
 
-    private static boolean INITIALIZED;
+    private static boolean INITIALIZED = false;
 
     @Before
     public void init()
