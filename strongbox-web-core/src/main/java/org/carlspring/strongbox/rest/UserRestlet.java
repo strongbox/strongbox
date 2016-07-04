@@ -71,7 +71,7 @@ public class UserRestlet
     @ApiOperation(value = "Used to retrieve an request param", position = 1)
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 400, message = "An error occurred.") })
-    //@PreAuthorize("authenticated")
+    @PreAuthorize("authenticated")
     public synchronized Response greet(@ApiParam(value = "The param", required = true)
                                        @PathParam("anyString") String param)
     {
