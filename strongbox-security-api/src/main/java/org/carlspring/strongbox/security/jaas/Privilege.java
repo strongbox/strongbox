@@ -59,6 +59,8 @@ public class Privilege implements Serializable
         sb.append("name='").append(name).append('\'');
         sb.append(", description='").append(description).append('\'');
         sb.append('}');
+        
         return sb.toString();
     }
+    
 }
