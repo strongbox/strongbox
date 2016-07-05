@@ -76,6 +76,9 @@ public class Repository
     @XmlElement(name = "remote-repository")
     private RemoteRepository remoteRepository;
 
+    @XmlElement(name = "http-connection-pool")
+    private HttpConnectionPool httpConnectionPool;
+
     @XmlElement(name = "repository")
     @XmlElementWrapper(name = "group")
     private Set<String> groupRepositories = new LinkedHashSet<>();
@@ -347,4 +350,13 @@ public class Repository
         return new File(getBasedir(), ".temp");
     }
 
+    public HttpConnectionPool getHttpConnectionPool()
+    {
+        return httpConnectionPool;
+    }
+
+    public void setHttpConnectionPool(HttpConnectionPool httpConnectionPool)
+    {
+        this.httpConnectionPool = httpConnectionPool;
+    }
 }

@@ -8,7 +8,6 @@
     <storages>
         <storage id="storage0">
             <repositories>
-                <!-- Secured repositories do not allow anonymous access -->
                 <repository id="releases-by-juan" policy="release" implementation="file-system" type="hosted" allows-force-deletion="true" checksum-headers-enabled="true"/>
                 <repository id="releases" policy="release" implementation="file-system" type="hosted" allows-force-deletion="true" checksum-headers-enabled="true"/>
                 <repository id="releases-with-redeployment" policy="release" implementation="file-system" type="hosted" allows-redeployment="true" indexing-enabled="false"/>
@@ -30,7 +29,15 @@
                                        auto-blocking="true"
                                        checksum-validation="true" />
                 </repository>
+                <repository id="maven-central" policy="release" implementation="proxy" type="proxy">
+                    <proxy-configuration host="localhost" port="8180" username="testuser" password="password" />
+                    <remote-repository url="https://repo.maven.apache.org/maven2/"
+                                       download-remote-indexes="true"
+                                       auto-blocking="true"
+                                       checksum-validation="true" />
 
+                    <http-connection-pool allocated-connections="200"/>
+                </repository>
                 <repository id="group-releases" policy="release" implementation="group" type="group" secured="true">
                     <group>
                         <repository>releases</repository>

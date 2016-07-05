@@ -20,7 +20,6 @@ import java.util.Map;
  */
 @XmlRootElement(name = "storage")
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlJavaTypeAdapter(StorageMapAdapter.class)
 public class Storage
 {
 
