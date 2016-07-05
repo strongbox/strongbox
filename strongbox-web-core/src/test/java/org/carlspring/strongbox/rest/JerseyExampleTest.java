@@ -18,6 +18,7 @@ import org.glassfish.jersey.test.grizzly.GrizzlyTestContainerFactory;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.test.annotation.Commit;
 import org.springframework.test.context.ContextConfiguration;
@@ -55,8 +56,15 @@ public class JerseyExampleTest
         enable(TestProperties.LOG_TRAFFIC);
         enable(TestProperties.DUMP_ENTITY);
         forceSet(TestProperties.CONTAINER_PORT, "0"); // execute test on first available port
-        return new ResourceConfig(UserRestlet.class);
+
+        ResourceConfig rc = new ResourceConfig(UserRestlet.class);
+
+        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(WebConfig.class);
+        rc.property("contextConfig", ctx);
+
+        return rc;
     }
+
 
     @Override
     protected void configureClient(ClientConfig config)
