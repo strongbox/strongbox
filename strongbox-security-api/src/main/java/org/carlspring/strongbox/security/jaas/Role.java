@@ -159,6 +159,8 @@ public class Role implements Serializable
         sb.append(", roles=").append(roles);
         sb.append(", privileges=").append(privileges);
         sb.append('}');
+        
         return sb.toString();
     }
+    
 }
