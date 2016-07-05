@@ -113,4 +113,5 @@ public class StrongboxUserDetailService
 
         return authorities;
     }
+    
 }
