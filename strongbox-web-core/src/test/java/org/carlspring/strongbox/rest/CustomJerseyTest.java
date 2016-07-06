@@ -7,6 +7,7 @@ import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 
@@ -18,6 +19,8 @@ import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
 import org.glassfish.jersey.test.grizzly.GrizzlyTestContainerFactory;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 /**
@@ -28,12 +31,13 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 public abstract class CustomJerseyTest
         extends JerseyTest
 {
-
     // make sure that credentials match to the one that used in user configuration
     // (default) /strongbox-user-management/src/main/resources/etc/conf/security-users.xml
     public final static String ADMIN_CREDENTIALS = "Basic " + new String(Base64.encode("admin:password".getBytes()));
 
     public final static ObjectMapper objectMapper = new ObjectMapper();
+
+    private static final Logger logger = LoggerFactory.getLogger(JerseyTest.class);
 
     /**
      * Specifies usage of grizzly 2 http server and forbid overriding in any particular test.
@@ -92,5 +96,21 @@ public abstract class CustomJerseyTest
     protected Invocation.Builder requestApi(String path)
     {
         return target(path).request().header(HttpHeaders.AUTHORIZATION, ADMIN_CREDENTIALS);
+    }
+
+    protected Response getResource(String path){
+        Response response = requestApi(path).accept(MediaType.TEXT_PLAIN).get();
+        if (response.getStatus() != 200) {
+            displayResponseError(response);
+        }
+        return response;
+    }
+
+    protected void displayResponseError(Response response)
+    {
+        logger.error("Status code " + response.getStatus());
+        logger.error("Status info " + response.getStatusInfo().getReasonPhrase());
+        logger.error("Response message " + response.readEntity(String.class));
+        logger.error(response.toString());
     }
 }

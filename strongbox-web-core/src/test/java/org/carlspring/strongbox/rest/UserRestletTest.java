@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.rest;
 
-import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.users.domain.User;
 
 import javax.ws.rs.client.Entity;
@@ -13,7 +12,10 @@ import org.apache.http.HttpStatus;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test for {@link UserRestlet} REST API.
@@ -28,7 +30,7 @@ public class UserRestletTest
     public void testSayHello()
     {
         Response response = requestApi("/users/greet").get();
-        RestClient.displayResponseError(response);
+        displayResponseError(response);
     }
 
     @Test
@@ -48,7 +50,7 @@ public class UserRestletTest
         Response response = requestApi("/users/user/" + name).get();
         if (response.getStatus() != HttpStatus.SC_OK)
         {
-            RestClient.displayResponseError(response);
+            displayResponseError(response);
             throw new Error();
         }
 

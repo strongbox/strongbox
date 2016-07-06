@@ -13,7 +13,6 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
-import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -35,13 +34,13 @@ import static org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration.cr
 import static org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration.generateArtifact;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
  * @author mtodorov
  */
-@Ignore
 public class ArtifactRestletTest
         extends CustomJerseyTest
 {
@@ -327,9 +326,9 @@ public class ArtifactRestletTest
         String artifactPath = "org/carlspring/strongbox/copy/copy-foo/1.1/copy-foo-1.1.jar";
 
         File artifactFileRestoredFromTrash = new File(destRepositoryBasedir + "/" + artifactPath).getAbsoluteFile();
-
-        assertFalse("Unexpected artifact in repository '" + destRepositoryBasedir + "'!",
-                    artifactFileRestoredFromTrash.exists());
+        if (artifactFileRestoredFromTrash.exists()){
+            artifactFileRestoredFromTrash.delete();
+        }
 
         client.copy(artifactPath,
                     "storage0",
@@ -339,6 +338,8 @@ public class ArtifactRestletTest
 
         assertTrue("Failed to copy artifact to destination repository '" + destRepositoryBasedir + "'!",
                    artifactFileRestoredFromTrash.exists());
+
+        artifactFileRestoredFromTrash.deleteOnExit();
     }
 
     @Test
@@ -400,37 +401,46 @@ public class ArtifactRestletTest
     }
 
     @Test
-    public void testDirectoryListing()
+    public void testDirectoryListing1()
             throws Exception
     {
         String artifactPath = "org/carlspring/strongbox/browse/foo-bar";
-
         File artifact = new File(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/" + artifactPath).getAbsoluteFile();
-
         assertTrue("Failed to locate artifact file '" + artifact.getAbsolutePath() + "'!", artifact.exists());
 
-        Response repositoryRoot = client.getResourceWithResponse("/storages/storage0/releases/");
-        Response trashDirectoryListing = client.getResourceWithResponse("/storages/storage0/releases/.trash");
-        Response indexDirectoryListing = client.getResourceWithResponse("/storages/storage0/releases/.index");
-        Response directoryListing = client.getResourceWithResponse("/storages/storage0/releases/org/carlspring/strongbox/browse");
-        Response fileListing = client.getResourceWithResponse("/storages/storage0/releases/org/carlspring/strongbox/browse/foo-bar/1.0");
-        Response invalidPath = client.getResourceWithResponse("/storages/storage0/releases/org/carlspring/strongbox/browse/1.0");
+        int invalidPathStatus = getResource("/storages/storage0/releases/org/carlspring/strongbox/browse/1.0").getStatus();
+        assertTrue(invalidPathStatus == 404);
 
-        String repositoryRootContent = repositoryRoot.readEntity(String.class);
-        String directoryListingContent = directoryListing.readEntity(String.class);
-        String fileListingContent = fileListing.readEntity(String.class);
+        assertTrue(".trash directory should not be browsable!", getResource("/storages/storage0/releases/.trash").getStatus() == 404);
+        assertTrue(".index directory should not be browsable!", getResource("/storages/storage0/releases/.index").getStatus() == 404);
+    }
 
+    @Test
+    public void testDirectoryListing2()
+            throws Exception
+    {
+        String repositoryRootContent = client.getResourceWithResponse("/storages/storage0/releases/").readEntity(String.class);
         assertFalse(".trash directory should not be visible in directory listing!", repositoryRootContent.contains(".trash"));
-        assertTrue(".trash directory should not be browsable!", trashDirectoryListing.getStatus() == 404);
-
         assertFalse(".index directory should not be visible in directory listing!", repositoryRootContent.contains(".index"));
-        assertTrue(".index directory should not be browsable!", indexDirectoryListing.getStatus() == 404);
+    }
 
+    @Test
+    public void testDirectoryListing3()
+            throws Exception
+    {
+        String directoryListingContent = getResource("/storages/storage0/releases/org/carlspring/strongbox/browse").readEntity(String.class);
+        assertNotNull("Directory listing content should not be empty", directoryListingContent);
         assertTrue(directoryListingContent.contains("/storages/storage0/releases/org/carlspring/strongbox/browse"));
+
+    }
+
+    @Test
+    public void testDirectoryListing4()
+            throws Exception
+    {
+        String fileListingContent = getResource("/storages/storage0/releases/org/carlspring/strongbox/browse/foo-bar/1.0").readEntity(String.class);
         assertTrue(fileListingContent.contains("foo-bar-1.0.jar"));
         assertTrue(fileListingContent.contains("foo-bar-1.0.pom"));
-
-        assertTrue(invalidPath.getStatus() == 404);
     }
 
     @Test

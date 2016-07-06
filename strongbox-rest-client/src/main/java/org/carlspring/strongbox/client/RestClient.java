@@ -296,14 +296,6 @@ public class RestClient
         return storage;
     }
 
-    public static void displayResponseError(Response response)
-    {
-        logger.error("Status code " + response.getStatus());
-        logger.error("Status info " + response.getStatusInfo().getReasonPhrase());
-        logger.error("Response message " + response.readEntity(String.class));
-        logger.error(response.toString());
-    }
-
     /**
      * Deletes a storage.
      *

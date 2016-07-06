@@ -267,7 +267,22 @@ public class ArtifactClient
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
-        return resource.request(MediaType.TEXT_PLAIN).get();
+        Response response = resource.request(MediaType.TEXT_PLAIN).get();
+
+        if (response.getStatus() != 200)
+        {
+            displayResponseError(response);
+        }
+
+        return response;
+    }
+
+    public void displayResponseError(Response response)
+    {
+        logger.error("Status code " + response.getStatus());
+        logger.error("Status info " + response.getStatusInfo().getReasonPhrase());
+        logger.error("Response message " + response.readEntity(String.class));
+        logger.error(response.toString());
     }
 
     public void deleteArtifact(Artifact artifact,
