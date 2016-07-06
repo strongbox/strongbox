@@ -38,7 +38,7 @@ public class AuthorizationConfigProvider
             parser = new GenericParser<>(AuthorizationConfig.class);
             config = parser.parse(getConfigurationResource().getURL());
 
-            logger.debug(config.toString());
+            logger.trace(config.toString());
         }
         catch (Exception e)
         {

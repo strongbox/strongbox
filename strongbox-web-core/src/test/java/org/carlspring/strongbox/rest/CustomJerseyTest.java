@@ -10,6 +10,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.internal.util.Base64;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -27,9 +28,12 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 public abstract class CustomJerseyTest
         extends JerseyTest
 {
+
     // make sure that credentials match to the one that used in user configuration
     // (default) /strongbox-user-management/src/main/resources/etc/conf/security-users.xml
     public final static String ADMIN_CREDENTIALS = "Basic " + new String(Base64.encode("admin:password".getBytes()));
+
+    public final static ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * Specifies usage of grizzly 2 http server and forbid overriding in any particular test.
@@ -47,7 +51,7 @@ public abstract class CustomJerseyTest
     {
         enable(TestProperties.LOG_TRAFFIC);
         enable(TestProperties.DUMP_ENTITY);
-        forceSet(TestProperties.CONTAINER_PORT, "0"); // execute test on first available port
+        forceSet(TestProperties.CONTAINER_PORT, "48080"); // execute test on first available port
 
         // refer to package with all restlets; scan packages recursively
         ResourceConfig rc = new ResourceConfig().packages(true, "org.carlspring.strongbox.rest");

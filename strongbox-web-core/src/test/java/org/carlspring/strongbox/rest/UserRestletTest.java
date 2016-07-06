@@ -1,8 +1,6 @@
 package org.carlspring.strongbox.rest;
 
 import org.carlspring.strongbox.client.RestClient;
-import org.carlspring.strongbox.rest.context.RestletTestContext;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.users.domain.User;
 
 import javax.ws.rs.client.Entity;
@@ -11,55 +9,30 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpStatus;
-import org.junit.AfterClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
- * @author mtodorov
+ * Test for {@link UserRestlet} REST API.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@RestletTestContext
 public class UserRestletTest
-        extends TestCaseWithArtifactGeneration
+        extends CustomJerseyTest
 {
 
     private static final Logger logger = LoggerFactory.getLogger(UserRestletTest.class);
 
-    private static RestClient client = new RestClient();
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @AfterClass
-    public static void tearDown()
-            throws Exception
-    {
-        if (client != null)
-        {
-            client.close();
-        }
-    }
-
     @Test
-    public synchronized void testSayHello()
+    public void testSayHello()
     {
-        Response response = client.prepareTarget("/users/greet").request().get();
+        Response response = requestApi("/users/greet").get();
         RestClient.displayResponseError(response);
     }
 
     @Test
-    public synchronized void testRetrieveUser()
+    public void testRetrieveUser()
             throws Exception
     {
         final String userName = "admin";
@@ -72,7 +45,7 @@ public class UserRestletTest
     private User retrieveUserByName(String name)
             throws IOException
     {
-        Response response = client.prepareTarget("/users/user/" + name).request().get();
+        Response response = requestApi("/users/user/" + name).get();
         if (response.getStatus() != HttpStatus.SC_OK)
         {
             RestClient.displayResponseError(response);
@@ -86,24 +59,22 @@ public class UserRestletTest
     }
 
     @Test
-    public synchronized void testCreateUser()
+    public void testCreateUser()
             throws Exception
     {
         User test = buildUser("test", "password");
 
         Entity entity = Entity.entity(objectMapper.writeValueAsString(test), MediaType.TEXT_PLAIN);
 
-        Response response = client.prepareTarget("/users/user").request(
-                MediaType.TEXT_PLAIN).post(entity);
+        Response response = requestApi("/users/user").post(entity);
         assertTrue(response.getStatus() == HttpStatus.SC_OK);
     }
 
     @Test
-    public synchronized void testRetrieveAllUsers()
+    public void testRetrieveAllUsers()
             throws Exception
     {
-
-        Response response = client.prepareTarget("/users/all").request().get();
+        Response response = requestApi("/users/all").get();
         assertEquals(HttpStatus.SC_OK, response.getStatus());
 
         String rawResponse = read(response);
@@ -118,14 +89,13 @@ public class UserRestletTest
     }
 
     @Test
-    public synchronized void testUpdateUser()
+    public void testUpdateUser()
             throws Exception
     {
         // create new user
         User test = buildUser("test-update", "password-update");
         Entity entity = Entity.entity(objectMapper.writeValueAsString(test), MediaType.TEXT_PLAIN);
-        Response response = client.prepareTarget("/users/user").request(
-                MediaType.TEXT_PLAIN).post(entity);
+        Response response = requestApi("/users/user").post(entity);
         assertTrue(response.getStatus() == HttpStatus.SC_OK);
 
         // retrieve newly created user and store the id
@@ -137,8 +107,7 @@ public class UserRestletTest
 
         // send update request
         entity = Entity.entity(objectMapper.writeValueAsString(createdUser), MediaType.TEXT_PLAIN);
-        Response updateResponse = client.prepareTarget("/users/user").request(
-                MediaType.TEXT_PLAIN).put(entity);
+        Response updateResponse = requestApi("/users/user").put(entity);
         assertTrue(updateResponse.getStatus() == HttpStatus.SC_OK);
 
         // deserialize response
@@ -149,17 +118,16 @@ public class UserRestletTest
     }
 
     @Test
-    public synchronized void testDeleteUser()
+    public void testDeleteUser()
             throws Exception
     {
         // create new user
         User test = buildUser("test-update", "password-update");
         Entity entity = Entity.entity(objectMapper.writeValueAsString(test), MediaType.TEXT_PLAIN);
-        Response response = client.prepareTarget("/users/user").request(
-                MediaType.TEXT_PLAIN).post(entity);
+        Response response = requestApi("/users/user").post(entity);
         assertTrue(response.getStatus() == HttpStatus.SC_OK);
 
-        Response deleteResponse = client.prepareTarget("/users/user/" + test.getUsername()).request().delete();
+        Response deleteResponse = requestApi("/users/user/" + test.getUsername()).delete();
         assertTrue(deleteResponse.getStatus() == HttpStatus.SC_OK);
     }
 
@@ -173,7 +141,7 @@ public class UserRestletTest
         return test;
     }
 
-    private synchronized String read(Response response)
+    private String read(Response response)
     {
         String rawResponse = response.readEntity(String.class);
         logger.debug("Raw response " + rawResponse);

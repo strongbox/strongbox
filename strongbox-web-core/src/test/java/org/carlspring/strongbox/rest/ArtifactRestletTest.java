@@ -8,11 +8,9 @@ import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.rest.context.RestletTestContext;
 import org.carlspring.strongbox.storage.repository.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import javax.ws.rs.core.Response;
@@ -25,20 +23,19 @@ import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.artifact.PluginArtifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.*;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
+import static org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration.createSnapshotVersion;
+import static org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration.generateArtifact;
 import static org.junit.Assert.*;
 
 /**
  * @author mtodorov
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@RestletTestContext
 public class ArtifactRestletTest
-        extends TestCaseWithArtifactGeneration
+        extends CustomJerseyTest
 {
 
     private static final String TEST_RESOURCES = "target/test-resources";
@@ -50,64 +47,51 @@ public class ArtifactRestletTest
 
     private static RestClient client = new RestClient();
 
-    @Autowired
-    PasswordEncoder passwordEncoder;
-
     @BeforeClass
-    public static void setUp()
+    public static void setUpClass()
             throws Exception
     {
             generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
                              "org.carlspring.strongbox.resolve.only:foo",
-                             new String[]{ "1.1", // Used by testResolveViaProxy()
-                                         });
+                             "1.1" // Used by testResolveViaProxy()
+            );
 
             // Generate releases
             // Used by testPartialFetch():
             generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
                              "org.carlspring.strongbox.partial:partial-foo",
-                             new String[]{ "3.1", // Used by testPartialFetch()
-                                           "3.2"  // Used by testPartialFetch()
-                                         });
+                             "3.1", // Used by testPartialFetch()
+                             "3.2"  // Used by testPartialFetch()
+            );
 
             // Used by testCopy*():
             generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
                              "org.carlspring.strongbox.copy:copy-foo",
-                             new String[]{ "1.1", // Used by testCopyArtifactFile()
-                                           "1.2"  // Used by testCopyArtifactDirectory()
-                                         });
+                             "1.1", // Used by testCopyArtifactFile()
+                             "1.2"  // Used by testCopyArtifactDirectory()
+            );
 
             // Used by testDelete():
             generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
                              "com.artifacts.to.delete.releases:delete-foo",
-                             new String[]{ "1.2.1", // Used by testDeleteArtifactFile
-                                           "1.2.2",  // Used by testDeleteArtifactDirectory
-                                         });
+                             "1.2.1", // Used by testDeleteArtifactFile
+                             "1.2.2"  // Used by testDeleteArtifactDirectory
+            );
 
             generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
                              "org.carlspring.strongbox.partial:partial-foo",
-                             new String[]{ "3.1", // Used by testPartialFetch()
-                                           "3.2"  // Used by testPartialFetch()
-                                         });
+                             "3.1", // Used by testPartialFetch()
+                             "3.2"  // Used by testPartialFetch()
+            );
 
             generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
                              "org.carlspring.strongbox.browse:foo-bar",
-                             new String[]{ "1.0", // Used by testDirectoryListing()
-                                           "2.4"  // Used by testDirectoryListing()
-                                         });
+                             "1.0", // Used by testDirectoryListing()
+                             "2.4"  // Used by testDirectoryListing()
+            );
 
             //noinspection ResultOfMethodCallIgnored
             new File(TEST_RESOURCES).mkdirs();
-    }
-
-    @AfterClass
-    public static void tearDown()
-            throws Exception
-    {
-        if (client != null)
-        {
-            client.close();
-        }
     }
 
     @Test
@@ -342,6 +326,7 @@ public class ArtifactRestletTest
     }
 
     @Test
+    @Ignore // because test is not idempotent
     public void testCopyArtifactDirectory()
             throws Exception
     {

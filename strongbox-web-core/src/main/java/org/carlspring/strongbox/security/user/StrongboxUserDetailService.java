@@ -77,7 +77,7 @@ public class StrongboxUserDetailService
         springUser.setUsername(user.getUsername());
         springUser.setAuthorities(authorities);
 
-        logger.debug("Authorise under " + springUser);
+        logger.trace("Authorise under " + springUser);
 
         return springUser;
     }
