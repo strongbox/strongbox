@@ -3,11 +3,7 @@ package org.carlspring.strongbox.client;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 
 import javax.ws.rs.ServerErrorException;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.client.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.Closeable;
@@ -113,6 +109,7 @@ public class ArtifactClient
     @Override
     public void close()
     {
+        logger.warn("Close client...");
         if (client != null)
         {
             client.close();
@@ -267,14 +264,7 @@ public class ArtifactClient
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
-        Response response = resource.request(MediaType.TEXT_PLAIN).get();
-
-        if (response.getStatus() != 200)
-        {
-            displayResponseError(response);
-        }
-
-        return response;
+        return resource.request(MediaType.TEXT_PLAIN).get();
     }
 
     public void displayResponseError(Response response)

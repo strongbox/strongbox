@@ -7,7 +7,6 @@ import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 
@@ -99,7 +98,7 @@ public abstract class CustomJerseyTest
     }
 
     protected Response getResource(String path){
-        Response response = requestApi(path).accept(MediaType.TEXT_PLAIN).get();
+        Response response = requestApi(path).get();
         if (response.getStatus() != 200) {
             displayResponseError(response);
         }
@@ -110,7 +109,5 @@ public abstract class CustomJerseyTest
     {
         logger.error("Status code " + response.getStatus());
         logger.error("Status info " + response.getStatusInfo().getReasonPhrase());
-        logger.error("Response message " + response.readEntity(String.class));
-        logger.error(response.toString());
     }
 }

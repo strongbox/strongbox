@@ -134,6 +134,7 @@ public class ArtifactRestlet
         Repository repository = storage.getRepository(repositoryId);
         if (!repository.isInService())
         {
+            logger.error("Repository is not in service...");
             return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
         }
 
@@ -141,6 +142,7 @@ public class ArtifactRestlet
 
         if (repository.allowsDirectoryBrowsing() && probeForDirectoryListing(repository, path))
         {
+            logger.debug("GenerateDirectoryListing...");
             return generateDirectoryListing(repository, path, request);
         }
 
@@ -162,6 +164,7 @@ public class ArtifactRestlet
         }
         catch (ArtifactResolutionException | ArtifactTransportException e)
         {
+            logger.error("Unable to download", e);
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
@@ -170,6 +173,7 @@ public class ArtifactRestlet
         responseBuilder.header("Accept-Ranges", "bytes");
 
         setHeadersForChecksums(storageId, repositoryId, path, responseBuilder);
+        logger.debug("Download success. Building response...");
 
         return responseBuilder.build();
     }
