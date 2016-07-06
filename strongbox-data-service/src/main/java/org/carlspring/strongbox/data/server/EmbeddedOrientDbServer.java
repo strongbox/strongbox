@@ -43,7 +43,7 @@ public class EmbeddedOrientDbServer
 
         OServerNetworkListenerConfiguration binaryListener = new OServerNetworkListenerConfiguration();
         binaryListener.ipAddress = "0.0.0.0";
-        binaryListener.portRange = "2424-2430";
+        binaryListener.portRange = "2424-4423";
         binaryListener.protocol = "binary";
         binaryListener.socket = "default";
 

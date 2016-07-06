@@ -15,7 +15,11 @@ import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 
 import org.apache.maven.artifact.Artifact;
@@ -29,11 +33,15 @@ import org.junit.Ignore;
 import org.junit.Test;
 import static org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration.createSnapshotVersion;
 import static org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration.generateArtifact;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author mtodorov
  */
+@Ignore
 public class ArtifactRestletTest
         extends CustomJerseyTest
 {
@@ -92,6 +100,14 @@ public class ArtifactRestletTest
 
             //noinspection ResultOfMethodCallIgnored
             new File(TEST_RESOURCES).mkdirs();
+    }
+
+    @Override
+    public void setUp()
+            throws Exception
+    {
+        super.setUp();
+        client.setPort(getPort());
     }
 
     @Test
@@ -326,7 +342,6 @@ public class ArtifactRestletTest
     }
 
     @Test
-    @Ignore // because test is not idempotent
     public void testCopyArtifactDirectory()
             throws Exception
     {
@@ -337,8 +352,10 @@ public class ArtifactRestletTest
 
         File artifactFileRestoredFromTrash = new File(destRepositoryBasedir + "/" + artifactPath).getAbsoluteFile();
 
-        assertFalse("Unexpected artifact in repository '" + destRepositoryBasedir + "'!",
-                    artifactFileRestoredFromTrash.exists());
+        // if test was executed previously expected artifact will be already in place, so we will remove it
+        if (artifactFileRestoredFromTrash.exists()){
+            artifactFileRestoredFromTrash.delete();
+        }
 
         client.copy(artifactPath,
                     "storage0",
@@ -348,6 +365,8 @@ public class ArtifactRestletTest
 
         assertTrue("Failed to copy artifact to destination repository '" + destRepositoryBasedir + "'!",
                    artifactFileRestoredFromTrash.exists());
+
+        artifactFileRestoredFromTrash.deleteOnExit();
     }
 
     @Test

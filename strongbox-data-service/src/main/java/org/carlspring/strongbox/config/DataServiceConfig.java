@@ -1,9 +1,15 @@
 package org.carlspring.strongbox.config;
 
+import org.carlspring.strongbox.data.server.EmbeddedOrientDbServer;
+import org.carlspring.strongbox.data.tx.CustomOrientObjectDatabaseFactory;
+import org.carlspring.strongbox.data.tx.CustomOrientTransactionManager;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.io.IOException;
+
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
-import org.carlspring.strongbox.data.server.EmbeddedOrientDbServer;
-import org.carlspring.strongbox.data.tx.CustomOrientTransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +28,6 @@ import org.springframework.data.orient.object.OrientObjectDatabaseFactory;
 import org.springframework.data.orient.object.OrientObjectTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-
-import javax.annotation.PostConstruct;
-import java.io.IOException;
 
 /**
  * Spring configuration for data service project.
@@ -60,13 +63,17 @@ public class DataServiceConfig
     @Autowired
     EmbeddedOrientDbServer embeddableServer;
 
+    private CustomOrientObjectDatabaseFactory currentFactory;
+
     @Bean
     public OrientObjectDatabaseFactory factory()
     {
-        OrientObjectDatabaseFactory factory = new OrientObjectDatabaseFactory();
+        CustomOrientObjectDatabaseFactory factory = new CustomOrientObjectDatabaseFactory();
         factory.setUrl(getConnectionUrl());
         factory.setUsername(username);
         factory.setPassword(password);
+
+        this.currentFactory = factory;
 
         return factory;
     }
@@ -117,6 +124,19 @@ public class DataServiceConfig
             logger.debug("Create database " + database);
             serverAdmin.createDatabase(database, "document", "plocal").close();
         }
+    }
+
+    @PreDestroy
+    public void shutDown()
+    {
+        // close database connection pool
+        if (currentFactory != null)
+        {
+            currentFactory.close();
+        }
+
+        // stop the server instance
+        embeddableServer.shutDown();
     }
 
     private String getConnectionUrl()

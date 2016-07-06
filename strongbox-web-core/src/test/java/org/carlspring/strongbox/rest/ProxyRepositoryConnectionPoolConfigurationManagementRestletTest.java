@@ -1,23 +1,11 @@
 package org.carlspring.strongbox.rest;
 
-import org.apache.commons.collections.MapUtils;
-import org.apache.http.pool.PoolStats;
 import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.context.RestletTestContext;
-import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -26,6 +14,18 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 
+import org.apache.commons.collections.MapUtils;
+import org.apache.http.pool.PoolStats;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -33,6 +33,7 @@ import static org.junit.Assert.assertEquals;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @RestletTestContext
+@Ignore
 public class ProxyRepositoryConnectionPoolConfigurationManagementRestletTest extends TestCaseWithArtifactGeneration {
 
     @Configuration
