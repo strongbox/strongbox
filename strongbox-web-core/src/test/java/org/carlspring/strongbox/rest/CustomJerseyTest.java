@@ -2,6 +2,7 @@ package org.carlspring.strongbox.rest;
 
 import org.carlspring.strongbox.config.WebConfig;
 
+import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.client.Invocation;
@@ -9,18 +10,26 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.net.URI;
+import java.util.Collections;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.grizzly2.servlet.GrizzlyWebContainerFactory;
 import org.glassfish.jersey.internal.util.Base64;
+import org.glassfish.jersey.server.ApplicationHandler;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
-import org.glassfish.jersey.test.grizzly.GrizzlyTestContainerFactory;
+import org.glassfish.jersey.test.spi.TestContainer;
+import org.glassfish.jersey.test.spi.TestContainerException;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+// import org.glassfish.jersey.test.grizzly.GrizzlyTestContainerFactory;
 
 /**
  * Base class for all Jersey tests for the Strongbox application.
@@ -46,7 +55,40 @@ public abstract class CustomJerseyTest
     {
         // use Grizzly 2.0: HttpServer; do not require jetty:run, start jetty in blocked mode or something like that
         // makes possible to execute unit tests from IDE without separate HTTP server settings
-        return new GrizzlyTestContainerFactory();
+        return new TestContainerFactory() {
+            @Override
+            public TestContainer create(final URI baseUri, final ApplicationHandler application) throws IllegalArgumentException {
+                return new TestContainer() {
+                    private HttpServer server;
+
+                    @Override
+                    public ClientConfig getClientConfig() {
+                        return null;
+                    }
+
+                    @Override
+                    public URI getBaseUri() {
+                        return baseUri;
+                    }
+
+                    @Override
+                    public void start() {
+                        try {
+                            this.server = GrizzlyWebContainerFactory.create(
+                                    baseUri, Collections.singletonMap("jersey.config.server.provider.packages", "org.carlspring.strongbox.rest")
+                            );
+                        } catch (ProcessingException | IOException e) {
+                            throw new TestContainerException(e);
+                        }
+                    }
+
+                    @Override
+                    public void stop() {
+                        this.server.stop();
+                    }
+                };
+            }
+        };
     }
 
     @Override

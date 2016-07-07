@@ -61,8 +61,7 @@
         <version.spring.data>0.10.0-SNAPSHOT</version.spring.data>
         <version.orientdb>2.1.16</version.orientdb>
         <version.guava>19.0</version.guava>
-        <version.servlet.api>2.5</version.servlet.api>
-        <version.rest.assured>3.0.0</version.rest.assured>
+        <version.servlet.api>3.1.0</version.servlet.api>
     </properties>
 
     <build>

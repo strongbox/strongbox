@@ -143,7 +143,14 @@ public class ArtifactRestlet
         if (repository.allowsDirectoryBrowsing() && probeForDirectoryListing(repository, path))
         {
             logger.debug("GenerateDirectoryListing...");
-            return generateDirectoryListing(repository, path, request);
+            try
+            {
+                return generateDirectoryListing(repository, path, request);
+            }
+            catch (Exception e){
+                logger.error("Unable to GenerateDirectoryListing", e);
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            }
         }
 
         InputStream is;
@@ -266,12 +273,16 @@ public class ArtifactRestlet
     {
         path = path.replaceAll("/", Matcher.quoteReplacement(File.separator));
 
+        if (request == null) {
+            throw new RuntimeException("Unable to retrieve HTTP request from execution context");
+        }
+
         String dir = repository.getBasedir() + File.separator + path;
-        String uri = request.getRequestURI();
+        String requestUri = request.getRequestURI();
 
         File file = new File(dir);
 
-        if (file.isDirectory() && !uri.endsWith("/"))
+        if (file.isDirectory() && !requestUri.endsWith("/"))
         {
             try
             {
@@ -281,6 +292,7 @@ public class ArtifactRestlet
             }
             catch (URISyntaxException e)
             {
+                logger.error("Unable to generateDirectoryListing", e);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                                .build();
             }
@@ -344,7 +356,7 @@ public class ArtifactRestlet
         }
         catch (Exception e)
         {
-            logger.warn(" error accessing requested directory: " + file.getAbsolutePath());
+            logger.error(" error accessing requested directory: " + file.getAbsolutePath());
             return Response.status(Response.Status.NOT_FOUND)
                            .build();
         }

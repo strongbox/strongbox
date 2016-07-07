@@ -402,12 +402,12 @@ public class ArtifactRestletTest
         Response repositoryRoot = client.getResourceWithResponse("/storages/storage0/releases/");
         Response trashDirectoryListing = client.getResourceWithResponse("/storages/storage0/releases/.trash");
         Response indexDirectoryListing = client.getResourceWithResponse("/storages/storage0/releases/.index");
-        Response directoryListing = client.getResourceWithResponse("/storages/storage0/releases/org/carlspring/strongbox/browse");
+
         Response fileListing = client.getResourceWithResponse("/storages/storage0/releases/org/carlspring/strongbox/browse/foo-bar/1.0");
         Response invalidPath = client.getResourceWithResponse("/storages/storage0/releases/org/carlspring/strongbox/browse/1.0");
 
         String repositoryRootContent = repositoryRoot.readEntity(String.class);
-        String directoryListingContent = directoryListing.readEntity(String.class);
+
         String fileListingContent = fileListing.readEntity(String.class);
 
         assertFalse(".trash directory should not be visible in directory listing!", repositoryRootContent.contains(".trash"));
@@ -416,11 +416,20 @@ public class ArtifactRestletTest
         assertFalse(".index directory should not be visible in directory listing!", repositoryRootContent.contains(".index"));
         assertTrue(".index directory should not be browsable!", indexDirectoryListing.getStatus() == 404);
 
-        assertTrue(directoryListingContent, directoryListingContent.contains("/storages/storage0/releases/org/carlspring/strongbox/browse"));
         assertTrue(fileListingContent.contains("foo-bar-1.0.jar"));
         assertTrue(fileListingContent.contains("foo-bar-1.0.pom"));
 
         assertTrue(invalidPath.getStatus() == 404);
+    }
+
+    @Test
+    public void testDirectoryListingContent()
+            throws IOException, ArtifactTransportException
+    {
+        String url = "/storages/storage0/releases/org/carlspring/strongbox/browse";
+        Response directoryListing = client.getResourceWithResponse(url);
+        String directoryListingContent = directoryListing.readEntity(String.class);
+        assertTrue(directoryListingContent, directoryListingContent.contains(url));
     }
 
     @Test
