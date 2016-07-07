@@ -9,31 +9,39 @@ import org.springframework.data.orient.object.OrientObjectDatabaseFactory;
  */
 public class CustomOrientObjectDatabaseFactory extends OrientObjectDatabaseFactory
 {
+    
     private OObjectDatabasePool pool;
     private OObjectDatabaseTx db;
 
-    public CustomOrientObjectDatabaseFactory() {
+    public CustomOrientObjectDatabaseFactory()
+    {
     }
 
-    protected void createPool() {
+    protected void createPool()
+    {
         this.pool = new OObjectDatabasePool(this.getUrl(), this.getUsername(), this.getPassword());
         this.pool.setup(this.minPoolSize, this.maxPoolSize);
     }
 
-    public OObjectDatabaseTx openDatabase() {
+    public OObjectDatabaseTx openDatabase()
+    {
         this.db = this.pool.acquire();
         return this.db;
     }
 
-    public OObjectDatabaseTx db() {
+    public OObjectDatabaseTx db()
+    {
         return super.db();
     }
 
-    protected OObjectDatabaseTx newDatabase() {
+    protected OObjectDatabaseTx newDatabase()
+    {
         return new OObjectDatabaseTx(this.getUrl());
     }
 
-    public void close(){
+    public void close()
+    {
         pool.close();
     }
+    
 }
