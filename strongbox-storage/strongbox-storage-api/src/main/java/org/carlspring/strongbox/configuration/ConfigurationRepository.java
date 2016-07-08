@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.configuration;
 
+import org.carlspring.strongbox.services.ServerConfigurationService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.HttpConnectionPool;
 import org.carlspring.strongbox.storage.repository.RemoteRepository;
@@ -12,15 +13,15 @@ import org.carlspring.strongbox.xml.parsers.GenericParser;
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.InputStream;
-import java.util.List;
 import java.util.Optional;
 
 import com.lambdista.util.Try;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 
 @Component("configurationRepository")
@@ -30,16 +31,27 @@ public class ConfigurationRepository
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationRepository.class);
 
     @Autowired
-    OObjectDatabaseTx db;
+    CacheManager cacheManager;
+
+    // @Autowired
+    // private OObjectDatabaseTx databaseTx;
+
+    @Autowired
+    ServerConfigurationService serverConfigurationService;
+
+    private String currentDatabaseId;
+
+    private Cache configurationCache;
 
     public ConfigurationRepository()
     {
     }
 
-    private OObjectDatabaseTx getDatabase()
+    private synchronized OObjectDatabaseTx getDatabase()
     {
-        db.activateOnCurrentThread();
-        return db;
+        //databaseTx.activateOnCurrentThread();
+        //return databaseTx;
+        return null;
     }
 
     @PostConstruct
@@ -48,42 +60,45 @@ public class ConfigurationRepository
         logger.info("ConfigurationRepository.init()");
 
         OObjectDatabaseTx db = getDatabase();
-
-        db.getEntityManager().registerEntityClass(Configuration.class, true);
-        db.getEntityManager().registerEntityClass(RemoteRepository.class);
-        db.getEntityManager().registerEntityClass(HttpConnectionPool.class);
-        db.getEntityManager().registerEntityClass(Storage.class);
-        db.getEntityManager().registerEntityClass(ProxyConfiguration.class);
-        db.getEntityManager().registerEntityClass(RoutingRules.class);
-        db.getEntityManager().registerEntityClass(RuleSet.class);
-        db.getEntityManager().registerEntityClass(Repository.class);
-        db.getEntityManager().registerEntityClass(RoutingRule.class);
-
-        String propertyKey = "repository.config.xml";
-
-        if (!schemaExists())
+        if (db != null)
         {
-            createSettings(propertyKey);
+            db.getEntityManager().registerEntityClass(Configuration.class, true);
+            db.getEntityManager().registerEntityClass(RemoteRepository.class);
+            db.getEntityManager().registerEntityClass(HttpConnectionPool.class);
+            db.getEntityManager().registerEntityClass(Storage.class);
+            db.getEntityManager().registerEntityClass(ProxyConfiguration.class);
+            db.getEntityManager().registerEntityClass(RoutingRules.class);
+            db.getEntityManager().registerEntityClass(RuleSet.class);
+            db.getEntityManager().registerEntityClass(Repository.class);
+            db.getEntityManager().registerEntityClass(RoutingRule.class);
         }
-        else
-        {
-            Configuration content = getConfiguration();
 
-            if (content == null)
-            {
-                createSettings(propertyKey);
-            }
+        configurationCache = cacheManager.getCache("configuration");
+        if (configurationCache == null)
+        {
+            throw new RuntimeException("Unable to get configuration cache");
+        }
+
+        if (!schemaExists() || getConfiguration() == null)
+        {
+            createSettings("repository.config.xml");
         }
     }
 
     private synchronized boolean schemaExists()
     {
         OObjectDatabaseTx db = getDatabase();
-        return db.getMetadata().getSchema().existsClass(Configuration.class.getSimpleName());
+        return db != null && db.getMetadata().getSchema().existsClass(Configuration.class.getSimpleName());
     }
 
     private synchronized void createSettings(String propertyKey)
     {
+        // skip configuration initialization if config is already in place
+        if (currentDatabaseId != null && configurationCache.get(currentDatabaseId) != null)
+        {
+            return;
+        }
+
         GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
         String filename = System.getProperty(propertyKey);
         Configuration configuration;
@@ -99,46 +114,32 @@ public class ConfigurationRepository
             configuration = Try.apply(() -> parser.parse(is)).get();
         }
 
-        updateConfiguration(configuration);
+        // create configuration in database and put it to cache
+        // configuration = getDatabase().detach(serverConfigurationService.save(configuration), true);
+        if (configuration.getId() == null)
+        {
+            configuration.setId("current");
+        }
+
+        currentDatabaseId = configuration.getId();
+        configurationCache.put(currentDatabaseId, configuration);
     }
 
     public synchronized Configuration getConfiguration()
     {
-        try
+        if (currentDatabaseId == null)
         {
-            OObjectDatabaseTx db = getDatabase();
-            List<Configuration> result = db.query(new OSQLSynchQuery<>("SELECT * FROM Configuration"));
-            if (result != null && !result.isEmpty())
-            {
-                Configuration configuration = result.get(result.size() - 1);
-                logger.debug("Loaded configuration " + configuration);
-
-                return db.detachAll(configuration, true);
-            }
-        }
-        catch (Exception e)
-        {
-            logger.error("Unable to get configuration.", e);
             return null;
         }
 
-        return null;
+        return (Configuration) configurationCache.get(currentDatabaseId).get();
     }
 
-    public synchronized <T> Optional<Configuration> updateConfiguration(ServerConfiguration<T> configuration)
+    public synchronized Optional<Configuration> updateConfiguration(Configuration configuration)
     {
-        try
-        {
-            OObjectDatabaseTx db = getDatabase();
-            db.save(configuration);
-
-            return Optional.ofNullable(getConfiguration());
-        }
-        catch (Exception e)
-        {
-            logger.error("Unable to update configuration.", e);
-            return Optional.empty();
-        }
+        configurationCache.evict(configuration.getId());
+        configurationCache.put(configuration.getId(), configuration);
+        // serverConfigurationService.save(configuration);
+        return Optional.of(configuration);
     }
-
 }

@@ -16,4 +16,13 @@
         <persistence strategy="localTempSwap"/>
     </cache>
 
+    <cache name="configuration"
+           maxEntriesLocalHeap="1000"
+           maxEntriesLocalDisk="10000"
+           eternal="false"
+           diskSpoolBufferSizeMB="20"
+           memoryStoreEvictionPolicy="LFU"
+           transactionalMode="off">
+        <persistence strategy="localTempSwap"/>
+    </cache>
 </ehcache>

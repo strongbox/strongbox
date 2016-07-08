@@ -16,7 +16,7 @@ import java.io.Serializable;
 @XmlAccessorType(XmlAccessType.FIELD)
 @MappedSuperclass
 @Inheritance
-public abstract class ServerConfiguration<T>
+public abstract class ServerConfiguration
         implements Serializable
 {
 
@@ -31,11 +31,20 @@ public abstract class ServerConfiguration<T>
 
     @Version
     @JsonIgnore
-    protected Long version;
+    protected Long dbVersion;
 
 
     public ServerConfiguration()
     {
     }
 
+    public String getId()
+    {
+        return id;
+    }
+
+    public void setId(String id)
+    {
+        this.id = id;
+    }
 }

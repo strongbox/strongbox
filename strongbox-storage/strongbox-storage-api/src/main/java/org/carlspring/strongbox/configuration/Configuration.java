@@ -24,7 +24,6 @@ import com.google.common.base.Objects;
 public class Configuration
         extends ServerConfiguration
 {
-
     @XmlElement
     private String version = "1.0";
 
@@ -130,6 +129,16 @@ public class Configuration
     public void setRoutingRules(RoutingRules routingRules)
     {
         this.routingRules = routingRules;
+    }
+
+    public String getId()
+    {
+        return id;
+    }
+
+    public void setId(String id)
+    {
+        this.id = id;
     }
 
     @Override

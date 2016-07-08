@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.data.tx;
 
 import com.orientechnologies.orient.core.db.ODatabase;
+import com.orientechnologies.orient.core.tx.OTransaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.orient.commons.core.OrientDatabaseFactory;
@@ -54,7 +55,7 @@ public class CustomOrientTransactionManager
             db.open(getDatabaseFactory().getUsername(), getDatabaseFactory().getPassword());
         }
 
-        db.begin();
+        db.begin(OTransaction.TXTYPE.NOTX);
     }
 
     @Override

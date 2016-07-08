@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.orient.commons.repository.config.EnableOrientRepositories;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -24,6 +25,7 @@ import java.util.List;
         "org.carlspring.strongbox.storage.resolvers",
         "org.carlspring.strongbox.xml"
 })
+@EnableOrientRepositories(basePackages = "org.carlspring.strongbox.storage.repository")
 public class StorageApiConfig
 {
     private static final Logger logger = LoggerFactory.getLogger(StorageApiConfig.class);

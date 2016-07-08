@@ -3,6 +3,7 @@ package org.carlspring.strongbox.storage.repository;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.storage.Storage;
 
+import javax.persistence.Version;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -11,19 +12,32 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import java.io.File;
+import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * @author mtodorov
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "repository")
-public class Repository
+public class Repository implements Serializable
 {
 
     @XmlAttribute
     private String id;
+
+    /**
+     * Added to avoid a runtime error whereby the detachAll property is checked for existence but not actually used.
+     */
+    @JsonIgnore
+    protected String detachAll;
+
+    @Version
+    @JsonIgnore
+    protected Long version;
 
     @XmlAttribute
     private String basedir;
@@ -358,5 +372,50 @@ public class Repository
     public void setHttpConnectionPool(HttpConnectionPool httpConnectionPool)
     {
         this.httpConnectionPool = httpConnectionPool;
+    }
+
+    public String getDetachAll()
+    {
+        return detachAll;
+    }
+
+    public void setDetachAll(String detachAll)
+    {
+        this.detachAll = detachAll;
+    }
+
+    public Long getVersion()
+    {
+        return version;
+    }
+
+    public void setVersion(Long version)
+    {
+        this.version = version;
+    }
+
+    public boolean isAllowsForceDeletion()
+    {
+        return allowsForceDeletion;
+    }
+
+    public boolean isAllowsDeployment()
+    {
+        return allowsDeployment;
+    }
+
+    public boolean isAllowsRedeployment()
+    {
+        return allowsRedeployment;
+    }
+
+    public boolean isAllowsDelete()
+    {
+        return allowsDelete;
+    }
+
+    public boolean isAllowsDirectoryBrowsing()
+    {
+        return allowsDirectoryBrowsing;
     }
 }

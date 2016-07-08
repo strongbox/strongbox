@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.configuration;
 
-import org.apache.commons.collections.MapUtils;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.storage.Storage;
@@ -13,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
+import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,7 @@ public class ConfigurationManager extends AbstractConfigurationManager<Configura
     public ConfigurationManager()
     {
         super(Configuration.class);
-        logger.info("Initilizing ConfigurationManager");
+        logger.info("Initializing ConfigurationManager");
     }
 
     @PostConstruct

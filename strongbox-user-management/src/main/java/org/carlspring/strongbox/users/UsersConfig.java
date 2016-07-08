@@ -59,6 +59,12 @@ public class UsersConfig
 
     private final static GenericParser<Users> parser = new GenericParser<>(Users.class);
 
+    private synchronized OObjectDatabaseTx getDatabaseTx()
+    {
+        databaseTx.activateOnCurrentThread();
+        return databaseTx;
+    }
+
     @PostConstruct
     @Transactional
     public synchronized void init()
@@ -66,7 +72,7 @@ public class UsersConfig
         logger.debug("Loading users...");
 
         // register all domain entities
-        databaseTx.getEntityManager().registerEntityClasses(User.class.getPackage().getName());
+        getDatabaseTx().getEntityManager().registerEntityClasses(User.class.getPackage().getName());
 
         loadUsersFromConfigFile();
     }
@@ -98,8 +104,7 @@ public class UsersConfig
         if (needToSaveInDb)
         {
             internalUser = userService.save(internalUser);
-            databaseTx.activateOnCurrentThread();
-            internalUser = databaseTx.detach(internalUser, true);
+            internalUser = getDatabaseTx().detach(internalUser, true);
         }
 
         cacheManager.getCache("users").put(internalUser.getUsername(), internalUser);

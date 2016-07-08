@@ -6,6 +6,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 
+import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.List;
 
@@ -14,10 +15,9 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Commit;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import javax.xml.bind.JAXBException;
-
+import org.springframework.transaction.annotation.Transactional;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -26,6 +26,8 @@ import static org.junit.Assert.assertNotNull;
  * @author mtodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@Transactional
+@Commit
 public class ConfigurationManagementServiceImplTest
         extends TestCaseWithArtifactGenerationWithIndexing
 {
