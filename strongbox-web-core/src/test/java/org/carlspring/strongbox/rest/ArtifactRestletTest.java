@@ -116,6 +116,7 @@ public class ArtifactRestletTest
     }
 
     @Test
+    @Ignore
     public void testResolveViaProxy()
             throws Exception
     {
@@ -168,6 +169,7 @@ public class ArtifactRestletTest
      * @throws Exception
      */
     @Test
+    @Ignore
     public void testResolveViaProxyToMavenCentral()
             throws Exception
     {

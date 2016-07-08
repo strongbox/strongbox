@@ -2,6 +2,8 @@ package org.carlspring.strongbox.configuration;
 
 import org.carlspring.strongbox.CommonConfig;
 import org.carlspring.strongbox.StorageApiConfig;
+import org.carlspring.strongbox.config.ClientConfig;
+import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -10,17 +12,6 @@ import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.RuleSet;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
-
-import javax.xml.bind.JAXBException;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,10 +19,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+
+import javax.xml.bind.JAXBException;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+
+import static org.junit.Assert.*;
 
 /**
  * @author mtodorov
@@ -44,7 +39,7 @@ public class ConfigurationManagerTest
     @org.springframework.context.annotation.Configuration
     @Import({
             StorageApiConfig.class,
-            CommonConfig.class
+            CommonConfig.class, ClientConfig.class, DataServiceConfig.class
     })
     public static class SpringConfig { }
 

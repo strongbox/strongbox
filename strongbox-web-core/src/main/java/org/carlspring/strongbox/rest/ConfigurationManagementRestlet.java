@@ -464,13 +464,17 @@ public class ConfigurationManagementRestlet
                     repositoryManagementService.removeRepository(storageId, repository.getId());
                 }
 
-                configurationManagementService.getStorage(storageId).removeRepository(repositoryId);
+                Configuration configuration = configurationManagementService.getConfiguration();
+                Storage storage = configuration.getStorage(storageId);
+                storage.removeRepository(repositoryId);
+
+                configurationManagementService.addOrUpdateStorage(storage);
 
                 logger.debug("Removed repository " + storageId + ":" + repositoryId + ".");
 
                 return Response.ok().build();
             }
-            catch (IOException e)
+            catch (IOException | JAXBException e)
             {
                 logger.error(e.getMessage(), e);
 

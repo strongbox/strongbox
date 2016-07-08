@@ -8,6 +8,8 @@ import java.util.List;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
+import javax.persistence.Column;
+
 /**
  * An application user
  */
@@ -94,16 +96,6 @@ public class User
     public void setRoles(final List<String> roles)
     {
         this.roles = roles;
-    }
-
-    public String getId()
-    {
-        return id;
-    }
-
-    public void setId(String id)
-    {
-        this.id = id;
     }
 
     @Override
