@@ -67,7 +67,7 @@ public class ConfigurationCache
         // and ignore internal OrientDb ID format.
         if (configuration.getId() == null)
         {
-            configuration.setId("current");
+            //configuration.setId("#0:0");
         }
 
         try

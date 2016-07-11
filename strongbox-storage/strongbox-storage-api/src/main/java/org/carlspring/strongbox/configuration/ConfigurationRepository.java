@@ -1,13 +1,6 @@
 package org.carlspring.strongbox.configuration;
 
 import org.carlspring.strongbox.services.ServerConfigurationService;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.HttpConnectionPool;
-import org.carlspring.strongbox.storage.repository.RemoteRepository;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.routing.RoutingRule;
-import org.carlspring.strongbox.storage.routing.RoutingRules;
-import org.carlspring.strongbox.storage.routing.RuleSet;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.annotation.PostConstruct;
@@ -15,27 +8,21 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.Optional;
 
-import com.orientechnologies.orient.core.db.ODatabase;
-import com.orientechnologies.orient.core.entity.OEntityManager;
-import com.orientechnologies.orient.core.serialization.serializer.object.OObjectSerializer;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
-import com.orientechnologies.orient.object.serialization.OObjectSerializerContext;
-import com.orientechnologies.orient.object.serialization.OObjectSerializerHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.orient.object.OrientObjectDatabaseFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component("configurationRepository")
+@Transactional
 public class ConfigurationRepository
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationRepository.class);
 
     @Autowired
-    private OrientObjectDatabaseFactory factory;
-
     private OObjectDatabaseTx databaseTx;
 
     @Autowired
@@ -52,15 +39,7 @@ public class ConfigurationRepository
 
     private synchronized OObjectDatabaseTx getDatabase()
     {
-        return getDatabase(true);
-    }
-
-    private synchronized OObjectDatabaseTx getDatabase(boolean activate)
-    {
-        if (activate)
-        {
-            databaseTx.activateOnCurrentThread();
-        }
+        databaseTx.activateOnCurrentThread();
         return databaseTx;
     }
 
@@ -68,67 +47,7 @@ public class ConfigurationRepository
     public synchronized void init()
     {
         logger.info("ConfigurationRepository.init()");
-        OObjectDatabaseTx db = databaseTx = factory.db();
-        ODatabase oDatabase = db.activateOnCurrentThread();
-
-        OEntityManager entityManager = databaseTx.getEntityManager();
-
-        entityManager.registerEntityClass(Configuration.class);
-        entityManager.registerEntityClass(RemoteRepository.class);
-        entityManager.registerEntityClass(HttpConnectionPool.class);
-        entityManager.registerEntityClass(Storage.class);
-        entityManager.registerEntityClass(ProxyConfiguration.class);
-        entityManager.registerEntityClass(RoutingRules.class);
-        entityManager.registerEntityClass(RuleSet.class);
-        entityManager.registerEntityClass(Repository.class);
-        entityManager.registerEntityClass(RoutingRule.class);
-
-        //databaseTx.getMetadata().getSchema().synchronizeSchema();
-
-        checkRegisteredEntities();
-
-        final GenericParser<Configuration> configurationParser = configurationCache.getParser();
-        OObjectSerializerContext serializerContext = new OObjectSerializerContext();
-        serializerContext.bind(new OObjectSerializer<Configuration, String>()
-        {
-            @Override
-            public Configuration unserializeFieldValue(Class aClass,
-                                                       String o)
-            {
-                System.out.println("\n\n\nCUSTOM DESERIALIZER!!!!!\n\n\n");
-                try
-                {
-                    return configurationParser.deserialize(o);
-                }
-                catch (Exception e)
-                {
-                    logger.error("Unable to deserialize configuration", e);
-                    return null;
-                }
-            }
-
-            @Override
-            public String serializeFieldValue(Class aClass,
-                                              Configuration o)
-            {
-                System.out.println("\n\n\nCUSTOM SERIALIZER!!!!!\n\n\n");
-                try
-                {
-                    return configurationParser.serialize((Configuration) o);
-                }
-                catch (Exception e)
-                {
-                    logger.error("Unable to serialize configuration", e);
-                    return null;
-                }
-            }
-        }, oDatabase);
-
-        OObjectSerializerHelper.register();
-        OObjectSerializerHelper.bindSerializerContext(null, serializerContext);
-
-        checkRegisteredEntities();
-
+        getDatabase().getEntityManager().registerEntityClass(BinaryConfiguration.class, true);
 
         if (!schemaExists() || getConfiguration() == null)
         {
@@ -136,21 +55,10 @@ public class ConfigurationRepository
         }
     }
 
-    private void checkRegisteredEntities(){
-        final boolean[] found = { false };
-        databaseTx.getEntityManager().getRegisteredEntities().forEach(aClass -> found[0] |= aClass.getSimpleName().equals(Configuration.class.getSimpleName()));
-        if (!found[0])
-        {
-            logger.error("All registered entities:");
-            databaseTx.getEntityManager().getRegisteredEntities().forEach(aClass -> logger.error(aClass.getName()));
-            throw new RuntimeException("Configuration entity was not registered to serialization context");
-        }
-    }
-
     private synchronized boolean schemaExists()
     {
         OObjectDatabaseTx db = getDatabase();
-        return db != null && db.getMetadata().getSchema().existsClass(Configuration.class.getSimpleName());
+        return db != null && db.getMetadata().getSchema().existsClass(BinaryConfiguration.class.getSimpleName());
     }
 
     private synchronized void createSettings(String propertyKey)
@@ -208,6 +116,16 @@ public class ConfigurationRepository
         return null;
     }
 
+    @Transactional
+    private synchronized void doSave(BinaryConfiguration binaryConfiguration,
+                                     String data)
+    {
+        binaryConfiguration.setData(data);
+        binaryConfiguration = serverConfigurationService.save(binaryConfiguration);
+        currentDatabaseId = binaryConfiguration.getId();
+    }
+
+    @Transactional
     public synchronized Optional<Configuration> updateConfiguration(Configuration configuration)
     {
         if (configuration == null)
@@ -215,19 +133,29 @@ public class ConfigurationRepository
             throw new NullPointerException("configuration is null");
         }
 
-        System.out.println("Trying to save " + configuration);
-
         try
         {
-            OObjectDatabaseTx databaseTx = getDatabase();
-            databaseTx.getMetadata().reload();
-            databaseTx.getEntityManager().registerEntityClass(Configuration.class, true);
+            final String data = configurationCache.getParser().serialize(configuration);
+            final String configurationId = configuration.getId();
 
-            configuration = databaseTx.detach(serverConfigurationService.save(configuration), true);
-            System.out.println("SAVED " + configuration);
+            // update existing configuration with new data (if possible)
+            if (configurationId != null)
+            {
+                serverConfigurationService.findOne(configurationId).ifPresent(binaryConfiguration -> doSave(binaryConfiguration, data));
+            }
+            else
+            {
+                doSave(new BinaryConfiguration(), data);
+            }
 
-            configuration = configurationCache.save(configuration);
-            currentDatabaseId = configuration.getId();
+            if (currentDatabaseId == null)
+            {
+                throw new NullPointerException("currentDatabaseId is null");
+            }
+
+            configuration.setId(currentDatabaseId);
+            configurationCache.save(configuration);
+
             logger.debug("Configuration updated under ID " + currentDatabaseId);
         }
         catch (Exception e)
