@@ -40,7 +40,7 @@ public class ConfigurationManager
     public ConfigurationManager()
     {
         super(Configuration.class);
-        logger.info("Initializing ConfigurationManager");
+        logger.debug("Initializing configuration...");
     }
 
     @PostConstruct
