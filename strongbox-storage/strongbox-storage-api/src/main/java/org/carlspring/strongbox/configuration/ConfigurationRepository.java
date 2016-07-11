@@ -136,7 +136,8 @@ public class ConfigurationRepository
         }
     }
 
-    private void checkRegisteredEntities(){
+    private void checkRegisteredEntities()
+    {
         final boolean[] found = { false };
         databaseTx.getEntityManager().getRegisteredEntities().forEach(aClass -> found[0] |= aClass.getSimpleName().equals(Configuration.class.getSimpleName()));
         if (!found[0])
@@ -238,4 +239,5 @@ public class ConfigurationRepository
 
         return Optional.of(configuration);
     }
+    
 }
