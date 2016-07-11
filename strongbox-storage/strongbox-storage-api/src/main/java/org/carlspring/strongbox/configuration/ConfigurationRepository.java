@@ -20,8 +20,6 @@ import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 
 @Component("configurationRepository")
@@ -31,17 +29,23 @@ public class ConfigurationRepository
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationRepository.class);
 
     @Autowired
-    CacheManager cacheManager;
-
-    // @Autowired
-    // private OObjectDatabaseTx databaseTx;
+    private OObjectDatabaseTx databaseTx;
 
     @Autowired
     ServerConfigurationService serverConfigurationService;
 
+    @Autowired
+    ConfigurationCache configurationCache;
+
     private String currentDatabaseId;
 
-    private Cache configurationCache;
+    /*
+        FIXME Currently save to DB is disabled because of internal OrientDB issue: https://github.com/orientechnologies/orientdb/issues/5905
+        --------------------------------------------------------------------------------------------------------------------------------
+        Caused by: java.lang.IllegalArgumentException: null key not supported by embedded map
+	        at com.orientechnologies.orient.core.db.record.OTrackedMap.put(OTrackedMap.java:73)
+     */
+    private volatile boolean saveToDbEnabled = false;
 
     public ConfigurationRepository()
     {
@@ -49,9 +53,8 @@ public class ConfigurationRepository
 
     private synchronized OObjectDatabaseTx getDatabase()
     {
-        //databaseTx.activateOnCurrentThread();
-        //return databaseTx;
-        return null;
+        databaseTx.activateOnCurrentThread();
+        return databaseTx;
     }
 
     @PostConstruct
@@ -73,12 +76,6 @@ public class ConfigurationRepository
             db.getEntityManager().registerEntityClass(RoutingRule.class);
         }
 
-        configurationCache = cacheManager.getCache("configuration");
-        if (configurationCache == null)
-        {
-            throw new RuntimeException("Unable to get configuration cache");
-        }
-
         if (!schemaExists() || getConfiguration() == null)
         {
             createSettings("repository.config.xml");
@@ -94,10 +91,13 @@ public class ConfigurationRepository
     private synchronized void createSettings(String propertyKey)
     {
         // skip configuration initialization if config is already in place
-        if (currentDatabaseId != null && configurationCache.get(currentDatabaseId) != null)
+        if (currentDatabaseId != null)
         {
+            logger.debug("Skip config initialization: already in place.");
             return;
         }
+
+        logger.debug("Load configuration from XML file...");
 
         GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
         String filename = System.getProperty(propertyKey);
@@ -114,32 +114,35 @@ public class ConfigurationRepository
             configuration = Try.apply(() -> parser.parse(is)).get();
         }
 
-        // create configuration in database and put it to cache
-        // configuration = getDatabase().detach(serverConfigurationService.save(configuration), true);
-        if (configuration.getId() == null)
+        // Create configuration in database and put it to cache.
+        if (saveToDbEnabled)
         {
-            configuration.setId("current");
+            configuration = getDatabase().detach(serverConfigurationService.save(configuration), true);
         }
+        currentDatabaseId = configurationCache.save(configuration).getId();
 
-        currentDatabaseId = configuration.getId();
-        configurationCache.put(currentDatabaseId, configuration);
+        logger.debug("Configuration created under ID " + currentDatabaseId);
     }
 
     public synchronized Configuration getConfiguration()
     {
-        if (currentDatabaseId == null)
+        Optional<Configuration> optionalConfig = configurationCache.getConfiguration(currentDatabaseId);
+        if (optionalConfig.isPresent())
         {
-            return null;
+            return optionalConfig.get();
         }
 
-        return (Configuration) configurationCache.get(currentDatabaseId).get();
+        return null;
     }
 
     public synchronized Optional<Configuration> updateConfiguration(Configuration configuration)
     {
-        configurationCache.evict(configuration.getId());
-        configurationCache.put(configuration.getId(), configuration);
-        // serverConfigurationService.save(configuration);
+        if (saveToDbEnabled)
+        {
+            configuration = serverConfigurationService.save(configuration);
+        }
+        configuration = configurationCache.save(configuration);
+
         return Optional.of(configuration);
     }
 }
