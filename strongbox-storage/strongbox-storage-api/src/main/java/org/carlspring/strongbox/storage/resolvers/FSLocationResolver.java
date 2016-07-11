@@ -139,9 +139,7 @@ public class FSLocationResolver
         final File artifactFile = new File(repoPath, path).getCanonicalFile();
         final File basedirTrash = repository.getTrashDir();
 
-        logger.debug(
-                "Checking in " + storage.getId() + ":" + repository.getId() + "(" + artifactFile.getCanonicalPath() +
-                ")...");
+        logger.debug("Checking in " + storage.getId() + ":" + repository.getId() + "(" + artifactFile.getCanonicalPath() + ")...");
 
         if (artifactFile.exists())
         {
