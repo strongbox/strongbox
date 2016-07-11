@@ -152,8 +152,7 @@ public class FSLocationResolver
                     File trashFile = new File(basedirTrash, path).getCanonicalFile();
                     FileUtils.moveFile(artifactFile, trashFile);
 
-                    logger.debug(
-                            "Moved /" + repositoryId + "/" + path + " to trash (" + trashFile.getAbsolutePath() + ").");
+                    logger.debug("Moved /" + repositoryId + "/" + path + " to trash (" + trashFile.getAbsolutePath() + ").");
 
                     // Move the checksums to the trash as well
                     moveChecksumsToTrash(repositoryId, path, artifactFile, basedirTrash);
