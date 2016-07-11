@@ -21,13 +21,18 @@ public class ConfigurationRepository
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationRepository.class);
+    
     @Autowired
     ServerConfigurationService serverConfigurationService;
+    
     @Autowired
     ConfigurationCache configurationCache;
+    
     @Autowired
     private OObjectDatabaseTx databaseTx;
+    
     private String currentDatabaseId;
+
 
     public ConfigurationRepository()
     {
@@ -66,7 +71,7 @@ public class ConfigurationRepository
             return;
         }
 
-        logger.debug("Load configuration from XML file...");
+        logger.debug("Loading configuration from XML file...");
 
         GenericParser<Configuration> parser = configurationCache.getParser();
         String filename = System.getProperty(propertyKey);
@@ -81,7 +86,7 @@ public class ConfigurationRepository
             }
             catch (Exception e)
             {
-                logger.error("Unable to parse configuration from file", e);
+                logger.error("Unable to parse configuration from file '" + file.getAbsolutePath() + "'!", e);
             }
         }
         else
@@ -93,7 +98,7 @@ public class ConfigurationRepository
             }
             catch (Exception e)
             {
-                logger.error("Unable to parse configuration from InputStream", e);
+                logger.error("Unable to parse configuration from input stream.", e);
             }
         }
 
