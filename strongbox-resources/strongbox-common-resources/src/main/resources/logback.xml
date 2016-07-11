@@ -37,7 +37,7 @@
         <level value="ERROR"/>
     </logger>
     <logger name="org.carlspring">
-        <level value="INFO"/>
+        <level value="DEBUG"/>
     </logger>
     <logger name="org.glassfish.jersey">
         <level value="WARN"/>
