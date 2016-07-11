@@ -37,7 +37,8 @@ public class AuthorizationConfigProvider
             parser = new GenericParser<>(AuthorizationConfig.class);
             config = parser.parse(getConfigurationResource().getURL());
 
-            logger.info(config.toString());
+            logger.debug("Load authorization config from XLM file...");
+            logger.debug(config.toString());
         }
         catch (Exception e)
         {
