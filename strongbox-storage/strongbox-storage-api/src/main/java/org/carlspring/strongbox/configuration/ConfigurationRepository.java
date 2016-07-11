@@ -117,7 +117,7 @@ public class ConfigurationRepository
     {
         if (configuration == null)
         {
-            throw new NullPointerException("configuration is null");
+            throw new NullPointerException("The configuration is null.");
         }
 
         try
@@ -138,7 +138,7 @@ public class ConfigurationRepository
 
             if (currentDatabaseId == null)
             {
-                throw new NullPointerException("currentDatabaseId is null");
+                throw new NullPointerException("The currentDatabaseId is null.");
             }
 
             configuration.setId(currentDatabaseId);
@@ -163,4 +163,5 @@ public class ConfigurationRepository
         binaryConfiguration = serverConfigurationService.save(binaryConfiguration);
         currentDatabaseId = binaryConfiguration.getId();
     }
+    
 }
