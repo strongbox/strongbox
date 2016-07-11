@@ -112,7 +112,7 @@ public class Configuration
         String key = storage.getId();
         if (key == null || key.isEmpty())
         {
-            throw new IllegalArgumentException("Null keys do not supported");
+            throw new IllegalArgumentException("Null keys are not supported!");
         }
 
         storages.put(key, storage);
