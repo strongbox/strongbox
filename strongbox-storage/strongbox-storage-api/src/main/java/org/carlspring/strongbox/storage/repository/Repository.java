@@ -26,11 +26,14 @@ public class Repository
      */
     @JsonIgnore
     protected String detachAll;
+    
     @Version
     @JsonIgnore
     protected Long version;
+    
     @XmlAttribute
     private String id;
+    
     @XmlAttribute
     private String basedir;
 
@@ -411,4 +414,5 @@ public class Repository
     {
         this.allowsDirectoryBrowsing = allowsDirectoryBrowsing;
     }
+    
 }
