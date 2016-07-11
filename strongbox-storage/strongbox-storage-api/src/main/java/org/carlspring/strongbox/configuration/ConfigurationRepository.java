@@ -72,7 +72,7 @@ public class ConfigurationRepository
 
         logger.debug("Load configuration from XML file...");
 
-        GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
+        GenericParser<Configuration> parser = configurationCache.getParser();
         String filename = System.getProperty(propertyKey);
         Configuration configuration = null;
 
@@ -117,15 +117,6 @@ public class ConfigurationRepository
     }
 
     @Transactional
-    private synchronized void doSave(BinaryConfiguration binaryConfiguration,
-                                     String data)
-    {
-        binaryConfiguration.setData(data);
-        binaryConfiguration = serverConfigurationService.save(binaryConfiguration);
-        currentDatabaseId = binaryConfiguration.getId();
-    }
-
-    @Transactional
     public synchronized Optional<Configuration> updateConfiguration(Configuration configuration)
     {
         if (configuration == null)
@@ -141,7 +132,8 @@ public class ConfigurationRepository
             // update existing configuration with new data (if possible)
             if (configurationId != null)
             {
-                serverConfigurationService.findOne(configurationId).ifPresent(binaryConfiguration -> doSave(binaryConfiguration, data));
+                serverConfigurationService.findOne(configurationId).ifPresent(
+                        binaryConfiguration -> doSave(binaryConfiguration, data));
             }
             else
             {
@@ -165,5 +157,14 @@ public class ConfigurationRepository
         }
 
         return Optional.of(configuration);
+    }
+
+    @Transactional
+    private synchronized void doSave(BinaryConfiguration binaryConfiguration,
+                                     String data)
+    {
+        binaryConfiguration.setData(data);
+        binaryConfiguration = serverConfigurationService.save(binaryConfiguration);
+        currentDatabaseId = binaryConfiguration.getId();
     }
 }
