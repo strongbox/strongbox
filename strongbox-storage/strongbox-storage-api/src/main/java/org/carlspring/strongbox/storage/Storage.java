@@ -177,4 +177,17 @@ public class Storage
     {
         this.version = version;
     }
+
+    @Override
+    public String toString()
+    {
+        final StringBuilder sb = new StringBuilder("Storage{");
+        sb.append("\n\t\tid='").append(id).append('\'');
+        sb.append(", \n\t\tbasedir='").append(basedir).append('\'');
+        sb.append(", \n\t\trepositories=").append(repositories);
+    //    sb.append(", \n\t\tdetachAll='").append(detachAll).append('\'');
+    //    sb.append(", \n\t\tversion=").append(version);
+        sb.append('}');
+        return sb.toString();
+    }
 }

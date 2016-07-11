@@ -19,7 +19,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "routing-rules")
-public class RoutingRules implements Serializable
+public class RoutingRules
+        implements Serializable
 {
 
     public static final String WILDCARD = "*";
@@ -37,8 +38,7 @@ public class RoutingRules implements Serializable
     /**
      * List of accepted patterns.
      *
-     * K: groupRepositoryId
-     * V: RuleSet-s for this pattern.
+     * K: groupRepositoryId V: RuleSet-s for this pattern.
      */
     @XmlElement(name = "accepted")
     @XmlJavaTypeAdapter(RuleSetMapAdapter.class)
@@ -47,14 +47,13 @@ public class RoutingRules implements Serializable
     /**
      * List of denied patterns.
      *
-     * K: groupRepositoryId
-     * V: RuleSet-s for this pattern.
+     * K: groupRepositoryId V: RuleSet-s for this pattern.
      */
     @XmlElement(name = "denied")
     @XmlJavaTypeAdapter(RuleSetMapAdapter.class)
     private Map<String, RuleSet> denied = new LinkedHashMap<>();
-    
-    
+
+
     public RoutingRules()
     {
     }
@@ -69,7 +68,8 @@ public class RoutingRules implements Serializable
         return denied.get(WILDCARD);
     }
 
-    public void addAcceptRule(String groupRepositoryId, RuleSet ruleSet)
+    public void addAcceptRule(String groupRepositoryId,
+                              RuleSet ruleSet)
     {
         accepted.put(groupRepositoryId, ruleSet);
     }
@@ -79,7 +79,8 @@ public class RoutingRules implements Serializable
         return accepted.get(groupRepositoryId);
     }
 
-    public void addDenyRule(String groupRepositoryId, RuleSet ruleSet)
+    public void addDenyRule(String groupRepositoryId,
+                            RuleSet ruleSet)
     {
         denied.put(groupRepositoryId, ruleSet);
     }
@@ -132,5 +133,17 @@ public class RoutingRules implements Serializable
     public void setDenied(Map<String, RuleSet> denied)
     {
         this.denied = denied;
+    }
+
+    @Override
+    public String toString()
+    {
+        final StringBuilder sb = new StringBuilder("RoutingRules{");
+       // sb.append("\n\tdetachAll='").append(detachAll).append('\'');
+      //  sb.append(", \n\tversion=").append(version);
+        sb.append(", \n\taccepted=").append(accepted);
+        sb.append(", \n\tdenied=").append(denied);
+        sb.append('}');
+        return sb.toString();
     }
 }

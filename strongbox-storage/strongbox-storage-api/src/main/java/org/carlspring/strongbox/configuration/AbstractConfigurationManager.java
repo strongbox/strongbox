@@ -35,7 +35,7 @@ public abstract class AbstractConfigurationManager<T>
     }
 
     @PostConstruct
-    public void init()
+    public synchronized void init()
             throws IOException, JAXBException
     {
         this.configuration = configurationRepository.getConfiguration();

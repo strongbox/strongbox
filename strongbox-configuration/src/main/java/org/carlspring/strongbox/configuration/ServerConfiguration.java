@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.configuration;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.MappedSuperclass;
@@ -9,6 +7,8 @@ import javax.persistence.Version;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * @author mtodorov
@@ -32,7 +32,6 @@ public abstract class ServerConfiguration
     @Version
     @JsonIgnore
     protected Long dbVersion;
-
 
     public ServerConfiguration()
     {

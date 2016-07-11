@@ -113,4 +113,8 @@ public class ConfigurationCache
             return Optional.empty();
         }
     }
+
+    public GenericParser<Configuration> getParser(){
+        return parser;
+    }
 }
