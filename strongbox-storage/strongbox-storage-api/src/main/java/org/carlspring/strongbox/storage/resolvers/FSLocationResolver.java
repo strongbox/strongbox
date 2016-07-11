@@ -32,8 +32,10 @@ public class FSLocationResolver
         extends AbstractLocationResolver
 {
 
-    public static final String ALIAS = "file-system";
     private static final Logger logger = LoggerFactory.getLogger(FSLocationResolver.class);
+
+    public static final String ALIAS = "file-system";
+    
     @Autowired
     private LocationResolverRegistry locationResolverRegistry;
 
