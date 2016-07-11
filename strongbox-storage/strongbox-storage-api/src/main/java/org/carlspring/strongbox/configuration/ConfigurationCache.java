@@ -60,14 +60,9 @@ public class ConfigurationCache
             return null;
         }
 
-        // At the database layer actual saving could be replaced with in-memory database or even cache
-        // so we need to check the id field and create it if necessary.
-        //
-        // Because we actually have only one instance of configuration object id could have any value
-        // and ignore internal OrientDb ID format.
         if (configuration.getId() == null)
         {
-            //configuration.setId("#0:0");
+            throw new IllegalArgumentException("Unable to save configuration into cache: id is null");
         }
 
         try
