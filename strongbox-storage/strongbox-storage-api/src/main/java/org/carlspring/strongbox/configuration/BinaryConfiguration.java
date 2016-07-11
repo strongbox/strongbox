@@ -56,9 +56,17 @@ public class BinaryConfiguration
     @Override
     public boolean equals(Object o)
     {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+        {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass())
+        {
+            return false;
+        }
+    
         BinaryConfiguration that = (BinaryConfiguration) o;
+    
         return Objects.equal(data, that.data);
     }
 
@@ -74,6 +82,8 @@ public class BinaryConfiguration
         final StringBuilder sb = new StringBuilder("BinaryConfiguration{");
         sb.append("data='").append(data).append('\'');
         sb.append('}');
+        
         return sb.toString();
     }
+    
 }
