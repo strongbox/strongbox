@@ -42,12 +42,6 @@ public enum Privileges
     UI_LOGIN,
     UI_BROWSE;
 
-    @Override
-    public String getAuthority()
-    {
-        return this.name();
-    }
-
     /**
      * Helper method for accessing all roles.
      *
@@ -86,5 +80,11 @@ public enum Privileges
     public static EnumSet<Privileges> uiAll()
     {
         return EnumSet.of(UI_LOGIN, UI_BROWSE);
+    }
+
+    @Override
+    public String getAuthority()
+    {
+        return this.name();
     }
 }

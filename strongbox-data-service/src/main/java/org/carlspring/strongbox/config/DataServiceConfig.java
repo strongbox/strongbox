@@ -1,9 +1,13 @@
 package org.carlspring.strongbox.config;
 
-import com.orientechnologies.orient.client.remote.OServerAdmin;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.carlspring.strongbox.data.server.EmbeddedOrientDbServer;
 import org.carlspring.strongbox.data.tx.CustomOrientTransactionManager;
+
+import javax.annotation.PostConstruct;
+import java.io.IOException;
+
+import com.orientechnologies.orient.client.remote.OServerAdmin;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +26,6 @@ import org.springframework.data.orient.object.OrientObjectDatabaseFactory;
 import org.springframework.data.orient.object.OrientObjectTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-
-import javax.annotation.PostConstruct;
-import java.io.IOException;
 
 /**
  * Spring configuration for data service project.

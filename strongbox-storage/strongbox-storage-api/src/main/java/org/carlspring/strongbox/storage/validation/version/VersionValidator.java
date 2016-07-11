@@ -13,9 +13,11 @@ public interface VersionValidator
     /**
      * Checks if an artifact version is acceptable by the repository.
      *
-     * @param repository    The repository.
-     * @param artifact      The artifact being deployed.
+     * @param repository The repository.
+     * @param artifact   The artifact being deployed.
      */
-    void validate(Repository repository, Artifact artifact) throws VersionValidationException;
+    void validate(Repository repository,
+                  Artifact artifact)
+            throws VersionValidationException;
 
 }

@@ -9,7 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Alex Oreshkevich
  */
 @Transactional
-public interface ServerConfigurationRepository extends OrientRepository<BinaryConfiguration>
+public interface ServerConfigurationRepository
+        extends OrientRepository<BinaryConfiguration>
 {
 
 }

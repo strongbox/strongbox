@@ -23,6 +23,6 @@ public interface ArtifactResolutionService
     OutputStream getOutputStream(String storageId,
                                  String repositoryId,
                                  String artifactPath)
-                    throws IOException;
+            throws IOException;
 
 }

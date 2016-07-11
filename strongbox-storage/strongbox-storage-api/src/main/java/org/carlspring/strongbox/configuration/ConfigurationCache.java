@@ -114,7 +114,8 @@ public class ConfigurationCache
         }
     }
 
-    public GenericParser<Configuration> getParser(){
+    public GenericParser<Configuration> getParser()
+    {
         return parser;
     }
 }

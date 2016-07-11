@@ -13,9 +13,9 @@ import com.google.common.base.Objects;
 /**
  * Java representation for authorization config that stored in XML file.
  *
+ * @author Alex Oreshkevich
  * @see /src/main/resources/etc/conf/security-authorization.xml
  * @see {@linkplain https://dev.carlspring.org/youtrack/issue/SB-126}
- * @author Alex Oreshkevich
  */
 @XmlRootElement(name = "authorization-configuration")
 @XmlAccessorType(XmlAccessType.FIELD)

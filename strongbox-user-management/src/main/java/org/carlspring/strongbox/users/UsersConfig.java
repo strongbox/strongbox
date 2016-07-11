@@ -41,23 +41,17 @@ public class UsersConfig
 {
 
     private static final Logger logger = LoggerFactory.getLogger(UsersConfig.class);
-
+    private final static GenericParser<Users> parser = new GenericParser<>(Users.class);
     @Autowired
     private OObjectDatabaseTx databaseTx;
-
     @Autowired
     private UserService userService;
-
     @Autowired
     private CacheManager cacheManager;
-
     @Autowired
     private ConfigurationResourceResolver configurationResourceResolver;
-
     @Autowired
     private AuthorizationConfigProvider authorizationConfigProvider;
-
-    private final static GenericParser<Users> parser = new GenericParser<>(Users.class);
 
     private synchronized OObjectDatabaseTx getDatabaseTx()
     {

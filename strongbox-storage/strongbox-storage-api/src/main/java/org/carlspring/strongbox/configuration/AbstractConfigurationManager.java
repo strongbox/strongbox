@@ -19,15 +19,11 @@ public abstract class AbstractConfigurationManager<T>
 {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractConfigurationManager.class);
-
-    private String configurationPath;
-
     protected ServerConfiguration configuration;
-
-    private GenericParser<T> parser;
-
     @Autowired
     protected ConfigurationRepository configurationRepository;
+    private String configurationPath;
+    private GenericParser<T> parser;
 
     public AbstractConfigurationManager(Class... classes)
     {

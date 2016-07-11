@@ -24,6 +24,7 @@ import com.google.common.base.Objects;
 public class Configuration
         extends ServerConfiguration
 {
+
     @XmlElement
     private String version = "1.0";
 
@@ -109,7 +110,8 @@ public class Configuration
     public void addStorage(Storage storage)
     {
         String key = storage.getId();
-        if (key == null || key.isEmpty()) {
+        if (key == null || key.isEmpty())
+        {
             throw new IllegalArgumentException("Null keys do not supported");
         }
 

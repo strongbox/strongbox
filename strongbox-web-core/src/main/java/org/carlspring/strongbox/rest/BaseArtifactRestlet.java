@@ -13,7 +13,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 
-public class BaseArtifactRestlet extends BaseRestlet
+public class BaseArtifactRestlet
+        extends BaseRestlet
 {
 
     @Autowired
@@ -28,7 +29,8 @@ public class BaseArtifactRestlet extends BaseRestlet
         return getConfiguration().getStorage(storageId);
     }
 
-    public Repository getRepository(String storageId, String repositoryId)
+    public Repository getRepository(String storageId,
+                                    String repositoryId)
     {
         return getStorage(storageId).getRepository(repositoryId);
     }

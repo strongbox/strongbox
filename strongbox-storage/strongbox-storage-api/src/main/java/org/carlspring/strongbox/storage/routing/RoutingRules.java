@@ -37,7 +37,7 @@ public class RoutingRules
 
     /**
      * List of accepted patterns.
-     *
+     * <p>
      * K: groupRepositoryId V: RuleSet-s for this pattern.
      */
     @XmlElement(name = "accepted")
@@ -46,7 +46,7 @@ public class RoutingRules
 
     /**
      * List of denied patterns.
-     *
+     * <p>
      * K: groupRepositoryId V: RuleSet-s for this pattern.
      */
     @XmlElement(name = "denied")
@@ -139,8 +139,8 @@ public class RoutingRules
     public String toString()
     {
         final StringBuilder sb = new StringBuilder("RoutingRules{");
-       // sb.append("\n\tdetachAll='").append(detachAll).append('\'');
-      //  sb.append(", \n\tversion=").append(version);
+        // sb.append("\n\tdetachAll='").append(detachAll).append('\'');
+        //  sb.append(", \n\tversion=").append(version);
         sb.append(", \n\taccepted=").append(accepted);
         sb.append(", \n\tdenied=").append(denied);
         sb.append('}');

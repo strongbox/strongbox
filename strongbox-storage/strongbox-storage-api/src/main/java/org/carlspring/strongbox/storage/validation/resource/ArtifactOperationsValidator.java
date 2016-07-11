@@ -29,7 +29,9 @@ public class ArtifactOperationsValidator
     {
     }
 
-    public void validate(String storageId, String repositoryId, String artifactPath)
+    public void validate(String storageId,
+                         String repositoryId,
+                         String artifactPath)
             throws ArtifactResolutionException
     {
         checkStorageExists(storageId);
@@ -51,7 +53,8 @@ public class ArtifactOperationsValidator
         }
     }
 
-    public void checkRepositoryExists(String storageId, String repositoryId)
+    public void checkRepositoryExists(String storageId,
+                                      String repositoryId)
             throws ArtifactResolutionException
     {
         if (repositoryId == null)
@@ -79,16 +82,19 @@ public class ArtifactOperationsValidator
     {
         if (!repository.allowsDeployment())
         {
-            throw new ArtifactStorageException("Deployment of artifacts to " + repository.getType() + " repository is not allowed!");
+            throw new ArtifactStorageException("Deployment of artifacts to " + repository.getType() +
+                                               " repository is not allowed!");
         }
     }
 
-    public void checkAllowsRedeployment(Repository repository, Artifact artifact)
+    public void checkAllowsRedeployment(Repository repository,
+                                        Artifact artifact)
             throws ArtifactStorageException
     {
         if (basicRepositoryService.containsArtifact(repository, artifact) && !repository.allowsDeployment())
         {
-            throw new ArtifactStorageException("Re-deployment of artifacts to " + repository.getType() + " repository is not allowed!");
+            throw new ArtifactStorageException("Re-deployment of artifacts to " + repository.getType() +
+                                               " repository is not allowed!");
         }
     }
 
@@ -97,7 +103,8 @@ public class ArtifactOperationsValidator
     {
         if (!repository.allowsDeletion())
         {
-            throw new ArtifactStorageException("Deleting artifacts from " + repository.getType() + " repository is not allowed!");
+            throw new ArtifactStorageException("Deleting artifacts from " + repository.getType() +
+                                               " repository is not allowed!");
         }
     }
 

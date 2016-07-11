@@ -26,7 +26,8 @@ public class CustomAuthenticationProvider
     PasswordEncoder passwordEncoder;
 
     @PostConstruct
-    public void init(){
+    public void init()
+    {
 
     }
 

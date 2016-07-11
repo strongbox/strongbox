@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Alex Oreshkevich
  */
 @Transactional
-public interface ServerConfigurationService extends CrudService<BinaryConfiguration, String>
+public interface ServerConfigurationService
+        extends CrudService<BinaryConfiguration, String>
 {
+
 }

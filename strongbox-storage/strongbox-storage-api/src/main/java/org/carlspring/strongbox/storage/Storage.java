@@ -5,11 +5,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.xml.RepositoryMapAdapter;
 
 import javax.persistence.Version;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.File;
 import java.io.Serializable;
@@ -27,25 +23,21 @@ public class Storage
         implements Serializable
 {
 
-    @XmlAttribute
-    private String id;
-
-    @XmlAttribute
-    private String basedir;
-
-    @XmlElement(name = "repositories")
-    @XmlJavaTypeAdapter(RepositoryMapAdapter.class)
-    private Map<String, Repository> repositories = new LinkedHashMap<>();
-
     /**
      * Added to avoid a runtime error whereby the detachAll property is checked for existence but not actually used.
      */
     @JsonIgnore
     protected String detachAll;
-
     @Version
     @JsonIgnore
     protected Long version;
+    @XmlAttribute
+    private String id;
+    @XmlAttribute
+    private String basedir;
+    @XmlElement(name = "repositories")
+    @XmlJavaTypeAdapter(RepositoryMapAdapter.class)
+    private Map<String, Repository> repositories = new LinkedHashMap<>();
 
     public Storage()
     {
@@ -185,8 +177,8 @@ public class Storage
         sb.append("\n\t\tid='").append(id).append('\'');
         sb.append(", \n\t\tbasedir='").append(basedir).append('\'');
         sb.append(", \n\t\trepositories=").append(repositories);
-    //    sb.append(", \n\t\tdetachAll='").append(detachAll).append('\'');
-    //    sb.append(", \n\t\tversion=").append(version);
+        //    sb.append(", \n\t\tdetachAll='").append(detachAll).append('\'');
+        //    sb.append(", \n\t\tversion=").append(version);
         sb.append('}');
         return sb.toString();
     }

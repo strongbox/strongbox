@@ -12,15 +12,7 @@ import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -38,11 +30,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.regex.Matcher;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.comparator.DirectoryFileComparator;
 import org.apache.maven.artifact.repository.metadata.Metadata;
@@ -69,7 +57,9 @@ public class ArtifactRestlet
     @GET
     @Path("greet")
     @PreAuthorize("authenticated")
-    public Response greet(@Context HttpHeaders headers, @Context HttpServletRequest request){
+    public Response greet(@Context HttpHeaders headers,
+                          @Context HttpServletRequest request)
+    {
         return Response.status(Response.Status.OK).entity("success").build();
     }
 
@@ -174,7 +164,8 @@ public class ArtifactRestlet
         return responseBuilder.build();
     }
 
-    private void setMediaTypeHeader(String path, Response.ResponseBuilder responseBuilder)
+    private void setMediaTypeHeader(String path,
+                                    Response.ResponseBuilder responseBuilder)
     {
         // TODO: This is far from optimal and will need to have a content type approach at some point:
         if (ArtifactUtils.isChecksum(path))
@@ -214,7 +205,7 @@ public class ArtifactRestlet
         catch (IOException | ArtifactTransportException e)
         {
             // This can occur if there is no checksum
-            logger.warn("There is no MD5 checksum for "  + storageId + "/" + repositoryId + "/" + path);
+            logger.warn("There is no MD5 checksum for " + storageId + "/" + repositoryId + "/" + path);
         }
 
         InputStream isSha1;
@@ -227,11 +218,12 @@ public class ArtifactRestlet
         catch (IOException | ArtifactTransportException e)
         {
             // This can occur if there is no checksum
-            logger.warn("There is no SHA1 checksum for "  + storageId + "/" + repositoryId + "/" + path);
+            logger.warn("There is no SHA1 checksum for " + storageId + "/" + repositoryId + "/" + path);
         }
     }
 
-    private boolean probeForDirectoryListing(Repository repository, String path)
+    private boolean probeForDirectoryListing(Repository repository,
+                                             String path)
     {
         String filePath = path.replaceAll("/", Matcher.quoteReplacement(File.separator));
 
@@ -258,7 +250,9 @@ public class ArtifactRestlet
         }
     }
 
-    private Response generateDirectoryListing(Repository repository, String path, HttpServletRequest request)
+    private Response generateDirectoryListing(Repository repository,
+                                              String path,
+                                              HttpServletRequest request)
     {
         path = path.replaceAll("/", Matcher.quoteReplacement(File.separator));
 
@@ -289,7 +283,8 @@ public class ArtifactRestlet
             StringBuilder sb = new StringBuilder();
             sb.append("<html>");
             sb.append("<head>");
-            sb.append("<style>body{font-family: \"Trebuchet MS\", verdana, lucida, arial, helvetica, sans-serif;} table tr {text-align: left;}</style>");
+            sb.append(
+                    "<style>body{font-family: \"Trebuchet MS\", verdana, lucida, arial, helvetica, sans-serif;} table tr {text-align: left;}</style>");
             sb.append("<title>Index of " + request.getRequestURI() + "</title>");
             sb.append("</head>");
             sb.append("<body>");
@@ -318,10 +313,13 @@ public class ArtifactRestlet
                         continue;
                     }
 
-                    String lastModified = new SimpleDateFormat("dd-MM-yyyy HH-mm-ss").format(new Date(childFile.lastModified()));
+                    String lastModified = new SimpleDateFormat("dd-MM-yyyy HH-mm-ss").format(
+                            new Date(childFile.lastModified()));
 
                     sb.append("<tr>");
-                    sb.append("<td><a href='" + URLEncoder.encode(name, "UTF-8") + (childFile.isDirectory() ? "/" : "") + "'>" + name + (childFile.isDirectory() ? "/" : "") + "</a></td>");
+                    sb.append(
+                            "<td><a href='" + URLEncoder.encode(name, "UTF-8") + (childFile.isDirectory() ? "/" : "") +
+                            "'>" + name + (childFile.isDirectory() ? "/" : "") + "</a></td>");
                     sb.append("<td>" + lastModified + "</td>");
                     sb.append("<td>" + FileUtils.byteCountToDisplaySize(childFile.length()) + "</td>");
                     sb.append("</tr>");
@@ -352,7 +350,7 @@ public class ArtifactRestlet
     @ApiOperation(value = "Copies a path from one repository to another.", position = 4)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The path was copied successfully."),
                             @ApiResponse(code = 400, message = "Bad request."),
-                            @ApiResponse(code = 404, message = "The source/destination storageId/repositoryId/path does not exist!")})
+                            @ApiResponse(code = 404, message = "The source/destination storageId/repositoryId/path does not exist!") })
     @PreAuthorize("hasAuthority('ARTIFACTS_COPY')")
     public Response copy(@ApiParam(value = "The path", required = true)
                          @PathParam("path") String path,
@@ -424,7 +422,7 @@ public class ArtifactRestlet
     @ApiOperation(value = "Deletes a path from a repository.", position = 3)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deleted."),
                             @ApiResponse(code = 400, message = "Bad request."),
-                            @ApiResponse(code = 404, message = "The specified storageId/repositoryId/path does not exist!")})
+                            @ApiResponse(code = 404, message = "The specified storageId/repositoryId/path does not exist!") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
     public Response delete(@ApiParam(value = "The storageId", required = true)
                            @PathParam("storageId") String storageId,
@@ -463,7 +461,7 @@ public class ArtifactRestlet
             }
 
             getArtifactManagementService().delete(storageId, repositoryId, path, force);
-            deleteMethodFromMetadaInFS(storageId,repositoryId,path);
+            deleteMethodFromMetadaInFS(storageId, repositoryId, path);
 
         }
         catch (ArtifactStorageException e)
@@ -477,24 +475,28 @@ public class ArtifactRestlet
                        .entity("The artifact was deleted.")
                        .build();
     }
-    
-    private void deleteMethodFromMetadaInFS(String storageId, String repositoryId, String metadataPath)
+
+    private void deleteMethodFromMetadaInFS(String storageId,
+                                            String repositoryId,
+                                            String metadataPath)
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
         final File repoPath = new File(repository.getBasedir());
-        
+
         try
         {
             File artifactFile = new File(repoPath, metadataPath).getCanonicalFile();
             if (!artifactFile.isFile())
             {
-                String version = artifactFile.getPath().substring(artifactFile.getPath().lastIndexOf(File.separatorChar) + 1);
-                java.nio.file.Path path = Paths.get(artifactFile.getPath().substring(0, artifactFile.getPath().lastIndexOf(File.separatorChar)));
+                String version = artifactFile.getPath().substring(
+                        artifactFile.getPath().lastIndexOf(File.separatorChar) + 1);
+                java.nio.file.Path path = Paths.get(
+                        artifactFile.getPath().substring(0, artifactFile.getPath().lastIndexOf(File.separatorChar)));
 
                 Metadata metadata = getMetadataManager().readMetadata(path);
                 if (metadata != null && metadata.getVersioning() != null
-                        && metadata.getVersioning().getVersions().contains(version))
+                    && metadata.getVersioning().getVersions().contains(version))
                 {
                     metadata.getVersioning().getVersions().remove(version);
                     getMetadataManager().storeMetadata(path, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);

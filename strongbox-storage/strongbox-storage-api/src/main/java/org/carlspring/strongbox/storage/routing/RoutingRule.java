@@ -1,12 +1,7 @@
 package org.carlspring.strongbox.storage.routing;
 
 import javax.persistence.Version;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -18,8 +13,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "rule")
-public class RoutingRule implements Serializable
+public class RoutingRule
+        implements Serializable
 {
+
     /**
      * Added to avoid a runtime error whereby the detachAll property is checked for existence but not actually used.
      */
