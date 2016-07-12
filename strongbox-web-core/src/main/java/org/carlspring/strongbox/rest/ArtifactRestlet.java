@@ -283,8 +283,7 @@ public class ArtifactRestlet
             StringBuilder sb = new StringBuilder();
             sb.append("<html>");
             sb.append("<head>");
-            sb.append(
-                    "<style>body{font-family: \"Trebuchet MS\", verdana, lucida, arial, helvetica, sans-serif;} table tr {text-align: left;}</style>");
+            sb.append("<style>body{font-family: \"Trebuchet MS\", verdana, lucida, arial, helvetica, sans-serif;} table tr {text-align: left;}</style>");
             sb.append("<title>Index of " + request.getRequestURI() + "</title>");
             sb.append("</head>");
             sb.append("<body>");
@@ -317,9 +316,8 @@ public class ArtifactRestlet
                             new Date(childFile.lastModified()));
 
                     sb.append("<tr>");
-                    sb.append(
-                            "<td><a href='" + URLEncoder.encode(name, "UTF-8") + (childFile.isDirectory() ? "/" : "") +
-                            "'>" + name + (childFile.isDirectory() ? "/" : "") + "</a></td>");
+                    sb.append("<td><a href='" + URLEncoder.encode(name, "UTF-8") + (childFile.isDirectory() ?
+                              "/" : "") + "'>" + name + (childFile.isDirectory() ? "/" : "") + "</a></td>");
                     sb.append("<td>" + lastModified + "</td>");
                     sb.append("<td>" + FileUtils.byteCountToDisplaySize(childFile.length()) + "</td>");
                     sb.append("</tr>");
