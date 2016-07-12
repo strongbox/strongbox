@@ -34,12 +34,16 @@ public class ProxyLocationResolver
         extends AbstractLocationResolver
 {
 
-    public static final String ALIAS = "proxy";
     private static final Logger logger = LoggerFactory.getLogger(ProxyLocationResolver.class);
+
+    public static final String ALIAS = "proxy";
+
     @Autowired
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
+
     @Autowired
     private LocationResolverRegistry locationResolverRegistry;
+
 
     public ProxyLocationResolver()
     {
@@ -186,9 +190,7 @@ public class ProxyLocationResolver
         final File artifactFile = new File(repoPath, path).getCanonicalFile();
         final File basedirTrash = repository.getTrashDir();
 
-        logger.debug(
-                "Checking in " + storage.getId() + ":" + repository.getId() + "(" + artifactFile.getCanonicalPath() +
-                ")...");
+        logger.debug("Checking in " + storage.getId() + ":" + repository.getId() + "(" + artifactFile.getCanonicalPath() + ")...");
 
         if (artifactFile.exists())
         {
@@ -199,8 +201,7 @@ public class ProxyLocationResolver
                     File trashFile = new File(basedirTrash, path).getCanonicalFile();
                     FileUtils.moveFile(artifactFile, trashFile);
 
-                    logger.debug(
-                            "Moved /" + repositoryId + "/" + path + " to trash (" + trashFile.getAbsolutePath() + ").");
+                    logger.debug("Moved /" + repositoryId + "/" + path + " to trash (" + trashFile.getAbsolutePath() + ").");
 
                     // Move the checksums to the trash as well
                     moveChecksumsToTrash(repositoryId, path, artifactFile, basedirTrash);
@@ -220,8 +221,7 @@ public class ProxyLocationResolver
                     // FileUtils.moveDirectory(artifactFile, trashFile);
                     org.carlspring.commons.io.FileUtils.moveDirectory(artifactFile.toPath(), trashFile.toPath());
 
-                    logger.debug(
-                            "Moved /" + repositoryId + "/" + path + " to trash (" + trashFile.getAbsolutePath() + ").");
+                    logger.debug("Moved /" + repositoryId + "/" + path + " to trash (" + trashFile.getAbsolutePath() + ").");
                 }
                 else
                 {
@@ -245,9 +245,7 @@ public class ProxyLocationResolver
             File md5TrashFile = new File(basedirTrash, path + ".md5").getCanonicalFile();
             FileUtils.moveFile(md5ChecksumFile, md5TrashFile);
 
-            logger.debug(
-                    "Moved /" + repositoryId + "/" + path + ".md5" + " to trash (" + md5TrashFile.getAbsolutePath() +
-                    ").");
+            logger.debug("Moved /" + repositoryId + "/" + path + ".md5" + " to trash (" + md5TrashFile.getAbsolutePath() + ").");
         }
 
         File sha1ChecksumFile = new File(artifactFile.getAbsolutePath() + ".sha1");
@@ -256,9 +254,7 @@ public class ProxyLocationResolver
             File sha1TrashFile = new File(basedirTrash, path + ".sha1").getCanonicalFile();
             FileUtils.moveFile(sha1ChecksumFile, sha1TrashFile);
 
-            logger.debug(
-                    "Moved /" + repositoryId + "/" + path + ".sha1" + " to trash (" + sha1TrashFile.getAbsolutePath() +
-                    ").");
+            logger.debug("Moved /" + repositoryId + "/" + path + ".sha1" + " to trash (" + sha1TrashFile.getAbsolutePath() + ").");
         }
     }
 
@@ -301,7 +297,7 @@ public class ProxyLocationResolver
             File md5RestoredFile = new File(repository.getBasedir(), path + ".md5").getCanonicalFile();
             FileUtils.moveFile(md5ChecksumFile, md5RestoredFile);
 
-            logger.debug("Restored /" + repositoryId + "/" + path + ".md5" + " from trash (" +
+            logger.debug("Restored /" + repositoryId + "/" + path + ".md5" + " from trash (" + 
                          md5ChecksumFile.getAbsolutePath() + ").");
         }
 
@@ -377,9 +373,8 @@ public class ProxyLocationResolver
         final File artifactFile = new File(repoPath, path).getCanonicalFile();
         final File artifactFileTrash = new File(repository.getTrashDir(), path);
 
-        logger.debug(
-                "Attempting to restore " + artifactFileTrash.getCanonicalPath() + " (from " + storage.getId() + ":" +
-                repository.getId() + ")...");
+        logger.debug("Attempting to restore " + artifactFileTrash.getCanonicalPath() +
+                     " (from " + storage.getId() + ":" + repository.getId() + ")...");
 
         if (artifactFileTrash.exists())
         {
