@@ -59,7 +59,7 @@ public class ConfigurationManagementRestlet
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_UPLOAD')")
     public Response setConfigurationXML(@ApiParam(value = "The strongbox.xml configuration file", required = true)
-                                                Configuration configuration)
+                                        Configuration configuration)
             throws IOException,
                    AuthenticationException,
                    JAXBException
@@ -206,7 +206,7 @@ public class ConfigurationManagementRestlet
                                           @ApiParam(value = "The repositoryId", required = true)
                                           @QueryParam("repositoryId") String repositoryId,
                                           @ApiParam(value = "The proxy configuration for this proxy repository", required = true)
-                                                  ProxyConfiguration proxyConfiguration)
+                                          ProxyConfiguration proxyConfiguration)
             throws IOException, JAXBException
     {
         try
@@ -389,7 +389,7 @@ public class ConfigurationManagementRestlet
                                           @ApiParam(value = "The repositoryId", required = true)
                                           @PathParam("repositoryId") String repositoryId,
                                           @ApiParam(value = "The repository object", required = true)
-                                                  Repository repository)
+                                          Repository repository)
             throws IOException, JAXBException
     {
         try
