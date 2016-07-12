@@ -118,8 +118,8 @@ public class UsersConfig
         internalUser.setUsername(user.getUsername());
 
         Credentials credentials = user.getCredentials();
-        EncryptionAlgorithms algorithms = EncryptionAlgorithms.valueOf(
-                credentials.getEncryptionAlgorithm().toUpperCase());
+        EncryptionAlgorithms algorithms = EncryptionAlgorithms.valueOf(credentials.getEncryptionAlgorithm()
+                                                                                  .toUpperCase());
 
         switch (algorithms)
         {
