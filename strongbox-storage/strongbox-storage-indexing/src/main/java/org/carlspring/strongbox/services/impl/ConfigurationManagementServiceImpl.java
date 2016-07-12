@@ -96,10 +96,9 @@ public class ConfigurationManagementServiceImpl
         Configuration configuration = configurationManager.getConfiguration();
         if (storageId != null && repositoryId != null)
         {
-            configuration
-                    .getStorage(storageId)
-                    .getRepository(repositoryId)
-                    .setProxyConfiguration(proxyConfiguration);
+            configuration.getStorage(storageId)
+                         .getRepository(repositoryId)
+                         .setProxyConfiguration(proxyConfiguration);
         }
         else
         {
@@ -171,8 +170,8 @@ public class ConfigurationManagementServiceImpl
         for (Storage storage : configurationManager.getConfiguration().getStorages().values())
         {
             groupRepositories.addAll(storage.getRepositories().values().stream()
-                                            .filter(repository -> repository.getType().equals(
-                                                    RepositoryTypeEnum.GROUP.getType()))
+                                            .filter(repository -> repository.getType()
+                                                                            .equals(RepositoryTypeEnum.GROUP.getType()))
                                             .collect(Collectors.toList()));
         }
 
@@ -214,7 +213,6 @@ public class ConfigurationManagementServiceImpl
                              .getGroupRepositories().remove(repositoryId);
 
                 configurationManager.setConfiguration(configuration);
-
             }
 
             configurationManager.store();
