@@ -28,16 +28,21 @@ public class Storage
      */
     @JsonIgnore
     protected String detachAll;
+    
     @Version
     @JsonIgnore
     protected Long version;
+    
     @XmlAttribute
     private String id;
+    
     @XmlAttribute
     private String basedir;
+    
     @XmlElement(name = "repositories")
     @XmlJavaTypeAdapter(RepositoryMapAdapter.class)
     private Map<String, Repository> repositories = new LinkedHashMap<>();
+
 
     public Storage()
     {
@@ -182,4 +187,5 @@ public class Storage
         sb.append('}');
         return sb.toString();
     }
+    
 }
