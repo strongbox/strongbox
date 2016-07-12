@@ -541,4 +541,10 @@ public class RestClient
         this.password = password;
         return prepareTarget(arg);
     }
+
+    public void resetAuthentication()
+    {
+        this.username = "admin";
+        this.password = "password";
+    }
 }

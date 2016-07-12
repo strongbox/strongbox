@@ -56,10 +56,11 @@ public class UserRestletTest
     }
 
     @Test
-    public void testThatHaveExceptionForInvalidPassword()
+    public synchronized void testThatHaveExceptionForInvalidPassword()
             throws Exception
     {
         Response response = client.prepareTarget("/users/greet", "admin", "some_password").request().get();
+        client.resetAuthentication();
         assertEquals(401, response.getStatus());
         RestClient.displayResponseError(response);
     }
