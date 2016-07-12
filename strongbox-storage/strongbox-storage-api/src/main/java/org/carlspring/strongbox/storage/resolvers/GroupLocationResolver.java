@@ -29,8 +29,10 @@ public class GroupLocationResolver
         extends AbstractLocationResolver
 {
 
-    public static final String ALIAS = "group";
     private static final Logger logger = LoggerFactory.getLogger(GroupLocationResolver.class);
+
+    public static final String ALIAS = "group";
+
     @Autowired
     private BasicRepositoryService basicRepositoryService;
 
@@ -81,8 +83,8 @@ public class GroupLocationResolver
         }
 
         // Check the routing rules for wildcard accept rules
-        final ArtifactInputStream isWildcardRepositoryAccept = getInputStreamFromWildcardRepositoryAcceptRules(
-                artifactPath, storage);
+        final ArtifactInputStream isWildcardRepositoryAccept = getInputStreamFromWildcardRepositoryAcceptRules(artifactPath,
+                                                                                                               storage);
         if (isWildcardRepositoryAccept != null)
         {
             return isWildcardRepositoryAccept;
@@ -190,9 +192,7 @@ public class GroupLocationResolver
                         {
                             return resolveArtifact(sId, repository.getId(), artifactPath);
                         }
-
                     }
-
                 }
             }
         }
