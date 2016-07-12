@@ -45,7 +45,7 @@ public class CustomAuthenticationProvider
         String password = usernamePasswordAuthenticationToken.getCredentials().toString();
         if (!userDetails.getPassword().equals(password))
         {
-            throw new BadCredentialsException("Invalid password siski");
+            throw new BadCredentialsException("Invalid password");
         }
     }
 
