@@ -44,7 +44,7 @@ public class Roles
         final StringBuilder sb = new StringBuilder("\n\tRoles{");
         sb.append("roles=").append(roles);
         sb.append('}');
+
         return sb.toString();
     }
-    
 }
