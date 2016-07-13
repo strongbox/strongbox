@@ -381,8 +381,7 @@ public class ConfigurationManagementRestlet
                                           @PathParam("storageId") String storageId,
                                           @ApiParam(value = "The repositoryId", required = true)
                                           @PathParam("repositoryId") String repositoryId,
-                                          @ApiParam(value = "The repository object", required = true)
-                                          Repository repository)
+                                          @ApiParam(value = "The repository object", required = true) Repository repository)
             throws IOException, JAXBException
     {
         try
