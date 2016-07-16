@@ -54,6 +54,14 @@ public class AuthorizationConfigProvider
     public void init()
             throws Exception
     {
+        // update schema in any case
+        databaseTx.activateOnCurrentThread();
+        databaseTx.getEntityManager().registerEntityClass(AuthorizationConfig.class);
+        databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Roles.class);
+        databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Role.class);
+        databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Privileges.class);
+        databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Privilege.class);
+
         // check database for any configuration source, if something is already in place
         // reuse it and skip reading configuration from XML
         if (configService.count() > 0)
@@ -70,12 +78,6 @@ public class AuthorizationConfigProvider
             validateConfig(config);
 
             // save AuthorizationConfig to the db
-            databaseTx.activateOnCurrentThread();
-            databaseTx.getEntityManager().registerEntityClass(AuthorizationConfig.class);
-            databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Roles.class);
-            databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Role.class);
-            databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Privileges.class);
-            databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Privilege.class);
             configService.save(config);
         }
     }
