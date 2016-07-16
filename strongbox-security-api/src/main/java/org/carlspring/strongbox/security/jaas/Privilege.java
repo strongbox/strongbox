@@ -1,10 +1,11 @@
 package org.carlspring.strongbox.security.jaas;
 
+import org.carlspring.strongbox.data.domain.GenericEntity;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.io.Serializable;
 
 import com.google.common.base.Objects;
 
@@ -13,7 +14,8 @@ import com.google.common.base.Objects;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Privilege implements Serializable
+public class Privilege
+        extends GenericEntity
 {
 
     @XmlElement

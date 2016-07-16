@@ -6,6 +6,7 @@ import org.carlspring.strongbox.security.jaas.Privilege;
 import org.carlspring.strongbox.security.jaas.Role;
 import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.domain.Roles;
+import org.carlspring.strongbox.users.service.AuthorizationConfigService;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.annotation.PostConstruct;
@@ -16,6 +17,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,11 +35,13 @@ public class AuthorizationConfigProvider
 {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthorizationConfigProvider.class);
-
-    private GenericParser<AuthorizationConfig> parser;
-
     @Autowired
-    private ConfigurationResourceResolver configurationResourceResolver;
+    ConfigurationResourceResolver configurationResourceResolver;
+    @Autowired
+    AuthorizationConfigService configService;
+    private GenericParser<AuthorizationConfig> parser;
+    @Autowired
+    private OObjectDatabaseTx databaseTx;
 
     private AuthorizationConfig config;
 
@@ -49,15 +53,26 @@ public class AuthorizationConfigProvider
             parser = new GenericParser<>(AuthorizationConfig.class);
             config = parser.parse(getConfigurationResource().getURL());
 
+            assert config != null;
+
             logger.debug("Load authorization config from XLM file...");
             logger.debug(config.toString());
         }
         catch (Exception e)
         {
-            logger.error("Unable to load authorization settings from XML file.", e);
+            throw new ConfigurationException("Unable to load authorization settings from XML file.", e);
         }
 
-        getConfig().ifPresent(this::validateConfig);
+        validateConfig(config);
+
+        // save AuthorizationConfig to the db
+        databaseTx.activateOnCurrentThread();
+        databaseTx.getEntityManager().registerEntityClass(AuthorizationConfig.class);
+        databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Roles.class);
+        databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Role.class);
+        databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Privileges.class);
+        databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Privilege.class);
+        configService.save(config);
     }
 
     private void validateConfig(AuthorizationConfig config)
