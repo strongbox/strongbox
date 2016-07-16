@@ -15,6 +15,7 @@ import org.springframework.security.core.GrantedAuthority;
 public enum Privileges
         implements GrantedAuthority
 {
+    ADMIN,
     ADMIN_CREATE_REPO,
     ADMIN_UPDATE_REPO,
     ADMIN_DELETE_REPO,

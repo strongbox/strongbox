@@ -16,6 +16,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 /**
@@ -28,6 +29,7 @@ import org.springframework.stereotype.Component;
 @Api(value = "/configuration/authorization")
 @Produces(MediaType.TEXT_PLAIN)
 @Consumes(MediaType.TEXT_PLAIN)
+@PreAuthorize("hasAuthority('ADMIN')")
 public class AuthorizationConfigRestlet
         extends BaseArtifactRestlet
 {
@@ -45,7 +47,6 @@ public class AuthorizationConfigRestlet
     @ApiOperation(value = "Used to add new privileges")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The privilege was created successfully."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
-    //TODO @PreAuthorize("hasAuthority('CREATE_USER')")
     public synchronized Response addPrivilege(String json)
     {
         databaseTx.activateOnCurrentThread();
@@ -101,7 +102,6 @@ public class AuthorizationConfigRestlet
     @ApiOperation(value = "Retrieves the security-authorization.xml configuration file.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 500, message = "An error occurred.") })
-    // TODO @PreAuthorize("hasAuthority('CONFIGURATION_VIEW')")
     public synchronized Response getAuthorizationConfig()
     {
         databaseTx.activateOnCurrentThread();
