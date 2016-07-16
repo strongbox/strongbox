@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Responsible for load, validate and save to the persistent storage {@link AuthorizationConfig} from configuration sources.
@@ -35,11 +36,15 @@ public class AuthorizationConfigProvider
 {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthorizationConfigProvider.class);
+
     @Autowired
     ConfigurationResourceResolver configurationResourceResolver;
+
     @Autowired
     AuthorizationConfigService configService;
+
     private GenericParser<AuthorizationConfig> parser;
+
     @Autowired
     private OObjectDatabaseTx databaseTx;
 
@@ -47,32 +52,32 @@ public class AuthorizationConfigProvider
 
     @PostConstruct
     public void init()
+            throws Exception
     {
-        try
+        // check database for any configuration source, if something is already in place
+        // reuse it and skip reading configuration from XML
+        if (configService.count() > 0)
         {
+            logger.debug("Load existing authorization config from database...");
+            config = configService.findAll().get().get(0);
+        }
+        else
+        {
+            logger.debug("Load authorization config from XLM file...");
             parser = new GenericParser<>(AuthorizationConfig.class);
             config = parser.parse(getConfigurationResource().getURL());
 
-            assert config != null;
+            validateConfig(config);
 
-            logger.debug("Load authorization config from XLM file...");
-            logger.debug(config.toString());
+            // save AuthorizationConfig to the db
+            databaseTx.activateOnCurrentThread();
+            databaseTx.getEntityManager().registerEntityClass(AuthorizationConfig.class);
+            databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Roles.class);
+            databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Role.class);
+            databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Privileges.class);
+            databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Privilege.class);
+            configService.save(config);
         }
-        catch (Exception e)
-        {
-            throw new ConfigurationException("Unable to load authorization settings from XML file.", e);
-        }
-
-        validateConfig(config);
-
-        // save AuthorizationConfig to the db
-        databaseTx.activateOnCurrentThread();
-        databaseTx.getEntityManager().registerEntityClass(AuthorizationConfig.class);
-        databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Roles.class);
-        databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Role.class);
-        databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Privileges.class);
-        databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Privilege.class);
-        configService.save(config);
     }
 
     private void validateConfig(AuthorizationConfig config)
@@ -128,6 +133,14 @@ public class AuthorizationConfigProvider
     public Optional<AuthorizationConfig> getConfig()
     {
         return Optional.ofNullable(config);
+    }
+
+    @Transactional
+    public synchronized void updateConfig(AuthorizationConfig config)
+    {
+        validateConfig(config);
+        this.config = config;
+        configService.save(config);
     }
 
     private Resource getConfigurationResource()

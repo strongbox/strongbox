@@ -9,16 +9,12 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import io.swagger.annotations.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,16 +35,14 @@ public class UserRestlet
         extends BaseArtifactRestlet
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserRestlet.class);
-
     @Autowired
     UserService userService;
+
     @Autowired
     OObjectDatabaseTx databaseTx;
+
     @Autowired
     CacheManager cacheManager;
-    @Autowired
-    private ObjectMapper objectMapper;
 
     // ----------------------------------------------------------------------------------------------------------------
     // This method exists for testing purpose
@@ -183,44 +177,5 @@ public class UserRestlet
         userService.delete(user.getId());
 
         return Response.ok().build();
-    }
-
-    // ----------------------------------------------------------------------------------------------------------------
-    // Common-purpose methods
-
-    private synchronized <T> T read(String json,
-                                    Class<T> type)
-    {
-        try
-        {
-            return objectMapper.readValue(json, type);
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private synchronized Response toResponse(Object arg)
-    {
-        try
-        {
-            return Response.ok(objectMapper.writeValueAsString(arg)).build();
-        }
-        catch (Exception e)
-        {
-            return toError(e);
-        }
-    }
-
-    private synchronized Response toError(String message)
-    {
-        return toError(new RuntimeException(message));
-    }
-
-    private synchronized Response toError(Throwable cause)
-    {
-        logger.error(cause.getMessage(), cause);
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(cause.getMessage()).build();
     }
 }
