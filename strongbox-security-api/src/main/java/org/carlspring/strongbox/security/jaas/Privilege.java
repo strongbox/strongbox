@@ -6,6 +6,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 
+import com.google.common.base.Objects;
+
 /**
  * @author mtodorov
  */
@@ -30,6 +32,21 @@ public class Privilege implements Serializable
     {
         this.name = name;
         this.description = description;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Privilege privilege = (Privilege) o;
+        return Objects.equal(name, privilege.name);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hashCode(name);
     }
 
     public String getName()

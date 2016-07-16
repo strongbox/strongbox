@@ -12,8 +12,21 @@
                 <privilege>Deploy</privilege>
             </privileges>
         </role>
+        <!-- Will lead to ConfigurationException: Embedded roles overriding is forbidden: [ADMIN] -->
+        <!--<role>
+            <name>adMIN</name>
+            <description>Deployment role</description>
+            <privileges>
+                <privilege>Deploy</privilege>
+            </privileges>
+        </role> -->
     </roles>
     <privileges>
+        <!-- Will lead to ConfigurationException: Embedded privileges overriding is forbidden: [ADMIN_CREATE_REPO] -->
+        <!-- <privilege>
+            <name>ADMIN_CREATE_REPO</name>
+            <description></description>
+        </privilege> -->
         <privilege>
             <name>CONFIGURATION_UPLOAD</name>
             <description></description>

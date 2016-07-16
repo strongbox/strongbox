@@ -71,7 +71,7 @@ public class UserRestlet
     @POST
     @Path("user")
     @ApiOperation(value = "Used to create new user", position = 0)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deployed successfully."),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The user was created successfully."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('CREATE_USER')")
     public synchronized Response create(String userJson)
@@ -92,7 +92,7 @@ public class UserRestlet
     @GET
     @Path("user/{name}")
     @ApiOperation(value = "Used to retrieve an user", position = 1)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "User was retrieved."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('VIEW_USER')")
     public synchronized Response getUser(@Context HttpHeaders headers,
@@ -109,7 +109,7 @@ public class UserRestlet
     @GET
     @Path("/all")
     @ApiOperation(value = "Used to retrieve an user", position = 1)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "User was retrieved."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('VIEW_USER')")
     @Transactional
@@ -119,7 +119,8 @@ public class UserRestlet
         if (possibleUsers.isPresent())
         {
             // TODO Due to internal error in spring-data-orientdb
-            // com.orientechnologies.orient.client.remote.OStorageRemote cannot be cast to com.orientechnologies.orient.core.storage.impl.local.paginated.OLocalPaginatedStorage
+            // com.orientechnologies.orient.client.remote.OStorageRemote cannot be cast to
+            // com.orientechnologies.orient.core.storage.impl.local.paginated.OLocalPaginatedStorage
             List<User> users = new LinkedList<>();
             possibleUsers.get().forEach(user -> users.add(databaseTx.detach(user, true)));
 
@@ -136,8 +137,8 @@ public class UserRestlet
     // Update user
     @PUT
     @Path("user")
-    @ApiOperation(value = "Used to create new user", position = 0)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deployed successfully."),
+    @ApiOperation(value = "Used to update user", position = 0)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The user was updated successfully."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('UPDATE_USER')")
     public synchronized Response update(String userJson)
@@ -164,7 +165,7 @@ public class UserRestlet
     // Delete user by name
     @DELETE
     @Path("user/{name}")
-    @ApiOperation(value = "Deletes a user from a repository.", position = 3)
+    @ApiOperation(value = "Deletes a user by name.", position = 3)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The user was deleted."),
                             @ApiResponse(code = 400, message = "Bad request.")
     })
