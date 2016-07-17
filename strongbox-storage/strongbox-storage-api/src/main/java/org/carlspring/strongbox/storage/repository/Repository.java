@@ -32,7 +32,10 @@ public class Repository
     private String policy = RepositoryPolicyEnum.MIXED.getPolicy();
 
     @XmlAttribute
-    private String implementation = "in-memory";
+    private String implementation = "file-system";
+
+    @XmlAttribute
+    private String layout = RepositoryLayoutEnum.MAVEN_2.getLayout();
 
     @XmlAttribute
     private String type = RepositoryTypeEnum.HOSTED.getType();
@@ -144,6 +147,16 @@ public class Repository
     public void setImplementation(String implementation)
     {
         this.implementation = implementation;
+    }
+
+    public String getLayout()
+    {
+        return layout;
+    }
+
+    public void setLayout(String layout)
+    {
+        this.layout = layout;
     }
 
     public String getType()

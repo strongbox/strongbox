@@ -1,28 +1,26 @@
-package org.carlspring.strongbox.storage.resolvers;
+package org.carlspring.strongbox.providers.layout;
 
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * @author mtodorov
+ * @author carlspring
  */
-@Deprecated
-public interface LocationResolver
+public interface LayoutProvider
 {
 
     void register();
 
-    LocationResolverRegistry getLocationResolverRegistry();
+    String getAlias();
 
     ArtifactInputStream getInputStream(String storageId,
                                        String repositoryId,
                                        String path)
-            throws IOException, NoSuchAlgorithmException, ArtifactTransportException, ProviderImplementationException;
+            throws IOException, NoSuchAlgorithmException, ArtifactTransportException;
 
     OutputStream getOutputStream(String storageId, String repositoryId, String path)
             throws IOException;
@@ -47,10 +45,5 @@ public interface LocationResolver
 
     void undeleteTrash()
             throws IOException;
-
-    void initialize()
-            throws IOException;
-
-    String getAlias();
 
 }

@@ -8,6 +8,10 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
+import org.carlspring.strongbox.providers.storage.StorageProvider;
+import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
@@ -32,6 +36,8 @@ import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Set;
+
+import static org.carlspring.strongbox.providers.storage.StorageProviderRegistry.getStorageProvider;
 
 /**
  * @author mtodorov
@@ -62,7 +68,10 @@ public class ArtifactManagementServiceImpl
     private ArtifactOperationsValidator artifactOperationsValidator;
 
     @Autowired
-    private LocationResolverRegistry locationResolverRegistry;
+    private RepositoryProviderRegistry repositoryProviderRegistry;
+
+    @Autowired
+    private StorageProviderRegistry storageProviderRegistry;
 
 
     @Override
@@ -70,7 +79,7 @@ public class ArtifactManagementServiceImpl
                       String repositoryId,
                       String path,
                       InputStream is)
-            throws IOException
+            throws IOException, ProviderImplementationException
     {
         performRepositoryAcceptanceValidation(storageId, repositoryId, path);
 
@@ -165,7 +174,9 @@ public class ArtifactManagementServiceImpl
     public InputStream resolve(String storageId,
                                String repositoryId,
                                String path)
-            throws IOException, ArtifactTransportException
+            throws IOException,
+                   ArtifactTransportException,
+                   ProviderImplementationException
     {
         InputStream is;
 
@@ -183,7 +194,7 @@ public class ArtifactManagementServiceImpl
     private boolean performRepositoryAcceptanceValidation(String storageId,
                                                           String repositoryId,
                                                           String path)
-            throws IOException
+            throws IOException, ProviderImplementationException
     {
         artifactOperationsValidator.validate(storageId, repositoryId, path);
 
@@ -231,9 +242,8 @@ public class ArtifactManagementServiceImpl
 
         try
         {
-            LocationResolver resolver = locationResolverRegistry.getResolvers().get(repository.getImplementation());
-
-            resolver.delete(storageId, repositoryId, artifactPath, force);
+            StorageProvider storageProvider = getStorageProvider(repository, storageProviderRegistry);
+            storageProvider.delete(storageId, repositoryId, artifactPath, force);
 
             final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storageId + ":" + repositoryId);
             if (indexer != null)
@@ -252,7 +262,7 @@ public class ArtifactManagementServiceImpl
                 */
             }
         }
-        catch (IOException e)
+        catch (IOException | ProviderImplementationException e)
         {
             throw new ArtifactStorageException(e.getMessage(), e);
         }
@@ -380,10 +390,10 @@ public class ArtifactManagementServiceImpl
 
             artifactOperationsValidator.checkAllowsDeletion(repository);
 
-            LocationResolver resolver = locationResolverRegistry.getResolvers().get(repository.getImplementation());
-            resolver.deleteTrash(storageId, repositoryId);
+            StorageProvider storageProvider = getStorageProvider(repository, storageProviderRegistry);
+            storageProvider.deleteTrash(storageId, repositoryId);
         }
-        catch (IOException e)
+        catch (IOException | ProviderImplementationException e)
         {
             throw new ArtifactStorageException(e.getMessage(), e);
         }
@@ -396,13 +406,7 @@ public class ArtifactManagementServiceImpl
     {
         try
         {
-            for (LocationResolver resolver : locationResolverRegistry.getResolvers().values())
-            {
-                if (!resolver.getAlias().equals(GroupLocationResolver.ALIAS))
-                {
-                    resolver.deleteTrash();
-                }
-            }
+            storageProviderRegistry.deleteTrash();
         }
         catch (IOException e)
         {
@@ -423,9 +427,9 @@ public class ArtifactManagementServiceImpl
 
         try
         {
-            LocationResolver resolver = locationResolverRegistry.getResolvers().get(repository.getImplementation());
+            StorageProvider storageProvider = getStorageProvider(repository, storageProviderRegistry);
 
-            resolver.undelete(storageId, repositoryId, artifactPath);
+            storageProvider.undelete(storageId, repositoryId, artifactPath);
 
             /*
             // TODO: This will need further fixing:
@@ -439,7 +443,7 @@ public class ArtifactManagementServiceImpl
             }
             */
         }
-        catch (IOException e)
+        catch (IOException | ProviderImplementationException e)
         {
             throw new ArtifactStorageException(e.getMessage(), e);
         }
@@ -447,7 +451,8 @@ public class ArtifactManagementServiceImpl
 
     @Override
     public void undeleteTrash(String storageId, String repositoryId)
-            throws IOException
+            throws IOException,
+                   ProviderImplementationException
     {
         artifactOperationsValidator.checkStorageExists(storageId);
         artifactOperationsValidator.checkRepositoryExists(storageId, repositoryId);
@@ -459,8 +464,9 @@ public class ArtifactManagementServiceImpl
 
             if (repository.isTrashEnabled())
             {
-                LocationResolver resolver = locationResolverRegistry.getResolvers().get(repository.getImplementation());
-                resolver.undeleteTrash(storageId, repositoryId);
+                StorageProvider storageProvider = getStorageProvider(repository, storageProviderRegistry);
+
+                storageProvider.undeleteTrash(storageId, repositoryId);
             }
         }
         catch (IOException e)
@@ -471,14 +477,12 @@ public class ArtifactManagementServiceImpl
 
     @Override
     public void undeleteTrash()
-            throws IOException
+            throws IOException,
+                   ProviderImplementationException
     {
         try
         {
-            for (LocationResolver resolver : locationResolverRegistry.getResolvers().values())
-            {
-                resolver.undeleteTrash();
-            }
+            storageProviderRegistry.undeleteTrash();
         }
         catch (IOException e)
         {

@@ -1,24 +1,32 @@
-package org.carlspring.strongbox.storage.resolvers;
+package org.carlspring.strongbox.providers.storage;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.services.ArtifactResolutionService;
-import org.carlspring.strongbox.storage.Storage;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
- * @author mtodorov
+ * @author carlspring
  */
-@Component
-@Deprecated
-public abstract class AbstractLocationResolver implements LocationResolver
+public abstract class AbstractStorageProvider
+        implements StorageProvider
 {
+
+    @Autowired
+    private StorageProviderRegistry storageProviderRegistry;
 
     @Autowired
     private ConfigurationManager configurationManager;
 
+
+    public StorageProviderRegistry getStorageProviderRegistry()
+    {
+        return storageProviderRegistry;
+    }
+
+    public void setStorageProviderRegistry(StorageProviderRegistry storageProviderRegistry)
+    {
+        this.storageProviderRegistry = storageProviderRegistry;
+    }
 
     public ConfigurationManager getConfigurationManager()
     {
@@ -33,11 +41,6 @@ public abstract class AbstractLocationResolver implements LocationResolver
     public Configuration getConfiguration()
     {
         return configurationManager.getConfiguration();
-    }
-
-    public Storage getStorage(String storageId)
-    {
-        return configurationManager.getConfiguration().getStorage(storageId);
     }
 
 }

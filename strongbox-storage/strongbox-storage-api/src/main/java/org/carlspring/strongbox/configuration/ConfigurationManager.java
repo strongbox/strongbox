@@ -35,7 +35,6 @@ public class ConfigurationManager extends AbstractConfigurationManager<Configura
     public ConfigurationManager()
     {
         super(Configuration.class);
-        logger.info("Initilizing ConfigurationManager");
     }
 
     @PostConstruct

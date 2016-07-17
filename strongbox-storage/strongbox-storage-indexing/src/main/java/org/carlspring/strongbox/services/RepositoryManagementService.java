@@ -8,7 +8,6 @@ import java.io.IOException;
  * @author mtodorov
  */
 public interface RepositoryManagementService
-        extends BasicRepositoryService
 {
 
     void createRepository(String storageId, String repositoryId)

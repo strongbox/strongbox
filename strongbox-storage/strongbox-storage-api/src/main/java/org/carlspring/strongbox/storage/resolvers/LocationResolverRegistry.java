@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.storage.resolvers;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashMap;
@@ -11,10 +9,9 @@ import java.util.Map;
  * @author carlspring
  */
 @Component
+@Deprecated
 public class LocationResolverRegistry
 {
-
-    private static final Logger logger = LoggerFactory.getLogger(LocationResolverRegistry.class);
 
     /**
      * K: Alias
@@ -26,19 +23,6 @@ public class LocationResolverRegistry
     public LocationResolverRegistry()
     {
     }
-
-    /*
-    public void listResolvers()
-    {
-        logger.info("Loading resolvers...");
-
-        for (String key : getResolvers().keySet())
-        {
-            LocationResolver resolver = getResolvers().get(key);
-            logger.info(" -> " + resolver.getClass());
-        }
-    }
-    */
 
     public Map<String, LocationResolver> getResolvers()
     {

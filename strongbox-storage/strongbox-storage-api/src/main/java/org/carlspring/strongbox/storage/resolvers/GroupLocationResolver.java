@@ -2,7 +2,10 @@ package org.carlspring.strongbox.storage.resolvers;
 
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.services.BasicRepositoryService;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
+import org.carlspring.strongbox.providers.storage.StorageProvider;
+import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
@@ -20,10 +23,13 @@ import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
+import static org.carlspring.strongbox.providers.storage.StorageProviderRegistry.getStorageProvider;
+
 /**
  * @author mtodorov
  */
 @Component("groupLocationResolver")
+@Deprecated
 public class GroupLocationResolver
         extends AbstractLocationResolver
 {
@@ -33,7 +39,10 @@ public class GroupLocationResolver
     public static final String ALIAS = "group";
 
     @Autowired
-    private BasicRepositoryService basicRepositoryService;
+    private RepositoryProviderRegistry repositoryProviderRegistry;
+
+    @Autowired
+    private StorageProviderRegistry storageProviderRegistry;
 
     @Autowired
     private LocationResolverRegistry locationResolverRegistry;
@@ -62,7 +71,10 @@ public class GroupLocationResolver
     public ArtifactInputStream getInputStream(String storageId,
                                               String repositoryId,
                                               String artifactPath)
-            throws IOException, NoSuchAlgorithmException, ArtifactTransportException
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   ArtifactTransportException,
+                   ProviderImplementationException
     {
         Storage storage = getConfiguration().getStorage(storageId);
                 
@@ -134,7 +146,10 @@ public class GroupLocationResolver
     }
 
     private ArtifactInputStream getInputStreamFromWildcardRepositoryAcceptRules(String artifactPath, Storage storage)
-            throws IOException, NoSuchAlgorithmException, ArtifactTransportException
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   ArtifactTransportException,
+                   ProviderImplementationException
     {
         RuleSet globalAcceptRules = getRoutingRules().getWildcardAcceptedRules();
         if (globalAcceptRules != null && globalAcceptRules.getRoutingRules() != null &&
@@ -151,7 +166,8 @@ public class GroupLocationResolver
                         rId = getConfigurationManager().getRepositoryId(rId);
 
                         Repository repository = getConfiguration().getStorage(sId).getRepository(rId);
-                        if (repository.isInService() && basicRepositoryService.containsPath(repository, artifactPath))
+                        StorageProvider storageProvider = getStorageProvider(repository, storageProviderRegistry);
+                        if (repository.isInService() && storageProvider.containsPath(repository, artifactPath))
                         {
                             return resolveArtifact(sId, repository.getId(), artifactPath);
                         }
@@ -166,7 +182,7 @@ public class GroupLocationResolver
     private ArtifactInputStream getInputStreamFromRepositoryAcceptRules(String repositoryId,
                                                                         String artifactPath,
                                                                         Storage storage)
-            throws IOException, NoSuchAlgorithmException, ArtifactTransportException
+            throws IOException, NoSuchAlgorithmException, ArtifactTransportException, ProviderImplementationException
     {
         RuleSet acceptRules = getRoutingRules().getAcceptRules(repositoryId);
         if (acceptRules != null && acceptRules.getRoutingRules() != null &&
@@ -183,7 +199,9 @@ public class GroupLocationResolver
                         rId = getConfigurationManager().getRepositoryId(rId);
 
                         Repository repository = getConfiguration().getStorage(sId).getRepository(rId);
-                        if (repository.isInService() && basicRepositoryService.containsPath(repository, artifactPath))
+                        StorageProvider storageProvider = getStorageProvider(repository, storageProviderRegistry);
+
+                        if (repository.isInService() && storageProvider.containsPath(repository, artifactPath))
                         {
                             return resolveArtifact(sId, repository.getId(), artifactPath);
                         }
@@ -214,7 +232,8 @@ public class GroupLocationResolver
                                                 String artifactPath)
             throws NoSuchAlgorithmException,
                    IOException,
-                   ArtifactTransportException
+                   ArtifactTransportException,
+                   ProviderImplementationException
     {
         ArtifactInputStream is;
         Repository repository = getStorage(storageId).getRepository(repositoryId);
@@ -244,7 +263,8 @@ public class GroupLocationResolver
     private ArtifactInputStream getInputStream(Repository repository, String artifactPath)
             throws IOException,
                    NoSuchAlgorithmException,
-                   ArtifactTransportException
+                   ArtifactTransportException,
+                   ProviderImplementationException
     {
         // TODO: Resolve via the implementation provider, not the filesystem
         // repository.getImplementation()

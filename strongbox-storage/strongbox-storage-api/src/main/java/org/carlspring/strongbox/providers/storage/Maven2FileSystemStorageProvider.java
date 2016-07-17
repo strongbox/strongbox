@@ -1,186 +1,107 @@
-package org.carlspring.strongbox.storage.resolvers;
-
-import org.carlspring.commons.io.MultipleDigestOutputStream;
-import org.carlspring.commons.io.filters.DirectoryFilter;
-import org.carlspring.commons.io.resource.ResourceCloser;
-import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.client.MavenArtifactClient;
-import org.carlspring.strongbox.io.ArtifactFile;
-import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.RemoteRepository;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.util.DirUtils;
-
-import javax.annotation.PostConstruct;
-import javax.ws.rs.core.Response;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.security.NoSuchAlgorithmException;
-import java.util.Map;
+package org.carlspring.strongbox.providers.storage;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
+import org.carlspring.commons.io.filters.DirectoryFilter;
+import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
+import org.carlspring.strongbox.util.DirUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.spi.FileSystemProvider;
+import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+
 /**
- * @author mtodorov
+ * @author carlspring
  */
-@Component("proxyLocationResolver")
-@Deprecated
-public class ProxyLocationResolver
-        extends AbstractLocationResolver
+@Component
+public class Maven2FileSystemStorageProvider extends AbstractStorageProvider
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(ProxyLocationResolver.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileSystemProvider.class);
 
-    public static final String ALIAS = "proxy";
+    private static final String ALIAS = "file-system";
 
     @Autowired
-    private LocationResolverRegistry locationResolverRegistry;
+    private StorageProviderRegistry storageProviderRegistry;
 
+    // TODO: Uncomment
+    /*
+    @Autowired
+    private MetadataManager metadataManager;
+    */
 
-    public ProxyLocationResolver()
-    {
-    }
 
     @PostConstruct
     @Override
     public void register()
     {
-        locationResolverRegistry.addResolver(ALIAS, this);
+        storageProviderRegistry.addProviderImplementation(getAlias(), Maven2LayoutProvider.ALIAS, this);
 
-        logger.info("Registered resolver '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
+        logger.info("Registered storage provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
     }
 
     @Override
-    public LocationResolverRegistry getLocationResolverRegistry()
+    public String getAlias()
     {
-        return locationResolverRegistry;
+        return ALIAS;
     }
 
     @Override
-    public ArtifactInputStream getInputStream(String storageId,
-                                              String repositoryId,
-                                              String artifactPath)
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   ArtifactTransportException
+    public String getImplementation()
     {
-        Storage storage = getConfiguration().getStorage(storageId);
+        return Maven2LayoutProvider.ALIAS;
+    }
 
-        logger.debug("Checking in " + storage.getId() + ":" + repositoryId + "...");
-
-        Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
-
-        Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
-        ArtifactFile artifactFile = new ArtifactFile(repository, artifact, true);
-
-        logger.debug(" -> Checking for " + artifactFile.getCanonicalPath() + "...");
-
-        if (artifactFile.exists())
-        {
-            logger.debug("The artifact was found in the local cache.");
-            logger.debug("Resolved " + artifactFile.getCanonicalPath() + "!");
-
-            ArtifactInputStream ais = new ArtifactInputStream(new FileInputStream(artifactFile));
-            ais.setLength(artifactFile.length());
-
-            return ais;
-        }
-        else
-        {
-            logger.debug("The artifact was not found in the local cache.");
-
-            RemoteRepository remoteRepository = repository.getRemoteRepository();
-
-            MavenArtifactClient client = new MavenArtifactClient();
-            client.setRepositoryBaseUrl(remoteRepository.getUrl());
-            client.setUsername(remoteRepository.getUsername());
-            client.setPassword(remoteRepository.getPassword());
-
-            Response response = client.getResourceWithResponse(artifactPath);
-            if (response.getStatus() != 200 || response.getEntity() == null)
-            {
-                return null;
-            }
-
-            logger.debug("Creating " + artifactFile.getTemporaryFile().getParentFile().getAbsolutePath() + "...");
-
-            artifactFile.createParents();
-
-            InputStream remoteIs = response.readEntity(InputStream.class);
-            FileOutputStream fos = new FileOutputStream(artifactFile.getTemporaryFile());
-            MultipleDigestOutputStream mdos = new MultipleDigestOutputStream(fos);
-
-            // 1) Attempt to resolve it from the remote host
-            if (remoteIs == null)
-            {
-                // 1 a) If the artifact does not exist, return null
-                // The remote failed to resolve the artifact as well.
-                return null;
-            }
-
-            int len;
-            final int size = 1024;
-            byte[] bytes = new byte[size];
-
-            while ((len = remoteIs.read(bytes, 0, size)) != -1)
-            {
-                mdos.write(bytes, 0, len);
-            }
-
-            fos.flush();
-
-            ResourceCloser.close(fos, logger);
-            ResourceCloser.close(remoteIs, logger);
-            ResourceCloser.close(client, logger);
-
-            artifactFile.moveTempFileToOriginalDestination();
-
-            // TODO: Add a policy for validating the checksums of downloaded artifacts
-            // TODO: Validate the local checksum against the remote's checksums
-
-            // 1 b) If it exists on the remote, serve the downloaded artifact
-
-            ArtifactInputStream ais = new ArtifactInputStream(new FileInputStream(artifactFile));
-            ais.setLength(artifactFile.length());
-
-            return ais;
-        }
+    @Override
+    public ArtifactInputStream getInputStream(String storageId, String repositoryId, String path)
+            throws IOException, NoSuchAlgorithmException, ArtifactTransportException
+    {
+        return null;
     }
 
     @Override
     public OutputStream getOutputStream(String storageId,
                                         String repositoryId,
-                                        String artifactPath)
+                                        String path)
             throws IOException
     {
-        // It should not be possible to write artifacts to a proxy repository.
-        // A proxy repository should only serve artifacts that already exist
-        // in the cache, or the remote host.
-
         return null;
     }
 
     @Override
-    public boolean contains(String storageId, String repositoryId, String path)
+    public void copy(String srcStorageId,
+                     String srcRepositoryId,
+                     String destStorageId,
+                     String destRepositoryId,
+                     String path)
             throws IOException
     {
-        Storage storage = getConfiguration().getStorage(storageId);
 
-        final File repoPath = new File(storage.getRepository(repositoryId).getBasedir());
-        final File artifactFile = new File(repoPath, path).getCanonicalFile();
+    }
 
-        return artifactFile.exists();
+    @Override
+    public void move(String srcStorageId,
+                     String srcRepositoryId,
+                     String destStorageId,
+                     String destRepositoryId,
+                     String path)
+            throws IOException
+    {
+
     }
 
     @Override
@@ -319,6 +240,7 @@ public class ProxyLocationResolver
         }
     }
 
+
     @Override
     public void deleteTrash(String storageId, String repositoryId)
             throws IOException
@@ -334,36 +256,6 @@ public class ProxyLocationResolver
 
         //noinspection ResultOfMethodCallIgnored
         basedirTrash.mkdirs();
-    }
-
-    @Override
-    public void deleteTrash()
-            throws IOException
-    {
-        for (Map.Entry entry : getConfiguration().getStorages().entrySet())
-        {
-            Storage storage = (Storage) entry.getValue();
-
-            final Map<String, Repository> repositories = storage.getRepositories();
-            for (Repository repository : repositories.values())
-            {
-                if (repository.allowsDeletion())
-                {
-                    logger.debug("Emptying trash for repository " + repository.getId() + "...");
-
-                    final File basedirTrash = repository.getTrashDir();
-
-                    FileUtils.deleteDirectory(basedirTrash);
-
-                    //noinspection ResultOfMethodCallIgnored
-                    basedirTrash.mkdirs();
-                }
-                else
-                {
-                    logger.warn("Repository " + repository.getId() + " does not support removal of trash.");
-                }
-            }
-        }
     }
 
     @Override
@@ -453,32 +345,121 @@ public class ProxyLocationResolver
     }
 
     @Override
-    public void undeleteTrash()
+    public void deleteMetadata(String storageId,
+                               String repositoryId,
+                               String metadataPath)
             throws IOException
     {
-        for (Map.Entry entry : getConfiguration().getStorages().entrySet())
-        {
-            Storage storage = (Storage) entry.getValue();
+        // TODO: Further untangle the relationships of this so that the code below can be uncommented:
 
-            final Map<String, Repository> repositories = storage.getRepositories();
-            for (Repository repository : repositories.values())
+        /*
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+        final File repoPath = new File(repository.getBasedir());
+
+        try
+        {
+            File artifactFile = new File(repoPath, metadataPath).getCanonicalFile();
+            if (!artifactFile.isFile())
             {
-                undeleteTrash(storage.getId(), repository.getId());
+                String version = artifactFile.getPath().substring(artifactFile.getPath().lastIndexOf(File.separatorChar) + 1);
+                java.nio.file.Path path = Paths.get(artifactFile.getPath().substring(0, artifactFile.getPath().lastIndexOf(File.separatorChar)));
+
+                Metadata metadata = getMetadataManager().readMetadata(path);
+                if (metadata != null && metadata.getVersioning() != null
+                    && metadata.getVersioning().getVersions().contains(version))
+                {
+                    metadata.getVersioning().getVersions().remove(version);
+                    getMetadataManager().storeMetadata(path, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
+                }
             }
         }
+        catch (IOException | XmlPullParserException | NoSuchAlgorithmException e)
+        {
+            // We won't do anything in this case because it doesn't have an impact to the deletion
+        }
+        */
     }
 
     @Override
-    public void initialize()
-            throws IOException
+    public boolean containsArtifact(Repository repository, Artifact artifact)
     {
-        logger.debug("Initialized ProxyLocationResolver.");
+        if (!repository.getType().equals(RepositoryTypeEnum.GROUP.getType()))
+        {
+            final String artifactPath = ArtifactUtils.convertArtifactToPath(artifact);
+
+            final File repositoryBasedir = new File(repository.getStorage().getBasedir(), repository.getId());
+            final File artifactFile = new File(repositoryBasedir, artifactPath).getAbsoluteFile();
+
+            return artifactFile.exists();
+        }
+        else if (repository.getType().equals(RepositoryTypeEnum.GROUP.getType()))
+        {
+            for (String storageAndRepositoryId : repository.getGroupRepositories())
+            {
+                String[] storageAndRepositoryIdTokens = storageAndRepositoryId.split(":");
+                String storageId = storageAndRepositoryIdTokens.length == 2 ?
+                                   storageAndRepositoryIdTokens[0] :
+                                   repository.getStorage().getId();
+                String repositoryId = storageAndRepositoryIdTokens[storageAndRepositoryIdTokens.length < 2 ? 0 : 1];
+
+                Repository r = getConfiguration().getStorage(storageId).getRepository(repositoryId);
+
+                if (containsArtifact(r, artifact))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        return false;
     }
 
     @Override
-    public String getAlias()
+    public boolean containsPath(Repository repository, String path)
     {
-        return ALIAS;
+        if (!repository.getType().equals(RepositoryTypeEnum.GROUP.getType()))
+        {
+            final File repositoryBasedir = new File(repository.getStorage().getBasedir(), repository.getId());
+            final File artifactFile = new File(repositoryBasedir, path).getAbsoluteFile();
+
+            return artifactFile.exists();
+        }
+        else if (repository.getType().equals(RepositoryTypeEnum.GROUP.getType()))
+        {
+            for (String storageAndRepositoryId : repository.getGroupRepositories())
+            {
+                String[] storageAndRepositoryIdTokens = storageAndRepositoryId.split(":");
+                String storageId = storageAndRepositoryIdTokens.length == 2 ?
+                                   storageAndRepositoryIdTokens[0] :
+                                   repository.getStorage().getId();
+                String repositoryId = storageAndRepositoryIdTokens[storageAndRepositoryIdTokens.length < 2 ? 0 : 1];
+
+                Repository r = getConfiguration().getStorage(storageId).getRepository(repositoryId);
+
+                if (containsPath(r, path))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        return false;
+    }
+
+    @Override
+    public String getPathToArtifact(Repository repository, Artifact artifact)
+    {
+        final String artifactPath = ArtifactUtils.convertArtifactToPath(artifact);
+
+        final File repositoryBasedir = new File(repository.getStorage().getBasedir(), repository.getId());
+        final File artifactFile = new File(repositoryBasedir, artifactPath);
+
+        return artifactFile.getAbsolutePath();
     }
 
 }

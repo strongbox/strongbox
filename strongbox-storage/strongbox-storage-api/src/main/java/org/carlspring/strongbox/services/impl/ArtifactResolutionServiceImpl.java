@@ -3,13 +3,15 @@ package org.carlspring.strongbox.services.impl;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
+import org.carlspring.strongbox.providers.storage.StorageProvider;
+import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
-import org.carlspring.strongbox.storage.resolvers.LocationResolver;
-import org.carlspring.strongbox.storage.resolvers.LocationResolverRegistry;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +21,8 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
+
+import static org.carlspring.strongbox.providers.storage.StorageProviderRegistry.getStorageProvider;
 
 /**
  * @author mtodorov
@@ -30,11 +34,6 @@ public class ArtifactResolutionServiceImpl
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactResolutionServiceImpl.class);
 
-    /*
-    @Resource(name = "resolvers")
-    private Map<String, LocationResolver> resolvers;
-    */
-
     @Autowired
     private ConfigurationManager configurationManager;
 
@@ -42,7 +41,10 @@ public class ArtifactResolutionServiceImpl
     private ArtifactOperationsValidator artifactOperationsValidator;
 
     @Autowired
-    private LocationResolverRegistry locationResolverRegistry;
+    private RepositoryProviderRegistry repositoryProviderRegistry;
+
+    @Autowired
+    private StorageProviderRegistry storageProviderRegistry;
 
 
     @Override
@@ -51,14 +53,15 @@ public class ArtifactResolutionServiceImpl
                                               String artifactPath)
             throws IOException,
                    NoSuchAlgorithmException,
-                   ArtifactTransportException
+                   ArtifactTransportException, ProviderImplementationException
     {
         artifactOperationsValidator.validate(storageId, repositoryId, artifactPath);
 
         final Repository repository = getStorage(storageId).getRepository(repositoryId);
 
-        LocationResolver resolver = locationResolverRegistry.getResolver(repository.getImplementation());
-        ArtifactInputStream is = resolver.getInputStream(storageId, repositoryId, artifactPath);
+        StorageProvider storageProvider = getStorageProvider(repository, storageProviderRegistry);
+
+        ArtifactInputStream is = storageProvider.getInputStream(storageId, repositoryId, artifactPath);
 
         if (is == null)
         {
@@ -72,14 +75,15 @@ public class ArtifactResolutionServiceImpl
     public OutputStream getOutputStream(String storageId,
                                         String repositoryId,
                                         String artifactPath)
-            throws IOException
+            throws IOException, ProviderImplementationException
     {
         artifactOperationsValidator.validate(storageId, repositoryId, artifactPath);
 
         final Repository repository = getStorage(storageId).getRepository(repositoryId);
 
-        LocationResolver resolver = locationResolverRegistry.getResolvers().get(repository.getImplementation());
-        OutputStream os = resolver.getOutputStream(storageId, repositoryId, artifactPath);
+        StorageProvider storageProvider = getStorageProvider(repository, storageProviderRegistry);
+
+        OutputStream os = storageProvider.getOutputStream(storageId, repositoryId, artifactPath);
 
         if (os == null)
         {
@@ -88,19 +92,6 @@ public class ArtifactResolutionServiceImpl
 
         return os;
     }
-
-    /*
-    @Override
-    public Map<String, LocationResolver> getResolvers()
-    {
-        return resolvers;
-    }
-
-    public void setResolvers(Map<String, LocationResolver> resolvers)
-    {
-        this.resolvers = resolvers;
-    }
-    */
 
     public Storage getStorage(String storageId)
     {

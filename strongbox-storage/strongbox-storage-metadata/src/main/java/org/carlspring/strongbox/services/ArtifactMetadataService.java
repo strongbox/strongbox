@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.services;
 
+import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 
 import java.io.IOException;
@@ -80,7 +81,7 @@ public interface ArtifactMetadataService extends ConfigurationService
      * @throws XmlPullParserException
      */
     void mergeMetadata(String storageId, String repositoryId, Artifact artifact, Metadata mergeMetadata)
-            throws IOException, XmlPullParserException, NoSuchAlgorithmException;
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException, ProviderImplementationException;
 
     /**
      * Add a version to a metadata and store it to a file.

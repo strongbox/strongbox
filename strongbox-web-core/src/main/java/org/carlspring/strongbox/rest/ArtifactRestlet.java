@@ -3,6 +3,7 @@ package org.carlspring.strongbox.rest;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
@@ -89,7 +90,8 @@ public class ArtifactRestlet
                            InputStream is)
             throws IOException,
                    AuthenticationException,
-                   NoSuchAlgorithmException
+                   NoSuchAlgorithmException,
+                   ProviderImplementationException
     {
         try
         {
@@ -125,7 +127,8 @@ public class ArtifactRestlet
                    InstantiationException,
                    IllegalAccessException,
                    ClassNotFoundException,
-                   AuthenticationException
+                   AuthenticationException,
+                   ProviderImplementationException
     {
         logger.debug(" repository = " + repositoryId + ", path = " + path);
 
@@ -194,7 +197,8 @@ public class ArtifactRestlet
                                         String repositoryId,
                                         String path,
                                         Response.ResponseBuilder responseBuilder)
-            throws IOException
+            throws IOException,
+                   ProviderImplementationException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);

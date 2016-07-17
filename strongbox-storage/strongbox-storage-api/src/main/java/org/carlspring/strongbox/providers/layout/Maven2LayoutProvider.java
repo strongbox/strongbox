@@ -1,94 +1,75 @@
-package org.carlspring.strongbox.storage.resolvers;
-
-import org.carlspring.commons.io.MultipleDigestOutputStream;
-import org.carlspring.commons.io.filters.DirectoryFilter;
-import org.carlspring.commons.io.resource.ResourceCloser;
-import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.client.MavenArtifactClient;
-import org.carlspring.strongbox.io.ArtifactFile;
-import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.RemoteRepository;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.util.DirUtils;
-
-import javax.annotation.PostConstruct;
-import javax.ws.rs.core.Response;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.security.NoSuchAlgorithmException;
-import java.util.Map;
+package org.carlspring.strongbox.providers.layout;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
+import org.carlspring.commons.io.filters.DirectoryFilter;
+import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.io.ArtifactFile;
+import org.carlspring.strongbox.io.ArtifactFileOutputStream;
+import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.util.DirUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+
 /**
- * @author mtodorov
+ * @author carlspring
  */
-@Component("proxyLocationResolver")
-@Deprecated
-public class ProxyLocationResolver
-        extends AbstractLocationResolver
+@Component("maven2LayoutProvider")
+public class Maven2LayoutProvider extends AbstractLayoutProvider
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(ProxyLocationResolver.class);
+    private static final Logger logger = LoggerFactory.getLogger(Maven2LayoutProvider.class);
 
-    public static final String ALIAS = "proxy";
+    public static final String ALIAS = "Maven 2";
 
     @Autowired
-    private LocationResolverRegistry locationResolverRegistry;
+    private LayoutProviderRegistry layoutProviderRegistry;
 
-
-    public ProxyLocationResolver()
-    {
-    }
 
     @PostConstruct
     @Override
     public void register()
     {
-        locationResolverRegistry.addResolver(ALIAS, this);
+        layoutProviderRegistry.addProvider(ALIAS, this);
 
-        logger.info("Registered resolver '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
+        logger.info("Registered layout provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
     }
 
     @Override
-    public LocationResolverRegistry getLocationResolverRegistry()
+    public String getAlias()
     {
-        return locationResolverRegistry;
+        return ALIAS;
     }
 
     @Override
     public ArtifactInputStream getInputStream(String storageId,
                                               String repositoryId,
                                               String artifactPath)
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   ArtifactTransportException
+            throws IOException, NoSuchAlgorithmException
     {
         Storage storage = getConfiguration().getStorage(storageId);
 
         logger.debug("Checking in " + storage.getId() + ":" + repositoryId + "...");
 
-        Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
-
-        Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
-        ArtifactFile artifactFile = new ArtifactFile(repository, artifact, true);
+        final File repoPath = new File(storage.getRepository(repositoryId).getBasedir());
+        final File artifactFile = new File(repoPath, artifactPath).getCanonicalFile();
 
         logger.debug(" -> Checking for " + artifactFile.getCanonicalPath() + "...");
 
         if (artifactFile.exists())
         {
-            logger.debug("The artifact was found in the local cache.");
             logger.debug("Resolved " + artifactFile.getCanonicalPath() + "!");
 
             ArtifactInputStream ais = new ArtifactInputStream(new FileInputStream(artifactFile));
@@ -96,66 +77,8 @@ public class ProxyLocationResolver
 
             return ais;
         }
-        else
-        {
-            logger.debug("The artifact was not found in the local cache.");
 
-            RemoteRepository remoteRepository = repository.getRemoteRepository();
-
-            MavenArtifactClient client = new MavenArtifactClient();
-            client.setRepositoryBaseUrl(remoteRepository.getUrl());
-            client.setUsername(remoteRepository.getUsername());
-            client.setPassword(remoteRepository.getPassword());
-
-            Response response = client.getResourceWithResponse(artifactPath);
-            if (response.getStatus() != 200 || response.getEntity() == null)
-            {
-                return null;
-            }
-
-            logger.debug("Creating " + artifactFile.getTemporaryFile().getParentFile().getAbsolutePath() + "...");
-
-            artifactFile.createParents();
-
-            InputStream remoteIs = response.readEntity(InputStream.class);
-            FileOutputStream fos = new FileOutputStream(artifactFile.getTemporaryFile());
-            MultipleDigestOutputStream mdos = new MultipleDigestOutputStream(fos);
-
-            // 1) Attempt to resolve it from the remote host
-            if (remoteIs == null)
-            {
-                // 1 a) If the artifact does not exist, return null
-                // The remote failed to resolve the artifact as well.
-                return null;
-            }
-
-            int len;
-            final int size = 1024;
-            byte[] bytes = new byte[size];
-
-            while ((len = remoteIs.read(bytes, 0, size)) != -1)
-            {
-                mdos.write(bytes, 0, len);
-            }
-
-            fos.flush();
-
-            ResourceCloser.close(fos, logger);
-            ResourceCloser.close(remoteIs, logger);
-            ResourceCloser.close(client, logger);
-
-            artifactFile.moveTempFileToOriginalDestination();
-
-            // TODO: Add a policy for validating the checksums of downloaded artifacts
-            // TODO: Validate the local checksum against the remote's checksums
-
-            // 1 b) If it exists on the remote, serve the downloaded artifact
-
-            ArtifactInputStream ais = new ArtifactInputStream(new FileInputStream(artifactFile));
-            ais.setLength(artifactFile.length());
-
-            return ais;
-        }
+        return null;
     }
 
     @Override
@@ -164,11 +87,24 @@ public class ProxyLocationResolver
                                         String artifactPath)
             throws IOException
     {
-        // It should not be possible to write artifacts to a proxy repository.
-        // A proxy repository should only serve artifacts that already exist
-        // in the cache, or the remote host.
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
 
-        return null;
+        ArtifactFile artifactFile;
+        if (!ArtifactUtils.isMetadata(artifactPath) && !ArtifactUtils.isChecksum(artifactPath))
+        {
+            Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
+            artifactFile = new ArtifactFile(repository, artifact, true);
+        }
+        else
+        {
+            final File repoPath = new File(storage.getRepository(repositoryId).getBasedir());
+            artifactFile = new ArtifactFile(new File(repoPath, artifactPath).getCanonicalFile());
+        }
+
+        artifactFile.createParents();
+
+        return new ArtifactFileOutputStream(artifactFile);
     }
 
     @Override
@@ -466,19 +402,6 @@ public class ProxyLocationResolver
                 undeleteTrash(storage.getId(), repository.getId());
             }
         }
-    }
-
-    @Override
-    public void initialize()
-            throws IOException
-    {
-        logger.debug("Initialized ProxyLocationResolver.");
-    }
-
-    @Override
-    public String getAlias()
-    {
-        return ALIAS;
     }
 
 }

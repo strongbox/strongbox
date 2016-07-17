@@ -1,23 +1,31 @@
 package org.carlspring.strongbox.storage.metadata;
 
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
+import org.apache.maven.artifact.repository.metadata.Versioning;
+import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
+import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Writer;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
+import org.carlspring.strongbox.providers.storage.StorageProvider;
+import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.resource.ResourceCloser;
-import org.carlspring.strongbox.services.BasicRepositoryService;
 import org.carlspring.strongbox.storage.metadata.comparators.SnapshotVersionComparator;
 import org.carlspring.strongbox.storage.metadata.comparators.VersionComparator;
 import org.carlspring.strongbox.storage.metadata.versions.MetadataVersion;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.codehaus.plexus.util.WriterFactory;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Writer;
+import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
@@ -25,18 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
-import org.apache.maven.artifact.repository.metadata.Versioning;
-import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
-import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Writer;
-import org.codehaus.plexus.util.WriterFactory;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import static org.carlspring.strongbox.providers.storage.StorageProviderRegistry.getStorageProvider;
 
 /**
  * @author stodorov
@@ -50,7 +47,10 @@ public class MetadataManager
     private ReentrantLock lock = new ReentrantLock();
 
     @Autowired
-    private BasicRepositoryService basicRepositoryService;
+    private RepositoryProviderRegistry repositoryProviderRegistry;
+
+    @Autowired
+    private StorageProviderRegistry storageProviderRegistry;
 
 
     public MetadataManager()
@@ -58,13 +58,17 @@ public class MetadataManager
     }
 
     public Metadata readMetadata(Repository repository, Artifact artifact)
-            throws IOException, XmlPullParserException
+            throws IOException,
+                   XmlPullParserException,
+                   ProviderImplementationException
     {
         Metadata metadata;
 
-        if (basicRepositoryService.containsArtifact(repository, artifact))
+        StorageProvider storageProvider = getStorageProvider(repository, storageProviderRegistry);
+
+        if (storageProvider.containsArtifact(repository, artifact))
         {
-            Path artifactPath = Paths.get(basicRepositoryService.getPathToArtifact(repository, artifact));
+            Path artifactPath = Paths.get(storageProvider.getPathToArtifact(repository, artifact));
             Path artifactBasePath = artifactPath;
             if (artifact.getVersion() != null)
             {
@@ -147,6 +151,7 @@ public class MetadataManager
 
             if (metadataFile.exists())
             {
+                //noinspection ResultOfMethodCallIgnored
                 metadataFile.delete();
             }
 
@@ -178,9 +183,12 @@ public class MetadataManager
     public void generateMetadata(Repository repository, String path, VersionCollectionRequest request)
             throws IOException,
                    XmlPullParserException,
-                   NoSuchAlgorithmException
+                   NoSuchAlgorithmException,
+                   ProviderImplementationException
     {
-        if (basicRepositoryService.containsPath(repository, path))
+        StorageProvider storageProvider = getStorageProvider(repository, storageProviderRegistry);
+
+        if (storageProvider.containsPath(repository, path))
         {
             logger.debug("Artifact metadata generation triggered for " + path +
                          " in '" + repository.getStorage().getId() + ":" + repository.getId() + "'" +
@@ -341,9 +349,12 @@ public class MetadataManager
     public void mergeMetadata(Repository repository, Artifact artifact, Metadata mergeMetadata)
             throws IOException,
                    XmlPullParserException,
-                   NoSuchAlgorithmException
+                   NoSuchAlgorithmException,
+                   ProviderImplementationException
     {
-        if (basicRepositoryService.containsArtifact(repository, artifact))
+        StorageProvider storageProvider = getStorageProvider(repository, storageProviderRegistry);
+
+        if (storageProvider.containsArtifact(repository, artifact))
         {
             Path artifactBasePath;
             if (artifact.getFile() != null && !artifact.getFile().isDirectory())

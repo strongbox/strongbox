@@ -29,6 +29,7 @@ import javax.annotation.PostConstruct;
  * @author mtodorov
  */
 @Component("fsLocationResolver")
+@Deprecated
 public class FSLocationResolver
         extends AbstractLocationResolver
 {
@@ -60,6 +61,7 @@ public class FSLocationResolver
         return locationResolverRegistry;
     }
 
+    @Deprecated
     @Override
     public ArtifactInputStream getInputStream(String storageId,
                                               String repositoryId,
@@ -88,6 +90,7 @@ public class FSLocationResolver
         return null;
     }
 
+    @Deprecated
     @Override
     public OutputStream getOutputStream(String storageId,
                                         String repositoryId,
@@ -126,6 +129,7 @@ public class FSLocationResolver
         return artifactFile.exists();
     }
 
+    @Deprecated
     @Override
     public void delete(String storageId,
                        String repositoryId,
@@ -262,6 +266,7 @@ public class FSLocationResolver
         }
     }
 
+    @Deprecated
     @Override
     public void deleteTrash(String storageId, String repositoryId)
             throws IOException
@@ -279,6 +284,7 @@ public class FSLocationResolver
         basedirTrash.mkdirs();
     }
 
+    @Deprecated
     @Override
     public void deleteTrash()
             throws IOException
@@ -309,6 +315,7 @@ public class FSLocationResolver
         }
     }
 
+    @Deprecated
     @Override
     public void undelete(String storageId, String repositoryId, String path)
             throws IOException
@@ -364,6 +371,7 @@ public class FSLocationResolver
         }
     }
 
+    @Deprecated
     @Override
     public void undeleteTrash(String storageId, String repositoryId)
             throws IOException
@@ -395,6 +403,7 @@ public class FSLocationResolver
         }
     }
 
+    @Deprecated
     @Override
     public void undeleteTrash()
             throws IOException
