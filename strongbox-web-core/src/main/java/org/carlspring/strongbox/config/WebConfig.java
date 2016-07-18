@@ -6,6 +6,8 @@ import org.carlspring.strongbox.StorageIndexingConfig;
 import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
 import org.carlspring.strongbox.users.UsersConfig;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.EnableCaching;
@@ -17,9 +19,8 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.ResourceHttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-
-import java.util.List;
 
 @Configuration
 @ComponentScan
@@ -37,6 +38,7 @@ import java.util.List;
                  SecurityConfig.class,
                  ClientConfig.class })
 @EnableCaching
+@EnableWebMvc
 public class WebConfig extends WebMvcConfigurerAdapter {
     private static final Logger logger = LoggerFactory.getLogger(WebConfig.class);
 
