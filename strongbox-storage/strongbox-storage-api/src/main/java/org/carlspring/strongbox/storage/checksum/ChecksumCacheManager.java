@@ -14,16 +14,16 @@ import org.slf4j.LoggerFactory;
  * should add a cachedChecksum. When an actual checksum is deployed,
  * (which is right after the artifact or metadata file has been deployed),
  * the cache should be queried for a match.
- *
+ * <p>
  * If:
  * - a match is found and matches, remove it from the cache. (If the checksums set
- *   is empty, remove the respective Checksum from the cachedChecksums).
+ * is empty, remove the respective Checksum from the cachedChecksums).
  * - a match is found, but does not match, trigger an event and log this, then remove
- *   the checksum from the cache. (If the checksums set is empty, remove the respective
- *   Checksum from the cachedChecksums).
+ * the checksum from the cache. (If the checksums set is empty, remove the respective
+ * Checksum from the cachedChecksums).
  * - a checksum is not claimed within cachedChecksumLifetime, trigger an event and log
- *   this, then remove the checksum from the cache. (If this checksums set is empty,
- *   remove the respective Checksum from the cachedChecksums).
+ * this, then remove the checksum from the cache. (If this checksums set is empty,
+ * remove the respective Checksum from the cachedChecksums).
  *
  * @author mtodorov
  */
@@ -40,7 +40,7 @@ public class ChecksumCacheManager
 
     /**
      * Specifies how long to keep the cached checksums.
-     *
+     * <p>
      * The default is five minutes.
      */
     private long cachedChecksumLifetime = 5 * 60000;
@@ -67,7 +67,8 @@ public class ChecksumCacheManager
         return containsChecksum;
     }
 
-    public String getArtifactChecksum(String artifactBasePath, String algorithm)
+    public String getArtifactChecksum(String artifactBasePath,
+                                      String algorithm)
     {
         if (!cachedChecksums.containsKey(artifactBasePath))
         {
@@ -78,13 +79,15 @@ public class ChecksumCacheManager
         final String checksum = artifactChecksum.getChecksum(algorithm);
         if (checksum != null)
         {
-            logger.debug("Found checksum '" + checksum + "' [" + algorithm + "]"  + " for '" + artifactBasePath + "' in cache.");
+            logger.debug("Found checksum '" + checksum + "' [" + algorithm + "]" + " for '" + artifactBasePath + "' in cache.");
         }
 
         return checksum;
     }
 
-    public boolean validateChecksum(String artifactPath, String algorithm, String checksum)
+    public boolean validateChecksum(String artifactPath,
+                                    String algorithm,
+                                    String checksum)
     {
         return getArtifactChecksum(artifactPath, algorithm).equals(checksum);
     }
@@ -93,7 +96,7 @@ public class ChecksumCacheManager
                                                  String algorithm,
                                                  String checksum)
     {
-        logger.debug("Adding checksum '" + checksum + "' [" + algorithm + "]"  + " for '" + artifactBasePath + "' in cache.");
+        logger.debug("Adding checksum '" + checksum + "' [" + algorithm + "]" + " for '" + artifactBasePath + "' in cache.");
 
         if (cachedChecksums.containsKey(artifactBasePath))
         {
@@ -109,7 +112,8 @@ public class ChecksumCacheManager
         }
     }
 
-    public synchronized void removeArtifactChecksum(String artifactBasePath, String algorithm)
+    public synchronized void removeArtifactChecksum(String artifactBasePath,
+                                                    String algorithm)
     {
         logger.debug("Removing " + algorithm + " checksum for artifact '" + artifactBasePath + "' from cache.");
         cachedChecksums.get(artifactBasePath).removeChecksum(algorithm);

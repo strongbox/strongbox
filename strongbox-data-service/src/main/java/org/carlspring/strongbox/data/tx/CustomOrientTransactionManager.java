@@ -61,7 +61,7 @@ public class CustomOrientTransactionManager
     protected synchronized void doCommit(DefaultTransactionStatus status)
             throws TransactionException
     {
-        OrientTransaction tx = (OrientTransaction)status.getTransaction();
+        OrientTransaction tx = (OrientTransaction) status.getTransaction();
         ODatabase db = tx.getDatabase();
         db.activateOnCurrentThread();
         db.commit();

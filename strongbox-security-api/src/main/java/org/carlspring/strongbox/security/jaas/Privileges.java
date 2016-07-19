@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.security.jaas;
 
+import org.carlspring.strongbox.data.domain.GenericEntity;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -13,6 +15,7 @@ import java.util.Set;
 @XmlRootElement(name = "privileges")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Privileges
+        extends GenericEntity
 {
 
     @XmlElement(name = "privilege")
@@ -38,4 +41,14 @@ public class Privileges
         this.privileges = privileges;
     }
 
+    @Override
+    public String toString()
+    {
+        final StringBuilder sb = new StringBuilder("\n\tPrivileges{");
+        sb.append("privileges=").append(privileges);
+        sb.append('}');
+        
+        return sb.toString();
+    }
+    
 }

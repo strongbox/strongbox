@@ -15,13 +15,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.DirUtils;
 
 import javax.annotation.PostConstruct;
-import javax.ws.rs.core.Response;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
@@ -46,8 +40,10 @@ public class ProxyLocationResolver
 
     @Autowired
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
+
     @Autowired
     private LocationResolverRegistry locationResolverRegistry;
+
 
     public ProxyLocationResolver()
     {
@@ -167,7 +163,9 @@ public class ProxyLocationResolver
     }
 
     @Override
-    public boolean contains(String storageId, String repositoryId, String path)
+    public boolean contains(String storageId,
+                            String repositoryId,
+                            String path)
             throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
@@ -256,9 +254,7 @@ public class ProxyLocationResolver
             File sha1TrashFile = new File(basedirTrash, path + ".sha1").getCanonicalFile();
             FileUtils.moveFile(sha1ChecksumFile, sha1TrashFile);
 
-            logger.debug(
-                    "Moved /" + repositoryId + "/" + path + ".sha1" + " to trash (" + sha1TrashFile.getAbsolutePath() +
-                    ").");
+            logger.debug("Moved /" + repositoryId + "/" + path + ".sha1" + " to trash (" + sha1TrashFile.getAbsolutePath() + ").");
         }
     }
 
@@ -301,7 +297,8 @@ public class ProxyLocationResolver
             File md5RestoredFile = new File(repository.getBasedir(), path + ".md5").getCanonicalFile();
             FileUtils.moveFile(md5ChecksumFile, md5RestoredFile);
 
-            logger.debug("Restored /" + repositoryId + "/" + path + ".md5" + " from trash (" + md5ChecksumFile.getAbsolutePath() + ").");
+            logger.debug("Restored /" + repositoryId + "/" + path + ".md5" + " from trash (" + 
+                         md5ChecksumFile.getAbsolutePath() + ").");
         }
 
         File sha1ChecksumFile = new File(artifactFile.getAbsolutePath() + ".sha1");
@@ -310,12 +307,14 @@ public class ProxyLocationResolver
             File sha1RestoredFile = new File(repository.getBasedir(), path + ".sha1").getCanonicalFile();
             FileUtils.moveFile(sha1ChecksumFile, sha1RestoredFile);
 
-            logger.debug("Restored /" + repositoryId + "/" + path + ".sha1" + " from trash (" + sha1ChecksumFile.getAbsolutePath() + ").");
+            logger.debug("Restored /" + repositoryId + "/" + path + ".sha1" + " from trash (" +
+                         sha1ChecksumFile.getAbsolutePath() + ").");
         }
     }
 
     @Override
-    public void deleteTrash(String storageId, String repositoryId)
+    public void deleteTrash(String storageId,
+                            String repositoryId)
             throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
@@ -362,7 +361,9 @@ public class ProxyLocationResolver
     }
 
     @Override
-    public void undelete(String storageId, String repositoryId, String path)
+    public void undelete(String storageId,
+                         String repositoryId,
+                         String path)
             throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
@@ -372,7 +373,8 @@ public class ProxyLocationResolver
         final File artifactFile = new File(repoPath, path).getCanonicalFile();
         final File artifactFileTrash = new File(repository.getTrashDir(), path);
 
-        logger.debug("Attempting to restore " + artifactFileTrash.getCanonicalPath() + " (from " + storage.getId() + ":" + repository.getId() + ")...");
+        logger.debug("Attempting to restore " + artifactFileTrash.getCanonicalPath() +
+                     " (from " + storage.getId() + ":" + repository.getId() + ")...");
 
         if (artifactFileTrash.exists())
         {
@@ -404,7 +406,8 @@ public class ProxyLocationResolver
                     FileUtils.moveDirectory(artifactFileTrash, artifactFile);
                     DirUtils.removeEmptyAncestors(artifactFileTrash.getAbsolutePath(), ".trash");
 
-                    logger.debug("Moved /" + repositoryId + "/" + path + " to trash (" + artifactFileTrash.getAbsolutePath() + ").");
+                    logger.debug("Moved /" + repositoryId + "/" + path + " to trash (" +
+                                 artifactFileTrash.getAbsolutePath() + ").");
                 }
                 else
                 {
@@ -417,7 +420,8 @@ public class ProxyLocationResolver
     }
 
     @Override
-    public void undeleteTrash(String storageId, String repositoryId)
+    public void undeleteTrash(String storageId,
+                              String repositoryId)
             throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);

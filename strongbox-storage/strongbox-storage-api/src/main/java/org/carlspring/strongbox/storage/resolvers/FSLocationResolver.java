@@ -9,6 +9,7 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.DirUtils;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -23,8 +24,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-
 /**
  * @author mtodorov
  */
@@ -36,7 +35,7 @@ public class FSLocationResolver
     private static final Logger logger = LoggerFactory.getLogger(FSLocationResolver.class);
 
     public static final String ALIAS = "file-system";
-
+    
     @Autowired
     private LocationResolverRegistry locationResolverRegistry;
 
@@ -81,7 +80,7 @@ public class FSLocationResolver
 
             ArtifactInputStream ais = new ArtifactInputStream(new FileInputStream(artifactFile));
             ais.setLength(artifactFile.length());
-            
+
             return ais;
         }
 
@@ -115,7 +114,9 @@ public class FSLocationResolver
     }
 
     @Override
-    public boolean contains(String storageId, String repositoryId, String path)
+    public boolean contains(String storageId,
+                            String repositoryId,
+                            String path)
             throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
@@ -204,9 +205,7 @@ public class FSLocationResolver
             File sha1TrashFile = new File(basedirTrash, path + ".sha1").getCanonicalFile();
             FileUtils.moveFile(sha1ChecksumFile, sha1TrashFile);
 
-            logger.debug(
-                    "Moved /" + repositoryId + "/" + path + ".sha1" + " to trash (" + sha1TrashFile.getAbsolutePath() +
-                    ").");
+            logger.debug("Moved /" + repositoryId + "/" + path + ".sha1" + " to trash (" + sha1TrashFile.getAbsolutePath() + ").");
         }
     }
 
@@ -258,12 +257,14 @@ public class FSLocationResolver
             File sha1RestoredFile = new File(repository.getBasedir(), path + ".sha1").getCanonicalFile();
             FileUtils.moveFile(sha1ChecksumFile, sha1RestoredFile);
 
-            logger.debug("Restored /" + repositoryId + "/" + path + ".sha1" + " from trash (" + sha1ChecksumFile.getAbsolutePath() + ").");
+            logger.debug("Restored /" + repositoryId + "/" + path + ".sha1" + " from trash (" +
+                         sha1ChecksumFile.getAbsolutePath() + ").");
         }
     }
 
     @Override
-    public void deleteTrash(String storageId, String repositoryId)
+    public void deleteTrash(String storageId,
+                            String repositoryId)
             throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
@@ -310,7 +311,9 @@ public class FSLocationResolver
     }
 
     @Override
-    public void undelete(String storageId, String repositoryId, String path)
+    public void undelete(String storageId,
+                         String repositoryId,
+                         String path)
             throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
@@ -320,7 +323,8 @@ public class FSLocationResolver
         final File artifactFile = new File(repoPath, path).getCanonicalFile();
         final File artifactFileTrash = new File(repository.getTrashDir(), path);
 
-        logger.debug("Attempting to restore " + artifactFileTrash.getCanonicalPath() + " (from " + storage.getId() + ":" + repository.getId() + ")...");
+        logger.debug("Attempting to restore " + artifactFileTrash.getCanonicalPath() +
+                     " (from " + storage.getId() + ":" + repository.getId() + ")...");
 
         if (artifactFileTrash.exists())
         {
@@ -352,7 +356,8 @@ public class FSLocationResolver
                     FileUtils.moveDirectory(artifactFileTrash, artifactFile);
                     DirUtils.removeEmptyAncestors(artifactFileTrash.getAbsolutePath(), ".trash");
 
-                    logger.debug("Moved /" + repositoryId + "/" + path + " to trash (" + artifactFileTrash.getAbsolutePath() + ").");
+                    logger.debug("Moved /" + repositoryId + "/" + path + " to trash (" +
+                                 artifactFileTrash.getAbsolutePath() + ").");
                 }
                 else
                 {
@@ -365,7 +370,8 @@ public class FSLocationResolver
     }
 
     @Override
-    public void undeleteTrash(String storageId, String repositoryId)
+    public void undeleteTrash(String storageId,
+                              String repositoryId)
             throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
