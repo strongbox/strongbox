@@ -4,7 +4,7 @@
          monitoring="autodetect"
          dynamicConfig="true" name="cacheManager">
 
-    <diskStore path="java.io.tmpdir"/>
+    <diskStore path="ehcache.disk.store.dir"/>
 
     <cache name="users"
            maxEntriesLocalHeap="1000"
@@ -20,17 +20,17 @@
            maxEntriesLocalHeap="1000"
            maxEntriesLocalDisk="10000"
            eternal="false"
-           diskSpoolBufferSizeMB="20"
+           diskSpoolBufferSizeMB="100"
            memoryStoreEvictionPolicy="LFU"
            transactionalMode="off">
         <persistence strategy="localTempSwap"/>
     </cache>
 
     <cache name="configuration"
-           maxEntriesLocalHeap="1000"
-           maxEntriesLocalDisk="10000"
+           maxEntriesLocalHeap="1"
+           maxEntriesLocalDisk="1"
            eternal="false"
-           diskSpoolBufferSizeMB="20"
+           diskSpoolBufferSizeMB="200"
            memoryStoreEvictionPolicy="LFU"
            transactionalMode="off">
         <persistence strategy="localTempSwap"/>

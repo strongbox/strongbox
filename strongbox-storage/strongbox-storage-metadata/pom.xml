@@ -147,6 +147,7 @@
                         <strongbox.home>${basedir}/target/strongbox</strongbox.home>
                         <strongbox.vault>${basedir}/target/strongbox-vault</strongbox.vault>
                         <strongbox.storage.booter.basedir>${basedir}/target/strongbox-vault/storages</strongbox.storage.booter.basedir>
+                        <ehcache.disk.store.dir>${project.build.directory}/strongbox/cache</ehcache.disk.store.dir>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
