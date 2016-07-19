@@ -110,6 +110,7 @@ public class StrongboxUserDetailService
         // add all privileges from etc/conf/security-authorization.xml for any role that defines there
         configuredRoles.forEach(role -> {
 
+            databaseTx.activateOnCurrentThread();
             final Role detached = databaseTx.detachAll(role, true);
             if (detached.getName().equalsIgnoreCase(roleName))
             {
