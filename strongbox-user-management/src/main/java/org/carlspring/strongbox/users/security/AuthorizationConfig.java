@@ -1,8 +1,10 @@
 package org.carlspring.strongbox.users.security;
 
+import org.carlspring.strongbox.data.domain.GenericEntity;
 import org.carlspring.strongbox.security.jaas.Privileges;
 import org.carlspring.strongbox.security.jaas.Roles;
 
+import javax.persistence.Embedded;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -20,12 +22,15 @@ import com.google.common.base.Objects;
 @XmlRootElement(name = "authorization-configuration")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class AuthorizationConfig
+        extends GenericEntity
 {
 
     @XmlElement
+    @Embedded
     private Roles roles;
 
     @XmlElement
+    @Embedded
     private Privileges privileges;
 
     public AuthorizationConfig()
