@@ -26,8 +26,7 @@ public class BasicRepositoryServiceImpl
 
 
     @Override
-    public boolean containsArtifact(Repository repository,
-                                    Artifact artifact)
+    public boolean containsArtifact(Repository repository, Artifact artifact)
     {
         if (!repository.getType().equals(RepositoryTypeEnum.GROUP.getType()))
         {
@@ -63,8 +62,7 @@ public class BasicRepositoryServiceImpl
     }
 
     @Override
-    public boolean containsPath(Repository repository,
-                                String path)
+    public boolean containsPath(Repository repository, String path)
     {
         if (!repository.getType().equals(RepositoryTypeEnum.GROUP.getType()))
         {
@@ -98,8 +96,7 @@ public class BasicRepositoryServiceImpl
     }
 
     @Override
-    public String getPathToArtifact(Repository repository,
-                                    Artifact artifact)
+    public String getPathToArtifact(Repository repository, Artifact artifact)
     {
         final String artifactPath = ArtifactUtils.convertArtifactToPath(artifact);
 

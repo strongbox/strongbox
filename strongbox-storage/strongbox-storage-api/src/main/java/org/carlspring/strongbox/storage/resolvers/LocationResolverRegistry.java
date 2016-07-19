@@ -1,11 +1,11 @@
 package org.carlspring.strongbox.storage.resolvers;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author carlspring
@@ -55,8 +55,7 @@ public class LocationResolverRegistry
         return resolvers.get(alias);
     }
 
-    public LocationResolver addResolver(String alias,
-                                        LocationResolver resolver)
+    public LocationResolver addResolver(String alias, LocationResolver resolver)
     {
         return resolvers.put(alias, resolver);
     }

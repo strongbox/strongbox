@@ -13,8 +13,7 @@ import org.springframework.stereotype.Component;
  * @author mtodorov
  */
 @Component("redeploymentValidator")
-public class RedeploymentValidator
-        implements VersionValidator
+public class RedeploymentValidator implements VersionValidator
 {
 
 
@@ -30,8 +29,7 @@ public class RedeploymentValidator
         if (repository.getPolicy().equals(RepositoryPolicyEnum.RELEASE.getPolicy()) &&
             (!repository.allowsRedeployment() && basicRepositoryService.containsArtifact(repository, artifact)))
         {
-            throw new VersionValidationException("The " + repository.getStorage().getId() + ":" +
-                                                 repository.toString() +
+            throw new VersionValidationException("The " + repository.getStorage().getId() + ":" + repository.toString() +
                                                  " repository does not allow artifact re-deployment! (" +
                                                  ArtifactUtils.convertArtifactToPath(artifact) + ")");
         }

@@ -5,8 +5,7 @@ import java.io.IOException;
 /**
  * @author mtodorov
  */
-public class ArtifactStorageException
-        extends IOException
+public class ArtifactStorageException extends IOException
 {
 
     public ArtifactStorageException()

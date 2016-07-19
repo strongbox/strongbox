@@ -9,17 +9,16 @@ import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.RuleSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * @author mtodorov
@@ -66,7 +65,7 @@ public class GroupLocationResolver
             throws IOException, NoSuchAlgorithmException, ArtifactTransportException
     {
         Storage storage = getConfiguration().getStorage(storageId);
-
+                
         logger.debug("Checking in " + storage.getId() + ":" + repositoryId + "...");
 
         Repository groupRepository = storage.getRepository(repositoryId);
@@ -83,8 +82,7 @@ public class GroupLocationResolver
         }
 
         // Check the routing rules for wildcard accept rules
-        final ArtifactInputStream isWildcardRepositoryAccept = getInputStreamFromWildcardRepositoryAcceptRules(artifactPath,
-                                                                                                               storage);
+        final ArtifactInputStream isWildcardRepositoryAccept = getInputStreamFromWildcardRepositoryAcceptRules(artifactPath, storage);
         if (isWildcardRepositoryAccept != null)
         {
             return isWildcardRepositoryAccept;
@@ -119,9 +117,7 @@ public class GroupLocationResolver
         return null;
     }
 
-    public boolean repositoryRejects(String repositoryId,
-                                     String artifactPath,
-                                     RuleSet denyRules)
+    public boolean repositoryRejects(String repositoryId, String artifactPath, RuleSet denyRules)
     {
         if (denyRules != null && !denyRules.getRoutingRules().isEmpty())
         {
@@ -137,8 +133,7 @@ public class GroupLocationResolver
         return false;
     }
 
-    private ArtifactInputStream getInputStreamFromWildcardRepositoryAcceptRules(String artifactPath,
-                                                                                Storage storage)
+    private ArtifactInputStream getInputStreamFromWildcardRepositoryAcceptRules(String artifactPath, Storage storage)
             throws IOException, NoSuchAlgorithmException, ArtifactTransportException
     {
         RuleSet globalAcceptRules = getRoutingRules().getWildcardAcceptedRules();
@@ -192,7 +187,9 @@ public class GroupLocationResolver
                         {
                             return resolveArtifact(sId, repository.getId(), artifactPath);
                         }
+
                     }
+
                 }
             }
         }
@@ -201,9 +198,9 @@ public class GroupLocationResolver
     }
 
     /**
-     * Returns the artifact associated to artifactPath if repository type isn't GROUP or
+     * Returns the artifact associated to artifactPath if repository type isn't GROUP or  
      * returns the product of calling GroupLocationResolver.getInputStream recursively otherwise
-     *
+     * 
      * @param storageId    The storage id
      * @param repositoryId The repository
      * @param artifactPath The path to the artifact
@@ -244,8 +241,7 @@ public class GroupLocationResolver
         return null;
     }
 
-    private ArtifactInputStream getInputStream(Repository repository,
-                                               String artifactPath)
+    private ArtifactInputStream getInputStream(Repository repository, String artifactPath)
             throws IOException,
                    NoSuchAlgorithmException,
                    ArtifactTransportException
@@ -273,9 +269,7 @@ public class GroupLocationResolver
     }
 
     @Override
-    public boolean contains(String storageId,
-                            String repositoryId,
-                            String path)
+    public boolean contains(String storageId, String repositoryId, String path)
             throws IOException
     {
         return false;
@@ -292,8 +286,7 @@ public class GroupLocationResolver
     }
 
     @Override
-    public void deleteTrash(String storageId,
-                            String repositoryId)
+    public void deleteTrash(String storageId, String repositoryId)
             throws IOException
     {
         throw new IOException("Group repositories cannot perform delete operations.");
@@ -307,9 +300,7 @@ public class GroupLocationResolver
     }
 
     @Override
-    public void undelete(String storageId,
-                         String repositoryId,
-                         String path)
+    public void undelete(String storageId, String repositoryId, String path)
             throws IOException
     {
         logger.debug("Failed to undelete '" + storageId + ":" + repositoryId + "/" + path + "'," +
@@ -317,8 +308,7 @@ public class GroupLocationResolver
     }
 
     @Override
-    public void undeleteTrash(String storageId,
-                              String repositoryId)
+    public void undeleteTrash(String storageId, String repositoryId)
             throws IOException
     {
         logger.debug("Failed to undelete trash for " + storageId + ":" + repositoryId + "," +

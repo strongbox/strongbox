@@ -3,8 +3,7 @@ package org.carlspring.strongbox.storage.validation.version;
 /**
  * @author mtodorov
  */
-public class VersionValidationException
-        extends Exception
+public class VersionValidationException extends Exception
 {
 
     public VersionValidationException()

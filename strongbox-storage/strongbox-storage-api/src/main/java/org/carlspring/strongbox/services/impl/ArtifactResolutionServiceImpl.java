@@ -11,15 +11,14 @@ import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
 import org.carlspring.strongbox.storage.resolvers.LocationResolver;
 import org.carlspring.strongbox.storage.resolvers.LocationResolverRegistry;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.security.NoSuchAlgorithmException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * @author mtodorov

@@ -62,14 +62,6 @@ public class RestClient
         return client;
     }
 
-    public static void displayResponseError(Response response)
-    {
-        logger.error("Status code " + response.getStatus());
-        logger.error("Status info " + response.getStatusInfo().getReasonPhrase());
-        logger.error("Response message " + response.readEntity(String.class));
-        logger.error(response.toString());
-    }
-
     public int setConfiguration(Configuration configuration)
             throws IOException, JAXBException
     {
@@ -304,6 +296,14 @@ public class RestClient
         return storage;
     }
 
+    public static void displayResponseError(Response response)
+    {
+        logger.error("Status code " + response.getStatus());
+        logger.error("Status info " + response.getStatusInfo().getReasonPhrase());
+        logger.error("Response message " + response.readEntity(String.class));
+        logger.error(response.toString());
+    }
+
     /**
      * Deletes a storage.
      *
@@ -531,20 +531,5 @@ public class RestClient
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
         return resource;
-    }
-
-    public WebTarget prepareTarget(String arg,
-                                   String username,
-                                   String password)
-    {
-        this.username = username;
-        this.password = password;
-        return prepareTarget(arg);
-    }
-
-    public void resetAuthentication()
-    {
-        this.username = "admin";
-        this.password = "password";
     }
 }

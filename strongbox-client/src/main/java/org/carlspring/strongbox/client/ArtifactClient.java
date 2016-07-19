@@ -3,7 +3,11 @@ package org.carlspring.strongbox.client;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 
 import javax.ws.rs.ServerErrorException;
-import javax.ws.rs.client.*;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.Closeable;
@@ -31,15 +35,22 @@ public class ArtifactClient
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactClient.class);
-    protected String username = "maven";
-    protected String password = "password";
+
     private String protocol = "http";
+
     private String host =
             System.getProperty("strongbox.host") != null ? System.getProperty("strongbox.host") : "localhost";
+
     private int port = System.getProperty("strongbox.port") != null ?
                        Integer.parseInt(System.getProperty("strongbox.port")) :
                        48080;
+
     private String contextBaseUrl;
+
+    private String username = "maven";
+
+    private String password = "password";
+
     private Client client;
 
     public ArtifactClient()

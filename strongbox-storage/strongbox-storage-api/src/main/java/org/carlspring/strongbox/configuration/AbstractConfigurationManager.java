@@ -1,16 +1,14 @@
 package org.carlspring.strongbox.configuration;
 
 import org.carlspring.strongbox.xml.parsers.GenericParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 
 import javax.annotation.PostConstruct;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.BeanCreationException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
 
 /**
  * @author mtodorov
@@ -19,16 +17,15 @@ public abstract class AbstractConfigurationManager<T>
 {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractConfigurationManager.class);
-    
-    protected ServerConfiguration configuration;
-    
-    @Autowired
-    protected ConfigurationRepository configurationRepository;
-    
+
     private String configurationPath;
-    
+
+    protected ServerConfiguration<T> configuration;
+
     private GenericParser<T> parser;
 
+    @Autowired
+    protected ConfigurationRepository configurationRepository;
 
     public AbstractConfigurationManager(Class... classes)
     {
@@ -36,43 +33,27 @@ public abstract class AbstractConfigurationManager<T>
     }
 
     @PostConstruct
-    public synchronized void init()
+    public void init()
             throws IOException, JAXBException
     {
         this.configuration = configurationRepository.getConfiguration();
         logger.info("Loading Strongbox configuration from orientdb ...");
-        if (configuration == null)
-        {
-            throw new BeanCreationException("Unable to load configuration from db");
-        }
+
     }
 
-    public synchronized void store()
+    public void store()
             throws IOException, JAXBException
     {
         store(configuration);
     }
 
-    public synchronized void store(ServerConfiguration configuration)
+    public void store(ServerConfiguration<T> configuration)
             throws IOException, JAXBException
     {
-        try
-        {
-            Configuration configurationCasted = (Configuration) configuration;
-            configurationRepository.updateConfiguration(configurationCasted);
-        }
-        catch (ClassCastException e)
-        {
-            logger.error(configuration.getClass().getName() + "is not supported", e);
-        }
-        catch (Exception e)
-        {
-            logger.error("Unable to store", e);
-        }
+        configurationRepository.updateConfiguration(configuration);
     }
 
-    public synchronized void store(ServerConfiguration configuration,
-                                   String file)
+    public void store(ServerConfiguration<T> configuration, String file)
             throws IOException, JAXBException
     {
         //noinspection unchecked
@@ -81,14 +62,16 @@ public abstract class AbstractConfigurationManager<T>
 
     /**
      * Override this in your implementation with a cast.
+     *
+     * @return
      */
-    public ServerConfiguration getConfiguration()
+    public ServerConfiguration<T> getConfiguration()
     {
         return configuration;
     }
 
 
-    public void setConfiguration(ServerConfiguration configuration)
+    public void setConfiguration(ServerConfiguration<T> configuration)
     {
         this.configuration = configuration;
     }

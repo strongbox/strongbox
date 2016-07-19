@@ -13,14 +13,12 @@ import org.springframework.stereotype.Component;
  * @author Alex Oreshkevich
  */
 @Component
-public class CustomMethodSecurityExpressionHandler
-        extends DefaultMethodSecurityExpressionHandler
+public class CustomMethodSecurityExpressionHandler extends DefaultMethodSecurityExpressionHandler
 {
 
     private static final Logger logger = LoggerFactory.getLogger(CustomMethodSecurityExpressionHandler.class);
 
-    public CustomMethodSecurityExpressionHandler()
-    {
+    public CustomMethodSecurityExpressionHandler(){
         setDefaultRolePrefix("");
     }
 

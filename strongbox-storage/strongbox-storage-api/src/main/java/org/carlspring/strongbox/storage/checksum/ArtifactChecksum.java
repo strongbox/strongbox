@@ -32,8 +32,7 @@ public class ArtifactChecksum
         updateLastAccessedTime();
     }
 
-    public synchronized void addChecksum(String algorithm,
-                                         String checksum)
+    public synchronized void addChecksum(String algorithm, String checksum)
     {
         checksums.put(algorithm, checksum);
         incrementNumberOfChecksums();

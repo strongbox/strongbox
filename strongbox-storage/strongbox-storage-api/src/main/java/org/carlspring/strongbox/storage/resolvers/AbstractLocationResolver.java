@@ -2,6 +2,7 @@ package org.carlspring.strongbox.storage.resolvers;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.Storage;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +12,7 @@ import org.springframework.stereotype.Component;
  * @author mtodorov
  */
 @Component
-public abstract class AbstractLocationResolver
-        implements LocationResolver
+public abstract class AbstractLocationResolver implements LocationResolver
 {
 
     @Autowired

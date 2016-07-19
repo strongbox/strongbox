@@ -2,10 +2,7 @@ package org.carlspring.strongbox.security.authentication;
 
 import javax.annotation.PostConstruct;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.core.AuthenticationException;
@@ -22,8 +19,6 @@ public class CustomAuthenticationProvider
         extends AbstractUserDetailsAuthenticationProvider
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(CustomAuthenticationProvider.class);
-
     @Autowired
     UserDetailsService userDetailsService;
 
@@ -31,8 +26,8 @@ public class CustomAuthenticationProvider
     PasswordEncoder passwordEncoder;
 
     @PostConstruct
-    public void init()
-    {
+    public void init(){
+
     }
 
     @Override
@@ -40,13 +35,7 @@ public class CustomAuthenticationProvider
                                                   UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken)
             throws AuthenticationException
     {
-        logger.debug("[security] Do additional authentication checks...");
 
-        String password = usernamePasswordAuthenticationToken.getCredentials().toString();
-        if (!userDetails.getPassword().equals(password))
-        {
-            throw new BadCredentialsException("Invalid password");
-        }
     }
 
     @Override

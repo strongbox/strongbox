@@ -2,6 +2,8 @@ package org.carlspring.strongbox.xml.parsers;
 
 import org.carlspring.strongbox.url.ClasspathURLStreamHandler;
 import org.carlspring.strongbox.url.ClasspathURLStreamHandlerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -13,16 +15,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.net.URL;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author mtodorov
@@ -105,15 +102,13 @@ public class GenericParser<T>
         return object;
     }
 
-    public void store(T object,
-                      String path)
+    public void store(T object, String path)
             throws JAXBException, IOException
     {
         store(object, new File(path).getAbsoluteFile());
     }
 
-    public void store(T object,
-                      File file)
+    public void store(T object, File file)
             throws JAXBException, IOException
     {
 
@@ -123,8 +118,7 @@ public class GenericParser<T>
         }
     }
 
-    public void store(T object,
-                      OutputStream os)
+    public void store(T object, OutputStream os)
             throws JAXBException
     {
         try
@@ -142,62 +136,6 @@ public class GenericParser<T>
         {
             lock.unlock();
         }
-    }
-
-    /**
-     * Serialize #object to String using JAXB marshaller.
-     *
-     * @param object the object to be serialized
-     * @return String representation of object
-     */
-    public String serialize(T object)
-            throws JAXBException
-    {
-        StringWriter writer = new StringWriter();
-        try
-        {
-            lock.lock();
-
-            JAXBContext context = getContext();
-
-            Marshaller marshaller = context.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, false);
-
-            marshaller.marshal(object, writer);
-            return writer.getBuffer().toString();
-        }
-        finally
-        {
-            lock.unlock();
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public T deserialize(String input)
-            throws JAXBException
-    {
-        try
-        {
-            lock.lock();
-
-            JAXBContext context = getContext();
-            Unmarshaller m = context.createUnmarshaller();
-            return (T) m.unmarshal(new StringReader(input));
-        }
-        catch (ClassCastException e)
-        {
-            throw new RuntimeException("Type mismatch", e);
-        }
-        finally
-        {
-            lock.unlock();
-        }
-    }
-
-    public void setContext(Class<?> classType)
-            throws JAXBException
-    {
-        context = JAXBContext.newInstance(classType);
     }
 
     public JAXBContext getContext()

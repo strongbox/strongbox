@@ -10,14 +10,26 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +43,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Path("/configuration/strongbox")
 @Api(value = "/configuration/strongbox")
+@PreAuthorize("hasAuthority('ROOT')")
 public class ConfigurationManagementRestlet
         extends BaseRestlet
 {
@@ -57,7 +70,6 @@ public class ConfigurationManagementRestlet
     @ApiOperation(value = "Upload a strongbox.xml and reload the server's configuration.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The configuration was updated successfully."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
-    @PreAuthorize("hasAuthority('CONFIGURATION_UPLOAD')")
     public Response setConfigurationXML(@ApiParam(value = "The strongbox.xml configuration file", required = true)
                                         Configuration configuration)
             throws IOException,
@@ -84,11 +96,10 @@ public class ConfigurationManagementRestlet
 
     @GET
     @Path("/xml")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @ApiOperation(value = "Retrieves the strongbox.xml configuration file.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 500, message = "An error occurred.") })
-    @PreAuthorize("hasAuthority('CONFIGURATION_VIEW')")
     public Response getConfigurationXML()
             throws IOException, ParseException
     {
@@ -103,7 +114,6 @@ public class ConfigurationManagementRestlet
     @ApiOperation(value = "Retrieves the strongbox.xml configuration file.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The base URL was updated."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
-    @PreAuthorize("hasAuthority('CONFIGURATION_SET_BASE_URL')")
     public Response setBaseUrl(@ApiParam(value = "The base URL", required = true)
                                @PathParam("baseUrl") String baseUrl)
             throws IOException,
@@ -134,7 +144,6 @@ public class ConfigurationManagementRestlet
     @ApiOperation(value = "Sets the base URL of the service.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "", response = String.class),
                             @ApiResponse(code = 404, message = "No value for baseUrl has been defined yet.") })
-    @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_BASE_URL')")
     public Response getBaseUrl()
             throws IOException,
                    AuthenticationException
@@ -155,7 +164,6 @@ public class ConfigurationManagementRestlet
     @ApiOperation(value = "Sets the port of the service.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The port was updated."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
-    @PreAuthorize("hasAuthority('CONFIGURATION_SET_PORT')")
     public Response setPort(@ApiParam(value = "The port of the service", required = true)
                             @PathParam("port") int port)
             throws IOException, JAXBException
@@ -183,7 +191,6 @@ public class ConfigurationManagementRestlet
     @Produces(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Returns the port of the service.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "", response = Integer.class) })
-    @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_PORT')")
     public int getPort()
             throws IOException,
                    AuthenticationException
@@ -197,7 +204,6 @@ public class ConfigurationManagementRestlet
     @ApiOperation(value = "Updates the proxy configuration for a repository, if one is specified, or, otherwise, the global proxy settings.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The proxy configuration was updated successfully."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
-    @PreAuthorize("hasAuthority('CONFIGURATION_SET_GLOBAL_PROXY_CFG')")
     public Response setProxyConfiguration(@ApiParam(value = "The storageId", required = true)
                                           @QueryParam("storageId") String storageId,
                                           @ApiParam(value = "The repositoryId", required = true)
@@ -226,7 +232,6 @@ public class ConfigurationManagementRestlet
     @ApiOperation(value = "Returns the proxy configuration for a repository, if one is specified, or, otherwise, the global proxy settings.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 404, message = "The proxy configuration for '${storageId}:${repositoryId}' was not found.") })
-    @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_GLOBAL_PROXY_CFG')")
     public Response getProxyConfiguration(@ApiParam(value = "The storageId", required = true)
                                           @QueryParam("storageId") String storageId,
                                           @ApiParam(value = "The repositoryId", required = true)
@@ -263,12 +268,11 @@ public class ConfigurationManagementRestlet
 
     @PUT
     @Path("/storages")
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Add/update a storage.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The storage was updated successfully."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
-    @PreAuthorize("hasAuthority('CONFIGURATION_ADD_UPDATE_STORAGE')")
     public Response addOrUpdateStorage(@ApiParam(value = "The storage object", required = true)
                                        Storage storage)
             throws IOException, JAXBException
@@ -296,11 +300,10 @@ public class ConfigurationManagementRestlet
 
     @GET
     @Path("/storages/{storageId}")
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Retrieve the configuration of a storage.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 404, message = "Storage ${storageId} was not found.") })
-    @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_STORAGE_CONFIGURATION')")
     public Response getStorage(@ApiParam(value = "The storageId", required = true)
                                @PathParam("storageId") final String storageId)
             throws IOException, ParseException
@@ -326,7 +329,6 @@ public class ConfigurationManagementRestlet
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The storage was removed successfully."),
                             @ApiResponse(code = 404, message = "Storage ${storageId} not found!"),
                             @ApiResponse(code = 500, message = "Failed to remove storage ${storageId}!") })
-    @PreAuthorize("hasAuthority('CONFIGURATION_DELETE_STORAGE_CONFIGURATION')")
     public Response removeStorage(@ApiParam(value = "The storageId", required = true)
                                   @PathParam("storageId") final String storageId,
                                   @ApiParam(value = "Whether to force delete and remove the storage from the file system", required = true)
@@ -376,7 +378,6 @@ public class ConfigurationManagementRestlet
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The repository was updated successfully."),
                             @ApiResponse(code = 404, message = "Repository ${repositoryId} not found!"),
                             @ApiResponse(code = 500, message = "Failed to remove repository ${repositoryId}!") })
-    @PreAuthorize("hasAuthority('CONFIGURATION_ADD_UPDATE_REPOSITORY')")
     public Response addOrUpdateRepository(@ApiParam(value = "The repositoryId", required = true)
                                           @PathParam("storageId") String storageId,
                                           @ApiParam(value = "The repositoryId", required = true)
@@ -409,11 +410,10 @@ public class ConfigurationManagementRestlet
 
     @GET
     @Path("/storages/{storageId}/{repositoryId}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Returns the configuration of a repository.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The repository was updated successfully.", response = Repository.class),
                             @ApiResponse(code = 404, message = "Repository ${storageId}:${repositoryId} was not found!") })
-    @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_REPOSITORY')")
     public Response getRepository(@ApiParam(value = "The storageId", required = true)
                                   @PathParam("storageId") final String storageId,
                                   @ApiParam(value = "The repositoryId", required = true)
@@ -441,8 +441,7 @@ public class ConfigurationManagementRestlet
     @ApiOperation(value = "Deletes a repository.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The repository was deleted successfully."),
                             @ApiResponse(code = 404, message = "Repository ${storageId}:${repositoryId} was not found!"),
-                            @ApiResponse(code = 500, message = "Failed to remove repository ${repositoryId}!") })
-    @PreAuthorize("hasAuthority('CONFIGURATION_DELETE_REPOSITORY')")
+                            @ApiResponse(code = 500, message = "Failed to remove repository ${repositoryId}!")})
     public Response removeRepository(@ApiParam(value = "The storageId", required = true)
                                      @PathParam("storageId") final String storageId,
                                      @ApiParam(value = "The repositoryId", required = true)

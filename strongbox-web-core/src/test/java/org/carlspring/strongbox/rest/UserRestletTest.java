@@ -20,7 +20,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author mtodorov
@@ -52,16 +55,6 @@ public class UserRestletTest
     public synchronized void testSayHello()
     {
         Response response = client.prepareTarget("/users/greet").request().get();
-        RestClient.displayResponseError(response);
-    }
-
-    @Test
-    public synchronized void testThatHaveExceptionForInvalidPassword()
-            throws Exception
-    {
-        Response response = client.prepareTarget("/users/greet", "admin", "some_password").request().get();
-        client.resetAuthentication();
-        assertEquals(401, response.getStatus());
         RestClient.displayResponseError(response);
     }
 

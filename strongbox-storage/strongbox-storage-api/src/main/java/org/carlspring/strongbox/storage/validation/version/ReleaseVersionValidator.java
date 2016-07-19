@@ -17,13 +17,12 @@ public class ReleaseVersionValidator
 
     /**
      * Matches versions:
-     * 1
-     * 1.0
-     * 1.0-SNAPSHOT
+     *  1
+     *  1.0
+     *  1.0-SNAPSHOT
      */
     @Override
-    public void validate(Repository repository,
-                         Artifact artifact)
+    public void validate(Repository repository, Artifact artifact)
             throws VersionValidationException
     {
         String version = artifact.getVersion();

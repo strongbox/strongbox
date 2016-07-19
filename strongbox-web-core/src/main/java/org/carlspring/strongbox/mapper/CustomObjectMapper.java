@@ -8,8 +8,7 @@ import org.springframework.stereotype.Component;
  * @author Alex Oreshkevich
  */
 @Component
-public class CustomObjectMapper
-        extends ObjectMapper
+public class CustomObjectMapper extends ObjectMapper
 {
 
     public CustomObjectMapper()

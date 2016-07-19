@@ -11,9 +11,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationEn
 /**
  * An entry point used when an unauthorized access is attempted
  */
-public class UnauthorizedEntryPoint
-        extends BasicAuthenticationEntryPoint
-{
+public class UnauthorizedEntryPoint extends BasicAuthenticationEntryPoint {
 
     @Override
     public void commence(HttpServletRequest request,

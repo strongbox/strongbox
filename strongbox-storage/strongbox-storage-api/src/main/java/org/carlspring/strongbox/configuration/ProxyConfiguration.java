@@ -1,12 +1,14 @@
 package org.carlspring.strongbox.configuration;
 
-import javax.persistence.Version;
-import javax.xml.bind.annotation.*;
-import java.io.Serializable;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
@@ -16,18 +18,7 @@ import com.google.common.base.Objects;
 @XmlRootElement(name = "proxy-configuration")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ProxyConfiguration
-        implements Serializable
 {
-
-    /**
-     * Added to avoid a runtime error whereby the detachAll property is checked for existence but not actually used.
-     */
-    @JsonIgnore
-    protected String detachAll;
-
-    @Version
-    @JsonIgnore
-    protected Long version;
 
     @XmlAttribute
     private String host;
@@ -152,25 +143,5 @@ public class ProxyConfiguration
                           .add("type", type)
                           .add("nonProxyHosts", nonProxyHosts)
                           .toString();
-    }
-
-    public String getDetachAll()
-    {
-        return detachAll;
-    }
-
-    public void setDetachAll(String detachAll)
-    {
-        this.detachAll = detachAll;
-    }
-
-    public Long getVersion()
-    {
-        return version;
-    }
-
-    public void setVersion(Long version)
-    {
-        this.version = version;
     }
 }

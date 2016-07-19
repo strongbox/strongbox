@@ -1,172 +1,144 @@
 package org.carlspring.strongbox.configuration;
 
-import org.carlspring.strongbox.services.ServerConfigurationService;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.HttpConnectionPool;
+import org.carlspring.strongbox.storage.repository.RemoteRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.routing.RoutingRule;
+import org.carlspring.strongbox.storage.routing.RoutingRules;
+import org.carlspring.strongbox.storage.routing.RuleSet;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Optional;
 
+import com.lambdista.util.Try;
+import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Component("configurationRepository")
-@Transactional
 public class ConfigurationRepository
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationRepository.class);
-    
-    @Autowired
-    ServerConfigurationService serverConfigurationService;
-    
-    @Autowired
-    ConfigurationCache configurationCache;
-    
-    @Autowired
-    private OObjectDatabaseTx databaseTx;
-    
-    private String currentDatabaseId;
 
+    @Autowired
+    OObjectDatabaseTx db;
 
     public ConfigurationRepository()
     {
     }
 
-    private synchronized OObjectDatabaseTx getDatabase()
+    private OObjectDatabaseTx getDatabase()
     {
-        databaseTx.activateOnCurrentThread();
-        return databaseTx;
+        db.activateOnCurrentThread();
+        return db;
     }
 
     @PostConstruct
     public synchronized void init()
     {
         logger.info("ConfigurationRepository.init()");
-        getDatabase().getEntityManager().registerEntityClass(BinaryConfiguration.class, true);
 
-        if (!schemaExists() || getConfiguration() == null)
+        OObjectDatabaseTx db = getDatabase();
+
+        db.getEntityManager().registerEntityClass(Configuration.class, true);
+        db.getEntityManager().registerEntityClass(RemoteRepository.class);
+        db.getEntityManager().registerEntityClass(HttpConnectionPool.class);
+        db.getEntityManager().registerEntityClass(Storage.class);
+        db.getEntityManager().registerEntityClass(ProxyConfiguration.class);
+        db.getEntityManager().registerEntityClass(RoutingRules.class);
+        db.getEntityManager().registerEntityClass(RuleSet.class);
+        db.getEntityManager().registerEntityClass(Repository.class);
+        db.getEntityManager().registerEntityClass(RoutingRule.class);
+
+        String propertyKey = "repository.config.xml";
+
+        if (!schemaExists())
         {
-            createSettings("repository.config.xml");
+            createSettings(propertyKey);
+        }
+        else
+        {
+            Configuration content = getConfiguration();
+
+            if (content == null)
+            {
+                createSettings(propertyKey);
+            }
         }
     }
 
     private synchronized boolean schemaExists()
     {
         OObjectDatabaseTx db = getDatabase();
-        return db != null && db.getMetadata().getSchema().existsClass(BinaryConfiguration.class.getSimpleName());
+        return db.getMetadata().getSchema().existsClass(Configuration.class.getSimpleName());
     }
 
     private synchronized void createSettings(String propertyKey)
     {
-        // skip configuration initialization if config is already in place
-        if (currentDatabaseId != null)
-        {
-            logger.debug("Skip config initialization: already in place.");
-            return;
-        }
-
-        logger.debug("Loading configuration from XML file...");
-
-        GenericParser<Configuration> parser = configurationCache.getParser();
+        GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
         String filename = System.getProperty(propertyKey);
-        Configuration configuration = null;
+        Configuration configuration;
 
         if (filename != null)
         {
             File file = new File(filename);
-            try
-            {
-                configuration = parser.parse(file);
-            }
-            catch (Exception e)
-            {
-                logger.error("Unable to parse configuration from file '" + file.getAbsolutePath() + "'!", e);
-            }
+            configuration = Try.apply(() -> parser.parse(file)).get();
         }
         else
         {
             InputStream is = getClass().getClassLoader().getResourceAsStream("etc/conf/strongbox.xml");
-            try
-            {
-                configuration = parser.parse(is);
-            }
-            catch (Exception e)
-            {
-                logger.error("Unable to parse configuration from input stream.", e);
-            }
+            configuration = Try.apply(() -> parser.parse(is)).get();
         }
 
-        // Create configuration in database and put it to cache.
         updateConfiguration(configuration);
     }
 
     public synchronized Configuration getConfiguration()
     {
-        Optional<Configuration> optionalConfig = configurationCache.getConfiguration(currentDatabaseId);
-        if (optionalConfig.isPresent())
+        try
         {
-            return optionalConfig.get();
+            OObjectDatabaseTx db = getDatabase();
+            List<Configuration> result = db.query(new OSQLSynchQuery<>("SELECT * FROM Configuration"));
+            if (result != null && !result.isEmpty())
+            {
+                Configuration configuration = result.get(result.size() - 1);
+                logger.debug("Loaded configuration " + configuration);
+
+                return db.detachAll(configuration, true);
+            }
+        }
+        catch (Exception e)
+        {
+            logger.error("Unable to get configuration.", e);
+            return null;
         }
 
         return null;
     }
 
-    @Transactional
-    public synchronized Optional<Configuration> updateConfiguration(Configuration configuration)
+    public synchronized <T> Optional<Configuration> updateConfiguration(ServerConfiguration<T> configuration)
     {
-        if (configuration == null)
-        {
-            throw new NullPointerException("The configuration is null.");
-        }
-
         try
         {
-            final String data = configurationCache.getParser().serialize(configuration);
-            final String configurationId = configuration.getId();
+            OObjectDatabaseTx db = getDatabase();
+            db.save(configuration);
 
-            // update existing configuration with new data (if possible)
-            if (configurationId != null)
-            {
-                serverConfigurationService.findOne(configurationId).ifPresent(
-                        binaryConfiguration -> doSave(binaryConfiguration, data));
-            }
-            else
-            {
-                doSave(new BinaryConfiguration(), data);
-            }
-
-            if (currentDatabaseId == null)
-            {
-                throw new NullPointerException("The currentDatabaseId is null.");
-            }
-
-            configuration.setId(currentDatabaseId);
-            configurationCache.save(configuration);
-
-            logger.debug("Configuration updated under ID " + currentDatabaseId);
+            return Optional.ofNullable(getConfiguration());
         }
         catch (Exception e)
         {
-            logger.error("Unable to save configuration\n\n" + configuration, e);
+            logger.error("Unable to update configuration.", e);
             return Optional.empty();
         }
-
-        return Optional.of(configuration);
     }
 
-    @Transactional
-    private synchronized void doSave(BinaryConfiguration binaryConfiguration,
-                                     String data)
-    {
-        binaryConfiguration.setData(data);
-        binaryConfiguration = serverConfigurationService.save(binaryConfiguration);
-        currentDatabaseId = binaryConfiguration.getId();
-    }
-    
 }

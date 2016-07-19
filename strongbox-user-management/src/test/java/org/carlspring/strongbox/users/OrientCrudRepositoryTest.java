@@ -48,7 +48,7 @@ public class OrientCrudRepositoryTest
         assertNotNull(savedUser);
 
         String id = savedUser.getId();
-        logger.debug("Saved user: " + savedUser);
+        System.out.println("\n\n" + savedUser + "\n\n");
 
         Optional<User> optional = userService.findOne(id);
         optional.ifPresent(storedUser -> {

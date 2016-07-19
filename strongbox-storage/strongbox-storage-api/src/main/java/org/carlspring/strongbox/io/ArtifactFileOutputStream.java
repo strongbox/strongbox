@@ -22,8 +22,7 @@ public class ArtifactFileOutputStream
         this(artifactFile, true);
     }
 
-    public ArtifactFileOutputStream(ArtifactFile artifactFile,
-                                    boolean moveOnClose)
+    public ArtifactFileOutputStream(ArtifactFile artifactFile, boolean moveOnClose)
             throws FileNotFoundException
     {
         super(artifactFile.isTemporaryMode() ? artifactFile.getTemporaryFile() : artifactFile);

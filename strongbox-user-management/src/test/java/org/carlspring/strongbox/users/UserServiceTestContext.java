@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @ContextConfiguration(classes = { DataServiceConfig.class,
-                                  UsersConfig.class })
+                                  UsersConfig.class})
 @Transactional
 @Rollback // change to false if you wanna inspect database content manually
 public @interface UserServiceTestContext

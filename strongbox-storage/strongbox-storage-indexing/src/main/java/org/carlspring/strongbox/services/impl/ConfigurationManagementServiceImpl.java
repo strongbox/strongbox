@@ -25,8 +25,7 @@ import org.springframework.stereotype.Component;
  * @author mtodorov
  */
 @Component
-public class ConfigurationManagementServiceImpl
-        implements ConfigurationManagementService
+public class ConfigurationManagementServiceImpl implements ConfigurationManagementService
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationManagementServiceImpl.class);
@@ -36,6 +35,7 @@ public class ConfigurationManagementServiceImpl
 
     @Autowired
     private ConfigurationResourceResolver configurationResourceResolver;
+
 
     @Override
     public void setConfiguration(Configuration configuration)
@@ -96,9 +96,10 @@ public class ConfigurationManagementServiceImpl
         Configuration configuration = configurationManager.getConfiguration();
         if (storageId != null && repositoryId != null)
         {
-            configuration.getStorage(storageId)
-                         .getRepository(repositoryId)
-                         .setProxyConfiguration(proxyConfiguration);
+            configuration
+                                .getStorage(storageId)
+                                .getRepository(repositoryId)
+                                .setProxyConfiguration(proxyConfiguration);
         }
         else
         {
@@ -144,8 +145,7 @@ public class ConfigurationManagementServiceImpl
     }
 
     @Override
-    public synchronized void addOrUpdateRepository(String storageId,
-                                                   Repository repository)
+    public void addOrUpdateRepository(String storageId, Repository repository)
             throws IOException, JAXBException
     {
         Configuration configuration = configurationManager.getConfiguration();
@@ -170,8 +170,7 @@ public class ConfigurationManagementServiceImpl
         for (Storage storage : configurationManager.getConfiguration().getStorages().values())
         {
             groupRepositories.addAll(storage.getRepositories().values().stream()
-                                            .filter(repository -> repository.getType()
-                                                                            .equals(RepositoryTypeEnum.GROUP.getType()))
+                                            .filter(repository -> repository.getType().equals(RepositoryTypeEnum.GROUP.getType()))
                                             .collect(Collectors.toList()));
         }
 
@@ -209,10 +208,11 @@ public class ConfigurationManagementServiceImpl
             for (Repository repository : includedInGroupRepositories)
             {
                 configuration.getStorage(repository.getStorage().getId())
-                             .getRepository(repository.getId())
-                             .getGroupRepositories().remove(repositoryId);
+                        .getRepository(repository.getId())
+                        .getGroupRepositories().remove(repositoryId);
 
                 configurationManager.setConfiguration(configuration);
+
             }
 
             configurationManager.store();
@@ -220,8 +220,7 @@ public class ConfigurationManagementServiceImpl
     }
 
     @Override
-    public void removeRepository(String storageId,
-                                 String repositoryId)
+    public void removeRepository(String storageId, String repositoryId)
             throws IOException, JAXBException
     {
         Configuration configuration = configurationManager.getConfiguration();
@@ -233,13 +232,10 @@ public class ConfigurationManagementServiceImpl
     }
 
     @Override
-    public void setProxyRepositoryMaxConnections(String storageId,
-                                                 String repositoryId,
-                                                 int numberOfConnections)
-            throws IOException, JAXBException
+    public void setProxyRepositoryMaxConnections(String storageId, String repositoryId, int numberOfConnections) throws IOException, JAXBException
     {
         Repository repository = getRepository(storageId, repositoryId);
-        if (repository.getHttpConnectionPool() == null)
+        if(repository.getHttpConnectionPool() == null)
         {
             repository.setHttpConnectionPool(new HttpConnectionPool());
         }
@@ -249,8 +245,7 @@ public class ConfigurationManagementServiceImpl
     }
 
     @Override
-    public HttpConnectionPool getHttpConnectionPoolConfiguration(String storageId,
-                                                                 String repositoryId)
+    public HttpConnectionPool getHttpConnectionPoolConfiguration(String storageId, String repositoryId)
             throws IOException, JAXBException
     {
         Repository repository = getRepository(storageId, repositoryId);
