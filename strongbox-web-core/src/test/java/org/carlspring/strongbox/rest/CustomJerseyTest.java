@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.rest;
 
+import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.carlspring.strongbox.config.WebConfig;
 
 import javax.ws.rs.ProcessingException;
@@ -25,9 +26,13 @@ import org.glassfish.jersey.test.TestProperties;
 import org.glassfish.jersey.test.spi.TestContainer;
 import org.glassfish.jersey.test.spi.TestContainerException;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
+import org.junit.After;
+import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.web.context.WebApplicationContext;
 
 // import org.glassfish.jersey.test.grizzly.GrizzlyTestContainerFactory;
 
@@ -39,6 +44,20 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 public abstract class CustomJerseyTest
         extends JerseyTest
 {
+
+    @Autowired
+    protected WebApplicationContext context;
+
+    @Before
+    public void init() {
+        RestAssuredMockMvc.webAppContextSetup(context);
+    }
+
+    @After
+    public void shutdown() {
+        RestAssuredMockMvc.reset();
+    }
+
     // make sure that credentials match to the one that used in user configuration
     // (default) /strongbox-user-management/src/main/resources/etc/conf/security-users.xml
     public final static String ADMIN_CREDENTIALS = "Basic " + new String(Base64.encode("admin:password".getBytes()));

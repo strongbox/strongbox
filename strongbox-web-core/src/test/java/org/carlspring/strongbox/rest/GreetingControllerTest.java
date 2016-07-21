@@ -30,5 +30,6 @@ public class GreetingControllerTest extends BackendBaseTest {
                 .statusCode(200)
                 .body("id", equalTo(1))
                 .body("content", equalTo("Hello, Johan!"));
+
     }
 }

@@ -24,5 +24,3 @@ public class GreetingController {
         return new Greeting(counter.incrementAndGet(), String.format(template, name));
     }
 }
-//@RequestParam(value="name", required=false, defaultValue="World")
-//counter.incrementAndGet()
