@@ -37,10 +37,13 @@ public class AuthorizationConfigRestletTest
     private static final Logger logger = LoggerFactory.getLogger(AuthorizationConfigRestletTest.class);
 
     private static RestClient client = new RestClient();
+
     @Autowired
     AuthorizationConfigProvider configProvider;
+
     @Autowired
     OObjectDatabaseTx databaseTx;
+
     @Autowired
     private ObjectMapper objectMapper;
 
