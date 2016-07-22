@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.users.security;
 
 import org.carlspring.strongbox.data.domain.GenericEntity;
-import org.carlspring.strongbox.security.jaas.Privileges;
 import org.carlspring.strongbox.security.jaas.Roles;
 
 import javax.persistence.Embedded;
@@ -29,10 +28,6 @@ public class AuthorizationConfig
     @Embedded
     private Roles roles;
 
-    @XmlElement
-    @Embedded
-    private Privileges privileges;
-
     public AuthorizationConfig()
     {
     }
@@ -47,30 +42,19 @@ public class AuthorizationConfig
         this.roles = roles;
     }
 
-    public Privileges getPrivileges()
-    {
-        return privileges;
-    }
-
-    public void setPrivileges(Privileges privileges)
-    {
-        this.privileges = privileges;
-    }
-
     @Override
     public boolean equals(Object o)
     {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AuthorizationConfig that = (AuthorizationConfig) o;
-        return Objects.equal(roles, that.roles) &&
-               Objects.equal(privileges, that.privileges);
+        return Objects.equal(roles, that.roles);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hashCode(roles, privileges);
+        return Objects.hashCode(roles);
     }
 
     @Override
@@ -78,7 +62,6 @@ public class AuthorizationConfig
     {
         final StringBuilder sb = new StringBuilder("AuthorizationConfig{");
         sb.append("roles=").append(roles);
-        sb.append(", privileges=").append(privileges);
         sb.append('}');
         return sb.toString();
     }

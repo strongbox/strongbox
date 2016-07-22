@@ -52,11 +52,11 @@ public class StrongboxUserDetailService
         configuredRoles = new HashSet<>();
 
         authorizationConfigProvider.getConfig().ifPresent(
-                config -> {
-
-                    config.getPrivileges().getPrivileges().forEach(
-                            privilege -> fullAuthorities.add(
-                                    new SimpleGrantedAuthority(privilege.getName().toUpperCase())));
+                config ->
+                {
+                    config.getRoles().getRoles().forEach(
+                            role -> role.getPrivileges().forEach(privilegeName -> fullAuthorities.add(
+                                    new SimpleGrantedAuthority(privilegeName.toUpperCase()))));
 
                     configuredRoles.addAll(config.getRoles().getRoles());
                 }
@@ -108,16 +108,18 @@ public class StrongboxUserDetailService
         }
 
         // add all privileges from etc/conf/security-authorization.xml for any role that defines there
-        configuredRoles.forEach(role -> {
+        configuredRoles.forEach(role ->
+                                {
 
-            databaseTx.activateOnCurrentThread();
-            final Role detached = databaseTx.detachAll(role, true);
-            if (detached.getName().equalsIgnoreCase(roleName))
-            {
-                detached.getPrivileges().forEach(
-                        privilegeName -> authorities.add(new SimpleGrantedAuthority(privilegeName.toUpperCase())));
-            }
-        });
+                                    databaseTx.activateOnCurrentThread();
+                                    final Role detached = databaseTx.detachAll(role, true);
+                                    if (detached.getName().equalsIgnoreCase(roleName))
+                                    {
+                                        detached.getPrivileges().forEach(
+                                                privilegeName -> authorities.add(
+                                                        new SimpleGrantedAuthority(privilegeName.toUpperCase())));
+                                    }
+                                });
 
         try
         {

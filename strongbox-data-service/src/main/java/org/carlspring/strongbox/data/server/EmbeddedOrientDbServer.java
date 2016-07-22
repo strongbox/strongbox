@@ -137,7 +137,7 @@ public class EmbeddedOrientDbServer
             }
             catch (Exception e)
             {
-                logger.warn("Unable to close database pool correctly.", e);
+                logger.warn("Unable to close database pool correctly:", e.getMessage());
             }
         }
     }
