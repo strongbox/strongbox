@@ -78,7 +78,11 @@ public class AuthorizationConfigRestletTest
             throws Exception
     {
         Response response = client.prepareTarget("/configuration/authorization/xml").request().get();
-        assertEquals(HttpStatus.SC_OK, response.getStatus());
-        logger.debug("\n" + response.readEntity(String.class));
+        if (response.getStatus() != HttpStatus.SC_OK)
+        {
+            RestClient.displayResponseError(response);
+            logger.error("\n" + response.readEntity(String.class));
+            throw new Exception(response.getStatusInfo().getReasonPhrase());
+        }
     }
 }

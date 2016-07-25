@@ -113,8 +113,6 @@ public class AuthorizationConfigRestlet
                                  Role role = read(json, Role.class);
                                  boolean result = config.getRoles().getRoles().add(role);
 
-                                 System.out.println("\n\nAuthorizationConfigRestlet-> " + result + " role -> " + role);
-
                                  if (result)
                                  {
                                      logger.debug("Successfully added new role " + role.getName());
@@ -138,6 +136,7 @@ public class AuthorizationConfigRestlet
                             @ApiResponse(code = 500, message = "An error occurred.") })
     public synchronized Response getAuthorizationConfig()
     {
+        logger.debug("Trying to receive authorization config as XML file...");
         return processConfig(null, config -> Response.ok(config).build());
     }
 
