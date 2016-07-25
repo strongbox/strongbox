@@ -4,11 +4,14 @@ import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.rest.context.RestletTestContext;
 import org.carlspring.strongbox.security.jaas.Role;
 import org.carlspring.strongbox.users.domain.Privileges;
+import org.carlspring.strongbox.users.security.AuthorizationConfig;
 import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
+import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.xml.bind.JAXBException;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -37,13 +40,11 @@ public class AuthorizationConfigRestletTest
     private static final Logger logger = LoggerFactory.getLogger(AuthorizationConfigRestletTest.class);
 
     private static RestClient client = new RestClient();
-
+    private final GenericParser<AuthorizationConfig> configGenericParser = new GenericParser<>(AuthorizationConfig.class);
     @Autowired
     AuthorizationConfigProvider configProvider;
-
     @Autowired
     OObjectDatabaseTx databaseTx;
-
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -74,6 +75,23 @@ public class AuthorizationConfigRestletTest
     }
 
     @Test
+    public void testThatConfigCouldBeSerialized()
+            throws Exception
+    {
+        configProvider.getConfig().ifPresent(authorizationConfig ->
+                                             {
+                                                 try
+                                                 {
+                                                     logger.debug(configGenericParser.serialize(authorizationConfig));
+                                                 }
+                                                 catch (JAXBException e)
+                                                 {
+                                                     logger.error(e.getMessage(), e);
+                                                 }
+                                             });
+    }
+
+    @Test
     public synchronized void testThatConfigXMLCouldBeDownloaded()
             throws Exception
     {
@@ -81,8 +99,8 @@ public class AuthorizationConfigRestletTest
         if (response.getStatus() != HttpStatus.SC_OK)
         {
             RestClient.displayResponseError(response);
-            logger.error("\n" + response.readEntity(String.class));
             throw new Exception(response.getStatusInfo().getReasonPhrase());
         }
+        logger.debug("\n" + response.readEntity(String.class));
     }
 }
