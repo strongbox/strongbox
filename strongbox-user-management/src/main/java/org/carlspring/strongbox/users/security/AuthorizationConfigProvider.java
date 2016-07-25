@@ -2,14 +2,13 @@ package org.carlspring.strongbox.users.security;
 
 import org.carlspring.strongbox.configuration.ConfigurationException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.security.jaas.Privilege;
 import org.carlspring.strongbox.security.jaas.Role;
-import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.domain.Roles;
 import org.carlspring.strongbox.users.service.AuthorizationConfigService;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.annotation.PostConstruct;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -26,7 +25,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Responsible for load, validate and save to the persistent storage {@link AuthorizationConfig} from configuration sources.
+ * Responsible for load, validate and save to the persistent storage {@link AuthorizationConfig} from configuration
+ * sources.
  *
  * @author Alex Oreshkevich
  * @see {@linkplain https://dev.carlspring.org/youtrack/issue/SB-126}
@@ -48,25 +48,40 @@ public class AuthorizationConfigProvider
     @Autowired
     private OObjectDatabaseTx databaseTx;
 
-    private AuthorizationConfig config;
+    private volatile AuthorizationConfig config;
+
+    private static void throwIfNotEmpty(Sets.SetView<String> intersectionView,
+                                        String message)
+    {
+        if (!intersectionView.isEmpty())
+        {
+            throw new ConfigurationException(message + intersectionView);
+        }
+    }
+
+    private static Set<String> collect(@NotNull Iterable<?> it,
+                                       @NotNull NameFunction nameFunction)
+    {
+        Set<String> names = new HashSet<>();
+        for (Object o : it)
+        {
+            names.add(nameFunction.name(o));
+        }
+        return names;
+    }
 
     @PostConstruct
     public void init()
             throws Exception
     {
         // update schema in any case
-        databaseTx.activateOnCurrentThread();
-        databaseTx.getEntityManager().registerEntityClass(AuthorizationConfig.class);
-        databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Roles.class);
-        databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Role.class);
-        databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Privileges.class);
-        databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Privilege.class);
+        registerEntities();
 
         // check database for any configuration source, if something is already in place
         // reuse it and skip reading configuration from XML
         if (configService.count() > 0)
         {
-            logger.debug("Load existing authorization config from database...");
+            logger.debug("Reuse existing authorization config from database...");
             config = configService.findAll().get().get(0);
         }
         else
@@ -75,6 +90,9 @@ public class AuthorizationConfigProvider
             parser = new GenericParser<>(AuthorizationConfig.class);
             config = parser.parse(getConfigurationResource().getURL());
 
+            // when Configuration retrieved from XML file validation process appears
+            // if we found in XML file privilege or role that already defined as build-in
+            // (based on role/privilege name) we will throw runtime exception
             validateConfig(config);
 
             // save AuthorizationConfig to the db
@@ -82,67 +100,54 @@ public class AuthorizationConfigProvider
         }
     }
 
-    private void validateConfig(AuthorizationConfig config)
+    private synchronized void registerEntities()
+    {
+        databaseTx.activateOnCurrentThread();
+
+        // full class names used for clarity and to avoid conflicts with domain package
+        // that contains the same class names
+        databaseTx.getEntityManager().registerEntityClass(AuthorizationConfig.class);
+        databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Roles.class);
+        databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Role.class);
+        databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Privileges.class);
+        databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Privilege.class);
+    }
+
+    private void validateConfig(@NotNull AuthorizationConfig config)
             throws ConfigurationException
     {
-
-        // check that embedded privileges was not overridden
-        Sets.SetView<String> privilegesIntersection = toIntersection(config.getPrivileges().getPrivileges(),
-                                                                     Privileges.all(),
-                                                                     o -> ((Privilege) o).getName().toUpperCase(),
-                                                                     o -> ((Privileges) o).name().toUpperCase());
-        if (!privilegesIntersection.isEmpty())
-        {
-            throw new ConfigurationException("Embedded privileges overriding is forbidden: " + privilegesIntersection);
-        }
-
         // check that embedded roles was not overridden
-        Sets.SetView<String> rolesIntersection = toIntersection(config.getRoles().getRoles(),
-                                                                Arrays.asList(Roles.values()),
-                                                                o -> ((Role) o).getName().toUpperCase(),
-                                                                o -> ((Roles) o).name().toUpperCase());
-        if (!rolesIntersection.isEmpty())
-        {
-            throw new ConfigurationException("Embedded roles overriding is forbidden: " + rolesIntersection);
-        }
+        throwIfNotEmpty(toIntersection(config.getRoles().getRoles(),
+                                       Arrays.asList(Roles.values()),
+                                       o -> ((Role) o).getName().toUpperCase(),
+                                       o -> ((Roles) o).name().toUpperCase()),
+                        "Embedded roles overriding is forbidden: ");
     }
 
     /**
      * Calculates intersection of two sets that was created from two iterable sources with help of
      * two name functions respectively.
      */
-    private Sets.SetView<String> toIntersection(Iterable<?> first,
-                                                Iterable<?> second,
-                                                NameFunction firstNameFunction,
-                                                NameFunction secondNameFunction)
+    private Sets.SetView<String> toIntersection(@NotNull Iterable<?> first,
+                                                @NotNull Iterable<?> second,
+                                                @NotNull NameFunction firstNameFunction,
+                                                @NotNull NameFunction secondNameFunction)
     {
-        Set<String> firstNames = new HashSet<>();
-        Set<String> secondNames = new HashSet<>();
-
-        for (Object o : first)
-        {
-            firstNames.add(firstNameFunction.name(o));
-        }
-
-        for (Object o : second)
-        {
-            secondNames.add(secondNameFunction.name(o));
-        }
-
-        return Sets.intersection(firstNames, secondNames);
+        return Sets.intersection(collect(first, firstNameFunction), collect(second, secondNameFunction));
     }
 
     public Optional<AuthorizationConfig> getConfig()
     {
+        logger.debug("Get config -> " + config);
         return Optional.ofNullable(config);
     }
 
     @Transactional
-    public synchronized void updateConfig(AuthorizationConfig config)
+    public void updateConfig(AuthorizationConfig config)
     {
         validateConfig(config);
-        this.config = config;
-        configService.save(config);
+        this.config = configService.save(config);
+        logger.debug("Update config -> " + this.config);
     }
 
     private Resource getConfigurationResource()
@@ -152,6 +157,7 @@ public class AuthorizationConfigProvider
                                                                       "etc/conf/security-authorization.xml");
     }
 
+    // used to receive String representation of any object to execute future comparisons based on that
     private interface NameFunction
     {
 
