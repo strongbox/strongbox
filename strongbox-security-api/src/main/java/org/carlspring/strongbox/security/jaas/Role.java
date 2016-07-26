@@ -2,11 +2,7 @@ package org.carlspring.strongbox.security.jaas;
 
 import org.carlspring.strongbox.data.domain.GenericEntity;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -142,8 +138,8 @@ public class Role
         sb.append(", repository='").append(repository).append('\'');
         sb.append(", privileges=").append(privileges);
         sb.append('}');
-        
+
         return sb.toString();
     }
-    
+
 }

@@ -54,13 +54,28 @@ public class StrongboxUserDetailService
         authorizationConfigProvider.getConfig().ifPresent(
                 config ->
                 {
-                    config.getRoles().getRoles().forEach(
-                            role -> role.getPrivileges().forEach(privilegeName -> fullAuthorities.add(
-                                    new SimpleGrantedAuthority(privilegeName.toUpperCase()))));
+                    databaseTx.activateOnCurrentThread();
+                    try
+                    {
+                        config.getRoles().getRoles().forEach(
+                                role ->
+                                {
+                                    Role detached = databaseTx.detachAll(role, true);
+                                    detached.getPrivileges().forEach(privilegeName -> fullAuthorities.add(
+                                            new SimpleGrantedAuthority(privilegeName.toUpperCase())));
 
-                    configuredRoles.addAll(config.getRoles().getRoles());
+                                });
+
+                        configuredRoles.addAll(config.getRoles().getRoles());
+                    }
+                    catch (Exception e)
+                    {
+                        logger.error("Unable to process authorization config", e);
+                    }
                 }
         );
+        authorizationConfigProvider.getConfig().orElseThrow(
+                () -> new RuntimeException("Unable to get authorization config"));
     }
 
     @Override
