@@ -16,6 +16,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
+import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,9 +83,18 @@ public class AuthorizationConfigProvider
         if (configService.count() > 0)
         {
             logger.debug("Reuse existing authorization config from database...");
-            config = configService.findAll().get().get(0);
+            try
+            {
+                config = databaseTx.detachAll(configService.findAll().get().get(0), true);
+            }
+            catch (OSerializationException e)
+            {
+                config = null;
+                logger.error("Unable to reuse existing authorization config", e);
+            }
         }
-        else
+
+        if (config == null)
         {
             logger.debug("Load authorization config from XLM file...");
             parser = new GenericParser<>(AuthorizationConfig.class);
@@ -109,8 +119,6 @@ public class AuthorizationConfigProvider
         databaseTx.getEntityManager().registerEntityClass(AuthorizationConfig.class);
         databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Roles.class);
         databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Role.class);
-        databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Privileges.class);
-        databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Privilege.class);
     }
 
     private void validateConfig(@NotNull AuthorizationConfig config)
