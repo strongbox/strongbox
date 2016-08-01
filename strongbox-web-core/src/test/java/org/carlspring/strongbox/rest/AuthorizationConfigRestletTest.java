@@ -41,10 +41,13 @@ public class AuthorizationConfigRestletTest
 
     private static RestClient client = new RestClient();
     private final GenericParser<AuthorizationConfig> configGenericParser = new GenericParser<>(AuthorizationConfig.class);
+
     @Autowired
     AuthorizationConfigProvider configProvider;
+
     @Autowired
     OObjectDatabaseTx databaseTx;
+
     @Autowired
     private ObjectMapper objectMapper;
 

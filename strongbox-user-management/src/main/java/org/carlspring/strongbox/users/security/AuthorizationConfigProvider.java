@@ -73,20 +73,30 @@ public class AuthorizationConfigProvider
     }
 
     @PostConstruct
-    public void init()
+    public synchronized void init()
             throws Exception
     {
         // update schema in any case
         registerEntities();
+        databaseTx.activateOnCurrentThread();
 
         // check database for any configuration source, if something is already in place
         // reuse it and skip reading configuration from XML
-        if (configService.count() > 0)
+        long configCount = configService.count();
+        if (configCount > 0)
         {
             logger.debug("Reuse existing authorization config from database...");
             try
             {
-                config = databaseTx.detachAll(configService.findAll().get().get(0), true);
+                // get first of the available configs into work
+                configService.findAll().ifPresent(
+                        authorizationConfigs -> config = databaseTx.detachAll(authorizationConfigs.get(0), true));
+
+                // process the case when for some reason we have more than one config
+                if (configCount > 1)
+                {
+                    logger.warn("Taking first of the total of " + configCount + " authorization configs...");
+                }
             }
             catch (OSerializationException e)
             {
@@ -108,7 +118,7 @@ public class AuthorizationConfigProvider
             validateConfig(config);
 
             // save AuthorizationConfig to the db
-            configService.save(config);
+            config = databaseTx.detachAll(configService.save(config), true);
         }
     }
 
