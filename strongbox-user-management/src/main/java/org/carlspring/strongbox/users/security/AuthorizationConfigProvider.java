@@ -20,6 +20,7 @@ import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -91,6 +92,7 @@ public class AuthorizationConfigProvider
             {
                 config = null;
                 logger.error("Unable to reuse existing authorization config", e);
+                throw new BeanInitializationException("Unable to reuse existing authorization config", e);
             }
         }
 
