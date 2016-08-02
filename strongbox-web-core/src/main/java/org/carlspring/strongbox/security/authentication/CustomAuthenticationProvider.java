@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.security.authentication;
 
-import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,17 +28,12 @@ public class CustomAuthenticationProvider
     @Autowired
     PasswordEncoder passwordEncoder;
 
-    @PostConstruct
-    public void init()
-    {
-    }
-
     @Override
     protected void additionalAuthenticationChecks(UserDetails userDetails,
                                                   UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken)
             throws AuthenticationException
     {
-        logger.debug("[security] Do additional authentication checks...");
+        logger.debug("Execute password check for " + userDetails.getUsername());
 
         String password = usernamePasswordAuthenticationToken.getCredentials().toString();
         if (!userDetails.getPassword().equals(password))

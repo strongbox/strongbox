@@ -83,6 +83,8 @@ public class StrongboxUserDetailService
     public synchronized UserDetails loadUserByUsername(String name)
             throws UsernameNotFoundException
     {
+        logger.debug("Loading user details for " + name + " ...");
+
         if (name == null)
         {
             throw new IllegalArgumentException("Username cannot be null.");
