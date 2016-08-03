@@ -3,19 +3,14 @@ package org.carlspring.strongbox.storage.resolvers;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
-import org.carlspring.strongbox.providers.storage.StorageProvider;
-import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.RuleSet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -23,7 +18,11 @@ import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-import static org.carlspring.strongbox.providers.storage.StorageProviderRegistry.getStorageProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
 /**
  * @author mtodorov
@@ -39,10 +38,7 @@ public class GroupLocationResolver
     public static final String ALIAS = "group";
 
     @Autowired
-    private RepositoryProviderRegistry repositoryProviderRegistry;
-
-    @Autowired
-    private StorageProviderRegistry storageProviderRegistry;
+    private LayoutProviderRegistry layoutProviderRegistry;
 
     @Autowired
     private LocationResolverRegistry locationResolverRegistry;
@@ -166,8 +162,8 @@ public class GroupLocationResolver
                         rId = getConfigurationManager().getRepositoryId(rId);
 
                         Repository repository = getConfiguration().getStorage(sId).getRepository(rId);
-                        StorageProvider storageProvider = getStorageProvider(repository, storageProviderRegistry);
-                        if (repository.isInService() && storageProvider.containsPath(repository, artifactPath))
+                        LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
+                        if (repository.isInService() && layoutProvider.containsPath(repository, artifactPath))
                         {
                             return resolveArtifact(sId, repository.getId(), artifactPath);
                         }
@@ -199,7 +195,7 @@ public class GroupLocationResolver
                         rId = getConfigurationManager().getRepositoryId(rId);
 
                         Repository repository = getConfiguration().getStorage(sId).getRepository(rId);
-                        StorageProvider storageProvider = getStorageProvider(repository, storageProviderRegistry);
+                        LayoutProvider storageProvider = getLayoutProvider(repository, layoutProviderRegistry);
 
                         if (repository.isInService() && storageProvider.containsPath(repository, artifactPath))
                         {

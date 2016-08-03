@@ -2,10 +2,9 @@ package org.carlspring.strongbox.providers.layout;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.resolvers.LocationResolver;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * @author mtodorov
@@ -15,6 +14,9 @@ public abstract class AbstractLayoutProvider implements LayoutProvider
 
     @Autowired
     private LayoutProviderRegistry layoutProviderRegistry;
+
+    @Autowired
+    private StorageProviderRegistry storageProviderRegistry;
 
     @Autowired
     private ConfigurationManager configurationManager;
@@ -28,6 +30,16 @@ public abstract class AbstractLayoutProvider implements LayoutProvider
     public void setLayoutProviderRegistry(LayoutProviderRegistry layoutProviderRegistry)
     {
         this.layoutProviderRegistry = layoutProviderRegistry;
+    }
+
+    public StorageProviderRegistry getStorageProviderRegistry()
+    {
+        return storageProviderRegistry;
+    }
+
+    public void setStorageProviderRegistry(StorageProviderRegistry storageProviderRegistry)
+    {
+        this.storageProviderRegistry = storageProviderRegistry;
     }
 
     public ConfigurationManager getConfigurationManager()

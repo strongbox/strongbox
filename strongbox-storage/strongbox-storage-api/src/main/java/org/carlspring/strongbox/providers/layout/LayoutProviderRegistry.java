@@ -1,12 +1,22 @@
 package org.carlspring.strongbox.providers.layout;
 
+import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.AbstractMappedProviderRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.annotation.PostConstruct;
+import java.io.File;
+import java.io.IOException;
 import java.util.Map;
+
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * @author carlspring
@@ -17,9 +27,58 @@ public class LayoutProviderRegistry extends AbstractMappedProviderRegistry<Layou
 
     private static final Logger logger = LoggerFactory.getLogger(LayoutProviderRegistry.class);
 
+    @Autowired
+    private ConfigurationManager configurationManager;
+
 
     public LayoutProviderRegistry()
     {
+    }
+    
+    public void deleteTrash()
+            throws IOException
+    {
+        for (Map.Entry entry : getConfiguration().getStorages().entrySet())
+        {
+            Storage storage = (Storage) entry.getValue();
+
+            final Map<String, Repository> repositories = storage.getRepositories();
+            for (Repository repository : repositories.values())
+            {
+                if (repository.allowsDeletion())
+                {
+                    logger.debug("Emptying trash for repository " + repository.getId() + "...");
+
+                    final File basedirTrash = repository.getTrashDir();
+
+                    FileUtils.deleteDirectory(basedirTrash);
+
+                    //noinspection ResultOfMethodCallIgnored
+                    basedirTrash.mkdirs();
+                }
+                else
+                {
+                    logger.warn("Repository " + repository.getId() + " does not support removal of trash.");
+                }
+            }
+        }
+    }
+
+    public void undeleteTrash()
+            throws IOException,
+                   ProviderImplementationException
+    {
+        for (Map.Entry entry : getConfiguration().getStorages().entrySet())
+        {
+            Storage storage = (Storage) entry.getValue();
+
+            final Map<String, Repository> repositories = storage.getRepositories();
+            for (Repository repository : repositories.values())
+            {
+                LayoutProvider layoutProvider = getLayoutProvider(repository, this);
+                layoutProvider.undeleteTrash(storage.getId(), repository.getId());
+            }
+        }
     }
 
     @Override
@@ -57,6 +116,33 @@ public class LayoutProviderRegistry extends AbstractMappedProviderRegistry<Layou
     public void removeProvider(String alias)
     {
         super.removeProvider(alias);
+    }
+
+    public static LayoutProvider getLayoutProvider(Repository repository,
+                                                   LayoutProviderRegistry layoutProviderRegistry)
+            throws ProviderImplementationException
+    {
+        return layoutProviderRegistry.getProvider(repository.getLayout());
+    }
+
+    public ConfigurationManager getConfigurationManager()
+    {
+        return configurationManager;
+    }
+
+    public void setConfigurationManager(ConfigurationManager configurationManager)
+    {
+        this.configurationManager = configurationManager;
+    }
+
+    public Configuration getConfiguration()
+    {
+        return configurationManager.getConfiguration();
+    }
+
+    public Storage getStorage(String storageId)
+    {
+        return configurationManager.getConfiguration().getStorage(storageId);
     }
 
 }

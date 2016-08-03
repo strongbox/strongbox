@@ -4,16 +4,19 @@ import org.apache.maven.artifact.Artifact;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
-import org.carlspring.strongbox.providers.storage.StorageProvider;
-import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import static org.carlspring.strongbox.providers.storage.StorageProviderRegistry.getStorageProvider;
+import java.io.IOException;
+
+import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
 /**
  * @author mtodorov
@@ -29,7 +32,7 @@ public class ArtifactOperationsValidator
     private RepositoryProviderRegistry repositoryProviderRegistry;
 
     @Autowired
-    private StorageProviderRegistry storageProviderRegistry;
+    private LayoutProviderRegistry layoutProviderRegistry;
 
 
     public ArtifactOperationsValidator()
@@ -91,12 +94,12 @@ public class ArtifactOperationsValidator
     }
 
     public void checkAllowsRedeployment(Repository repository, Artifact artifact)
-            throws ArtifactStorageException,
+            throws IOException,
                    ProviderImplementationException
     {
-        StorageProvider storageProvider = getStorageProvider(repository, storageProviderRegistry);
+        LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
 
-        if (storageProvider.containsArtifact(repository, artifact) && !repository.allowsDeployment())
+        if (layoutProvider.containsArtifact(repository, artifact) && !repository.allowsDeployment())
         {
             throw new ArtifactStorageException("Re-deployment of artifacts to " + repository.getType() + " repository is not allowed!");
         }

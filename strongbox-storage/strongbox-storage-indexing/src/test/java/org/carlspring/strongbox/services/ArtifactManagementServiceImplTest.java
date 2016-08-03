@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.services;
 
-import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
@@ -8,21 +7,19 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 
+import org.apache.maven.artifact.Artifact;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.*;
 
 /**
@@ -32,7 +29,6 @@ import static org.junit.Assert.*;
 public class ArtifactManagementServiceImplTest
         extends TestCaseWithArtifactGenerationWithIndexing
 {
-    private static final Logger logger = LoggerFactory.getLogger(ArtifactManagementServiceImplTest.class);
 
     private static final File STORAGE_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0");
 
@@ -181,9 +177,6 @@ public class ArtifactManagementServiceImplTest
         }
     }
 
-    // TODO: Ignoring temporarily while refactoring.
-    // TODO: This must be restored, as soon as the refactoring is ready.
-    @Ignore
     @Test
     public void testDeploymentRedeploymentAndDeletionAgainstGroupRepository()
             throws NoSuchAlgorithmException,
@@ -282,7 +275,6 @@ public class ArtifactManagementServiceImplTest
         }
     }
 
-    @Ignore
     @Test
     public void testArtifactResolutionFromGroup()
             throws IOException,

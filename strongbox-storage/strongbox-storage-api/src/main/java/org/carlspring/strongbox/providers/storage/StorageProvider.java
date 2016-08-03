@@ -1,13 +1,16 @@
 package org.carlspring.strongbox.providers.storage;
 
-import org.apache.maven.artifact.Artifact;
-import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.commons.http.range.ByteRange;
+import org.carlspring.commons.io.reloading.ReloadableInputStreamHandler;
 import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.storage.repository.Repository;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
+
+import org.apache.maven.artifact.Artifact;
 
 /**
  * @author carlspring
@@ -17,62 +20,29 @@ public interface StorageProvider
 
     String getAlias();
 
-    String getImplementation();
-
     void register();
 
-    ArtifactInputStream getInputStream(String storageId,
-                                       String repositoryId,
-                                       String path)
+    ArtifactInputStream getInputStreamImplementation(ReloadableInputStreamHandler handler,
+                                                     List<ByteRange> byteRanges)
             throws IOException,
-                   NoSuchAlgorithmException,
-                   ArtifactTransportException;
+                   NoSuchAlgorithmException;
 
-    OutputStream getOutputStream(String storageId,
-                                 String repositoryId,
-                                 String path)
+    ArtifactInputStream getInputStreamImplementation(ReloadableInputStreamHandler handler,
+                                                     ByteRange byteRange)
+            throws IOException,
+                   NoSuchAlgorithmException;
+
+    ArtifactInputStream getInputStreamImplementation(InputStream is)
+            throws NoSuchAlgorithmException;
+
+    ArtifactInputStream getInputStreamImplementation(InputStream is,
+                                                     String[] algorithms)
+            throws NoSuchAlgorithmException;
+
+    ArtifactInputStream getInputStreamImplementation(Artifact artifact, InputStream is)
+            throws NoSuchAlgorithmException;
+
+    File getFileImplementation(String implementation, String path)
             throws IOException;
-
-    void copy(String srcStorageId,
-              String srcRepositoryId,
-              String destStorageId,
-              String destRepositoryId,
-              String path)
-            throws IOException;
-
-    void move(String srcStorageId,
-              String srcRepositoryId,
-              String destStorageId,
-              String destRepositoryId,
-              String path)
-            throws IOException;
-
-    void delete(String storageId,
-                String repositoryId,
-                String path,
-                boolean force)
-            throws IOException;
-
-    void deleteTrash(String storageId, String repositoryId)
-            throws IOException;
-
-    void undelete(String storageId,
-                  String repositoryId,
-                  String path)
-            throws IOException;
-
-    void undeleteTrash(String storageId, String repositoryId)
-            throws IOException;
-
-    void deleteMetadata(String storageId,
-                        String repositoryId,
-                        String metadataPath)
-            throws IOException;
-
-    boolean containsArtifact(Repository repository, Artifact artifact);
-
-    boolean containsPath(Repository repository, String path);
-
-    String getPathToArtifact(Repository repository, Artifact artifact);
 
 }

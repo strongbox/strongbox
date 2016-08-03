@@ -127,6 +127,20 @@ public class ConfigurationManager extends AbstractConfigurationManager<Configura
         }
     }
 
+    public Repository getRepository(String storageAndRepositoryId)
+    {
+        String[] elements = storageAndRepositoryId.split(":");
+        String storageId = elements[0];
+        String repositoryId = elements[1];
+
+        return getConfiguration().getStorage(storageId).getRepository(repositoryId);
+    }
+
+    public Repository getRepository(String storageId, String repositoryId)
+    {
+        return getConfiguration().getStorage(storageId).getRepository(repositoryId);
+    }
+
     public String getStorageId(Storage storage, String storageAndRepositoryId)
     {
         String[] storageAndRepositoryIdTokens = storageAndRepositoryId.split(":");

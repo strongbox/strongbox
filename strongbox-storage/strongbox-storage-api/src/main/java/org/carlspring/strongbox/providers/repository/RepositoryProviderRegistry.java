@@ -1,10 +1,8 @@
 package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.strongbox.providers.AbstractMappedProviderRegistry;
-import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -18,9 +16,6 @@ public class RepositoryProviderRegistry extends AbstractMappedProviderRegistry<R
 {
 
     private static final Logger logger = LoggerFactory.getLogger(RepositoryProviderRegistry.class);
-
-    @Autowired
-    private StorageProviderRegistry storageProviderRegistry;
 
 
     public RepositoryProviderRegistry()

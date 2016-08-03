@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.services.impl;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.maven.artifact.Artifact;
 import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
@@ -9,9 +7,8 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
-import org.carlspring.strongbox.providers.storage.StorageProvider;
-import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
@@ -21,23 +18,26 @@ import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.resolvers.*;
+import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
+import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
 import org.carlspring.strongbox.storage.validation.version.VersionValidationException;
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
 import org.carlspring.strongbox.util.ArtifactFileUtils;
 import org.carlspring.strongbox.util.MessageDigestUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Set;
 
-import static org.carlspring.strongbox.providers.storage.StorageProviderRegistry.getStorageProvider;
+import org.apache.commons.io.FileUtils;
+import org.apache.maven.artifact.Artifact;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
 /**
  * @author mtodorov
@@ -68,10 +68,7 @@ public class ArtifactManagementServiceImpl
     private ArtifactOperationsValidator artifactOperationsValidator;
 
     @Autowired
-    private RepositoryProviderRegistry repositoryProviderRegistry;
-
-    @Autowired
-    private StorageProviderRegistry storageProviderRegistry;
+    private LayoutProviderRegistry layoutProviderRegistry;
 
 
     @Override
@@ -242,8 +239,8 @@ public class ArtifactManagementServiceImpl
 
         try
         {
-            StorageProvider storageProvider = getStorageProvider(repository, storageProviderRegistry);
-            storageProvider.delete(storageId, repositoryId, artifactPath, force);
+            LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
+            layoutProvider.delete(storageId, repositoryId, artifactPath, force);
 
             final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storageId + ":" + repositoryId);
             if (indexer != null)
@@ -390,8 +387,8 @@ public class ArtifactManagementServiceImpl
 
             artifactOperationsValidator.checkAllowsDeletion(repository);
 
-            StorageProvider storageProvider = getStorageProvider(repository, storageProviderRegistry);
-            storageProvider.deleteTrash(storageId, repositoryId);
+            LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
+            layoutProvider.deleteTrash(storageId, repositoryId);
         }
         catch (IOException | ProviderImplementationException e)
         {
@@ -406,7 +403,7 @@ public class ArtifactManagementServiceImpl
     {
         try
         {
-            storageProviderRegistry.deleteTrash();
+            layoutProviderRegistry.deleteTrash();
         }
         catch (IOException e)
         {
@@ -427,9 +424,8 @@ public class ArtifactManagementServiceImpl
 
         try
         {
-            StorageProvider storageProvider = getStorageProvider(repository, storageProviderRegistry);
-
-            storageProvider.undelete(storageId, repositoryId, artifactPath);
+            LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
+            layoutProvider.undelete(storageId, repositoryId, artifactPath);
 
             /*
             // TODO: This will need further fixing:
@@ -464,9 +460,8 @@ public class ArtifactManagementServiceImpl
 
             if (repository.isTrashEnabled())
             {
-                StorageProvider storageProvider = getStorageProvider(repository, storageProviderRegistry);
-
-                storageProvider.undeleteTrash(storageId, repositoryId);
+                LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
+                layoutProvider.undeleteTrash(storageId, repositoryId);
             }
         }
         catch (IOException e)
@@ -482,7 +477,7 @@ public class ArtifactManagementServiceImpl
     {
         try
         {
-            storageProviderRegistry.undeleteTrash();
+            layoutProviderRegistry.undeleteTrash();
         }
         catch (IOException e)
         {
