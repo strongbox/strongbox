@@ -1,0 +1,14 @@
+{
+  "rule-set": {
+    "group-repository": "group-releases-2",
+    "rule": [
+      {
+        "pattern": ".*some.test",
+        "repository": [
+          "releases-with-trash",
+          "releases-with-redeployment"
+        ]
+      }
+    ]
+  }
+}

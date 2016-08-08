@@ -1,0 +1,10 @@
+{
+          "rule":
+            {
+              "pattern": ".*some.test",
+              "repository": [
+                "releases22", "releases32"
+              ]
+            }
+
+    }
