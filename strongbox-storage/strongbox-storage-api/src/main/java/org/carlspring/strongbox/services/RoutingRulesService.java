@@ -17,11 +17,14 @@ public interface RoutingRulesService
     boolean removeAcceptedRuleSet(String groupRepository);
 
     boolean addAcceptedRepository(String groupRepository,
-                               RoutingRule routingRule);
+                                  RoutingRule routingRule);
 
-    boolean removeAcceptedRepository(String groupRepository, String pattern, String repositoryId);
+    boolean removeAcceptedRepository(String groupRepository,
+                                     String pattern,
+                                     String repositoryId);
 
-    boolean overrideAcceptedRepositories(String groupRepository, RoutingRule routingRule);
+    boolean overrideAcceptedRepositories(String groupRepository,
+                                         RoutingRule routingRule);
 
     RoutingRules getRoutingRules();
 }

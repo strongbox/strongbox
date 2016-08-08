@@ -30,7 +30,8 @@ public class RoutingRulesServiceImpl
     public boolean addAcceptedRuleSet(RuleSet ruleSet)
     {
         final Configuration configuration = getConfiguration();
-        if (configuration.getRoutingRules() == null) {
+        if (configuration.getRoutingRules() == null)
+        {
             configuration.setRoutingRules(new RoutingRules());
         }
         configuration.getRoutingRules().addAcceptRule(ruleSet.getGroupRepository(), ruleSet);
@@ -107,7 +108,7 @@ public class RoutingRulesServiceImpl
         boolean overridden = false;
         if (configuration.getRoutingRules().getAccepted().containsKey(groupRepository))
         {
-            for (RoutingRule rl :  configuration.getRoutingRules().getAccepted().get(groupRepository).getRoutingRules())
+            for (RoutingRule rl : configuration.getRoutingRules().getAccepted().get(groupRepository).getRoutingRules())
             {
                 if (routingRule.getPattern().equals(rl.getPattern()))
                 {
