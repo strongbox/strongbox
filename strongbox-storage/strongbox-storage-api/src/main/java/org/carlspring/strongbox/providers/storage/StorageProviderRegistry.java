@@ -51,16 +51,16 @@ public class StorageProviderRegistry extends AbstractMappedProviderRegistry<Stor
     }
 
     @Override
-    public StorageProvider getProvider(String alias)
+    public StorageProvider getProvider(String implementation)
     {
-        return super.getProvider(alias);
+        return super.getProvider(implementation);
     }
 
     @Override
-    public StorageProvider addProvider(String alias,
+    public StorageProvider addProvider(String implementation,
                                        StorageProvider provider)
     {
-        return super.addProvider(alias, provider);
+        return super.addProvider(implementation, provider);
     }
 
     @Override

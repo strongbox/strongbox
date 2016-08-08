@@ -4,9 +4,8 @@ import org.carlspring.commons.http.range.ByteRange;
 import org.carlspring.commons.io.reloading.ReloadableInputStreamHandler;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import javax.annotation.PostConstruct;
+import java.io.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
@@ -14,10 +13,12 @@ import org.apache.maven.artifact.Artifact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * @author carlspring
  */
+@Component("filesystemStorageProvider")
 public class FileSystemStorageProvider extends AbstractStorageProvider
 {
 
@@ -35,6 +36,8 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
         return ALIAS;
     }
 
+
+    @PostConstruct
     @Override
     public void register()
     {
@@ -68,6 +71,20 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
     }
 
     @Override
+    public ArtifactInputStream getInputStreamImplementation(String path)
+            throws NoSuchAlgorithmException, FileNotFoundException
+    {
+        return new ArtifactInputStream(new FileInputStream(path));
+    }
+
+    @Override
+    public ArtifactInputStream getInputStreamImplementation(File file)
+            throws NoSuchAlgorithmException, FileNotFoundException
+    {
+        return new ArtifactInputStream(new FileInputStream(file));
+    }
+
+    @Override
     public ArtifactInputStream getInputStreamImplementation(InputStream is,
                                                             String[] algorithms)
             throws NoSuchAlgorithmException
@@ -87,10 +104,18 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
     }
 
     @Override
-    public File getFileImplementation(String implementation, String path)
+    public File getFileImplementation(String path)
             throws IOException
     {
         return new File(path);
+    }
+
+    @Override
+    public File getFileImplementation(String parentPath,
+                                      String path)
+            throws IOException
+    {
+        return new File(parentPath, path);
     }
 
 }

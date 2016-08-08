@@ -5,6 +5,7 @@ import org.carlspring.commons.io.reloading.ReloadableInputStreamHandler;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
@@ -35,6 +36,12 @@ public interface StorageProvider
     ArtifactInputStream getInputStreamImplementation(InputStream is)
             throws NoSuchAlgorithmException;
 
+    ArtifactInputStream getInputStreamImplementation(String path)
+            throws NoSuchAlgorithmException, FileNotFoundException;
+
+    ArtifactInputStream getInputStreamImplementation(File file)
+            throws NoSuchAlgorithmException, FileNotFoundException;
+
     ArtifactInputStream getInputStreamImplementation(InputStream is,
                                                      String[] algorithms)
             throws NoSuchAlgorithmException;
@@ -42,7 +49,10 @@ public interface StorageProvider
     ArtifactInputStream getInputStreamImplementation(Artifact artifact, InputStream is)
             throws NoSuchAlgorithmException;
 
-    File getFileImplementation(String implementation, String path)
+    File getFileImplementation(String path)
+            throws IOException;
+
+    File getFileImplementation(String parentPath, String path)
             throws IOException;
 
 }
