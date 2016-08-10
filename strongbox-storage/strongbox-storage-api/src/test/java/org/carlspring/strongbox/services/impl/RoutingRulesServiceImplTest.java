@@ -28,7 +28,7 @@ public class RoutingRulesServiceImplTest
 
     private static final String RULE_PATTERN = "*.org.test";
     private static final String REPOSITORY_ID = "repo-id";
-    public static final String GROUP_REPOSITORY = "dasdas";
+    public static final String GROUP_REPOSITORY = "group-repository-id";
     public static final String REPOSITORY_ID_2 = "repo";
 
     @org.springframework.context.annotation.Configuration
