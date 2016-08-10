@@ -1,11 +1,8 @@
 package org.carlspring.strongbox.services.impl;
 
 import org.carlspring.strongbox.CommonConfig;
-import org.carlspring.strongbox.StorageApiConfig;
 import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.configuration.ConfigurationRepository;
-import org.carlspring.strongbox.services.ConfigurationService;
 import org.carlspring.strongbox.services.RoutingRulesService;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RuleSet;
@@ -13,7 +10,6 @@ import org.carlspring.strongbox.storage.routing.RuleSet;
 import java.util.Collections;
 import java.util.HashSet;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +61,6 @@ public class RoutingRulesServiceImplTest
         assertTrue(addedRuleSet.getRoutingRules().get(0).getRepositories().contains(REPOSITORY_ID));
         assertEquals(1, addedRuleSet.getRoutingRules().get(0).getRepositories().size());
         assertEquals(RULE_PATTERN, addedRuleSet.getRoutingRules().get(0).getPattern());
-
     }
 
     @Test
@@ -80,7 +75,6 @@ public class RoutingRulesServiceImplTest
         final RuleSet addedRuleSet = configuration.getRoutingRules().getAccepted().get(GROUP_REPOSITORY);
         assertTrue(removed);
         assertNull(addedRuleSet);
-
     }
 
     @Test
@@ -108,7 +102,6 @@ public class RoutingRulesServiceImplTest
                                                                              REPOSITORY_ID);
 
         final Configuration configuration = configurationRepository.getConfiguration();
-
         configuration.getRoutingRules().getAccepted().get(GROUP_REPOSITORY).getRoutingRules().forEach(
                 routingRule -> {
                     if (routingRule.getPattern().equals(RULE_PATTERN))
@@ -141,7 +134,6 @@ public class RoutingRulesServiceImplTest
         );
 
         assertTrue(overridden);
-
     }
 
     private RoutingRule getRoutingRule()
@@ -161,6 +153,7 @@ public class RoutingRulesServiceImplTest
         routingRule.setPattern(RULE_PATTERN);
         routingRule.setRepositories(new HashSet<>(Collections.singletonList(REPOSITORY_ID)));
         ruleSet.setRoutingRules(Collections.singletonList(routingRule));
+
         return ruleSet;
     }
 }

@@ -1,9 +1,0 @@
-{
-  "rule": {
-    "pattern": ".*some.test",
-    "repository": [
-      "releases2",
-      "releases3"
-    ]
-  }
-}

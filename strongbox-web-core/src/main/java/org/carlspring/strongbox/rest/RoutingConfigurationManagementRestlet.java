@@ -73,7 +73,6 @@ public class RoutingConfigurationManagementRestlet
                                              @PathParam("repositoryId") String repositoryId,
                                              @QueryParam("pattern") String pattern)
     {
-
         return getResponse(routingRulesService.removeAcceptedRepository(groupRepository, pattern, repositoryId));
     }
 

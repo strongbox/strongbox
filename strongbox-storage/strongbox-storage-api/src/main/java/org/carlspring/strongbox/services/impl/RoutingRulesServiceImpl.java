@@ -36,6 +36,7 @@ public class RoutingRulesServiceImpl
         }
         configuration.getRoutingRules().addAcceptRule(ruleSet.getGroupRepository(), ruleSet);
         updateConfiguration(configuration);
+
         return true;
     }
 
@@ -51,6 +52,7 @@ public class RoutingRulesServiceImpl
             accepted.remove(groupRepository);
         }
         updateConfiguration(configuration);
+
         return result;
     }
 
@@ -73,8 +75,8 @@ public class RoutingRulesServiceImpl
             }
         }
         updateConfiguration(configuration);
-        return added;
 
+        return added;
     }
 
     @Override
@@ -97,6 +99,7 @@ public class RoutingRulesServiceImpl
             }
         }
         updateConfiguration(configuration);
+
         return removed;
     }
 
@@ -108,16 +111,17 @@ public class RoutingRulesServiceImpl
         boolean overridden = false;
         if (configuration.getRoutingRules().getAccepted().containsKey(groupRepository))
         {
-            for (RoutingRule rl : configuration.getRoutingRules().getAccepted().get(groupRepository).getRoutingRules())
+            for (RoutingRule rule : configuration.getRoutingRules().getAccepted().get(groupRepository).getRoutingRules())
             {
-                if (routingRule.getPattern().equals(rl.getPattern()))
+                if (routingRule.getPattern().equals(rule.getPattern()))
                 {
                     overridden = true;
-                    rl.setRepositories(routingRule.getRepositories());
+                    rule.setRepositories(routingRule.getRepositories());
                 }
             }
         }
         updateConfiguration(configuration);
+
         return overridden;
     }
 
