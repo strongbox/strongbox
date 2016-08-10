@@ -154,7 +154,8 @@ public class TrashRestlet
         {
             artifactManagementService.undelete(storageId, repositoryId, path);
 
-            logger.debug("Undeleted trash for path " + path + " under repository " + storageId + ":" + repositoryId + ".");
+            logger.debug(
+                    "Undeleted trash for path " + path + " under repository " + storageId + ":" + repositoryId + ".");
         }
         catch (ArtifactStorageException e)
         {
@@ -164,7 +165,7 @@ public class TrashRestlet
         }
 
         return Response.ok()
-                       .entity("The trash for '" + storageId + ":" + repositoryId +"' was restored successfully.")
+                       .entity("The trash for '" + storageId + ":" + repositoryId + "' was restored successfully.")
                        .build();
     }
 
@@ -211,12 +212,14 @@ public class TrashRestlet
             }
 
             return Response.ok()
-                           .entity("The trash for '" + storageId + ":" + repositoryId +"' was been restored successfully.")
+                           .entity("The trash for '" + storageId + ":" + repositoryId +
+                                   "' was been restored successfully.")
                            .build();
         }
         else
         {
-            return Response.status(Response.Status.NOT_FOUND).entity("Storage or repository could not be found!").build();
+            return Response.status(Response.Status.NOT_FOUND).entity(
+                    "Storage or repository could not be found!").build();
         }
     }
 

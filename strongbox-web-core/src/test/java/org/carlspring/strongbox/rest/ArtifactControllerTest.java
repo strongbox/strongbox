@@ -1,27 +1,24 @@
 package org.carlspring.strongbox.rest;
 
-import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
-import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.generator.ArtifactDeployer;
+import org.carlspring.strongbox.client.ArtifactClient;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.client.RestClient;
+import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.storage.repository.RemoteRepository;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
-import org.carlspring.strongbox.util.MessageDigestUtils;
+import org.carlspring.strongbox.storage.Storage;
 
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
+import com.jayway.restassured.response.ResponseBody;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.model.Plugin;
@@ -31,27 +28,39 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 import static org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration.createSnapshotVersion;
 import static org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration.generateArtifact;
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
- * @author mtodorov
+ * Created by yury on 8/3/16.
  */
-@Ignore  //*
-public class ArtifactRestletTest
-        extends CustomJerseyTest
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = WebConfig.class)
+@WebAppConfiguration
+@Ignore
+public class ArtifactControllerTest
+        extends BackendBaseTest
 {
 
     private static final String TEST_RESOURCES = "target/test-resources";
 
-    private static final File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/local");
+    private static final File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                           "/local");
 
     private static final File REPOSITORY_BASEDIR_RELEASES = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                                      "/storages/storage0/releases");
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactClient.class);
 
     private static RestClient client = new RestClient();
 
@@ -59,194 +68,87 @@ public class ArtifactRestletTest
     public static void setUpClass()
             throws Exception
     {
-            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                             "org.carlspring.strongbox.resolve.only:foo",
-                             "1.1" // Used by testResolveViaProxy()
-            );
+        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                         "org.carlspring.strongbox.resolve.only:foo",
+                         "1.1" // Used by testResolveViaProxy()
+        );
 
-            // Generate releases
-            // Used by testPartialFetch():
-            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                             "org.carlspring.strongbox.partial:partial-foo",
-                             "3.1", // Used by testPartialFetch()
-                             "3.2"  // Used by testPartialFetch()
-            );
+        // Generate releases
+        // Used by testPartialFetch():
+        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                         "org.carlspring.strongbox.partial:partial-foo",
+                         "3.1", // Used by testPartialFetch()
+                         "3.2"  // Used by testPartialFetch()
+        );
 
-            // Used by testCopy*():
-            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                             "org.carlspring.strongbox.copy:copy-foo",
-                             "1.1", // Used by testCopyArtifactFile()
-                             "1.2"  // Used by testCopyArtifactDirectory()
-            );
+        // Used by testCopy*():
+        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                         "org.carlspring.strongbox.copy:copy-foo",
+                         "1.1", // Used by testCopyArtifactFile()
+                         "1.2"  // Used by testCopyArtifactDirectory()
+        );
 
-            // Used by testDelete():
-            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                             "com.artifacts.to.delete.releases:delete-foo",
-                             "1.2.1", // Used by testDeleteArtifactFile
-                             "1.2.2"  // Used by testDeleteArtifactDirectory
-            );
+        // Used by testDelete():
+        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                         "com.artifacts.to.delete.releases:delete-foo",
+                         "1.2.1", // Used by testDeleteArtifactFile
+                         "1.2.2"  // Used by testDeleteArtifactDirectory
+        );
 
-            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                             "org.carlspring.strongbox.partial:partial-foo",
-                             "3.1", // Used by testPartialFetch()
-                             "3.2"  // Used by testPartialFetch()
-            );
+        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                         "org.carlspring.strongbox.partial:partial-foo",
+                         "3.1", // Used by testPartialFetch()
+                         "3.2"  // Used by testPartialFetch()
+        );
 
-            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                             "org.carlspring.strongbox.browse:foo-bar",
-                             "1.0", // Used by testDirectoryListing()
-                             "2.4"  // Used by testDirectoryListing()
-            );
+        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                         "org.carlspring.strongbox.browse:foo-bar",
+                         "1.0", // Used by testDirectoryListing()
+                         "2.4"  // Used by testDirectoryListing()
+        );
 
-            //noinspection ResultOfMethodCallIgnored
-            new File(TEST_RESOURCES).mkdirs();
+        //noinspection ResultOfMethodCallIgnored
+        new File(TEST_RESOURCES).mkdirs();
     }
 
-    @Override
-    public void setUp()
+
+    @Test
+    @WithUserDetails("admin")
+    public void testUserAuth()
             throws Exception
     {
-        super.setUp();
-        client.setPort(getPort());
+
+        String url = getContextBaseUrl() + "/storages/greet";
+
+
+        RestAssuredMockMvc.given()
+                          .contentType(ContentType.JSON)
+                          .when()
+                          .get(url)
+                          .then()
+                          .statusCode(200)
+                          .body(containsString("success"))
+                          .toString();
     }
 
     @Test
-    public void testUserAuth() throws Exception {
-        client.greet();
-    }
-
-    @Test
-    @Ignore
-    public void testResolveViaProxy()
-            throws Exception
-    {
-        // Note: Logging in as admin, so that we could alter the strongbox.xml by adding a proxy repository
-        //       This is required because the proxy repository is proxying to a repository in the localhost
-        //       and since the integration tests run on random ports in Jenkins, in order to not fail if there are
-        //       any tests running in parallel, you're forced to have to create these proxy repositories during the tests.
-        client = RestClient.getTestInstanceLoggedInAsAdmin();
-
-        createProxiedRepository("storage0", "proxied-releases", "maven", "password");
-
-        String artifactPath = "storages/storage0/proxied-releases/org/carlspring/strongbox/resolve/only/foo/1.1/foo-1.1.jar";
-
-        String md5Remote = MessageDigestUtils.readChecksumFile(client.getResource(artifactPath + ".md5"));
-        String sha1Remote = MessageDigestUtils.readChecksumFile(client.getResource(artifactPath + ".sha1"));
-
-        InputStream is = client.getResource(artifactPath);
-
-        FileOutputStream fos = new FileOutputStream(new File(TEST_RESOURCES, "foo-1.1.jar"));
-        MultipleDigestOutputStream mdos = new MultipleDigestOutputStream(fos);
-
-        int len;
-        final int size = 1024;
-        byte[] bytes = new byte[size];
-
-        while ((len = is.read(bytes, 0, size)) != -1)
-        {
-            mdos.write(bytes, 0, len);
-        }
-
-        mdos.flush();
-        mdos.close();
-
-        final String md5Local = mdos.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
-        final String sha1Local = mdos.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
-
-        System.out.println("MD5   [Remote]: " + md5Remote);
-        System.out.println("MD5   [Local ]: " + md5Local);
-
-        System.out.println("SHA-1 [Remote]: " + sha1Remote);
-        System.out.println("SHA-1 [Local ]: " + sha1Local);
-
-        assertEquals("MD5 checksums did not match!", md5Remote, md5Local);
-        assertEquals("SHA-1 checksums did not match!", sha1Remote, sha1Local);
-    }
-
-    /**
-     * Note: This test requires access to the Internet.
-     *
-     * @throws Exception
-     */
-    @Test
-    @Ignore
-    public void testResolveViaProxyToMavenCentral()
-            throws Exception
-    {
-        client = RestClient.getTestInstance();
-
-        String artifactPath = "storages/storage-common-proxies/maven-central/org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.jar";
-
-        InputStream is = client.getResource(artifactPath);
-        if (is == null)
-        {
-            fail("Failed to resolve 'derby-maven-plugin:1.10:jar' from Maven Central!");
-        }
-
-        FileOutputStream fos = new FileOutputStream(new File(TEST_RESOURCES, "derby-maven-plugin-1.10.jar"));
-        MultipleDigestOutputStream mdos = new MultipleDigestOutputStream(fos);
-
-        int len;
-        final int size = 1024;
-        byte[] bytes = new byte[size];
-
-        while ((len = is.read(bytes, 0, size)) != -1)
-        {
-            mdos.write(bytes, 0, len);
-        }
-
-        mdos.flush();
-        mdos.close();
-
-        String md5Remote = MessageDigestUtils.readChecksumFile(client.getResource(artifactPath + ".md5"));
-        String sha1Remote = MessageDigestUtils.readChecksumFile(client.getResource(artifactPath + ".sha1"));
-
-        final String md5Local = mdos.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
-        final String sha1Local = mdos.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
-
-        System.out.println("MD5   [Remote]: " + md5Remote);
-        System.out.println("MD5   [Local ]: " + md5Local);
-
-        System.out.println("SHA-1 [Remote]: " + sha1Remote);
-        System.out.println("SHA-1 [Local ]: " + sha1Local);
-
-        assertEquals("MD5 checksums did not match!", md5Remote, md5Local);
-        assertEquals("SHA-1 checksums did not match!", sha1Remote, sha1Local);
-    }
-
-    private void createProxiedRepository(String storageId,
-                                         String repositoryId,
-                                         String username,
-                                         String password)
-            throws IOException, JAXBException
-    {
-        int port = System.getProperty("strongbox.port") != null ?
-                   Integer.parseInt(System.getProperty("strongbox.port")) :
-                   48080;
-
-        RemoteRepository remoteRepository = new RemoteRepository();
-        remoteRepository.setUrl("http://localhost:" + port + "/storages/storage0/releases/");
-        remoteRepository.setUsername(username);
-        remoteRepository.setPassword(password);
-
-        Repository repository = new Repository(repositoryId);
-        repository.setStorage(client.getStorage(storageId));
-        repository.setType(RepositoryTypeEnum.PROXY.getType());
-        repository.setRemoteRepository(remoteRepository);
-        repository.setImplementation("proxy");
-
-        client.addRepository(repository);
-    }
-
-    @Test
+    @WithUserDetails("admin")
     public void testPartialFetch()
             throws Exception
     {
         String artifactPath = "/storages/storage0/releases/org/carlspring/strongbox/partial/partial-foo/3.1/partial-foo-3.1.jar";
 
-        assertTrue("Artifact does not exist!", client.pathExists(artifactPath));
+        //    assertTrue("Artifact does not exist!", pathExists(artifactPath));
 
-        String md5Remote = MessageDigestUtils.readChecksumFile(client.getResource(artifactPath + ".md5"));
+        RestAssuredMockMvc
+                .given()
+                .contentType(ContentType.TEXT)
+                .when()
+                .get(artifactPath)
+                .then()
+                .statusCode(200);
+
+      /*  String md5Remote = MessageDigestUtils.readChecksumFile(client.getResource(artifactPath + ".md5"));
         String sha1Remote = MessageDigestUtils.readChecksumFile(client.getResource(artifactPath + ".sha1"));
 
         InputStream is = client.getResource(artifactPath);
@@ -315,6 +217,35 @@ public class ArtifactRestletTest
 
         assertEquals("Glued partial fetches did not match MD5 checksum!", md5Remote, md5Local);
         assertEquals("Glued partial fetches did not match SHA-1 checksum!", sha1Remote, sha1Local);
+        */
+    }
+
+    public boolean pathExists(String path)
+    {
+        String url = getContextBaseUrl() + (path.startsWith("/") ? path : '/' + path);
+
+        logger.debug("Path to artifact: " + url);
+
+        //   WebTarget resource = getClientInstance().target(url);
+        //  setupAuthentication(resource);
+
+        //  Response response = resource.request(MediaType.TEXT_PLAIN).get();
+
+        Integer response;
+
+        response = RestAssuredMockMvc
+                           .given()
+                           .contentType(ContentType.TEXT)
+                           .when()
+                           .get(url)
+                           .then()
+                           .statusCode(200)
+                           .extract()
+                           .response()
+                           .body()
+                           .path("entity");
+
+        return response == 200;
     }
 
     @Test
@@ -327,7 +258,8 @@ public class ArtifactRestletTest
         String artifactPath = "org/carlspring/strongbox/copy/copy-foo/1.1/copy-foo-1.1.jar";
 
         File artifactFileRestoredFromTrash = new File(destRepositoryBasedir + "/" + artifactPath).getAbsoluteFile();
-        if (artifactFileRestoredFromTrash.exists()){
+        if (artifactFileRestoredFromTrash.exists())
+        {
             artifactFileRestoredFromTrash.delete();
         }
 
@@ -353,7 +285,8 @@ public class ArtifactRestletTest
         File artifactFileRestoredFromTrash = new File(destRepositoryBasedir + "/" + artifactPath).getAbsoluteFile();
 
         // if test was executed previously expected artifact will be already in place, so we will remove it
-        if (artifactFileRestoredFromTrash.exists()){
+        if (artifactFileRestoredFromTrash.exists())
+        {
             artifactFileRestoredFromTrash.delete();
         }
 
@@ -373,13 +306,16 @@ public class ArtifactRestletTest
     {
         String artifactPath = "com/artifacts/to/delete/releases/delete-foo/1.2.1/delete-foo-1.2.1.jar";
 
-        File deletedArtifact = new File(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/" + artifactPath).getAbsoluteFile();
+        File deletedArtifact = new File(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/" +
+                                        artifactPath).getAbsoluteFile();
 
-        assertTrue("Failed to locate artifact file '" + deletedArtifact.getAbsolutePath() + "'!", deletedArtifact.exists());
+        assertTrue("Failed to locate artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
+                   deletedArtifact.exists());
 
         client.delete("storage0", "releases", artifactPath);
 
-        assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!", deletedArtifact.exists());
+        assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
+                    deletedArtifact.exists());
     }
 
     @Test
@@ -388,13 +324,16 @@ public class ArtifactRestletTest
     {
         String artifactPath = "com/artifacts/to/delete/releases/delete-foo/1.2.2";
 
-        File deletedArtifact = new File(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/" + artifactPath).getAbsoluteFile();
+        File deletedArtifact = new File(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/" +
+                                        artifactPath).getAbsoluteFile();
 
-        assertTrue("Failed to locate artifact file '" + deletedArtifact.getAbsolutePath() + "'!", deletedArtifact.exists());
+        assertTrue("Failed to locate artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
+                   deletedArtifact.exists());
 
         client.delete("storage0", "releases", artifactPath);
 
-        assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!", deletedArtifact.exists());
+        assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
+                    deletedArtifact.exists());
     }
 
     @Test
@@ -411,17 +350,21 @@ public class ArtifactRestletTest
         Response trashDirectoryListing = client.getResourceWithResponse("/storages/storage0/releases/.trash");
         Response indexDirectoryListing = client.getResourceWithResponse("/storages/storage0/releases/.index");
 
-        Response fileListing = client.getResourceWithResponse("/storages/storage0/releases/org/carlspring/strongbox/browse/foo-bar/1.0");
-        Response invalidPath = client.getResourceWithResponse("/storages/storage0/releases/org/carlspring/strongbox/browse/1.0");
+        Response fileListing = client.getResourceWithResponse(
+                "/storages/storage0/releases/org/carlspring/strongbox/browse/foo-bar/1.0");
+        Response invalidPath = client.getResourceWithResponse(
+                "/storages/storage0/releases/org/carlspring/strongbox/browse/1.0");
 
         String repositoryRootContent = repositoryRoot.readEntity(String.class);
 
         String fileListingContent = fileListing.readEntity(String.class);
 
-        assertFalse(".trash directory should not be visible in directory listing!", repositoryRootContent.contains(".trash"));
+        assertFalse(".trash directory should not be visible in directory listing!",
+                    repositoryRootContent.contains(".trash"));
         assertTrue(".trash directory should not be browsable!", trashDirectoryListing.getStatus() == 404);
 
-        assertFalse(".index directory should not be visible in directory listing!", repositoryRootContent.contains(".index"));
+        assertFalse(".index directory should not be visible in directory listing!",
+                    repositoryRootContent.contains(".index"));
         assertTrue(".index directory should not be browsable!", indexDirectoryListing.getStatus() == 404);
 
         assertTrue(fileListingContent.contains("foo-bar-1.0.jar"));
@@ -451,10 +394,14 @@ public class ArtifactRestletTest
         String ga = "org.carlspring.strongbox.metadata:metadata-foo";
 
         Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":3.1-SNAPSHOT");
-        Artifact artifact1WithTimestamp1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 1));
-        Artifact artifact1WithTimestamp2 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 2));
-        Artifact artifact1WithTimestamp3 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 3));
-        Artifact artifact1WithTimestamp4 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 4));
+        Artifact artifact1WithTimestamp1 = ArtifactUtils.getArtifactFromGAVTC(
+                ga + ":" + createSnapshotVersion("3.1", 1));
+        Artifact artifact1WithTimestamp2 = ArtifactUtils.getArtifactFromGAVTC(
+                ga + ":" + createSnapshotVersion("3.1", 2));
+        Artifact artifact1WithTimestamp3 = ArtifactUtils.getArtifactFromGAVTC(
+                ga + ":" + createSnapshotVersion("3.1", 3));
+        Artifact artifact1WithTimestamp4 = ArtifactUtils.getArtifactFromGAVTC(
+                ga + ":" + createSnapshotVersion("3.1", 4));
 
         ArtifactDeployer artifactDeployer = new ArtifactDeployer(GENERATOR_BASEDIR);
         artifactDeployer.setClient(client);
@@ -599,10 +546,10 @@ public class ArtifactRestletTest
         String artifactId = "metadata-foo";
         String version1 = "1.2.1";
         String version2 = "1.2.2";
-        
-        Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(groupId+":"+artifactId+":"+ version1);
-        Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC(groupId+":"+artifactId+":"+ version2);
-        
+
+        Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(groupId + ":" + artifactId + ":" + version1);
+        Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC(groupId + ":" + artifactId + ":" + version2);
+
         ArtifactDeployer artifactDeployer = new ArtifactDeployer(GENERATOR_BASEDIR);
         artifactDeployer.setClient(client);
 
@@ -615,14 +562,14 @@ public class ArtifactRestletTest
         // When
         String path = "org/carlspring/strongbox/delete-metadata/metadata-foo/1.2.2";
         client.delete(storageId, repositoryId, path);
-        
+
         //Aca deberiamos mirar el FS y a la mierda
         Metadata metadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
-                ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
+                                                    ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
         Assert.assertTrue(!metadata.getVersioning().getVersions().contains("1.2.2"));
     }
-    
-    @Test 
+
+    @Test
     public void updateMetadataOnDeleteSnapshotVersionDirectoryTest()
             throws NoSuchAlgorithmException,
                    XmlPullParserException,
@@ -634,14 +581,18 @@ public class ArtifactRestletTest
         String ga = "org.carlspring.strongbox.metadata:metadata-foo";
 
         Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":3.1-SNAPSHOT");
-        Artifact artifact1WithTimestamp1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 1));
-        Artifact artifact1WithTimestamp2 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 2));
-        Artifact artifact1WithTimestamp3 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 3));
-        Artifact artifact1WithTimestamp4 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 4));
+        Artifact artifact1WithTimestamp1 = ArtifactUtils.getArtifactFromGAVTC(
+                ga + ":" + createSnapshotVersion("3.1", 1));
+        Artifact artifact1WithTimestamp2 = ArtifactUtils.getArtifactFromGAVTC(
+                ga + ":" + createSnapshotVersion("3.1", 2));
+        Artifact artifact1WithTimestamp3 = ArtifactUtils.getArtifactFromGAVTC(
+                ga + ":" + createSnapshotVersion("3.1", 3));
+        Artifact artifact1WithTimestamp4 = ArtifactUtils.getArtifactFromGAVTC(
+                ga + ":" + createSnapshotVersion("3.1", 4));
 
         ArtifactDeployer artifactDeployer = new ArtifactDeployer(GENERATOR_BASEDIR);
         artifactDeployer.setClient(client);
-        
+
         String storageId = "storage0";
         String repositoryId = "snapshots";
 
@@ -649,16 +600,57 @@ public class ArtifactRestletTest
         artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp2, storageId, repositoryId);
         artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp3, storageId, repositoryId);
         artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp4, storageId, repositoryId);
-        
+
         String path = "org/carlspring/strongbox/metadata/metadata-foo/3.1-SNAPSHOT";
-        
+
         // When
         client.delete(storageId, repositoryId, path);
-            
+
         // Then
         Metadata metadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
                                                     ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
         Assert.assertTrue(!metadata.getVersioning().getVersions().contains("3.1-SNAPSHOT"));
     }
 
+    /**
+     * Looks up a storage by it's ID.
+     */
+    public Storage getStorage(String storageId)
+            throws IOException, JAXBException
+    {
+        String url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId;
+
+        //   WebTarget resource = getClientInstance().target(url);
+        //    setupAuthentication(resource);
+
+        //    final Response response = resource.request(MediaType.APPLICATION_XML).get();
+
+        ResponseBody response;
+
+        response = RestAssuredMockMvc
+                           .given()
+                           .contentType(ContentType.JSON)
+                           .when()
+                           .get(url)
+                           .then()
+                           .statusCode(200)
+                           .extract()
+                           .response()
+                           .body();
+
+        Storage storage = null;
+     /*   if (response.getStatus() == 200)
+        {
+            final String xml = response.readEntity(String.class);
+
+            final ByteArrayInputStream bais = new ByteArrayInputStream(xml.getBytes());
+
+            GenericParser<Storage> parser = new GenericParser<>(Storage.class);
+
+            storage = parser.parse(bais);
+        }*/
+
+        return storage;
+
+    }
 }

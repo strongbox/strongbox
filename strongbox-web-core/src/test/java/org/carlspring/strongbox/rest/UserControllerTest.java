@@ -1,15 +1,13 @@
 package org.carlspring.strongbox.rest;
 
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
-import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
-import com.jayway.restassured.module.mockmvc.response.ValidatableMockMvcResponse;
-import com.jayway.restassured.path.json.JsonPath;
-import com.jayway.restassured.response.ResponseBody;
-import com.jayway.restassured.response.ResponseBodyExtractionOptions;
-import org.apache.http.HttpStatus;
 import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.users.domain.User;
+
+import java.io.IOException;
+import java.util.List;
+
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -18,16 +16,11 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.util.*;
-
 import static org.carlspring.strongbox.rest.CustomJerseyTest.objectMapper;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Created by yury on 18.7.16.
@@ -38,7 +31,7 @@ import static org.junit.Assert.*;
 @WebAppConfiguration
 public class UserControllerTest  extends BackendBaseTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserRestletTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserControllerTest.class);
 
     @Test
     @WithUserDetails("admin")
@@ -78,14 +71,16 @@ public class UserControllerTest  extends BackendBaseTest {
     {
         User test = buildUser("test", "password");
 
-        RestAssuredMockMvc.given().
-                contentType(ContentType.JSON).
-                param("juser", test).
-                when().
-                post("/users/user").
-                then().
-                statusCode(200).
-                body("statusInfo",containsString("OK"));
+        RestAssuredMockMvc.given()
+                          .contentType("application/json")
+                          .param("juser", test)
+                          .when()
+                          .post("/users/user")
+                          .peek() // Use peek() to print the ouput
+                          .then()
+                          .statusCode(200) // check http status code
+                          .extract()
+                          .asString();
     }
 
     @Test
@@ -94,18 +89,16 @@ public class UserControllerTest  extends BackendBaseTest {
             throws Exception
     {
 
-      String response;
-
-        response = RestAssuredMockMvc.given()
-                .contentType(ContentType.JSON)
-                .when()
-                .get("/users/all")
-                .then()
-                .statusCode(200)
-                .body("statusInfo",containsString("OK"))
-                .extract()
-                .response()
-                .body().path("entity");
+        String response =
+                RestAssuredMockMvc.given()
+                                  .contentType("application/json")
+                                  .when()
+                                  .get("/users/all")
+                                  .peek() // Use peek() to print the ouput
+                                  .then()
+                                  .statusCode(200) // check http status code
+                                  .extract()
+                                  .asString();
 
         List<User> users = objectMapper.readValue(response,
                 objectMapper.getTypeFactory().constructCollectionType(List.class,
@@ -127,14 +120,16 @@ public class UserControllerTest  extends BackendBaseTest {
         // create new user
         User test = buildUser("test-update", "password-update");
 
-        RestAssuredMockMvc.given().
-                contentType(ContentType.JSON).
-                param("juser", test).
-                when().
-                post("/users/user").
-                then().
-                statusCode(200).
-                body("statusInfo",containsString("OK"));
+        RestAssuredMockMvc.given()
+                          .contentType("application/json")
+                          .param("juser", test)
+                          .when()
+                          .post("/users/user")
+                          .peek() // Use peek() to print the ouput
+                          .then()
+                          .statusCode(200) // check http status code
+                          .extract()
+                          .asString();
 
         // retrieve newly created user and store the id
         User createdUser = retrieveUserByName(test.getUsername());
@@ -144,21 +139,19 @@ public class UserControllerTest  extends BackendBaseTest {
         createdUser.setEnabled(true);
 
         // send update request
-        String response;
 
-        response = RestAssuredMockMvc
-                .given()
-                .contentType(ContentType.JSON)
-                .param("juser", createdUser)
-                .when()
-                .put("/users/user")
-                .then()
-                .statusCode(200)
-                .body("statusInfo",containsString("OK"))
-                .extract()
-                .response()
-                .body()
-                .path("entity");
+        String response = RestAssuredMockMvc.given()
+                                            .contentType("application/json")
+                                            .param("juser", createdUser)
+                                            .when()
+                                            .put("/users/user")
+                                            .peek() // Use peek() to print the ouput
+                                            .then()
+                                            .statusCode(200) // check http status code
+                                            .extract()
+                                            .asString();
+
+        System.out.println(response);
 
         // deserialize response
         User updatedUser = objectMapper.readValue(response, User.class);
@@ -175,23 +168,28 @@ public class UserControllerTest  extends BackendBaseTest {
         // create new user
         User test = buildUser("test-update", "password-update");
 
-        RestAssuredMockMvc.given().
-                contentType(ContentType.JSON).
-                param("juser", test).
-                when().
-                post("/users/user").
-                then().
-                statusCode(200).
-                body("statusInfo",containsString("OK"));
+        RestAssuredMockMvc.given()
+                          .contentType("application/json")
+                          .param("juser", test)
+                          .when()
+                          .post("/users/user")
+                          .peek() // Use peek() to print the ouput
+                          .then()
+                          .statusCode(200) // check http status code
+                          .extract()
+                          .asString();
 
         RestAssuredMockMvc.given()
-                .contentType(ContentType.JSON)
-                .param("The name of the user", test.getUsername())
-                .when()
-                .delete("/users/user/" + test.getUsername())
-                .then()
-                .statusCode(200)
-                .body("statusInfo",containsString("OK"));
+                          .contentType("application/json")
+                          .param("The name of the user", test.getUsername())
+                          .when()
+                          .delete("/users/user/" + test.getUsername())
+                          .peek() // Use peek() to print the ouput
+                          .then()
+                          .statusCode(200) // check http status code
+                          .extract()
+                          .asString();
+
     }
 
     private User retrieveUserByName(String name)
@@ -200,17 +198,15 @@ public class UserControllerTest  extends BackendBaseTest {
         String response;
 
         response = RestAssuredMockMvc.given()
-                .contentType(ContentType.JSON)
-                .param("The name of the user", name)
-                .when()
-                .get("/users/user/" + name)
-                .then()
-                .statusCode(200)
-                .body(containsString(name))
-                .extract()
-                .response()
-                .body()
-                .path("entity");
+                                     .contentType("application/json")
+                                     .param("The name of the user", name)
+                                     .when()
+                                     .get("/users/user/" + name)
+                                     .peek() // Use peek() to print the ouput
+                                     .then()
+                                     .statusCode(200) // check http status code
+                                     .extract()
+                                     .asString();
 
         User admin = objectMapper.readValue(response, User.class);
         return admin;

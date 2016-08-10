@@ -2,26 +2,24 @@ package org.carlspring.strongbox.rest;
 
 import org.carlspring.logging.rest.AbstractLoggingManagementRestlet;
 
-import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * @author carlspring
  */
-@Component
-@Path("/logging")
-@Api(value = "/logging")
-public class LoggingManagementRestlet
+@Controller
+@RequestMapping("/logging")
+public class LoggingManagementController
         extends AbstractLoggingManagementRestlet
 {
 
@@ -31,11 +29,11 @@ public class LoggingManagementRestlet
                             @ApiResponse(code = 500, message = "Failed to add logger!") })
     @Override
     @PreAuthorize("hasAuthority('CONFIGURATION_ADD_LOGGER')")
-    public Response addLogger(@ApiParam(value = "The package to log", required = true)
+    public Response addLogger(@RequestParam(value = "The package to log", required = true)
                                       String loggerPackage,
-                              @ApiParam(value = "The logging level", required = true)
+                              @RequestParam(value = "The logging level", required = true)
                                       String level,
-                              @ApiParam(value = "The name of the appender", required = true)
+                              @RequestParam(value = "The name of the appender", required = true)
                                       String appenderName)
     {
         return super.addLogger(loggerPackage, level, appenderName);
@@ -47,9 +45,9 @@ public class LoggingManagementRestlet
                             @ApiResponse(code = 404, message = "Logger '${loggerPackage}' not found.") })
     @Override
     @PreAuthorize("hasAuthority('CONFIGURATION_UPDATE_LOGGER')")
-    public Response updateLogger(@ApiParam(value = "The package to log", required = true)
+    public Response updateLogger(@RequestParam(value = "The package to log", required = true)
                                          String loggerPackage,
-                                 @ApiParam(value = "The logging level", required = true)
+                                 @RequestParam(value = "The logging level", required = true)
                                          String level)
     {
         return super.updateLogger(loggerPackage, level);
@@ -61,7 +59,7 @@ public class LoggingManagementRestlet
                             @ApiResponse(code = 404, message = "Logger '${loggerPackage}' not found.") })
     @Override
     @PreAuthorize("hasAuthority('CONFIGURATION_DELETE_LOGGER')")
-    public Response deleteLogger(@ApiParam(value = "The logger to delete", required = true)
+    public Response deleteLogger(@RequestParam(value = "The logger to delete", required = true)
                                          String loggerPackage)
             throws IOException
     {
@@ -73,7 +71,7 @@ public class LoggingManagementRestlet
                             @ApiResponse(code = 400, message = "Failed to resolve the log!") })
     @Override
     @PreAuthorize("hasAuthority('CONFIGURATION_RETRIEVE_LOG')")
-    public Response downloadLog(@ApiParam(value = "The relative path to the log file", required = true)
+    public Response downloadLog(@RequestParam(value = "The relative path to the log file", required = true)
                                         String path)
     {
         return super.downloadLog(path);
@@ -95,10 +93,11 @@ public class LoggingManagementRestlet
     @Override
     @PreAuthorize("hasAuthority('CONFIGURATION_UPLOAD_LOGBACK_CFG')")
     public Response uploadLogbackConfiguration(
-                                                      @ApiParam(value = "The input stream of the the Logback configuration file to load", required = true)
+                                                      @RequestParam(
+                                                              value = "The input stream of the the Logback configuration file to load",
+                                                              required = true)
                                                               InputStream is)
     {
         return super.uploadLogbackConfiguration(is);
     }
-
 }

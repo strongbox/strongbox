@@ -3,7 +3,11 @@ package org.carlspring.strongbox.client;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 
 import javax.ws.rs.ServerErrorException;
-import javax.ws.rs.client.*;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.Closeable;
@@ -244,12 +248,14 @@ public class ArtifactClient
         if (offset > 0)
         {
             response = request.header("Range", "bytes=" + offset + "-").get();
+
         }
         else
         {
             response = request.get();
-        }
 
+        }
+        System.out.println(response);
         return response.readEntity(InputStream.class);
     }
 

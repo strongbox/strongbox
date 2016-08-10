@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.rest;
 
-import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.carlspring.strongbox.config.WebConfig;
 
 import javax.ws.rs.ProcessingException;
@@ -15,6 +14,7 @@ import java.net.URI;
 import java.util.Collections;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.grizzly2.servlet.GrizzlyWebContainerFactory;
@@ -28,6 +28,7 @@ import org.glassfish.jersey.test.spi.TestContainerException;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,10 +42,16 @@ import org.springframework.web.context.WebApplicationContext;
  *
  * @author Alex Oreshkevich
  */
+@Ignore  //*
 public abstract class CustomJerseyTest
         extends JerseyTest
 {
 
+    // make sure that credentials match to the one that used in user configuration
+    // (default) /strongbox-user-management/src/main/resources/etc/conf/security-users.xml
+    public final static String ADMIN_CREDENTIALS = "Basic " + new String(Base64.encode("admin:password".getBytes()));
+    public final static ObjectMapper objectMapper = new ObjectMapper();
+    private static final Logger logger = LoggerFactory.getLogger(JerseyTest.class);
     @Autowired
     protected WebApplicationContext context;
 
@@ -57,14 +64,6 @@ public abstract class CustomJerseyTest
     public void shutdown() {
         RestAssuredMockMvc.reset();
     }
-
-    // make sure that credentials match to the one that used in user configuration
-    // (default) /strongbox-user-management/src/main/resources/etc/conf/security-users.xml
-    public final static String ADMIN_CREDENTIALS = "Basic " + new String(Base64.encode("admin:password".getBytes()));
-
-    public final static ObjectMapper objectMapper = new ObjectMapper();
-
-    private static final Logger logger = LoggerFactory.getLogger(JerseyTest.class);
 
     /**
      * Specifies usage of grizzly 2 http server and forbid overriding in any particular test.

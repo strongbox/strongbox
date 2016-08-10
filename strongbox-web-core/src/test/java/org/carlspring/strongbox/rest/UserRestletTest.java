@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.apache.http.HttpStatus;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Test for {@link UserRestlet} REST API.
  */
+@Ignore  //*
 public class UserRestletTest
         extends CustomJerseyTest
 {

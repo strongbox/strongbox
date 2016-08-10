@@ -1,31 +1,32 @@
 package org.carlspring.strongbox.rest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.service.UserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.CacheManager;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * Created by yury on 18.7.16.
@@ -39,15 +40,12 @@ public class UserController {
 
     @Autowired
     UserService userService;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
     @Autowired
     OObjectDatabaseTx databaseTx;
-
     @Autowired
     CacheManager cacheManager;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     // ----------------------------------------------------------------------------------------------------------------
     // This method exists for testing purpose
@@ -58,7 +56,9 @@ public class UserController {
     @PreAuthorize("authenticated")
     @RequestMapping(value = "{anyString}", method = RequestMethod.GET)
     public @ResponseBody
-    synchronized Response greet(@PathVariable String anyString, @RequestParam(value="The param", required=false) String param) {
+    synchronized ResponseEntity greet(@PathVariable String anyString,
+                                      @RequestParam(value = "The param", required = false) String param)
+    {
         logger.debug("UserController -> Say hello to " + param);
         return toResponse("hello, " + param);
     }
@@ -73,7 +73,7 @@ public class UserController {
     @PreAuthorize("hasAuthority('CREATE_USER')")
     @RequestMapping(value = "/user", method = RequestMethod.POST)
     public @ResponseBody
-    synchronized Response create(@RequestParam(value="juser", required=false) String userJson)
+    synchronized ResponseEntity create(@RequestParam(value = "juser", required = false) String userJson)
     {
         databaseTx.activateOnCurrentThread();
         User user = databaseTx.detach(userService.save(read(userJson, User.class)), true);
@@ -82,7 +82,7 @@ public class UserController {
 
         cacheManager.getCache("users").put(user.getUsername(), user);
 
-        return Response.ok().build();
+        return ResponseEntity.ok().build();
     }
 
 
@@ -95,9 +95,10 @@ public class UserController {
     @PreAuthorize("hasAuthority('VIEW_USER')")
     @RequestMapping(value = "user/{name}", method = RequestMethod.GET)
     public @ResponseBody
-    synchronized Response getUser(@PathVariable String name, @RequestParam(value = "The name of the user", required = true) String pname)
+    synchronized ResponseEntity getUser(@RequestParam(value = "The name of the user", required = true)
+                                        @PathVariable String name)
     {
-        return toResponse(userService.findByUserName(pname));
+        return toResponse(userService.findByUserName(name));
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -110,7 +111,7 @@ public class UserController {
     @Transactional
     @RequestMapping(value = "/all", method = RequestMethod.GET)
     public @ResponseBody
-    synchronized Response getUsers()
+    synchronized ResponseEntity getUsers()
     {
         Optional<List<User>> possibleUsers = userService.findAll();
         if (possibleUsers.isPresent())
@@ -137,7 +138,7 @@ public class UserController {
     @PreAuthorize("hasAuthority('UPDATE_USER')")
     @RequestMapping(value = "user", method = RequestMethod.PUT)
     public @ResponseBody
-    synchronized Response update(@RequestParam(value="juser", required=false) String userJson)
+    synchronized ResponseEntity update(@RequestParam(value = "juser", required = false) String userJson)
     {
 
         User user = read(userJson, User.class);
@@ -166,10 +167,10 @@ public class UserController {
     @PreAuthorize("hasAuthority('DELETE_USER')")
     @RequestMapping(value = "user/{name}", method = RequestMethod.DELETE)
     public @ResponseBody
-    Response delete(@PathVariable String name, @RequestParam(value = "The name of the user", required = true) String pname)
+    ResponseEntity delete(@RequestParam(value = "The name of the user", required = true) @PathVariable String name)
             throws Exception
     {
-        User user = userService.findByUserName(pname);
+        User user = userService.findByUserName(name);
         if (user == null || user.getId() == null)
         {
             return toError("The specified user does not exist!");
@@ -177,7 +178,7 @@ public class UserController {
 
         userService.delete(user.getId());
 
-        return Response.ok().build();
+        return ResponseEntity.ok().build();
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -196,20 +197,25 @@ public class UserController {
         }
     }
 
-    private synchronized Response toResponse(Object arg) {
+    private synchronized ResponseEntity toResponse(Object arg)
+    {
         try {
-            return Response.ok(objectMapper.writeValueAsString(arg)).build();
+            // return Response.ok(objectMapper.writeValueAsString(arg)).build();
+            return ResponseEntity.ok(objectMapper.writeValueAsString(arg));
         } catch (Exception e) {
             return toError(e);
         }
     }
 
-    private synchronized Response toError(String message) {
+    private synchronized ResponseEntity toError(String message)
+    {
         return toError(new RuntimeException(message));
     }
 
-    private synchronized Response toError(Throwable cause) {
+    private synchronized ResponseEntity toError(Throwable cause)
+    {
         logger.error(cause.getMessage(), cause);
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(cause.getMessage()).build();
+        //  return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(cause.getMessage()).build();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(cause.getMessage());
     }
 }
