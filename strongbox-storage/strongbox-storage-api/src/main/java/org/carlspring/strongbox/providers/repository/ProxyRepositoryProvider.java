@@ -7,6 +7,7 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.client.MavenArtifactClient;
 import org.carlspring.strongbox.io.ArtifactFile;
 import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -35,6 +36,9 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
 
     @Autowired
     private RepositoryProviderRegistry repositoryProviderRegistry;
+
+    @Autowired
+    private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
 
 
     @PostConstruct
@@ -87,7 +91,7 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
 
             RemoteRepository remoteRepository = repository.getRemoteRepository();
 
-            MavenArtifactClient client = new MavenArtifactClient();
+            MavenArtifactClient client = new MavenArtifactClient(proxyRepositoryConnectionPoolConfigurationService.getClient());
             client.setRepositoryBaseUrl(remoteRepository.getUrl());
             client.setUsername(remoteRepository.getUsername());
             client.setPassword(remoteRepository.getPassword());

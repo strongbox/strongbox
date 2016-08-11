@@ -49,7 +49,7 @@ public class MetadataManagementRestletTest
     private static final File REPOSITORY_BASEDIR_SNAPSHOTS = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                                       "/storages/storage0/snapshots");
 
-    public static boolean INITIALIZED;
+    public static boolean INITIALIZED = false;
 
     private RestClient client = new RestClient();
 

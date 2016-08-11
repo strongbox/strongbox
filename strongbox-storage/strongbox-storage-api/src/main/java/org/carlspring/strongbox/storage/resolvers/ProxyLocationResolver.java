@@ -8,6 +8,7 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.client.MavenArtifactClient;
 import org.carlspring.strongbox.io.ArtifactFile;
 import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -45,8 +46,9 @@ public class ProxyLocationResolver
     public static final String ALIAS = "proxy";
 
     @Autowired
+    private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
+    @Autowired
     private LocationResolverRegistry locationResolverRegistry;
-
 
     public ProxyLocationResolver()
     {
@@ -102,25 +104,12 @@ public class ProxyLocationResolver
 
             RemoteRepository remoteRepository = repository.getRemoteRepository();
 
-            MavenArtifactClient client = new MavenArtifactClient();
+            MavenArtifactClient client = new MavenArtifactClient(proxyRepositoryConnectionPoolConfigurationService.getClient());
             client.setRepositoryBaseUrl(remoteRepository.getUrl());
             client.setUsername(remoteRepository.getUsername());
             client.setPassword(remoteRepository.getPassword());
 
-            Response response = client.getResourceWithResponse(artifactPath);
-            if (response.getStatus() != 200 || response.getEntity() == null)
-            {
-                return null;
-            }
-
-            logger.debug("Creating " + artifactFile.getTemporaryFile().getParentFile().getAbsolutePath() + "...");
-
-            artifactFile.createParents();
-
-            InputStream remoteIs = response.readEntity(InputStream.class);
-            FileOutputStream fos = new FileOutputStream(artifactFile.getTemporaryFile());
-            MultipleDigestOutputStream mdos = new MultipleDigestOutputStream(fos);
-
+            InputStream remoteIs = client.getResource(artifactPath);
             // 1) Attempt to resolve it from the remote host
             if (remoteIs == null)
             {
@@ -128,6 +117,13 @@ public class ProxyLocationResolver
                 // The remote failed to resolve the artifact as well.
                 return null;
             }
+
+            logger.debug("Creating " + artifactFile.getTemporaryFile().getParentFile().getAbsolutePath() + "...");
+
+            artifactFile.createParents();
+
+            FileOutputStream fos = new FileOutputStream(artifactFile.getTemporaryFile());
+            MultipleDigestOutputStream mdos = new MultipleDigestOutputStream(fos);
 
             int len;
             final int size = 1024;

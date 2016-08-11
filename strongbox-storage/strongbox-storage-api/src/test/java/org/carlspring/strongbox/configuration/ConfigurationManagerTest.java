@@ -2,6 +2,8 @@ package org.carlspring.strongbox.configuration;
 
 import org.carlspring.strongbox.CommonConfig;
 import org.carlspring.strongbox.config.StorageApiConfig;
+import org.carlspring.strongbox.config.ClientConfig;
+import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -36,7 +38,9 @@ public class ConfigurationManagerTest
     @org.springframework.context.annotation.Configuration
     @Import({
             StorageApiConfig.class,
-            CommonConfig.class
+            CommonConfig.class,
+            ClientConfig.class,
+            DataServiceConfig.class
     })
     public static class SpringConfig { }
 
