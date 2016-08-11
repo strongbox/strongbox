@@ -96,7 +96,8 @@ public class ArtifactOperationsValidator
     }
 
     public void checkAllowsRedeployment(Repository repository, Artifact artifact)
-            throws ArtifactStorageException
+            throws IOException,
+                   ProviderImplementationException
     {
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
         if (layoutProvider.containsArtifact(repository, artifact) && !repository.allowsDeployment())
