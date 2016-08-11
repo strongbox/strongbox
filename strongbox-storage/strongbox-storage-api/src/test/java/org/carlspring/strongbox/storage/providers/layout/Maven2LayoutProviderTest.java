@@ -1,11 +1,12 @@
-package org.carlspring.strongbox.storage.providers;
+package org.carlspring.strongbox.storage.providers.layout;
 
 import org.carlspring.strongbox.CommonConfig;
 import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.resolvers.FSLocationResolver;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 
 import java.io.File;
@@ -27,7 +28,7 @@ import static org.junit.Assert.assertTrue;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
-public class FSLocationResolverTest
+public class Maven2LayoutProviderTest
         extends TestCaseWithArtifactGeneration
 {
 
@@ -43,7 +44,7 @@ public class FSLocationResolverTest
     private static final File REPOSITORY_BASEDIR_RELEASES = new File(STORAGE_BASEDIR, "releases");
 
     @Autowired
-    private FSLocationResolver fsLocationResolver;
+    private LayoutProviderRegistry layoutProviderRegistry;
 
     @Autowired
     private ConfigurationManager configurationManager;
@@ -72,12 +73,15 @@ public class FSLocationResolverTest
             throws IOException, NoSuchAlgorithmException
     {
         Repository repository = configurationManager.getConfiguration().getStorage("storage0").getRepository("releases");
+
+        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+
         String path = "com/artifacts/to/delete/releases/delete-foo/1.2.1/delete-foo-1.2.1.jar";
         File artifactFile = new File(repository.getBasedir(), path);
 
         assertTrue("Failed to locate artifact file " + artifactFile.getAbsolutePath(), artifactFile.exists());
 
-        fsLocationResolver.delete("storage0", "releases", path, false);
+        layoutProvider.delete("storage0", "releases", path, false);
 
         assertFalse("Failed to delete artifact file " + artifactFile.getAbsolutePath(), artifactFile.exists());
     }
@@ -87,12 +91,15 @@ public class FSLocationResolverTest
             throws IOException, NoSuchAlgorithmException
     {
         Repository repository = configurationManager.getConfiguration().getStorage("storage0").getRepository("releases");
+
+        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+
         String path = "com/artifacts/to/delete/releases/delete-foo/1.2.2";
         File artifactFile = new File(repository.getBasedir(), path);
 
         assertTrue("Failed to locate artifact file " + artifactFile.getAbsolutePath(), artifactFile.exists());
 
-        fsLocationResolver.delete("storage0", "releases", path, false);
+        layoutProvider.delete("storage0", "releases", path, false);
 
         assertFalse("Failed to delete artifact file " + artifactFile.getAbsolutePath(), artifactFile.exists());
     }
