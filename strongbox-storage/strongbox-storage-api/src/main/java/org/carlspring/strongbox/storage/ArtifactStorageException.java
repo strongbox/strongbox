@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.storage.resolvers;
+package org.carlspring.strongbox.storage;
 
 import java.io.IOException;
 

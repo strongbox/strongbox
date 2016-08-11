@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.services;
 
-import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
+import org.carlspring.strongbox.storage.ArtifactStorageException;
 
 import java.io.IOException;
 

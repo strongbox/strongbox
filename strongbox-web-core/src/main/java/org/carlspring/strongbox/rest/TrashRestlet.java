@@ -2,7 +2,7 @@ package org.carlspring.strongbox.rest;
 
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
+import org.carlspring.strongbox.storage.ArtifactStorageException;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
