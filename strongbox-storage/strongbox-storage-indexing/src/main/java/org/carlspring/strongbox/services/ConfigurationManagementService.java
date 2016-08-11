@@ -5,6 +5,9 @@ import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.HttpConnectionPool;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.routing.RoutingRule;
+import org.carlspring.strongbox.storage.routing.RoutingRules;
+import org.carlspring.strongbox.storage.routing.RuleSet;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -69,4 +72,20 @@ public interface ConfigurationManagementService extends ConfigurationService
 
     HttpConnectionPool getHttpConnectionPoolConfiguration(String storageId, String repositoryId)
             throws IOException, JAXBException;
+
+    boolean addOrUpdateAcceptedRuleSet(RuleSet ruleSet);
+
+    boolean removeAcceptedRuleSet(String groupRepository);
+
+    boolean addOrUpdateAcceptedRepository(String groupRepository,
+                                          RoutingRule routingRule);
+
+    boolean removeAcceptedRepository(String groupRepository,
+                                     String pattern,
+                                     String repositoryId);
+
+    boolean overrideAcceptedRepositories(String groupRepository,
+                                         RoutingRule routingRule);
+
+    RoutingRules getRoutingRules();
 }
