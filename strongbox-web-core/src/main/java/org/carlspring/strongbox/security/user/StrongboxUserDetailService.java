@@ -1,10 +1,13 @@
 package org.carlspring.strongbox.security.user;
 
+import org.carlspring.strongbox.users.domain.Roles;
 import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
 import org.carlspring.strongbox.users.service.UserService;
 
-import java.util.LinkedList;
-import java.util.List;
+import javax.annotation.PostConstruct;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +32,23 @@ public class StrongboxUserDetailService
     @Autowired
     UserService userService;
 
+    @Autowired
+    AuthorizationConfigProvider authorizationConfigProvider;
+
+    private Set<GrantedAuthority> fullAuthorities;
+
+    @PostConstruct
+    public void init()
+    {
+        fullAuthorities = new HashSet<>();
+
+        authorizationConfigProvider.getConfig().ifPresent(
+                config -> config.getPrivileges().getPrivileges().forEach(
+                        privilege -> fullAuthorities.add(new SimpleGrantedAuthority(privilege.getName().toUpperCase()))
+                )
+        );
+    }
+
     @Override
     public synchronized UserDetails loadUserByUsername(String name)
             throws UsernameNotFoundException
@@ -46,8 +66,8 @@ public class StrongboxUserDetailService
         }
 
         // thread-safe transformation of roles to authorities
-        List<GrantedAuthority> authorities = new LinkedList<>();
-        user.getRoles().forEach(role -> authorities.add(new SimpleGrantedAuthority(role.toUpperCase())));
+        Set<GrantedAuthority> authorities = new HashSet<>();
+        user.getRoles().forEach(role -> authorities.addAll(getAuthoritiesByRoleName(role.toUpperCase())));
 
         // extract (detach) user in current transaction
         SpringSecurityUser springUser = new SpringSecurityUser();
@@ -57,8 +77,41 @@ public class StrongboxUserDetailService
         springUser.setUsername(user.getUsername());
         springUser.setAuthorities(authorities);
 
-        logger.trace("Authorise under " + springUser);
+        logger.debug("Authorise under " + springUser);
 
         return springUser;
     }
+
+    private Set<GrantedAuthority> getAuthoritiesByRoleName(final String roleName)
+    {
+        Set<GrantedAuthority> authorities = new HashSet<>();
+
+        if (roleName.equals("ADMIN"))
+        {
+            authorities.addAll(fullAuthorities);
+        }
+
+        // add all privileges from etc/conf/security-authorization.xml for any role that defines there
+        authorizationConfigProvider.getConfig().ifPresent(
+                authorizationConfig -> authorizationConfig.getRoles().getRoles().forEach(role -> {
+                    if (role.getName().equals(roleName))
+                    {
+                        role.getPrivileges().forEach(privilegeName -> authorities.add(
+                                new SimpleGrantedAuthority(privilegeName.toUpperCase())));
+                    }
+                }));
+
+        try
+        {
+            Roles configuredRole = Roles.valueOf(roleName);
+            authorities.addAll(configuredRole.getPrivileges());
+        }
+        catch (IllegalArgumentException e)
+        {
+            logger.warn("Unable to find predefined role by name " + roleName, e);
+        }
+
+        return authorities;
+    }
+    
 }

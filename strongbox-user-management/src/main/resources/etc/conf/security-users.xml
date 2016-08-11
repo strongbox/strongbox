@@ -7,7 +7,7 @@
             <encryption-algorithm>plain</encryption-algorithm>
         </credentials>
         <roles>
-            <role>root</role>
+            <role>admin</role>
         </roles>
     </user>
     <user>
@@ -17,7 +17,7 @@
             <encryption-algorithm>plain</encryption-algorithm>
         </credentials>
         <roles>
-            <role>root</role>
+            <role>admin</role>
         </roles>
     </user>
 </users>

@@ -38,4 +38,13 @@ public class Roles
         this.roles = roles;
     }
 
+    @Override
+    public String toString()
+    {
+        final StringBuilder sb = new StringBuilder("\n\tRoles{");
+        sb.append("roles=").append(roles);
+        sb.append('}');
+        return sb.toString();
+    }
+    
 }

@@ -71,7 +71,7 @@ public class UserRestlet
     @ApiOperation(value = "Used to retrieve an request param", position = 1)
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 400, message = "An error occurred.") })
-    @PreAuthorize("hasAuthority('ROOT')")
+    @PreAuthorize("authenticated")
     public synchronized Response greet(@ApiParam(value = "The param", required = true)
                                        @PathParam("anyString") String param)
     {
@@ -87,7 +87,7 @@ public class UserRestlet
     @ApiOperation(value = "Used to create new user", position = 0)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deployed successfully."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
-    @PreAuthorize("hasAuthority('ROOT')")
+    @PreAuthorize("hasAuthority('CREATE_USER')")
     public synchronized Response create(String userJson)
     {
         databaseTx.activateOnCurrentThread();
@@ -108,7 +108,7 @@ public class UserRestlet
     @ApiOperation(value = "Used to retrieve an user", position = 1)
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 400, message = "An error occurred.") })
-    @PreAuthorize("hasAuthority('ROOT')")
+    @PreAuthorize("hasAuthority('VIEW_USER')")
     public synchronized Response getUser(@Context HttpHeaders headers,
                                          @Context HttpServletRequest request,
                                          @ApiParam(value = "The name of the user", required = true)
@@ -125,7 +125,7 @@ public class UserRestlet
     @ApiOperation(value = "Used to retrieve an user", position = 1)
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 400, message = "An error occurred.") })
-    @PreAuthorize("hasAuthority('ROOT')")
+    @PreAuthorize("hasAuthority('VIEW_USER')")
     @Transactional
     public synchronized Response getUsers()
     {
@@ -153,7 +153,7 @@ public class UserRestlet
     @ApiOperation(value = "Used to create new user", position = 0)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deployed successfully."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
-    @PreAuthorize("hasAuthority('ROOT')")
+    @PreAuthorize("hasAuthority('UPDATE_USER')")
     public synchronized Response update(String userJson)
     {
 
@@ -182,7 +182,7 @@ public class UserRestlet
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The user was deleted."),
                             @ApiResponse(code = 400, message = "Bad request.")
     })
-    @PreAuthorize("hasAuthority('ROOT')")
+    @PreAuthorize("hasAuthority('DELETE_USER')")
     public Response delete(@ApiParam(value = "The name of the user", required = true)
                            @PathParam("name") String name)
             throws Exception
