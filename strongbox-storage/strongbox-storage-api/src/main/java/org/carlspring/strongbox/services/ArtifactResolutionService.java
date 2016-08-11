@@ -19,11 +19,13 @@ public interface ArtifactResolutionService
                                String artifactPath)
             throws IOException,
                    NoSuchAlgorithmException,
-                   ArtifactTransportException, ProviderImplementationException;
+                   ArtifactTransportException,
+                   ProviderImplementationException;
 
     OutputStream getOutputStream(String storageId,
                                  String repositoryId,
                                  String artifactPath)
-            throws IOException, ProviderImplementationException;
+            throws IOException,
+                   ProviderImplementationException;
 
 }

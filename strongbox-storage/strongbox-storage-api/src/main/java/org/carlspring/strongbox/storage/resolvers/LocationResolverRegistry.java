@@ -39,7 +39,8 @@ public class LocationResolverRegistry
         return resolvers.get(alias);
     }
 
-    public LocationResolver addResolver(String alias, LocationResolver resolver)
+    public LocationResolver addResolver(String alias,
+                                        LocationResolver resolver)
     {
         return resolvers.put(alias, resolver);
     }

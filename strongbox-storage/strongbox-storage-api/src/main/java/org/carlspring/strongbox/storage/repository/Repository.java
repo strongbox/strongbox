@@ -3,16 +3,14 @@ package org.carlspring.strongbox.storage.repository;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.storage.Storage;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
+import javax.persistence.Version;
+import javax.xml.bind.annotation.*;
 import java.io.File;
+import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * @author mtodorov
@@ -20,11 +18,22 @@ import java.util.Set;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "repository")
 public class Repository
+        implements Serializable
 {
 
+    /**
+     * Added to avoid a runtime error whereby the detachAll property is checked for existence but not actually used.
+     */
+    @JsonIgnore
+    protected String detachAll;
+    
+    @Version
+    @JsonIgnore
+    protected Long version;
+    
     @XmlAttribute
     private String id;
-
+    
     @XmlAttribute
     private String basedir;
 
@@ -99,7 +108,8 @@ public class Repository
         this.id = id;
     }
 
-    public Repository(String id, boolean secured)
+    public Repository(String id,
+                      boolean secured)
     {
         this.id = id;
         this.secured = secured;
@@ -227,11 +237,6 @@ public class Repository
         this.indexingEnabled = indexingEnabled;
     }
 
-    public void setAllowsDelete(boolean allowsDelete)
-    {
-        this.allowsDelete = allowsDelete;
-    }
-
     public boolean allowsDeletion()
     {
         return allowsDelete;
@@ -242,19 +247,9 @@ public class Repository
         return allowsForceDeletion;
     }
 
-    public void setAllowsForceDeletion(boolean allowsForceDeletion)
-    {
-        this.allowsForceDeletion = allowsForceDeletion;
-    }
-
     public boolean allowsDeployment()
     {
         return allowsDeployment;
-    }
-
-    public void setAllowsDeployment(boolean allowsDeployment)
-    {
-        this.allowsDeployment = allowsDeployment;
     }
 
     public boolean allowsRedeployment()
@@ -262,19 +257,9 @@ public class Repository
         return allowsRedeployment;
     }
 
-    public void setAllowsRedeployment(boolean allowsRedeployment)
-    {
-        this.allowsRedeployment = allowsRedeployment;
-    }
-
     public boolean allowsDirectoryBrowsing()
     {
         return allowsDirectoryBrowsing;
-    }
-
-    public void setAllowsDirectoryBrowsing(boolean allowsDirectoryBrowsing)
-    {
-        this.allowsDirectoryBrowsing = allowsDirectoryBrowsing;
     }
 
     public boolean isChecksumHeadersEnabled()
@@ -372,4 +357,75 @@ public class Repository
     {
         this.httpConnectionPool = httpConnectionPool;
     }
+
+    public String getDetachAll()
+    {
+        return detachAll;
+    }
+
+    public void setDetachAll(String detachAll)
+    {
+        this.detachAll = detachAll;
+    }
+
+    public Long getVersion()
+    {
+        return version;
+    }
+
+    public void setVersion(Long version)
+    {
+        this.version = version;
+    }
+
+    public boolean isAllowsForceDeletion()
+    {
+        return allowsForceDeletion;
+    }
+
+    public void setAllowsForceDeletion(boolean allowsForceDeletion)
+    {
+        this.allowsForceDeletion = allowsForceDeletion;
+    }
+
+    public boolean isAllowsDeployment()
+    {
+        return allowsDeployment;
+    }
+
+    public void setAllowsDeployment(boolean allowsDeployment)
+    {
+        this.allowsDeployment = allowsDeployment;
+    }
+
+    public boolean isAllowsRedeployment()
+    {
+        return allowsRedeployment;
+    }
+
+    public void setAllowsRedeployment(boolean allowsRedeployment)
+    {
+        this.allowsRedeployment = allowsRedeployment;
+    }
+
+    public boolean isAllowsDelete()
+    {
+        return allowsDelete;
+    }
+
+    public void setAllowsDelete(boolean allowsDelete)
+    {
+        this.allowsDelete = allowsDelete;
+    }
+
+    public boolean isAllowsDirectoryBrowsing()
+    {
+        return allowsDirectoryBrowsing;
+    }
+
+    public void setAllowsDirectoryBrowsing(boolean allowsDirectoryBrowsing)
+    {
+        this.allowsDirectoryBrowsing = allowsDirectoryBrowsing;
+    }
+    
 }

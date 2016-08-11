@@ -1,9 +1,13 @@
 package org.carlspring.strongbox.storage.repository;
 
+import javax.persistence.Version;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * @author korest
@@ -11,7 +15,19 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "http-connection-pool")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class HttpConnectionPool
+        implements Serializable
 {
+
+    /**
+     * Added to avoid a runtime error whereby the detachAll property is checked for existence but not actually used.
+     */
+    @JsonIgnore
+    protected String detachAll;
+
+    @Version
+    @JsonIgnore
+    protected Long version;
+
     @XmlAttribute(name = "allocated-connections")
     private int allocatedConnections;
 
@@ -23,5 +39,25 @@ public class HttpConnectionPool
     public void setAllocatedConnections(int allocatedConnections)
     {
         this.allocatedConnections = allocatedConnections;
+    }
+
+    public String getDetachAll()
+    {
+        return detachAll;
+    }
+
+    public void setDetachAll(String detachAll)
+    {
+        this.detachAll = detachAll;
+    }
+
+    public Long getVersion()
+    {
+        return version;
+    }
+
+    public void setVersion(Long version)
+    {
+        this.version = version;
     }
 }

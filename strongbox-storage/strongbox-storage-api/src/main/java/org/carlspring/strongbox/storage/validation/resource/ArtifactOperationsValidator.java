@@ -39,7 +39,9 @@ public class ArtifactOperationsValidator
     {
     }
 
-    public void validate(String storageId, String repositoryId, String artifactPath)
+    public void validate(String storageId,
+                         String repositoryId,
+                         String artifactPath)
             throws ArtifactResolutionException
     {
         checkStorageExists(storageId);
@@ -94,11 +96,9 @@ public class ArtifactOperationsValidator
     }
 
     public void checkAllowsRedeployment(Repository repository, Artifact artifact)
-            throws IOException,
-                   ProviderImplementationException
+            throws ArtifactStorageException
     {
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
-
         if (layoutProvider.containsArtifact(repository, artifact) && !repository.allowsDeployment())
         {
             throw new ArtifactStorageException("Re-deployment of artifacts to " + repository.getType() + " repository is not allowed!");

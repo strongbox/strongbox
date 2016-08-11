@@ -529,6 +529,10 @@
                                     <name>java.io.tmpdir</name>
                                     <value>${dir.strongbox.home}/tmp</value>
                                 </systemProperty>
+                                <systemProperty>
+                                    <name>ehcache.disk.store.dir</name>
+                                    <value>${dir.strongbox.home}/cache</value>
+                                </systemProperty>
                             </systemProperties>
 
                             <useTestScope>true</useTestScope>
@@ -555,6 +559,7 @@
                                 <logging.dir>${project.build.directory}/strongbox/logs</logging.dir>
                                 <logging.config.file>${project.build.directory}/strongbox/etc/logback.xml</logging.config.file>
                                 <java.io.tmpdir>${dir.strongbox.home}/tmp</java.io.tmpdir>
+                                <ehcache.disk.store.dir>${project.build.directory}/strongbox/cache</ehcache.disk.store.dir>
                             </systemPropertyVariables>
                         </configuration>
                     </plugin>

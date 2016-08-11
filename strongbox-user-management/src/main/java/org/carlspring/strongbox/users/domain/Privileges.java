@@ -15,6 +15,29 @@ import org.springframework.security.core.GrantedAuthority;
 public enum Privileges
         implements GrantedAuthority
 {
+    ADMIN,
+    CONFIGURATION_UPLOAD,
+    CONFIGURATION_VIEW,
+    CONFIGURATION_SET_BASE_URL,
+    CONFIGURATION_VIEW_BASE_URL,
+    CONFIGURATION_SET_PORT,
+    CONFIGURATION_VIEW_PORT,
+    CONFIGURATION_SET_GLOBAL_PROXY_CFG,
+    CONFIGURATION_VIEW_GLOBAL_PROXY_CFG,
+    CONFIGURATION_ADD_UPDATE_STORAGE,
+    CONFIGURATION_VIEW_STORAGE_CONFIGURATION,
+    CONFIGURATION_DELETE_STORAGE_CONFIGURATION,
+    CONFIGURATION_ADD_UPDATE_REPOSITORY,
+    CONFIGURATION_VIEW_REPOSITORY,
+    CONFIGURATION_DELETE_REPOSITORY,
+    CONFIGURATION_ADD_LOGGER,
+    CONFIGURATION_UPDATE_LOGGER,
+    CONFIGURATION_DELETE_LOGGER,
+    CONFIGURATION_RETRIEVE_LOG,
+    CONFIGURATION_RETRIEVE_LOGBACK_CFG,
+    CONFIGURATION_UPLOAD_LOGBACK_CFG,
+    MANAGEMENT_REBUILD_METADATA,
+    MANAGEMENT_DELETE_METADATA,
     ADMIN_CREATE_REPO,
     ADMIN_UPDATE_REPO,
     ADMIN_DELETE_REPO,
@@ -41,12 +64,6 @@ public enum Privileges
     RSS_FEED,
     UI_LOGIN,
     UI_BROWSE;
-
-    @Override
-    public String getAuthority()
-    {
-        return this.name();
-    }
 
     /**
      * Helper method for accessing all roles.
@@ -86,5 +103,11 @@ public enum Privileges
     public static EnumSet<Privileges> uiAll()
     {
         return EnumSet.of(UI_LOGIN, UI_BROWSE);
+    }
+
+    @Override
+    public String getAuthority()
+    {
+        return this.name();
     }
 }

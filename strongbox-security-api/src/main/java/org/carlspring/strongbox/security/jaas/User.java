@@ -7,9 +7,9 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author mtodorov
@@ -27,7 +27,7 @@ public class User implements Serializable
 
     @XmlElement(name = "role")
     @XmlElementWrapper(name = "roles")
-    private List<String> roles = new ArrayList<>();
+    private Set<String> roles = new HashSet<>();
 
     @XmlElement
     private String fullName;
@@ -110,12 +110,12 @@ public class User implements Serializable
         this.seed = seed;
     }
 
-    public List<String> getRoles()
+    public Set<String> getRoles()
     {
         return roles;
     }
 
-    public void setRoles(List<String> roles)
+    public void setRoles(Set<String> roles)
     {
         this.roles = roles;
     }

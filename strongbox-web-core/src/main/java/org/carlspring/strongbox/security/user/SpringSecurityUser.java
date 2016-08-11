@@ -35,6 +35,11 @@ class SpringSecurityUser
         return username;
     }
 
+    public void setUsername(String username)
+    {
+        this.username = username;
+    }
+
     @Override
     public boolean isAccountNonExpired()
     {
@@ -51,11 +56,6 @@ class SpringSecurityUser
     public boolean isCredentialsNonExpired()
     {
         return enabled;
-    }
-
-    public void setUsername(String username)
-    {
-        this.username = username;
     }
 
     @Override

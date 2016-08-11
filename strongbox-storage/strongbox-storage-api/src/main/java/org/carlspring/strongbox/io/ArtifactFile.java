@@ -12,7 +12,8 @@ import org.apache.maven.artifact.Artifact;
 /**
  * @author mtodorov
  */
-public class ArtifactFile extends File
+public class ArtifactFile
+        extends File
 {
 
     private Repository repository;
@@ -24,12 +25,15 @@ public class ArtifactFile extends File
     private boolean temporaryMode;
 
 
-    public ArtifactFile(Repository repository, Artifact artifact)
+    public ArtifactFile(Repository repository,
+                        Artifact artifact)
     {
         this(repository, artifact, false);
     }
 
-    public ArtifactFile(Repository repository, Artifact artifact, boolean temporaryMode)
+    public ArtifactFile(Repository repository,
+                        Artifact artifact,
+                        boolean temporaryMode)
     {
         super(repository.getBasedir(), ArtifactUtils.convertArtifactToPath(artifact));
 

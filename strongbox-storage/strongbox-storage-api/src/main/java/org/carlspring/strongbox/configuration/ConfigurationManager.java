@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.configuration;
 
-import org.apache.commons.collections.MapUtils;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.storage.Storage;
@@ -13,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
+import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope("singleton")
-public class ConfigurationManager extends AbstractConfigurationManager<Configuration>
+public class ConfigurationManager
+        extends AbstractConfigurationManager<Configuration>
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationManager.class);
@@ -39,10 +40,11 @@ public class ConfigurationManager extends AbstractConfigurationManager<Configura
     public ConfigurationManager()
     {
         super(Configuration.class);
+        logger.debug("Initializing configuration...");
     }
 
     @PostConstruct
-    public void init()
+    public synchronized void init()
             throws IOException, JAXBException
     {
         super.init();
@@ -81,8 +83,8 @@ public class ConfigurationManager extends AbstractConfigurationManager<Configura
     }
 
     /**
-     * Sets the repository <--> storage relationships explicitly, as initially,
-     * when these are deserialized from the XML, they have no such relationship.
+     * Sets the repository <--> storage relationships explicitly, as initially, when these are deserialized from the
+     * XML, they have no such relationship.
      */
     public void setRepositoryStorageRelationships()
     {
@@ -110,16 +112,18 @@ public class ConfigurationManager extends AbstractConfigurationManager<Configura
     {
         final Configuration configuration = getConfiguration();
         configuration.getStorages().values().stream()
-                .filter(storage -> MapUtils.isNotEmpty(storage.getRepositories()))
-                .flatMap(storage -> storage.getRepositories().values().stream())
-                .forEach(repository -> {
-                    if(repository.getHttpConnectionPool() != null
-                            && repository.getRemoteRepository() != null && repository.getRemoteRepository().getUrl() != null)
-                    {
-                        proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(
-                                repository.getRemoteRepository().getUrl(), repository.getHttpConnectionPool().getAllocatedConnections());
-                    }
-                });
+                     .filter(storage -> MapUtils.isNotEmpty(storage.getRepositories()))
+                     .flatMap(storage -> storage.getRepositories().values().stream())
+                     .forEach(repository -> {
+                         if (repository.getHttpConnectionPool() != null
+                             && repository.getRemoteRepository() != null &&
+                             repository.getRemoteRepository().getUrl() != null)
+                         {
+                             proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(
+                                     repository.getRemoteRepository().getUrl(),
+                                     repository.getHttpConnectionPool().getAllocatedConnections());
+                         }
+                     });
     }
 
     public void dump()
@@ -135,6 +139,10 @@ public class ConfigurationManager extends AbstractConfigurationManager<Configura
                 for (String storageKey : getConfiguration().getStorages().keySet())
                 {
                     logger.info(" -> Storage: " + storageKey);
+                    if (storageKey == null)
+                    {
+                        throw new IllegalArgumentException("Null keys do not supported");
+                    }
 
                     Storage storage = getConfiguration().getStorages().get(storageKey);
                     for (String repositoryKey : storage.getRepositories().keySet())
@@ -184,9 +192,13 @@ public class ConfigurationManager extends AbstractConfigurationManager<Configura
     {
         return (Configuration) this.configuration;
     }
+
     @Override
-    public Resource getConfigurationResource() throws IOException {
-        return configurationResourceResolver.getConfigurationResource("repository.config.xml", "etc/conf/strongbox.xml");
+    public Resource getConfigurationResource()
+            throws IOException
+    {
+        return configurationResourceResolver.getConfigurationResource("repository.config.xml",
+                                                                      "etc/conf/strongbox.xml");
     }
 
 }

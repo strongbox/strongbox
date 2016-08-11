@@ -12,7 +12,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Deprecated
-public abstract class AbstractLocationResolver implements LocationResolver
+public abstract class AbstractLocationResolver
+        implements LocationResolver
 {
 
     @Autowired

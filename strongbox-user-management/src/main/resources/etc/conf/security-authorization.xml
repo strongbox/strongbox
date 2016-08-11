@@ -2,105 +2,32 @@
 <authorization-configuration>
     <roles>
         <role>
-            <name>user</name>
-            <description>User role</description>
-        </role>
-        <role>
-            <name>deploy</name>
+            <name>CUSTOM_ROLE</name>
             <description>Deployment role</description>
             <privileges>
                 <privilege>Deploy</privilege>
             </privileges>
         </role>
+        <!-- Will lead to ConfigurationException: Embedded roles overriding is forbidden: [ADMIN] -->
+        <!--<role>
+            <name>adMIN</name>
+            <description>Deployment role</description>
+            <privileges>
+                <privilege>Deploy</privilege>
+            </privileges>
+        </role> -->
     </roles>
     <privileges>
-        <privilege>
-            <name>CONFIGURATION_UPLOAD</name>
+        <!-- Will lead to ConfigurationException: Embedded privileges overriding is forbidden: [ADMIN_CREATE_REPO] -->
+        <!-- <privilege>
+            <name>ADMIN_CREATE_REPO</name>
             <description></description>
-        </privilege>
+        </privilege> -->
         <privilege>
-            <name>CONFIGURATION_VIEW</name>
-            <description></description>
-        </privilege>
-        <privilege>
-            <name>CONFIGURATION_SET_BASE_URL</name>
-            <description></description>
-        </privilege>
-        <privilege>
-            <name>CONFIGURATION_VIEW_BASE_URL</name>
-            <description></description>
-        </privilege>
-        <privilege>
-            <name>CONFIGURATION_SET_PORT</name>
-            <description></description>
-        </privilege>
-        <privilege>
-            <name>CONFIGURATION_VIEW_PORT</name>
-            <description></description>
-        </privilege>
-        <privilege>
-            <name>CONFIGURATION_SET_GLOBAL_PROXY_CFG</name>
-            <description></description>
-        </privilege>
-        <privilege>
-            <name>CONFIGURATION_VIEW_GLOBAL_PROXY_CFG</name>
-            <description></description>
-        </privilege>
-        <privilege>
-            <name>CONFIGURATION_ADD_UPDATE_STORAGE</name>
-            <description></description>
-        </privilege>
-        <privilege>
-            <name>CONFIGURATION_VIEW_STORAGE_CONFIGURATION</name>
-            <description></description>
-        </privilege>
-        <privilege>
-            <name>CONFIGURATION_DELETE_STORAGE_CONFIGURATION</name>
-            <description></description>
-        </privilege>
-        <privilege>
-            <name>CONFIGURATION_ADD_UPDATE_REPOSITORY</name>
-            <description></description>
-        </privilege>
-        <privilege>
-            <name>CONFIGURATION_VIEW_REPOSITORY</name>
-            <description></description>
-        </privilege>
-        <privilege>
-            <name>CONFIGURATION_DELETE_REPOSITORY</name>
-            <description></description>
-        </privilege>
-        <privilege>
-            <name>CONFIGURATION_ADD_LOGGER</name>
-            <description></description>
-        </privilege>
-        <privilege>
-            <name>CONFIGURATION_UPDATE_LOGGER</name>
-            <description></description>
-        </privilege>
-        <privilege>
-            <name>CONFIGURATION_DELETE_LOGGER</name>
-            <description></description>
-        </privilege>
-        <privilege>
-            <name>CONFIGURATION_RETRIEVE_LOG</name>
-            <description></description>
-        </privilege>
-        <privilege>
-            <name>CONFIGURATION_RETRIEVE_LOGBACK_CFG</name>
-            <description></description>
-        </privilege>
-        <privilege>
-            <name>CONFIGURATION_UPLOAD_LOGBACK_CFG</name>
-            <description></description>
-        </privilege>
-        <privilege>
-            <name>MANAGEMENT_REBUILD_METADATA</name>
-            <description></description>
-        </privilege>
-        <privilege>
-            <name>MANAGEMENT_DELETE_METADATA</name>
-            <description></description>
+            <name>EXAMPLE_PRIVILEGE</name>
+            <description>This is an example of how you could add some custom privilege. Feel free to use it by name at
+                the REST API side to access restriction purposes.
+            </description>
         </privilege>
     </privileges>
 </authorization-configuration>

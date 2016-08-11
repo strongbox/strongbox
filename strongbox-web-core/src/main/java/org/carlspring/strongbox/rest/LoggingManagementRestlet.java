@@ -28,11 +28,11 @@ public class LoggingManagementRestlet
     @Override
     @PreAuthorize("hasAuthority('CONFIGURATION_ADD_LOGGER')")
     public Response addLogger(@ApiParam(value = "The package to log", required = true)
-                              String loggerPackage,
+                                      String loggerPackage,
                               @ApiParam(value = "The logging level", required = true)
-                              String level,
+                                      String level,
                               @ApiParam(value = "The name of the appender", required = true)
-                              String appenderName)
+                                      String appenderName)
     {
         return super.addLogger(loggerPackage, level, appenderName);
     }
@@ -44,9 +44,9 @@ public class LoggingManagementRestlet
     @Override
     @PreAuthorize("hasAuthority('CONFIGURATION_UPDATE_LOGGER')")
     public Response updateLogger(@ApiParam(value = "The package to log", required = true)
-                                 String loggerPackage,
+                                         String loggerPackage,
                                  @ApiParam(value = "The logging level", required = true)
-                                 String level)
+                                         String level)
     {
         return super.updateLogger(loggerPackage, level);
     }
@@ -58,7 +58,7 @@ public class LoggingManagementRestlet
     @Override
     @PreAuthorize("hasAuthority('CONFIGURATION_DELETE_LOGGER')")
     public Response deleteLogger(@ApiParam(value = "The logger to delete", required = true)
-                                 String loggerPackage)
+                                         String loggerPackage)
             throws IOException
     {
         return super.deleteLogger(loggerPackage);
@@ -70,7 +70,7 @@ public class LoggingManagementRestlet
     @Override
     @PreAuthorize("hasAuthority('CONFIGURATION_RETRIEVE_LOG')")
     public Response downloadLog(@ApiParam(value = "The relative path to the log file", required = true)
-                                String path)
+                                        String path)
     {
         return super.downloadLog(path);
     }
@@ -90,10 +90,11 @@ public class LoggingManagementRestlet
                             @ApiResponse(code = 400, message = "Failed to resolve the logging configuration!") })
     @Override
     @PreAuthorize("hasAuthority('CONFIGURATION_UPLOAD_LOGBACK_CFG')")
-    public Response uploadLogbackConfiguration(@ApiParam(value = "The input stream of the the Logback configuration file to load", required = true)
-                                               InputStream is)
+    public Response uploadLogbackConfiguration(
+                                                      @ApiParam(value = "The input stream of the the Logback configuration file to load", required = true)
+                                                              InputStream is)
     {
         return super.uploadLogbackConfiguration(is);
     }
-    
+
 }

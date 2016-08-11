@@ -18,6 +18,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+
+import javax.xml.bind.JAXBException;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,6 +37,10 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author mtodorov
@@ -127,6 +142,7 @@ public class ConfigurationManagerTest
         Repository repository2 = new Repository("releases");
 
         Storage storage = new Storage();
+        storage.setId("myStorageId");
         storage.setBasedir(STORAGE_BASEDIR);
         storage.addOrUpdateRepository(repository1);
         storage.addOrUpdateRepository(repository2);
