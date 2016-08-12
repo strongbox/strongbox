@@ -47,8 +47,8 @@ public class Privileges
         final StringBuilder sb = new StringBuilder("\n\tPrivileges{");
         sb.append("privileges=").append(privileges);
         sb.append('}');
-        
+
         return sb.toString();
     }
-    
+
 }

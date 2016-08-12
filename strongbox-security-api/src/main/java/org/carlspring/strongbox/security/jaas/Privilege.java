@@ -78,8 +78,8 @@ public class Privilege
         sb.append("name='").append(name).append('\'');
         sb.append(", description='").append(description).append('\'');
         sb.append('}');
-        
+
         return sb.toString();
     }
-    
+
 }

@@ -28,17 +28,15 @@ import static org.junit.Assert.assertTrue;
 public class UserRestletTest
         extends CustomJerseyTest
 {
-    private static RestClient client = new RestClient();
 
     private static final Logger logger = LoggerFactory.getLogger(UserRestletTest.class);
+    private static RestClient client = new RestClient();
 
     @Test
     public void testSayHello()
     {
         Response response = requestApi("/users/greet").get();
         displayResponseError(response);
-        Response response = client.prepareTarget("/users/greet").request().get();
-        RestClient.displayResponseError(response);
         assertEquals(200, response.getStatus());
     }
 

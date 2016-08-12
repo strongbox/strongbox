@@ -43,32 +43,17 @@ import static org.junit.Assert.assertTrue;
 public class ConfigurationManagerTest
 {
 
-    @org.springframework.context.annotation.Configuration
-    @Import({
-            StorageApiConfig.class,
-            CommonConfig.class, ClientConfig.class, DataServiceConfig.class
-    })
-    public static class SpringConfig { }
-
     public static final String TEST_CLASSES = "target/test-classes";
-
     public static final String CONFIGURATION_BASEDIR = TEST_CLASSES + "/xml";
-
     public static final String CONFIGURATION_OUTPUT_FILE = CONFIGURATION_BASEDIR + "/strongbox-saved-cm.xml";
-
     public static final String STORAGE_BASEDIR = TEST_CLASSES + "/storages/storage0";
-
     private GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
-
     @Autowired
     private ConfigurationManager configurationManager;
-
     @Autowired
     private ArtifactResolutionService artifactResolutionService;
-
     @Autowired
     private LocationResolverRegistry locationResolverRegistry;
-
 
     @Before
     public void setUp()
@@ -219,6 +204,18 @@ public class ConfigurationManagerTest
 
         // Assuming that if there is no error, there is no problem.
         // Not optimal, but that's as good as it gets right now.
+    }
+
+    @org.springframework.context.annotation.Configuration
+    @Import({
+                    StorageApiConfig.class,
+                    CommonConfig.class,
+                    ClientConfig.class,
+                    DataServiceConfig.class
+            })
+    public static class SpringConfig
+    {
+
     }
 
 }

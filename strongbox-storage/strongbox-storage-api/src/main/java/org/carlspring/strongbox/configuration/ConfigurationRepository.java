@@ -21,16 +21,16 @@ public class ConfigurationRepository
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationRepository.class);
-    
+
     @Autowired
     ServerConfigurationService serverConfigurationService;
-    
+
     @Autowired
     ConfigurationCache configurationCache;
-    
+
     @Autowired
     private OObjectDatabaseTx databaseTx;
-    
+
     private String currentDatabaseId;
 
 

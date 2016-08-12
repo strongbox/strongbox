@@ -15,7 +15,12 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.DirUtils;
 
 import javax.annotation.PostConstruct;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
@@ -34,10 +39,8 @@ public class ProxyLocationResolver
         extends AbstractLocationResolver
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(ProxyLocationResolver.class);
-
     public static final String ALIAS = "proxy";
-
+    private static final Logger logger = LoggerFactory.getLogger(ProxyLocationResolver.class);
     @Autowired
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
 
@@ -254,7 +257,9 @@ public class ProxyLocationResolver
             File sha1TrashFile = new File(basedirTrash, path + ".sha1").getCanonicalFile();
             FileUtils.moveFile(sha1ChecksumFile, sha1TrashFile);
 
-            logger.debug("Moved /" + repositoryId + "/" + path + ".sha1" + " to trash (" + sha1TrashFile.getAbsolutePath() + ").");
+            logger.debug(
+                    "Moved /" + repositoryId + "/" + path + ".sha1" + " to trash (" + sha1TrashFile.getAbsolutePath() +
+                    ").");
         }
     }
 
@@ -297,7 +302,7 @@ public class ProxyLocationResolver
             File md5RestoredFile = new File(repository.getBasedir(), path + ".md5").getCanonicalFile();
             FileUtils.moveFile(md5ChecksumFile, md5RestoredFile);
 
-            logger.debug("Restored /" + repositoryId + "/" + path + ".md5" + " from trash (" + 
+            logger.debug("Restored /" + repositoryId + "/" + path + ".md5" + " from trash (" +
                          md5ChecksumFile.getAbsolutePath() + ").");
         }
 

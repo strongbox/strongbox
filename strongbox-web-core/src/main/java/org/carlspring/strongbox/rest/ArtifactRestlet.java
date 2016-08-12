@@ -12,7 +12,15 @@ import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -30,7 +38,11 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.regex.Matcher;
 
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.comparator.DirectoryFileComparator;
 import org.apache.maven.artifact.repository.metadata.Metadata;
@@ -333,7 +345,8 @@ public class ArtifactRestlet
 
                     sb.append("<tr>");
                     sb.append("<td><a href='" + URLEncoder.encode(name, "UTF-8") + (childFile.isDirectory() ?
-                              "/" : "") + "'>" + name + (childFile.isDirectory() ? "/" : "") + "</a></td>");
+                                                                                    "/" : "") + "'>" + name +
+                              (childFile.isDirectory() ? "/" : "") + "</a></td>");
                     sb.append("<td>" + lastModified + "</td>");
                     sb.append("<td>" + FileUtils.byteCountToDisplaySize(childFile.length()) + "</td>");
                     sb.append("</tr>");
@@ -364,7 +377,8 @@ public class ArtifactRestlet
     @ApiOperation(value = "Copies a path from one repository to another.", position = 4)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The path was copied successfully."),
                             @ApiResponse(code = 400, message = "Bad request."),
-                            @ApiResponse(code = 404, message = "The source/destination storageId/repositoryId/path does not exist!") })
+                            @ApiResponse(code = 404,
+                                         message = "The source/destination storageId/repositoryId/path does not exist!") })
     @PreAuthorize("hasAuthority('ARTIFACTS_COPY')")
     public Response copy(@ApiParam(value = "The path", required = true)
                          @PathParam("path") String path,
@@ -436,7 +450,8 @@ public class ArtifactRestlet
     @ApiOperation(value = "Deletes a path from a repository.", position = 3)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deleted."),
                             @ApiResponse(code = 400, message = "Bad request."),
-                            @ApiResponse(code = 404, message = "The specified storageId/repositoryId/path does not exist!") })
+                            @ApiResponse(code = 404,
+                                         message = "The specified storageId/repositoryId/path does not exist!") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
     public Response delete(@ApiParam(value = "The storageId", required = true)
                            @PathParam("storageId") String storageId,

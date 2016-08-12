@@ -114,16 +114,17 @@ public class ConfigurationManager
         configuration.getStorages().values().stream()
                      .filter(storage -> MapUtils.isNotEmpty(storage.getRepositories()))
                      .flatMap(storage -> storage.getRepositories().values().stream())
-                     .forEach(repository -> {
-                         if (repository.getHttpConnectionPool() != null
-                             && repository.getRemoteRepository() != null &&
-                             repository.getRemoteRepository().getUrl() != null)
-                         {
-                             proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(
-                                     repository.getRemoteRepository().getUrl(),
-                                     repository.getHttpConnectionPool().getAllocatedConnections());
-                         }
-                     });
+                     .forEach(repository ->
+                              {
+                                  if (repository.getHttpConnectionPool() != null
+                                      && repository.getRemoteRepository() != null &&
+                                      repository.getRemoteRepository().getUrl() != null)
+                                  {
+                                      proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(
+                                              repository.getRemoteRepository().getUrl(),
+                                              repository.getHttpConnectionPool().getAllocatedConnections());
+                                  }
+                              });
     }
 
     public void dump()

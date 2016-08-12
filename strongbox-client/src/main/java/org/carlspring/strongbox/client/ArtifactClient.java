@@ -266,14 +266,6 @@ public class ArtifactClient
         return resource.request(MediaType.TEXT_PLAIN).get();
     }
 
-    public void displayResponseError(Response response)
-    {
-        logger.error("Status code " + response.getStatus());
-        logger.error("Status info " + response.getStatusInfo().getReasonPhrase());
-        logger.error("Response message " + response.readEntity(String.class));
-        logger.error(response.toString());
-    }
-
     public void deleteArtifact(Artifact artifact,
                                String storageId,
                                String repositoryId)

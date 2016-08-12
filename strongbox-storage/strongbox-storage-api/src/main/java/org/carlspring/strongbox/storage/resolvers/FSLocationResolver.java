@@ -32,10 +32,8 @@ public class FSLocationResolver
         extends AbstractLocationResolver
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(FSLocationResolver.class);
-
     public static final String ALIAS = "file-system";
-    
+    private static final Logger logger = LoggerFactory.getLogger(FSLocationResolver.class);
     @Autowired
     private LocationResolverRegistry locationResolverRegistry;
 
@@ -205,7 +203,9 @@ public class FSLocationResolver
             File sha1TrashFile = new File(basedirTrash, path + ".sha1").getCanonicalFile();
             FileUtils.moveFile(sha1ChecksumFile, sha1TrashFile);
 
-            logger.debug("Moved /" + repositoryId + "/" + path + ".sha1" + " to trash (" + sha1TrashFile.getAbsolutePath() + ").");
+            logger.debug(
+                    "Moved /" + repositoryId + "/" + path + ".sha1" + " to trash (" + sha1TrashFile.getAbsolutePath() +
+                    ").");
         }
     }
 

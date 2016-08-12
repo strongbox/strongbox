@@ -7,7 +7,6 @@ import org.carlspring.strongbox.security.encryption.EncryptionAlgorithms;
 import org.carlspring.strongbox.security.jaas.Credentials;
 import org.carlspring.strongbox.security.jaas.Users;
 import org.carlspring.strongbox.users.domain.User;
-import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
@@ -55,10 +54,6 @@ public class UsersConfig
 
     @Autowired
     private ConfigurationResourceResolver configurationResourceResolver;
-
-    @Autowired
-    private AuthorizationConfigProvider authorizationConfigProvider;
-
 
     private synchronized OObjectDatabaseTx getDatabaseTx()
     {

@@ -425,7 +425,8 @@ public class ConfigurationManagementRestlet
 
     @GET
     @Path("/storages/{storageId}/{repositoryId}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Produces({ MediaType.APPLICATION_JSON,
+                MediaType.APPLICATION_XML })
     @ApiOperation(value = "Returns the configuration of a repository.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The repository was updated successfully.", response = Repository.class),
                             @ApiResponse(code = 404, message = "Repository ${storageId}:${repositoryId} was not found!") })

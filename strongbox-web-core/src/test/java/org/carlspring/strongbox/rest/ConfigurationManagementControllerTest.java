@@ -50,6 +50,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = WebConfig.class)
 @WebAppConfiguration
+@WithUserDetails("admin")
 public class ConfigurationManagementControllerTest
         extends BackendBaseTest
 {
@@ -70,7 +71,6 @@ public class ConfigurationManagementControllerTest
     }
 
     @Test
-    @WithUserDetails("admin")
     public void testSetAndGetPort()
             throws Exception
     {
@@ -79,7 +79,7 @@ public class ConfigurationManagementControllerTest
         String url = getContextBaseUrl() + "/configuration/strongbox/port/" + newPort;
 
         int status = RestAssuredMockMvc.given()
-                                       .contentType("application/json")
+                                       .contentType(MediaType.APPLICATION_JSON_VALUE)
                                        .when()
                                        .put(url)
                                        .peek() // Use peek() to print the ouput
@@ -91,7 +91,7 @@ public class ConfigurationManagementControllerTest
         url = getContextBaseUrl() + "/configuration/strongbox/port";
 
         String port = RestAssuredMockMvc.given()
-                                        .contentType("application/json")
+                                        .contentType(MediaType.APPLICATION_JSON_VALUE)
                                         .when()
                                         .get(url)
                                         .peek() // Use peek() to print the ouput
@@ -106,7 +106,6 @@ public class ConfigurationManagementControllerTest
 
     @Test
     @Ignore
-    @WithUserDetails("admin")
     public void testSetAndGetBaseUrl()
             throws Exception
     {
@@ -137,30 +136,25 @@ public class ConfigurationManagementControllerTest
     }
 
     @Test
-    @WithUserDetails("admin")
     public void testSetAndGetGlobalProxyConfiguration()
             throws Exception
     {
-        List<String> nonProxyHosts = new ArrayList<>();
-        nonProxyHosts.add("localhost");
-        nonProxyHosts.add("some-hosts.com");
-
         ProxyConfiguration proxyConfiguration = createProxyConfiguration();
-        proxyConfiguration.setNonProxyHosts(nonProxyHosts);
+        GenericParser<ProxyConfiguration> parser = new GenericParser<>(ProxyConfiguration.class);
+        String serializedConfig = parser.serialize(proxyConfiguration);
 
-        System.out.print("        -------------?????????????????----------->  " + proxyConfiguration);
+        logger.info("Serialized config -> \n" + serializedConfig);
 
         String url = getContextBaseUrl() + "/configuration/strongbox/proxy-configuration";
 
         RestAssuredMockMvc.given()
-                          .contentType(MediaType.APPLICATION_XML_VALUE)
-                          .body(proxyConfiguration, ObjectMapperType.JAXB)
+                          .contentType(MediaType.TEXT_PLAIN_VALUE)
+                          .body(serializedConfig)
                           .when()
                           .put(url)
                           .peek() // Use peek() to print the ouput
                           .then()
                           .statusCode(200);
-
 
         url = getContextBaseUrl() + "/configuration/strongbox/proxy-configuration";
 
@@ -447,6 +441,10 @@ public class ConfigurationManagementControllerTest
         proxyConfiguration.setUsername("user1");
         proxyConfiguration.setPassword("pass2");
         proxyConfiguration.setType("http");
+        List<String> nonProxyHosts = new ArrayList<>();
+        nonProxyHosts.add("localhost");
+        nonProxyHosts.add("some-hosts.com");
+        proxyConfiguration.setNonProxyHosts(nonProxyHosts);
 
         return proxyConfiguration;
     }

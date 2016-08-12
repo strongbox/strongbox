@@ -9,6 +9,7 @@ import org.carlspring.strongbox.services.StorageManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -190,18 +191,22 @@ public class ConfigurationManagementController
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_SET_GLOBAL_PROXY_CFG')")
     @RequestMapping(value = "/proxy-configuration", method = RequestMethod.PUT,
-                    consumes = MediaType.APPLICATION_XML_VALUE
+                    consumes = MediaType.TEXT_PLAIN_VALUE
     )
     public ResponseEntity setProxyConfiguration(@RequestParam(value = "The storageId", required = false)
                                                         String storageId,
                                                 @RequestParam(value = "The repositoryId", required = false)
                                                         String repositoryId,
-                                                @RequestBody ProxyConfiguration proxyConfiguration)
+                                                @RequestBody String serializedProxyConfiguration)
             throws IOException, JAXBException
     {
+        GenericParser<ProxyConfiguration> parser = new GenericParser<>(ProxyConfiguration.class);
+        ProxyConfiguration proxyConfiguration = parser.deserialize(serializedProxyConfiguration);
+
+        logger.debug("Received proxy configuration \n" + proxyConfiguration);
+
         try
         {
-            System.out.println("Прокси конфигурэйшн !!!!!!!!!!!!!!!!!-------------->" + proxyConfiguration);
             configurationManagementService.setProxyConfiguration(storageId, repositoryId, proxyConfiguration);
             return ResponseEntity.ok("The proxy configuration was updated successfully.");
         }
