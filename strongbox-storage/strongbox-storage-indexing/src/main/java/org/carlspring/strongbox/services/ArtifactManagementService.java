@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.services;
 
 import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.storage.Storage;
 
 import java.io.IOException;
@@ -16,12 +17,12 @@ public interface ArtifactManagementService extends ConfigurationService
                String repositoryId,
                String path,
                InputStream is)
-            throws IOException;
+            throws IOException, ProviderImplementationException;
 
     InputStream resolve(String storageId,
                         String repositoryId,
                         String path)
-            throws IOException, ArtifactTransportException;
+            throws IOException, ArtifactTransportException, ProviderImplementationException;
 
     void delete(String storageId,
                 String repositoryId,
@@ -53,10 +54,10 @@ public interface ArtifactManagementService extends ConfigurationService
             throws IOException;
 
     void undeleteTrash(String storageId, String repositoryId)
-            throws IOException;
+            throws IOException, ProviderImplementationException;
 
     void undeleteTrash()
-            throws IOException;
+            throws IOException, ProviderImplementationException;
 
     Storage getStorage(String storageId);
 

@@ -1,11 +1,11 @@
-package org.carlspring.strongbox.storage.resolvers;
+package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.services.BasicRepositoryService;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.RuleSet;
@@ -18,52 +18,44 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
 /**
- * @author mtodorov
+ * @author carlspring
  */
-@Component("groupLocationResolver")
-public class GroupLocationResolver
-        extends AbstractLocationResolver
+@Component
+public class GroupRepositoryProvider extends AbstractRepositoryProvider
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(GroupLocationResolver.class);
+    private static final Logger logger = LoggerFactory.getLogger(GroupRepositoryProvider.class);
 
-    public static final String ALIAS = "group";
+    private static final String ALIAS = "group";
 
-    @Autowired
-    private BasicRepositoryService basicRepositoryService;
-
-    @Autowired
-    private LocationResolverRegistry locationResolverRegistry;
-
-
-    public GroupLocationResolver()
-    {
-    }
 
     @PostConstruct
     @Override
     public void register()
     {
-        locationResolverRegistry.addResolver(ALIAS, this);
+        getRepositoryProviderRegistry().addProvider(ALIAS, this);
 
-        logger.info("Registered resolver '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
+        logger.info("Registered repository provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
     }
 
     @Override
-    public LocationResolverRegistry getLocationResolverRegistry()
+    public String getAlias()
     {
-        return locationResolverRegistry;
+        return ALIAS;
     }
 
     @Override
     public ArtifactInputStream getInputStream(String storageId,
                                               String repositoryId,
                                               String artifactPath)
-            throws IOException, NoSuchAlgorithmException, ArtifactTransportException
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   ArtifactTransportException,
+                   ProviderImplementationException
     {
         Storage storage = getConfiguration().getStorage(storageId);
 
@@ -83,8 +75,7 @@ public class GroupLocationResolver
         }
 
         // Check the routing rules for wildcard accept rules
-        final ArtifactInputStream isWildcardRepositoryAccept = getInputStreamFromWildcardRepositoryAcceptRules(artifactPath,
-                                                                                                               storage);
+        final ArtifactInputStream isWildcardRepositoryAccept = getInputStreamFromWildcardRepositoryAcceptRules(artifactPath, storage);
         if (isWildcardRepositoryAccept != null)
         {
             return isWildcardRepositoryAccept;
@@ -119,9 +110,7 @@ public class GroupLocationResolver
         return null;
     }
 
-    public boolean repositoryRejects(String repositoryId,
-                                     String artifactPath,
-                                     RuleSet denyRules)
+    public boolean repositoryRejects(String repositoryId, String artifactPath, RuleSet denyRules)
     {
         if (denyRules != null && !denyRules.getRoutingRules().isEmpty())
         {
@@ -137,43 +126,38 @@ public class GroupLocationResolver
         return false;
     }
 
-    private ArtifactInputStream getInputStreamFromWildcardRepositoryAcceptRules(String artifactPath,
-                                                                                Storage storage)
-            throws IOException, NoSuchAlgorithmException, ArtifactTransportException
+    private ArtifactInputStream getInputStreamFromWildcardRepositoryAcceptRules(String artifactPath, Storage storage)
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   ArtifactTransportException,
+                   ProviderImplementationException
     {
         RuleSet globalAcceptRules = getRoutingRules().getWildcardAcceptedRules();
-        if (globalAcceptRules != null && globalAcceptRules.getRoutingRules() != null &&
-            !globalAcceptRules.getRoutingRules().isEmpty())
-        {
-            final List<RoutingRule> routingRules = globalAcceptRules.getRoutingRules();
-            for (RoutingRule rule : routingRules)
-            {
-                if (artifactPath.matches(rule.getPattern()))
-                {
-                    for (String rId : rule.getRepositories())
-                    {
-                        String sId = getConfigurationManager().getStorageId(storage, rId);
-                        rId = getConfigurationManager().getRepositoryId(rId);
 
-                        Repository repository = getConfiguration().getStorage(sId).getRepository(rId);
-                        if (repository.isInService() && basicRepositoryService.containsPath(repository, artifactPath))
-                        {
-                            return resolveArtifact(sId, repository.getId(), artifactPath);
-                        }
-                    }
-                }
-            }
-        }
-
-        return null;
+        return getArtifactInputStreamViaAcceptedRules(artifactPath, storage, globalAcceptRules);
     }
 
     private ArtifactInputStream getInputStreamFromRepositoryAcceptRules(String repositoryId,
                                                                         String artifactPath,
                                                                         Storage storage)
-            throws IOException, NoSuchAlgorithmException, ArtifactTransportException
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   ArtifactTransportException,
+                   ProviderImplementationException
     {
         RuleSet acceptRules = getRoutingRules().getAcceptRules(repositoryId);
+
+        return getArtifactInputStreamViaAcceptedRules(artifactPath, storage, acceptRules);
+    }
+
+    private ArtifactInputStream getArtifactInputStreamViaAcceptedRules(String artifactPath,
+                                                                       Storage storage,
+                                                                       RuleSet acceptRules)
+            throws ProviderImplementationException,
+                   NoSuchAlgorithmException,
+                   IOException,
+                   ArtifactTransportException
+    {
         if (acceptRules != null && acceptRules.getRoutingRules() != null &&
             !acceptRules.getRoutingRules().isEmpty())
         {
@@ -188,7 +172,9 @@ public class GroupLocationResolver
                         rId = getConfigurationManager().getRepositoryId(rId);
 
                         Repository repository = getConfiguration().getStorage(sId).getRepository(rId);
-                        if (repository.isInService() && basicRepositoryService.containsPath(repository, artifactPath))
+                        LayoutProvider layoutProvider = getLayoutProvider(repository, getLayoutProviderRegistry());
+
+                        if (repository.isInService() && layoutProvider.containsPath(repository, artifactPath))
                         {
                             return resolveArtifact(sId, repository.getId(), artifactPath);
                         }
@@ -202,7 +188,7 @@ public class GroupLocationResolver
 
     /**
      * Returns the artifact associated to artifactPath if repository type isn't GROUP or
-     * returns the product of calling GroupLocationResolver.getInputStream recursively otherwise
+     * returns the product of calling getInputStream recursively otherwise.
      *
      * @param storageId    The storage id
      * @param repositoryId The repository
@@ -217,12 +203,13 @@ public class GroupLocationResolver
                                                 String artifactPath)
             throws NoSuchAlgorithmException,
                    IOException,
-                   ArtifactTransportException
+                   ArtifactTransportException,
+                   ProviderImplementationException
     {
         ArtifactInputStream is;
-        Repository repository = getStorage(storageId).getRepository(repositoryId);
+        Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
 
-        if (!RepositoryTypeEnum.GROUP.getType().equals(repository.getType()))
+        if (!getAlias().equals(repository.getType()))
         {
             is = getInputStream(repository, artifactPath);
             if (is != null)
@@ -233,7 +220,7 @@ public class GroupLocationResolver
         }
         else
         {
-            is = this.getInputStream(storageId, repository.getId(), artifactPath);
+            is = getInputStream(storageId, repository.getId(), artifactPath);
             if (is != null)
             {
                 logger.debug("Located artifact: [" + storageId + ":" + repository.getId() + "]");
@@ -244,19 +231,16 @@ public class GroupLocationResolver
         return null;
     }
 
-    private ArtifactInputStream getInputStream(Repository repository,
-                                               String artifactPath)
+    private ArtifactInputStream getInputStream(Repository repository, String artifactPath)
             throws IOException,
                    NoSuchAlgorithmException,
-                   ArtifactTransportException
+                   ArtifactTransportException,
+                   ProviderImplementationException
     {
-        // TODO: Resolve via the implementation provider, not the filesystem
-        // repository.getImplementation()
-
-        return locationResolverRegistry.getResolver(repository.getImplementation())
-                                       .getInputStream(repository.getStorage().getId(),
-                                                       repository.getId(),
-                                                       artifactPath);
+        return getLayoutProviderRegistry().getProvider(repository.getLayout())
+                                          .getInputStream(repository.getStorage().getId(),
+                                                          repository.getId(),
+                                                          artifactPath);
     }
 
     @Override
@@ -270,79 +254,6 @@ public class GroupLocationResolver
         // in the repositories within the group.
 
         return null;
-    }
-
-    @Override
-    public boolean contains(String storageId,
-                            String repositoryId,
-                            String path)
-            throws IOException
-    {
-        return false;
-    }
-
-    @Override
-    public void delete(String storageId,
-                       String repositoryId,
-                       String path,
-                       boolean force)
-            throws IOException
-    {
-        throw new IOException("Group repositories cannot perform delete operations.");
-    }
-
-    @Override
-    public void deleteTrash(String storageId,
-                            String repositoryId)
-            throws IOException
-    {
-        throw new IOException("Group repositories cannot perform delete operations.");
-    }
-
-    @Override
-    public void deleteTrash()
-            throws IOException
-    {
-        throw new IOException("Group repositories cannot perform delete operations.");
-    }
-
-    @Override
-    public void undelete(String storageId,
-                         String repositoryId,
-                         String path)
-            throws IOException
-    {
-        logger.debug("Failed to undelete '" + storageId + ":" + repositoryId + "/" + path + "'," +
-                     " as group repositories cannot perform undelete operations.");
-    }
-
-    @Override
-    public void undeleteTrash(String storageId,
-                              String repositoryId)
-            throws IOException
-    {
-        logger.debug("Failed to undelete trash for " + storageId + ":" + repositoryId + "," +
-                     " as group repositories cannot perform undelete operations.");
-    }
-
-    @Override
-    public void undeleteTrash()
-            throws IOException
-    {
-        logger.debug("Failed to undelete trash, as group repositories cannot perform undelete operations.");
-    }
-
-    @Override
-    public void initialize()
-            throws IOException
-    {
-        logger.debug("Initialized GroupLocationResolver.");
-    }
-
-    @Override
-    public String getAlias()
-    {
-        return ALIAS;
     }
 
     public RoutingRules getRoutingRules()

@@ -58,7 +58,6 @@ public class StorageBooter
                    PlexusContainerException,
                    ComponentLookupException
     {
-        logger.info("StorageBooter.initialize()");
         if (!lockExists())
         {
             createLockFile();

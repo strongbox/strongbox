@@ -30,6 +30,7 @@ public class CustomAuthenticationProvider
     @Autowired
     PasswordEncoder passwordEncoder;
 
+
     @PostConstruct
     public void init()
     {
@@ -56,4 +57,5 @@ public class CustomAuthenticationProvider
     {
         return userDetailsService.loadUserByUsername(s);
     }
+
 }

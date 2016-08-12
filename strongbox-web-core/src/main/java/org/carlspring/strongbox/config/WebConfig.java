@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.CommonConfig;
-import org.carlspring.strongbox.StorageApiConfig;
 import org.carlspring.strongbox.StorageIndexingConfig;
 import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
 import org.carlspring.strongbox.users.UsersConfig;

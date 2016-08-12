@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.services;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
@@ -206,7 +207,7 @@ public class ArtifactMetadataServiceReleasesTest
 
     @Test
     public void testMetadataMerge()
-            throws IOException, XmlPullParserException, NoSuchAlgorithmException
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException, ProviderImplementationException
     {
         // Create an artifact for metadata merging tests
         Artifact mergeArtifact = createRelease("org.carlspring.strongbox.metadata:strongbox-metadata-merge:1.0:jar");
