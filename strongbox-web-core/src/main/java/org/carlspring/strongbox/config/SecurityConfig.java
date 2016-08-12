@@ -2,6 +2,9 @@ package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.security.authentication.CustomAnonymousAuthenticationFilter;
 import org.carlspring.strongbox.security.authentication.UnauthorizedEntryPoint;
+import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
+
+import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -25,8 +28,9 @@ public class SecurityConfig
 {
 
     @Autowired
+    AuthorizationConfigProvider authorizationConfigProvider;
+    @Autowired
     private AuthenticationProvider authenticationProvider;
-
     @Autowired
     private AnonymousAuthenticationFilter anonymousAuthenticationFilter;
 
@@ -59,6 +63,15 @@ public class SecurityConfig
             throws Exception
     {
         auth.authenticationProvider(authenticationProvider);
+    }
+
+    @PostConstruct
+    public void init()
+    {
+        // load anonymous user privileges from database
+        authorizationConfigProvider.getConfig().ifPresent(
+                config -> anonymousAuthenticationFilter.getAuthorities().addAll(config.getAnonymousAuthorities())
+        );
     }
 
     @Bean

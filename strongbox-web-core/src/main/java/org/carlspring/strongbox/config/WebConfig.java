@@ -38,5 +38,4 @@ public class WebConfig
     {
         logger.debug("Initialized web configuration.");
     }
-
 }

@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.rest;
 
+import org.carlspring.strongbox.security.jaas.Privilege;
 import org.carlspring.strongbox.security.jaas.Role;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.security.AuthorizationConfig;
@@ -7,7 +8,13 @@ import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
@@ -17,12 +24,19 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.stereotype.Component;
 
 /**
@@ -44,12 +58,18 @@ public class AuthorizationConfigRestlet
     private final GenericParser<AuthorizationConfig> configGenericParser = new GenericParser<>(AuthorizationConfig.class);
     @Autowired
     AuthorizationConfigProvider configProvider;
+
     @Autowired
     UserService userService;
+
     @Autowired
     OObjectDatabaseTx databaseTx;
+
     @Autowired
-    private CacheManager cacheManager;
+    CacheManager cacheManager;
+
+    @Autowired
+    AnonymousAuthenticationFilter anonymousAuthenticationFilter;
 
     private synchronized Response processConfig(Consumer<AuthorizationConfig> consumer)
     {
@@ -175,6 +195,66 @@ public class AuthorizationConfigRestlet
                                                            });
                                  }
                              });
+    }
+
+
+    // ----------------------------------------------------------------------------------------------------------------
+    // Assign privileges to the anonymous user
+    @POST
+    @Path("anonymous/privileges")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public synchronized Response addPrivilegesToAnonymous(List<Privilege> privileges)
+    {
+        return processConfig(config -> privileges.forEach(
+                privilege ->
+                {
+                    GrantedAuthority authority = new SimpleGrantedAuthority(privilege.getName().toUpperCase());
+                    config.getAnonymousAuthorities().add(authority);
+                    anonymousAuthenticationFilter.getAuthorities().add(
+                            authority);
+                }));
+    }
+
+
+    // ----------------------------------------------------------------------------------------------------------------
+    // Assign roles to the anonymous user
+    @POST
+    @Path("anonymous/roles")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public synchronized Response addRolesToAnonymous(List<Role> roles)
+    {
+        return processConfig(config -> config.getRoles().getRoles().forEach(
+                role ->
+                {
+
+                    // finding match between external roles request and current existing (in authorization config)
+                    roles.forEach(newRoles ->
+                                  {
+                                      if (role.getName().equalsIgnoreCase(
+                                              newRoles.getName()))
+                                      {
+                                          role.getPrivileges().forEach(privilege ->
+                                                                       {
+                                                                           SimpleGrantedAuthority authority = new SimpleGrantedAuthority(privilege.toUpperCase());
+                                                                           config.getAnonymousAuthorities().add(
+                                                                                   authority);
+                                                                           anonymousAuthenticationFilter.getAuthorities().add(
+                                                                                   authority);
+                                                                       });
+                                      }
+                                  });
+                }));
+    }
+
+
+    private synchronized void addAnonymousPrivilege(Privilege privilege)
+    {
+        addAnonymousPrivilege(privilege.getName().toUpperCase());
+    }
+
+    private synchronized void addAnonymousPrivilege(String privilege)
+    {
+        anonymousAuthenticationFilter.getAuthorities().add(new SimpleGrantedAuthority(privilege));
     }
 
     private synchronized List<User> getAllUsers()
