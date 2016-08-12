@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.data.server.EmbeddedOrientDbServer;
-import org.carlspring.strongbox.data.tx.CustomOrientObjectDatabaseFactory;
 import org.carlspring.strongbox.data.tx.CustomOrientTransactionManager;
 
 import javax.annotation.PostConstruct;
@@ -63,17 +62,13 @@ public class DataServiceConfig
     @Autowired
     EmbeddedOrientDbServer embeddableServer;
 
-    private CustomOrientObjectDatabaseFactory currentFactory;
-
     @Bean
     public OrientObjectDatabaseFactory factory()
     {
-        CustomOrientObjectDatabaseFactory factory = new CustomOrientObjectDatabaseFactory();
+        OrientObjectDatabaseFactory factory = new OrientObjectDatabaseFactory();
         factory.setUrl(getConnectionUrl());
         factory.setUsername(username);
         factory.setPassword(password);
-
-        this.currentFactory = factory;
 
         return factory;
     }
@@ -127,15 +122,8 @@ public class DataServiceConfig
     }
 
     @PreDestroy
-    public void shutDown()
+    public void close()
     {
-        // close database connection pool
-        if (currentFactory != null)
-        {
-            currentFactory.close();
-        }
-
-        // stop the server instance
         embeddableServer.shutDown();
     }
 

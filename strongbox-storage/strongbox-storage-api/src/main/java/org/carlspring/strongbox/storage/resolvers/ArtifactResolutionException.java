@@ -5,7 +5,8 @@ import java.io.IOException;
 /**
  * @author mtodorov
  */
-public class ArtifactResolutionException extends IOException
+public class ArtifactResolutionException
+        extends IOException
 {
 
     public ArtifactResolutionException()

@@ -2,13 +2,11 @@ package org.carlspring.strongbox.users.domain;
 
 import org.carlspring.strongbox.data.domain.GenericEntity;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
-
-import javax.persistence.Column;
 
 /**
  * An application user
@@ -25,12 +23,12 @@ public class User
 
     private String salt;
 
-    private List<String> roles;
+    private Set<String> roles;
 
 
     public User()
     {
-        roles = new LinkedList<>();
+        roles = new HashSet<>();
     }
 
     public User(String id,
@@ -38,7 +36,7 @@ public class User
                 String password,
                 boolean enabled,
                 String salt,
-                List<String> roles)
+                Set<String> roles)
     {
         this.id = id;
         this.username = username;
@@ -88,12 +86,12 @@ public class User
         this.salt = salt;
     }
 
-    public List<String> getRoles()
+    public Set<String> getRoles()
     {
         return roles;
     }
 
-    public void setRoles(final List<String> roles)
+    public void setRoles(final Set<String> roles)
     {
         this.roles = roles;
     }

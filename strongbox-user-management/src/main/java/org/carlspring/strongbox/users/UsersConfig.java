@@ -23,7 +23,6 @@ import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.Resource;
 import org.springframework.data.orient.commons.repository.config.EnableOrientRepositories;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,13 +37,12 @@ import org.springframework.transaction.annotation.Transactional;
 @EnableOrientRepositories(basePackages = "org.carlspring.strongbox.users.repository")
 @Import({ DataServiceConfig.class,
           CommonConfig.class })
-@Scope("singleton")
 public class UsersConfig
 {
 
     private static final Logger logger = LoggerFactory.getLogger(UsersConfig.class);
 
-    private static volatile boolean initialized;
+    private final static GenericParser<Users> parser = new GenericParser<>(Users.class);
 
     @Autowired
     private OObjectDatabaseTx databaseTx;
@@ -61,23 +59,21 @@ public class UsersConfig
     @Autowired
     private AuthorizationConfigProvider authorizationConfigProvider;
 
-    private final static GenericParser<Users> parser = new GenericParser<>(Users.class);
+
+    private synchronized OObjectDatabaseTx getDatabaseTx()
+    {
+        databaseTx.activateOnCurrentThread();
+        return databaseTx;
+    }
 
     @PostConstruct
     @Transactional
     public synchronized void init()
     {
-        if (initialized)
-        {
-            return;
-        }
-
-        initialized = true;
-
         logger.debug("Loading users...");
 
         // register all domain entities
-        databaseTx.getEntityManager().registerEntityClasses(User.class.getPackage().getName());
+        getDatabaseTx().getEntityManager().registerEntityClasses(User.class.getPackage().getName());
 
         loadUsersFromConfigFile();
     }
@@ -109,8 +105,7 @@ public class UsersConfig
         if (needToSaveInDb)
         {
             internalUser = userService.save(internalUser);
-            databaseTx.activateOnCurrentThread();
-            internalUser = databaseTx.detach(internalUser, true);
+            internalUser = getDatabaseTx().detach(internalUser, true);
         }
 
         cacheManager.getCache("users").put(internalUser.getUsername(), internalUser);
@@ -123,8 +118,8 @@ public class UsersConfig
         internalUser.setUsername(user.getUsername());
 
         Credentials credentials = user.getCredentials();
-        EncryptionAlgorithms algorithms = EncryptionAlgorithms.valueOf(
-                credentials.getEncryptionAlgorithm().toUpperCase());
+        EncryptionAlgorithms algorithms = EncryptionAlgorithms.valueOf(credentials.getEncryptionAlgorithm()
+                                                                                  .toUpperCase());
 
         switch (algorithms)
         {
@@ -150,4 +145,5 @@ public class UsersConfig
         return configurationResourceResolver.getConfigurationResource("users.config.xml",
                                                                       "etc/conf/security-users.xml");
     }
+
 }

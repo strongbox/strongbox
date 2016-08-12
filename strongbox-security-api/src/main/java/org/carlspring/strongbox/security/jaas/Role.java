@@ -1,13 +1,10 @@
 package org.carlspring.strongbox.security.jaas;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import org.carlspring.strongbox.data.domain.GenericEntity;
+
+import javax.xml.bind.annotation.*;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.google.common.base.Objects;
 
@@ -16,7 +13,8 @@ import com.google.common.base.Objects;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Role implements Serializable
+public class Role
+        extends GenericEntity
 {
 
     @XmlElement
@@ -34,13 +32,13 @@ public class Role implements Serializable
     /**
      * Nested roles.
      */
-    @XmlElement(name = "role")
+ /*   @XmlElement(name = "role")
     @XmlElementWrapper(name = "roles")
-    private List<String> roles = new ArrayList<>();
+    private List<String> roles = new ArrayList<>();*/
 
     @XmlElement(name = "privilege")
     @XmlElementWrapper(name = "privileges")
-    private List<String> privileges = new ArrayList<>();
+    private Set<String> privileges = new HashSet<>();
 
 
     public Role()
@@ -57,8 +55,15 @@ public class Role implements Serializable
     @Override
     public boolean equals(Object o)
     {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+        {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass())
+        {
+            return false;
+        }
+
         Role role = (Role) o;
         return Objects.equal(name, role.name);
     }
@@ -99,37 +104,12 @@ public class Role implements Serializable
         this.repository = repository;
     }
 
-    public List<String> getRoles()
-    {
-        return roles;
-    }
-
-    public void setRoles(List<String> roles)
-    {
-        this.roles = roles;
-    }
-
-    public boolean addRole(String role)
-    {
-        return roles.add(role);
-    }
-
-    public boolean removeRole(String role)
-    {
-        return roles.remove(role);
-    }
-
-    public boolean containsRole(String role)
-    {
-        return roles.contains(role);
-    }
-
-    public List<String> getPrivileges()
+    public Set<String> getPrivileges()
     {
         return privileges;
     }
 
-    public void setPrivileges(List<String> privileges)
+    public void setPrivileges(Set<String> privileges)
     {
         this.privileges = privileges;
     }
@@ -156,9 +136,10 @@ public class Role implements Serializable
         sb.append("name='").append(name).append('\'');
         sb.append(", description='").append(description).append('\'');
         sb.append(", repository='").append(repository).append('\'');
-        sb.append(", roles=").append(roles);
         sb.append(", privileges=").append(privileges);
         sb.append('}');
+
         return sb.toString();
     }
+
 }

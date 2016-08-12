@@ -7,13 +7,17 @@ import org.apache.maven.artifact.Artifact;
 /**
  * @author mtodorov
  */
-public interface BasicRepositoryService extends ConfigurationService
+public interface BasicRepositoryService
+        extends ConfigurationService
 {
 
-    boolean containsArtifact(Repository repository, Artifact artifact);
+    boolean containsArtifact(Repository repository,
+                             Artifact artifact);
 
-    boolean containsPath(Repository repository, String path);
+    boolean containsPath(Repository repository,
+                         String path);
 
-    String getPathToArtifact(Repository repository, Artifact artifact);
+    String getPathToArtifact(Repository repository,
+                             Artifact artifact);
 
 }

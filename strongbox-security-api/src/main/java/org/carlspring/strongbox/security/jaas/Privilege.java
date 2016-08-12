@@ -1,17 +1,21 @@
 package org.carlspring.strongbox.security.jaas;
 
+import org.carlspring.strongbox.data.domain.GenericEntity;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.io.Serializable;
+
+import com.google.common.base.Objects;
 
 /**
  * @author mtodorov
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Privilege implements Serializable
+public class Privilege
+        extends GenericEntity
 {
 
     @XmlElement
@@ -30,6 +34,21 @@ public class Privilege implements Serializable
     {
         this.name = name;
         this.description = description;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Privilege privilege = (Privilege) o;
+        return Objects.equal(name, privilege.name);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hashCode(name);
     }
 
     public String getName()
@@ -59,6 +78,8 @@ public class Privilege implements Serializable
         sb.append("name='").append(name).append('\'');
         sb.append(", description='").append(description).append('\'');
         sb.append('}');
+        
         return sb.toString();
     }
+    
 }

@@ -16,7 +16,7 @@ import java.util.List;
  * @author stodorov
  */
 public abstract class AbstractArtifactLocationHandler
-    implements ArtifactDirectoryOperation
+        implements ArtifactDirectoryOperation
 {
 
     private Storage storage;

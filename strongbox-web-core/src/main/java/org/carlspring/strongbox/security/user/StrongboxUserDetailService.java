@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.security.user;
 
+import org.carlspring.strongbox.security.jaas.Role;
 import org.carlspring.strongbox.users.domain.Roles;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
@@ -9,9 +10,11 @@ import javax.annotation.PostConstruct;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -35,24 +38,53 @@ public class StrongboxUserDetailService
     @Autowired
     AuthorizationConfigProvider authorizationConfigProvider;
 
+    @Autowired
+    private OObjectDatabaseTx databaseTx;
+
     private Set<GrantedAuthority> fullAuthorities;
+
+    private Set<Role> configuredRoles;
 
     @PostConstruct
     public void init()
     {
         fullAuthorities = new HashSet<>();
+        configuredRoles = new HashSet<>();
 
         authorizationConfigProvider.getConfig().ifPresent(
-                config -> config.getPrivileges().getPrivileges().forEach(
-                        privilege -> fullAuthorities.add(new SimpleGrantedAuthority(privilege.getName().toUpperCase()))
-                )
+                config ->
+                {
+                    databaseTx.activateOnCurrentThread();
+                    try
+                    {
+                        config.getRoles().getRoles().forEach(
+                                role ->
+                                {
+                                    Role detached = databaseTx.detachAll(role, true);
+                                    detached.getPrivileges().forEach(privilegeName -> fullAuthorities.add(
+                                            new SimpleGrantedAuthority(privilegeName.toUpperCase())));
+
+                                });
+
+                        configuredRoles.addAll(config.getRoles().getRoles());
+                    }
+                    catch (Exception e)
+                    {
+                        logger.error("Unable to process authorization config", e);
+                    }
+                }
         );
+        authorizationConfigProvider.getConfig().orElseThrow(
+                () -> new RuntimeException("Unable to get authorization config"));
     }
 
     @Override
+    @Cacheable(value = "userDetails", key = "#name")
     public synchronized UserDetails loadUserByUsername(String name)
             throws UsernameNotFoundException
     {
+        logger.debug("Loading user details for " + name + " ...");
+
         if (name == null)
         {
             throw new IllegalArgumentException("Username cannot be null.");
@@ -82,8 +114,9 @@ public class StrongboxUserDetailService
         return springUser;
     }
 
-    private Set<GrantedAuthority> getAuthoritiesByRoleName(final String roleName)
+    private synchronized Set<GrantedAuthority> getAuthoritiesByRoleName(final String roleName)
     {
+
         Set<GrantedAuthority> authorities = new HashSet<>();
 
         if (roleName.equals("ADMIN"))
@@ -92,14 +125,18 @@ public class StrongboxUserDetailService
         }
 
         // add all privileges from etc/conf/security-authorization.xml for any role that defines there
-        authorizationConfigProvider.getConfig().ifPresent(
-                authorizationConfig -> authorizationConfig.getRoles().getRoles().forEach(role -> {
-                    if (role.getName().equals(roleName))
-                    {
-                        role.getPrivileges().forEach(privilegeName -> authorities.add(
-                                new SimpleGrantedAuthority(privilegeName.toUpperCase())));
-                    }
-                }));
+        configuredRoles.forEach(role ->
+                                {
+
+                                    databaseTx.activateOnCurrentThread();
+                                    final Role detached = databaseTx.detachAll(role, true);
+                                    if (detached.getName().equalsIgnoreCase(roleName))
+                                    {
+                                        detached.getPrivileges().forEach(
+                                                privilegeName -> authorities.add(
+                                                        new SimpleGrantedAuthority(privilegeName.toUpperCase())));
+                                    }
+                                });
 
         try
         {
@@ -113,4 +150,5 @@ public class StrongboxUserDetailService
 
         return authorities;
     }
+
 }

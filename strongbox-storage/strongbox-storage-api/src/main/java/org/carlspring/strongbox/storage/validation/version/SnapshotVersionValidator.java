@@ -24,7 +24,8 @@ public class SnapshotVersionValidator
      * 1.0.8-alpha-1-20151025.032208-1
      */
     @Override
-    public void validate(Repository repository, Artifact artifact)
+    public void validate(Repository repository,
+                         Artifact artifact)
             throws VersionValidationException
     {
         String version = artifact.getVersion();

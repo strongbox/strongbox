@@ -35,22 +35,15 @@ public class ArtifactClient
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactClient.class);
-
+    protected String username = "maven";
+    protected String password = "password";
     private String protocol = "http";
-
     private String host =
             System.getProperty("strongbox.host") != null ? System.getProperty("strongbox.host") : "localhost";
-
     private int port = System.getProperty("strongbox.port") != null ?
                        Integer.parseInt(System.getProperty("strongbox.port")) :
                        48080;
-
     private String contextBaseUrl;
-
-    private String username = "maven";
-
-    private String password = "password";
-
     private Client client;
 
     public ArtifactClient()
@@ -486,12 +479,13 @@ public class ArtifactClient
         return getContextBaseUrl() + "/trash/" + storageId + "/" + repositoryId;
     }
 
-    public void setupAuthentication(WebTarget target)
+    public WebTarget setupAuthentication(WebTarget target)
     {
         if (username != null && password != null)
         {
             logger.trace("[setupAuthentication] " + username + "@" + password);
             target.register(HttpAuthenticationFeature.basic(username, password));
+            return target;
         }
         else
         {

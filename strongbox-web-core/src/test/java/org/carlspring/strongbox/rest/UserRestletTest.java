@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.rest;
 
+import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.users.domain.User;
 
 import javax.ws.rs.client.Entity;
@@ -19,12 +20,15 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Test for {@link UserRestlet} REST API.
+ * Jersey test for {@link UserRestlet}.
+ *
+ * @author Alex Oreshkevich
  */
 @Ignore  //*
 public class UserRestletTest
         extends CustomJerseyTest
 {
+    private static RestClient client = new RestClient();
 
     private static final Logger logger = LoggerFactory.getLogger(UserRestletTest.class);
 
@@ -33,6 +37,19 @@ public class UserRestletTest
     {
         Response response = requestApi("/users/greet").get();
         displayResponseError(response);
+        Response response = client.prepareTarget("/users/greet").request().get();
+        RestClient.displayResponseError(response);
+        assertEquals(200, response.getStatus());
+    }
+
+    @Test
+    public synchronized void testThatHaveExceptionForInvalidPassword()
+            throws Exception
+    {
+        Response response = client.prepareTarget("/users/greet", "admin", "some_password").request().get();
+        client.resetAuthentication();
+        assertEquals(401, response.getStatus());
+        RestClient.displayResponseError(response);
     }
 
     @Test
@@ -145,7 +162,7 @@ public class UserRestletTest
         return test;
     }
 
-    private String read(Response response)
+    private synchronized String read(Response response)
     {
         String rawResponse = response.readEntity(String.class);
         logger.debug("Raw response " + rawResponse);

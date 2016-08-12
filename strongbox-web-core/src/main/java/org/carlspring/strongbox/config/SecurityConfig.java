@@ -1,6 +1,10 @@
 package org.carlspring.strongbox.config;
 
+import org.carlspring.strongbox.security.authentication.CustomAnonymousAuthenticationFilter;
 import org.carlspring.strongbox.security.authentication.UnauthorizedEntryPoint;
+import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
+
+import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -11,9 +15,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -22,7 +28,11 @@ public class SecurityConfig
 {
 
     @Autowired
+    AuthorizationConfigProvider authorizationConfigProvider;
+    @Autowired
     private AuthenticationProvider authenticationProvider;
+    @Autowired
+    private AnonymousAuthenticationFilter anonymousAuthenticationFilter;
 
     @Override
     protected void configure(HttpSecurity http)
@@ -41,7 +51,8 @@ public class SecurityConfig
             .and()
             .authorizeRequests()
             .antMatchers("/docs/**").permitAll()
-            .anyRequest().authenticated()
+            .and()
+            .anonymous().authenticationFilter(anonymousAuthenticationFilter)
             .and()
             .logout()
             .logoutUrl("/logout");
@@ -52,6 +63,22 @@ public class SecurityConfig
             throws Exception
     {
         auth.authenticationProvider(authenticationProvider);
+    }
+
+    @PostConstruct
+    public void init()
+    {
+        // load anonymous user privileges from database
+        authorizationConfigProvider.getConfig().ifPresent(
+                config -> anonymousAuthenticationFilter.getAuthorities().addAll(config.getAnonymousAuthorities())
+        );
+    }
+
+    @Bean
+    public AnonymousAuthenticationFilter customAnonymousAuthenticationFilter()
+    {
+        return new CustomAnonymousAuthenticationFilter("strongbox-unique-key", "anonymousUser",
+                                                       AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
     }
 
     @Bean

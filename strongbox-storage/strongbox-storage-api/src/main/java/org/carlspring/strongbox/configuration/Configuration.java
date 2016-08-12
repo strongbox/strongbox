@@ -109,7 +109,13 @@ public class Configuration
 
     public void addStorage(Storage storage)
     {
-        storages.put(storage.getId(), storage);
+        String key = storage.getId();
+        if (key == null || key.isEmpty())
+        {
+            throw new IllegalArgumentException("Null keys are not supported!");
+        }
+
+        storages.put(key, storage);
     }
 
     public Storage getStorage(String storageId)
@@ -130,6 +136,16 @@ public class Configuration
     public void setRoutingRules(RoutingRules routingRules)
     {
         this.routingRules = routingRules;
+    }
+
+    public String getId()
+    {
+        return id;
+    }
+
+    public void setId(String id)
+    {
+        this.id = id;
     }
 
     @Override
@@ -156,12 +172,12 @@ public class Configuration
     public String toString()
     {
         return MoreObjects.toStringHelper(this)
-                          .add("version", version)
-                          .add("baseUrl", baseUrl)
-                          .add("port", port)
-                          .add("proxyConfiguration", proxyConfiguration)
-                          .add("storages", storages)
-                          .add("routingRules", routingRules)
+                          .add("\n\tversion", version)
+                          .add("\n\tbaseUrl", baseUrl)
+                          .add("\n\tport", port)
+                          .add("\n\tproxyConfiguration", proxyConfiguration)
+                          .add("\n\tstorages", storages)
+                          .add("\n\troutingRules", routingRules)
                           .toString();
     }
 

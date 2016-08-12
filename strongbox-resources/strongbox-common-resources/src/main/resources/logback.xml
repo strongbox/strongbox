@@ -33,8 +33,7 @@
     <logger name="org.springframework">
         <level value="ERROR"/>
     </logger>
-
-    <logger name="org.apache.commons.httpclient">
+    <logger name="org.apache">
         <level value="ERROR"/>
     </logger>
 
