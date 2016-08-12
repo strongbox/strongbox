@@ -140,13 +140,15 @@ public class ArtifactControllerTest
 
         //    assertTrue("Artifact does not exist!", pathExists(artifactPath));
 
-        RestAssuredMockMvc
-                .given()
-                .contentType(ContentType.TEXT)
-                .when()
-                .get(artifactPath)
-                .then()
-                .statusCode(200);
+        RestAssuredMockMvc.given()
+                          .contentType("application/json")
+                          .when()
+                          .put(artifactPath)
+                          .peek() // Use peek() to print the ouput
+                          .then()
+                          .statusCode(200) // check http status code
+                          .extract()
+                          .asString();
 
       /*  String md5Remote = MessageDigestUtils.readChecksumFile(client.getResource(artifactPath + ".md5"));
         String sha1Remote = MessageDigestUtils.readChecksumFile(client.getResource(artifactPath + ".sha1"));

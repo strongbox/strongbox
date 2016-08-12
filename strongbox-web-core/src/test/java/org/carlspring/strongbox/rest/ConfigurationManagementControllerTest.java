@@ -5,25 +5,39 @@ import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
+import org.carlspring.strongbox.configuration.ServerConfiguration;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.xml.parsers.GenericParser;
 
+import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.internal.mapper.ObjectMapperType;
 import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
+import com.jayway.restassured.response.ExtractableResponse;
 import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.web.client.HttpServerErrorException;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -36,13 +50,14 @@ import static org.junit.Assert.assertTrue;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = WebConfig.class)
 @WebAppConfiguration
-@Ignore
 public class ConfigurationManagementControllerTest
         extends BackendBaseTest
 {
 
+    private static final Logger logger = LoggerFactory.getLogger(ConfigurationManagementControllerTest.class);
+    @Inject
+    ObjectMapper objectMapper;
     private RestClient client = RestClient.getTestInstanceLoggedInAsAdmin();
-
 
     @After
     public void tearDown()
@@ -133,23 +148,41 @@ public class ConfigurationManagementControllerTest
         ProxyConfiguration proxyConfiguration = createProxyConfiguration();
         proxyConfiguration.setNonProxyHosts(nonProxyHosts);
 
-        int status = client.setProxyConfiguration(proxyConfiguration);
+        System.out.print("        -------------?????????????????----------->  " + proxyConfiguration);
 
-        assertEquals("Failed to set proxy configuration!", 200, status);
+        String url = getContextBaseUrl() + "/configuration/strongbox/proxy-configuration";
 
-        ProxyConfiguration pc = client.getProxyConfiguration(null, null);
+        RestAssuredMockMvc.given()
+                          .contentType(MediaType.APPLICATION_XML_VALUE)
+                          .body(proxyConfiguration, ObjectMapperType.JAXB)
+                          .when()
+                          .put(url)
+                          .peek() // Use peek() to print the ouput
+                          .then()
+                          .statusCode(200);
 
-        assertNotNull("Failed to get proxy configuration!", pc);
-        assertEquals("Failed to get proxy configuration!", proxyConfiguration.getHost(), pc.getHost());
-        assertEquals("Failed to get proxy configuration!", proxyConfiguration.getPort(), pc.getPort());
-        assertEquals("Failed to get proxy configuration!", proxyConfiguration.getUsername(), pc.getUsername());
-        assertEquals("Failed to get proxy configuration!", proxyConfiguration.getPassword(), pc.getPassword());
-        assertEquals("Failed to get proxy configuration!", proxyConfiguration.getType(), pc.getType());
-        assertEquals("Failed to get proxy configuration!", proxyConfiguration.getNonProxyHosts(),
-                     pc.getNonProxyHosts());
+
+        url = getContextBaseUrl() + "/configuration/strongbox/proxy-configuration";
+
+        RestAssuredMockMvc.given()
+                          .contentType(MediaType.APPLICATION_XML_VALUE)
+                          .when()
+                          .get(url)
+                          .peek() // Use peek() to print the ouput
+                          .then()
+                          .statusCode(200)
+                          .body("host", equalTo(proxyConfiguration.getHost()))
+                          .body("port", equalTo(proxyConfiguration.getPort()))
+                          .body("username", equalTo(proxyConfiguration.getUsername()))
+                          .body("password", equalTo(proxyConfiguration.getPassword()))
+                          .body("type", equalTo(proxyConfiguration.getType()))
+                          .body("nonProxyHosts", equalTo(proxyConfiguration.getNonProxyHosts()))
+                          .extract();
     }
 
+
     @Test
+    @WithUserDetails("admin")
     public void testAddGetStorage()
             throws Exception
     {
@@ -157,9 +190,16 @@ public class ConfigurationManagementControllerTest
 
         Storage storage1 = new Storage("storage1");
 
-        final int response = client.addStorage(storage1);
+        String url = getContextBaseUrl() + "/configuration/strongbox/storages";
 
-        assertEquals("Failed to create storage!", 200, response);
+        RestAssuredMockMvc.given()
+                          .contentType(MediaType.APPLICATION_XML_VALUE)
+                          .body(storage1, ObjectMapperType.JAXB)
+                          .when()
+                          .put(url)
+                          .peek() // Use peek() to print the ouput
+                          .then()
+                          .statusCode(200);
 
         Repository r1 = new Repository("repository0");
         r1.setAllowsRedeployment(true);
@@ -172,10 +212,23 @@ public class ConfigurationManagementControllerTest
         r2.setStorage(storage1);
         r2.setProxyConfiguration(createProxyConfiguration());
 
-        client.addRepository(r1);
-        client.addRepository(r2);
+        addRepository(r1);
+        addRepository(r2);
 
-        Storage storage = client.getStorage(storageId);
+        url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId;
+
+        RestAssuredMockMvc.given()
+                          .contentType(MediaType.APPLICATION_XML_VALUE)
+                          .when()
+                          .get(url)
+                          .peek() // Use peek() to print the ouput
+                          .then()
+                          .statusCode(200)
+
+                          .extract();
+
+        Storage storage = null;
+
 
         assertNotNull("Failed to get storage (" + storageId + ")!", storage);
         assertFalse("Failed to get storage (" + storageId + ")!", storage.getRepositories().isEmpty());
@@ -193,6 +246,48 @@ public class ConfigurationManagementControllerTest
         assertEquals("Failed to get storage (" + storageId + ")!",
                      "localhost",
                      storage.getRepositories().get("repository1").getProxyConfiguration().getHost());
+    }
+
+    public int addRepository(Repository repository)
+            throws IOException, JAXBException
+    {
+        String url;
+        if (repository == null)
+        {
+            logger.error("Unable to add non-existing repository.");
+            throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR,
+                                               "Unable to add non-existing repository.");
+        }
+
+        if (repository.getStorage() == null)
+        {
+            logger.error("Storage associated with repo is null.");
+            throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR,
+                                               "Storage associated with repo is null.");
+        }
+
+        try
+        {
+            url = getContextBaseUrl() + "/configuration/strongbox/storages/" + repository.getStorage().getId() + "/" +
+                  repository.getId();
+        }
+        catch (RuntimeException e)
+        {
+            logger.error("Unable to create web resource.", e);
+            throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        int status = RestAssuredMockMvc.given()
+                                       .contentType(MediaType.APPLICATION_XML_VALUE)
+                                       .body(repository, ObjectMapperType.JAXB)
+                                       .when()
+                                       .put(url)
+                                       .peek() // Use peek() to print the ouput
+                                       .then()
+                                       .statusCode(200)
+                                       .extract().statusCode();
+
+        return status;
     }
 
     @Test
@@ -261,10 +356,37 @@ public class ConfigurationManagementControllerTest
     }
 
     @Test
+    @WithUserDetails("admin")
     public void testGetAndSetConfiguration()
             throws IOException, JAXBException
     {
-        final Configuration configuration = client.getConfiguration();
+        //  final Configuration configuration = client.getConfiguration();
+        String path = "/configuration/strongbox/xml";
+        String url = getContextBaseUrl() + path;
+
+        ExtractableResponse response1 = RestAssuredMockMvc.given()
+                                                          .contentType(ContentType.JSON)
+                                                          .when()
+                                                          .get(url)
+                                                          .peek() // Use peek() to print the ouput
+                                                          .then()
+                                                          .statusCode(200) // check http status code
+                                                          .extract();
+
+        ServerConfiguration configuration1 = null;
+        if (response1.statusCode() == 200)
+        {
+            final String xml = response1.asString();
+
+            final ByteArrayInputStream bais = new ByteArrayInputStream(xml.getBytes());
+
+            GenericParser<ServerConfiguration> parser = new GenericParser<>(Configuration.class);
+
+            configuration1 = parser.parse(bais);
+        }
+
+        final Configuration configuration = (Configuration) configuration1;
+
 
         Storage storage = new Storage("storage3");
 
@@ -272,9 +394,47 @@ public class ConfigurationManagementControllerTest
 
         final int response = client.setConfiguration(configuration);
 
-        assertEquals("Failed to retrieve configuration!", 200, response);
+        /*Response response = resource.request(MediaType.TEXT_PLAIN_TYPE)
+                                    .put(Entity.entity(baos.toString("UTF-8"), MediaType.APPLICATION_XML));
 
-        final Configuration c = client.getConfiguration();
+        return response.getStatus();*/
+
+        int status = RestAssuredMockMvc.given()
+                                       .contentType(ContentType.XML)
+                                       .when()
+                                       .put(url)
+                                       .peek() // Use peek() to print the ouput
+                                       .then()
+                                       .statusCode(200) // check http status code
+                                       .extract().statusCode();
+
+
+        assertEquals("Failed to retrieve configuration!", 200, status);
+
+        ExtractableResponse response2 = RestAssuredMockMvc.given()
+                                                          .contentType(ContentType.XML)
+                                                          .when()
+                                                          .get(url)
+                                                          .peek() // Use peek() to print the ouput
+                                                          .then()
+                                                          .statusCode(200) // check http status code
+                                                          .extract();
+
+        ServerConfiguration configuration2 = null;
+        if (response2.statusCode() == 200)
+        {
+            final String xml = response2.asString();
+
+            final ByteArrayInputStream bais = new ByteArrayInputStream(xml.getBytes());
+
+            GenericParser<ServerConfiguration> parser = new GenericParser<>(Configuration.class);
+
+            configuration2 = parser.parse(bais);
+        }
+
+        final Configuration c = (Configuration) configuration2;
+
+        //  final Configuration c = client.getConfiguration();
 
         assertNotNull("Failed to create storage3!", c.getStorage("storage3"));
     }

@@ -27,6 +27,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -180,7 +181,6 @@ public class ConfigurationManagementController
             throws IOException,
                    AuthenticationException
     {
-        // return configurationManagementService.getPort();
         return ResponseEntity.ok(configurationManagementService.getPort());
     }
 
@@ -190,22 +190,19 @@ public class ConfigurationManagementController
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_SET_GLOBAL_PROXY_CFG')")
     @RequestMapping(value = "/proxy-configuration", method = RequestMethod.PUT,
-                    consumes = { MediaType.APPLICATION_JSON_VALUE,
-                                 MediaType.APPLICATION_XML_VALUE })
-    public ResponseEntity setProxyConfiguration(@RequestParam(value = "The storageId", required = true)
+                    consumes = MediaType.APPLICATION_XML_VALUE
+    )
+    public ResponseEntity setProxyConfiguration(@RequestParam(value = "The storageId", required = false)
                                                         String storageId,
-                                                @RequestParam(value = "The repositoryId", required = true)
+                                                @RequestParam(value = "The repositoryId", required = false)
                                                         String repositoryId,
-                                                @RequestParam(
-                                                        value = "The proxy configuration for this proxy repository",
-                                                        required = true)
-                                                        ProxyConfiguration proxyConfiguration)
+                                                @RequestBody ProxyConfiguration proxyConfiguration)
             throws IOException, JAXBException
     {
         try
         {
+            System.out.println("Прокси конфигурэйшн !!!!!!!!!!!!!!!!!-------------->" + proxyConfiguration);
             configurationManagementService.setProxyConfiguration(storageId, repositoryId, proxyConfiguration);
-
             return ResponseEntity.ok("The proxy configuration was updated successfully.");
         }
         catch (IOException | JAXBException e)
@@ -225,11 +222,11 @@ public class ConfigurationManagementController
     @RequestMapping(value = "/proxy-configuration", method = RequestMethod.GET,
                     produces = { MediaType.APPLICATION_JSON_VALUE,
                                  MediaType.APPLICATION_XML_VALUE })
-    public ResponseEntity getProxyConfiguration(@RequestParam(value = "The storageId", name = "storageId",
-                                                              required = true)
+    public ResponseEntity getProxyConfiguration(@RequestParam(value = "The storageId",
+                                                              required = false)
                                                         String storageId,
-                                                @RequestParam(value = "The repositoryId", name = "repositoryId",
-                                                              required = true)
+                                                @RequestParam(value = "The repositoryId",
+                                                              required = false)
                                                         String repositoryId)
             throws IOException, JAXBException
     {
@@ -266,8 +263,7 @@ public class ConfigurationManagementController
     @RequestMapping(value = "/storages", method = RequestMethod.PUT, consumes = { MediaType.APPLICATION_JSON_VALUE,
                                                                                   MediaType.APPLICATION_XML_VALUE },
                     produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity addOrUpdateStorage(@RequestParam(value = "The storage object", required = true)
-                                                     Storage storage)
+    public ResponseEntity addOrUpdateStorage(@RequestBody Storage storage)
             throws IOException, JAXBException
     {
         try
@@ -296,8 +292,7 @@ public class ConfigurationManagementController
     @RequestMapping(value = "/storages/{storageId}", method = RequestMethod.GET,
                     consumes = { MediaType.APPLICATION_JSON_VALUE,
                                  MediaType.APPLICATION_XML_VALUE })
-    public ResponseEntity getStorage(@RequestParam(value = "The storageId", name = "storageId", required = true)
-                                     @PathVariable final String storageId)
+    public ResponseEntity getStorage(@PathVariable final String storageId)
             throws IOException, ParseException
     {
         final Storage storage = configurationManagementService.getStorage(storageId);
@@ -366,18 +361,15 @@ public class ConfigurationManagementController
     @RequestMapping(value = "/storages/{storageId}/{repositoryId}", method = RequestMethod.PUT,
                     consumes = { MediaType.APPLICATION_JSON_VALUE,
                                  MediaType.APPLICATION_XML_VALUE })
-    public ResponseEntity addOrUpdateRepository(@RequestParam(value = "The repositoryId", name = "storageId",
-                                                              required = true)
-                                                @PathVariable String storageId,
-                                                @RequestParam(value = "The repositoryId", name = "repositoryId",
-                                                              required = true)
+    public ResponseEntity addOrUpdateRepository(@PathVariable String storageId,
                                                 @PathVariable String repositoryId,
-                                                @RequestParam(value = "The repository object", required = true)
-                                                        Repository repository)
+                                                @RequestBody Repository repository)
             throws IOException, JAXBException
     {
         try
         {
+            System.out.println("       1-------------->        " + "");
+            System.out.println("       2-------------->        " + repository.getId());
             repository.setStorage(configurationManagementService.getStorage(storageId));
             configurationManagementService.addOrUpdateRepository(storageId, repository);
 
