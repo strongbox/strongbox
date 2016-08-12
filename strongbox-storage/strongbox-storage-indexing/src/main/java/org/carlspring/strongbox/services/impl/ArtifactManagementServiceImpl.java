@@ -1,13 +1,14 @@
 package org.carlspring.strongbox.services.impl;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.maven.artifact.Artifact;
 import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
@@ -17,21 +18,26 @@ import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.resolvers.*;
+import org.carlspring.strongbox.storage.ArtifactResolutionException;
+import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
 import org.carlspring.strongbox.storage.validation.version.VersionValidationException;
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
 import org.carlspring.strongbox.util.ArtifactFileUtils;
 import org.carlspring.strongbox.util.MessageDigestUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Set;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.maven.artifact.Artifact;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
 /**
  * @author mtodorov
@@ -62,7 +68,7 @@ public class ArtifactManagementServiceImpl
     private ArtifactOperationsValidator artifactOperationsValidator;
 
     @Autowired
-    private LocationResolverRegistry locationResolverRegistry;
+    private LayoutProviderRegistry layoutProviderRegistry;
 
 
     @Override
@@ -70,7 +76,7 @@ public class ArtifactManagementServiceImpl
                       String repositoryId,
                       String path,
                       InputStream is)
-            throws IOException
+            throws IOException, ProviderImplementationException
     {
         performRepositoryAcceptanceValidation(storageId, repositoryId, path);
 
@@ -165,7 +171,9 @@ public class ArtifactManagementServiceImpl
     public InputStream resolve(String storageId,
                                String repositoryId,
                                String path)
-            throws IOException, ArtifactTransportException
+            throws IOException,
+                   ArtifactTransportException,
+                   ProviderImplementationException
     {
         InputStream is;
 
@@ -183,7 +191,7 @@ public class ArtifactManagementServiceImpl
     private boolean performRepositoryAcceptanceValidation(String storageId,
                                                           String repositoryId,
                                                           String path)
-            throws IOException
+            throws IOException, ProviderImplementationException
     {
         artifactOperationsValidator.validate(storageId, repositoryId, path);
 
@@ -231,9 +239,8 @@ public class ArtifactManagementServiceImpl
 
         try
         {
-            LocationResolver resolver = locationResolverRegistry.getResolvers().get(repository.getImplementation());
-
-            resolver.delete(storageId, repositoryId, artifactPath, force);
+            LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
+            layoutProvider.delete(storageId, repositoryId, artifactPath, force);
 
             final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storageId + ":" + repositoryId);
             if (indexer != null)
@@ -252,7 +259,7 @@ public class ArtifactManagementServiceImpl
                 */
             }
         }
-        catch (IOException e)
+        catch (IOException | ProviderImplementationException e)
         {
             throw new ArtifactStorageException(e.getMessage(), e);
         }
@@ -380,10 +387,10 @@ public class ArtifactManagementServiceImpl
 
             artifactOperationsValidator.checkAllowsDeletion(repository);
 
-            LocationResolver resolver = locationResolverRegistry.getResolvers().get(repository.getImplementation());
-            resolver.deleteTrash(storageId, repositoryId);
+            LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
+            layoutProvider.deleteTrash(storageId, repositoryId);
         }
-        catch (IOException e)
+        catch (IOException | ProviderImplementationException e)
         {
             throw new ArtifactStorageException(e.getMessage(), e);
         }
@@ -396,13 +403,7 @@ public class ArtifactManagementServiceImpl
     {
         try
         {
-            for (LocationResolver resolver : locationResolverRegistry.getResolvers().values())
-            {
-                if (!resolver.getAlias().equals(GroupLocationResolver.ALIAS))
-                {
-                    resolver.deleteTrash();
-                }
-            }
+            layoutProviderRegistry.deleteTrash();
         }
         catch (IOException e)
         {
@@ -423,9 +424,8 @@ public class ArtifactManagementServiceImpl
 
         try
         {
-            LocationResolver resolver = locationResolverRegistry.getResolvers().get(repository.getImplementation());
-
-            resolver.undelete(storageId, repositoryId, artifactPath);
+            LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
+            layoutProvider.undelete(storageId, repositoryId, artifactPath);
 
             /*
             // TODO: This will need further fixing:
@@ -439,7 +439,7 @@ public class ArtifactManagementServiceImpl
             }
             */
         }
-        catch (IOException e)
+        catch (IOException | ProviderImplementationException e)
         {
             throw new ArtifactStorageException(e.getMessage(), e);
         }
@@ -447,7 +447,8 @@ public class ArtifactManagementServiceImpl
 
     @Override
     public void undeleteTrash(String storageId, String repositoryId)
-            throws IOException
+            throws IOException,
+                   ProviderImplementationException
     {
         artifactOperationsValidator.checkStorageExists(storageId);
         artifactOperationsValidator.checkRepositoryExists(storageId, repositoryId);
@@ -459,8 +460,8 @@ public class ArtifactManagementServiceImpl
 
             if (repository.isTrashEnabled())
             {
-                LocationResolver resolver = locationResolverRegistry.getResolvers().get(repository.getImplementation());
-                resolver.undeleteTrash(storageId, repositoryId);
+                LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
+                layoutProvider.undeleteTrash(storageId, repositoryId);
             }
         }
         catch (IOException e)
@@ -471,14 +472,12 @@ public class ArtifactManagementServiceImpl
 
     @Override
     public void undeleteTrash()
-            throws IOException
+            throws IOException,
+                   ProviderImplementationException
     {
         try
         {
-            for (LocationResolver resolver : locationResolverRegistry.getResolvers().values())
-            {
-                resolver.undeleteTrash();
-            }
+            layoutProviderRegistry.undeleteTrash();
         }
         catch (IOException e)
         {

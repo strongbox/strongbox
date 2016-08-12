@@ -1,15 +1,22 @@
 package org.carlspring.strongbox.storage.validation.resource;
 
+import org.apache.maven.artifact.Artifact;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.services.BasicRepositoryService;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
-import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
+import org.carlspring.strongbox.storage.ArtifactResolutionException;
+import org.carlspring.strongbox.storage.ArtifactStorageException;
 
-import org.apache.maven.artifact.Artifact;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+
+import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
 /**
  * @author mtodorov
@@ -22,7 +29,10 @@ public class ArtifactOperationsValidator
     private ConfigurationManager configurationManager;
 
     @Autowired
-    private BasicRepositoryService basicRepositoryService;
+    private RepositoryProviderRegistry repositoryProviderRegistry;
+
+    @Autowired
+    private LayoutProviderRegistry layoutProviderRegistry;
 
 
     public ArtifactOperationsValidator()
@@ -53,8 +63,7 @@ public class ArtifactOperationsValidator
         }
     }
 
-    public void checkRepositoryExists(String storageId,
-                                      String repositoryId)
+    public void checkRepositoryExists(String storageId, String repositoryId)
             throws ArtifactResolutionException
     {
         if (repositoryId == null)
@@ -82,19 +91,18 @@ public class ArtifactOperationsValidator
     {
         if (!repository.allowsDeployment())
         {
-            throw new ArtifactStorageException("Deployment of artifacts to " + repository.getType() +
-                                               " repository is not allowed!");
+            throw new ArtifactStorageException("Deployment of artifacts to " + repository.getType() + " repository is not allowed!");
         }
     }
 
-    public void checkAllowsRedeployment(Repository repository,
-                                        Artifact artifact)
-            throws ArtifactStorageException
+    public void checkAllowsRedeployment(Repository repository, Artifact artifact)
+            throws IOException,
+                   ProviderImplementationException
     {
-        if (basicRepositoryService.containsArtifact(repository, artifact) && !repository.allowsDeployment())
+        LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
+        if (layoutProvider.containsArtifact(repository, artifact) && !repository.allowsDeployment())
         {
-            throw new ArtifactStorageException("Re-deployment of artifacts to " + repository.getType() +
-                                               " repository is not allowed!");
+            throw new ArtifactStorageException("Re-deployment of artifacts to " + repository.getType() + " repository is not allowed!");
         }
     }
 
@@ -103,8 +111,7 @@ public class ArtifactOperationsValidator
     {
         if (!repository.allowsDeletion())
         {
-            throw new ArtifactStorageException("Deleting artifacts from " + repository.getType() +
-                                               " repository is not allowed!");
+            throw new ArtifactStorageException("Deleting artifacts from " + repository.getType() + " repository is not allowed!");
         }
     }
 

@@ -1,7 +1,8 @@
 package org.carlspring.strongbox.rest;
 
+import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
+import org.carlspring.strongbox.storage.ArtifactStorageException;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -202,6 +203,14 @@ public class TrashRestlet
                                .entity(e.getMessage())
                                .build();
             }
+            catch (ProviderImplementationException e)
+            {
+                logger.error(e.getMessage(), e);
+
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                               .entity(e.getMessage())
+                               .build();
+            }
 
             return Response.ok()
                            .entity("The trash for '" + storageId + ":" + repositoryId +
@@ -235,6 +244,14 @@ public class TrashRestlet
             logger.error(e.getMessage(), e);
 
             return Response.status(Response.Status.BAD_REQUEST)
+                           .entity(e.getMessage())
+                           .build();
+        }
+        catch (ProviderImplementationException e)
+        {
+            logger.error(e.getMessage(), e);
+
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                            .entity(e.getMessage())
                            .build();
         }
