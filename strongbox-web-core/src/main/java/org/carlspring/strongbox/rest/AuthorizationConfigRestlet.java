@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.stereotype.Component;
@@ -56,6 +55,7 @@ public class AuthorizationConfigRestlet
 
     private static final Logger logger = LoggerFactory.getLogger(AuthorizationConfigRestlet.class);
     private final GenericParser<AuthorizationConfig> configGenericParser = new GenericParser<>(AuthorizationConfig.class);
+
     @Autowired
     AuthorizationConfigProvider configProvider;
 
@@ -70,6 +70,8 @@ public class AuthorizationConfigRestlet
 
     @Autowired
     AnonymousAuthenticationFilter anonymousAuthenticationFilter;
+
+    private volatile AuthorizationConfig config;
 
     private synchronized Response processConfig(Consumer<AuthorizationConfig> consumer)
     {
@@ -86,7 +88,7 @@ public class AuthorizationConfigRestlet
         {
             try
             {
-                AuthorizationConfig config = databaseTx.detachAll(configOptional.get(), true);
+                config = databaseTx.detachAll(configOptional.get(), true);
 
                 if (consumer != null)
                 {
@@ -205,14 +207,7 @@ public class AuthorizationConfigRestlet
     @Consumes(MediaType.APPLICATION_JSON)
     public synchronized Response addPrivilegesToAnonymous(List<Privilege> privileges)
     {
-        return processConfig(config -> privileges.forEach(
-                privilege ->
-                {
-                    GrantedAuthority authority = new SimpleGrantedAuthority(privilege.getName().toUpperCase());
-                    config.getAnonymousAuthorities().add(authority);
-                    anonymousAuthenticationFilter.getAuthorities().add(
-                            authority);
-                }));
+        return processConfig(config -> privileges.forEach(this::addAnonymousAuthority));
     }
 
 
@@ -223,38 +218,21 @@ public class AuthorizationConfigRestlet
     @Consumes(MediaType.APPLICATION_JSON)
     public synchronized Response addRolesToAnonymous(List<Role> roles)
     {
-        return processConfig(config -> config.getRoles().getRoles().forEach(
-                role ->
-                {
-
-                    // finding match between external roles request and current existing (in authorization config)
-                    roles.forEach(newRoles ->
-                                  {
-                                      if (role.getName().equalsIgnoreCase(
-                                              newRoles.getName()))
-                                      {
-                                          role.getPrivileges().forEach(privilege ->
-                                                                       {
-                                                                           SimpleGrantedAuthority authority = new SimpleGrantedAuthority(privilege.toUpperCase());
-                                                                           config.getAnonymousAuthorities().add(
-                                                                                   authority);
-                                                                           anonymousAuthenticationFilter.getAuthorities().add(
-                                                                                   authority);
-                                                                       });
-                                      }
-                                  });
-                }));
+        return processConfig(config -> roles.forEach(role -> config.getRoles().getRoles().stream().filter(
+                role1 -> role1.getName().equalsIgnoreCase(role.getName())).forEach(
+                foundedRole -> foundedRole.getPrivileges().forEach(this::addAnonymousAuthority))));
     }
 
-
-    private synchronized void addAnonymousPrivilege(Privilege privilege)
+    private void addAnonymousAuthority(Privilege authority)
     {
-        addAnonymousPrivilege(privilege.getName().toUpperCase());
+        addAnonymousAuthority(authority.getName());
     }
 
-    private synchronized void addAnonymousPrivilege(String privilege)
+    private void addAnonymousAuthority(String authority)
     {
-        anonymousAuthenticationFilter.getAuthorities().add(new SimpleGrantedAuthority(privilege));
+        SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(authority.toUpperCase());
+        config.getAnonymousAuthorities().add(simpleGrantedAuthority);
+        anonymousAuthenticationFilter.getAuthorities().add(simpleGrantedAuthority);
     }
 
     private synchronized List<User> getAllUsers()
