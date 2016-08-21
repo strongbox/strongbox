@@ -4,8 +4,8 @@ import org.carlspring.strongbox.CommonConfig;
 import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.security.encryption.EncryptionAlgorithms;
-import org.carlspring.strongbox.security.jaas.Credentials;
-import org.carlspring.strongbox.security.jaas.Users;
+import org.carlspring.strongbox.security.Credentials;
+import org.carlspring.strongbox.security.Users;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
 import org.carlspring.strongbox.users.service.UserService;
@@ -96,7 +96,7 @@ public class UsersConfig
     }
 
     @Transactional
-    private synchronized void obtainUser(org.carlspring.strongbox.security.jaas.User user,
+    private synchronized void obtainUser(org.carlspring.strongbox.security.User user,
                                          boolean needToSaveInDb)
     {
         User internalUser = toInternalUser(user);
@@ -112,7 +112,7 @@ public class UsersConfig
     }
 
     @Transactional
-    private synchronized User toInternalUser(org.carlspring.strongbox.security.jaas.User user)
+    private synchronized User toInternalUser(org.carlspring.strongbox.security.User user)
     {
         User internalUser = new User();
         internalUser.setUsername(user.getUsername());

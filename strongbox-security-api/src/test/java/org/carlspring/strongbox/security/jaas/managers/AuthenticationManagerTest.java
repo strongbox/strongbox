@@ -2,6 +2,7 @@ package org.carlspring.strongbox.security.jaas.managers;
 
 import org.carlspring.strongbox.CommonConfig;
 import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
+import org.carlspring.strongbox.security.managers.AuthenticationManager;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

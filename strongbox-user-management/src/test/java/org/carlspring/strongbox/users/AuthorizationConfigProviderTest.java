@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.users;
 
-import org.carlspring.strongbox.security.jaas.Role;
+import org.carlspring.strongbox.security.Role;
 import org.carlspring.strongbox.users.security.AuthorizationConfig;
 import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
 

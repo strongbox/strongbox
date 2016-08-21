@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.security.jaas;
+package org.carlspring.strongbox.security;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
