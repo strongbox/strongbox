@@ -1,23 +1,27 @@
 package org.carlspring.strongbox.rest;
 
+import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
+import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.generator.ArtifactDeployer;
-import org.carlspring.strongbox.client.ArtifactClient;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.util.MessageDigestUtils;
 
-import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 
 import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
+import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import com.jayway.restassured.response.ResponseBody;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
@@ -31,15 +35,19 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration.createSnapshotVersion;
 import static org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration.generateArtifact;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.springframework.test.util.AssertionErrors.assertEquals;
 
 /**
  * Created by yury on 8/3/16.
@@ -48,7 +56,6 @@ import static org.junit.Assert.assertTrue;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = WebConfig.class)
 @WebAppConfiguration
-@Ignore
 public class ArtifactControllerTest
         extends BackendBaseTest
 {
@@ -60,7 +67,8 @@ public class ArtifactControllerTest
 
     private static final File REPOSITORY_BASEDIR_RELEASES = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                                      "/storages/storage0/releases");
-    private static final Logger logger = LoggerFactory.getLogger(ArtifactClient.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactControllerTest.class);
 
     private static RestClient client = new RestClient();
 
@@ -121,7 +129,7 @@ public class ArtifactControllerTest
         String url = getContextBaseUrl() + "/storages/greet";
 
 
-        RestAssuredMockMvc.given()
+        given()
                           .contentType(ContentType.JSON)
                           .when()
                           .get(url)
@@ -136,24 +144,47 @@ public class ArtifactControllerTest
     public void testPartialFetch()
             throws Exception
     {
-        String artifactPath = "/storages/storage0/releases/org/carlspring/strongbox/partial/partial-foo/3.1/partial-foo-3.1.jar";
+        String artifactPath = "/storages/storage0/releases";
 
-        //    assertTrue("Artifact does not exist!", pathExists(artifactPath));
+        String url = getContextBaseUrl() + (artifactPath.startsWith("/") ? artifactPath : '/' + artifactPath);
 
-        RestAssuredMockMvc.given()
-                          .contentType("application/json")
-                          .when()
-                          .put(artifactPath)
-                          .peek() // Use peek() to print the ouput
-                          .then()
-                          .statusCode(200) // check http status code
-                          .extract()
-                          .asString();
+        logger.debug("Path to artifact: " + url);
 
-      /*  String md5Remote = MessageDigestUtils.readChecksumFile(client.getResource(artifactPath + ".md5"));
-        String sha1Remote = MessageDigestUtils.readChecksumFile(client.getResource(artifactPath + ".sha1"));
+        String pathToJar = "/org/carlspring/strongbox/partial/partial-foo/3.1/partial-foo-3.1.jar";
 
-        InputStream is = client.getResource(artifactPath);
+        given()
+                .contentType(MediaType.TEXT_PLAIN_VALUE)
+                .param("path", pathToJar)
+                .when()
+                .get(url)
+                //  .peek() // Use peek() to print the ouput
+                .then()
+                .statusCode(200);
+
+        url = getContextBaseUrl() + (!artifactPath.startsWith("/") ? "/" : "") + artifactPath;
+
+        logger.debug("Getting " + url + "...");
+
+        InputStream is = getArtifactAsStream(pathToJar + ".md5", url);
+
+        assertNotNull(is);
+
+        String md5Remote = MessageDigestUtils.readChecksumFile(is);
+        //String md5Remote = test;
+
+        System.out.println(
+                "responseMD5 -----   md5  ---    ---->" + md5Remote + "    ---------------    !!!!!!!!!!!!!!!");
+        assertNotNull(md5Remote);
+
+        is = getArtifactAsStream(pathToJar + ".sha1", url);
+
+        String sha1Remote = MessageDigestUtils.readChecksumFile(is);
+
+        System.out.println(
+                "responseSHA1 -----   sha1  ---    ---->" + sha1Remote + "    ---------------    !!!!!!!!!!!!!!!");
+
+        is = getArtifactAsStream(pathToJar, url);
+
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         MultipleDigestOutputStream mdos = new MultipleDigestOutputStream(baos);
@@ -181,7 +212,13 @@ public class ArtifactControllerTest
 
         System.out.println("Read " + total + " bytes.");
 
-        is = client.getResource(artifactPath, total);
+        //  is = client.getResource(artifactPath, total);
+
+
+        url = getContextBaseUrl() + (!artifactPath.startsWith("/") ? "/" : "") + artifactPath;
+
+        logger.debug("Getting " + url + "...");
+        is = getArtifactAsStream(pathToJar, url, total);
 
         System.out.println("Skipped " + total + " bytes.");
 
@@ -219,7 +256,36 @@ public class ArtifactControllerTest
 
         assertEquals("Glued partial fetches did not match MD5 checksum!", md5Remote, md5Local);
         assertEquals("Glued partial fetches did not match SHA-1 checksum!", sha1Remote, sha1Local);
-        */
+
+    }
+
+    private InputStream getArtifactAsStream(String path,
+                                            String url)
+    {
+        return getArtifactAsStream(path, url, -1);
+    }
+
+    private InputStream getArtifactAsStream(String path,
+                                            String url,
+                                            int offset)
+    {
+
+        MockMvcRequestSpecification o = given().contentType(MediaType.TEXT_PLAIN_VALUE);
+        int statusCode = 200;
+        if (offset != -1)
+        {
+            o = o.header("Range", "bytes=" + offset + "-");
+            statusCode = 206;
+        }
+
+        return o.param("path", path)
+                .when()
+                .get(url)
+                .peek()
+                .then()
+                .statusCode(statusCode)
+                .extract()
+                .asInputStream();
     }
 
     public boolean pathExists(String path)
@@ -235,8 +301,8 @@ public class ArtifactControllerTest
 
         Integer response;
 
-        response = RestAssuredMockMvc
-                           .given()
+        response =
+                given()
                            .contentType(ContentType.TEXT)
                            .when()
                            .get(url)
@@ -251,6 +317,7 @@ public class ArtifactControllerTest
     }
 
     @Test
+    @Ignore
     public void testCopyArtifactFile()
             throws Exception
     {
@@ -276,6 +343,7 @@ public class ArtifactControllerTest
     }
 
     @Test
+    @Ignore
     public void testCopyArtifactDirectory()
             throws Exception
     {
@@ -303,6 +371,7 @@ public class ArtifactControllerTest
     }
 
     @Test
+    @Ignore
     public void testDeleteArtifactFile()
             throws Exception
     {
@@ -321,6 +390,7 @@ public class ArtifactControllerTest
     }
 
     @Test
+    @Ignore
     public void testDeleteArtifactDirectory()
             throws Exception
     {
@@ -339,10 +409,11 @@ public class ArtifactControllerTest
     }
 
     @Test
+    @Ignore
     public void testDirectoryListing()
             throws Exception
     {
-        String artifactPath = "org/carlspring/strongbox/browse/foo-bar";
+       /* String artifactPath = "org/carlspring/strongbox/browse/foo-bar";
 
         File artifact = new File(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/" + artifactPath).getAbsoluteFile();
 
@@ -372,20 +443,22 @@ public class ArtifactControllerTest
         assertTrue(fileListingContent.contains("foo-bar-1.0.jar"));
         assertTrue(fileListingContent.contains("foo-bar-1.0.pom"));
 
-        assertTrue(invalidPath.getStatus() == 404);
+        assertTrue(invalidPath.getStatus() == 404);*/
     }
 
     @Test
+    @Ignore
     public void testDirectoryListingContent()
             throws IOException, ArtifactTransportException
     {
-        String url = "/storages/storage0/releases/org/carlspring/strongbox/browse";
+        /*String url = "/storages/storage0/releases/org/carlspring/strongbox/browse";
         Response directoryListing = client.getResourceWithResponse(url);
         String directoryListingContent = directoryListing.readEntity(String.class);
-        assertTrue(directoryListingContent, directoryListingContent.contains(url));
+        assertTrue(directoryListingContent, directoryListingContent.contains(url));*/
     }
 
     @Test
+    @Ignore
     public void testMetadataAtVersionLevel()
             throws NoSuchAlgorithmException,
                    ArtifactOperationException,
@@ -428,6 +501,7 @@ public class ArtifactControllerTest
     }
 
     @Test
+    @Ignore
     public void testMetadataAtGroupAndArtifactIdLevel()
             throws NoSuchAlgorithmException,
                    XmlPullParserException,
@@ -536,6 +610,7 @@ public class ArtifactControllerTest
     }
 
     @Test
+    @Ignore
     public void updateMetadataOndeleteReleaseVersionDirectoryTest()
             throws NoSuchAlgorithmException,
                    XmlPullParserException,
@@ -572,6 +647,7 @@ public class ArtifactControllerTest
     }
 
     @Test
+    @Ignore
     public void updateMetadataOnDeleteSnapshotVersionDirectoryTest()
             throws NoSuchAlgorithmException,
                    XmlPullParserException,
@@ -629,8 +705,8 @@ public class ArtifactControllerTest
 
         ResponseBody response;
 
-        response = RestAssuredMockMvc
-                           .given()
+        response =
+                given()
                            .contentType(ContentType.JSON)
                            .when()
                            .get(url)

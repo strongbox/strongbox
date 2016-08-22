@@ -8,16 +8,15 @@ import org.carlspring.commons.http.range.ByteRange;
 import org.carlspring.commons.http.range.ByteRangeHeaderParser;
 import org.carlspring.commons.io.ByteRangeInputStream;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
+import static org.springframework.http.HttpStatus.PARTIAL_CONTENT;
+import static org.springframework.http.HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE;
 
 public class ByteRangeRequestHandler
 {
@@ -29,8 +28,9 @@ public class ByteRangeRequestHandler
     {
     }
 
-    public static ResponseEntity handlePartialDownload(ByteRangeInputStream bris,
-                                                       HttpHeaders headers)
+    public static ByteRangeInputStream handlePartialDownload(ByteRangeInputStream bris,
+                                                             HttpHeaders headers,
+                                                             HttpServletResponse response)
             throws IOException
     {
         ByteRangeHeaderParser parser = new ByteRangeHeaderParser((String) headers.getFirst("Range"));
@@ -38,48 +38,50 @@ public class ByteRangeRequestHandler
         if (ranges.size() == 1)
         {
             logger.debug("Received request for a partial download with a single range.");
-            return handlePartialDownloadWithSingleRange(bris, (ByteRange) ranges.get(0));
+            return handlePartialDownloadWithSingleRange(bris, (ByteRange) ranges.get(0), response);
         }
         else
         {
             logger.debug("Received request for a partial download with multiple ranges.");
-            return handlePartialDownloadWithMultipleRanges(bris, ranges);
+            return handlePartialDownloadWithMultipleRanges(bris, ranges, response);
         }
     }
 
-    public static ResponseEntity handlePartialDownloadWithSingleRange(ByteRangeInputStream bris,
-                                                                      ByteRange byteRange)
+    public static ByteRangeInputStream handlePartialDownloadWithSingleRange(ByteRangeInputStream bris,
+                                                                            ByteRange byteRange,
+                                                                            HttpServletResponse response)
             throws IOException
     {
+
+
         if (byteRange.getOffset() < bris.getLength())
         {
             bris.setCurrentByteRange(byteRange);
             bris.skip(byteRange.getOffset());
-            MultiValueMap<String, Long> responseHeaders = new LinkedMultiValueMap<String, Long>();
-            responseHeaders.set("Content-Length",
-                                Long.valueOf(calculatePartialRangeLength(byteRange, bris.getLength())));
-            ResponseEntity responseBuilder = new ResponseEntity(prepareResponseBuilderForPartialRequest(bris),
-                                                                responseHeaders, HttpStatus.PARTIAL_CONTENT);
-            return responseBuilder;
+            response.setHeader("Content-Length", calculatePartialRangeLength(byteRange, bris.getLength()) + "");
+            response.setStatus(PARTIAL_CONTENT.value());
+            return prepareResponseBuilderForPartialRequest(bris, response);
         }
         else
         {
-            return new ResponseEntity(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE);
+            response.setStatus(REQUESTED_RANGE_NOT_SATISFIABLE.value());
+            return bris;
         }
     }
 
-    public static ResponseEntity handlePartialDownloadWithMultipleRanges(ByteRangeInputStream bris,
-                                                                         List<ByteRange> byteRanges)
+    public static ByteRangeInputStream handlePartialDownloadWithMultipleRanges(ByteRangeInputStream bris,
+                                                                               List<ByteRange> byteRanges,
+                                                                               HttpServletResponse response)
             throws IOException
     {
         if (bris.getCurrentByteRange().getOffset() >= bris.getLength())
         {
-            ResponseEntity responseBuilder = prepareResponseBuilderForPartialRequest(bris);
-            return responseBuilder;
+            return prepareResponseBuilderForPartialRequest(bris, response);
         }
         else
         {
-            return new ResponseEntity(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE);
+            response.setStatus(REQUESTED_RANGE_NOT_SATISFIABLE.value());
+            return bris;
         }
     }
 
@@ -104,16 +106,16 @@ public class ByteRangeRequestHandler
         }
     }
 
-    public static ResponseEntity prepareResponseBuilderForPartialRequest(ByteRangeInputStream bris)
+    public static ByteRangeInputStream prepareResponseBuilderForPartialRequest(ByteRangeInputStream bris,
+                                                                               HttpServletResponse response)
     {
-        MultiValueMap<String, String> responseHeaders = new LinkedMultiValueMap<String, String>();
-        responseHeaders.set("Accept-Ranges", "bytes");
-        responseHeaders.set("Content-Range",
-                            "bytes " + bris.getCurrentByteRange().getOffset() + "-" + (bris.getLength() - 1L) + "/" +
-                            bris.getLength());
-        responseHeaders.set("Pragma", "no-cache");
-        ResponseEntity responseBuilder = new ResponseEntity(bris, responseHeaders, HttpStatus.PARTIAL_CONTENT);
-        return responseBuilder;
+        // Content-Range: bytes 1024-85227/85228
+        response.setHeader("Accept-Ranges", "bytes");
+        response.setHeader("Content-Range",
+                           "bytes " + bris.getCurrentByteRange().getOffset() + "-" + (bris.getLength() - 1L) + "/" +
+                           bris.getLength());
+        response.setHeader("Pragma", "no-cache");
+        return bris;
     }
 
     public static boolean isRangedRequest(HttpHeaders headers)
@@ -125,7 +127,7 @@ public class ByteRangeRequestHandler
         else
         {
             String contentRange =
-                    headers != null && headers.getFirst("Range") != null ? (String) headers.getFirst("Range") : null;
+                    headers.getFirst("Range") != null ? headers.getFirst("Range") : null;
             return contentRange != null && !contentRange.equals("0/*") && !contentRange.equals("0-") &&
                    !contentRange.equals("0");
         }

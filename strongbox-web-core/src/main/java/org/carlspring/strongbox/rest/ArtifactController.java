@@ -11,20 +11,24 @@ import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.JAXBException;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Locale;
 import java.util.regex.Matcher;
 
+import com.google.common.io.ByteStreams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -41,25 +45,22 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import static org.carlspring.strongbox.rest.ByteRangeRequestHandler.handlePartialDownload;
 import static org.carlspring.strongbox.rest.ByteRangeRequestHandler.isRangedRequest;
 
-//import static org.carlspring.commons.http.range.ByteRangeRequestHandler.handlePartialDownload;
-//import static org.carlspring.commons.http.range.ByteRangeRequestHandler.isRangedRequest;
-
-/**
- * Created by yury on 8/3/16.
- */
 @Controller
 @RequestMapping("/storages")
 public class ArtifactController
-        extends BaseArtifactRestlet
+        extends BaseArtifactController
 {
 
     private static final Logger logger = LogManager.getLogger(ArtifactController.class.getSimpleName());
+
 
     @PreAuthorize("authenticated")
     @RequestMapping(value = "greet", method = RequestMethod.GET)
@@ -74,16 +75,13 @@ public class ArtifactController
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
     @RequestMapping(value = "\"{storageId}/{repositoryId}/{path:.*}\"", method = RequestMethod.PUT)
     public ResponseEntity upload(
-                                        @RequestParam(value = "The storageId", required = true)
                                         @PathVariable String storageId,
-                                        @RequestParam(value = "The repositoryId", required = true)
                                         @PathVariable String repositoryId,
-                                        @RequestParam(value = "The path to the artifact.", required = true)
                                         @PathVariable String path,
-                                        InputStream is)
+                                        @RequestBody InputStream is)
             throws IOException,
                    AuthenticationException,
-                   NoSuchAlgorithmException
+                   NoSuchAlgorithmException, JAXBException
     {
         try
         {
@@ -107,128 +105,147 @@ public class ArtifactController
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(value = "{storageId}/{repositoryId}/{path:.*}", method = RequestMethod.GET)
-    public ResponseEntity download(
-                                          @RequestParam(value = "The storageId", required = true)
-                                          @PathVariable String storageId,
-                                          @RequestParam(value = "The repositoryId", required = true)
-                                          @PathVariable String repositoryId,
-                                          @RequestParam(value = "The path to the artifact.", required = true)
-                                          @PathVariable String path,
-                                          HttpHeaders headers,
-                                          HttpServletRequest request
+    @RequestMapping(value = "{storageId}/{repositoryId}", method = RequestMethod.GET,
+                    consumes = MediaType.TEXT_PLAIN_VALUE)
+    public void download(
+                                @PathVariable String storageId,
+                                @PathVariable String repositoryId,
+                                @RequestParam(name = "path") String path,
+                                @RequestHeader HttpHeaders httpHeaders,
+                                HttpServletRequest request,
+                                HttpServletResponse response
     )
             throws IOException,
                    InstantiationException,
                    IllegalAccessException,
                    ClassNotFoundException,
-                   AuthenticationException
+                   AuthenticationException, JAXBException, NoSuchAlgorithmException, ServletException
     {
-        logger.debug(" repository = " + repositoryId + ", path = " + path);
+       /* try
+        {
 
-        Storage storage = getConfiguration().getStorage(storageId);
+           // Storage storage = configurationManager.getConfiguration().getStorage(storageId);
+          //  Repository repository = storage.getRepository(repositoryId);
+
+            InputStream inputStream = getArtifactManagementService().resolve(storageId, repositoryId, path);
+
+            httpHeaders.setContentType(MediaType.TEXT_PLAIN);
+            httpHeaders.setContentLength(inputStream.available());
+
+            copyToResponse(inputStream, response);
+        }
+        catch (Exception e){
+            throw new ServletException(e);
+        }*/
+
+        logger.debug(" repository = " + repositoryId + ", path = " + path);
+        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
+
         if (!repository.isInService())
         {
             logger.error("Repository is not in service...");
-            //      return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
-            return new ResponseEntity(HttpStatus.SERVICE_UNAVAILABLE);
+            response.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
         }
 
-        ResponseEntity responseBuilder;
+        ResponseEntity.BodyBuilder responseBuilder;
 
         if (repository.allowsDirectoryBrowsing() && probeForDirectoryListing(repository, path))
         {
             logger.debug("GenerateDirectoryListing...");
             try
             {
-                return generateDirectoryListing(repository, path, request);
+                //return generateDirectoryListing(repository, path, request, response);
+                generateDirectoryListing(repository, path, request, response);
             }
             catch (Exception e)
             {
                 logger.error("Unable to GenerateDirectoryListing", e);
-                //  return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-                return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+                // return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+                response.setStatus(500);
             }
         }
 
         InputStream is;
         try
         {
-            if (isRangedRequest(headers))
-            {
-                is = getArtifactManagementService().resolve(storageId, repositoryId, path);
+            is = getArtifactManagementService().resolve(storageId, repositoryId, path);
 
-                responseBuilder = handlePartialDownload((ArtifactInputStream) is, headers);
+            if (isRangedRequest(httpHeaders))
+            {
+                logger.debug("Detecting range request....");
+                copyToResponse(handlePartialDownload((ArtifactInputStream) is, httpHeaders, response), response);
             }
             else
             {
-                is = getArtifactManagementService().resolve(storageId, repositoryId, path);
+                copyToResponse(is, response);
 
-                responseBuilder = ResponseEntity.ok(is);
+                // responseBuilder = ResponseEntity.ok();
+                // responseBuilder.body(is);
             }
         }
         catch (ArtifactResolutionException | ArtifactTransportException e)
         {
             logger.error("Unable to download", e);
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
+            //  return new ResponseEntity(HttpStatus.NOT_FOUND);
+            response.setStatus(404);
         }
 
-        setMediaTypeHeader(path, responseBuilder);
+        setMediaTypeHeader(path, response);
 
-        HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.set("Accept-Ranges", "bytes");
-        responseBuilder = new ResponseEntity(responseHeaders, HttpStatus.OK);
+        //  responseBuilder.header("Accept-Ranges", "bytes");
+        response.setHeader("Accept-Ranges", "bytes");
 
-        // responseBuilder.header("Accept-Ranges", "bytes");
-        setHeadersForChecksums(storageId, repositoryId, path, responseBuilder);
+        setHeadersForChecksums(storageId, repositoryId, path, response);
         logger.debug("Download success. Building response...");
 
-        //  return responseBuilder.build();
-        return responseBuilder;
+        // return responseBuilder.build();
+    }
+
+    private void copyToResponse(InputStream inputStream,
+                                HttpServletResponse response)
+    {
+        final BufferedInputStream in = new BufferedInputStream(inputStream);
+        try
+        {
+            ByteStreams.copy(in, response.getOutputStream());
+            response.flushBuffer();
+        }
+        catch (final IOException e)
+        {
+            logger.error(e);
+            throw new IllegalStateException(e);
+        }
     }
 
     private void setMediaTypeHeader(String path,
-                                    ResponseEntity responseBuilder)
+                                    HttpServletResponse response)
     {
         // TODO: This is far from optimal and will need to have a content type approach at some point:
         if (ArtifactUtils.isChecksum(path))
         {
             //  responseBuilder.type(MediaType.TEXT_PLAIN);
-            ResponseEntity temp = responseBuilder;
-            HttpHeaders headers = temp.getHeaders();
-            headers.setContentType(MediaType.TEXT_PLAIN);
-
-            responseBuilder = new ResponseEntity(temp.getBody(), headers, temp.getStatusCode());
-
+            response.setContentType("text/plain; charset=utf-8");
         }
         else if (ArtifactUtils.isMetadata(path))
         {
             // responseBuilder.type(MediaType.APPLICATION_XML);
-            ResponseEntity temp = responseBuilder;
-            HttpHeaders headers = temp.getHeaders();
-            headers.setContentType(MediaType.APPLICATION_XML);
-
-            responseBuilder = new ResponseEntity(temp.getBody(), headers, temp.getStatusCode());
+            response.setContentType("application/xml; charset=utf-8");
         }
         else
         {
             //   responseBuilder.type(MediaType.APPLICATION_OCTET_STREAM);
-            ResponseEntity temp = responseBuilder;
-            HttpHeaders headers = temp.getHeaders();
-            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-
-            responseBuilder = new ResponseEntity(temp.getBody(), headers, temp.getStatusCode());
+            response.setContentType("application/octet-stream; charset=utf-8");
         }
     }
 
     private void setHeadersForChecksums(String storageId,
                                         String repositoryId,
                                         String path,
-                                        ResponseEntity responseBuilder)
-            throws IOException
+                                        HttpServletResponse response)
+            throws IOException, JAXBException, NoSuchAlgorithmException
     {
-        Storage storage = getConfiguration().getStorage(storageId);
+        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
         if (!repository.isChecksumHeadersEnabled())
         {
@@ -240,10 +257,8 @@ public class ArtifactController
         try
         {
             isMd5 = getArtifactManagementService().resolve(storageId, repositoryId, path + ".md5");
-            HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.set("Checksum-MD5", MessageDigestUtils.readChecksumFile(isMd5));
-            //   responseBuilder.header("Checksum-MD5", MessageDigestUtils.readChecksumFile(isMd5));
-            responseBuilder = new ResponseEntity(responseHeaders, HttpStatus.OK);
+            // responseBuilder.header("Checksum-MD5", MessageDigestUtils.readChecksumFile(isMd5));
+            response.setHeader("Checksum-MD5", MessageDigestUtils.readChecksumFile(isMd5));
         }
         catch (IOException | ArtifactTransportException e)
         {
@@ -256,10 +271,8 @@ public class ArtifactController
         try
         {
             isSha1 = getArtifactManagementService().resolve(storageId, repositoryId, path + ".sha1");
-            HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.set("Checksum-SHA1", MessageDigestUtils.readChecksumFile(isSha1));
-            //   responseBuilder.header("Checksum-SHA1", MessageDigestUtils.readChecksumFile(isSha1));
-            responseBuilder = new ResponseEntity(responseHeaders, HttpStatus.OK);
+            // responseBuilder.header("Checksum-SHA1", MessageDigestUtils.readChecksumFile(isSha1));
+            response.setHeader("Checksum-SHA1", MessageDigestUtils.readChecksumFile(isSha1));
         }
         catch (IOException | ArtifactTransportException e)
         {
@@ -296,9 +309,10 @@ public class ArtifactController
         }
     }
 
-    private ResponseEntity generateDirectoryListing(Repository repository,
-                                                    String path,
-                                                    HttpServletRequest request)
+    private void generateDirectoryListing(Repository repository,
+                                          String path,
+                                          HttpServletRequest request,
+                                          HttpServletResponse response)
     {
         path = path.replaceAll("/", Matcher.quoteReplacement(File.separator));
 
@@ -314,17 +328,12 @@ public class ArtifactController
 
         if (file.isDirectory() && !requestUri.endsWith("/"))
         {
-            try
-            {
-                HttpHeaders responseHeaders = new HttpHeaders();
-                responseHeaders.setLocation(new URI(request.getRequestURI() + "/"));
-                return new ResponseEntity<>(null, responseHeaders, HttpStatus.TEMPORARY_REDIRECT);
-            }
-            catch (URISyntaxException e)
-            {
-                logger.error("Unable to generateDirectoryListing", e);
-                return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+            //HttpHeaders responseHeaders = new HttpHeaders();
+            // responseHeaders.setLocation(new URI(request.getRequestURI() + "/"));
+            response.setLocale(new Locale(request.getRequestURI() + "/"));
+            response.setStatus(307);
+            // return new ResponseEntity<>(null, responseHeaders, HttpStatus.TEMPORARY_REDIRECT);
+
         }
 
         try
@@ -381,15 +390,19 @@ public class ArtifactController
             sb.append("</body>");
             sb.append("</html>");
 
-            HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.setContentType(MediaType.TEXT_HTML);
-            return new ResponseEntity<>(sb.toString(), responseHeaders, HttpStatus.FOUND);
+            //  HttpHeaders responseHeaders = new HttpHeaders();
+            //   responseHeaders.setContentType(MediaType.TEXT_HTML);
+            response.setContentType("text/html;charset=UTF-8");
+            response.setStatus(302);
+            request.setAttribute("message", sb.toString());
+            //  return new ResponseEntity<>(sb.toString(), responseHeaders, HttpStatus.FOUND);
 
         }
         catch (Exception e)
         {
             logger.error(" error accessing requested directory: " + file.getAbsolutePath());
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
+            // return new ResponseEntity(HttpStatus.NOT_FOUND);
+            response.setStatus(404);
         }
     }
 
@@ -400,20 +413,20 @@ public class ArtifactController
                                          message = "The source/destination storageId/repositoryId/path does not exist!") })
     @PreAuthorize("hasAuthority('ARTIFACTS_COPY')")
     @RequestMapping(produces = MediaType.TEXT_PLAIN_VALUE, value = "copy/{path:.*}", method = RequestMethod.POST)
-    public ResponseEntity copy(@RequestParam(value = "The path", name = "The path", required = true)
-                               @PathVariable String path,
-                               @RequestParam(value = "The source storageId", name = "srcStorageId", required = true)
+    public ResponseEntity copy(
+                                      @PathVariable String path,
+                                      @RequestParam(name = "srcStorageId", required = true)
                                        String srcStorageId,
-                               @RequestParam(value = "The source repositoryId", name = "srcRepositoryId",
-                                             required = true)
+                                      @RequestParam(name = "srcRepositoryId",
+                                                    required = true)
                                        String srcRepositoryId,
-                               @RequestParam(value = "The destination storageId", name = "destStorageId",
-                                             required = true)
+                                      @RequestParam(name = "destStorageId",
+                                                    required = true)
                                        String destStorageId,
-                               @RequestParam(value = "The destination repositoryId", name = "destRepositoryId",
-                                             required = true)
+                                      @RequestParam(name = "destRepositoryId",
+                                                    required = true)
                                        String destRepositoryId)
-            throws IOException
+            throws IOException, JAXBException
     {
         logger.debug("Copying " + path +
                      " from " + srcStorageId + ":" + srcRepositoryId +
@@ -466,17 +479,13 @@ public class ArtifactController
     @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
     @RequestMapping(value = "{storageId}/{repositoryId}/{path:.*}", method = RequestMethod.DELETE)
     public ResponseEntity delete(
-                                        @RequestParam(value = "The storageId", name = "storageId", required = true)
                                         @PathVariable String storageId,
-                                        @RequestParam(value = "The repositoryId", name = "repositoryId",
-                                                      required = true)
                                         @PathVariable String repositoryId,
-                                        @RequestParam(value = "The path to delete", name = "path", required = true)
                                         @PathVariable String path,
-                                        @RequestParam(value = "Whether to use force delete", defaultValue = "false",
+                                        @RequestParam(defaultValue = "false",
                                                       name = "force", required = true)
                                                 boolean force)
-            throws IOException
+            throws IOException, JAXBException
     {
         logger.debug("DELETE: " + path);
         logger.debug(storageId + ":" + repositoryId + ": " + path);
@@ -519,7 +528,7 @@ public class ArtifactController
                                             String repositoryId,
                                             String metadataPath)
     {
-        Storage storage = getConfiguration().getStorage(storageId);
+        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
         final File repoPath = new File(repository.getBasedir());
 

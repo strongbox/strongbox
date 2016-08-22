@@ -95,7 +95,7 @@ public class ConfigurationManagementController
     @RequestMapping(value = "/xml", method = RequestMethod.GET, produces = { MediaType.APPLICATION_XML_VALUE,
                                                                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getConfigurationXML()
-            throws IOException, ParseException
+            throws IOException, ParseException, JAXBException
     {
         logger.debug("Received configuration request.");
 
@@ -106,18 +106,17 @@ public class ConfigurationManagementController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The base URL was updated."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_SET_BASE_URL')")
-    @RequestMapping(value = "/baseUrl/{baseUrl}", method = RequestMethod.PUT)
-    public ResponseEntity setBaseUrl(
-                                            @PathVariable String baseUrl)
+    @RequestMapping(value = "/baseUrl", method = RequestMethod.PUT, consumes = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity setBaseUrl(@RequestBody String newBaseUrl)
             throws IOException,
                    AuthenticationException,
                    JAXBException
     {
         try
         {
-            configurationManagementService.setBaseUrl(baseUrl);
+            configurationManagementService.setBaseUrl(newBaseUrl);
 
-            logger.info("Set baseUrl to " + baseUrl + ".");
+            logger.info("Set baseUrl to [" + newBaseUrl + "].");
 
             return ResponseEntity.ok("The base URL was updated.");
         }
@@ -133,14 +132,15 @@ public class ConfigurationManagementController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "", response = String.class),
                             @ApiResponse(code = 404, message = "No value for baseUrl has been defined yet.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_BASE_URL')")
-    @RequestMapping(value = "/baseUrl", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
+    @RequestMapping(value = "/baseUrl", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getBaseUrl()
             throws IOException,
                    AuthenticationException
     {
         if (configurationManagementService.getBaseUrl() != null)
         {
-            return ResponseEntity.status(HttpStatus.OK).body(configurationManagementService.getBaseUrl());
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    "{\"baseUrl\":\"" + configurationManagementService.getBaseUrl() + "\"}");
         }
         else
         {
@@ -373,7 +373,7 @@ public class ConfigurationManagementController
     {
         try
         {
-            System.out.println("       1-------------->        " + "");
+            System.out.println("       1-------------->        " + storageId);
             System.out.println("       2-------------->        " + repository.getId());
             repository.setStorage(configurationManagementService.getStorage(storageId));
             configurationManagementService.addOrUpdateRepository(storageId, repository);

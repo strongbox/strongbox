@@ -45,9 +45,16 @@ public class ConfigurationManager
 
     @PostConstruct
     public synchronized void init()
-            throws IOException, JAXBException
+            throws IOException
     {
-        super.init();
+        try
+        {
+            super.init();
+        }
+        catch (JAXBException e)
+        {
+            e.printStackTrace();
+        }
 
         setRepositoryStorageRelationships();
         setAllows();
@@ -86,6 +93,7 @@ public class ConfigurationManager
      * Sets the repository <--> storage relationships explicitly, as initially, when these are deserialized from the
      * XML, they have no such relationship.
      */
+
     public void setRepositoryStorageRelationships()
     {
         final Configuration configuration = getConfiguration();
@@ -179,6 +187,7 @@ public class ConfigurationManager
     @Override
     public Configuration getConfiguration()
     {
+
         return (Configuration) this.configuration;
     }
 
