@@ -2,7 +2,7 @@ package org.carlspring.strongbox.rest;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
-import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
+import org.carlspring.strongbox.security.exceptions.AuthenticationException;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;

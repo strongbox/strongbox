@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.users.security;
 
 import org.carlspring.strongbox.data.domain.GenericEntity;
-import org.carlspring.strongbox.security.jaas.Roles;
+import org.carlspring.strongbox.security.Roles;
 
 import javax.persistence.Embedded;
 import javax.xml.bind.annotation.XmlAccessType;

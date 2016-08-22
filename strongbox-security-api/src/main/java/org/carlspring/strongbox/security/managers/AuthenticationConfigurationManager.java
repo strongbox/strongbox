@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.security.jaas.managers;
+package org.carlspring.strongbox.security.managers;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;

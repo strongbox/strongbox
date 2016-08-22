@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.security.jaas.authentication;
+package org.carlspring.strongbox.security.exceptions;
 
 /**
  * @author mtodorov

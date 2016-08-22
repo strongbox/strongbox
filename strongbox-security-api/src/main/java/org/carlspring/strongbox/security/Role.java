@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.security.jaas;
+package org.carlspring.strongbox.security;
 
 import org.carlspring.strongbox.data.domain.GenericEntity;
 

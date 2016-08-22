@@ -1,6 +1,6 @@
-package org.carlspring.strongbox.security.jaas.util;
+package org.carlspring.strongbox.security.util;
 
-import org.carlspring.strongbox.security.jaas.Role;
+import org.carlspring.strongbox.security.Role;
 
 import java.util.ArrayList;
 import java.util.Collection;

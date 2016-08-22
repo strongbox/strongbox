@@ -1,6 +1,6 @@
-package org.carlspring.strongbox.security.jaas;
+package org.carlspring.strongbox.security;
 
-import org.carlspring.strongbox.security.jaas.authentication.NotSupportedException;
+import org.carlspring.strongbox.security.exceptions.NotSupportedException;
 
 /**
  * @author mtodorov

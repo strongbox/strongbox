@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.security.jaas;
+package org.carlspring.strongbox.security;
 
 import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Destroyable;
