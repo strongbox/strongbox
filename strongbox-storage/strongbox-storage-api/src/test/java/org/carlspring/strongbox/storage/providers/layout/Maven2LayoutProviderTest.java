@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.storage.providers.layout;
 
-import org.carlspring.strongbox.config.CommonConfig;
+import org.carlspring.strongbox.CommonConfig;
 import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;

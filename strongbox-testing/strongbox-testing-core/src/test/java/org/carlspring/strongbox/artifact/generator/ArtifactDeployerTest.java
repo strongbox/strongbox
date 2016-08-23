@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.artifact.generator;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.config.TestingCoreConfig;
+import org.carlspring.strongbox.TestingCoreConfig;
 import org.carlspring.strongbox.client.ArtifactClient;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;

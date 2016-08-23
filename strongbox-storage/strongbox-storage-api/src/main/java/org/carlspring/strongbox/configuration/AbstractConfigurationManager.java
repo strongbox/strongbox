@@ -39,13 +39,12 @@ public abstract class AbstractConfigurationManager<T>
     public synchronized void init()
             throws IOException, JAXBException
     {
-        configuration = configurationRepository.getConfiguration();
+        this.configuration = configurationRepository.getConfiguration();
+        logger.info("Loading Strongbox configuration from orientdb ...");
         if (configuration == null)
         {
             throw new BeanCreationException("Unable to load configuration from db");
         }
-
-        logger.debug("Loaded Strongbox configuration from OrientDB.");
     }
 
     public synchronized void store()

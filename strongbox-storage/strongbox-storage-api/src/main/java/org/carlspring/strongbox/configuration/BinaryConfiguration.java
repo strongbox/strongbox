@@ -29,7 +29,6 @@ public class BinaryConfiguration
 
     private String data;
 
-
     public BinaryConfiguration()
     {
     }
