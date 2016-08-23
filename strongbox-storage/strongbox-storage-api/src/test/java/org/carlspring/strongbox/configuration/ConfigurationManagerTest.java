@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.configuration;
 
-import org.carlspring.strongbox.CommonConfig;
+import org.carlspring.strongbox.config.CommonConfig;
 import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.config.ClientConfig;
 import org.carlspring.strongbox.config.DataServiceConfig;
