@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.security.jaas.managers;
 
-import org.carlspring.strongbox.CommonConfig;
+import org.carlspring.strongbox.config.CommonConfig;
 import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
 import org.carlspring.strongbox.security.managers.AuthenticationManager;
 
