@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.io;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.CommonConfig;
+import org.carlspring.strongbox.config.CommonConfig;
 import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;

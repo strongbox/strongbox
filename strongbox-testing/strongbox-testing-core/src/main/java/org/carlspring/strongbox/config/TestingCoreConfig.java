@@ -1,4 +1,4 @@
-package org.carlspring.strongbox;
+package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.testing.AssignedPorts;
 

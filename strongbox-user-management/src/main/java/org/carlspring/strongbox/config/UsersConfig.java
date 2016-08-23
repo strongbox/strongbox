@@ -1,7 +1,5 @@
-package org.carlspring.strongbox.users;
+package org.carlspring.strongbox.config;
 
-import org.carlspring.strongbox.CommonConfig;
-import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.security.encryption.EncryptionAlgorithms;
 import org.carlspring.strongbox.security.Credentials;
