@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.security.jaas.managers;
+package org.carlspring.strongbox.security.managers;
 
 import org.carlspring.strongbox.config.CommonConfig;
 import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;

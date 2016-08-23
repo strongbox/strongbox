@@ -1,7 +1,6 @@
-package org.carlspring.strongbox.security.jaas.util;
+package org.carlspring.strongbox.security.util;
 
 import org.carlspring.strongbox.security.Privilege;
-import org.carlspring.strongbox.security.util.PrivilegeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
