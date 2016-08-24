@@ -5,11 +5,11 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.security.exceptions.AuthenticationException;
+import org.carlspring.strongbox.storage.ArtifactResolutionException;
+import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.ArtifactResolutionException;
-import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -287,7 +287,8 @@ public class ArtifactRestlet
             StringBuilder sb = new StringBuilder();
             sb.append("<html>");
             sb.append("<head>");
-            sb.append("<style>body{font-family: \"Trebuchet MS\", verdana, lucida, arial, helvetica, sans-serif;} table tr {text-align: left;}</style>");
+            sb.append(
+                    "<style>body{font-family: \"Trebuchet MS\", verdana, lucida, arial, helvetica, sans-serif;} table tr {text-align: left;}</style>");
             sb.append("<title>Index of " + request.getRequestURI() + "</title>");
             sb.append("</head>");
             sb.append("<body>");
@@ -321,7 +322,8 @@ public class ArtifactRestlet
 
                     sb.append("<tr>");
                     sb.append("<td><a href='" + URLEncoder.encode(name, "UTF-8") + (childFile.isDirectory() ?
-                              "/" : "") + "'>" + name + (childFile.isDirectory() ? "/" : "") + "</a></td>");
+                                                                                    "/" : "") + "'>" + name +
+                              (childFile.isDirectory() ? "/" : "") + "</a></td>");
                     sb.append("<td>" + lastModified + "</td>");
                     sb.append("<td>" + FileUtils.byteCountToDisplaySize(childFile.length()) + "</td>");
                     sb.append("</tr>");
