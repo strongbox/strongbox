@@ -16,6 +16,7 @@ import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import com.jayway.restassured.response.Headers;
 import com.jayway.restassured.response.ResponseBody;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -26,6 +27,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration.generateArtifact;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
 
@@ -50,7 +52,7 @@ public class ArtifactControllerTest
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactControllerTest.class);
 
-    /*@BeforeClass
+    @BeforeClass
     public static void setUpClass()
             throws Exception
     {
@@ -95,13 +97,6 @@ public class ArtifactControllerTest
 
         //noinspection ResultOfMethodCallIgnored
         new File(TEST_RESOURCES).mkdirs();
-    }*/
-
-    private static class InputStreamWrapper
-    {
-
-        InputStream inputStream;
-        long length;
     }
 
     @Test
@@ -122,6 +117,7 @@ public class ArtifactControllerTest
                 .body(containsString("success"))
                 .toString();
     }
+
 
     @Test
     @WithUserDetails("admin")
@@ -145,29 +141,30 @@ public class ArtifactControllerTest
 
         // read remote checksum
         String md5Remote = MessageDigestUtils.readChecksumFile(
-                getArtifactAsStream(pathToJar + ".md5", url).inputStream
+                getArtifactAsStream(pathToJar + ".md5", url)
         );
         String sha1Remote = MessageDigestUtils.readChecksumFile(
-                getArtifactAsStream(pathToJar + ".sha1", url).inputStream
+                getArtifactAsStream(pathToJar + ".sha1", url)
         );
         logger.info("Remote md5 checksum " + md5Remote);
         logger.info("Remote sha1 checksum " + sha1Remote);
 
         // calculate local checksum for given algorithms
-        InputStreamWrapper is = getArtifactAsStream(pathToJar, url);
+        InputStream is = getArtifactAsStream(pathToJar, url);
+        System.out.println("Wrote " + is.available() + " bytes.");
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ByteStreams.copy(is, baos); // full copying
 
         MultipleDigestOutputStream mdos = new MultipleDigestOutputStream(baos);
-        ByteStreams.copy(is.inputStream, baos);
+        mdos.write(baos.toByteArray());
 
-        int total = baos.size();
+        int total = baos.size(); // FIXME
         mdos.flush();
         mdos.close();
 
-        //long length = new File("/Users/neo/Projects/strongbox/strongbox-web-core/target/strongbox-vault/storages/storage0/releases/org/carlspring/strongbox/partial/partial-foo/3.1/partial-foo-3.1.jar").length();
-
-        //System.out.println("\nLength " + length + " Total " + total + "\n");
-
+        // 642,367 bytes (643 KB on disk)
+        // 1,284,734 bytes (1.3 MB on disk)
         System.out.println("Wrote " + total + " bytes.");
         //System.out.println("Partial read, terminated after writing " + partialRead + " bytes.");
         //System.out.println("Partial read, continued and wrote " + len2 + " bytes.");
@@ -190,23 +187,30 @@ public class ArtifactControllerTest
         }
         FileOutputStream output = new FileOutputStream(artifact);
         output.write(baos.toByteArray());
+        output.close();
 
         assertEquals("Glued partial fetches did not match MD5 checksum!", md5Remote, md5Local);
         assertEquals("Glued partial fetches did not match SHA-1 checksum!", sha1Remote, sha1Local);
-
     }
 
-    private InputStreamWrapper getArtifactAsStream(String path,
-                                                   String url)
+    private InputStream getArtifactAsStream(String path,
+                                            String url)
     {
         return getArtifactAsStream(path, url, -1);
     }
 
-    private InputStreamWrapper getArtifactAsStream(String path,
-                                                   String url,
-                                                   int offset)
+    private InputStream getArtifactAsStream(String path,
+                                            String url,
+                                            int offset)
     {
+        return new ByteArrayInputStream(getArtifactAsByteArray(path, url, offset));
 
+    }
+
+    private byte[] getArtifactAsByteArray(String path,
+                                          String url,
+                                          int offset)
+    {
         MockMvcRequestSpecification o = given().contentType(MediaType.TEXT_PLAIN_VALUE);
         int statusCode = 200;
         if (offset != -1)
@@ -226,23 +230,11 @@ public class ArtifactControllerTest
                                System.out.println("\t" + header.getName() + " = " + header.getValue());
                            });
 
-        InputStreamWrapper wrapper = new InputStreamWrapper();
-        wrapper.inputStream = response.then()
-                                      .statusCode(statusCode)
-                                      .extract()
-                                      .asInputStream();
+        response.then().statusCode(statusCode);
+        byte[] result = response.getMockHttpServletResponse().getContentAsByteArray();
+        System.out.println("Received " + result.length + " bytes.");
 
-        String contentLength = allHeaders.getValue("Content-Length");
-        if (contentLength != null)
-        {
-            wrapper.length = Long.valueOf(contentLength);
-        }
-        else
-        {
-            wrapper.length = 0;
-        }
-
-        return wrapper;
+        return result;
     }
 
     public boolean pathExists(String path)
