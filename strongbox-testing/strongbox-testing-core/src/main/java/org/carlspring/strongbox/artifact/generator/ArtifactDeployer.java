@@ -22,12 +22,16 @@ import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
 import org.apache.maven.project.artifact.PluginArtifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author mtodorov
  */
 public class ArtifactDeployer extends ArtifactGenerator
 {
+
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactDeployer.class);
 
     private String username;
 
@@ -36,6 +40,7 @@ public class ArtifactDeployer extends ArtifactGenerator
     private ArtifactClient client;
 
     private MetadataMerger metadataMerger;
+
 
     public ArtifactDeployer()
     {
@@ -111,7 +116,7 @@ public class ArtifactDeployer extends ArtifactGenerator
         {
             // TODO SB-230: What should we do if we get ArtifactTransportException,
             // IOException or XmlPullParserException
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
     }
 

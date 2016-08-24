@@ -1,9 +1,13 @@
 package org.carlspring.strongbox.artifact.locator.handlers;
 
 import org.carlspring.maven.commons.io.filters.PomFilenameFilter;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.storage.metadata.MetadataManager;
 import org.carlspring.strongbox.storage.metadata.VersionCollectionRequest;
 import org.carlspring.strongbox.storage.metadata.VersionCollector;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,10 +16,6 @@ import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
-
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author mtodorov
@@ -102,7 +102,7 @@ public class ArtifactLocationGenerateMetadataOperation
                 {
                     metadataManager.generateMetadata(getRepository(), artifactPath, request);
                 }
-                catch (IOException | XmlPullParserException | NoSuchAlgorithmException e)
+                catch (IOException | XmlPullParserException | NoSuchAlgorithmException | ProviderImplementationException e)
                 {
                     logger.error("Failed to generate metadata for " + artifactPath);
                     logger.trace(e.getMessage(), e);

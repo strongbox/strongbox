@@ -48,10 +48,10 @@ public class AuthenticationConfigurationParserTest
             throws IOException, JAXBException
     {
         List<String> realms = new ArrayList<>();
-        realms.add("org.carlspring.strongbox.jaas.xml.XMLUserRealm");
-        realms.add("org.carlspring.strongbox.jaas.xml.LDAPUserRealm");
-        realms.add("org.carlspring.strongbox.jaas.xml.ADUserRealm");
-        realms.add("org.carlspring.strongbox.jaas.xml.RDBMSUserRealm");
+        realms.add("org.carlspring.strongbox.security.authentication.xml.XMLUserRealm");
+        realms.add("org.carlspring.strongbox.security.authentication.ldap.LDAPUserRealm");
+        realms.add("org.carlspring.strongbox.security.authentication.ad.ADUserRealm");
+        realms.add("org.carlspring.strongbox.security.authentication.jdbc.JDBCUserRealm");
 
         AnonymousAccessConfiguration anonymousAccessConfiguration = new AnonymousAccessConfiguration();
 

@@ -3,12 +3,13 @@ package org.carlspring.strongbox.rest;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.security.exceptions.AuthenticationException;
+import org.carlspring.strongbox.storage.ArtifactResolutionException;
+import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
-import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -92,7 +93,8 @@ public class ArtifactRestlet
                            InputStream is)
             throws IOException,
                    AuthenticationException,
-                   NoSuchAlgorithmException
+                   NoSuchAlgorithmException,
+                   ProviderImplementationException
     {
         try
         {
@@ -128,7 +130,8 @@ public class ArtifactRestlet
                    InstantiationException,
                    IllegalAccessException,
                    ClassNotFoundException,
-                   AuthenticationException
+                   AuthenticationException,
+                   ProviderImplementationException
     {
         logger.debug(" repository = " + repositoryId + ", path = " + path);
 
@@ -209,7 +212,8 @@ public class ArtifactRestlet
                                         String repositoryId,
                                         String path,
                                         Response.ResponseBuilder responseBuilder)
-            throws IOException
+            throws IOException,
+                   ProviderImplementationException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
@@ -311,7 +315,8 @@ public class ArtifactRestlet
             StringBuilder sb = new StringBuilder();
             sb.append("<html>");
             sb.append("<head>");
-            sb.append("<style>body{font-family: \"Trebuchet MS\", verdana, lucida, arial, helvetica, sans-serif;} table tr {text-align: left;}</style>");
+            sb.append(
+                    "<style>body{font-family: \"Trebuchet MS\", verdana, lucida, arial, helvetica, sans-serif;} table tr {text-align: left;}</style>");
             sb.append("<title>Index of " + request.getRequestURI() + "</title>");
             sb.append("</head>");
             sb.append("<body>");

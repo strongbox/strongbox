@@ -5,6 +5,7 @@ import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.artifact.locator.handlers.ArtifactLocationGenerateMetadataOperation;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
@@ -107,7 +108,7 @@ public class ArtifactMetadataServiceImpl
                               Metadata mergeMetadata)
             throws IOException,
                    XmlPullParserException,
-                   NoSuchAlgorithmException
+                   NoSuchAlgorithmException, ProviderImplementationException
     {
         Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
 

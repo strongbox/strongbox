@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.configuration;
 
-import org.carlspring.strongbox.security.jaas.Privilege;
-import org.carlspring.strongbox.security.jaas.Role;
+import org.carlspring.strongbox.security.Privilege;
+import org.carlspring.strongbox.security.Role;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

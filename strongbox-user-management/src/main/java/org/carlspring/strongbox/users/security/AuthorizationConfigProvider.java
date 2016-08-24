@@ -2,7 +2,7 @@ package org.carlspring.strongbox.users.security;
 
 import org.carlspring.strongbox.configuration.ConfigurationException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.security.jaas.Role;
+import org.carlspring.strongbox.security.Role;
 import org.carlspring.strongbox.users.domain.Roles;
 import org.carlspring.strongbox.users.service.AuthorizationConfigService;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
@@ -129,8 +129,8 @@ public class AuthorizationConfigProvider
         // full class names used for clarity and to avoid conflicts with domain package
         // that contains the same class names
         databaseTx.getEntityManager().registerEntityClass(AuthorizationConfig.class);
-        databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Roles.class);
-        databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.jaas.Role.class);
+        databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.Roles.class);
+        databaseTx.getEntityManager().registerEntityClass(Role.class);
     }
 
     private void validateConfig(@NotNull AuthorizationConfig config)

@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.rest;
 
-import org.carlspring.strongbox.security.jaas.Privilege;
-import org.carlspring.strongbox.security.jaas.Role;
+import org.carlspring.strongbox.security.Privilege;
+import org.carlspring.strongbox.security.Role;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.security.AuthorizationConfig;
 import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
@@ -24,11 +24,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

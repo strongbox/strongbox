@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.services;
 
 import org.carlspring.maven.commons.DetachedArtifact;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
@@ -302,7 +303,7 @@ public class ArtifactMetadataServiceSnapshotsTest
 
     @Test
     public void testMetadataMerge()
-            throws IOException, XmlPullParserException, NoSuchAlgorithmException
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException, ProviderImplementationException
     {
         // Generate a proper maven-metadata.xml
         artifactMetadataService.rebuildMetadata("storage0", "snapshots", "org/carlspring/strongbox/strongbox-metadata-merge");
