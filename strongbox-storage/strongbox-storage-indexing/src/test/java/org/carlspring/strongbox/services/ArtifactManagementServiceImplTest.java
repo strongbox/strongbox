@@ -56,8 +56,9 @@ public class ArtifactManagementServiceImplTest
 
             generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(),
                              gavtc,
-                             new String[] { "7.0" // Used by testForceDelete()
-                                          });
+                             new String[]{ "7.0"
+                                           // Used by testForceDelete()
+                             });
             generateArtifact(STORAGE_BASEDIR.getAbsolutePath() + "/releases-with-trash", gavtc, new String[] {"7.2"});
             generateArtifact(STORAGE_BASEDIR.getAbsolutePath() + "/releases-with-redeployment", gavtc, new String[] {"7.3"});
 

@@ -5,15 +5,23 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.security.exceptions.AuthenticationException;
+import org.carlspring.strongbox.storage.ArtifactResolutionException;
+import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.ArtifactResolutionException;
-import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -31,7 +39,11 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.regex.Matcher;
 
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.comparator.DirectoryFileComparator;
 import org.apache.maven.artifact.repository.metadata.Metadata;
@@ -127,6 +139,7 @@ public class ArtifactRestlet
         Repository repository = storage.getRepository(repositoryId);
         if (!repository.isInService())
         {
+            logger.error("Repository is not in service...");
             return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
         }
 
@@ -134,7 +147,15 @@ public class ArtifactRestlet
 
         if (repository.allowsDirectoryBrowsing() && probeForDirectoryListing(repository, path))
         {
-            return generateDirectoryListing(repository, path, request);
+            logger.debug("GenerateDirectoryListing...");
+            try
+            {
+                return generateDirectoryListing(repository, path, request);
+            }
+            catch (Exception e){
+                logger.error("Unable to GenerateDirectoryListing", e);
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            }
         }
 
         InputStream is;
@@ -155,6 +176,7 @@ public class ArtifactRestlet
         }
         catch (ArtifactResolutionException | ArtifactTransportException e)
         {
+            logger.error("Unable to download", e);
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
@@ -163,6 +185,7 @@ public class ArtifactRestlet
         responseBuilder.header("Accept-Ranges", "bytes");
 
         setHeadersForChecksums(storageId, repositoryId, path, responseBuilder);
+        logger.debug("Download success. Building response...");
 
         return responseBuilder.build();
     }
@@ -260,12 +283,16 @@ public class ArtifactRestlet
     {
         path = path.replaceAll("/", Matcher.quoteReplacement(File.separator));
 
+        if (request == null) {
+            throw new RuntimeException("Unable to retrieve HTTP request from execution context");
+        }
+
         String dir = repository.getBasedir() + File.separator + path;
-        String uri = request.getRequestURI();
+        String requestUri = request.getRequestURI();
 
         File file = new File(dir);
 
-        if (file.isDirectory() && !uri.endsWith("/"))
+        if (file.isDirectory() && !requestUri.endsWith("/"))
         {
             try
             {
@@ -275,6 +302,7 @@ public class ArtifactRestlet
             }
             catch (URISyntaxException e)
             {
+                logger.error("Unable to generateDirectoryListing", e);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                                .build();
             }
@@ -287,7 +315,8 @@ public class ArtifactRestlet
             StringBuilder sb = new StringBuilder();
             sb.append("<html>");
             sb.append("<head>");
-            sb.append("<style>body{font-family: \"Trebuchet MS\", verdana, lucida, arial, helvetica, sans-serif;} table tr {text-align: left;}</style>");
+            sb.append(
+                    "<style>body{font-family: \"Trebuchet MS\", verdana, lucida, arial, helvetica, sans-serif;} table tr {text-align: left;}</style>");
             sb.append("<title>Index of " + request.getRequestURI() + "</title>");
             sb.append("</head>");
             sb.append("<body>");
@@ -321,7 +350,8 @@ public class ArtifactRestlet
 
                     sb.append("<tr>");
                     sb.append("<td><a href='" + URLEncoder.encode(name, "UTF-8") + (childFile.isDirectory() ?
-                              "/" : "") + "'>" + name + (childFile.isDirectory() ? "/" : "") + "</a></td>");
+                                                                                    "/" : "") + "'>" + name +
+                              (childFile.isDirectory() ? "/" : "") + "</a></td>");
                     sb.append("<td>" + lastModified + "</td>");
                     sb.append("<td>" + FileUtils.byteCountToDisplaySize(childFile.length()) + "</td>");
                     sb.append("</tr>");
@@ -340,7 +370,7 @@ public class ArtifactRestlet
         }
         catch (Exception e)
         {
-            logger.warn(" error accessing requested directory: " + file.getAbsolutePath());
+            logger.error(" error accessing requested directory: " + file.getAbsolutePath());
             return Response.status(Response.Status.NOT_FOUND)
                            .build();
         }
@@ -352,7 +382,8 @@ public class ArtifactRestlet
     @ApiOperation(value = "Copies a path from one repository to another.", position = 4)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The path was copied successfully."),
                             @ApiResponse(code = 400, message = "Bad request."),
-                            @ApiResponse(code = 404, message = "The source/destination storageId/repositoryId/path does not exist!") })
+                            @ApiResponse(code = 404,
+                                         message = "The source/destination storageId/repositoryId/path does not exist!") })
     @PreAuthorize("hasAuthority('ARTIFACTS_COPY')")
     public Response copy(@ApiParam(value = "The path", required = true)
                          @PathParam("path") String path,
@@ -424,7 +455,8 @@ public class ArtifactRestlet
     @ApiOperation(value = "Deletes a path from a repository.", position = 3)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deleted."),
                             @ApiResponse(code = 400, message = "Bad request."),
-                            @ApiResponse(code = 404, message = "The specified storageId/repositoryId/path does not exist!") })
+                            @ApiResponse(code = 404,
+                                         message = "The specified storageId/repositoryId/path does not exist!") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
     public Response delete(@ApiParam(value = "The storageId", required = true)
                            @PathParam("storageId") String storageId,

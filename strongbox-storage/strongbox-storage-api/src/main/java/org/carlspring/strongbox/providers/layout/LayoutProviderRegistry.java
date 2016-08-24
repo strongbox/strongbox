@@ -22,7 +22,8 @@ import org.springframework.stereotype.Component;
  * @author carlspring
  */
 @Component("layoutProviderRegistry")
-public class LayoutProviderRegistry extends AbstractMappedProviderRegistry<LayoutProvider>
+public class LayoutProviderRegistry
+        extends AbstractMappedProviderRegistry<LayoutProvider>
 {
 
     private static final Logger logger = LoggerFactory.getLogger(LayoutProviderRegistry.class);
@@ -34,7 +35,7 @@ public class LayoutProviderRegistry extends AbstractMappedProviderRegistry<Layou
     public LayoutProviderRegistry()
     {
     }
-    
+
     public void deleteTrash()
             throws IOException
     {
@@ -107,7 +108,8 @@ public class LayoutProviderRegistry extends AbstractMappedProviderRegistry<Layou
     }
 
     @Override
-    public LayoutProvider addProvider(String alias, LayoutProvider provider)
+    public LayoutProvider addProvider(String alias,
+                                      LayoutProvider provider)
     {
         return super.addProvider(alias, provider);
     }

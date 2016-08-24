@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @ContextConfiguration(classes = { WebConfig.class })
 @Transactional
 @Rollback
+@Deprecated
 public @interface RestletTestContext
 {
 

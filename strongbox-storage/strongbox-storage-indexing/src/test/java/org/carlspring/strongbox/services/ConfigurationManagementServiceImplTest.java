@@ -173,7 +173,8 @@ public class ConfigurationManagementServiceImplTest
     {
         configurationManagementService.addOrUpdateAcceptedRuleSet(getRuleSet());
 
-        final boolean added = configurationManagementService.addOrUpdateAcceptedRepository(GROUP_REPOSITORY, getRoutingRule());
+        final boolean added = configurationManagementService.addOrUpdateAcceptedRepository(GROUP_REPOSITORY,
+                                                                                           getRoutingRule());
         final Configuration configuration = configurationRepository.getConfiguration();
 
         assertTrue(added);
@@ -189,11 +190,12 @@ public class ConfigurationManagementServiceImplTest
         configurationManagementService.addOrUpdateAcceptedRuleSet(getRuleSet());
 
         final boolean removed = configurationManagementService.removeAcceptedRepository(GROUP_REPOSITORY, RULE_PATTERN,
-                                                                             REPOSITORY_ID);
+                                                                                        REPOSITORY_ID);
 
         final Configuration configuration = configurationRepository.getConfiguration();
         configuration.getRoutingRules().getAccepted().get(GROUP_REPOSITORY).getRoutingRules().forEach(
-                routingRule -> {
+                routingRule ->
+                {
                     if (routingRule.getPattern().equals(RULE_PATTERN))
                     {
                         assertFalse(routingRule.getRepositories().contains(REPOSITORY_ID));
@@ -214,7 +216,8 @@ public class ConfigurationManagementServiceImplTest
         final boolean overridden = configurationManagementService.overrideAcceptedRepositories(GROUP_REPOSITORY, rl);
         final Configuration configuration = configurationRepository.getConfiguration();
         configuration.getRoutingRules().getAccepted().get(GROUP_REPOSITORY).getRoutingRules().forEach(
-                routingRule -> {
+                routingRule ->
+                {
                     if (routingRule.getPattern().equals(rl.getPattern()))
                     {
                         assertEquals(1, routingRule.getRepositories().size());

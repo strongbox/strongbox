@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
@@ -49,9 +49,8 @@
         <version.carlspring.logback.config>1.0-SNAPSHOT</version.carlspring.logback.config>
 
         <version.httpclient>4.5</version.httpclient>
-        <version.jackson>2.4.3</version.jackson>
-        <version.jersey>2.23</version.jersey>
-        <version.jetty>9.3.7.v20160115</version.jetty>
+        <version.jackson>2.8.1</version.jackson>
+        <version.jersey>2.23.1</version.jersey>
         <version.lucene>4.8.1</version.lucene>
         <version.maven>3.3.9</version.maven>
         <version.jcl>1.7.7</version.jcl>
@@ -124,12 +123,6 @@
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
                     <version>1.9.1</version>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.eclipse.jetty</groupId>
-                    <artifactId>jetty-maven-plugin</artifactId>
-                    <version>${version.jetty}</version>
                 </plugin>
 
                 <plugin>
@@ -343,6 +336,22 @@
                 <artifactId>jersey-apache-connector</artifactId>
                 <version>${version.jersey}</version>
             </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.containers</groupId>
+                <artifactId>jersey-container-servlet</artifactId>
+                <version>${version.jersey}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.ext</groupId>
+                <artifactId>jersey-entity-filtering</artifactId>
+                <version>${version.jersey}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.test-framework.providers</groupId>
+                <artifactId>jersey-test-framework-provider-grizzly2</artifactId>
+                <version>${version.jersey}</version>
+                <scope>test</scope>
+            </dependency>
 
             <dependency>
                 <groupId>org.glassfish.jersey.ext</groupId>
@@ -368,7 +377,7 @@
                 <groupId>javax.servlet</groupId>
                 <artifactId>servlet-api</artifactId>
                 <version>${version.servlet.api}</version>
-                <scope>provided</scope>
+                <!-- <scope>provided</scope> -->
             </dependency>
 
             <dependency>
@@ -457,6 +466,12 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
+                <groupId>io.rest-assured</groupId>
+                <artifactId>rest-assured</artifactId>
+                <version>${version.rest.assured}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-web</artifactId>
                 <version>${version.spring}</version>
@@ -515,6 +530,15 @@
     </dependencies>
 
     <repositories>
+        <repository>
+            <id>central</id>
+            <name>Maven Repository Switchboard</name>
+            <layout>default</layout>
+            <url>http://repo1.maven.org/maven2</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
         <repository>
             <id>carlspring-oss-snapshots</id>
             <name>carlspring-oss-snapshots</name>

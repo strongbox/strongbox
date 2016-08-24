@@ -46,6 +46,12 @@ public class ConfigurationManagementServiceImpl
     private ConfigurationResourceResolver configurationResourceResolver;
 
     @Override
+    public Configuration getConfiguration()
+    {
+        return configurationManager.getConfiguration();
+    }
+
+    @Override
     public void setConfiguration(Configuration configuration)
             throws IOException, JAXBException
     {
@@ -53,12 +59,6 @@ public class ConfigurationManagementServiceImpl
         configurationManager.setConfiguration(configuration);
         configurationManager.store();
         configurationManager.setRepositoryStorageRelationships();
-    }
-
-    @Override
-    public Configuration getConfiguration()
-    {
-        return configurationManager.getConfiguration();
     }
 
     @Override
@@ -350,7 +350,8 @@ public class ConfigurationManagementServiceImpl
         boolean overridden = false;
         if (configuration.getRoutingRules().getAccepted().containsKey(groupRepository))
         {
-            for (RoutingRule rule : configuration.getRoutingRules().getAccepted().get(groupRepository).getRoutingRules())
+            for (RoutingRule rule : configuration.getRoutingRules().getAccepted().get(
+                    groupRepository).getRoutingRules())
             {
                 if (routingRule.getPattern().equals(rule.getPattern()))
                 {

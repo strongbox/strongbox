@@ -79,7 +79,8 @@ public class ChecksumCacheManager
         final String checksum = artifactChecksum.getChecksum(algorithm);
         if (checksum != null)
         {
-            logger.debug("Found checksum '" + checksum + "' [" + algorithm + "]" + " for '" + artifactBasePath + "' in cache.");
+            logger.debug("Found checksum '" + checksum + "' [" + algorithm + "]" + " for '" + artifactBasePath +
+                         "' in cache.");
         }
 
         return checksum;
@@ -96,7 +97,8 @@ public class ChecksumCacheManager
                                                  String algorithm,
                                                  String checksum)
     {
-        logger.debug("Adding checksum '" + checksum + "' [" + algorithm + "]" + " for '" + artifactBasePath + "' in cache.");
+        logger.debug(
+                "Adding checksum '" + checksum + "' [" + algorithm + "]" + " for '" + artifactBasePath + "' in cache.");
 
         if (cachedChecksums.containsKey(artifactBasePath))
         {

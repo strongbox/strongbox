@@ -5,7 +5,6 @@ import org.carlspring.strongbox.security.encryption.EncryptionAlgorithms;
 import org.carlspring.strongbox.security.Credentials;
 import org.carlspring.strongbox.security.Users;
 import org.carlspring.strongbox.users.domain.User;
-import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
@@ -39,24 +38,20 @@ public class UsersConfig
 {
 
     private static final Logger logger = LoggerFactory.getLogger(UsersConfig.class);
-    
+
     private final static GenericParser<Users> parser = new GenericParser<>(Users.class);
-    
+
     @Autowired
     private OObjectDatabaseTx databaseTx;
-    
+
     @Autowired
     private UserService userService;
-    
+
     @Autowired
     private CacheManager cacheManager;
-    
+
     @Autowired
     private ConfigurationResourceResolver configurationResourceResolver;
-    
-    @Autowired
-    private AuthorizationConfigProvider authorizationConfigProvider;
-
 
     private synchronized OObjectDatabaseTx getDatabaseTx()
     {

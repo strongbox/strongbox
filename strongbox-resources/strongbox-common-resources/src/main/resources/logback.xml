@@ -36,15 +36,20 @@
     <logger name="org.apache">
         <level value="ERROR"/>
     </logger>
+
+    <logger name="org.apache.http">
+        <level value="ERROR"/>
+    </logger>
+
     <logger name="org.carlspring">
-        <level value="DEBUG"/>
+        <level value="INFO"/>
     </logger>
     <logger name="org.glassfish.jersey">
         <level value="WARN"/>
     </logger>
 
     <root>
-        <level value="DEBUG"/>
+        <level value="INFO"/>
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
     </root>

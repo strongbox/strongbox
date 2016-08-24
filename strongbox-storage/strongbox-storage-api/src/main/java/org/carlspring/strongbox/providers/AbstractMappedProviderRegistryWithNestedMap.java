@@ -37,7 +37,8 @@ public abstract class AbstractMappedProviderRegistryWithNestedMap<T>
         return providers.get(alias);
     }
 
-    public T getProviderImplementation(String alias, String implementation)
+    public T getProviderImplementation(String alias,
+                                       String implementation)
             throws ProviderImplementationException
     {
         Map<String, T> map = providers.get(alias);
@@ -48,11 +49,13 @@ public abstract class AbstractMappedProviderRegistryWithNestedMap<T>
         else
         {
             throw new ProviderImplementationException("The requested implementation '" + implementation + "'" +
-                                                      " was not found for provider '" + alias  + "'.");
+                                                      " was not found for provider '" + alias + "'.");
         }
     }
 
-    public void addProviderImplementation(String alias, String implementation, T provider)
+    public void addProviderImplementation(String alias,
+                                          String implementation,
+                                          T provider)
     {
         Map<String, T> map = providers.containsKey(alias) ? providers.get(alias) : new LinkedHashMap<>();
         map.put(implementation, provider);
@@ -60,7 +63,8 @@ public abstract class AbstractMappedProviderRegistryWithNestedMap<T>
         providers.put(alias, map);
     }
 
-    public void removeProviderImplementation(String alias, String implementation)
+    public void removeProviderImplementation(String alias,
+                                             String implementation)
     {
         providers.get(alias).remove(implementation);
     }

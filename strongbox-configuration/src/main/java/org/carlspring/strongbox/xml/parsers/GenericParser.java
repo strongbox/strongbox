@@ -39,22 +39,6 @@ public class GenericParser<T>
     private JAXBContext context;
 
 
-    static
-    {
-        final ClasspathURLStreamHandler handler = new ClasspathURLStreamHandler(ClassLoader.getSystemClassLoader());
-        ClasspathURLStreamHandlerFactory factory = new ClasspathURLStreamHandlerFactory("classpath", handler);
-        try
-        {
-            URL.setURLStreamHandlerFactory(factory);
-        }
-        catch (Error e)
-        {
-            // You can safely disregard this, as a second attempt to register a an already
-            // registered URLStreamHandlerFactory will throw an error. Since there's no
-            // apparent way to check if it's registered, just catch and ignore the error.
-        }
-    }
-
     public GenericParser(Class... classes)
     {
         Collections.addAll(this.classes, classes);
@@ -161,7 +145,7 @@ public class GenericParser<T>
             JAXBContext context = getContext();
 
             Marshaller marshaller = context.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, false);
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
             marshaller.marshal(object, writer);
             return writer.getBuffer().toString();
@@ -194,12 +178,6 @@ public class GenericParser<T>
         }
     }
 
-    public void setContext(Class<?> classType)
-            throws JAXBException
-    {
-        context = JAXBContext.newInstance(classType);
-    }
-
     public JAXBContext getContext()
             throws JAXBException
     {
@@ -209,6 +187,28 @@ public class GenericParser<T>
         }
 
         return context;
+    }
+
+    public void setContext(Class<?> classType)
+            throws JAXBException
+    {
+        context = JAXBContext.newInstance(classType);
+    }
+
+    static
+    {
+        final ClasspathURLStreamHandler handler = new ClasspathURLStreamHandler(ClassLoader.getSystemClassLoader());
+        ClasspathURLStreamHandlerFactory factory = new ClasspathURLStreamHandlerFactory("classpath", handler);
+        try
+        {
+            URL.setURLStreamHandlerFactory(factory);
+        }
+        catch (Error e)
+        {
+            // You can safely disregard this, as a second attempt to register a an already
+            // registered URLStreamHandlerFactory will throw an error. Since there's no
+            // apparent way to check if it's registered, just catch and ignore the error.
+        }
     }
 
 }

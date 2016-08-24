@@ -25,7 +25,8 @@ import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.g
  * @author carlspring
  */
 @Component
-public class GroupRepositoryProvider extends AbstractRepositoryProvider
+public class GroupRepositoryProvider
+        extends AbstractRepositoryProvider
 {
 
     private static final Logger logger = LoggerFactory.getLogger(GroupRepositoryProvider.class);
@@ -39,7 +40,8 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     {
         getRepositoryProviderRegistry().addProvider(ALIAS, this);
 
-        logger.info("Registered repository provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
+        logger.info(
+                "Registered repository provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
     }
 
     @Override
@@ -75,7 +77,8 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         }
 
         // Check the routing rules for wildcard accept rules
-        final ArtifactInputStream isWildcardRepositoryAccept = getInputStreamFromWildcardRepositoryAcceptRules(artifactPath, storage);
+        final ArtifactInputStream isWildcardRepositoryAccept = getInputStreamFromWildcardRepositoryAcceptRules(
+                artifactPath, storage);
         if (isWildcardRepositoryAccept != null)
         {
             return isWildcardRepositoryAccept;
@@ -110,7 +113,9 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         return null;
     }
 
-    public boolean repositoryRejects(String repositoryId, String artifactPath, RuleSet denyRules)
+    public boolean repositoryRejects(String repositoryId,
+                                     String artifactPath,
+                                     RuleSet denyRules)
     {
         if (denyRules != null && !denyRules.getRoutingRules().isEmpty())
         {
@@ -126,7 +131,8 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         return false;
     }
 
-    private ArtifactInputStream getInputStreamFromWildcardRepositoryAcceptRules(String artifactPath, Storage storage)
+    private ArtifactInputStream getInputStreamFromWildcardRepositoryAcceptRules(String artifactPath,
+                                                                                Storage storage)
             throws IOException,
                    NoSuchAlgorithmException,
                    ArtifactTransportException,
@@ -231,7 +237,8 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         return null;
     }
 
-    private ArtifactInputStream getInputStream(Repository repository, String artifactPath)
+    private ArtifactInputStream getInputStream(Repository repository,
+                                               String artifactPath)
             throws IOException,
                    NoSuchAlgorithmException,
                    ArtifactTransportException,

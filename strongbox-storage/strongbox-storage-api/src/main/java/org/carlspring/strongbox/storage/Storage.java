@@ -5,7 +5,11 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.xml.RepositoryMapAdapter;
 
 import javax.persistence.Version;
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.File;
 import java.io.Serializable;
@@ -28,17 +32,17 @@ public class Storage
      */
     @JsonIgnore
     protected String detachAll;
-    
+
     @Version
     @JsonIgnore
     protected Long version;
     
     @XmlAttribute
     private String id;
-    
+
     @XmlAttribute
     private String basedir;
-    
+
     @XmlElement(name = "repositories")
     @XmlJavaTypeAdapter(RepositoryMapAdapter.class)
     private Map<String, Repository> repositories = new LinkedHashMap<>();

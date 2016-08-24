@@ -144,6 +144,7 @@ public class RestClient
 
         Response response = resource.request(MediaType.TEXT_PLAIN).put(Entity.entity(port, MediaType.TEXT_PLAIN));
 
+
         return response.getStatus();
     }
 
@@ -526,11 +527,14 @@ public class RestClient
     }
 
     public WebTarget prepareTarget(String arg){
+        return setupAuthentication(prepareUnauthenticatedTarget(arg));
+    }
+
+    public WebTarget prepareUnauthenticatedTarget(String arg)
+    {
         String url = getContextBaseUrl() + arg;
         logger.debug("Prepare target URL " + url);
-        WebTarget resource = getClientInstance().target(url);
-        setupAuthentication(resource);
-        return resource;
+        return getClientInstance().target(url);
     }
 
     public WebTarget prepareTarget(String arg,

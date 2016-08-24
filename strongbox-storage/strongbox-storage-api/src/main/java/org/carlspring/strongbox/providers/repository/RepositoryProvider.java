@@ -18,13 +18,17 @@ public interface RepositoryProvider
 
     String getAlias();
 
-    ArtifactInputStream getInputStream(String storageId, String repositoryId, String path)
+    ArtifactInputStream getInputStream(String storageId,
+                                       String repositoryId,
+                                       String path)
             throws IOException,
                    NoSuchAlgorithmException,
                    ArtifactTransportException,
                    ProviderImplementationException;
 
-    OutputStream getOutputStream(String storageId, String repositoryId, String path)
+    OutputStream getOutputStream(String storageId,
+                                 String repositoryId,
+                                 String path)
             throws IOException;
 
 }

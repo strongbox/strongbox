@@ -1,13 +1,13 @@
 package org.carlspring.strongbox.security;
 
+import com.google.common.base.Objects;
+
 import org.carlspring.strongbox.data.domain.GenericEntity;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import com.google.common.base.Objects;
 
 /**
  * @author mtodorov
@@ -78,8 +78,8 @@ public class Privilege
         sb.append("name='").append(name).append('\'');
         sb.append(", description='").append(description).append('\'');
         sb.append('}');
-        
+
         return sb.toString();
     }
-    
+
 }

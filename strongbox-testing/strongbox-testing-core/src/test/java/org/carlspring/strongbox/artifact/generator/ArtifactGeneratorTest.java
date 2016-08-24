@@ -11,6 +11,7 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 
 import org.apache.maven.artifact.Artifact;
+import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -18,6 +19,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author mtodorov
  */
+@Ignore
 public class ArtifactGeneratorTest
         extends TestCaseWithArtifactGeneration
 {

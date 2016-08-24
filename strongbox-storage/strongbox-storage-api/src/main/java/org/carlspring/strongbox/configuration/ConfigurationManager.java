@@ -45,9 +45,16 @@ public class ConfigurationManager
 
     @PostConstruct
     public synchronized void init()
-            throws IOException, JAXBException
+            throws IOException
     {
-        super.init();
+        try
+        {
+            super.init();
+        }
+        catch (JAXBException e)
+        {
+            e.printStackTrace();
+        }
 
         setRepositoryStorageRelationships();
         setAllows();
@@ -86,6 +93,7 @@ public class ConfigurationManager
      * Sets the repository <--> storage relationships explicitly, as initially, when these are deserialized from the
      * XML, they have no such relationship.
      */
+
     public void setRepositoryStorageRelationships()
     {
         final Configuration configuration = getConfiguration();
@@ -114,16 +122,17 @@ public class ConfigurationManager
         configuration.getStorages().values().stream()
                      .filter(storage -> MapUtils.isNotEmpty(storage.getRepositories()))
                      .flatMap(storage -> storage.getRepositories().values().stream())
-                     .forEach(repository -> {
-                         if (repository.getHttpConnectionPool() != null
-                             && repository.getRemoteRepository() != null &&
-                             repository.getRemoteRepository().getUrl() != null)
-                         {
-                             proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(
-                                     repository.getRemoteRepository().getUrl(),
-                                     repository.getHttpConnectionPool().getAllocatedConnections());
-                         }
-                     });
+                     .forEach(repository ->
+                              {
+                                  if (repository.getHttpConnectionPool() != null
+                                      && repository.getRemoteRepository() != null &&
+                                      repository.getRemoteRepository().getUrl() != null)
+                                  {
+                                      proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(
+                                              repository.getRemoteRepository().getUrl(),
+                                              repository.getHttpConnectionPool().getAllocatedConnections());
+                                  }
+                              });
     }
 
     public void dump()
@@ -154,7 +163,8 @@ public class ConfigurationManager
         }
         else
         {
-            logger.warn("Storages and repositories appear to have already been loaded. (" + lockFile.getAbsolutePath() + " already exists).");
+            logger.warn("Storages and repositories appear to have already been loaded. (" + lockFile.getAbsolutePath() +
+                        " already exists).");
         }
     }
 
@@ -167,12 +177,14 @@ public class ConfigurationManager
         return getConfiguration().getStorage(storageId).getRepository(repositoryId);
     }
 
-    public Repository getRepository(String storageId, String repositoryId)
+    public Repository getRepository(String storageId,
+                                    String repositoryId)
     {
         return getConfiguration().getStorage(storageId).getRepository(repositoryId);
     }
 
-    public String getStorageId(Storage storage, String storageAndRepositoryId)
+    public String getStorageId(Storage storage,
+                               String storageAndRepositoryId)
     {
         String[] storageAndRepositoryIdTokens = storageAndRepositoryId.split(":");
 
@@ -190,6 +202,7 @@ public class ConfigurationManager
     @Override
     public Configuration getConfiguration()
     {
+
         return (Configuration) this.configuration;
     }
 

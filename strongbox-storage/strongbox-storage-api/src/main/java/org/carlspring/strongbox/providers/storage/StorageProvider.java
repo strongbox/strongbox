@@ -46,13 +46,15 @@ public interface StorageProvider
                                                      String[] algorithms)
             throws NoSuchAlgorithmException;
 
-    ArtifactInputStream getInputStreamImplementation(Artifact artifact, InputStream is)
+    ArtifactInputStream getInputStreamImplementation(Artifact artifact,
+                                                     InputStream is)
             throws NoSuchAlgorithmException;
 
     File getFileImplementation(String path)
             throws IOException;
 
-    File getFileImplementation(String parentPath, String path)
+    File getFileImplementation(String parentPath,
+                               String path)
             throws IOException;
 
 }

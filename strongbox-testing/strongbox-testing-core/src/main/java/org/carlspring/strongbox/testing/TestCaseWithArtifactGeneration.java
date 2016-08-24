@@ -213,7 +213,7 @@ public class TestCaseWithArtifactGeneration
         return artifact;
     }
 
-    public String createSnapshotVersion(String baseSnapshotVersion, int buildNumber)
+    public static String createSnapshotVersion(String baseSnapshotVersion, int buildNumber)
     {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
         Calendar calendar = Calendar.getInstance();

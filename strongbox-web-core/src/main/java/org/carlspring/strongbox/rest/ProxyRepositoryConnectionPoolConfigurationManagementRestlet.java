@@ -5,7 +5,11 @@ import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
@@ -40,7 +44,8 @@ public class ProxyRepositoryConnectionPoolConfigurationManagementRestlet
     @Produces(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Update number of pool connections pool for proxy repository")
     @ApiResponses(value = {
-                                  @ApiResponse(code = 200, message = "Number of pool connections for proxy repository was updated successfully."),
+                                  @ApiResponse(code = 200,
+                                               message = "Number of pool connections for proxy repository was updated successfully."),
                                   @ApiResponse(code = 500, message = "An error occurred.") })
     public Response setNumberOfConnectionsForProxyRepository(@PathParam(value = "storageId") String storageId,
                                                              @PathParam(value = "repositoryId") String repositoryId,
@@ -118,7 +123,8 @@ public class ProxyRepositoryConnectionPoolConfigurationManagementRestlet
     @Produces(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Update default number of connections for proxy repository")
     @ApiResponses(value = {
-                                  @ApiResponse(code = 200, message = "Default number of connections for proxy repository was updated successfully."),
+                                  @ApiResponse(code = 200,
+                                               message = "Default number of connections for proxy repository was updated successfully."),
                                   @ApiResponse(code = 500, message = "An error occurred.") })
     public Response setDefaultNumberOfConnectionsForProxyRepository(@PathParam(value = "numberOfConnections")
                                                                             int numberOfConnections)
@@ -146,7 +152,8 @@ public class ProxyRepositoryConnectionPoolConfigurationManagementRestlet
     @Produces(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Update max number of connections for proxy repository")
     @ApiResponses(value = {
-                                  @ApiResponse(code = 200, message = "Max number of connections for proxy repository was updated successfully."),
+                                  @ApiResponse(code = 200,
+                                               message = "Max number of connections for proxy repository was updated successfully."),
                                   @ApiResponse(code = 500, message = "An error occurred.") })
     public Response setMaxNumberOfConnectionsForProxyRepository(@PathParam(value = "numberOfConnections")
                                                                         int numberOfConnections)
@@ -159,7 +166,8 @@ public class ProxyRepositoryConnectionPoolConfigurationManagementRestlet
     @Produces(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Get max number of connections for proxy repository")
     @ApiResponses(value = {
-                                  @ApiResponse(code = 200, message = "Max number of connections for proxy repository was retrieved."),
+                                  @ApiResponse(code = 200,
+                                               message = "Max number of connections for proxy repository was retrieved."),
                                   @ApiResponse(code = 500, message = "An error occurred.") })
     public Response getMaxNumberOfConnectionsForProxyRepository()
     {

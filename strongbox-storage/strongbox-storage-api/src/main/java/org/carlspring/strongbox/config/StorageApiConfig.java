@@ -26,7 +26,7 @@ import org.springframework.data.orient.commons.repository.config.EnableOrientRep
                        "org.carlspring.strongbox.storage",
                        "org.carlspring.strongbox.storage.resolvers",
                        "org.carlspring.strongbox.xml"
-               })
+})
 @EnableOrientRepositories(basePackages = "org.carlspring.strongbox.storage.repository")
 public class StorageApiConfig
 {
