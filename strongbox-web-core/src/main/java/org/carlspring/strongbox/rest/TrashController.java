@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.rest;
 
 import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
+import org.carlspring.strongbox.storage.ArtifactStorageException;
 
 import java.io.File;
 import java.io.IOException;
@@ -163,7 +163,7 @@ public class TrashController
                                    @PathVariable String storageId,
                                    @RequestParam(value = "The repositoryId", name = "repositoryId", required = true)
                                    @PathVariable String repositoryId)
-            throws IOException
+            throws Exception
     {
         if (getConfiguration().getStorage(storageId).getRepository(repositoryId) != null)
         {
@@ -204,7 +204,7 @@ public class TrashController
     @PreAuthorize("hasAuthority('MANAGEMENT_UNDELETE_ALL_TRASHES')")
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity undelete()
-            throws IOException
+            throws Exception
     {
         try
         {

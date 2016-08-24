@@ -3,12 +3,13 @@ package org.carlspring.strongbox.rest;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.security.exceptions.AuthenticationException;
+import org.carlspring.strongbox.storage.ArtifactResolutionException;
+import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.resolvers.ArtifactResolutionException;
-import org.carlspring.strongbox.storage.resolvers.ArtifactStorageException;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import javax.servlet.ServletException;
@@ -44,12 +45,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import static org.carlspring.strongbox.rest.ByteRangeRequestHandler.handlePartialDownload;
 import static org.carlspring.strongbox.rest.ByteRangeRequestHandler.isRangedRequest;
 
@@ -81,7 +77,7 @@ public class ArtifactController
                                         @RequestBody InputStream is)
             throws IOException,
                    AuthenticationException,
-                   NoSuchAlgorithmException, JAXBException
+                   NoSuchAlgorithmException, JAXBException, ProviderImplementationException
     {
         try
         {
@@ -119,7 +115,7 @@ public class ArtifactController
                    InstantiationException,
                    IllegalAccessException,
                    ClassNotFoundException,
-                   AuthenticationException, JAXBException, NoSuchAlgorithmException, ServletException
+                   AuthenticationException, JAXBException, NoSuchAlgorithmException, ServletException, ProviderImplementationException
     {
        /* try
         {
@@ -243,7 +239,7 @@ public class ArtifactController
                                         String repositoryId,
                                         String path,
                                         HttpServletResponse response)
-            throws IOException, JAXBException, NoSuchAlgorithmException
+            throws IOException, JAXBException, NoSuchAlgorithmException, ProviderImplementationException
     {
         Storage storage = configurationManager.getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);

@@ -10,7 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author carlspring
  */
-public abstract class AbstractRepositoryProvider implements RepositoryProvider
+public abstract class AbstractRepositoryProvider
+        implements RepositoryProvider
 {
 
     @Autowired

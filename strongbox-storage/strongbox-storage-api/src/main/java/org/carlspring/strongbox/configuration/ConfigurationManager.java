@@ -163,7 +163,8 @@ public class ConfigurationManager
         }
         else
         {
-            logger.warn("Storages and repositories appear to have already been loaded. (" + lockFile.getAbsolutePath() + " already exists).");
+            logger.warn("Storages and repositories appear to have already been loaded. (" + lockFile.getAbsolutePath() +
+                        " already exists).");
         }
     }
 
@@ -176,12 +177,14 @@ public class ConfigurationManager
         return getConfiguration().getStorage(storageId).getRepository(repositoryId);
     }
 
-    public Repository getRepository(String storageId, String repositoryId)
+    public Repository getRepository(String storageId,
+                                    String repositoryId)
     {
         return getConfiguration().getStorage(storageId).getRepository(repositoryId);
     }
 
-    public String getStorageId(Storage storage, String storageAndRepositoryId)
+    public String getStorageId(Storage storage,
+                               String storageAndRepositoryId)
     {
         String[] storageAndRepositoryIdTokens = storageAndRepositoryId.split(":");
 

@@ -4,12 +4,14 @@ import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.storage.Storage;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author mtodorov
  */
-public abstract class AbstractLayoutProvider implements LayoutProvider
+public abstract class AbstractLayoutProvider
+        implements LayoutProvider
 {
 
     @Autowired

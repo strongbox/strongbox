@@ -9,17 +9,28 @@
         <storage id="storage0">
             <repositories>
                 <!-- Secured repositories do not allow anonymous access -->
-                <repository id="releases-test-nested" policy="release" implementation="file-system" layout="Maven 2" type="hosted" allows-force-deletion="true" checksum-headers-enabled="true"/>
-                <repository id="releases" policy="release" implementation="file-system" layout="Maven 2" type="hosted" allows-force-deletion="true" checksum-headers-enabled="true"/>
-                <repository id="releases-with-redeployment" policy="release" implementation="file-system" layout="Maven 2" type="hosted" allows-redeployment="true" indexing-enabled="false"/>
-                <repository id="releases-with-trash" policy="release" implementation="file-system" layout="Maven 2" type="hosted" trash-enabled="true" allows-redeployment="true"/>
-                <repository id="releases-without-deployment" policy="release" implementation="file-system" layout="Maven 2" type="hosted" allows-deployment="false" indexing-enabled="false"/>
-                <repository id="releases-without-redeployment" policy="release" implementation="file-system" layout="Maven 2" type="hosted" allows-deployment="false" indexing-enabled="false"/>
-                <repository id="releases-without-delete" policy="release" implementation="file-system" layout="Maven 2" type="hosted" allows-delete="false" indexing-enabled="false"/>
-                <repository id="releases-without-delete-trash" policy="release" implementation="file-system" layout="Maven 2" type="hosted" trash-enabled="true" allows-delete="false" indexing-enabled="false"/>
-                <repository id="releases-without-browsing" policy="release" implementation="file-system" layout="Maven 2" type="hosted" allows-directory-browsing="false" indexing-enabled="false"/>
+                <repository id="releases-test-nested" policy="release" implementation="file-system" layout="Maven 2"
+                            type="hosted" allows-force-deletion="true" checksum-headers-enabled="true"/>
+                <repository id="releases" policy="release" implementation="file-system" layout="Maven 2" type="hosted"
+                            allows-force-deletion="true" checksum-headers-enabled="true"/>
+                <repository id="releases-with-redeployment" policy="release" implementation="file-system"
+                            layout="Maven 2" type="hosted" allows-redeployment="true" indexing-enabled="false"/>
+                <repository id="releases-with-trash" policy="release" implementation="file-system" layout="Maven 2"
+                            type="hosted" trash-enabled="true" allows-redeployment="true"/>
+                <repository id="releases-without-deployment" policy="release" implementation="file-system"
+                            layout="Maven 2" type="hosted" allows-deployment="false" indexing-enabled="false"/>
+                <repository id="releases-without-redeployment" policy="release" implementation="file-system"
+                            layout="Maven 2" type="hosted" allows-deployment="false" indexing-enabled="false"/>
+                <repository id="releases-without-delete" policy="release" implementation="file-system" layout="Maven 2"
+                            type="hosted" allows-delete="false" indexing-enabled="false"/>
+                <repository id="releases-without-delete-trash" policy="release" implementation="file-system"
+                            layout="Maven 2" type="hosted" trash-enabled="true" allows-delete="false"
+                            indexing-enabled="false"/>
+                <repository id="releases-without-browsing" policy="release" implementation="file-system"
+                            layout="Maven 2" type="hosted" allows-directory-browsing="false" indexing-enabled="false"/>
 
-                <repository id="snapshots" policy="snapshot" implementation="file-system" layout="Maven 2" type="hosted" secured="true" checksum-headers-enabled="true"/>
+                <repository id="snapshots" policy="snapshot" implementation="file-system" layout="Maven 2" type="hosted"
+                            secured="true" checksum-headers-enabled="true"/>
 
                 <repository id="proxied-releases" policy="release" implementation="proxy" layout="Maven 2" type="proxy">
                     <proxy-configuration host="localhost" port="8180" username="testuser" password="password" />
@@ -31,7 +42,8 @@
                                        checksum-validation="true" />
                 </repository>
 
-                <repository id="group-releases" policy="release" implementation="file-system" layout="Maven 2" type="group" secured="true">
+                <repository id="group-releases" policy="release" implementation="file-system" layout="Maven 2"
+                            type="group" secured="true">
                     <group>
                         <repository>releases</repository>
                         <repository>releases-with-redeployment</repository>
@@ -44,14 +56,16 @@
                     </group>
                 </repository>
 
-                <repository id="group-releases-with-options" policy="release" implementation="file-system" layout="Maven 2" type="group" secured="true">
+                <repository id="group-releases-with-options" policy="release" implementation="file-system"
+                            layout="Maven 2" type="group" secured="true">
                     <group>
                         <repository>releases</repository>
                         <repository>releases-with-redeployment</repository>
                         <repository>releases-with-trash</repository>
                     </group>
                 </repository>
-                <repository id="group-releases-without-options" policy="release" implementation="file-system" layout="Maven 2" type="group" secured="true">
+                <repository id="group-releases-without-options" policy="release" implementation="file-system"
+                            layout="Maven 2" type="group" secured="true">
                     <group>
                         <repository>releases-without-deployment</repository>
                         <repository>releases-without-redeployment</repository>
@@ -60,23 +74,27 @@
                         <repository>releases-without-browsing</repository>
                     </group>
                 </repository>
-                <repository id="group-releases-nested" policy="release" implementation="file-system" layout="Maven 2" type="group" secured="true">
+                <repository id="group-releases-nested" policy="release" implementation="file-system" layout="Maven 2"
+                            type="group" secured="true">
                     <group>
 	                    <repository>group-releases-with-options</repository>
                         <repository>group-releases-without-options</repository>
                     </group>
                 </repository>
-                <repository id="group-releases-nested-deep-1" policy="release" implementation="file-system" layout="Maven 2" type="group" secured="true">
+                <repository id="group-releases-nested-deep-1" policy="release" implementation="file-system"
+                            layout="Maven 2" type="group" secured="true">
                     <group>
                         <repository>group-releases-nested-deep-2</repository>
                     </group>
                 </repository>
-                <repository id="group-releases-nested-deep-2" policy="release" implementation="file-system" layout="Maven 2" type="group" secured="true">
+                <repository id="group-releases-nested-deep-2" policy="release" implementation="file-system"
+                            layout="Maven 2" type="group" secured="true">
                     <group>
                         <repository>group-releases-nested-deep-3</repository>
                     </group>
                 </repository>
-                <repository id="group-releases-nested-deep-3" policy="release" implementation="file-system" layout="Maven 2" type="group" secured="true">
+                <repository id="group-releases-nested-deep-3" policy="release" implementation="file-system"
+                            layout="Maven 2" type="group" secured="true">
                     <group>
                         <repository>releases-test-nested</repository>
                     </group>
@@ -85,28 +103,32 @@
         </storage>
         <storage id="storage-common-proxies">
             <repositories>
-                <repository id="maven-central" policy="release" implementation="file-system" layout="Maven 2" type="proxy">
+                <repository id="maven-central" policy="release" implementation="file-system" layout="Maven 2"
+                            type="proxy">
                     <remote-repository url="https://repo.maven.apache.org/maven2/"
                                        download-remote-indexes="true"
                                        auto-blocking="true"
                                        checksum-validation="true" />
                 </repository>
 
-                <repository id="apache-snapshots" policy="snapshot" implementation="file-system" layout="Maven 2" type="proxy">
+                <repository id="apache-snapshots" policy="snapshot" implementation="file-system" layout="Maven 2"
+                            type="proxy">
                     <remote-repository url="https://repository.apache.org/snapshots/"
                                        download-remote-indexes="true"
                                        auto-blocking="true"
                                        checksum-validation="true" />
                 </repository>
 
-                <repository id="jboss-public-releases" policy="release" implementation="file-system" layout="Maven 2" type="proxy">
+                <repository id="jboss-public-releases" policy="release" implementation="file-system" layout="Maven 2"
+                            type="proxy">
                     <remote-repository url="http://repository.jboss.org/nexus/content/groups/public-jboss/"
                                        download-remote-indexes="true"
                                        auto-blocking="true"
                                        checksum-validation="true" />
                 </repository>
 
-                <repository id="group-common-proxies" policy="release" implementation="file-system" layout="Maven 2" type="group" secured="true">
+                <repository id="group-common-proxies" policy="release" implementation="file-system" layout="Maven 2"
+                            type="group" secured="true">
                     <group>
                         <repository>maven-central</repository>
                         <repository>apache-snapshots</repository>
@@ -117,26 +139,30 @@
         </storage>
         <storage id="storage-springsource-proxies">
             <repositories>
-                <repository id="springsource-snapshots" policy="snapshot" implementation="file-system" layout="Maven 2" type="proxy">
+                <repository id="springsource-snapshots" policy="snapshot" implementation="file-system" layout="Maven 2"
+                            type="proxy">
                     <remote-repository url="http://repo.spring.io/snapshot"
                                        download-remote-indexes="true"
                                        auto-blocking="true"
                                        checksum-validation="true" />
                 </repository>
-                <repository id="springsource-releases" policy="release" implementation="file-system" layout="Maven 2" type="proxy">
+                <repository id="springsource-releases" policy="release" implementation="file-system" layout="Maven 2"
+                            type="proxy">
                     <remote-repository url="http://repo.spring.io/libs-release"
                                        download-remote-indexes="true"
                                        auto-blocking="true"
                                        checksum-validation="true" />
                 </repository>
-                <repository id="springsource-milestones" policy="release" implementation="file-system" layout="Maven 2" type="proxy">
+                <repository id="springsource-milestones" policy="release" implementation="file-system" layout="Maven 2"
+                            type="proxy">
                     <remote-repository url="http://repo.spring.io/milestone"
                                        download-remote-indexes="true"
                                        auto-blocking="true"
                                        checksum-validation="true" />
                 </repository>
 
-                <repository id="springsource-proxies" policy="mixed" implementation="file-system" layout="Maven 2" type="group" secured="true">
+                <repository id="springsource-proxies" policy="mixed" implementation="file-system" layout="Maven 2"
+                            type="group" secured="true">
                     <group>
                         <repository>springsource-snapshots</repository>
                         <repository>springsource-releases</repository>
@@ -147,20 +173,23 @@
         </storage>
         <storage id="storage-ivy-proxies">
             <repositories>
-                <repository id="typesafe-releases" policy="release" implementation="file-system" layout="Maven 2" type="proxy">
+                <repository id="typesafe-releases" policy="release" implementation="file-system" layout="Maven 2"
+                            type="proxy">
                     <remote-repository url="https://repo.typesafe.com/typesafe/releases"
                                        download-remote-indexes="true"
                                        auto-blocking="true"
                                        checksum-validation="true" />
                 </repository>
-                <repository id="typesafe-ivy-releases" policy="release" implementation="file-system" layout="Maven 2" type="proxy">
+                <repository id="typesafe-ivy-releases" policy="release" implementation="file-system" layout="Maven 2"
+                            type="proxy">
                     <remote-repository url="https://repo.typesafe.com/typesafe/ivy-releases"
                                        download-remote-indexes="true"
                                        auto-blocking="true"
                                        checksum-validation="true" />
                 </repository>
 
-                <repository id="group-ivy-proxies" policy="release" implementation="file-system" layout="Maven 2" type="group" secured="true">
+                <repository id="group-ivy-proxies" policy="release" implementation="file-system" layout="Maven 2"
+                            type="group" secured="true">
                     <group>
                         <repository>typesafe-releases</repository>
                         <repository>typesafe-ivy-releases</repository>
@@ -171,14 +200,16 @@
         </storage>
         <storage id="storage-sbt-proxies">
             <repositories>
-                <repository id="sbt-plugin-releases" policy="release" implementation="file-system" layout="Maven 2" type="proxy">
+                <repository id="sbt-plugin-releases" policy="release" implementation="file-system" layout="Maven 2"
+                            type="proxy">
                     <remote-repository url="https://repo.scala-sbt.org/scalasbt/sbt-plugin-releases"
                                        download-remote-indexes="true"
                                        auto-blocking="true"
                                        checksum-validation="true" />
                 </repository>
 
-                <repository id="group-sbt-proxies" policy="release" implementation="file-system" layout="Maven 2" type="group" secured="true">
+                <repository id="group-sbt-proxies" policy="release" implementation="file-system" layout="Maven 2"
+                            type="group" secured="true">
                     <group>
                         <repository>storage-ivy-proxies</repository>
                         <repository>sbt-plugin-releases</repository>
@@ -188,13 +219,15 @@
         </storage>
         <storage id="storage-third-party">
             <repositories>
-                <repository id="third-party" policy="release" implementation="file-system" layout="Maven 2" type="hosted" allows-force-deletion="true" checksum-headers-enabled="true" />
+                <repository id="third-party" policy="release" implementation="file-system" layout="Maven 2"
+                            type="hosted" allows-force-deletion="true" checksum-headers-enabled="true"/>
             </repositories>
         </storage>
 
         <storage id="public">
             <repositories>
-                <repository id="public-group" policy="mixed" implementation="group" layout="Maven 2" type="group" secured="true">
+                <repository id="public-group" policy="mixed" implementation="group" layout="Maven 2" type="group"
+                            secured="true">
                     <group>
                         <repository>storage-common-proxies:group-common-proxies</repository>
                         <repository>storage-springsource-proxies:springsource-proxies</repository>

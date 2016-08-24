@@ -559,7 +559,8 @@ public class ConfigurationManagementRestlet
                                              @PathParam("repositoryId") String repositoryId,
                                              @QueryParam("pattern") String pattern)
     {
-        return getResponse(configurationManagementService.removeAcceptedRepository(groupRepository, pattern, repositoryId));
+        return getResponse(
+                configurationManagementService.removeAcceptedRepository(groupRepository, pattern, repositoryId));
     }
 
     @PUT

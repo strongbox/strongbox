@@ -2,7 +2,7 @@ package org.carlspring.strongbox.rest;
 
 import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.config.WebConfig;
-import org.carlspring.strongbox.security.jaas.Role;
+import org.carlspring.strongbox.security.Role;
 import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.security.AuthorizationConfig;
 import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;

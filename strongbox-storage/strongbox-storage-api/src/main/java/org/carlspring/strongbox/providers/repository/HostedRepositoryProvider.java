@@ -17,7 +17,8 @@ import org.springframework.stereotype.Component;
  * @author carlspring
  */
 @Component
-public class HostedRepositoryProvider extends AbstractRepositoryProvider
+public class HostedRepositoryProvider
+        extends AbstractRepositoryProvider
 {
 
     private static final Logger logger = LoggerFactory.getLogger(HostedRepositoryProvider.class);
@@ -31,7 +32,8 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
     {
         getRepositoryProviderRegistry().addProvider(ALIAS, this);
 
-        logger.info("Registered repository provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
+        logger.info(
+                "Registered repository provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
     }
 
     @Override

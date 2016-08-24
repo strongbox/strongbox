@@ -17,7 +17,8 @@ import org.springframework.stereotype.Component;
  * @author carlspring
  */
 @Component("storageProviderRegistry")
-public class StorageProviderRegistry extends AbstractMappedProviderRegistry<StorageProvider>
+public class StorageProviderRegistry
+        extends AbstractMappedProviderRegistry<StorageProvider>
 {
 
     private static final Logger logger = LoggerFactory.getLogger(StorageProviderRegistry.class);

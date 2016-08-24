@@ -27,7 +27,8 @@ import org.springframework.stereotype.Component;
  * @author carlspring
  */
 @Component
-public class ProxyRepositoryProvider extends AbstractRepositoryProvider
+public class ProxyRepositoryProvider
+        extends AbstractRepositoryProvider
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ProxyRepositoryProvider.class);
@@ -47,7 +48,8 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
     {
         repositoryProviderRegistry.addProvider(ALIAS, this);
 
-        logger.info("Registered repository provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
+        logger.info(
+                "Registered repository provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
     }
 
     @Override

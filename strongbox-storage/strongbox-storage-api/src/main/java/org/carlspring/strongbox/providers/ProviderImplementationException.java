@@ -3,7 +3,8 @@ package org.carlspring.strongbox.providers;
 /**
  * @author carlspring
  */
-public class ProviderImplementationException extends Exception
+public class ProviderImplementationException
+        extends Exception
 {
 
     public ProviderImplementationException()
@@ -15,7 +16,8 @@ public class ProviderImplementationException extends Exception
         super(message);
     }
 
-    public ProviderImplementationException(String message, Throwable cause)
+    public ProviderImplementationException(String message,
+                                           Throwable cause)
     {
         super(message, cause);
     }

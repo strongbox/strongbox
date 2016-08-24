@@ -19,7 +19,8 @@ import org.springframework.stereotype.Component;
  * @author carlspring
  */
 @Component("filesystemStorageProvider")
-public class FileSystemStorageProvider extends AbstractStorageProvider
+public class FileSystemStorageProvider
+        extends AbstractStorageProvider
 {
 
     private static final Logger logger = LoggerFactory.getLogger(FileSystemStorageProvider.class);

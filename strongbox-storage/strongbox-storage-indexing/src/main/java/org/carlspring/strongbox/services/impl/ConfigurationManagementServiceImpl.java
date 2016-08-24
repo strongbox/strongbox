@@ -350,7 +350,8 @@ public class ConfigurationManagementServiceImpl
         boolean overridden = false;
         if (configuration.getRoutingRules().getAccepted().containsKey(groupRepository))
         {
-            for (RoutingRule rule : configuration.getRoutingRules().getAccepted().get(groupRepository).getRoutingRules())
+            for (RoutingRule rule : configuration.getRoutingRules().getAccepted().get(
+                    groupRepository).getRoutingRules())
             {
                 if (routingRule.getPattern().equals(rule.getPattern()))
                 {

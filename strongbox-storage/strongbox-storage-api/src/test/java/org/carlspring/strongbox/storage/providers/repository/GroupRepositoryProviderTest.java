@@ -43,15 +43,20 @@ public class GroupRepositoryProviderTest
 
     @org.springframework.context.annotation.Configuration
     @Import({
-            StorageApiConfig.class,
-            CommonConfig.class
+                    StorageApiConfig.class,
+                    CommonConfig.class
     })
-    public static class SpringConfig { }
+    public static class SpringConfig
+    {
 
-    private static final File STORAGE_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0");
+    }
 
-    private static final File REPOSITORY_BASEDIR_RELEASES_TEST_NESTED = new File(STORAGE_BASEDIR, "releases-test-nested");
-    
+    private static final File STORAGE_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                         "/storages/storage0");
+
+    private static final File REPOSITORY_BASEDIR_RELEASES_TEST_NESTED = new File(STORAGE_BASEDIR,
+                                                                                 "releases-test-nested");
+
     private static final File REPOSITORY_BASEDIR_RELEASES = new File(STORAGE_BASEDIR, "releases");
 
     private static final File REPOSITORY_BASEDIR_RELEASES_WITH_TRASH = new File(STORAGE_BASEDIR, "releases-with-trash");
@@ -77,13 +82,16 @@ public class GroupRepositoryProviderTest
     {
         if (!INITIALIZED)
         {
-            generateArtifact(REPOSITORY_BASEDIR_RELEASES_WITH_TRASH.getAbsolutePath(), "com.artifacts.in.releases.with.trash:foo:1.2.3");
+            generateArtifact(REPOSITORY_BASEDIR_RELEASES_WITH_TRASH.getAbsolutePath(),
+                             "com.artifacts.in.releases.with.trash:foo:1.2.3");
             generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(), "com.artifacts.in.releases:foo:1.2.4");
             generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(), "com.artifacts.denied.in.memory:foo:1.2.5");
-            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(), "com.artifacts.denied.by.wildcard:foo:1.2.6");
+            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                             "com.artifacts.denied.by.wildcard:foo:1.2.6");
 
-            generateArtifact(REPOSITORY_BASEDIR_RELEASES_TEST_NESTED.getAbsolutePath(), "org.carlspring.metadata.by.juan:juancho:1.2.64");
- 
+            generateArtifact(REPOSITORY_BASEDIR_RELEASES_TEST_NESTED.getAbsolutePath(),
+                             "org.carlspring.metadata.by.juan:juancho:1.2.64");
+
             INITIALIZED = true;
         }
     }
@@ -185,7 +193,7 @@ public class GroupRepositoryProviderTest
 
         ResourceCloser.close(is, null);
     }
-    
+
     @Test
     public void testGroupAgainstNestedRepository()
             throws IOException,

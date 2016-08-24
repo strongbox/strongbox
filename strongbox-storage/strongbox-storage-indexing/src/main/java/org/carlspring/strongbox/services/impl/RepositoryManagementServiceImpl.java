@@ -2,6 +2,7 @@ package org.carlspring.strongbox.services.impl;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.lucene.store.FSDirectory;
+
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.services.RepositoryManagementService;

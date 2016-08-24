@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.strongbox.providers.AbstractMappedProviderRegistry;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -12,7 +13,8 @@ import java.util.Map;
  * @author carlspring
  */
 @Component("repositoryProviderRegistry")
-public class RepositoryProviderRegistry extends AbstractMappedProviderRegistry<RepositoryProvider>
+public class RepositoryProviderRegistry
+        extends AbstractMappedProviderRegistry<RepositoryProvider>
 {
 
     private static final Logger logger = LoggerFactory.getLogger(RepositoryProviderRegistry.class);
@@ -54,7 +56,8 @@ public class RepositoryProviderRegistry extends AbstractMappedProviderRegistry<R
     }
 
     @Override
-    public RepositoryProvider addProvider(String alias, RepositoryProvider provider)
+    public RepositoryProvider addProvider(String alias,
+                                          RepositoryProvider provider)
     {
         return super.addProvider(alias, provider);
     }

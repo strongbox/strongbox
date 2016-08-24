@@ -37,7 +37,8 @@ public abstract class AbstractMappedProviderRegistry<T>
         return providers.get(alias);
     }
 
-    public T addProvider(String alias, T provider)
+    public T addProvider(String alias,
+                         T provider)
     {
         return providers.put(alias, provider);
     }
