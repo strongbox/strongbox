@@ -3,9 +3,6 @@
 MANIFEST.MF
 target/
 tmp/
-builds/
-build/
-pom.xml.orig
 *.versionsBackup
 
 # Java Files #
@@ -37,9 +34,8 @@ pom.xml.orig
 .pmd
 
 # log files
-logs
+logs/
 *.log
-config/
 lib/
 
 *.sh

@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.visitors;
 
-import org.carlspring.strongbox.security.jaas.Group;
-import org.carlspring.strongbox.security.jaas.authentication.NotSupportedException;
+import org.carlspring.strongbox.security.Group;
+import org.carlspring.strongbox.security.exceptions.NotSupportedException;
 
 import java.util.ArrayList;
 import java.util.Collections;

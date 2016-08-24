@@ -1,17 +1,23 @@
 package org.carlspring.strongbox.configuration;
 
-import org.carlspring.strongbox.CommonConfig;
-import org.carlspring.strongbox.StorageApiConfig;
+import org.carlspring.strongbox.config.CommonConfig;
+import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.config.ClientConfig;
 import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.resolvers.LocationResolverRegistry;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.RuleSet;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
+
+import javax.xml.bind.JAXBException;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+
 
 import javax.xml.bind.JAXBException;
 import java.io.ByteArrayOutputStream;
@@ -30,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -46,7 +53,9 @@ public class ConfigurationManagerTest
     @org.springframework.context.annotation.Configuration
     @Import({
             StorageApiConfig.class,
-            CommonConfig.class, ClientConfig.class, DataServiceConfig.class
+            CommonConfig.class,
+            ClientConfig.class,
+            DataServiceConfig.class
     })
     public static class SpringConfig { }
 
@@ -65,9 +74,6 @@ public class ConfigurationManagerTest
 
     @Autowired
     private ArtifactResolutionService artifactResolutionService;
-
-    @Autowired
-    private LocationResolverRegistry locationResolverRegistry;
 
 
     @Before
@@ -103,9 +109,6 @@ public class ConfigurationManagerTest
         assertTrue("Unexpected number of storages!", configuration.getStorages().size() > 0);
         assertEquals("Incorrect version!", "1.0", configuration.getVersion());
         assertEquals("Incorrect port number!", 48080, configuration.getPort());
-        assertNotNull("No resolvers found!", locationResolverRegistry.getResolvers());
-        // The test repository group should have at least two repositories in it:
-        assertTrue("Incorrect number of resolvers found!", locationResolverRegistry.getResolvers().size() >= 2);
         assertTrue("Repository should have required authentication!",
                    configuration.getStorages().get("storage0").getRepositories().get("snapshots").isSecured());
 

@@ -49,4 +49,5 @@ public class CustomAuthenticationProvider
     {
         return userDetailsService.loadUserByUsername(s);
     }
+
 }

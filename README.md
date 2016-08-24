@@ -36,15 +36,15 @@ Welcome to the Strongbox Maven artifact repository manager's home.
   * Retrieve logs over HTTP
 
 # What's in the works:
-* Proxy repositories
+* [Proxy repositories](https://github.com/strongbox/strongbox/wiki/Repositories#proxy)
 * [Maven Metadata](https://github.com/strongbox/strongbox/wiki/Maven-Metadata)
+* Security
+  * Expression-based roles and privileges subsystem
 * Web UI
 * Logging:
   * Log tailing over HTTP
 * Deploy as transaction
 * Maven settings.xml generator over REST API
-* Security
-  * Expression-based roles and privileges subsystem
 
 # Upcoming:
 * RPM distribution

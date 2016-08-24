@@ -2,13 +2,15 @@ package org.carlspring.strongbox.rest;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
-import org.carlspring.strongbox.security.jaas.authentication.AuthenticationException;
+import org.carlspring.strongbox.security.exceptions.AuthenticationException;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.routing.RoutingRule;
+import org.carlspring.strongbox.storage.routing.RuleSet;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -488,6 +490,79 @@ public class ConfigurationManagementRestlet
             return Response.status(Response.Status.NOT_FOUND)
                            .entity("Repository " + storageId + ":" + repositoryId + " was not found.")
                            .build();
+        }
+    }
+
+    @GET
+    @Path("/routing/rules")
+    @Produces({ MediaType.APPLICATION_JSON,
+                MediaType.APPLICATION_XML })
+    public Response getRoutingRules()
+    {
+        return Response.ok(configurationManagementService.getRoutingRules()).build();
+    }
+
+    @PUT
+    @Path("/routing/rules/set/accepted")
+    @Consumes({ MediaType.APPLICATION_JSON })
+    public Response addAcceptedRuleSet(RuleSet ruleSet)
+    {
+        final boolean added = configurationManagementService.addOrUpdateAcceptedRuleSet(ruleSet);
+        if (added)
+        {
+            return Response.ok().build();
+        }
+        else
+        {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+    }
+
+    @DELETE
+    @Path("/routing/rules/set/accepted/{groupRepository}")
+    @Consumes({ MediaType.APPLICATION_JSON })
+    public Response removeAcceptedRuleSet(@PathParam("groupRepository") String groupRepository)
+    {
+        return getResponse(configurationManagementService.removeAcceptedRuleSet(groupRepository));
+    }
+
+    @PUT
+    @Path("/routing/rules/accepted/{groupRepository}/repositories")
+    @Consumes({ MediaType.APPLICATION_JSON })
+    public Response addAcceptedRepository(@PathParam("groupRepository") String groupRepository,
+                                          RoutingRule routingRule)
+    {
+        return getResponse(configurationManagementService.addOrUpdateAcceptedRepository(groupRepository, routingRule));
+    }
+
+    @DELETE
+    @Path("/routing/rules/accepted/{groupRepository}/repositories/{repositoryId}")
+    @Consumes({ MediaType.APPLICATION_JSON })
+    public Response removeAcceptedRepository(@PathParam("groupRepository") String groupRepository,
+                                             @PathParam("repositoryId") String repositoryId,
+                                             @QueryParam("pattern") String pattern)
+    {
+        return getResponse(configurationManagementService.removeAcceptedRepository(groupRepository, pattern, repositoryId));
+    }
+
+    @PUT
+    @Path("/routing/rules/accepted/{groupRepository}/override/repositories")
+    @Consumes({ MediaType.APPLICATION_JSON })
+    public Response overrideAcceptedRepository(@PathParam("groupRepository") String groupRepository,
+                                               RoutingRule routingRule)
+    {
+        return getResponse(configurationManagementService.overrideAcceptedRepositories(groupRepository, routingRule));
+    }
+
+    private Response getResponse(boolean result)
+    {
+        if (result)
+        {
+            return Response.ok().build();
+        }
+        else
+        {
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
     }
 
