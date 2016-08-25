@@ -17,7 +17,7 @@ tmp/
 .metadata
 
 # idea specific
-.idea
+.idea/
 !.idea/codeStyleSettings.xml
 *.iml
 *.ipr
