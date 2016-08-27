@@ -37,6 +37,7 @@ import static org.junit.Assert.*;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @RestletTestContext
+@Ignore
 public class ArtifactRestletTest
         extends TestCaseWithArtifactGeneration
 {

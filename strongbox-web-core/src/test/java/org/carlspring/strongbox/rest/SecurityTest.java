@@ -6,6 +6,7 @@ import org.carlspring.strongbox.rest.context.RestletTestContext;
 import javax.ws.rs.core.Response;
 
 import org.junit.AfterClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import static junit.framework.TestCase.assertEquals;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @RestletTestContext
+@Ignore
 public class SecurityTest
 {
 

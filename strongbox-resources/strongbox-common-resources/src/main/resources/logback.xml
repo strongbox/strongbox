@@ -31,7 +31,7 @@
     </appender>
 
     <logger name="org.springframework">
-        <level value="ERROR"/>
+        <level value="WARN"/>
     </logger>
     <logger name="org.apache">
         <level value="ERROR"/>
@@ -44,7 +44,7 @@
     </logger>
 
     <root>
-        <level value="DEBUG"/>
+        <level value="INFO"/>
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
     </root>

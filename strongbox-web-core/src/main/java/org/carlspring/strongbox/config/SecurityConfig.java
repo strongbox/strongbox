@@ -29,8 +29,10 @@ public class SecurityConfig
 
     @Autowired
     AuthorizationConfigProvider authorizationConfigProvider;
+
     @Autowired
     private AuthenticationProvider authenticationProvider;
+
     @Autowired
     private AnonymousAuthenticationFilter anonymousAuthenticationFilter;
 

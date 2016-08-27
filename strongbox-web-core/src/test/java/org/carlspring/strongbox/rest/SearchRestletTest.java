@@ -10,10 +10,7 @@ import javax.ws.rs.core.MediaType;
 import java.io.File;
 
 import org.apache.maven.artifact.Artifact;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -22,6 +19,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @RestletTestContext
+@Ignore
 public class SearchRestletTest
 {
 

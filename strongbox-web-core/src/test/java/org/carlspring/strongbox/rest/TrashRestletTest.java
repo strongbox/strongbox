@@ -7,10 +7,7 @@ import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 
 import java.io.File;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertFalse;
@@ -20,6 +17,7 @@ import static org.junit.Assert.assertFalse;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @RestletTestContext
+@Ignore
 public class TrashRestletTest
         extends TestCaseWithArtifactGeneration
 {
