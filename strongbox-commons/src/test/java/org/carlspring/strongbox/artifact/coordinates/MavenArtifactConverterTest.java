@@ -58,7 +58,6 @@ public class MavenArtifactConverterTest
                      path);
 
         System.out.println(path);
-
     }
 
 }
