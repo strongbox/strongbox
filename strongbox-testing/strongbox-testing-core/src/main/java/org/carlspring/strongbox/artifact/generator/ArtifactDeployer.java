@@ -3,17 +3,14 @@ package org.carlspring.strongbox.artifact.generator;
 import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactClient;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.storage.metadata.MetadataMerger;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
@@ -24,6 +21,7 @@ import org.apache.maven.project.artifact.PluginArtifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static org.carlspring.maven.commons.util.ArtifactUtils.getArtifactFileName;
 
 /**
  * @author mtodorov
@@ -235,7 +233,7 @@ public class ArtifactDeployer extends ArtifactGenerator
             throws ArtifactOperationException, IOException, NoSuchAlgorithmException, XmlPullParserException
     {
         File artifactFile = new File(getBasedir(), ArtifactUtils.convertArtifactToPath(artifact));
-        ArtifactInputStream ais = new ArtifactInputStream(artifact, new FileInputStream(artifactFile));
+        ArtifactInputStream ais = new ArtifactInputStream(new MavenArtifactCoordinates(artifact), new FileInputStream(artifactFile));
 
         client.addArtifact(artifact, storageId, repositoryId, ais);
 
@@ -262,7 +260,7 @@ public class ArtifactDeployer extends ArtifactGenerator
 
             String artifactToPath = ArtifactUtils.convertArtifactToPath(artifact) + extensionForAlgorithm;
             String url = client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + artifactToPath;
-            String artifactFileName = ais.getArtifactFileName() + extensionForAlgorithm;
+            String artifactFileName = getArtifactFileName(artifact) + extensionForAlgorithm;
 
             client.deployFile(bais, url, artifactFileName);
         }
@@ -278,7 +276,7 @@ public class ArtifactDeployer extends ArtifactGenerator
         File pomFile = new File(getBasedir(), ArtifactUtils.convertArtifactToPath(artifact));
 
         InputStream is = new FileInputStream(pomFile);
-        ArtifactInputStream ais = new ArtifactInputStream(artifact, is);
+        ArtifactInputStream ais = new ArtifactInputStream(new MavenArtifactCoordinates(artifact), is);
 
         client.addArtifact(artifact, storageId, repositoryId, ais);
 
