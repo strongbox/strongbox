@@ -353,6 +353,7 @@ public class ArtifactControllerTest
     }
 
     @Test
+    @Ignore
     public void testCopyArtifactDirectory()
             throws Exception
     {
