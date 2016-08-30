@@ -37,53 +37,69 @@ public abstract class BaseArtifactController
     // Common-purpose methods
 
     protected synchronized <T> T read(String json,
-                                      Class<T> type) {
-        try {
+                                      Class<T> type)
+    {
+        try
+        {
             return objectMapper.readValue(json, type);
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             throw new RuntimeException(e);
         }
     }
 
-    protected synchronized ResponseEntity toResponse(Object arg) {
-        try {
+    protected synchronized ResponseEntity toResponse(Object arg)
+    {
+        try
+        {
             return ResponseEntity.ok(objectMapper.writeValueAsString(arg));
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             return toError(e);
         }
     }
 
-    protected synchronized ResponseEntity toError(String message) {
+    protected synchronized ResponseEntity toError(String message)
+    {
         return toError(new RuntimeException(message));
     }
 
-    protected synchronized ResponseEntity toError(Throwable cause) {
+    protected synchronized ResponseEntity toError(Throwable cause)
+    {
         logger.error(cause.getMessage(), cause);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(cause.getMessage());
     }
 
-    public Storage getStorage(String storageId) {
+    public Storage getStorage(String storageId)
+    {
         return configurationManager.getConfiguration().getStorage(storageId);
     }
 
     public Repository getRepository(String storageId,
-                                    String repositoryId) {
+                                    String repositoryId)
+    {
         return getStorage(storageId).getRepository(repositoryId);
     }
 
-    public ArtifactManagementService getArtifactManagementService() {
+    public ArtifactManagementService getArtifactManagementService()
+    {
         return artifactManagementService;
     }
 
-    public void setArtifactManagementService(ArtifactManagementService artifactManagementService) {
+    public void setArtifactManagementService(ArtifactManagementService artifactManagementService)
+    {
         this.artifactManagementService = artifactManagementService;
     }
 
-    public MetadataManager getMetadataManager() {
+    public MetadataManager getMetadataManager()
+    {
         return metadataManager;
     }
 
-    public void setMetadataManager(MetadataManager metadataManager) {
+    public void setMetadataManager(MetadataManager metadataManager)
+    {
         this.metadataManager = metadataManager;
     }
 

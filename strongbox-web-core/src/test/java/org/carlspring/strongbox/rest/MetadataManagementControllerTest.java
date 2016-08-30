@@ -1,16 +1,24 @@
 package org.carlspring.strongbox.rest;
 
-import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
-import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
-import com.jayway.restassured.response.Headers;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
+
+import javax.xml.bind.JAXBException;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+
+import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
+import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
+import com.jayway.restassured.response.Headers;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,14 +31,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-
-import javax.xml.bind.JAXBException;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertNotNull;
@@ -43,11 +43,13 @@ import static org.springframework.test.util.AssertionErrors.assertEquals;
 @ContextConfiguration(classes = WebConfig.class)
 @WebAppConfiguration
 public class MetadataManagementControllerTest
-        extends BackendBaseTest {
+        extends BackendBaseTest
+{
+
     private static final File REPOSITORY_BASEDIR_RELEASES = new File(ConfigurationResourceResolver.getVaultDirectory() +
-            "/storages/storage0/releases");
+                                                                     "/storages/storage0/releases");
     private static final File REPOSITORY_BASEDIR_SNAPSHOTS = new File(ConfigurationResourceResolver.getVaultDirectory() +
-            "/storages/storage0/snapshots");
+                                                                      "/storages/storage0/snapshots");
     private static final Logger logger = LoggerFactory.getLogger(MetadataManagementControllerTest.class);
 
     @Autowired
@@ -55,7 +57,8 @@ public class MetadataManagementControllerTest
 
     @Before
     public void setUp()
-            throws Exception {
+            throws Exception
+    {
 
         // remove release directory
         removeDir(new File(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath()));
@@ -66,54 +69,68 @@ public class MetadataManagementControllerTest
         // Generate releases
         TestCaseWithArtifactGeneration generator = new TestCaseWithArtifactGeneration();
         TestCaseWithArtifactGeneration.generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                "org.carlspring.strongbox.metadata:strongbox-metadata", new String[]{"3.0.1",
-                        "3.0.2",
-                        "3.1",
-                        "3.2"});
+                                                        "org.carlspring.strongbox.metadata:strongbox-metadata",
+                                                        new String[]{ "3.0.1",
+                                                                      "3.0.2",
+                                                                      "3.1",
+                                                                      "3.2" });
 
         // Generate snapshots
         generator.createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_SNAPSHOTS.getAbsolutePath(),
-                "org.carlspring.strongbox.metadata", "strongbox-metadata", "3.0.1", "jar",
-                null, 3);
+                                                    "org.carlspring.strongbox.metadata", "strongbox-metadata", "3.0.1",
+                                                    "jar",
+                                                    null, 3);
         generator.createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_SNAPSHOTS.getAbsolutePath(),
-                "org.carlspring.strongbox.metadata", "strongbox-metadata", "3.0.2", "jar",
-                null, 4);
+                                                    "org.carlspring.strongbox.metadata", "strongbox-metadata", "3.0.2",
+                                                    "jar",
+                                                    null, 4);
         generator.createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_SNAPSHOTS.getAbsolutePath(),
-                "org.carlspring.strongbox.metadata", "strongbox-metadata", "3.1", "jar",
-                null, 5);
+                                                    "org.carlspring.strongbox.metadata", "strongbox-metadata", "3.1",
+                                                    "jar",
+                                                    null, 5);
 
     }
 
-    private void removeDir(File dir) {
+    private void removeDir(File dir)
+    {
 
-        if (dir == null) {
+        if (dir == null)
+        {
             return;
         }
 
         System.out.println("Removing directory " + dir.getAbsolutePath());
 
-        if (dir.isDirectory()) {
+        if (dir.isDirectory())
+        {
             File[] files = dir.listFiles();
-            if (files != null) {
-                for (File file : files) {
+            if (files != null)
+            {
+                for (File file : files)
+                {
                     removeDir(file);
                 }
             }
-        } else {
+        }
+        else
+        {
             boolean res = dir.delete();
             System.out.println("Remove " + dir.getAbsolutePath() + " " + res);
         }
     }
 
     @Test
-    public void testMetadata() throws Exception {
+    public void testMetadata()
+            throws Exception
+    {
         rebuildSnapshotMetadata();
         rebuildSnapshotMetadataWithBasePath();
         rebuildReleaseMetadataAndDeleteAVersion();
     }
 
     private void rebuildReleaseMetadataAndDeleteAVersion()
-            throws Exception {
+            throws Exception
+    {
 
         // define bla bla bla
         String metadataPath = "/storages/storage0/releases";
@@ -162,11 +179,12 @@ public class MetadataManagementControllerTest
         assertEquals("Incorrect metadata!", "3.2", metadataBefore.getVersioning().getLatest());
 
         url = getContextBaseUrl() + "/metadata/" +
-                "storage0" + "/" + "releases";
+              "storage0" + "/" + "releases";
 
         given()
                 .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .params("path", artifactPath, "version", "3.2", "classifier", "", "metadataType", MetadataType.ARTIFACT_ROOT_LEVEL.getType())
+                .params("path", artifactPath, "version", "3.2", "classifier", "", "metadataType",
+                        MetadataType.ARTIFACT_ROOT_LEVEL.getType())
                 .when()
                 .delete(url)
                 .peek()
@@ -183,37 +201,41 @@ public class MetadataManagementControllerTest
     }
 
     private InputStream getArtifactAsStream(String path,
-                                            String url) {
+                                            String url)
+    {
         return getArtifactAsStream(path, url, -1);
     }
 
     private InputStream getArtifactAsStream(String path,
                                             String url,
-                                            int offset) {
+                                            int offset)
+    {
         return new ByteArrayInputStream(getArtifactAsByteArray(path, url, offset));
 
     }
 
     private byte[] getArtifactAsByteArray(String path,
                                           String url,
-                                          int offset) {
+                                          int offset)
+    {
         MockMvcRequestSpecification o = given().contentType(MediaType.TEXT_PLAIN_VALUE);
         int statusCode = 200;
-        if (offset != -1) {
+        if (offset != -1)
+        {
             o = o.header("Range", "bytes=" + offset + "-");
             statusCode = 206;
         }
 
         MockMvcResponse response = o.param("path", path)
-                .when()
-                .get(url);
+                                    .when()
+                                    .get(url);
         Headers allHeaders = response.getHeaders();
         System.out.println("HTTP GET " + url);
         System.out.println("Response headers:");
         allHeaders.forEach(header ->
-        {
-            System.out.println("\t" + header.getName() + " = " + header.getValue());
-        });
+                           {
+                               System.out.println("\t" + header.getName() + " = " + header.getValue());
+                           });
 
         response.then().statusCode(statusCode);
         byte[] result = response.getMockHttpServletResponse().getContentAsByteArray();
@@ -223,7 +245,8 @@ public class MetadataManagementControllerTest
     }
 
     private void rebuildSnapshotMetadata()
-            throws Exception {
+            throws Exception
+    {
         String metadataPath = "/storages/storage0/snapshots";
         String path = "/org/carlspring/strongbox/metadata/strongbox-metadata/maven-metadata.xml";
 
@@ -258,18 +281,22 @@ public class MetadataManagementControllerTest
     }
 
     private void rebuildSnapshotMetadataWithBasePath()
-            throws Exception {
+            throws Exception
+    {
         TestCaseWithArtifactGeneration generator = new TestCaseWithArtifactGeneration();
         // Generate snapshots in nested dirs
         generator.createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_SNAPSHOTS.getAbsolutePath(),
-                "org.carlspring.strongbox.metadata.foo", "strongbox-metadata-bar", "1.2.3", "jar",
-                null, 5);
+                                                    "org.carlspring.strongbox.metadata.foo", "strongbox-metadata-bar",
+                                                    "1.2.3", "jar",
+                                                    null, 5);
         generator.createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_SNAPSHOTS.getAbsolutePath(),
-                "org.carlspring.strongbox.metadata.foo.bar", "strongbox-metadata-foo", "2.1", "jar",
-                null, 5);
+                                                    "org.carlspring.strongbox.metadata.foo.bar",
+                                                    "strongbox-metadata-foo", "2.1", "jar",
+                                                    null, 5);
         generator.createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_SNAPSHOTS.getAbsolutePath(),
-                "org.carlspring.strongbox.metadata.foo.bar", "strongbox-metadata-foo-bar", "5.4", "jar",
-                null, 4);
+                                                    "org.carlspring.strongbox.metadata.foo.bar",
+                                                    "strongbox-metadata-foo-bar", "5.4", "jar",
+                                                    null, 4);
 
         String metadataUrl = "/storages/storage0/snapshots";
         String metadataPath1 = "/org/carlspring/strongbox/metadata/foo/strongbox-metadata-bar/maven-metadata.xml";
@@ -301,18 +328,18 @@ public class MetadataManagementControllerTest
         logger.debug("Getting " + url + "...");
 
         MockMvcResponse response = given()
-                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .param("path", metadataPath2)
-                .when()
-                .get(url);
+                                           .contentType(MediaType.TEXT_PLAIN_VALUE)
+                                           .param("path", metadataPath2)
+                                           .when()
+                                           .get(url);
 
         Headers allHeaders = response.getHeaders();
         System.out.println("HTTP GET " + url);
         System.out.println("Response headers:");
         allHeaders.forEach(header ->
-        {
-            System.out.println("\t" + header.getName() + " = " + header.getValue());
-        });
+                           {
+                               System.out.println("\t" + header.getName() + " = " + header.getValue());
+                           });
 
         response.then().statusCode(200);
         byte[] result = response.getMockHttpServletResponse().getContentAsByteArray();
@@ -357,11 +384,12 @@ public class MetadataManagementControllerTest
                                                     MetadataType.ARTIFACT_ROOT_LEVEL.getType());*/
 
         url = getContextBaseUrl() + "/metadata/" +
-                "storage0" + "/" + "snapshots";
+              "storage0" + "/" + "snapshots";
 
         given()
                 .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .params("path", "org/carlspring/strongbox/metadata/foo/bar/strongbox-metadata-foo", "version", latestTimestamp, "classifier", "", "metadataType", MetadataType.ARTIFACT_ROOT_LEVEL.getType())
+                .params("path", "org/carlspring/strongbox/metadata/foo/bar/strongbox-metadata-foo", "version",
+                        latestTimestamp, "classifier", "", "metadataType", MetadataType.ARTIFACT_ROOT_LEVEL.getType())
                 .when()
                 .delete(url)
                 .peek()
@@ -373,22 +401,25 @@ public class MetadataManagementControllerTest
         List<SnapshotVersion> metadata2AfterSnapshotVersions = metadata2SnapshotAfter.getVersioning().getSnapshotVersions();
 
         String timestamp = previousLatestTimestamp.substring(previousLatestTimestamp.indexOf('-') + 1,
-                previousLatestTimestamp.lastIndexOf('-'));
+                                                             previousLatestTimestamp.lastIndexOf('-'));
         String buildNumber = previousLatestTimestamp.substring(previousLatestTimestamp.lastIndexOf('-') + 1,
-                previousLatestTimestamp.length());
+                                                               previousLatestTimestamp.length());
 
         Assert.assertNotNull("Incorrect metadata!", metadata2SnapshotAfter.getVersioning());
         Assert.assertFalse("Failed to remove timestamped SNAPSHOT version!",
-                MetadataHelper.containsVersion(metadata2SnapshotAfter, latestTimestamp));
+                           MetadataHelper.containsVersion(metadata2SnapshotAfter, latestTimestamp));
         Assert.assertEquals("Incorrect metadata!", timestamp,
-                metadata2SnapshotAfter.getVersioning().getSnapshot().getTimestamp());
+                            metadata2SnapshotAfter.getVersioning().getSnapshot().getTimestamp());
         Assert.assertEquals("Incorrect metadata!", Integer.parseInt(buildNumber),
-                metadata2SnapshotAfter.getVersioning().getSnapshot().getBuildNumber());
+                            metadata2SnapshotAfter.getVersioning().getSnapshot().getBuildNumber());
         Assert.assertEquals("Incorrect metadata!", previousLatestTimestamp,
-                metadata2AfterSnapshotVersions.get(metadata2AfterSnapshotVersions.size() - 1).getVersion());
+                            metadata2AfterSnapshotVersions.get(metadata2AfterSnapshotVersions.size() - 1).getVersion());
     }
 
-    public void pathExists(String path, String url, boolean exists) {
+    public void pathExists(String path,
+                           String url,
+                           boolean exists)
+    {
         String url2 = getContextBaseUrl() + (url.startsWith("/") ? url : '/' + url);
 
         logger.debug("Path to artifact: " + url);
@@ -407,7 +438,8 @@ public class MetadataManagementControllerTest
     public void rebuildMetadata(String storageId,
                                 String repositoryId,
                                 String basePath)
-            throws IOException, JAXBException {
+            throws IOException, JAXBException
+    {
         String url = getContextBaseUrl() + "/metadata/" + storageId + "/" + repositoryId;
 
         given()
