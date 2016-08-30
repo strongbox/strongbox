@@ -1,5 +1,9 @@
 package org.carlspring.strongbox.artifact.generator;
 
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Writer;
+import org.apache.maven.model.Model;
 import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
@@ -8,29 +12,16 @@ import org.carlspring.maven.commons.model.ModelWriter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.util.MessageDigestUtils;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Writer;
-import java.security.NoSuchAlgorithmException;
-import java.util.Properties;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Writer;
-import org.apache.maven.model.Model;
 import org.codehaus.plexus.util.WriterFactory;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.security.NoSuchAlgorithmException;
+import java.util.Properties;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * @author mtodorov
@@ -112,7 +103,7 @@ public class ArtifactGenerator
         createArchive(artifact);
     }
 
-    protected void createArchive(Artifact artifact)
+    public void createArchive(Artifact artifact)
             throws NoSuchAlgorithmException,
                    IOException
     {
@@ -254,7 +245,7 @@ public class ArtifactGenerator
         zos.closeEntry();
     }
 
-    protected void generatePom(Artifact artifact, String packaging)
+    public void generatePom(Artifact artifact, String packaging)
             throws IOException,
                    XmlPullParserException,
                    NoSuchAlgorithmException

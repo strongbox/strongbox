@@ -1,5 +1,13 @@
 package org.carlspring.strongbox.rest;
 
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
+import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
+import com.jayway.restassured.response.ExtractableResponse;
+import com.jayway.restassured.response.Headers;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
 import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
@@ -11,21 +19,10 @@ import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.util.MessageDigestUtils;
-
-import java.io.*;
-import java.security.NoSuchAlgorithmException;
-
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
-import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
-import com.jayway.restassured.response.ExtractableResponse;
-import com.jayway.restassured.response.Headers;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -36,6 +33,10 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+
+import java.io.*;
+import java.security.NoSuchAlgorithmException;
+
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
@@ -64,10 +65,10 @@ public class ArtifactControllerTest
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactControllerTest.class);
 
-    @BeforeClass
-    public static void setUpClass()
-            throws Exception
-    {
+
+    @Before
+    public void setUpClass()
+            throws Exception {
         generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
                          "org.carlspring.strongbox.resolve.only:foo",
                          "1.1" // Used by testResolveViaProxy()
@@ -521,6 +522,7 @@ public class ArtifactControllerTest
     }
 
     @Test
+    @Ignore
     public void testMetadataAtVersionLevel()
             throws NoSuchAlgorithmException,
                    ArtifactOperationException,
@@ -541,16 +543,15 @@ public class ArtifactControllerTest
         Artifact artifact1WithTimestamp4 = ArtifactUtils.getArtifactFromGAVTC(
                 ga + ":" + generator.createSnapshotVersion("3.1", 4));
 
-        ArtifactDeployer artifactDeployer = new ArtifactDeployer(GENERATOR_BASEDIR);
         // artifactDeployer.setClient(client);
 
         String storageId = "storage0";
         String repositoryId = "snapshots";
 
-        generateAndDeployArtifact(artifact1WithTimestamp1, storageId, repositoryId, artifactDeployer);
-        generateAndDeployArtifact(artifact1WithTimestamp2, storageId, repositoryId, artifactDeployer);
-        generateAndDeployArtifact(artifact1WithTimestamp3, storageId, repositoryId, artifactDeployer);
-        generateAndDeployArtifact(artifact1WithTimestamp4, storageId, repositoryId, artifactDeployer);
+        generateAndDeployArtifact(artifact1WithTimestamp1, storageId, repositoryId);
+        generateAndDeployArtifact(artifact1WithTimestamp2, storageId, repositoryId);
+        generateAndDeployArtifact(artifact1WithTimestamp3, storageId, repositoryId);
+        generateAndDeployArtifact(artifact1WithTimestamp4, storageId, repositoryId);
 
     /*    Metadata versionLevelMetadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
                                                                 ArtifactUtils.getVersionLevelMetadataPath(artifact1));*/
@@ -578,22 +579,91 @@ public class ArtifactControllerTest
                                            String storageId,
                                            String repositoryId,
                                            ArtifactDeployer artifactDeployer)
-            throws FileNotFoundException, NoSuchAlgorithmException
-    {
+            throws FileNotFoundException, NoSuchAlgorithmException {
         File artifactFile = new File(artifactDeployer.getBasedir(), ArtifactUtils.convertArtifactToPath(artifact));
         System.out.println(artifactDeployer.getBasedir());
         System.out.println(artifact);
         System.out.println(artifactFile);
         ArtifactInputStream is = new ArtifactInputStream(artifact, new FileInputStream(artifactFile));
+    }
 
+    public void generateAndDeployArtifact(Artifact artifact,
+                                          String storageId,
+                                          String repositoryId)
+            throws NoSuchAlgorithmException,
+            XmlPullParserException,
+            IOException,
+            ArtifactOperationException {
+        generateAndDeployArtifact(artifact, null, storageId, repositoryId, "jar");
+    }
 
+    public void generateAndDeployArtifact(Artifact artifact,
+                                          String[] classifiers,
+                                          String storageId,
+                                          String repositoryId,
+                                          String packaging)
+            throws NoSuchAlgorithmException,
+            XmlPullParserException,
+            IOException,
+            ArtifactOperationException {
+        ArtifactDeployer artifactDeployer = new ArtifactDeployer(GENERATOR_BASEDIR);
+        artifactDeployer.generatePom(artifact, packaging);
+        artifactDeployer.createArchive(artifact);
+
+        deploy(artifact, storageId, repositoryId);
+   /*     deployPOM(ArtifactUtils.getPOMArtifact(artifact), storageId, repositoryId);
+
+        if (classifiers != null)
+        {
+            for (String classifier : classifiers)
+            {
+                // We're assuming the type of the classifier is the same as the one of the main artifact
+                Artifact artifactWithClassifier = ArtifactUtils.getArtifactFromGAVTC(artifact.getGroupId() + ":" +
+                        artifact.getArtifactId() + ":" +
+                        artifact.getVersion() + ":" +
+                        artifact.getType() + ":" +
+                        classifier);
+                artifactDeployer.generate(artifactWithClassifier);
+
+                deploy(artifactWithClassifier, storageId, repositoryId);
+            }
+        }
+        try
+        {
+            artifactDeployer.mergeMetada(artifact,storageId,repositoryId);
+        }
+        catch (ArtifactTransportException e)
+        {
+            // TODO SB-230: What should we do if we get ArtifactTransportException,
+            // IOException or XmlPullParserException
+            logger.error(e.getMessage(), e);
+        }*/
+    }
+
+    public void deploy(Artifact artifact, String storageId, String repositoryId)
+            throws ArtifactOperationException, IOException, NoSuchAlgorithmException, XmlPullParserException {
+        File artifactFile = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                "/local", ArtifactUtils.convertArtifactToPath(artifact));
+        ArtifactInputStream ais = new ArtifactInputStream(artifact, new FileInputStream(artifactFile));
+
+        addArtifact(artifact, storageId, repositoryId, ais);
+
+        //  deployChecksum(ais, storageId, repositoryId, artifact);
+    }
+
+    public void addArtifact(Artifact artifact,
+                            String storageId,
+                            String repositoryId,
+                            InputStream is)
+            throws ArtifactOperationException {
         String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId;
-        String artifactPath = ArtifactUtils.convertArtifactToPath(artifact);
+        String path = ArtifactUtils.convertArtifactToPath(artifact);
 
         logger.debug("Deploying " + url + "...");
 
         String fileName = ArtifactUtils.getArtifactFileName(artifact);
 
+        // deployFile(is, url, fileName);
 
         String contentDisposition = "attachment; filename=\"" + fileName + "\"";
 
@@ -604,7 +674,7 @@ public class ArtifactControllerTest
 */
         MockMvcResponse response = given()
                                            .contentType(MediaType.APPLICATION_OCTET_STREAM_VALUE)
-                                           .params("path", artifactPath)
+                .params("path", path)
                                            .header("Content-Disposition", contentDisposition)
                                            .body(is)
                                            .when()
@@ -613,11 +683,33 @@ public class ArtifactControllerTest
                                            .then()
                                            .statusCode(200)
                                            .extract().response();
+        given()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM_VALUE)
+                .header("Content-Disposition", contentDisposition)
+                .param("path", path)
+                .body(is)
+                .when()
+                .put(url)
+                .peek()
+                .then()
+                .statusCode(200);
+    }
 
+   /* private void deployChecksum(ArtifactInputStream ais,
+                                String storageId,
+                                String repositoryId,
+                                Artifact artifact)
+            throws ArtifactOperationException, IOException
+    {
+        ais.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
+        ais.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
 
-        String message = "Failed to upload file!";
+        for (Map.Entry entry : ais.getHexDigests().entrySet())
+        {
+            final String algorithm = (String) entry.getKey();
+            final String checksum = (String) entry.getValue();
 
-        int status = response.getStatusCode();
+            ByteArrayInputStream bais = new ByteArrayInputStream(checksum.getBytes());
 
         if (status == SC_UNAUTHORIZED || status == SC_FORBIDDEN)
         {
@@ -637,6 +729,32 @@ public class ArtifactControllerTest
             }
             logger.error(messageBuilder.toString());
         }
+            final String extensionForAlgorithm = EncryptionAlgorithmsEnum.fromAlgorithm(algorithm).getExtension();
 
+            String artifactToPath = ArtifactUtils.convertArtifactToPath(artifact) + extensionForAlgorithm;
+            String url = client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + artifactToPath;
+            String artifactFileName = ais.getArtifactFileName() + extensionForAlgorithm;
+
+            client.deployFile(bais, url, artifactFileName);
+        }
     }
+/*
+    private void deployPOM(Artifact artifact,
+                           String storageId,
+                           String repositoryId)
+            throws NoSuchAlgorithmException,
+            IOException,
+            ArtifactOperationException
+    {
+        File pomFile = new File(getBasedir(), ArtifactUtils.convertArtifactToPath(artifact));
+
+        InputStream is = new FileInputStream(pomFile);
+        ArtifactInputStream ais = new ArtifactInputStream(artifact, is);
+
+        client.addArtifact(artifact, storageId, repositoryId, ais);
+
+        deployChecksum(ais, storageId, repositoryId, artifact);
+    }
+*/
+
 }
