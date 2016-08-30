@@ -4,7 +4,14 @@ import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -14,7 +21,11 @@ import java.util.List;
 import java.util.Optional;
 
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -51,7 +62,7 @@ public class UserRestlet
     @ApiOperation(value = "Used to retrieve an request param", position = 1)
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 400, message = "An error occurred.") })
-    @PreAuthorize("authenticated")
+    @PreAuthorize("isAuthenticated()")
     public synchronized Response greet(@ApiParam(value = "The param", required = true)
                                        @PathParam("anyString") String param)
     {
@@ -105,7 +116,7 @@ public class UserRestlet
     @ApiOperation(value = "Used to retrieve an user", position = 1)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "User was retrieved."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
-    @PreAuthorize("hasAuthority('VIEW_USER')")
+    @PreAuthorize("hasAuthority('VIEW_USER') or isAnonymous()")
     @Transactional
     public synchronized Response getUsers()
     {

@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.rest;
 
+import org.carlspring.strongbox.security.Privilege;
 import org.carlspring.strongbox.security.Role;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.security.AuthorizationConfig;
@@ -7,7 +8,13 @@ import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
@@ -23,6 +30,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.stereotype.Component;
 
 /**
@@ -42,14 +51,23 @@ public class AuthorizationConfigRestlet
 
     private static final Logger logger = LoggerFactory.getLogger(AuthorizationConfigRestlet.class);
     private final GenericParser<AuthorizationConfig> configGenericParser = new GenericParser<>(AuthorizationConfig.class);
+
     @Autowired
     AuthorizationConfigProvider configProvider;
+
     @Autowired
     UserService userService;
+
     @Autowired
     OObjectDatabaseTx databaseTx;
+
     @Autowired
-    private CacheManager cacheManager;
+    CacheManager cacheManager;
+
+    @Autowired
+    AnonymousAuthenticationFilter anonymousAuthenticationFilter;
+
+    private volatile AuthorizationConfig config;
 
     private synchronized Response processConfig(Consumer<AuthorizationConfig> consumer)
     {
@@ -66,7 +84,7 @@ public class AuthorizationConfigRestlet
         {
             try
             {
-                AuthorizationConfig config = databaseTx.detachAll(configOptional.get(), true);
+                config = databaseTx.detachAll(configOptional.get(), true);
 
                 if (consumer != null)
                 {
@@ -175,6 +193,42 @@ public class AuthorizationConfigRestlet
                                                            });
                                  }
                              });
+    }
+
+
+    // ----------------------------------------------------------------------------------------------------------------
+    // Assign privileges to the anonymous user
+    @POST
+    @Path("anonymous/privileges")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public synchronized Response addPrivilegesToAnonymous(List<Privilege> privileges)
+    {
+        return processConfig(config -> privileges.forEach(this::addAnonymousAuthority));
+    }
+
+
+    // ----------------------------------------------------------------------------------------------------------------
+    // Assign roles to the anonymous user
+    @POST
+    @Path("anonymous/roles")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public synchronized Response addRolesToAnonymous(List<Role> roles)
+    {
+        return processConfig(config -> roles.forEach(role -> config.getRoles().getRoles().stream().filter(
+                role1 -> role1.getName().equalsIgnoreCase(role.getName())).forEach(
+                foundedRole -> foundedRole.getPrivileges().forEach(this::addAnonymousAuthority))));
+    }
+
+    private void addAnonymousAuthority(Privilege authority)
+    {
+        addAnonymousAuthority(authority.getName());
+    }
+
+    private void addAnonymousAuthority(String authority)
+    {
+        SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(authority.toUpperCase());
+        config.getAnonymousAuthorities().add(simpleGrantedAuthority);
+        anonymousAuthenticationFilter.getAuthorities().add(simpleGrantedAuthority);
     }
 
     private synchronized List<User> getAllUsers()

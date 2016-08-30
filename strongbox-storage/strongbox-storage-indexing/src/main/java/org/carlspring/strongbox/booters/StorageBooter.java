@@ -67,8 +67,15 @@ public class StorageBooter
             final Configuration configuration = configurationManager.getConfiguration();
             for (String storageKey : configuration.getStorages().keySet())
             {
-                Storage storage = configuration.getStorages().get(storageKey);
-                initializeRepositories(storage);
+                try
+                {
+                    Storage storage = configuration.getStorages().get(storageKey);
+                    initializeRepositories(storage);
+                }
+                catch (IOException e)
+                {
+                    logger.error("Failed to initialize the repository.", e);
+                }
             }
         }
         else
@@ -109,7 +116,6 @@ public class StorageBooter
 
     /**
      * @return The base directory for the storages
-     * @throws IOException
      */
     private File initializeStorages()
             throws IOException
@@ -128,7 +134,7 @@ public class StorageBooter
             basedir = ConfigurationResourceResolver.getVaultDirectory() + "/storages";
         }
 
-        final Map<String,Storage> storageEntry = configurationManager.getConfiguration().getStorages();
+        final Map<String, Storage> storageEntry = configurationManager.getConfiguration().getStorages();
         for (Map.Entry<String, Storage> stringStorageEntry : storageEntry.entrySet())
         {
             initializeStorage(stringStorageEntry.getValue());

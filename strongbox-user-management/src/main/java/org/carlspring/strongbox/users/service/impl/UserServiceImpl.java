@@ -89,14 +89,30 @@ class UserServiceImpl
     @Transactional
     public synchronized Optional<List<User>> findAll()
     {
-        return Optional.ofNullable(repository.findAll());
+        try
+        {
+            return Optional.ofNullable(repository.findAll());
+        }
+        catch (Exception e)
+        {
+            logger.warn("Internal spring-data-orientdb exception.", e);
+            return Optional.empty();
+        }
     }
 
     @Override
     @Transactional
     public synchronized Optional<List<User>> findAll(List<String> var1)
     {
-        return Optional.ofNullable(repository.findAll(var1));
+        try
+        {
+            return Optional.ofNullable(repository.findAll(var1));
+        }
+        catch (Exception e)
+        {
+            logger.warn("Internal spring-data-orientdb exception.", e);
+            return Optional.empty();
+        }
     }
 
     @Override

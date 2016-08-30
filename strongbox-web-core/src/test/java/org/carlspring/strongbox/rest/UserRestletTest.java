@@ -20,10 +20,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
- * @author mtodorov
+ * Jersey test for {@link UserRestlet}.
+ *
+ * @author Alex Oreshkevich
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @RestletTestContext
@@ -53,6 +58,7 @@ public class UserRestletTest
     {
         Response response = client.prepareTarget("/users/greet").request().get();
         RestClient.displayResponseError(response);
+        assertEquals(200, response.getStatus());
     }
 
     @Test

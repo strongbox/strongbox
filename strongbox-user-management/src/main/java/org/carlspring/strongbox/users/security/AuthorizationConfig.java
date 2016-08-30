@@ -8,8 +8,11 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.google.common.base.Objects;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 /**
  * Java representation for authorization config that stored in XML file.
@@ -28,8 +31,11 @@ public class AuthorizationConfig
     @Embedded
     private Roles roles;
 
+    private Set<SimpleGrantedAuthority> anonymousAuthorities;
+
     public AuthorizationConfig()
     {
+        anonymousAuthorities = new HashSet<>();
     }
 
     public Roles getRoles()
@@ -40,6 +46,16 @@ public class AuthorizationConfig
     public void setRoles(Roles roles)
     {
         this.roles = roles;
+    }
+
+    public Set<SimpleGrantedAuthority> getAnonymousAuthorities()
+    {
+        return anonymousAuthorities;
+    }
+
+    public void setAnonymousAuthorities(Set<SimpleGrantedAuthority> anonymousAuthorities)
+    {
+        this.anonymousAuthorities = anonymousAuthorities;
     }
 
     @Override
