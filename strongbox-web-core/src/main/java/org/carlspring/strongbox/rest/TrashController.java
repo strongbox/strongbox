@@ -96,14 +96,12 @@ public class TrashController
             @ApiResponse(code = 404,
                     message = "The specified (storageId/repositoryId/path) does not exist!")})
     @PreAuthorize("hasAuthority('MANAGEMENT_UNDELETE_TRASH')")
-    @RequestMapping(value = "{storageId}/{repositoryId}/{path:.*}", method = RequestMethod.POST,
+    @RequestMapping(value = "{storageId}/{repositoryId}", method = RequestMethod.POST,
             produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity undelete(@RequestParam(value = "The storageId", name = "storageId", required = true)
-                                   @PathVariable String storageId,
-                                   @RequestParam(value = "The repositoryId", name = "repositoryId", required = true)
-                                   @PathVariable String repositoryId,
-                                   @RequestParam(value = "The path to restore", name = "path", required = true)
-                                   @PathVariable String path)
+    public ResponseEntity undelete(
+            @PathVariable String storageId,
+            @PathVariable String repositoryId,
+            @RequestParam(name = "path") String path)
             throws IOException {
         logger.debug("UNDELETE: " + path);
         logger.debug(storageId + ":" + repositoryId + ": " + path);
@@ -137,11 +135,10 @@ public class TrashController
             @ApiResponse(code = 404,
                     message = "The specified (storageId/repositoryId) does not exist!")})
     @PreAuthorize("hasAuthority('MANAGEMENT_UNDELETE_TRASH')")
-    @RequestMapping(value = "{storageId}/{repositoryId}", method = RequestMethod.POST,
+    @RequestMapping(value = "{storageId}/{repositoryId}", method = RequestMethod.PUT,
             produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity undelete(@RequestParam(value = "The storageId", name = "storageId", required = true)
+    public ResponseEntity undelete(
                                    @PathVariable String storageId,
-                                   @RequestParam(value = "The repositoryId", name = "repositoryId", required = true)
                                    @PathVariable String repositoryId)
             throws Exception {
         if (getConfiguration().getStorage(storageId).getRepository(repositoryId) != null) {
