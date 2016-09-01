@@ -12,7 +12,7 @@ public class MavenArtifactPathConverter
 {
 
     @Override
-    public ArtifactCoordinates convertPathToCoordinates(String path)
+    public MavenArtifactCoordinates convertPathToCoordinates(String path)
     {
         Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
 

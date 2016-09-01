@@ -1,57 +1,33 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
  * @author carlspring
  */
-public class ArtifactCoordinates
+public interface ArtifactCoordinates
 {
 
-    private Map<String, String> coordinates = new LinkedHashMap<>();
+    String getId();
 
+    void setId(String id);
 
-    public ArtifactCoordinates()
-    {
-    }
+    String getVersion();
 
-    public ArtifactCoordinates(Map<String, String> coordinates)
-    {
-        this.coordinates = coordinates;
-    }
+    void setVersion(String version);
 
-    public void defineCoordinates(String... coordinates)
-    {
-        for (String coordinate : coordinates)
-        {
-            this.coordinates.put(coordinate, null);
-        }
-    }
+    String toPath();
 
-    public void defineCoordinate(String coordinate)
-    {
-        coordinates.put(coordinate, null);
-    }
+    void defineCoordinates(String... coordinates);
 
-    public String getCoordinate(String coordinate)
-    {
-        return coordinates.get(coordinate);
-    }
+    void defineCoordinate(String coordinate);
 
-    public String setCoordinate(String coordinate, String value)
-    {
-        return coordinates.put(coordinate, value);
-    }
+    String getCoordinate(String coordinate);
 
-    public Map<String, String> getCoordinates()
-    {
-        return coordinates;
-    }
+    String setCoordinate(String coordinate, String value);
 
-    public void setCoordinates(Map<String, String> coordinates)
-    {
-        this.coordinates = coordinates;
-    }
+    Map<String, String> getCoordinates();
+
+    void setCoordinates(Map<String, String> coordinates);
 
 }

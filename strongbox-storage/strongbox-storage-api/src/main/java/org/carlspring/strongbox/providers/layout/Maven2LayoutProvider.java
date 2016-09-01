@@ -2,6 +2,8 @@ package org.carlspring.strongbox.providers.layout;
 
 import org.carlspring.commons.io.filters.DirectoryFilter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.io.ArtifactFile;
 import org.carlspring.strongbox.io.ArtifactFileOutputStream;
 import org.carlspring.strongbox.io.ArtifactInputStream;
@@ -30,7 +32,7 @@ import static org.carlspring.commons.io.FileUtils.moveDirectory;
  * @author carlspring
  */
 @Component("maven2LayoutProvider")
-public class Maven2LayoutProvider extends AbstractLayoutProvider
+public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCoordinates>
 {
 
     private static final Logger logger = LoggerFactory.getLogger(Maven2LayoutProvider.class);
@@ -42,11 +44,6 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider
 
     @Autowired
     private StorageProviderRegistry storageProviderRegistry;
-
-    /*
-    @Autowired
-    private MetadataManager metadataManager;
-    */
 
 
     @PostConstruct
@@ -62,6 +59,12 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider
     public String getAlias()
     {
         return ALIAS;
+    }
+
+    @Override
+    public MavenArtifactCoordinates getArtifactCoordinates(String path)
+    {
+        return new MavenArtifactCoordinates(path);
     }
 
     @Override
@@ -109,7 +112,9 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider
         if (!ArtifactUtils.isMetadata(path) && !ArtifactUtils.isChecksum(path))
         {
             Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
-            artifactFile = new ArtifactFile(repository, artifact, true);
+            MavenArtifactCoordinates coordinates = new MavenArtifactCoordinates(artifact);
+
+            artifactFile = new ArtifactFile(repository, coordinates, true);
         }
         else
         {
@@ -489,12 +494,12 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider
     }
 
     @Override
-    public boolean containsArtifact(Repository repository, Artifact artifact)
+    public boolean containsArtifact(Repository repository, ArtifactCoordinates coordinates)
             throws IOException
     {
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
 
-        final String artifactPath = ArtifactUtils.convertArtifactToPath(artifact);
+        final String artifactPath = ArtifactUtils.convertArtifactToPath(((MavenArtifactCoordinates) coordinates).toArtifact());
 
         final File repositoryBasedir = storageProvider.getFileImplementation(repository.getStorage().getBasedir(), repository.getId());
         final File artifactFile = storageProvider.getFileImplementation(repositoryBasedir.getPath(), artifactPath).getAbsoluteFile();
@@ -515,24 +520,17 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider
     }
 
     @Override
-    public String getPathToArtifact(Repository repository, Artifact artifact)
+    public String getPathToArtifact(Repository repository, ArtifactCoordinates coordinates)
             throws IOException
     {
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
 
-        final String artifactPath = ArtifactUtils.convertArtifactToPath(artifact);
+        final String artifactPath = ArtifactUtils.convertArtifactToPath(((MavenArtifactCoordinates) coordinates).toArtifact());
 
         final File repositoryBasedir = storageProvider.getFileImplementation(repository.getStorage().getBasedir(), repository.getId());
         final File artifactFile = storageProvider.getFileImplementation(repositoryBasedir.getPath(), artifactPath);
 
         return artifactFile.getAbsolutePath();
     }
-
-    /*
-    public MetadataManager getMetadataManager()
-    {
-        return metadataManager;
-    }
-    */
 
 }

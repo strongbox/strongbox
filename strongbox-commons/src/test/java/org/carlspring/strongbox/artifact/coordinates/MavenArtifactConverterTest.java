@@ -18,13 +18,13 @@ public class MavenArtifactConverterTest
     {
         String path = "org/carlspring/strongbox/coordinates-test/1.2.3/coordinates-test-1.2.3.jar";
 
-        MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) converter.convertPathToCoordinates(path);
+        MavenArtifactCoordinates coordinates = converter.convertPathToCoordinates(path);
 
         assertEquals("Failed to convert path to artifact coordinates!", "org.carlspring.strongbox", coordinates.getGroupId());
         assertEquals("Failed to convert path to artifact coordinates!", "coordinates-test", coordinates.getArtifactId());
         assertEquals("Failed to convert path to artifact coordinates!", "1.2.3", coordinates.getVersion());
         assertEquals("Failed to convert path to artifact coordinates!", null, coordinates.getClassifier());
-        assertEquals("Failed to convert path to artifact coordinates!", null, coordinates.getExtension());
+        assertEquals("Failed to convert path to artifact coordinates!", "jar", coordinates.getExtension());
     }
 
     @Test

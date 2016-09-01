@@ -1,14 +1,15 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
+import org.carlspring.maven.commons.util.ArtifactUtils;
+
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 
 /**
  * @author carlspring
  */
-public class MavenArtifactCoordinates extends ArtifactCoordinates
+public class MavenArtifactCoordinates extends AbstractArtifactCoordinates
 {
 
     private static final String GROUPID = "groupId";
@@ -21,10 +22,25 @@ public class MavenArtifactCoordinates extends ArtifactCoordinates
 
     private static final String EXTENSION = "extension";
 
+    private String groupId;
+
+    private String artifactId;
+
+    private String version;
+
+    private String classifier;
+
+    private String extension;
+
 
     public MavenArtifactCoordinates()
     {
         defineCoordinates(GROUPID, ARTIFACTID, VERSION, CLASSIFIER, EXTENSION);
+    }
+
+    public MavenArtifactCoordinates(String path)
+    {
+        this(ArtifactUtils.convertPathToArtifact(path));
     }
 
     public MavenArtifactCoordinates(String... coordinateValues)
@@ -64,18 +80,28 @@ public class MavenArtifactCoordinates extends ArtifactCoordinates
     {
         this();
 
-        setCoordinate(GROUPID, artifact.getGroupId());
-        setCoordinate(ARTIFACTID, artifact.getArtifactId());
-        setCoordinate(VERSION, artifact.getVersion());
-        setCoordinate(CLASSIFIER, artifact.getClassifier());
+        setGroupId(artifact.getGroupId());
+        setArtifactId(artifact.getArtifactId());
+        setVersion(artifact.getVersion());
+        setClassifier(artifact.getClassifier());
 
         if (artifact.getFile() != null)
         {
             String extension = artifact.getFile().getAbsolutePath();
             extension = extension.substring(extension.lastIndexOf("."), extension.length());
 
-            setCoordinate(EXTENSION, extension);
+            setExtension(extension);
         }
+        else
+        {
+            setExtension("jar");
+        }
+    }
+
+    @Override
+    public String toPath()
+    {
+        return ArtifactUtils.convertArtifactToPath(toArtifact());
     }
 
     public Artifact toArtifact()
@@ -87,57 +113,75 @@ public class MavenArtifactCoordinates extends ArtifactCoordinates
                                    getExtension(),
                                    getClassifier(),
                                    new DefaultArtifactHandler(getExtension()));
-
     }
 
     public String getGroupId()
     {
-        return getCoordinate(GROUPID);
+        return groupId;
     }
 
     public void setGroupId(String groupId)
     {
-        setCoordinate(GROUPID, groupId);
+        this.groupId = groupId;
+        setCoordinate(GROUPID, this.groupId);
     }
 
     public String getArtifactId()
     {
-        return getCoordinate(ARTIFACTID);
+        return artifactId;
     }
 
     public void setArtifactId(String artifactId)
     {
-        setCoordinate(ARTIFACTID, artifactId);
+        this.artifactId = artifactId;
+        setCoordinate(ARTIFACTID, this.artifactId);
     }
 
+    @Override
+    public String getId()
+    {
+        return artifactId;
+    }
+
+    @Override
+    public void setId(String id)
+    {
+        setArtifactId(id);
+    }
+
+    @Override
     public String getVersion()
     {
-        return getCoordinate(VERSION);
+        return version;
     }
 
+    @Override
     public void setVersion(String version)
     {
-        setCoordinate(VERSION, version);
+        this.version = version;
+        setCoordinate(VERSION, this.version);
     }
 
     public String getClassifier()
     {
-        return getCoordinate(CLASSIFIER);
+        return classifier;
     }
 
     public void setClassifier(String classifier)
     {
-        setCoordinate(CLASSIFIER, classifier);
+        this.classifier = classifier;
+        setCoordinate(CLASSIFIER, this.classifier);
     }
 
     public String getExtension()
     {
-        return getCoordinate(EXTENSION);
+        return extension;
     }
 
     public void setExtension(String extension)
     {
-        setCoordinate(EXTENSION, extension);
+        this.extension = extension;
+        setCoordinate(EXTENSION, this.extension);
     }
 
 }

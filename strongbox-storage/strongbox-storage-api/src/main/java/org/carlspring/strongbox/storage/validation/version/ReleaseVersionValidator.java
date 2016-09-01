@@ -1,9 +1,9 @@
 package org.carlspring.strongbox.storage.validation.version;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.storage.repository.Repository;
 
-import org.apache.maven.artifact.Artifact;
 import org.springframework.stereotype.Component;
 
 /**
@@ -23,10 +23,10 @@ public class ReleaseVersionValidator
      */
     @Override
     public void validate(Repository repository,
-                         Artifact artifact)
+                         ArtifactCoordinates coordinates)
             throws VersionValidationException
     {
-        String version = artifact.getVersion();
+        String version = coordinates.getVersion();
         if (isRelease(version) && !repository.acceptsReleases())
         {
             throw new VersionValidationException("Cannot deploy a release artifact to a repository with a SNAPSHOT policy!");
