@@ -1,13 +1,12 @@
 package org.carlspring.strongbox.io;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.maven.artifact.Artifact;
 
 /**
  * @author mtodorov
@@ -18,7 +17,7 @@ public class ArtifactFile
 
     private Repository repository;
 
-    private Artifact artifact;
+    private ArtifactCoordinates artifactCoordinates;
 
     private long temporaryTimestamp;
 
@@ -26,19 +25,19 @@ public class ArtifactFile
 
 
     public ArtifactFile(Repository repository,
-                        Artifact artifact)
+                        ArtifactCoordinates artifactCoordinates)
     {
-        this(repository, artifact, false);
+        this(repository, artifactCoordinates, false);
     }
 
     public ArtifactFile(Repository repository,
-                        Artifact artifact,
+                        ArtifactCoordinates artifactCoordinates,
                         boolean temporaryMode)
     {
-        super(repository.getBasedir(), ArtifactUtils.convertArtifactToPath(artifact));
+        super(repository.getBasedir(), artifactCoordinates.toPath());
 
         this.repository = repository;
-        this.artifact = artifact;
+        this.artifactCoordinates = artifactCoordinates;
         this.temporaryMode = temporaryMode;
         this.temporaryTimestamp = System.currentTimeMillis();
     }
@@ -52,7 +51,7 @@ public class ArtifactFile
     {
         return new ArtifactFile(new File(repository.getBasedir() +
                                          "/.temp/" +
-                                         ArtifactUtils.convertArtifactToPath(artifact) +
+                                         artifactCoordinates.toPath() +
                                          "." + temporaryTimestamp));
     }
 
@@ -103,14 +102,14 @@ public class ArtifactFile
         this.repository = repository;
     }
 
-    public Artifact getArtifact()
+    public ArtifactCoordinates getArtifactCoordinates()
     {
-        return artifact;
+        return artifactCoordinates;
     }
 
-    public void setArtifact(Artifact artifact)
+    public void setArtifactCoordinates(ArtifactCoordinates artifactCoordinates)
     {
-        this.artifact = artifact;
+        this.artifactCoordinates = artifactCoordinates;
     }
 
     public long getTemporaryTimestamp()

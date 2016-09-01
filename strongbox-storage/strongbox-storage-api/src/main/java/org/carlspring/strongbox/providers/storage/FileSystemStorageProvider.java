@@ -2,6 +2,7 @@ package org.carlspring.strongbox.providers.storage;
 
 import org.carlspring.commons.http.range.ByteRange;
 import org.carlspring.commons.io.reloading.ReloadableInputStreamHandler;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 
 import javax.annotation.PostConstruct;
@@ -9,7 +10,6 @@ import java.io.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-import org.apache.maven.artifact.Artifact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,12 +93,12 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
     }
 
     @Override
-    public ArtifactInputStream getInputStreamImplementation(Artifact artifact,
+    public ArtifactInputStream getInputStreamImplementation(ArtifactCoordinates coordinates,
                                                             InputStream is)
             throws NoSuchAlgorithmException
     {
         ArtifactInputStream ais = new ArtifactInputStream(is);
-        ais.setArtifact(artifact);
+        ais.setArtifactCoordinates(coordinates);
 
         return ais;
     }

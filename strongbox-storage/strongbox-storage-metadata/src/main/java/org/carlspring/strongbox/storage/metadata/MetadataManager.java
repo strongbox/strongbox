@@ -2,6 +2,7 @@ package org.carlspring.strongbox.storage.metadata;
 
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
@@ -61,9 +62,11 @@ public class MetadataManager
         Metadata metadata;
 
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
-        if (layoutProvider.containsArtifact(repository, artifact))
+        ArtifactCoordinates coordinates = (ArtifactCoordinates) layoutProvider.getArtifactCoordinates(ArtifactUtils.convertArtifactToPath(artifact));
+
+        if (layoutProvider.containsArtifact(repository, coordinates))
         {
-            Path artifactPath = Paths.get(layoutProvider.getPathToArtifact(repository, artifact));
+            Path artifactPath = Paths.get(layoutProvider.getPathToArtifact(repository, coordinates));
             Path artifactBasePath = artifactPath;
             if (artifact.getVersion() != null)
             {
@@ -347,7 +350,9 @@ public class MetadataManager
                    ProviderImplementationException
     {
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
-        if (layoutProvider.containsArtifact(repository, artifact))
+        ArtifactCoordinates coordinates = (ArtifactCoordinates) layoutProvider.getArtifactCoordinates(ArtifactUtils.convertArtifactToPath(artifact));
+
+        if (layoutProvider.containsArtifact(repository, coordinates))
         {
             Path artifactBasePath;
             if (artifact.getFile() != null && !artifact.getFile().isDirectory())

@@ -4,6 +4,7 @@ import org.carlspring.commons.http.range.ByteRange;
 import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.commons.io.reloading.ReloadableInputStreamHandler;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,7 +19,7 @@ import org.apache.maven.artifact.Artifact;
 public class ArtifactInputStream extends MultipleDigestInputStream
 {
 
-    private Artifact artifact;
+    private ArtifactCoordinates artifactCoordinates;
 
     private long length;
 
@@ -48,27 +49,22 @@ public class ArtifactInputStream extends MultipleDigestInputStream
         super(is, algorithms);
     }
 
-    public ArtifactInputStream(Artifact artifact,
+    public ArtifactInputStream(ArtifactCoordinates artifactCoordinates,
                                InputStream is)
             throws NoSuchAlgorithmException
     {
         super(is);
-        this.artifact = artifact;
+        this.artifactCoordinates = artifactCoordinates;
     }
 
-    public Artifact getArtifact()
+    public ArtifactCoordinates getArtifactCoordinates()
     {
-        return artifact;
+        return artifactCoordinates;
     }
 
-    public void setArtifact(Artifact artifact)
+    public void setArtifactCoordinates(ArtifactCoordinates artifactCoordinates)
     {
-        this.artifact = artifact;
-    }
-
-    public String getArtifactFileName()
-    {
-        return ArtifactUtils.getArtifactFileName(artifact);
+        this.artifactCoordinates = artifactCoordinates;
     }
 
     public long getLength()

@@ -14,6 +14,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.http.HttpStatus;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
@@ -35,15 +36,21 @@ public class ArtifactClient
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactClient.class);
+
     protected String username = "maven";
+
     protected String password = "password";
+
     private String protocol = "http";
-    private String host =
-            System.getProperty("strongbox.host") != null ? System.getProperty("strongbox.host") : "localhost";
+
+    private String host = System.getProperty("strongbox.host") != null ?
+                          System.getProperty("strongbox.host") : "localhost";
+
     private int port = System.getProperty("strongbox.port") != null ?
-                       Integer.parseInt(System.getProperty("strongbox.port")) :
-                       48080;
+                       Integer.parseInt(System.getProperty("strongbox.port")) : 48080;
+
     private String contextBaseUrl;
+
     private Client client;
 
     public ArtifactClient()
@@ -384,17 +391,24 @@ public class ArtifactClient
     {
         Response response = artifactExistsStatusCode(artifact, storageId, repositoryId);
 
-        if (response.getStatus() == 200)
+        try
         {
-            return true;
+            if (response.getStatus() == HttpStatus.SC_OK)
+            {
+                return true;
+            }
+            else if (response.getStatus() == HttpStatus.SC_NOT_FOUND)
+            {
+                return false;
+            }
+            else
+            {
+                throw new ResponseException(response.getStatusInfo().getReasonPhrase(), response.getStatus());
+            }
         }
-        else if (response.getStatus() == 404)
+        finally
         {
-            return false;
-        }
-        else
-        {
-            throw new ResponseException(response.getStatusInfo().getReasonPhrase(), response.getStatus());
+            response.close();
         }
     }
 
@@ -415,7 +429,7 @@ public class ArtifactClient
 
     public boolean pathExists(String path)
     {
-        String url = getContextBaseUrl() + (path.startsWith("/") ? path : '/' + path);
+        String url = escapeUrl(path);
 
         logger.debug("Path to artifact: " + url);
 
@@ -423,8 +437,22 @@ public class ArtifactClient
         setupAuthentication(resource);
 
         Response response = resource.request(MediaType.TEXT_PLAIN).get();
+        try
+        {
+            return response.getStatus() == HttpStatus.SC_OK;
+        }
+        finally
+        {
+            response.close();
+        }
+    }
 
-        return response.getStatus() == 200;
+    private String escapeUrl(String path)
+    {
+        String baseUrl = getContextBaseUrl() + (getContextBaseUrl().endsWith("/") ? "" : "/");
+        String p = (path.startsWith("/") ? path.substring(1, path.length()) : path);
+
+        return baseUrl + p;
     }
 
     private void handleFailures(Response response,
@@ -488,8 +516,15 @@ public class ArtifactClient
         if (pathExists(path))
         {
             InputStream is = getResource(path);
-            MetadataXpp3Reader reader = new MetadataXpp3Reader();
-            return reader.read(is);
+            try
+            {
+                MetadataXpp3Reader reader = new MetadataXpp3Reader();
+                return reader.read(is);
+            }
+            finally
+            {
+                is.close();
+            }
         }
         return null;
     }
