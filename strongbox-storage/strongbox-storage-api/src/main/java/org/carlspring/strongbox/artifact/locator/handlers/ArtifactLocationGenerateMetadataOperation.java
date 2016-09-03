@@ -2,7 +2,7 @@ package org.carlspring.strongbox.artifact.locator.handlers;
 
 import org.carlspring.maven.commons.io.filters.PomFilenameFilter;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.storage.metadata.MetadataManager;
+import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.metadata.VersionCollectionRequest;
 import org.carlspring.strongbox.storage.metadata.VersionCollector;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -26,7 +26,7 @@ public class ArtifactLocationGenerateMetadataOperation
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactLocationGenerateMetadataOperation.class);
 
-    private MetadataManager metadataManager;
+    private MavenMetadataManager mavenMetadataManager;
 
     private static String previousPath;
 
@@ -35,9 +35,9 @@ public class ArtifactLocationGenerateMetadataOperation
     {
     }
 
-    public ArtifactLocationGenerateMetadataOperation(MetadataManager metadataManager)
+    public ArtifactLocationGenerateMetadataOperation(MavenMetadataManager mavenMetadataManager)
     {
-        this.metadataManager = metadataManager;
+        this.mavenMetadataManager = mavenMetadataManager;
     }
 
     public void execute(Path path)
@@ -100,7 +100,7 @@ public class ArtifactLocationGenerateMetadataOperation
 
                 try
                 {
-                    metadataManager.generateMetadata(getRepository(), artifactPath, request);
+                    mavenMetadataManager.generateMetadata(getRepository(), artifactPath, request);
                 }
                 catch (IOException | XmlPullParserException | NoSuchAlgorithmException | ProviderImplementationException e)
                 {
@@ -111,14 +111,14 @@ public class ArtifactLocationGenerateMetadataOperation
         }
     }
 
-    public MetadataManager getMetadataManager()
+    public MavenMetadataManager getMavenMetadataManager()
     {
-        return metadataManager;
+        return mavenMetadataManager;
     }
 
-    public void setMetadataManager(MetadataManager metadataManager)
+    public void setMavenMetadataManager(MavenMetadataManager mavenMetadataManager)
     {
-        this.metadataManager = metadataManager;
+        this.mavenMetadataManager = mavenMetadataManager;
     }
 
 }

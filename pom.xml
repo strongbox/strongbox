@@ -44,7 +44,7 @@
         <module>strongbox-resources</module>
         <module>strongbox-commons</module>
         <module>strongbox-configuration</module>
-        <module>strongbox-metadata-core</module>
+        <module>strongbox-metadata-maven-api</module>
         <module>strongbox-event-api</module>
         <module>strongbox-security-api</module>
         <module>strongbox-testing</module>

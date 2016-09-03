@@ -498,12 +498,12 @@ public class ArtifactRestlet
                 java.nio.file.Path path = Paths.get(
                         artifactFile.getPath().substring(0, artifactFile.getPath().lastIndexOf(File.separatorChar)));
 
-                Metadata metadata = getMetadataManager().readMetadata(path);
+                Metadata metadata = getMavenMetadataManager().readMetadata(path);
                 if (metadata != null && metadata.getVersioning() != null
                     && metadata.getVersioning().getVersions().contains(version))
                 {
                     metadata.getVersioning().getVersions().remove(version);
-                    getMetadataManager().storeMetadata(path, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
+                    getMavenMetadataManager().storeMetadata(path, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
                 }
             }
         }

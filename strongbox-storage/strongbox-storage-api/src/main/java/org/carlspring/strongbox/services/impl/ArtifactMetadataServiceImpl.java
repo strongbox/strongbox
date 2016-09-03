@@ -6,13 +6,16 @@ import org.carlspring.strongbox.artifact.locator.handlers.ArtifactLocationGenera
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.storage.StorageProvider;
+import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
-import org.carlspring.strongbox.storage.metadata.MetadataManager;
+import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -46,7 +49,10 @@ public class ArtifactMetadataServiceImpl
     private ConfigurationManager configurationManager;
 
     @Autowired
-    private MetadataManager metadataManager;
+    private StorageProviderRegistry storageProviderRegistry;
+
+    @Autowired
+    private MavenMetadataManager mavenMetadataManager;
 
 
     public ArtifactMetadataServiceImpl()
@@ -65,7 +71,7 @@ public class ArtifactMetadataServiceImpl
 
         Path artifactBasePath = Paths.get(repository.getBasedir(), artifactPath);
 
-        return metadataManager.readMetadata(artifactBasePath);
+        return mavenMetadataManager.readMetadata(artifactBasePath);
     }
 
     @Override
@@ -73,14 +79,14 @@ public class ArtifactMetadataServiceImpl
             throws IOException,
                    XmlPullParserException
     {
-        return metadataManager.readMetadata(Paths.get(artifactBasePath));
+        return mavenMetadataManager.readMetadata(Paths.get(artifactBasePath));
     }
 
     @Override
     public Metadata getMetadata(InputStream is)
             throws IOException, XmlPullParserException
     {
-        return metadataManager.readMetadata(is);
+        return mavenMetadataManager.readMetadata(is);
     }
 
     public void rebuildMetadata(String storageId, String repositoryId, String basePath)
@@ -91,7 +97,7 @@ public class ArtifactMetadataServiceImpl
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        ArtifactLocationGenerateMetadataOperation operation = new ArtifactLocationGenerateMetadataOperation(metadataManager);
+        ArtifactLocationGenerateMetadataOperation operation = new ArtifactLocationGenerateMetadataOperation(mavenMetadataManager);
         operation.setStorage(storage);
         operation.setRepository(repository);
         operation.setBasePath(basePath);
@@ -112,7 +118,7 @@ public class ArtifactMetadataServiceImpl
     {
         Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
 
-        metadataManager.mergeMetadata(repository, artifact, mergeMetadata);
+        mavenMetadataManager.mergeMetadata(repository, artifact, mergeMetadata);
     }
 
     @Override
@@ -134,7 +140,7 @@ public class ArtifactMetadataServiceImpl
 
         addVersion(metadata, version);
 
-        metadataManager.storeMetadata(artifactBasePath, version, metadata, metadataType);
+        mavenMetadataManager.storeMetadata(artifactBasePath, version, metadata, metadataType);
     }
 
     @Override
@@ -179,17 +185,17 @@ public class ArtifactMetadataServiceImpl
 
         Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
 
-        Metadata snapshotMetadata = metadataManager.generateSnapshotVersioningMetadata(artifactBasePath,
-                                                                                       artifact,
-                                                                                       snapshot,
-                                                                                       false);
+        Metadata snapshotMetadata = mavenMetadataManager.generateSnapshotVersioningMetadata(artifactBasePath,
+                                                                                            artifact,
+                                                                                            snapshot,
+                                                                                            false);
 
         addTimestampedSnapshotVersion(snapshotMetadata, version, classifier, extension);
 
-        metadataManager.storeMetadata(artifactBasePath,
-                                      snapshot,
-                                      snapshotMetadata,
-                                      MetadataType.SNAPSHOT_VERSION_LEVEL);
+        mavenMetadataManager.storeMetadata(artifactBasePath,
+                                           snapshot,
+                                           snapshotMetadata,
+                                           MetadataType.SNAPSHOT_VERSION_LEVEL);
     }
 
     @Override
@@ -237,7 +243,7 @@ public class ArtifactMetadataServiceImpl
 
             Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
 
-            metadataManager.generateSnapshotVersioningMetadata(snapshotBasePath, artifact, version, true);
+            mavenMetadataManager.generateSnapshotVersioningMetadata(snapshotBasePath, artifact, version, true);
         }
 
         // Update the latest field
@@ -250,7 +256,7 @@ public class ArtifactMetadataServiceImpl
         // Remove the version
         versioning.removeVersion(version);
 
-        metadataManager.storeMetadata(artifactBasePath, version, metadata, metadataType);
+        mavenMetadataManager.storeMetadata(artifactBasePath, version, metadata, metadataType);
     }
 
     @Override
@@ -270,10 +276,10 @@ public class ArtifactMetadataServiceImpl
 
         Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
 
-        Metadata snapshotMetadata = metadataManager.generateSnapshotVersioningMetadata(artifactBasePath,
-                                                                                       artifact,
-                                                                                       snapshot,
-                                                                                       false);
+        Metadata snapshotMetadata = mavenMetadataManager.generateSnapshotVersioningMetadata(artifactBasePath,
+                                                                                            artifact,
+                                                                                            snapshot,
+                                                                                            false);
 
         List<SnapshotVersion> snapshotVersions = snapshotMetadata.getVersioning().getSnapshotVersions();
         for (Iterator<SnapshotVersion> iterator = snapshotVersions.iterator(); iterator.hasNext();)
@@ -298,10 +304,47 @@ public class ArtifactMetadataServiceImpl
         // Update the lastUpdated field
         MetadataHelper.setLastUpdated(snapshotMetadata.getVersioning());
 
-        metadataManager.storeMetadata(artifactBasePath,
-                                      snapshot,
-                                      snapshotMetadata,
-                                      MetadataType.SNAPSHOT_VERSION_LEVEL);
+        mavenMetadataManager.storeMetadata(artifactBasePath,
+                                           snapshot,
+                                           snapshotMetadata,
+                                           MetadataType.SNAPSHOT_VERSION_LEVEL);
+    }
+
+    @Override
+    public void deleteMetadata(String storageId,
+                               String repositoryId,
+                               String metadataPath)
+            throws IOException
+    {
+        // TODO: Further untangle the relationships of this so that the code below can be uncommented:
+
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+        StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
+
+        final File repoPath = storageProvider.getFileImplementation(repository.getBasedir());
+
+        try
+        {
+            File artifactFile = storageProvider.getFileImplementation(repoPath.getPath(), metadataPath).getCanonicalFile();
+            if (!artifactFile.isFile())
+            {
+                String version = artifactFile.getPath().substring(artifactFile.getPath().lastIndexOf(File.separatorChar) + 1);
+                java.nio.file.Path path = Paths.get(artifactFile.getPath().substring(0, artifactFile.getPath().lastIndexOf(File.separatorChar)));
+
+                Metadata metadata = mavenMetadataManager.readMetadata(path);
+                if (metadata != null && metadata.getVersioning() != null
+                    && metadata.getVersioning().getVersions().contains(version))
+                {
+                    metadata.getVersioning().getVersions().remove(version);
+                    mavenMetadataManager.storeMetadata(path, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
+                }
+            }
+        }
+        catch (IOException | XmlPullParserException | NoSuchAlgorithmException e)
+        {
+            // We won't do anything in this case because it doesn't have an impact to the deletion
+        }
     }
 
     @Override

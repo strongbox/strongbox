@@ -188,4 +188,9 @@ public interface ArtifactMetadataService extends ConfigurationService
                                           String classifier)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException;
 
+    void deleteMetadata(String storageId,
+                        String repositoryId,
+                        String metadataPath)
+            throws IOException;
+
 }

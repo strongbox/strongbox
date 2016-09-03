@@ -39,10 +39,10 @@ import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.g
  * @author stodorov
  */
 @Component
-public class MetadataManager
+public class MavenMetadataManager
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(MetadataManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(MavenMetadataManager.class);
 
     private ReentrantLock lock = new ReentrantLock();
 
@@ -50,7 +50,7 @@ public class MetadataManager
     private LayoutProviderRegistry layoutProviderRegistry;
 
 
-    public MetadataManager()
+    public MavenMetadataManager()
     {
     }
 

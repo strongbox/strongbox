@@ -34,7 +34,7 @@ public class MetadataHelperTest
 
     private static final String ANOTHER_ARTIFACT_ID = "mockito-all";
 
-    private static final String ARTIFACT_ID = "strongbox-metadata-core";
+    private static final String ARTIFACT_ID = "strongbox-metadata-maven-api";
 
     private static final String SNAPSHOT_VERSION = "1.0-SNAPSHOT";
 

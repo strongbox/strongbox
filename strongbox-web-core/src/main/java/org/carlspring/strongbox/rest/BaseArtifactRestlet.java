@@ -2,7 +2,7 @@ package org.carlspring.strongbox.rest;
 
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.metadata.MetadataManager;
+import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.ws.rs.core.Response;
@@ -29,7 +29,7 @@ public class BaseArtifactRestlet
     private ArtifactManagementService artifactManagementService;
 
     @Autowired
-    private MetadataManager metadataManager;
+    private MavenMetadataManager mavenMetadataManager;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -94,14 +94,14 @@ public class BaseArtifactRestlet
         this.artifactManagementService = artifactManagementService;
     }
 
-    public MetadataManager getMetadataManager()
+    public MavenMetadataManager getMavenMetadataManager()
     {
-        return metadataManager;
+        return mavenMetadataManager;
     }
 
-    public void setMetadataManager(MetadataManager metadataManager)
+    public void setMavenMetadataManager(MavenMetadataManager mavenMetadataManager)
     {
-        this.metadataManager = metadataManager;
+        this.mavenMetadataManager = mavenMetadataManager;
     }
 
 }
