@@ -28,7 +28,7 @@ import static org.junit.Assert.assertTrue;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
-public class Maven2LayoutProviderTest
+public class Maven2MetadataProviderTest
         extends TestCaseWithArtifactGeneration
 {
 

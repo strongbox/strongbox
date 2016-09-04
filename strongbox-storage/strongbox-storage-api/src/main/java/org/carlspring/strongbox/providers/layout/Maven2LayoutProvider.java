@@ -10,6 +10,8 @@ import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.providers.storage.StorageProvider;
 import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
+import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.DirUtils;
 
@@ -17,11 +19,14 @@ import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +49,9 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
 
     @Autowired
     private StorageProviderRegistry storageProviderRegistry;
+
+    @Autowired
+    private MavenMetadataManager mavenMetadataManager;
 
 
     @PostConstruct
@@ -448,7 +456,6 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
     {
         // TODO: Further untangle the relationships of this so that the code below can be uncommented:
 
-        /*
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
@@ -463,12 +470,12 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
                 String version = artifactFile.getPath().substring(artifactFile.getPath().lastIndexOf(File.separatorChar) + 1);
                 java.nio.file.Path path = Paths.get(artifactFile.getPath().substring(0, artifactFile.getPath().lastIndexOf(File.separatorChar)));
 
-                Metadata metadata = getMetadataManager().readMetadata(path);
+                Metadata metadata = mavenMetadataManager.readMetadata(path);
                 if (metadata != null && metadata.getVersioning() != null
                     && metadata.getVersioning().getVersions().contains(version))
                 {
                     metadata.getVersioning().getVersions().remove(version);
-                    getMetadataManager().storeMetadata(path, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
+                    mavenMetadataManager.storeMetadata(path, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
                 }
             }
         }
@@ -476,7 +483,6 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         {
             // We won't do anything in this case because it doesn't have an impact to the deletion
         }
-        */
     }
 
     @Override

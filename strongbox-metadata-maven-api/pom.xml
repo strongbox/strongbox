@@ -12,9 +12,9 @@
         <relativePath>../strongbox-parent</relativePath>
     </parent>
 
-    <artifactId>strongbox-metadata-core</artifactId>
+    <artifactId>strongbox-metadata-maven-api</artifactId>
 
-    <name>Strongbox: Metadata [Core]</name>
+    <name>Strongbox: Metadata [Maven API]</name>
 
     <licenses>
         <license>
