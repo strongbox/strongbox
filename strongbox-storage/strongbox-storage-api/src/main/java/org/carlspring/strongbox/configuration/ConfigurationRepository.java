@@ -1,19 +1,18 @@
 package org.carlspring.strongbox.configuration;
 
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.carlspring.strongbox.services.ServerConfigurationService;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
-
-import javax.annotation.PostConstruct;
-import java.io.File;
-import java.io.InputStream;
-import java.util.Optional;
-
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.PostConstruct;
+import java.io.File;
+import java.io.InputStream;
+import java.util.Optional;
 
 @Component("configurationRepository")
 @Transactional
@@ -130,6 +129,8 @@ public class ConfigurationRepository
             final String data = configurationCache.getParser().serialize(configuration);
             final String configurationId = configuration.getId();
 
+            logger.debug("Trying to save new configuration\n" + data);
+
             // update existing configuration with new data (if possible)
             if (configurationId != null)
             {
@@ -153,8 +154,8 @@ public class ConfigurationRepository
         }
         catch (Exception e)
         {
-            logger.error("Unable to save configuration\n\n" + configuration, e);
-            return Optional.empty();
+            throw new RuntimeException("Unable to save configuration\n\n" + configuration, e);
+            //return Optional.empty();
         }
 
         return Optional.of(configuration);

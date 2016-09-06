@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.rest;
 
+import io.swagger.annotations.*;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.security.exceptions.AuthenticationException;
@@ -11,6 +13,11 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RuleSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -18,14 +25,6 @@ import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
-
-import io.swagger.annotations.*;
-import org.apache.lucene.queryparser.classic.ParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 
 /**
  * @author mtodorov
@@ -565,5 +564,4 @@ public class ConfigurationManagementRestlet
             return Response.status(Response.Status.NOT_FOUND).build();
         }
     }
-
 }
