@@ -43,4 +43,4 @@ RUN systemctl enable strongbox
 
 EXPOSE 48080
 
-ENTRYPOINT /etc/init.d/strongbox start && bash
+# ENTRYPOINT /etc/init.d/strongbox start && bash
