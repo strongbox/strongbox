@@ -36,11 +36,15 @@
     <logger name="org.apache">
         <level value="ERROR"/>
     </logger>
-    <logger name="org.carlspring">
-        <level value="DEBUG"/>
+    <logger name="org.apache.http">
+        <level value="ERROR"/>
     </logger>
     <logger name="org.glassfish.jersey">
         <level value="WARN"/>
+    </logger>
+
+    <logger name="org.carlspring">
+        <level value="DEBUG"/>
     </logger>
 
     <root>
