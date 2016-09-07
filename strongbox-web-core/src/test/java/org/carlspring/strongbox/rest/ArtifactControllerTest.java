@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.rest;
 
+import com.google.common.io.ByteStreams;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
@@ -523,7 +524,6 @@ public class ArtifactControllerTest
     }
 
     @Test
-    @Ignore
     public void testMetadataAtVersionLevel()
             throws NoSuchAlgorithmException,
                    ArtifactOperationException,
@@ -554,16 +554,12 @@ public class ArtifactControllerTest
         generateAndDeployArtifact(artifact1WithTimestamp3, storageId, repositoryId);
         generateAndDeployArtifact(artifact1WithTimestamp4, storageId, repositoryId);
 
-    /*    Metadata versionLevelMetadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
-                                                                ArtifactUtils.getVersionLevelMetadataPath(artifact1));*/
         String path = "storages/" + storageId + "/" + repositoryId + "/" +
                       ArtifactUtils.getVersionLevelMetadataPath(artifact1);
 
+        String url = "storages/" + storageId + "/" + repositoryId;
 
-        InputStream is = getArtifactAsStream(ArtifactUtils.getVersionLevelMetadataPath(artifact1),
-                                             "storages/" + storageId + "/" + repositoryId);
-        MetadataXpp3Reader reader = new MetadataXpp3Reader();
-        Metadata versionLevelMetadata = reader.read(is);
+        Metadata versionLevelMetadata = retrieveMetadata(path, url);
 
         Assert.assertNotNull(versionLevelMetadata);
         Assert.assertEquals("org.carlspring.strongbox.metadata", versionLevelMetadata.getGroupId());
@@ -571,6 +567,13 @@ public class ArtifactControllerTest
         Assert.assertEquals(4, versionLevelMetadata.getVersioning().getSnapshot().getBuildNumber());
         Assert.assertNotNull(versionLevelMetadata.getVersioning().getLastUpdated());
         Assert.assertEquals(12, versionLevelMetadata.getVersioning().getSnapshotVersions().size());
+    }
+
+    Metadata retrieveMetadata(String path, String url) throws IOException, XmlPullParserException {
+        InputStream is = getArtifactAsStream(path, url);
+        MetadataXpp3Reader reader = new MetadataXpp3Reader();
+        Metadata versionLevelMetadata = reader.read(is);
+        return versionLevelMetadata;
     }
 
     /**
@@ -656,7 +659,7 @@ public class ArtifactControllerTest
                             String storageId,
                             String repositoryId,
                             InputStream is)
-            throws ArtifactOperationException {
+            throws ArtifactOperationException, IOException {
         String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId;
         String path = ArtifactUtils.convertArtifactToPath(artifact);
 
@@ -667,33 +670,22 @@ public class ArtifactControllerTest
         // deployFile(is, url, fileName);
 
         String contentDisposition = "attachment; filename=\"" + fileName + "\"";
-
+        byte[] bytes = ByteStreams.toByteArray(is);
 
       /*  resource.request( MediaType.APPLICATION_OCTET_STREAM)
                                     .header("Content-Disposition", contentDisposition)
                                     .put(Entity.entity(is, mediaType));
 */
-        MockMvcResponse response = given()
-                                           .contentType(MediaType.APPLICATION_OCTET_STREAM_VALUE)
-                .params("path", path)
+        given().param("path", path)
                                            .header("Content-Disposition", contentDisposition)
-                                           .body(is)
+                .body(new String(bytes))
                                            .when()
                                            .put(url)
                                            .peek()
                                            .then()
                                            .statusCode(200)
                                            .extract().response();
-        given()
-                .contentType(MediaType.APPLICATION_OCTET_STREAM_VALUE)
-                .header("Content-Disposition", contentDisposition)
-                .param("path", path)
-                .body(is)
-                .when()
-                .put(url)
-                .peek()
-                .then()
-                .statusCode(200);
+
     }
 
    /* private void deployChecksum(ArtifactInputStream ais,

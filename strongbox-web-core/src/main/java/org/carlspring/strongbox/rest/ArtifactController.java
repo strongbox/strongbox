@@ -1,5 +1,14 @@
 package org.carlspring.strongbox.rest;
 
+import com.google.common.io.ByteStreams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.comparator.DirectoryFileComparator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
@@ -11,14 +20,19 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.MessageDigestUtils;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBException;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URLEncoder;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
@@ -28,23 +42,6 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.regex.Matcher;
 
-import com.google.common.io.ByteStreams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.comparator.DirectoryFileComparator;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
 import static org.carlspring.strongbox.rest.ByteRangeRequestHandler.handlePartialDownload;
 import static org.carlspring.strongbox.rest.ByteRangeRequestHandler.isRangedRequest;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
@@ -72,16 +69,21 @@ public class ArtifactController
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
     @RequestMapping(value = "{storageId}/{repositoryId}", method = RequestMethod.PUT)
     public ResponseEntity upload(
-                                        @PathVariable String storageId,
-                                        @PathVariable String repositoryId,
-                                        @RequestParam(name = "path") String path,
-                                        @RequestBody InputStream is)
+            @PathVariable String storageId,
+            @PathVariable String repositoryId,
+            @RequestParam(name = "path") String path,
+            @RequestBody String requestEntity)
             throws IOException,
                    AuthenticationException,
                    NoSuchAlgorithmException, JAXBException, ProviderImplementationException
     {
+        System.out.println("++++++++++++++++++++++++++++++++++++++++++++++");
         try
         {
+            byte[] payload = requestEntity.getBytes();
+            System.out.println("Received " + payload.length);
+
+            InputStream is = new ByteArrayInputStream(payload);
             getArtifactManagementService().store(storageId, repositoryId, path, is);
 
             //  return Response.ok().entity("The artifact was deployed successfully.").build();

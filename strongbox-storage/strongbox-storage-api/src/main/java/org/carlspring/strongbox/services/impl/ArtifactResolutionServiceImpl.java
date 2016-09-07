@@ -7,18 +7,17 @@ import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * @author mtodorov
@@ -54,11 +53,9 @@ public class ArtifactResolutionServiceImpl
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
         ArtifactInputStream is = repositoryProvider.getInputStream(storageId, repositoryId, artifactPath);
-        if (is == null)
-        {
-            throw new ArtifactResolutionException("Artifact " + artifactPath + " not found.");
+        if (is == null) {
+            throw new ArtifactResolutionException("Artifact " + artifactPath + " not found");
         }
-
         return is;
     }
 
