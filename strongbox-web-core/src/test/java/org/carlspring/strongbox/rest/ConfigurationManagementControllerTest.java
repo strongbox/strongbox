@@ -99,7 +99,6 @@ public class ConfigurationManagementControllerTest
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .when()
                 .put(url)
-                .peek() // Use peek() to print the ouput
                 .then()
                 .statusCode(200) // check http status code
                 .extract()
@@ -111,7 +110,6 @@ public class ConfigurationManagementControllerTest
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .when()
                 .get(url)
-                .peek() // Use peek() to print the ouput
                 .then()
                 .statusCode(200) // check http status code
                 .extract().asString();
@@ -133,7 +131,6 @@ public class ConfigurationManagementControllerTest
                 .body(baseUrl)
                 .when()
                 .put(url)
-                .peek() // Use peek() to print the ouput
                 .then()
                 .statusCode(200)
                 .extract();
@@ -145,7 +142,6 @@ public class ConfigurationManagementControllerTest
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .when()
                 .get(url)
-                .peek() // Use peek() to print the ouput
                 .then()
                 .statusCode(200)
                 .body("baseUrl", equalTo(baseUrl));
@@ -168,7 +164,6 @@ public class ConfigurationManagementControllerTest
                 .body(serializedConfig)
                 .when()
                 .put(url)
-                .peek() // Use peek() to print the ouput
                 .then()
                 .statusCode(200);
 
@@ -178,7 +173,6 @@ public class ConfigurationManagementControllerTest
                 .contentType(MediaType.APPLICATION_XML_VALUE)
                 .when()
                 .get(url)
-                .peek() // Use peek() to print the ouput
                 .then()
                 .statusCode(200)
                 .body("host", equalTo(proxyConfiguration.getHost()))
@@ -209,7 +203,6 @@ public class ConfigurationManagementControllerTest
                 .body(serializedStorage)
                 .when()
                 .put(url)
-                .peek() // Use peek() to print the ouput
                 .then()
                 .statusCode(200);
 
@@ -256,7 +249,6 @@ public class ConfigurationManagementControllerTest
                 .contentType(MediaType.TEXT_PLAIN_VALUE)
                 .when()
                 .get(url)
-                .peek() // Use peek() to print the ouput
                 .then()
                 .statusCode(200)
                 .extract().response().getBody().asString();
@@ -297,7 +289,6 @@ public class ConfigurationManagementControllerTest
                 .body(serializedRepository)
                 .when()
                 .put(url)
-                .peek() // Use peek() to print the ouput
                 .then()
                 .statusCode(200)
                 .extract().statusCode();
@@ -451,7 +442,6 @@ public class ConfigurationManagementControllerTest
                 .body(serializedConfiguration)
                 .when()
                 .put(url)
-                .peek() // Use peek() to print the ouput
                 .then()
                 .statusCode(200);
 
@@ -469,7 +459,6 @@ public class ConfigurationManagementControllerTest
                 .contentType(MediaType.TEXT_PLAIN_VALUE)
                 .when()
                 .get(url)
-                .peek() // Use peek() to print the ouput
                 .then()
                 .statusCode(200)
                 .extract().response().getBody().asString();
@@ -498,7 +487,6 @@ public class ConfigurationManagementControllerTest
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .when()
                 .delete(url)
-                .peek() // Use peek() to print the ouput
                 .then()
                 .statusCode(200);
     }
@@ -522,7 +510,6 @@ public class ConfigurationManagementControllerTest
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .when()
                 .delete(url)
-                .peek() // Use peek() to print the ouput
                 .then()
                 .statusCode(200);
 
@@ -556,7 +543,6 @@ public class ConfigurationManagementControllerTest
                 .body(serialezeRoutingRule)
                 .when()
                 .put(url)
-                .peek() // Use peek() to print the ouput
                 .then()
                 .statusCode(200);
     }

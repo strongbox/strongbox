@@ -1,5 +1,9 @@
 package org.carlspring.strongbox.rest;
 
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.model.Plugin;
+import org.apache.maven.project.artifact.PluginArtifact;
 import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
@@ -14,22 +18,18 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.util.MessageDigestUtils;
-
-import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBException;
-import java.io.*;
-import java.security.NoSuchAlgorithmException;
-
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.model.Plugin;
-import org.apache.maven.project.artifact.PluginArtifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import javax.ws.rs.core.Response;
+import javax.xml.bind.JAXBException;
+import java.io.*;
+import java.security.NoSuchAlgorithmException;
+
 import static org.junit.Assert.*;
 
 /**
