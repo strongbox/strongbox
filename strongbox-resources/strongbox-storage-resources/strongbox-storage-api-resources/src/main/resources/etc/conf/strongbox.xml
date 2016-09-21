@@ -193,7 +193,7 @@
 
         <storage id="public">
             <repositories>
-                <repository id="public-group" policy="mixed" implementation="group" layout="Maven 2" type="group" secured="true">
+                <repository id="public-group" policy="mixed" implementation="file-system" layout="Maven 2" type="group" secured="true">
                     <group>
                         <repository>storage-common-proxies:group-common-proxies</repository>
                         <repository>storage-springsource-proxies:springsource-proxies</repository>
