@@ -9,6 +9,20 @@
     <display-name>strongbox</display-name>
     <description>Strongbox Webapp</description>
 
+
+    <servlet>
+        <servlet-name>spring-web</servlet-name>
+        <servlet-class>
+            org.springframework.web.servlet.DispatcherServlet
+        </servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>spring-web</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
     <session-config>
         <session-timeout>60</session-timeout>
     </session-config>
@@ -28,38 +42,6 @@
     </filter>
     <filter-mapping>
         <filter-name>springSecurityFilterChain</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-
-    <filter>
-        <filter-name>jersey-servlet</filter-name>
-        <filter-class>org.glassfish.jersey.servlet.ServletContainer</filter-class>
-        <init-param>
-            <param-name>javax.ws.rs.Application</param-name>
-            <param-value>org.carlspring.strongbox.rest.app.StrongboxApplication</param-value>
-        </init-param>
-        <init-param>
-            <param-name>jersey.config.xml.formatOutput</param-name>
-            <param-value>true</param-value>
-        </init-param>
-        <init-param>
-            <param-name>jersey.config.server.provider.packages</param-name>
-            <param-value>org.carlspring.strongbox,com.carlspring.strongbox</param-value>
-        </init-param>
-        <init-param>
-            <param-name>jersey.config.servlet.filter.staticContentRegex</param-name>
-            <param-value>/.*html</param-value>
-        </init-param>
-        <!-- See 4.7.1. Servlet 2.x Container section of https://jersey.java.net/documentation/latest/deployment.html -->
-        <init-param>
-            <param-name>jersey.config.servlet.filter.contextPath</param-name>
-            <param-value>/</param-value>
-        </init-param>
-    </filter>
-
-    <!-- Catch all requests -->
-    <filter-mapping>
-        <filter-name>jersey-servlet</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 

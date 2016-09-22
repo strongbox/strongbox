@@ -91,13 +91,22 @@ public class ConfigurationRepository
         else
         {
             InputStream is = getClass().getClassLoader().getResourceAsStream("etc/conf/strongbox.xml");
-            try
-            {
-                configuration = parser.parse(is);
-            }
-            catch (Exception e)
-            {
-                logger.error("Unable to parse configuration from input stream.", e);
+            if (is == null) {
+                String hardcodedPath = "/home/yury/Projects/strongboxFinal/strongbox-resources/strongbox-storage-resources/strongbox-storage-api-resources/src/main/resources/etc/conf/strongbox.xml";
+
+                try {
+                    configuration = parser.parse(new File(hardcodedPath));
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+
+                try {
+                    configuration = parser.parse(is);
+                } catch (Exception e) {
+                    logger.error("Unable to parse configuration from input stream.", e);
+                    throw new RuntimeException(e);
+                }
             }
         }
 

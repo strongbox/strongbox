@@ -148,6 +148,7 @@ public class ArtifactControllerTest
                 .statusCode(200)
                 .body(containsString("success"))
                 .toString();
+
     }
 
 
@@ -167,7 +168,6 @@ public class ArtifactControllerTest
                 .param("path", pathToJar)
                 .when()
                 .get(url)
-                //.peek()
                 .then()
                 .statusCode(200);
 

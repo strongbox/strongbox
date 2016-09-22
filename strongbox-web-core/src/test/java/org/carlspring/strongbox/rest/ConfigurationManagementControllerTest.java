@@ -3,6 +3,7 @@ package org.carlspring.strongbox.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
+import org.carlspring.strongbox.client.SpringClient;
 import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
@@ -19,12 +20,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestTemplate;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -87,6 +90,14 @@ public class ConfigurationManagementControllerTest
     @Inject
     ObjectMapper objectMapper;
 
+    private RestTemplate restTemplate = new RestTemplate();
+
+    @Test
+    public void testsSetAndGetPort()
+            throws Exception {
+        String url = getContextBaseUrl() + "/storages/greet";
+        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+    }
 
     @Test
     public void testSetAndGetPort()
@@ -426,13 +437,15 @@ public class ConfigurationManagementControllerTest
     @WithUserDetails("admin")
     public void testGetAndSetConfiguration()
             throws IOException, JAXBException {
-        Configuration configuration = getConfiguration();
+      /*  Configuration configuration = getConfiguration();
 
         Storage storage = new Storage("storage3");
 
         configuration.addStorage(storage);
 
         String url = getContextBaseUrl() + "/configuration/strongbox/xml";
+
+        System.out.println(url + " +++++++++++++++++++ ");
 
         GenericParser<Configuration> parser2 = new GenericParser<>(Configuration.class);
         String serializedConfiguration = parser2.serialize(configuration);
@@ -446,6 +459,22 @@ public class ConfigurationManagementControllerTest
                 .statusCode(200);
 
         final Configuration c = getConfiguration();
+        Assert.assertNotNull("Failed to create storage3!", c.getStorage("storage3"));*/
+
+        SpringClient client = new SpringClient().getTestInstanceLoggedInAsAdmin();
+
+        final Configuration configuration = client.getConfiguration();
+
+        Storage storage = new Storage("storage3");
+
+        configuration.addStorage(storage);
+
+        final int response = client.setConfiguration(configuration);
+
+        assertEquals("Failed to retrieve configuration!", 200, response);
+
+        final Configuration c = client.getConfiguration();
+
         Assert.assertNotNull("Failed to create storage3!", c.getStorage("storage3"));
 
     }
