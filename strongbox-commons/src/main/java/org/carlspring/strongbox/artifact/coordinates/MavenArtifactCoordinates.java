@@ -68,6 +68,7 @@ public class MavenArtifactCoordinates extends AbstractArtifactCoordinates
                     break;
                 case 4:
                     setExtension(coordinateValue);
+                    break;
                 default:
                     break;
             }
