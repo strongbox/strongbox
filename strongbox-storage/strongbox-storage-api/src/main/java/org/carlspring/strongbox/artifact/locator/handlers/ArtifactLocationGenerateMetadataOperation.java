@@ -28,7 +28,7 @@ public class ArtifactLocationGenerateMetadataOperation
 
     private MavenMetadataManager mavenMetadataManager;
 
-    private static String previousPath;
+    private String previousPath;
 
 
     public ArtifactLocationGenerateMetadataOperation()
