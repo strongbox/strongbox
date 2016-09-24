@@ -89,7 +89,7 @@ public class MavenArtifactCoordinates extends AbstractArtifactCoordinates
         if (artifact.getFile() != null)
         {
             String extension = artifact.getFile().getAbsolutePath();
-            extension = extension.substring(extension.lastIndexOf("."), extension.length());
+            extension = extension.substring(extension.lastIndexOf('.'), extension.length());
 
             setExtension(extension);
         }
