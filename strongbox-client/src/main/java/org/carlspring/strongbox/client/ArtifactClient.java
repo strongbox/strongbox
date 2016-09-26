@@ -455,7 +455,7 @@ public class ArtifactClient
         return baseUrl + p;
     }
 
-    private void handleFailures(Response response,
+    public void handleFailures(Response response,
                                 String message)
             throws ArtifactOperationException, AuthenticationServiceException
     {
