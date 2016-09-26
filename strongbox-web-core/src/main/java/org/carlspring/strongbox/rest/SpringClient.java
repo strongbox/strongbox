@@ -1,5 +1,6 @@
-package org.carlspring.strongbox.client;
+package org.carlspring.strongbox.rest;
 
+import org.carlspring.strongbox.client.ArtifactSpringClient;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.configuration.ServerConfiguration;
@@ -15,6 +16,8 @@ import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by yury on 9/14/16.
@@ -81,6 +84,7 @@ public class SpringClient
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.TEXT_PLAIN);
+
         HttpEntity<String> entity = new HttpEntity<String>(serializedConfiguration, headers);
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
 
@@ -96,10 +100,9 @@ public class SpringClient
         headers.setContentType(MediaType.TEXT_PLAIN);
         HttpEntity<String> entity = new HttpEntity<String>(headers);
         System.out.println(restTemplate);*/
-        System.out.println(url + " +++++++++++++++++----- ");
-        ResponseEntity<String> response = restTemplate.getForEntity(getContextBaseUrl() + "/storages/greet", String.class);
+        //   ResponseEntity<String> response = restTemplate.getForEntity(getContextBaseUrl() + "/storages/greet", String.class);
 
-        //ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 
         ServerConfiguration configuration = null;
         if (response.getStatusCode().value() == 200) {
@@ -124,8 +127,8 @@ public class SpringClient
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.TEXT_PLAIN);
-        HttpEntity<Integer> entity = new HttpEntity<Integer>(port, headers);
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
+        HttpEntity<Integer> entity = new HttpEntity<Integer>(headers);
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class, port);
 
         return response.getStatusCode().value();
     }
@@ -137,12 +140,9 @@ public class SpringClient
      */
     public int getListeningPort() {
         String url = getContextBaseUrl() + "/configuration/strongbox/port";
+        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.TEXT_PLAIN);
-        HttpEntity<Integer> entity = new HttpEntity<Integer>(headers);
-        ResponseEntity<Integer> response = restTemplate.exchange(url, HttpMethod.GET, entity, Integer.class);
-        return response.getBody();
+        return Integer.valueOf(response.getBody());
     }
 
     /**
@@ -152,10 +152,10 @@ public class SpringClient
      * @return The response code.
      */
     public int setBaseUrl(String baseUrl) {
-        String url = getContextBaseUrl() + "/configuration/strongbox/baseUrl/" + baseUrl;
+        String url = getContextBaseUrl() + "/configuration/strongbox/baseUrl";
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.TEXT_PLAIN);
+        // headers.setContentType(MediaType.TEXT_PLAIN);
         HttpEntity<String> entity = new HttpEntity<String>(baseUrl, headers);
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
 
@@ -196,22 +196,26 @@ public class SpringClient
     public ProxyConfiguration getProxyConfiguration(String storageId,
                                                     String repositoryId)
             throws JAXBException {
-        String url = getContextBaseUrl() + "/configuration/strongbox/proxy-configuration" +
-                (storageId != null && repositoryId != null ?
-                        "?storageId=" + storageId + "&repositoryId=" + repositoryId : "");
+        String url = getContextBaseUrl() + "/configuration/strongbox/proxy-configuration";
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_XML);
-        HttpEntity<String> entity = new HttpEntity<String>(headers);
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+        storageId = (storageId != null ? storageId : " ");
+        repositoryId = (repositoryId != null ? repositoryId : " ");
+
+        Map<String, String> vars = new HashMap<String, String>();
+        //  vars.put("storageId", storageId);
+        //  vars.put("repositoryId", repositoryId);
+        System.out.println("storageID " + storageId);
+        System.out.println("repositoryID " + repositoryId);
+        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class, storageId, repositoryId);
 
         @SuppressWarnings("UnnecessaryLocalVariable")
         ProxyConfiguration proxyConfiguration;
         if (response.getStatusCode().value() == 200) {
+            System.out.println(response.getBody() + " !!!!!!!!1  ");
             final String xml = response.getBody();
 
-            GenericParser<ProxyConfiguration> parser2 = new GenericParser<>(ProxyConfiguration.class);
-            proxyConfiguration = parser2.deserialize(xml);
+            GenericParser<ProxyConfiguration> parser = new GenericParser<>(ProxyConfiguration.class);
+            proxyConfiguration = parser.deserialize(xml);
         } else {
             proxyConfiguration = new ProxyConfiguration();
         }
@@ -236,6 +240,9 @@ public class SpringClient
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.TEXT_PLAIN);
         HttpEntity<String> entity = new HttpEntity<String>(serializedStorage, headers);
+
+        System.out.println("\n\nAccessing URL " + url + "\n\n");
+
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
 
         return response.getStatusCode().value();

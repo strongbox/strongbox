@@ -138,7 +138,7 @@ public class ConfigurationRepository
             final String data = configurationCache.getParser().serialize(configuration);
             final String configurationId = configuration.getId();
 
-            logger.debug("Trying to save new configuration\n" + data);
+            logger.trace("Trying to save new configuration\n" + data);
 
             // update existing configuration with new data (if possible)
             if (configurationId != null)

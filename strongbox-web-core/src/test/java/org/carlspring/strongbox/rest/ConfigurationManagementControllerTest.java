@@ -3,7 +3,6 @@ package org.carlspring.strongbox.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
-import org.carlspring.strongbox.client.SpringClient;
 import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
@@ -462,6 +461,20 @@ public class ConfigurationManagementControllerTest
         Assert.assertNotNull("Failed to create storage3!", c.getStorage("storage3"));*/
 
         SpringClient client = new SpringClient().getTestInstanceLoggedInAsAdmin();
+
+        final String storageId = "storage2";
+        final String repositoryId1 = "repository0";
+
+        Storage storage1 = new Storage("storage1");
+        client.addStorage(storage1);
+        System.out.println("111111111111111");
+        ProxyConfiguration proxyConfiguration = createProxyConfiguration();
+        System.out.println("22222222222222222222222");
+        System.out.println(client.setProxyConfiguration(proxyConfiguration) + "  ++++++++++++++++  ");
+        client.getProxyConfiguration(storageId, repositoryId1);
+
+        String baseUrl = "http://localhost:" + 40080 + "/newurl";
+        System.out.println(client.setBaseUrl(baseUrl) + "   1111111   ");
 
         final Configuration configuration = client.getConfiguration();
 
