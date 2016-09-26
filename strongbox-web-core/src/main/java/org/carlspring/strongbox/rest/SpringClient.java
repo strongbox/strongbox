@@ -96,12 +96,6 @@ public class SpringClient
             throws IOException, JAXBException {
         String url = getContextBaseUrl() + path;
 
-        /*HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.TEXT_PLAIN);
-        HttpEntity<String> entity = new HttpEntity<String>(headers);
-        System.out.println(restTemplate);*/
-        //   ResponseEntity<String> response = restTemplate.getForEntity(getContextBaseUrl() + "/storages/greet", String.class);
-
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 
         ServerConfiguration configuration = null;
@@ -123,7 +117,6 @@ public class SpringClient
      */
     public int setListeningPort(int port) {
         String url = getContextBaseUrl() + "/configuration/strongbox/port/" + port;
-        //   Response response = resource.request(MediaType.TEXT_PLAIN).put(Entity.entity(port, MediaType.TEXT_PLAIN));
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.TEXT_PLAIN);
@@ -155,7 +148,6 @@ public class SpringClient
         String url = getContextBaseUrl() + "/configuration/strongbox/baseUrl";
 
         HttpHeaders headers = new HttpHeaders();
-        // headers.setContentType(MediaType.TEXT_PLAIN);
         HttpEntity<String> entity = new HttpEntity<String>(baseUrl, headers);
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
 
@@ -201,9 +193,6 @@ public class SpringClient
         storageId = (storageId != null ? storageId : " ");
         repositoryId = (repositoryId != null ? repositoryId : " ");
 
-        Map<String, String> vars = new HashMap<String, String>();
-        //  vars.put("storageId", storageId);
-        //  vars.put("repositoryId", repositoryId);
         System.out.println("storageID " + storageId);
         System.out.println("repositoryID " + repositoryId);
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class, storageId, repositoryId);
@@ -211,7 +200,6 @@ public class SpringClient
         @SuppressWarnings("UnnecessaryLocalVariable")
         ProxyConfiguration proxyConfiguration;
         if (response.getStatusCode().value() == 200) {
-            System.out.println(response.getBody() + " !!!!!!!!1  ");
             final String xml = response.getBody();
 
             GenericParser<ProxyConfiguration> parser = new GenericParser<>(ProxyConfiguration.class);
@@ -240,8 +228,6 @@ public class SpringClient
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.TEXT_PLAIN);
         HttpEntity<String> entity = new HttpEntity<String>(serializedStorage, headers);
-
-        System.out.println("\n\nAccessing URL " + url + "\n\n");
 
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
 
@@ -284,9 +270,14 @@ public class SpringClient
     public int deleteStorage(String storageId,
                              boolean force) {
         String url =
-                getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId + (force ? "?force=true" : "");
+                getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId;
 
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.DELETE, null, String.class);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_PLAIN);
+        HttpEntity<String> entity = new HttpEntity<String>(headers);
+        Map<String, Boolean> param = new HashMap<String, Boolean>();
+        param.put("force", force);
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class, param);
 
         return response.getStatusCode().value();
     }
@@ -336,11 +327,8 @@ public class SpringClient
                                     String repositoryId)
             throws IOException, JAXBException {
         String url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId + "/" + repositoryId;
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.TEXT_PLAIN);
-        HttpEntity<String> entity = new HttpEntity<String>(headers);
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+        System.out.println(url);
+        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 
         Repository repository = null;
         if (response.getStatusCode().value() == 200) {

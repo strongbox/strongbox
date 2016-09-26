@@ -12,7 +12,6 @@ import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RuleSet;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -227,6 +226,7 @@ public class ConfigurationManagementControllerTest
         r2.setStorage(storage1);
         r2.setProxyConfiguration(createProxyConfiguration());
 
+
         addRepository(r1);
         addRepository(r2);
 
@@ -307,7 +307,7 @@ public class ConfigurationManagementControllerTest
     }
 
     @Test
-    @Ignore // hesh table "indexes" is empty
+    // @Ignore // hesh table "indexes" is empty
     @WithUserDetails("admin")
     public void testCreateAndDeleteStorage()
             throws IOException, JAXBException {
@@ -376,6 +376,17 @@ public class ConfigurationManagementControllerTest
         //    response = client.deleteRepository(storageId, repositoryId1, true);
 
         url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId + "/" + repositoryId1;
+        System.out.println(url);
+       /* RestAssuredMockMvc.given()
+                .contentType(MediaType.TEXT_PLAIN_VALUE)
+                .when()
+                .get(url)
+                .peek() // Use peek() to print the ouput
+                .then()
+                .statusCode(200);*/
+
+        SpringClient client = new SpringClient().getTestInstanceLoggedInAsAdmin();
+        client.getRepository(storageId, repositoryId1);
 
         RestAssuredMockMvc.given()
                 .contentType(MediaType.TEXT_PLAIN_VALUE)
@@ -402,7 +413,7 @@ public class ConfigurationManagementControllerTest
                 .get(url)
                 .peek() // Use peek() to print the ouput
                 .then()
-                .statusCode(200);
+                .statusCode(404);
 
    /*     Repository repository = null;
 
@@ -465,6 +476,8 @@ public class ConfigurationManagementControllerTest
         final String storageId = "storage2";
         final String repositoryId1 = "repository0";
 
+        Storage storage2 = new Storage(storageId);
+
         Storage storage1 = new Storage("storage1");
         client.addStorage(storage1);
         System.out.println("111111111111111");
@@ -472,9 +485,15 @@ public class ConfigurationManagementControllerTest
         System.out.println("22222222222222222222222");
         System.out.println(client.setProxyConfiguration(proxyConfiguration) + "  ++++++++++++++++  ");
         client.getProxyConfiguration(storageId, repositoryId1);
+        client.deleteStorage("storage1", true);
 
-        String baseUrl = "http://localhost:" + 40080 + "/newurl";
-        System.out.println(client.setBaseUrl(baseUrl) + "   1111111   ");
+        Repository r1 = new Repository(repositoryId1);
+        r1.setAllowsRedeployment(true);
+        r1.setSecured(true);
+        r1.setStorage(storage2);
+        r1.setProxyConfiguration(createProxyConfiguration());
+
+        client.addRepository(r1);
 
         final Configuration configuration = client.getConfiguration();
 

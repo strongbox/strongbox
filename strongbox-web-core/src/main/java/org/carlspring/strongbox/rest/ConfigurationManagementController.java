@@ -202,8 +202,7 @@ public class ConfigurationManagementController
                     message = "The proxy configuration for '${storageId}:${repositoryId}' was not found.")})
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_GLOBAL_PROXY_CFG')")
     @RequestMapping(value = "/proxy-configuration", method = RequestMethod.GET,
-            produces = {MediaType.APPLICATION_JSON_VALUE,
-                    MediaType.APPLICATION_XML_VALUE})
+            produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity getProxyConfiguration(@RequestParam(value = "storageId",
             required = false)
                                                         String storageId,
@@ -221,7 +220,10 @@ public class ConfigurationManagementController
         }
 
         if (proxyConfiguration != null) {
-            return ResponseEntity.status(HttpStatus.OK).body(proxyConfiguration);
+            GenericParser<ProxyConfiguration> parser = new GenericParser<>(ProxyConfiguration.class);
+            String serializedProxyConfiguration = parser.serialize(proxyConfiguration);
+
+            return ResponseEntity.status(HttpStatus.OK).body(serializedProxyConfiguration);
         } else {
             String message = "The proxy configuration" +
                     (storageId != null ? " for " + storageId + ":" + repositoryId : "") +
@@ -288,10 +290,9 @@ public class ConfigurationManagementController
     @PreAuthorize("hasAuthority('CONFIGURATION_DELETE_STORAGE_CONFIGURATION')")
     @RequestMapping(value = "/storages/{storageId}", method = RequestMethod.DELETE,
             produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity removeStorage(@RequestParam(value = "The storageId", name = "storageId", required = true)
+    public ResponseEntity removeStorage(
                                         @PathVariable final String storageId,
                                         @RequestParam(
-                                                value = "Whether to force delete and remove the storage from the file system",
                                                 name = "force", defaultValue = "false", required = true)
                                         final boolean force)
             throws IOException, JAXBException {
@@ -325,7 +326,7 @@ public class ConfigurationManagementController
             @ApiResponse(code = 500, message = "Failed to remove repository ${repositoryId}!")})
     @PreAuthorize("hasAuthority('CONFIGURATION_ADD_UPDATE_REPOSITORY')")
     @RequestMapping(value = "/storages/{storageId}/{repositoryId}", method = RequestMethod.PUT,
-            consumes = {MediaType.TEXT_PLAIN_VALUE})
+            consumes = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity addOrUpdateRepository(@PathVariable String storageId,
                                                 @PathVariable String repositoryId,
                                                 @RequestBody String repository1)
@@ -357,17 +358,27 @@ public class ConfigurationManagementController
                     message = "Repository ${storageId}:${repositoryId} was not found!")})
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_REPOSITORY')")
     @RequestMapping(value = "/storages/{storageId}/{repositoryId}", method = RequestMethod.GET,
-            produces = {MediaType.TEXT_PLAIN_VALUE})
+            produces = MediaType.TEXT_PLAIN_VALUE)
+    @SuppressWarnings("UnnecessaryLocalVariable")
     public ResponseEntity getRepository(
             @PathVariable final String storageId,
             @PathVariable final String repositoryId)
-            throws IOException, ParseException {
-        @SuppressWarnings("UnnecessaryLocalVariable")
-        Repository repository = configurationManagementService.getStorage(storageId).getRepository(repositoryId);
+            throws IOException, ParseException, JAXBException {
 
-        if (repository != null) {
-            return ResponseEntity.status(HttpStatus.OK).body(repository);
-        } else {
+        try {
+            Repository repository = configurationManagementService.getStorage(storageId).getRepository(repositoryId);
+
+            if (repository != null) {
+                GenericParser<Repository> parser = new GenericParser<>(Repository.class);
+                String serializeRepository = parser.serialize(repository);
+
+                return ResponseEntity.status(HttpStatus.OK).body(serializeRepository);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                        "Repository " + storageId + ":" + repositoryId + " was not found.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                     "Repository " + storageId + ":" + repositoryId + " was not found.");
         }
