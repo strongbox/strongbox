@@ -327,7 +327,7 @@ public class SpringClient
                                     String repositoryId)
             throws IOException, JAXBException {
         String url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId + "/" + repositoryId;
-        System.out.println(url);
+
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 
         Repository repository = null;
@@ -352,11 +352,9 @@ public class SpringClient
                                 String repositoryId,
                                 boolean force) {
         String url = getContextBaseUrl() +
-                "/configuration/strongbox/storages/" + storageId + "/" + repositoryId +
-                (force ? "?force=true" : "");
+                "/configuration/strongbox/storages/" + storageId + "/" + repositoryId;
 
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.DELETE, null, String.class);
-
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.DELETE, null, String.class, force);
 
         return response.getStatusCode().value();
     }
@@ -371,14 +369,16 @@ public class SpringClient
                          String query,
                          MediaType mediaType)
             throws UnsupportedEncodingException {
-        String url = getContextBaseUrl() + "/search?" +
-                (repositoryId != null ? "repositoryId=" + URLEncoder.encode(repositoryId, "UTF-8") : "") +
-                "&q=" + URLEncoder.encode(query, "UTF-8");
+        String url = getContextBaseUrl() + "/search";
+
+             /*   (repositoryId != null ? "repositoryId=" + URLEncoder.encode(repositoryId, "UTF-8") : "") +
+                "&q=" + URLEncoder.encode(query, "UTF-8");*/
+
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(mediaType);
         HttpEntity<String> entity = new HttpEntity<String>(headers);
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class, URLEncoder.encode(repositoryId, "UTF-8"), URLEncoder.encode(query, "UTF-8"));
 
         //noinspection UnnecessaryLocalVariable
         final String asText = response.getBody();

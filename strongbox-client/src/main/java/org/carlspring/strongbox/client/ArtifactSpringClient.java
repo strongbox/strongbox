@@ -5,9 +5,14 @@ import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.omg.CORBA.portable.InputStream;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
 import org.springframework.http.*;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.web.client.RestTemplate;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
@@ -27,7 +32,7 @@ public class ArtifactSpringClient {
             Integer.parseInt(System.getProperty("strongbox.port")) :
             48080;
     private String contextBaseUrl;
-    private RestTemplate restTemplate;
+    private RestTemplate restTemplate = new RestTemplate();
 
 
     public static ArtifactSpringClient getTestInstance() {
@@ -121,28 +126,25 @@ public class ArtifactSpringClient {
         handleFailures(response, "Failed to upload file!");
     }
 
-    /*
-        public void getArtifact(Artifact artifact,
-                                String repository)
-                throws ArtifactTransportException,
-                IOException
-        {
-            String url = getContextBaseUrl() + "/" + repository;
-            String path = ArtifactUtils.convertArtifactToPath(artifact);
+    public void getArtifact(Artifact artifact,
+                            String repository)
+            throws ArtifactTransportException,
+            IOException {
+        String url = getContextBaseUrl() + "/" + repository + "/" + ArtifactUtils.convertArtifactToPath(artifact);
 
-            logger.debug("Getting " + url + "...");     */
-/*
-        WebTarget webResource = getClientInstance().target(url);
-        setupAuthentication(webResource);
-        Response response = webResource.request(MediaType.TEXT_PLAIN).get();
-*/
- /*       HttpHeaders headers = new HttpHeaders();
+        logger.debug("Getting " + url + "...");
+
+        HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.TEXT_PLAIN);
+        HttpEntity<Integer> entity = new HttpEntity<Integer>(headers);
+        ResponseEntity<Resource> response = restTemplate.exchange(url, HttpMethod.GET, entity, Resource.class);
 
-        HttpEntity<String> entity = new HttpEntity<String>(headers);
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class, path);
-
-        final InputStream is = response.readEntity(InputStream.class);
+        java.io.InputStream is;
+        try {
+            is = response.getBody().getInputStream();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         int total = 0;
         int len;
@@ -168,7 +170,56 @@ public class ArtifactSpringClient {
         }
     }
 
-*/
+    public java.io.InputStream getResource(String path)
+            throws ArtifactTransportException,
+            IOException {
+        return getResource(path, 0);
+    }
+
+    public java.io.InputStream getResource(String path,
+                                           long offset)
+            throws ArtifactTransportException,
+            IOException {
+        String url = getContextBaseUrl() + (!path.startsWith("/") ? "/" : "") + path;
+
+        logger.debug("Getting " + url + "...");
+
+        ResponseEntity<Resource> response;
+
+        if (offset > 0) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Range", "bytes=" + offset + "-");
+            HttpEntity<Integer> entity = new HttpEntity<Integer>(headers);
+            response = restTemplate.exchange(url, HttpMethod.GET, entity, Resource.class);
+        } else {
+            response = restTemplate.getForEntity(url, Resource.class);
+        }
+
+        java.io.InputStream is;
+        try {
+            is = response.getBody().getInputStream();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return is;
+    }
+
+    public boolean pathExists(String path, String url) {
+        logger.debug("Path to artifact: " + url);
+
+        path = (path.startsWith("/") ? path : '/' + path);
+
+        Map<String, String> vars = new HashMap<>();
+        vars.put("path", path);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_PLAIN);
+        HttpEntity<Integer> entity = new HttpEntity<Integer>(headers);
+        ResponseEntity response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class, path);
+
+        return response.getStatusCode().value() == 200;
+    }
+
     private void handleFailures(ResponseEntity response,
                                 String message)
             throws ArtifactOperationException, AuthenticationServiceException {

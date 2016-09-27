@@ -377,16 +377,6 @@ public class ConfigurationManagementControllerTest
 
         url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId + "/" + repositoryId1;
         System.out.println(url);
-       /* RestAssuredMockMvc.given()
-                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .when()
-                .get(url)
-                .peek() // Use peek() to print the ouput
-                .then()
-                .statusCode(200);*/
-
-        SpringClient client = new SpringClient().getTestInstanceLoggedInAsAdmin();
-        client.getRepository(storageId, repositoryId1);
 
         RestAssuredMockMvc.given()
                 .contentType(MediaType.TEXT_PLAIN_VALUE)
@@ -447,15 +437,13 @@ public class ConfigurationManagementControllerTest
     @WithUserDetails("admin")
     public void testGetAndSetConfiguration()
             throws IOException, JAXBException {
-      /*  Configuration configuration = getConfiguration();
+        Configuration configuration = getConfiguration();
 
         Storage storage = new Storage("storage3");
 
         configuration.addStorage(storage);
 
         String url = getContextBaseUrl() + "/configuration/strongbox/xml";
-
-        System.out.println(url + " +++++++++++++++++++ ");
 
         GenericParser<Configuration> parser2 = new GenericParser<>(Configuration.class);
         String serializedConfiguration = parser2.serialize(configuration);
@@ -469,44 +457,6 @@ public class ConfigurationManagementControllerTest
                 .statusCode(200);
 
         final Configuration c = getConfiguration();
-        Assert.assertNotNull("Failed to create storage3!", c.getStorage("storage3"));*/
-
-        SpringClient client = new SpringClient().getTestInstanceLoggedInAsAdmin();
-
-        final String storageId = "storage2";
-        final String repositoryId1 = "repository0";
-
-        Storage storage2 = new Storage(storageId);
-
-        Storage storage1 = new Storage("storage1");
-        client.addStorage(storage1);
-        System.out.println("111111111111111");
-        ProxyConfiguration proxyConfiguration = createProxyConfiguration();
-        System.out.println("22222222222222222222222");
-        System.out.println(client.setProxyConfiguration(proxyConfiguration) + "  ++++++++++++++++  ");
-        client.getProxyConfiguration(storageId, repositoryId1);
-        client.deleteStorage("storage1", true);
-
-        Repository r1 = new Repository(repositoryId1);
-        r1.setAllowsRedeployment(true);
-        r1.setSecured(true);
-        r1.setStorage(storage2);
-        r1.setProxyConfiguration(createProxyConfiguration());
-
-        client.addRepository(r1);
-
-        final Configuration configuration = client.getConfiguration();
-
-        Storage storage = new Storage("storage3");
-
-        configuration.addStorage(storage);
-
-        final int response = client.setConfiguration(configuration);
-
-        assertEquals("Failed to retrieve configuration!", 200, response);
-
-        final Configuration c = client.getConfiguration();
-
         Assert.assertNotNull("Failed to create storage3!", c.getStorage("storage3"));
 
     }
