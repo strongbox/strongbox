@@ -1,19 +1,21 @@
 package org.carlspring.strongbox.client;
 
+import org.carlspring.maven.commons.util.ArtifactUtils;
+
+import java.io.IOException;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.omg.CORBA.portable.InputStream;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.web.client.RestTemplate;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
 
@@ -210,12 +212,12 @@ public class ArtifactSpringClient {
 
         path = (path.startsWith("/") ? path : '/' + path);
 
-        Map<String, String> vars = new HashMap<>();
-        vars.put("path", path);
+        url += ("?path=" + path);
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.TEXT_PLAIN);
         HttpEntity<Integer> entity = new HttpEntity<Integer>(headers);
-        ResponseEntity response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class, path);
+        ResponseEntity response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
 
         return response.getStatusCode().value() == 200;
     }
