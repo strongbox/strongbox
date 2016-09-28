@@ -1,21 +1,17 @@
 package org.carlspring.strongbox.client;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
-
-import java.io.IOException;
-
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.omg.CORBA.portable.InputStream;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.web.client.RestTemplate;
+
+import java.io.IOException;
+
 import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
 
@@ -172,17 +168,35 @@ public class ArtifactSpringClient {
         }
     }
 
-    public java.io.InputStream getResource(String path)
+    public java.io.InputStream getResource(String path, String url)
             throws ArtifactTransportException,
             IOException {
-        return getResource(path, 0);
+        return getResource(path, url, 0);
     }
 
-    public java.io.InputStream getResource(String path,
+    public ResponseEntity getResourceWithResponse(String pathVar)
+            throws ArtifactTransportException,
+            IOException {
+        String path = "/storages/storage0/releases";
+        String url = getContextBaseUrl() + (!path.startsWith("/") ? "/" : "") + path + ("?path=" + pathVar);
+
+        logger.debug("Getting " + url + "...");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_PLAIN);
+        HttpEntity<String> entity = new HttpEntity<String>(headers);
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+
+        return response;
+    }
+
+    public java.io.InputStream getResource(String path, String url,
                                            long offset)
             throws ArtifactTransportException,
             IOException {
-        String url = getContextBaseUrl() + (!path.startsWith("/") ? "/" : "") + path;
+
+        path = (!path.startsWith("/") ? "/" : "") + path;
+        url += ("?path=" + path);
 
         logger.debug("Getting " + url + "...");
 
@@ -191,10 +205,13 @@ public class ArtifactSpringClient {
         if (offset > 0) {
             HttpHeaders headers = new HttpHeaders();
             headers.add("Range", "bytes=" + offset + "-");
-            HttpEntity<Integer> entity = new HttpEntity<Integer>(headers);
+            HttpEntity<String> entity = new HttpEntity<String>(headers);
             response = restTemplate.exchange(url, HttpMethod.GET, entity, Resource.class);
         } else {
-            response = restTemplate.getForEntity(url, Resource.class);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.TEXT_PLAIN);
+            HttpEntity<String> entity = new HttpEntity<String>(headers);
+            response = restTemplate.exchange(url, HttpMethod.GET, entity, Resource.class);
         }
 
         java.io.InputStream is;
@@ -206,6 +223,83 @@ public class ArtifactSpringClient {
 
         return is;
     }
+
+    // Not checked**
+    public void deleteArtifact(Artifact artifact,
+                               String storageId,
+                               String repositoryId)
+            throws ArtifactOperationException {
+        String url = getUrlForArtifact(artifact, storageId, repositoryId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_PLAIN);
+        HttpEntity<String> entity = new HttpEntity<String>(headers);
+        ResponseEntity response = response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class);
+
+        handleFailures(response, "Failed to delete artifact!");
+    }
+
+    public void delete(String storageId,
+                       String repositoryId,
+                       String path)
+            throws ArtifactOperationException {
+        delete(storageId, repositoryId, path, false);
+    }
+
+    public void delete(String storageId,
+                       String repositoryId,
+                       String path,
+                       boolean force)
+            throws ArtifactOperationException {
+        @SuppressWarnings("ConstantConditions")
+        String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "?path=" + path +
+                (force ? "?force=" + force : "");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_PLAIN);
+        HttpEntity<String> entity = new HttpEntity<String>(headers);
+        ResponseEntity response = response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class);
+
+        handleFailures(response, "Failed to delete artifact!");
+    }
+
+    public void deleteTrash(String storageId,
+                            String repositoryId)
+            throws ArtifactOperationException {
+        String url = getUrlForTrash(storageId, repositoryId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_PLAIN);
+        HttpEntity<String> entity = new HttpEntity<String>(headers);
+        ResponseEntity response = response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class);
+
+        handleFailures(response, "Failed to delete the trash for " + storageId + ":" + repositoryId + "!");
+    }
+
+    public void deleteTrash()
+            throws ArtifactOperationException {
+        String url = getContextBaseUrl() + "/trash";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_PLAIN);
+        HttpEntity<String> entity = new HttpEntity<String>(headers);
+        ResponseEntity response = response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class);
+
+        handleFailures(response, "Failed to delete trash for all repositories!");
+    }
+
+    public String getUrlForArtifact(Artifact artifact,
+                                    String storageId,
+                                    String repositoryId) {
+        return getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" +
+                ArtifactUtils.convertArtifactToPath(artifact);
+    }
+
+    public String getUrlForTrash(String storageId,
+                                 String repositoryId) {
+        return getContextBaseUrl() + "/trash/" + storageId + "/" + repositoryId;
+    }
+
 
     public boolean pathExists(String path, String url) {
         logger.debug("Path to artifact: " + url);
@@ -220,6 +314,79 @@ public class ArtifactSpringClient {
         ResponseEntity response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
 
         return response.getStatusCode().value() == 200;
+    }
+
+    public void undelete(String storageId,
+                         String repositoryId,
+                         String path)
+            throws ArtifactOperationException {
+        @SuppressWarnings("ConstantConditions")
+        String url = getUrlForTrash(storageId, repositoryId) + "?path=" + path;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_PLAIN);
+        HttpEntity<String> entity = new HttpEntity<String>("Undelete", headers);
+        ResponseEntity response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
+
+        handleFailures(response, "Failed to delete the trash for " + storageId + ":" + repositoryId + "!");
+    }
+
+    // Not checked**
+    public void undeleteTrash(String storageId,
+                              String repositoryId)
+            throws ArtifactOperationException {
+        String url = getUrlForTrash(storageId, repositoryId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_PLAIN);
+        HttpEntity<String> entity = new HttpEntity<String>("Undelete", headers);
+        ResponseEntity response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
+
+        handleFailures(response, "Failed to delete the trash for " + storageId + ":" + repositoryId + "!");
+    }
+
+    // НУЖНО ПРОТЕСТИТЬ
+    public void undeleteTrash()
+            throws ArtifactOperationException {
+        String url = getContextBaseUrl() + "/trash";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_PLAIN);
+        HttpEntity<String> entity = new HttpEntity<String>(headers);
+        ResponseEntity response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+
+        handleFailures(response, "Failed to delete the trash!");
+    }
+
+    public boolean artifactExists(Artifact artifact,
+                                  String storageId,
+                                  String repositoryId)
+            throws ResponseException {
+        ResponseEntity response = artifactExistsStatusCode(artifact, storageId, repositoryId);
+
+        if (response.getStatusCode().value() == 200) {
+            return true;
+        } else if (response.getStatusCode().value() == 404) {
+            return false;
+        } else {
+            throw new ResponseException(response.getStatusCode().toString(), response.getStatusCode().value());
+        }
+    }
+
+    public ResponseEntity artifactExistsStatusCode(Artifact artifact,
+                                                   String storageId,
+                                                   String repositoryId)
+            throws ResponseException {
+        String url = getUrlForArtifact(artifact, storageId, repositoryId);
+
+        logger.debug("Path to artifact: " + url);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_PLAIN);
+        HttpEntity<String> entity = new HttpEntity<String>(headers);
+        ResponseEntity response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+
+        return response;
     }
 
     private void handleFailures(ResponseEntity response,

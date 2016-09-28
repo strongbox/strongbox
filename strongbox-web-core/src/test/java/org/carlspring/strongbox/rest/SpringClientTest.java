@@ -1,12 +1,15 @@
 package org.carlspring.strongbox.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.carlspring.strongbox.client.ArtifactOperationException;
+import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MetadataMerger;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +17,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
@@ -28,6 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration.generateArtifact;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by yury on 9/26/16.
@@ -54,6 +60,19 @@ public class SpringClientTest extends BackendBaseTest {
     public static final String PACKAGING_JAR = "jar";
 
     private MetadataMerger metadataMerger;
+
+    private static final String STORAGE = "storage0";
+
+    private static final String REPOSITORY_WITH_TRASH = "releases-with-trash";
+
+    private static final File BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory()).getAbsoluteFile();
+
+    private static final String REPOSITORY_WITH_TRASH_BASEDIR = BASEDIR.getAbsolutePath() +
+            "/storages/" + STORAGE + "/" + REPOSITORY_WITH_TRASH;
+
+    private static final File ARTIFACT_FILE_IN_TRASH = new File(REPOSITORY_WITH_TRASH_BASEDIR + "/.trash/" +
+            "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/" +
+            "test-artifact-undelete-1.0.jar").getAbsoluteFile();
 
 
     @Before
@@ -100,6 +119,24 @@ public class SpringClientTest extends BackendBaseTest {
 
         //noinspection ResultOfMethodCallIgnored
         new File(TEST_RESOURCES).mkdirs();
+
+        final String gavtc = "org.carlspring.strongbox.undelete:test-artifact-undelete::jar";
+
+        System.out.println("REPOSITORY_WITH_TRASH_BASEDIR: " + REPOSITORY_WITH_TRASH_BASEDIR);
+        System.out.println("BASEDIR.getAbsolutePath(): " + BASEDIR.getAbsolutePath());
+
+        generateArtifact(REPOSITORY_WITH_TRASH_BASEDIR, gavtc, "1.0");
+        generateArtifact(BASEDIR.getAbsolutePath() + "/storages/" + STORAGE + "/releases", gavtc, "1.1");
+
+        // Delete the artifact (this one should get placed under the .trash)
+        client.delete(STORAGE,
+                REPOSITORY_WITH_TRASH,
+                "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/test-artifact-undelete-1.0.jar");
+
+        // Delete the artifact (this one shouldn't get placed under the .trash)
+        client.delete(STORAGE,
+                "releases",
+                "org/carlspring/strongbox/undelete/test-artifact-undelete/1.1/test-artifact-undelete-1.1.jar");
     }
 
     private void removeDir(File dir) {
@@ -176,90 +213,46 @@ public class SpringClientTest extends BackendBaseTest {
 
 
     @Test
-    public void artifactTests() {
+    public void artifactTests() throws IOException, ArtifactTransportException, ArtifactOperationException {
+
+
+        client.undeleteTrash();
 
         String url = getContextBaseUrl() + "/storages/storage0/releases";
         String pathToJar = "/org/carlspring/strongbox/partial/partial-foo/3.1/partial-foo-3.1.jar";
 
         logger.info("Getting " + url + "...");
 
-        System.out.println(client.pathExists(pathToJar, url) + " +++++++ ");
+        System.out.println(client.pathExists(pathToJar, url));
+
+        String md5Remote = MessageDigestUtils.readChecksumFile(client.getResource(pathToJar + ".md5", url));
+        System.out.println(md5Remote + "    0000000000000   ");
+
+
+        ResponseEntity repositoryRoot = client.getResourceWithResponse("");
+
+        String artifactPath = "com/artifacts/to/delete/releases/delete-foo/1.2.2";
+
+        File deletedArtifact = new File(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/" + artifactPath).getAbsoluteFile();
+
+        assertTrue("Failed to locate artifact file '" + deletedArtifact.getAbsolutePath() + "'!", deletedArtifact.exists());
+
+        client.delete("storage0", "releases", artifactPath);
+
+        assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!", deletedArtifact.exists());
+
+        client.deleteTrash(STORAGE, REPOSITORY_WITH_TRASH);
+
+        client.deleteTrash();
+
+        client.undelete(STORAGE,
+                REPOSITORY_WITH_TRASH,
+                "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/test-artifact-undelete-1.0.jar");
+
+
     }
 
 
-/*
-    @Test
-    private void rebuildReleaseMetadataAndDeleteAVersion()
-            throws Exception
-    {
-
-        // define bla bla bla
-        String metadataPath = "/storages/storage0/releases";
-        String path = "org/carlspring/strongbox/metadata/strongbox-metadata/maven-metadata.xml";
-        String artifactPath = "org/carlspring/strongbox/metadata/strongbox-metadata";
-
-        String url = getContextBaseUrl() + (metadataPath.startsWith("/") ? metadataPath : '/' + metadataPath);
-        logger.debug("Path to artifact: " + url);
-
-        // assert that metadata don't exists (404)
-        given()
-                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .param("path", path)
-                .when()
-                .get(url)
-                .peek()
-                .then()
-                .statusCode(HttpStatus.NOT_FOUND.value());
-
-        // create new metadata
-        rebuildMetadata("storage0", "releases", artifactPath);
-
-        //   assertTrue("Failed to rebuild release metadata!", client.pathExists(metadataPath));
-
-        url = getContextBaseUrl() + (metadataPath.startsWith("/") ? metadataPath : '/' + metadataPath);
-
-        logger.debug("Path to artifact: " + url);
-
-        System.out.println("    +++++++++++++++++++     " + url);
-
-        given()
-                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .param("path", path)
-                .when()
-                .get(url)
-                .peek()
-                .then()
-                .statusCode(200);
-
-        InputStream is = getArtifactAsStream(path, metadataPath);
-
-        Metadata metadataBefore = artifactMetadataService.getMetadata(is);
-
-        assertNotNull("Incorrect metadata!", metadataBefore.getVersioning());
-        assertNotNull("Incorrect metadata!", metadataBefore.getVersioning().getLatest());
-        assertEquals("Incorrect metadata!", "3.2", metadataBefore.getVersioning().getLatest());
-
-        url = getContextBaseUrl() + "/metadata/" +
-                "storage0" + "/" + "releases";
-
-        given()
-                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .params("path", artifactPath, "version", "3.2", "classifier", "", "metadataType",
-                        MetadataType.ARTIFACT_ROOT_LEVEL.getType())
-                .when()
-                .delete(url)
-                .peek()
-                .then()
-                .statusCode(200);
-
-        is = getArtifactAsStream(path, metadataPath);
-        Metadata metadataAfter = artifactMetadataService.getMetadata(is);
-
-        assertNotNull("Incorrect metadata!", metadataAfter.getVersioning());
-        assertFalse("Unexpected set of versions!", MetadataHelper.containsVersion(metadataAfter, "3.2"));
-        assertNotNull("Incorrect metadata!", metadataAfter.getVersioning().getLatest());
-        assertEquals("Incorrect metadata!", "3.1", metadataAfter.getVersioning().getLatest());
-    }*/
 
     private ProxyConfiguration createProxyConfiguration() {
         ProxyConfiguration proxyConfiguration = new ProxyConfiguration();
