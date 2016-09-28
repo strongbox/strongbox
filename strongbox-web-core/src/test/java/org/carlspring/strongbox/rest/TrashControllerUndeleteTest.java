@@ -1,10 +1,13 @@
 package org.carlspring.strongbox.rest;
 
-import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
+
+import java.io.File;
+
+import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,9 +15,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-
-import java.io.File;
-
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -44,9 +44,10 @@ public class TrashControllerUndeleteTest
     @Before
     public void setUp()
             throws Exception {
+
         // remove release directory
-        removeDir(new File(REPOSITORY_WITH_TRASH));
-        removeDir(new File(REPOSITORY_WITH_TRASH_BASEDIR));
+        // removeDir(new File(REPOSITORY_WITH_TRASH));
+        // removeDir(new File(REPOSITORY_WITH_TRASH_BASEDIR));
 
         final String gavtc = "org.carlspring.strongbox.undelete:test-artifact-undelete::jar";
 
@@ -132,6 +133,7 @@ public class TrashControllerUndeleteTest
     @Test
     public void testUndeleteArtifactsForAllRepositories()
             throws Exception {
+
         assertTrue("Failed to undelete trash for repository '" + REPOSITORY_WITH_TRASH + "'!",
                 ARTIFACT_FILE_IN_TRASH.getParentFile().exists());
 

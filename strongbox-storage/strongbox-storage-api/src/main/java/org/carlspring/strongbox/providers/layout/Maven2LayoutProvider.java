@@ -30,7 +30,8 @@ import static org.carlspring.commons.io.FileUtils.moveDirectory;
  * @author carlspring
  */
 @Component("maven2LayoutProvider")
-public class Maven2LayoutProvider extends AbstractLayoutProvider
+public class Maven2LayoutProvider
+        extends AbstractLayoutProvider
 {
 
     private static final Logger logger = LoggerFactory.getLogger(Maven2LayoutProvider.class);
@@ -113,8 +114,10 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider
         }
         else
         {
-            final File repoPath = storageProvider.getFileImplementation(storage.getRepository(repositoryId).getBasedir());
-            artifactFile = new ArtifactFile(storageProvider.getFileImplementation(repoPath.getPath(), path).getCanonicalFile());
+            final File repoPath = storageProvider.getFileImplementation(
+                    storage.getRepository(repositoryId).getBasedir());
+            artifactFile = new ArtifactFile(storageProvider.getFileImplementation(repoPath.getPath(),
+                                                                                  path).getCanonicalFile());
         }
 
         artifactFile.createParents();
@@ -159,7 +162,9 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider
         final File artifactFile = storageProvider.getFileImplementation(repoPath.getPath(), path).getCanonicalFile();
         final File basedirTrash = repository.getTrashDir();
 
-        logger.debug("Checking in " + storage.getId() + ":" + repository.getId() + "(" + artifactFile.getCanonicalPath() + ")...");
+        logger.debug(
+                "Checking in " + storage.getId() + ":" + repository.getId() + "(" + artifactFile.getCanonicalPath() +
+                ")...");
 
         if (artifactFile.exists())
         {
@@ -167,10 +172,12 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider
             {
                 if ((repository.isTrashEnabled() && !force) || (force && !repository.allowsForceDeletion()))
                 {
-                    File trashFile = storageProvider.getFileImplementation(basedirTrash.getPath(), path).getCanonicalFile();
+                    File trashFile = storageProvider.getFileImplementation(basedirTrash.getPath(),
+                                                                           path).getCanonicalFile();
                     FileUtils.moveFile(artifactFile, trashFile);
 
-                    logger.debug("Moved /" + repositoryId + "/" + path + " to trash (" + trashFile.getAbsolutePath() + ").");
+                    logger.debug(
+                            "Moved /" + repositoryId + "/" + path + " to trash (" + trashFile.getAbsolutePath() + ").");
 
                     // Move the checksums to the trash as well
                     moveChecksumsToTrash(repository, path, artifactFile, basedirTrash);
@@ -186,11 +193,13 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider
             {
                 if ((repository.isTrashEnabled() && !force) || (force && !repository.allowsForceDeletion()))
                 {
-                    File trashFile = storageProvider.getFileImplementation(basedirTrash.getPath(), path).getCanonicalFile();
+                    File trashFile = storageProvider.getFileImplementation(basedirTrash.getPath(),
+                                                                           path).getCanonicalFile();
 
                     moveDirectory(artifactFile.toPath(), trashFile.toPath());
 
-                    logger.debug("Moved /" + repositoryId + "/" + path + " to trash (" + trashFile.getAbsolutePath() + ").");
+                    logger.debug(
+                            "Moved /" + repositoryId + "/" + path + " to trash (" + trashFile.getAbsolutePath() + ").");
                 }
                 else
                 {
@@ -213,19 +222,23 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider
         File md5ChecksumFile = storageProvider.getFileImplementation(artifactFile.getAbsolutePath() + ".md5");
         if (md5ChecksumFile.exists())
         {
-            File md5TrashFile = storageProvider.getFileImplementation(basedirTrash.getPath(), path + ".md5").getCanonicalFile();
+            File md5TrashFile = storageProvider.getFileImplementation(basedirTrash.getPath(),
+                                                                      path + ".md5").getCanonicalFile();
             FileUtils.moveFile(md5ChecksumFile, md5TrashFile);
 
-            logger.debug("Moved /" + repository.getId() + "/" + path + ".md5" + " to trash (" + md5TrashFile.getAbsolutePath() + ").");
+            logger.debug("Moved /" + repository.getId() + "/" + path + ".md5" + " to trash (" +
+                         md5TrashFile.getAbsolutePath() + ").");
         }
 
         File sha1ChecksumFile = storageProvider.getFileImplementation(artifactFile.getAbsolutePath() + ".sha1");
         if (sha1ChecksumFile.exists())
         {
-            File sha1TrashFile = storageProvider.getFileImplementation(basedirTrash.getPath(), path + ".sha1").getCanonicalFile();
+            File sha1TrashFile = storageProvider.getFileImplementation(basedirTrash.getPath(),
+                                                                       path + ".sha1").getCanonicalFile();
             FileUtils.moveFile(sha1ChecksumFile, sha1TrashFile);
 
-            logger.debug("Moved /" + repository.getId() + "/" + path + ".sha1" + " to trash (" + sha1TrashFile.getAbsolutePath() + ").");
+            logger.debug("Moved /" + repository.getId() + "/" + path + ".sha1" + " to trash (" +
+                         sha1TrashFile.getAbsolutePath() + ").");
         }
     }
 
@@ -268,24 +281,29 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider
         File md5ChecksumFile = storageProvider.getFileImplementation(artifactFile.getAbsolutePath() + ".md5");
         if (md5ChecksumFile.exists())
         {
-            File md5RestoredFile = storageProvider.getFileImplementation(repository.getBasedir(), path + ".md5").getCanonicalFile();
+            File md5RestoredFile = storageProvider.getFileImplementation(repository.getBasedir(),
+                                                                         path + ".md5").getCanonicalFile();
             FileUtils.moveFile(md5ChecksumFile, md5RestoredFile);
 
-            logger.debug("Restored /" + repositoryId + "/" + path + ".md5" + " from trash (" + md5ChecksumFile.getAbsolutePath() + ").");
+            logger.debug("Restored /" + repositoryId + "/" + path + ".md5" + " from trash (" +
+                         md5ChecksumFile.getAbsolutePath() + ").");
         }
 
         File sha1ChecksumFile = storageProvider.getFileImplementation(artifactFile.getAbsolutePath() + ".sha1");
         if (sha1ChecksumFile.exists())
         {
-            File sha1RestoredFile = storageProvider.getFileImplementation(repository.getBasedir(), path + ".sha1").getCanonicalFile();
+            File sha1RestoredFile = storageProvider.getFileImplementation(repository.getBasedir(),
+                                                                          path + ".sha1").getCanonicalFile();
             FileUtils.moveFile(sha1ChecksumFile, sha1RestoredFile);
 
-            logger.debug("Restored /" + repositoryId + "/" + path + ".sha1" + " from trash (" + sha1ChecksumFile.getAbsolutePath() + ").");
+            logger.debug("Restored /" + repositoryId + "/" + path + ".sha1" + " from trash (" +
+                         sha1ChecksumFile.getAbsolutePath() + ").");
         }
     }
 
     @Override
-    public void deleteTrash(String storageId, String repositoryId)
+    public void deleteTrash(String storageId,
+                            String repositoryId)
             throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
@@ -332,7 +350,9 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider
     }
 
     @Override
-    public void undelete(String storageId, String repositoryId, String path)
+    public void undelete(String storageId,
+                         String repositoryId,
+                         String path)
             throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
@@ -375,7 +395,8 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider
                     FileUtils.moveDirectory(artifactFileTrash, artifactFile);
                     DirUtils.removeEmptyAncestors(artifactFileTrash.getAbsolutePath(), ".trash");
 
-                    logger.debug("Moved /" + repositoryId + "/" + path + " to trash (" + artifactFileTrash.getAbsolutePath() + ").");
+                    logger.debug("Moved /" + repositoryId + "/" + path + " to trash (" +
+                                 artifactFileTrash.getAbsolutePath() + ").");
                 }
                 else
                 {
@@ -388,21 +409,33 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider
     }
 
     @Override
-    public void undeleteTrash(String storageId, String repositoryId)
+    public void undeleteTrash(String storageId,
+                              String repositoryId)
             throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
+        if (repository == null)
+        {
+            throw new NullPointerException("Repository " + repositoryId + " not found");
+        }
+
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
 
         logger.debug("Restoring all artifacts from the trash of " + storageId + ":" + repository.getId() + "...");
+        final File basedirTrash = repository.getTrashDir();
+        File[] dirs = basedirTrash.listFiles(new DirectoryFilter());
+        if (dirs == null)
+        {
+            logger.warn("Unable to found directories for basedirTrash " + basedirTrash.getAbsolutePath());
+            return;
+        }
 
         if (repository.isTrashEnabled())
         {
-            final File basedirTrash = repository.getTrashDir();
             final File basedirRepository = storageProvider.getFileImplementation(repository.getBasedir());
 
-            for (File dir : basedirTrash.listFiles(new DirectoryFilter()))
+            for (File dir : dirs)
             {
                 logger.debug("Restoring " + dir.getAbsolutePath() + " to " + basedirRepository);
 
@@ -475,7 +508,9 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider
     }
 
     @Override
-    public boolean contains(String storageId, String repositoryId, String path)
+    public boolean contains(String storageId,
+                            String repositoryId,
+                            String path)
             throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
@@ -489,40 +524,48 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider
     }
 
     @Override
-    public boolean containsArtifact(Repository repository, Artifact artifact)
+    public boolean containsArtifact(Repository repository,
+                                    Artifact artifact)
             throws IOException
     {
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
 
         final String artifactPath = ArtifactUtils.convertArtifactToPath(artifact);
 
-        final File repositoryBasedir = storageProvider.getFileImplementation(repository.getStorage().getBasedir(), repository.getId());
-        final File artifactFile = storageProvider.getFileImplementation(repositoryBasedir.getPath(), artifactPath).getAbsoluteFile();
+        final File repositoryBasedir = storageProvider.getFileImplementation(repository.getStorage().getBasedir(),
+                                                                             repository.getId());
+        final File artifactFile = storageProvider.getFileImplementation(repositoryBasedir.getPath(),
+                                                                        artifactPath).getAbsoluteFile();
 
         return artifactFile.exists();
     }
 
     @Override
-    public boolean containsPath(Repository repository, String path)
+    public boolean containsPath(Repository repository,
+                                String path)
             throws IOException
     {
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
 
-        final File repositoryBasedir = storageProvider.getFileImplementation(repository.getStorage().getBasedir(), repository.getId());
-        final File artifactFile = storageProvider.getFileImplementation(repositoryBasedir.getPath(), path).getAbsoluteFile();
+        final File repositoryBasedir = storageProvider.getFileImplementation(repository.getStorage().getBasedir(),
+                                                                             repository.getId());
+        final File artifactFile = storageProvider.getFileImplementation(repositoryBasedir.getPath(),
+                                                                        path).getAbsoluteFile();
 
         return artifactFile.exists();
     }
 
     @Override
-    public String getPathToArtifact(Repository repository, Artifact artifact)
+    public String getPathToArtifact(Repository repository,
+                                    Artifact artifact)
             throws IOException
     {
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
 
         final String artifactPath = ArtifactUtils.convertArtifactToPath(artifact);
 
-        final File repositoryBasedir = storageProvider.getFileImplementation(repository.getStorage().getBasedir(), repository.getId());
+        final File repositoryBasedir = storageProvider.getFileImplementation(repository.getStorage().getBasedir(),
+                                                                             repository.getId());
         final File artifactFile = storageProvider.getFileImplementation(repositoryBasedir.getPath(), artifactPath);
 
         return artifactFile.getAbsolutePath();
