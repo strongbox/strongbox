@@ -28,3 +28,4 @@ To accept, please:
 | Faisal Hameed                | DevFactory                               | Lahore, Islamic Republic of Pakistan    | 2016-06-10 |
 | Orest Kyrylchuk              |                                          | Lviv, Ukraine                           | 2016-05-28 |
 | Bohdan Hliva                 |                                          | Lviv, Ukraine                           | 2016-08-09 |
+| Yougeshwar Khatri            |                                          | Karachi, Pakistan                       | 2016-04-01 |
