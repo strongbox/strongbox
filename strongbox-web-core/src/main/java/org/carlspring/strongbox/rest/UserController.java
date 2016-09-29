@@ -203,7 +203,6 @@ public class UserController
     {
         try
         {
-            // return Response.ok(objectMapper.writeValueAsString(arg)).build();
             return ResponseEntity.ok(objectMapper.writeValueAsString(arg));
         }
         catch (Exception e)
@@ -220,7 +219,6 @@ public class UserController
     private synchronized ResponseEntity toError(Throwable cause)
     {
         logger.error(cause.getMessage(), cause);
-        //  return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(cause.getMessage()).build();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(cause.getMessage());
     }
 }

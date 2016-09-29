@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.rest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.WebConfig;
@@ -10,6 +9,15 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MetadataMerger;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.MessageDigestUtils;
+
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,14 +31,6 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration.generateArtifact;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -43,78 +43,72 @@ import static org.junit.Assert.assertTrue;
 @WebAppConfiguration
 @WithUserDetails("admin")
 @Rollback(false)
-public class SpringClientTest extends BackendBaseTest {
-
-    public static boolean INITIALIZED;
-    SpringClient client = new SpringClient().getTestInstanceLoggedInAsAdmin();
-
-
-    private static final String TEST_RESOURCES = "target/test-resources";
-
-    private static final File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-            "/local");
-
-    private static final File REPOSITORY_BASEDIR_RELEASES = new File(ConfigurationResourceResolver.getVaultDirectory() +
-            "/storages/storage0/releases");
+public class SpringClientTest
+        extends BackendBaseTest
+{
 
     public static final String PACKAGING_JAR = "jar";
-
-    private MetadataMerger metadataMerger;
-
+    private static final String TEST_RESOURCES = "target/test-resources";
+    private static final File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                           "/local");
+    private static final File REPOSITORY_BASEDIR_RELEASES = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                                     "/storages/storage0/releases");
     private static final String STORAGE = "storage0";
-
     private static final String REPOSITORY_WITH_TRASH = "releases-with-trash";
-
     private static final File BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory()).getAbsoluteFile();
-
     private static final String REPOSITORY_WITH_TRASH_BASEDIR = BASEDIR.getAbsolutePath() +
-            "/storages/" + STORAGE + "/" + REPOSITORY_WITH_TRASH;
-
+                                                                "/storages/" + STORAGE + "/" + REPOSITORY_WITH_TRASH;
     private static final File ARTIFACT_FILE_IN_TRASH = new File(REPOSITORY_WITH_TRASH_BASEDIR + "/.trash/" +
-            "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/" +
-            "test-artifact-undelete-1.0.jar").getAbsoluteFile();
-
+                                                                "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/" +
+                                                                "test-artifact-undelete-1.0.jar").getAbsoluteFile();
+    private static final Logger logger = LoggerFactory.getLogger(SpringClientTest.class);
+    public static boolean INITIALIZED;
+    SpringClient client = new SpringClient().getTestInstanceLoggedInAsAdmin();
+    @Inject
+    ObjectMapper objectMapper;
+    private MetadataMerger metadataMerger;
 
     @Before
     public void setUpClass()
-            throws Exception {
+            throws Exception
+    {
         generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                "org.carlspring.strongbox.resolve.only:foo",
-                "1.1" // Used by testResolveViaProxy()
+                         "org.carlspring.strongbox.resolve.only:foo",
+                         "1.1" // Used by testResolveViaProxy()
         );
 
         // Generate releases
         // Used by testPartialFetch():
         generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                "org.carlspring.strongbox.partial:partial-foo",
-                "3.1", // Used by testPartialFetch()
-                "3.2"  // Used by testPartialFetch()
+                         "org.carlspring.strongbox.partial:partial-foo",
+                         "3.1", // Used by testPartialFetch()
+                         "3.2"  // Used by testPartialFetch()
         );
 
         // Used by testCopy*():
         generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                "org.carlspring.strongbox.copy:copy-foo",
-                "1.1", // Used by testCopyArtifactFile()
-                "1.2"  // Used by testCopyArtifactDirectory()
+                         "org.carlspring.strongbox.copy:copy-foo",
+                         "1.1", // Used by testCopyArtifactFile()
+                         "1.2"  // Used by testCopyArtifactDirectory()
         );
 
         // Used by testDelete():
         generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                "com.artifacts.to.delete.releases:delete-foo",
-                "1.2.1", // Used by testDeleteArtifactFile
-                "1.2.2"  // Used by testDeleteArtifactDirectory
+                         "com.artifacts.to.delete.releases:delete-foo",
+                         "1.2.1", // Used by testDeleteArtifactFile
+                         "1.2.2"  // Used by testDeleteArtifactDirectory
         );
 
         generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                "org.carlspring.strongbox.partial:partial-foo",
-                "3.1", // Used by testPartialFetch()
-                "3.2"  // Used by testPartialFetch()
+                         "org.carlspring.strongbox.partial:partial-foo",
+                         "3.1", // Used by testPartialFetch()
+                         "3.2"  // Used by testPartialFetch()
         );
 
         generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                "org.carlspring.strongbox.browse:foo-bar",
-                "1.0", // Used by testDirectoryListing()
-                "2.4"  // Used by testDirectoryListing()
+                         "org.carlspring.strongbox.browse:foo-bar",
+                         "1.0", // Used by testDirectoryListing()
+                         "2.4"  // Used by testDirectoryListing()
         );
 
         //noinspection ResultOfMethodCallIgnored
@@ -130,45 +124,48 @@ public class SpringClientTest extends BackendBaseTest {
 
         // Delete the artifact (this one should get placed under the .trash)
         client.delete(STORAGE,
-                REPOSITORY_WITH_TRASH,
-                "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/test-artifact-undelete-1.0.jar");
+                      REPOSITORY_WITH_TRASH,
+                      "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/test-artifact-undelete-1.0.jar");
 
         // Delete the artifact (this one shouldn't get placed under the .trash)
         client.delete(STORAGE,
-                "releases",
-                "org/carlspring/strongbox/undelete/test-artifact-undelete/1.1/test-artifact-undelete-1.1.jar");
+                      "releases",
+                      "org/carlspring/strongbox/undelete/test-artifact-undelete/1.1/test-artifact-undelete-1.1.jar");
     }
 
-    private void removeDir(File dir) {
+    private void removeDir(File dir)
+    {
 
-        if (dir == null) {
+        if (dir == null)
+        {
             return;
         }
 
         System.out.println("Removing directory " + dir.getAbsolutePath());
 
-        if (dir.isDirectory()) {
+        if (dir.isDirectory())
+        {
             File[] files = dir.listFiles();
-            if (files != null) {
-                for (File file : files) {
+            if (files != null)
+            {
+                for (File file : files)
+                {
                     removeDir(file);
                 }
             }
-        } else {
+        }
+        else
+        {
             boolean res = dir.delete();
             System.out.println("Remove " + dir.getAbsolutePath() + " " + res);
         }
     }
 
-
-    private static final Logger logger = LoggerFactory.getLogger(SpringClientTest.class);
-    @Inject
-    ObjectMapper objectMapper;
-
     @Test
     @WithUserDetails("admin")
     public void testCreateAndDeleteStorageTo()
-            throws IOException, JAXBException {
+            throws IOException, JAXBException
+    {
 
         final String storageId = "storage2";
         final String repositoryId1 = "repository0";
@@ -200,20 +197,24 @@ public class SpringClientTest extends BackendBaseTest {
 
     @Test
     @WithUserDetails("admin")
-    public void searchTest() throws IOException {
+    public void searchTest()
+            throws IOException
+    {
 
         String response = client.search("g:org.carlspring.maven a:test-project", MediaType.APPLICATION_JSON);
 
         System.out.println(response);
 
         Assert.assertTrue("Received unexpected response!",
-                response.contains("\"version\" : \"1.0.11.3\"") &&
-                        response.contains("\"version\" : \"1.0.11.3.1\""));
+                          response.contains("\"version\" : \"1.0.11.3\"") &&
+                          response.contains("\"version\" : \"1.0.11.3.1\""));
     }
 
 
     @Test
-    public void artifactTests() throws IOException, ArtifactTransportException, ArtifactOperationException {
+    public void artifactTests()
+            throws IOException, ArtifactTransportException, ArtifactOperationException
+    {
 
 
         client.undeleteTrash();
@@ -233,28 +234,31 @@ public class SpringClientTest extends BackendBaseTest {
 
         String artifactPath = "com/artifacts/to/delete/releases/delete-foo/1.2.2";
 
-        File deletedArtifact = new File(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/" + artifactPath).getAbsoluteFile();
+        File deletedArtifact = new File(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/" +
+                                        artifactPath).getAbsoluteFile();
 
-        assertTrue("Failed to locate artifact file '" + deletedArtifact.getAbsolutePath() + "'!", deletedArtifact.exists());
+        assertTrue("Failed to locate artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
+                   deletedArtifact.exists());
 
         client.delete("storage0", "releases", artifactPath);
 
-        assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!", deletedArtifact.exists());
+        assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
+                    deletedArtifact.exists());
 
         client.deleteTrash(STORAGE, REPOSITORY_WITH_TRASH);
 
         client.deleteTrash();
 
         client.undelete(STORAGE,
-                REPOSITORY_WITH_TRASH,
-                "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/test-artifact-undelete-1.0.jar");
+                        REPOSITORY_WITH_TRASH,
+                        "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/test-artifact-undelete-1.0.jar");
 
 
     }
 
 
-
-    private ProxyConfiguration createProxyConfiguration() {
+    private ProxyConfiguration createProxyConfiguration()
+    {
         ProxyConfiguration proxyConfiguration = new ProxyConfiguration();
         proxyConfiguration.setHost("localhost");
         proxyConfiguration.setPort(8080);

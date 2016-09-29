@@ -25,7 +25,8 @@ import static org.junit.Assert.assertTrue;
 @ContextConfiguration(classes = WebConfig.class)
 @WebAppConfiguration
 public class TrashControllerUndeleteTest
-        extends BackendBaseTest {
+        extends BackendBaseTest
+{
 
     private static final File BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory()).getAbsoluteFile();
 
@@ -34,59 +35,67 @@ public class TrashControllerUndeleteTest
     private static final String REPOSITORY_WITH_TRASH = "releases-with-trash";
 
     private static final String REPOSITORY_WITH_TRASH_BASEDIR = BASEDIR.getAbsolutePath() +
-            "/storages/" + STORAGE + "/" + REPOSITORY_WITH_TRASH;
+                                                                "/storages/" + STORAGE + "/" + REPOSITORY_WITH_TRASH;
 
     private static final File ARTIFACT_FILE_IN_TRASH = new File(REPOSITORY_WITH_TRASH_BASEDIR + "/.trash/" +
-            "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/" +
-            "test-artifact-undelete-1.0.jar").getAbsoluteFile();
+                                                                "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/" +
+                                                                "test-artifact-undelete-1.0.jar").getAbsoluteFile();
 
 
     @Before
     public void setUp()
-            throws Exception {
-
+            throws Exception
+    {
         // remove release directory
-        // removeDir(new File(REPOSITORY_WITH_TRASH));
-        // removeDir(new File(REPOSITORY_WITH_TRASH_BASEDIR));
+        removeDir(new File(REPOSITORY_WITH_TRASH));
+        removeDir(new File(REPOSITORY_WITH_TRASH_BASEDIR));
 
         final String gavtc = "org.carlspring.strongbox.undelete:test-artifact-undelete::jar";
 
         System.out.println("REPOSITORY_WITH_TRASH_BASEDIR: " + REPOSITORY_WITH_TRASH_BASEDIR);
         System.out.println("BASEDIR.getAbsolutePath(): " + BASEDIR.getAbsolutePath());
 
-        TestCaseWithArtifactGeneration.generateArtifact(REPOSITORY_WITH_TRASH_BASEDIR, gavtc, new String[]{"1.0"});
-        TestCaseWithArtifactGeneration.generateArtifact(BASEDIR.getAbsolutePath() + "/storages/" + STORAGE + "/releases", gavtc, new String[]{"1.1"});
+        TestCaseWithArtifactGeneration.generateArtifact(REPOSITORY_WITH_TRASH_BASEDIR, gavtc, new String[]{ "1.0" });
+        TestCaseWithArtifactGeneration.generateArtifact(
+                BASEDIR.getAbsolutePath() + "/storages/" + STORAGE + "/releases", gavtc, new String[]{ "1.1" });
 
         // Delete the artifact (this one should get placed under the .trash)
         delete(STORAGE,
-                REPOSITORY_WITH_TRASH,
-                "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/test-artifact-undelete-1.0.jar");
+               REPOSITORY_WITH_TRASH,
+               "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/test-artifact-undelete-1.0.jar");
 
 
         // Delete the artifact (this one shouldn't get placed under the .trash)
         delete(STORAGE,
-                "releases",
-                "org/carlspring/strongbox/undelete/test-artifact-undelete/1.1/test-artifact-undelete-1.1.jar");
+               "releases",
+               "org/carlspring/strongbox/undelete/test-artifact-undelete/1.1/test-artifact-undelete-1.1.jar");
 
     }
 
 
-    private void removeDir(File dir) {
+    private void removeDir(File dir)
+    {
 
-        if (dir == null) {
+        if (dir == null)
+        {
             return;
         }
 
         System.out.println("Removing directory " + dir.getAbsolutePath());
 
-        if (dir.isDirectory()) {
+        if (dir.isDirectory())
+        {
             File[] files = dir.listFiles();
-            if (files != null) {
-                for (File file : files) {
+            if (files != null)
+            {
+                for (File file : files)
+                {
                     removeDir(file);
                 }
             }
-        } else {
+        }
+        else
+        {
             boolean res = dir.delete();
             System.out.println("Remove " + dir.getAbsolutePath() + " " + res);
         }
@@ -95,7 +104,8 @@ public class TrashControllerUndeleteTest
 
     @Test
     public void testForceDeleteArtifactNotAllowed()
-            throws Exception {
+            throws Exception
+    {
         final String artifactPath = "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/test-artifact-undelete-1.0.jar";
 
         final File repositoryDir = new File(BASEDIR + "/storages/storage0/releases-with-trash/.trash");
@@ -104,64 +114,70 @@ public class TrashControllerUndeleteTest
         System.out.println("Artifact file: " + artifactFile.getAbsolutePath());
 
         assertTrue("Should have moved the artifact to the trash during a force delete operation, " +
-                        "when allowsForceDeletion is not enabled!",
-                artifactFile.exists());
+                   "when allowsForceDeletion is not enabled!",
+                   artifactFile.exists());
     }
 
     @Test
     public void testDeleteArtifactAndEmptyTrashForRepository()
-            throws Exception {
+            throws Exception
+    {
         String url = getContextBaseUrl() + "/trash/" + STORAGE + "/" + REPOSITORY_WITH_TRASH;
 
         RestAssuredMockMvc.given()
-                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .param("path", "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/test-artifact-undelete-1.0.jar")
-                .when()
-                .post(url)
-                .peek()
-                .then()
-                .statusCode(200);
+                          .contentType(MediaType.TEXT_PLAIN_VALUE)
+                          .param("path",
+                                 "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/test-artifact-undelete-1.0.jar")
+                          .when()
+                          .post(url)
+                          .peek()
+                          .then()
+                          .statusCode(200);
 
         File artifactFileRestoredFromTrash = new File(REPOSITORY_WITH_TRASH_BASEDIR + "/" +
-                "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/" +
-                "test-artifact-undelete-1.0.jar").getAbsoluteFile();
+                                                      "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/" +
+                                                      "test-artifact-undelete-1.0.jar").getAbsoluteFile();
 
-        assertFalse("Failed to undelete trash for repository '" + REPOSITORY_WITH_TRASH + "'!", ARTIFACT_FILE_IN_TRASH.exists());
-        assertTrue("Failed to undelete trash for repository '" + REPOSITORY_WITH_TRASH + "'!", artifactFileRestoredFromTrash.exists());
+        assertFalse("Failed to undelete trash for repository '" + REPOSITORY_WITH_TRASH + "'!",
+                    ARTIFACT_FILE_IN_TRASH.exists());
+        assertTrue("Failed to undelete trash for repository '" + REPOSITORY_WITH_TRASH + "'!",
+                   artifactFileRestoredFromTrash.exists());
     }
 
     @Test
     public void testUndeleteArtifactsForAllRepositories()
-            throws Exception {
-
+            throws Exception
+    {
         assertTrue("Failed to undelete trash for repository '" + REPOSITORY_WITH_TRASH + "'!",
-                ARTIFACT_FILE_IN_TRASH.getParentFile().exists());
+                   ARTIFACT_FILE_IN_TRASH.getParentFile().exists());
 
         String url = getContextBaseUrl() + "/trash";
 
         RestAssuredMockMvc.given()
-                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .when()
-                .post(url)
-                .peek()
-                .then()
-                .statusCode(200);
+                          .contentType(MediaType.TEXT_PLAIN_VALUE)
+                          .when()
+                          .post(url)
+                          .peek()
+                          .then()
+                          .statusCode(200);
 
         File artifactFileRestoredFromTrash = new File(REPOSITORY_WITH_TRASH_BASEDIR + "/" +
-                "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/" +
-                "test-artifact-undelete-1.0.jar").getAbsoluteFile();
+                                                      "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/" +
+                                                      "test-artifact-undelete-1.0.jar").getAbsoluteFile();
 
-        assertFalse("Failed to undelete trash for repository '" + REPOSITORY_WITH_TRASH + "'!", ARTIFACT_FILE_IN_TRASH.exists());
+        assertFalse("Failed to undelete trash for repository '" + REPOSITORY_WITH_TRASH + "'!",
+                    ARTIFACT_FILE_IN_TRASH.exists());
         assertTrue("Failed to undelete trash for repository '" + REPOSITORY_WITH_TRASH +
-                        "' (" + artifactFileRestoredFromTrash.getAbsolutePath() + " does not exist)!",
-                artifactFileRestoredFromTrash.exists());
+                   "' (" + artifactFileRestoredFromTrash.getAbsolutePath() + " does not exist)!",
+                   artifactFileRestoredFromTrash.exists());
     }
 
 
     public void delete(String storageId,
                        String repositoryId,
                        String path)
-            throws ArtifactOperationException {
+            throws ArtifactOperationException
+    {
         delete(storageId, repositoryId, path, false);
     }
 
@@ -169,17 +185,18 @@ public class TrashControllerUndeleteTest
                        String repositoryId,
                        String path,
                        boolean force)
-            throws ArtifactOperationException {
+            throws ArtifactOperationException
+    {
         String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId;
 
         RestAssuredMockMvc.given()
-                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .params("path", path, "force", force)
-                .when()
-                .delete(url)
-                .peek()
-                .then()
-                .statusCode(200);
+                          .contentType(MediaType.TEXT_PLAIN_VALUE)
+                          .params("path", path, "force", force)
+                          .when()
+                          .delete(url)
+                          .peek()
+                          .then()
+                          .statusCode(200);
     }
 
 }

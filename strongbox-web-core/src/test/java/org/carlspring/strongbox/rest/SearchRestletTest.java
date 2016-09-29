@@ -34,7 +34,8 @@ public class SearchRestletTest
         if (!INITIALIZED)
         {
             File strongboxBaseDir = new File(ConfigurationResourceResolver.getVaultDirectory() + "/tmp");
-            String[] classifiers = new String[] { "javadoc", "tests" };
+            String[] classifiers = new String[]{ "javadoc",
+                                                 "tests" };
 
             Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.maven:test-project:1.0.11.3");
             Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.maven:test-project:1.0.11.3.1");

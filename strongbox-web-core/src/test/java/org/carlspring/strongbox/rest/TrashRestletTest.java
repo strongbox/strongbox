@@ -22,23 +22,15 @@ public class TrashRestletTest
         extends TestCaseWithArtifactGeneration
 {
 
-    public static class SpringConfig { }
-
     private static final File BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory()).getAbsoluteFile();
-
     private static final String STORAGE = "storage0";
-
     private static final String REPOSITORY_WITH_TRASH = "releases-with-trash";
-
     private static final String REPOSITORY_WITH_TRASH_BASEDIR = BASEDIR.getAbsolutePath() +
                                                                 "/storages/" + STORAGE + "/" + REPOSITORY_WITH_TRASH;
-
-    private RestClient client = RestClient.getTestInstanceLoggedInAsAdmin();
-
     private static final File ARTIFACT_FILE_IN_TRASH = new File(REPOSITORY_WITH_TRASH_BASEDIR + "/.trash/" +
                                                                 "org/carlspring/strongbox/test-artifact-to-trash/1.0/" +
                                                                 "test-artifact-to-trash-1.0.jar").getAbsoluteFile();
-
+    private RestClient client = RestClient.getTestInstanceLoggedInAsAdmin();
 
     @Before
     public void setUp()
@@ -50,7 +42,8 @@ public class TrashRestletTest
         System.out.println("BASEDIR.getAbsolutePath(): " + BASEDIR.getAbsolutePath());
 
         generateArtifact(REPOSITORY_WITH_TRASH_BASEDIR, gavtc, new String[]{ "1.0" });
-        generateArtifact(BASEDIR.getAbsolutePath() + "/storages/" + STORAGE + "/releases", gavtc, new String[]{ "1.1" });
+        generateArtifact(BASEDIR.getAbsolutePath() + "/storages/" + STORAGE + "/releases", gavtc,
+                         new String[]{ "1.1" });
 
         // Delete the artifact (this one should get placed under the .trash)
         client.delete(STORAGE,
@@ -112,7 +105,8 @@ public class TrashRestletTest
     {
         client.deleteTrash(STORAGE, REPOSITORY_WITH_TRASH);
 
-        assertFalse("Failed to empty trash for repository '" + REPOSITORY_WITH_TRASH + "'!", ARTIFACT_FILE_IN_TRASH.exists());
+        assertFalse("Failed to empty trash for repository '" + REPOSITORY_WITH_TRASH + "'!",
+                    ARTIFACT_FILE_IN_TRASH.exists());
     }
 
     @Test
@@ -121,7 +115,13 @@ public class TrashRestletTest
     {
         client.deleteTrash();
 
-        assertFalse("Failed to empty trash for repository '" + REPOSITORY_WITH_TRASH + "'!", ARTIFACT_FILE_IN_TRASH.exists());
+        assertFalse("Failed to empty trash for repository '" + REPOSITORY_WITH_TRASH + "'!",
+                    ARTIFACT_FILE_IN_TRASH.exists());
+    }
+
+    public static class SpringConfig
+    {
+
     }
 
 }

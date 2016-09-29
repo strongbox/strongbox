@@ -110,8 +110,6 @@ public class UserControllerTest
         assertFalse(users.isEmpty());
 
         users.forEach(user -> logger.debug("Retrieved " + user));
-        System.out.println(users);
-
     }
 
     @Test
@@ -152,8 +150,6 @@ public class UserControllerTest
                                             .statusCode(200) // check http status code
                                             .extract()
                                             .asString();
-
-        System.out.println(response);
 
         // deserialize response
         User updatedUser = objectMapper.readValue(response, User.class);

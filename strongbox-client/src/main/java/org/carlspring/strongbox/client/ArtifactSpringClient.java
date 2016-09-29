@@ -1,17 +1,17 @@
 package org.carlspring.strongbox.client;
 
+import org.carlspring.maven.commons.util.ArtifactUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.omg.CORBA.portable.InputStream;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.http.*;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.web.client.RestTemplate;
-
-import java.io.IOException;
-
 import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
 
@@ -118,6 +118,9 @@ public class ArtifactSpringClient {
         headers.add("Content-Disposition", contentDisposition);
 
         HttpEntity<InputStream> entity = new HttpEntity<InputStream>(is, headers);
+        path = "/" + path;
+
+        System.out.println(url + path + " url + path !!!!!!!!!!!!1");
 
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class, path);
 

@@ -38,18 +38,11 @@ public class ProxyRepositoryConnectionPoolConfigurationManagementRestletTest
         extends TestCaseWithArtifactGeneration
 {
 
-    @Configuration
-    @ComponentScan(basePackages = { "org.carlspring.strongbox",
-                                    "org.carlspring.logging" })
-    public static class SpringConfig {}
-
     private static final RestClient restClient = new RestClient();
-
-    private static final File STORAGE_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0");
-
+    private static final File STORAGE_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                         "/storages/storage0");
     @Autowired
     private ConfigurationManager configurationManager;
-
 
     @BeforeClass
     public static void init()
@@ -59,7 +52,7 @@ public class ProxyRepositoryConnectionPoolConfigurationManagementRestletTest
     {
         generateArtifact(STORAGE_BASEDIR.getAbsolutePath(),
                          "org.carlspring.strongbox:strongbox-utils:8.2:jar",
-                         new String[] {"1.0"});
+                         new String[]{ "1.0" });
     }
 
     @AfterClass
@@ -120,8 +113,10 @@ public class ProxyRepositoryConnectionPoolConfigurationManagementRestletTest
                                                           .stream()
                                                           .filter(stg -> MapUtils.isNotEmpty(stg.getRepositories()))
                                                           .flatMap(stg -> stg.getRepositories().values().stream())
-                                                          .filter(repository -> repository.getRemoteRepository() != null &&
-                                                                                repository.getRemoteRepository().getUrl() != null)
+                                                          .filter(repository ->
+                                                                          repository.getRemoteRepository() != null &&
+                                                                          repository.getRemoteRepository().getUrl() !=
+                                                                          null)
                                                           .findAny();
 
         Repository repository = repositoryOpt.get();
@@ -133,7 +128,8 @@ public class ProxyRepositoryConnectionPoolConfigurationManagementRestletTest
                                       .put(Entity.json(""));
 
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        assertEquals("Number of pool connections for repository was updated successfully.", response.readEntity(String.class));
+        assertEquals("Number of pool connections for repository was updated successfully.",
+                     response.readEntity(String.class));
     }
 
     @Test
@@ -145,17 +141,28 @@ public class ProxyRepositoryConnectionPoolConfigurationManagementRestletTest
                                                           .stream()
                                                           .filter(stg -> MapUtils.isNotEmpty(stg.getRepositories()))
                                                           .flatMap(stg -> stg.getRepositories().values().stream())
-                                                          .filter(repository -> repository.getRemoteRepository() != null &&
-                                                                                repository .getRemoteRepository().getUrl() != null)
+                                                          .filter(repository ->
+                                                                          repository.getRemoteRepository() != null &&
+                                                                          repository.getRemoteRepository().getUrl() !=
+                                                                          null)
                                                           .findAny();
 
         Repository repository = repositoryOpt.get();
 
-        Response response = restClient.prepareTarget("/configuration/proxy/connection-pool/" + repository.getStorage().getId() + "/" + repository.getId())
+        Response response = restClient.prepareTarget(
+                "/configuration/proxy/connection-pool/" + repository.getStorage().getId() + "/" + repository.getId())
                                       .request().get();
 
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals(new PoolStats(0, 0, 0, 5).toString(), response.readEntity(String.class));
+    }
+
+    @Configuration
+    @ComponentScan(basePackages = { "org.carlspring.strongbox",
+                                    "org.carlspring.logging" })
+    public static class SpringConfig
+    {
+
     }
 
 }

@@ -1,14 +1,5 @@
 package org.carlspring.strongbox.rest;
 
-import com.google.common.io.ByteStreams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.comparator.DirectoryFileComparator;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
@@ -20,13 +11,6 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.MessageDigestUtils;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -41,6 +25,22 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.regex.Matcher;
 
+import com.google.common.io.ByteStreams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.comparator.DirectoryFileComparator;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 import static org.carlspring.strongbox.rest.ByteRangeRequestHandler.handlePartialDownload;
 import static org.carlspring.strongbox.rest.ByteRangeRequestHandler.isRangedRequest;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
@@ -66,12 +66,14 @@ public class ArtifactController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deployed successfully."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
-    @RequestMapping(value = "{storageId}/{repositoryId}", method = RequestMethod.PUT)
+    @RequestMapping(value = "{storageId}/{repositoryId}", method = RequestMethod.PUT, consumes = { MediaType.APPLICATION_OCTET_STREAM_VALUE,
+                                                                                                   MediaType.TEXT_PLAIN_VALUE,
+                                                                                                   MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity upload(
-            @PathVariable String storageId,
-            @PathVariable String repositoryId,
-            @RequestParam(name = "path") String path,
-            @RequestBody String requestEntity)
+                                        @PathVariable String storageId,
+                                        @PathVariable String repositoryId,
+                                        @RequestParam(name = "path") String path,
+                                        @RequestBody String requestEntity)
             throws IOException,
                    AuthenticationException,
                    NoSuchAlgorithmException, JAXBException, ProviderImplementationException
@@ -298,11 +300,8 @@ public class ArtifactController
 
         if (file.isDirectory() && !requestUri.endsWith("/"))
         {
-            //HttpHeaders responseHeaders = new HttpHeaders();
-            // responseHeaders.setLocation(new URI(request.getRequestURI() + "/"));
             response.setLocale(new Locale(request.getRequestURI() + "/"));
             response.setStatus(307);
-            // return new ResponseEntity<>(null, responseHeaders, HttpStatus.TEMPORARY_REDIRECT);
 
         }
 
@@ -360,8 +359,6 @@ public class ArtifactController
             sb.append("</body>");
             sb.append("</html>");
 
-            //  HttpHeaders responseHeaders = new HttpHeaders();
-            //   responseHeaders.setContentType(MediaType.TEXT_HTML);
             response.setContentType("text/html;charset=UTF-8");
             response.setStatus(HttpStatus.FOUND.value());
             response.getWriter().write(sb.toString());
@@ -372,7 +369,6 @@ public class ArtifactController
         catch (Exception e)
         {
             logger.error(" error accessing requested directory: " + file.getAbsolutePath());
-            // return new ResponseEntity(HttpStatus.NOT_FOUND);
             response.setStatus(404);
         }
     }

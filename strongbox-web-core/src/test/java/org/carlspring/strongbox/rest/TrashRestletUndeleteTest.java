@@ -34,13 +34,10 @@ public class TrashRestletUndeleteTest
 
     private static final String REPOSITORY_WITH_TRASH_BASEDIR = BASEDIR.getAbsolutePath() +
                                                                 "/storages/" + STORAGE + "/" + REPOSITORY_WITH_TRASH;
-
-    private RestClient client = new RestClient();
-
     private static final File ARTIFACT_FILE_IN_TRASH = new File(REPOSITORY_WITH_TRASH_BASEDIR + "/.trash/" +
                                                                 "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/" +
                                                                 "test-artifact-undelete-1.0.jar").getAbsoluteFile();
-
+    private RestClient client = new RestClient();
 
     @Before
     public void setUp()
@@ -52,7 +49,8 @@ public class TrashRestletUndeleteTest
         System.out.println("BASEDIR.getAbsolutePath(): " + BASEDIR.getAbsolutePath());
 
         generateArtifact(REPOSITORY_WITH_TRASH_BASEDIR, gavtc, new String[]{ "1.0" });
-        generateArtifact(BASEDIR.getAbsolutePath() + "/storages/" + STORAGE + "/releases", gavtc, new String[]{ "1.1" });
+        generateArtifact(BASEDIR.getAbsolutePath() + "/storages/" + STORAGE + "/releases", gavtc,
+                         new String[]{ "1.1" });
 
         // Delete the artifact (this one should get placed under the .trash)
         client.delete(STORAGE,
@@ -87,8 +85,8 @@ public class TrashRestletUndeleteTest
         System.out.println("Artifact file: " + artifactFile.getAbsolutePath());
 
         assertTrue("Should have moved the artifact to the trash during a force delete operation, " +
-                          "when allowsForceDeletion is not enabled!",
-                          artifactFile.exists());
+                   "when allowsForceDeletion is not enabled!",
+                   artifactFile.exists());
     }
 
     @Test
@@ -103,8 +101,10 @@ public class TrashRestletUndeleteTest
                                                       "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/" +
                                                       "test-artifact-undelete-1.0.jar").getAbsoluteFile();
 
-        assertFalse("Failed to undelete trash for repository '" + REPOSITORY_WITH_TRASH + "'!", ARTIFACT_FILE_IN_TRASH.exists());
-        assertTrue("Failed to undelete trash for repository '" + REPOSITORY_WITH_TRASH + "'!", artifactFileRestoredFromTrash.exists());
+        assertFalse("Failed to undelete trash for repository '" + REPOSITORY_WITH_TRASH + "'!",
+                    ARTIFACT_FILE_IN_TRASH.exists());
+        assertTrue("Failed to undelete trash for repository '" + REPOSITORY_WITH_TRASH + "'!",
+                   artifactFileRestoredFromTrash.exists());
     }
 
     @Test
@@ -120,7 +120,8 @@ public class TrashRestletUndeleteTest
                                                       "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/" +
                                                       "test-artifact-undelete-1.0.jar").getAbsoluteFile();
 
-        assertFalse("Failed to undelete trash for repository '" + REPOSITORY_WITH_TRASH + "'!", ARTIFACT_FILE_IN_TRASH.exists());
+        assertFalse("Failed to undelete trash for repository '" + REPOSITORY_WITH_TRASH + "'!",
+                    ARTIFACT_FILE_IN_TRASH.exists());
         assertTrue("Failed to undelete trash for repository '" + REPOSITORY_WITH_TRASH +
                    "' (" + artifactFileRestoredFromTrash.getAbsolutePath() + " does not exist)!",
                    artifactFileRestoredFromTrash.exists());

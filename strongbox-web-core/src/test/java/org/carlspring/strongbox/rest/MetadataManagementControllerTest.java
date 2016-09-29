@@ -153,13 +153,9 @@ public class MetadataManagementControllerTest
         // create new metadata
         rebuildMetadata("storage0", "releases", artifactPath);
 
-        //   assertTrue("Failed to rebuild release metadata!", client.pathExists(metadataPath));
-
         url = getContextBaseUrl() + (metadataPath.startsWith("/") ? metadataPath : '/' + metadataPath);
 
         logger.debug("Path to artifact: " + url);
-
-        System.out.println("    +++++++++++++++++++     " + url);
 
         given()
                 .contentType(MediaType.TEXT_PLAIN_VALUE)

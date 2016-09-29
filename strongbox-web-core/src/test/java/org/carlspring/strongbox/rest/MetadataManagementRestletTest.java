@@ -35,26 +35,14 @@ public class MetadataManagementRestletTest
         extends TestCaseWithArtifactGeneration
 {
 
-    @org.springframework.context.annotation.Configuration
-    @ComponentScan(basePackages = { "org.carlspring.strongbox",
-                                    "org.carlspring.logging" })
-    public static class SpringConfig
-    {
-
-    }
-
     private static final File REPOSITORY_BASEDIR_RELEASES = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                                      "/storages/storage0/releases");
     private static final File REPOSITORY_BASEDIR_SNAPSHOTS = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                                       "/storages/storage0/snapshots");
-
     public static boolean INITIALIZED = false;
-
     private RestClient client = new RestClient();
-
     @Autowired
     private ArtifactMetadataService artifactMetadataService;
-
 
     @Before
     public void setUp()
@@ -243,6 +231,14 @@ public class MetadataManagementRestletTest
                      metadata2SnapshotAfter.getVersioning().getSnapshot().getBuildNumber());
         assertEquals("Incorrect metadata!", previousLatestTimestamp,
                      metadata2AfterSnapshotVersions.get(metadata2AfterSnapshotVersions.size() - 1).getVersion());
+    }
+
+    @org.springframework.context.annotation.Configuration
+    @ComponentScan(basePackages = { "org.carlspring.strongbox",
+                                    "org.carlspring.logging" })
+    public static class SpringConfig
+    {
+
     }
 
 }

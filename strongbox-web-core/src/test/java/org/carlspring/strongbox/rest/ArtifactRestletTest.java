@@ -1,9 +1,5 @@
 package org.carlspring.strongbox.rest;
 
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.model.Plugin;
-import org.apache.maven.project.artifact.PluginArtifact;
 import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
@@ -18,18 +14,22 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.util.MessageDigestUtils;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.*;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
 import java.io.*;
 import java.security.NoSuchAlgorithmException;
 
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.model.Plugin;
+import org.apache.maven.project.artifact.PluginArtifact;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.junit.*;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.*;
 
 /**
@@ -44,7 +44,8 @@ public class ArtifactRestletTest
 
     private static final String TEST_RESOURCES = "target/test-resources";
 
-    private static final File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/local");
+    private static final File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                           "/local");
 
     private static final File REPOSITORY_BASEDIR_RELEASES = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                                      "/storages/storage0/releases");
@@ -58,47 +59,58 @@ public class ArtifactRestletTest
     public static void setUp()
             throws Exception
     {
-            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                             "org.carlspring.strongbox.resolve.only:foo",
-                             new String[]{ "1.1", // Used by testResolveViaProxy()
-                                         });
+        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                         "org.carlspring.strongbox.resolve.only:foo",
+                         new String[]{ "1.1",
+                                       // Used by testResolveViaProxy()
+                         });
 
-            // Generate releases
-            // Used by testPartialFetch():
-            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                             "org.carlspring.strongbox.partial:partial-foo",
-                             new String[]{ "3.1", // Used by testPartialFetch()
-                                           "3.2"  // Used by testPartialFetch()
-                                         });
+        // Generate releases
+        // Used by testPartialFetch():
+        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                         "org.carlspring.strongbox.partial:partial-foo",
+                         new String[]{ "3.1",
+                                       // Used by testPartialFetch()
+                                       "3.2"
+                                       // Used by testPartialFetch()
+                         });
 
-            // Used by testCopy*():
-            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                             "org.carlspring.strongbox.copy:copy-foo",
-                             new String[]{ "1.1", // Used by testCopyArtifactFile()
-                                           "1.2"  // Used by testCopyArtifactDirectory()
-                                         });
+        // Used by testCopy*():
+        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                         "org.carlspring.strongbox.copy:copy-foo",
+                         new String[]{ "1.1",
+                                       // Used by testCopyArtifactFile()
+                                       "1.2"
+                                       // Used by testCopyArtifactDirectory()
+                         });
 
-            // Used by testDelete():
-            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                             "com.artifacts.to.delete.releases:delete-foo",
-                             new String[]{ "1.2.1", // Used by testDeleteArtifactFile
-                                           "1.2.2",  // Used by testDeleteArtifactDirectory
-                                         });
+        // Used by testDelete():
+        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                         "com.artifacts.to.delete.releases:delete-foo",
+                         new String[]{ "1.2.1",
+                                       // Used by testDeleteArtifactFile
+                                       "1.2.2",
+                                       // Used by testDeleteArtifactDirectory
+                         });
 
-            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                             "org.carlspring.strongbox.partial:partial-foo",
-                             new String[]{ "3.1", // Used by testPartialFetch()
-                                           "3.2"  // Used by testPartialFetch()
-                                         });
+        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                         "org.carlspring.strongbox.partial:partial-foo",
+                         new String[]{ "3.1",
+                                       // Used by testPartialFetch()
+                                       "3.2"
+                                       // Used by testPartialFetch()
+                         });
 
-            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                             "org.carlspring.strongbox.browse:foo-bar",
-                             new String[]{ "1.0", // Used by testDirectoryListing()
-                                           "2.4"  // Used by testDirectoryListing()
-                                         });
+        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                         "org.carlspring.strongbox.browse:foo-bar",
+                         new String[]{ "1.0",
+                                       // Used by testDirectoryListing()
+                                       "2.4"
+                                       // Used by testDirectoryListing()
+                         });
 
-            //noinspection ResultOfMethodCallIgnored
-            new File(TEST_RESOURCES).mkdirs();
+        //noinspection ResultOfMethodCallIgnored
+        new File(TEST_RESOURCES).mkdirs();
     }
 
     @AfterClass
@@ -112,7 +124,9 @@ public class ArtifactRestletTest
     }
 
     @Test
-    public void testUserAuth() throws Exception {
+    public void testUserAuth()
+            throws Exception
+    {
         client.greet();
     }
 
@@ -372,13 +386,16 @@ public class ArtifactRestletTest
     {
         String artifactPath = "com/artifacts/to/delete/releases/delete-foo/1.2.1/delete-foo-1.2.1.jar";
 
-        File deletedArtifact = new File(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/" + artifactPath).getAbsoluteFile();
+        File deletedArtifact = new File(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/" +
+                                        artifactPath).getAbsoluteFile();
 
-        assertTrue("Failed to locate artifact file '" + deletedArtifact.getAbsolutePath() + "'!", deletedArtifact.exists());
+        assertTrue("Failed to locate artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
+                   deletedArtifact.exists());
 
         client.delete("storage0", "releases", artifactPath);
 
-        assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!", deletedArtifact.exists());
+        assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
+                    deletedArtifact.exists());
     }
 
     @Test
@@ -387,13 +404,16 @@ public class ArtifactRestletTest
     {
         String artifactPath = "com/artifacts/to/delete/releases/delete-foo/1.2.2";
 
-        File deletedArtifact = new File(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/" + artifactPath).getAbsoluteFile();
+        File deletedArtifact = new File(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/" +
+                                        artifactPath).getAbsoluteFile();
 
-        assertTrue("Failed to locate artifact file '" + deletedArtifact.getAbsolutePath() + "'!", deletedArtifact.exists());
+        assertTrue("Failed to locate artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
+                   deletedArtifact.exists());
 
         client.delete("storage0", "releases", artifactPath);
 
-        assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!", deletedArtifact.exists());
+        assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
+                    deletedArtifact.exists());
     }
 
     @Test
@@ -409,18 +429,23 @@ public class ArtifactRestletTest
         Response repositoryRoot = client.getResourceWithResponse("/storages/storage0/releases/");
         Response trashDirectoryListing = client.getResourceWithResponse("/storages/storage0/releases/.trash");
         Response indexDirectoryListing = client.getResourceWithResponse("/storages/storage0/releases/.index");
-        Response directoryListing = client.getResourceWithResponse("/storages/storage0/releases/org/carlspring/strongbox/browse");
-        Response fileListing = client.getResourceWithResponse("/storages/storage0/releases/org/carlspring/strongbox/browse/foo-bar/1.0");
-        Response invalidPath = client.getResourceWithResponse("/storages/storage0/releases/org/carlspring/strongbox/browse/1.0");
+        Response directoryListing = client.getResourceWithResponse(
+                "/storages/storage0/releases/org/carlspring/strongbox/browse");
+        Response fileListing = client.getResourceWithResponse(
+                "/storages/storage0/releases/org/carlspring/strongbox/browse/foo-bar/1.0");
+        Response invalidPath = client.getResourceWithResponse(
+                "/storages/storage0/releases/org/carlspring/strongbox/browse/1.0");
 
         String repositoryRootContent = repositoryRoot.readEntity(String.class);
         String directoryListingContent = directoryListing.readEntity(String.class);
         String fileListingContent = fileListing.readEntity(String.class);
 
-        assertFalse(".trash directory should not be visible in directory listing!", repositoryRootContent.contains(".trash"));
+        assertFalse(".trash directory should not be visible in directory listing!",
+                    repositoryRootContent.contains(".trash"));
         assertTrue(".trash directory should not be browsable!", trashDirectoryListing.getStatus() == 404);
 
-        assertFalse(".index directory should not be visible in directory listing!", repositoryRootContent.contains(".index"));
+        assertFalse(".index directory should not be visible in directory listing!",
+                    repositoryRootContent.contains(".index"));
         assertTrue(".index directory should not be browsable!", indexDirectoryListing.getStatus() == 404);
 
         assertTrue(directoryListingContent.contains("/storages/storage0/releases/org/carlspring/strongbox/browse"));
@@ -441,10 +466,14 @@ public class ArtifactRestletTest
         String ga = "org.carlspring.strongbox.metadata:metadata-foo";
 
         Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":3.1-SNAPSHOT");
-        Artifact artifact1WithTimestamp1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 1));
-        Artifact artifact1WithTimestamp2 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 2));
-        Artifact artifact1WithTimestamp3 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 3));
-        Artifact artifact1WithTimestamp4 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 4));
+        Artifact artifact1WithTimestamp1 = ArtifactUtils.getArtifactFromGAVTC(
+                ga + ":" + createSnapshotVersion("3.1", 1));
+        Artifact artifact1WithTimestamp2 = ArtifactUtils.getArtifactFromGAVTC(
+                ga + ":" + createSnapshotVersion("3.1", 2));
+        Artifact artifact1WithTimestamp3 = ArtifactUtils.getArtifactFromGAVTC(
+                ga + ":" + createSnapshotVersion("3.1", 3));
+        Artifact artifact1WithTimestamp4 = ArtifactUtils.getArtifactFromGAVTC(
+                ga + ":" + createSnapshotVersion("3.1", 4));
 
         ArtifactDeployer artifactDeployer = new ArtifactDeployer(GENERATOR_BASEDIR);
         artifactDeployer.setClient(client);
@@ -589,10 +618,10 @@ public class ArtifactRestletTest
         String artifactId = "metadata-foo";
         String version1 = "1.2.1";
         String version2 = "1.2.2";
-        
-        Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(groupId+":"+artifactId+":"+ version1);
-        Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC(groupId+":"+artifactId+":"+ version2);
-        
+
+        Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(groupId + ":" + artifactId + ":" + version1);
+        Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC(groupId + ":" + artifactId + ":" + version2);
+
         ArtifactDeployer artifactDeployer = new ArtifactDeployer(GENERATOR_BASEDIR);
         artifactDeployer.setClient(client);
 
@@ -605,14 +634,14 @@ public class ArtifactRestletTest
         // When
         String path = "org/carlspring/strongbox/delete-metadata/metadata-foo/1.2.2";
         client.delete(storageId, repositoryId, path);
-        
+
         //Aca deberiamos mirar el FS y a la mierda
         Metadata metadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
-                ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
+                                                    ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
         Assert.assertTrue(!metadata.getVersioning().getVersions().contains("1.2.2"));
     }
-    
-    @Test 
+
+    @Test
     public void updateMetadataOnDeleteSnapshotVersionDirectoryTest()
             throws NoSuchAlgorithmException,
                    XmlPullParserException,
@@ -624,14 +653,18 @@ public class ArtifactRestletTest
         String ga = "org.carlspring.strongbox.metadata:metadata-foo";
 
         Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":3.1-SNAPSHOT");
-        Artifact artifact1WithTimestamp1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 1));
-        Artifact artifact1WithTimestamp2 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 2));
-        Artifact artifact1WithTimestamp3 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 3));
-        Artifact artifact1WithTimestamp4 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 4));
+        Artifact artifact1WithTimestamp1 = ArtifactUtils.getArtifactFromGAVTC(
+                ga + ":" + createSnapshotVersion("3.1", 1));
+        Artifact artifact1WithTimestamp2 = ArtifactUtils.getArtifactFromGAVTC(
+                ga + ":" + createSnapshotVersion("3.1", 2));
+        Artifact artifact1WithTimestamp3 = ArtifactUtils.getArtifactFromGAVTC(
+                ga + ":" + createSnapshotVersion("3.1", 3));
+        Artifact artifact1WithTimestamp4 = ArtifactUtils.getArtifactFromGAVTC(
+                ga + ":" + createSnapshotVersion("3.1", 4));
 
         ArtifactDeployer artifactDeployer = new ArtifactDeployer(GENERATOR_BASEDIR);
         artifactDeployer.setClient(client);
-        
+
         String storageId = "storage0";
         String repositoryId = "snapshots";
 
@@ -639,12 +672,12 @@ public class ArtifactRestletTest
         artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp2, storageId, repositoryId);
         artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp3, storageId, repositoryId);
         artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp4, storageId, repositoryId);
-        
+
         String path = "org/carlspring/strongbox/metadata/metadata-foo/3.1-SNAPSHOT";
-        
+
         // When
         client.delete(storageId, repositoryId, path);
-            
+
         // Then
         Metadata metadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
                                                     ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
