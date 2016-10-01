@@ -113,7 +113,6 @@ public class TrashRestletUndeleteTest
     {
         assertTrue("Failed to undelete trash for repository '" + REPOSITORY_WITH_TRASH + "'!",
                    ARTIFACT_FILE_IN_TRASH.getParentFile().exists());
-
         client.undeleteTrash();
 
         File artifactFileRestoredFromTrash = new File(REPOSITORY_WITH_TRASH_BASEDIR + "/" +
