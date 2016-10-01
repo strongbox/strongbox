@@ -4,14 +4,20 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.http.*;
 import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
 
@@ -110,19 +116,44 @@ public class ArtifactSpringClient {
                     String path,
                     String fileName,
                     MediaType mediaType)
-            throws ArtifactOperationException {
+            throws ArtifactOperationException
+    {
         String contentDisposition = "attachment; filename=\"" + fileName + "\"";
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(mediaType);
         headers.add("Content-Disposition", contentDisposition);
 
-        HttpEntity<InputStream> entity = new HttpEntity<InputStream>(is, headers);
+        byte[] bytes = new byte[0];
+        try
+        {
+            bytes = IOUtils.toByteArray(is);
+        }
+        catch (IOException e)
+        {
+            new RuntimeException("Parce error on put method, class ArtifactSpringClient...");
+        }
+
+        HttpEntity<byte[]> entity = new HttpEntity<byte[]>(bytes, headers);
         path = "/" + path;
 
-        System.out.println(url + path + " url + path !!!!!!!!!!!!1");
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<String, String>();
+        try
+        {
+            params.add("path", path);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
 
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class, path);
+        UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(url).queryParams(params).build();
+        URI uri = uriComponents.toUri();
+        System.out.println(uri);
+
+        System.out.println(url + " +++++++ " + path);
+
+        ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.PUT, entity, String.class);
 
         handleFailures(response, "Failed to upload file!");
     }
@@ -199,7 +230,7 @@ public class ArtifactSpringClient {
             IOException {
 
         path = (!path.startsWith("/") ? "/" : "") + path;
-        url += ("?path=" + path);
+        url = getContextBaseUrl() + url + ("?path=" + path);
 
         logger.debug("Getting " + url + "...");
 
@@ -305,15 +336,19 @@ public class ArtifactSpringClient {
 
 
     public boolean pathExists(String path, String url) {
-        logger.debug("Path to artifact: " + url);
 
         path = (path.startsWith("/") ? path : '/' + path);
+        url = getContextBaseUrl() + "/" + url + ("?path=" + path);
 
-        url += ("?path=" + path);
+        logger.debug("Path to artifact: " + url);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.TEXT_PLAIN);
         HttpEntity<Integer> entity = new HttpEntity<Integer>(headers);
+
+        System.out.println(" Path :" + path);
+        System.out.println(" URL :" + url);
+
         ResponseEntity response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
 
         return response.getStatusCode().value() == 200;

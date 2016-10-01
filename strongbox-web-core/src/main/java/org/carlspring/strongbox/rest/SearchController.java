@@ -3,8 +3,10 @@ package org.carlspring.strongbox.rest;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
 import org.carlspring.strongbox.storage.indexing.SearchResults;
+import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
 import io.swagger.annotations.ApiOperation;
@@ -52,22 +54,26 @@ public class SearchController
     @ApiOperation(value = "Used to search for artifacts.", response = SearchResults.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "") })
     @PreAuthorize("hasAuthority('SEARCH_ARTIFACTS')")
-    @RequestMapping(value = "/", method = RequestMethod.GET, produces = { MediaType.APPLICATION_XML_VALUE,
-                                                                          MediaType.APPLICATION_JSON_VALUE,
-                                                                          MediaType.TEXT_PLAIN_VALUE })
+    @RequestMapping(value = "", method = RequestMethod.GET, consumes = { MediaType.APPLICATION_OCTET_STREAM_VALUE,
+                                                                         MediaType.TEXT_PLAIN_VALUE }, produces = { MediaType.APPLICATION_XML_VALUE,
+                                                                                                                    MediaType.APPLICATION_JSON_VALUE,
+                                                                                                                    MediaType.TEXT_PLAIN_VALUE })
     public ResponseEntity search(
-                                        @RequestParam(name = "storageId") final String storageId,
+                                        @RequestParam(name = "storageId", required = false) final String storageId,
                                         @RequestParam(name = "repositoryId") final String repositoryId,
                                         @RequestParam(name = "q") final String query,
                                         @RequestHeader HttpHeaders headers,
                                         HttpServletRequest request)
-            throws IOException, ParseException
+            throws IOException, ParseException, JAXBException
     {
         if (request.getHeader("accept").equalsIgnoreCase("text/plain"))
         {
             final SearchResults artifacts = getSearchResults(storageId, repositoryId, query);
 
-            return ResponseEntity.ok(artifacts.toString());
+            GenericParser<SearchResults> parser = new GenericParser<>(SearchResults.class);
+            String serializedProxyConfiguration = parser.serialize(artifacts);
+
+            return ResponseEntity.ok(serializedProxyConfiguration.toString());
         }
         else
         {
@@ -76,7 +82,10 @@ public class SearchController
             @SuppressWarnings("UnnecessaryLocalVariable")
             final SearchResults artifacts = getSearchResults(storageId, repositoryId, query);
 
-            return ResponseEntity.ok(artifacts);
+            GenericParser<SearchResults> parser = new GenericParser<>(SearchResults.class);
+            String serializedProxyConfiguration = parser.serialize(artifacts);
+
+            return ResponseEntity.ok(serializedProxyConfiguration);
         }
     }
 

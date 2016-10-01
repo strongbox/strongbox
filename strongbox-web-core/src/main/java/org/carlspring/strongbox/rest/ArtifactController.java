@@ -35,10 +35,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import static org.carlspring.strongbox.rest.ByteRangeRequestHandler.handlePartialDownload;
@@ -66,28 +63,28 @@ public class ArtifactController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deployed successfully."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
-    @RequestMapping(value = "{storageId}/{repositoryId}", method = RequestMethod.PUT, consumes = { MediaType.APPLICATION_OCTET_STREAM_VALUE,
-                                                                                                   MediaType.TEXT_PLAIN_VALUE,
-                                                                                                   MediaType.APPLICATION_JSON_VALUE })
+    @RequestMapping(value = "{storageId}/{repositoryId}", method = RequestMethod.PUT)
     public ResponseEntity upload(
                                         @PathVariable String storageId,
                                         @PathVariable String repositoryId,
                                         @RequestParam(name = "path") String path,
-                                        @RequestBody String requestEntity)
+                                        HttpEntity<byte[]> requestEntity)
             throws IOException,
                    AuthenticationException,
                    NoSuchAlgorithmException, JAXBException, ProviderImplementationException
     {
-        System.out.println("++++++++++++++++++++++++++++++++++++++++++++++");
         try
         {
-            byte[] payload = requestEntity.getBytes();
+            byte[] payload = requestEntity.getBody();
+            InputStream is = new ByteArrayInputStream(payload);
+            HttpHeaders headers = requestEntity.getHeaders();
+
+            /*byte[] payload = requestEntity.getBytes();
             System.out.println("Received " + payload.length);
 
-            InputStream is = new ByteArrayInputStream(payload);
+            InputStream is = new ByteArrayInputStream(payload);*/
             getArtifactManagementService().store(storageId, repositoryId, path, is);
 
-            //  return Response.ok().entity("The artifact was deployed successfully.").build();
             return ResponseEntity.ok("The artifact was deployed successfully.");
         }
         catch (IOException e)
@@ -95,8 +92,6 @@ public class ArtifactController
             // TODO: Figure out if this is the correct response type...
             logger.error(e.getMessage(), e);
 
-            // return Response.status(Response.Status.FORBIDDEN).entity("Access denied!").build();
-            // return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
@@ -229,7 +224,6 @@ public class ArtifactController
         try
         {
             isMd5 = getArtifactManagementService().resolve(storageId, repositoryId, path + ".md5");
-            // responseBuilder.header("Checksum-MD5", MessageDigestUtils.readChecksumFile(isMd5));
             response.setHeader("Checksum-MD5", MessageDigestUtils.readChecksumFile(isMd5));
         }
         catch (IOException | ArtifactTransportException e)
@@ -243,7 +237,6 @@ public class ArtifactController
         try
         {
             isSha1 = getArtifactManagementService().resolve(storageId, repositoryId, path + ".sha1");
-            // responseBuilder.header("Checksum-SHA1", MessageDigestUtils.readChecksumFile(isSha1));
             response.setHeader("Checksum-SHA1", MessageDigestUtils.readChecksumFile(isSha1));
         }
         catch (IOException | ArtifactTransportException e)
