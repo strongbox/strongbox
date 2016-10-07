@@ -17,8 +17,6 @@ import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -33,8 +31,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
 public class AuthorizationConfigControllerTest
         extends BackendBaseTest
 {
-
-    private static final Logger logger = LoggerFactory.getLogger(AuthorizationConfigControllerTest.class);
 
     private final GenericParser<AuthorizationConfig> configGenericParser = new GenericParser<>(AuthorizationConfig.class);
 

@@ -13,15 +13,17 @@ import org.carlspring.strongbox.xml.parsers.GenericParser;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -84,12 +86,10 @@ public class ConfigurationManagementControllerTest
                                                     "\n" +
                                                     "}";
 
-
-    private static final Logger logger = LoggerFactory.getLogger(ConfigurationManagementControllerTest.class);
     @Inject
     ObjectMapper objectMapper;
 
-    private RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Test
     public void testsSetAndGetPort()
@@ -378,7 +378,7 @@ public class ConfigurationManagementControllerTest
         //    response = client.deleteRepository(storageId, repositoryId1, true);
 
         url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId + "/" + repositoryId1;
-        System.out.println(url);
+        logger.debug(url);
 
         RestAssuredMockMvc.given()
                           .contentType(MediaType.TEXT_PLAIN_VALUE)
@@ -391,8 +391,8 @@ public class ConfigurationManagementControllerTest
 
         url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId + "/" + repositoryId1;
 
-        System.out.println(storageId);
-        System.out.println(repositoryId1);
+        logger.debug(storageId);
+        logger.debug(repositoryId1);
 
         RestAssuredMockMvc.given()
                           .contentType(MediaType.TEXT_PLAIN_VALUE)

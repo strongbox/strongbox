@@ -17,7 +17,16 @@ import org.carlspring.strongbox.storage.metadata.MetadataMerger;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Writer;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.Properties;
@@ -43,8 +52,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -56,7 +63,9 @@ import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
 import static org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration.generateArtifact;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by yury on 8/3/16.
@@ -75,7 +84,6 @@ public class ArtifactControllerTest
                                                            "/local");
     private static final File REPOSITORY_BASEDIR_RELEASES = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                                      "/storages/storage0/releases");
-    private static final Logger logger = LoggerFactory.getLogger(ArtifactControllerTest.class);
     private MetadataMerger metadataMerger;
 
     @Before
@@ -178,7 +186,7 @@ public class ArtifactControllerTest
 
         // calculate local checksum for given algorithms
         InputStream is = getArtifactAsStream(pathToJar, url);
-        System.out.println("Wrote " + is.available() + " bytes.");
+        logger.debug("Wrote " + is.available() + " bytes.");
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -205,11 +213,11 @@ public class ArtifactControllerTest
         bytes = new byte[size];
         is.close();
 
-        System.out.println("Read " + total + " bytes.");
+        logger.debug("Read " + total + " bytes.");
 
         is = getArtifactAsStream(pathToJar, url, total);
 
-        System.out.println("Skipped " + total + " bytes.");
+        logger.debug("Skipped " + total + " bytes.");
 
         int partialRead = total;
         int len2 = 0;
@@ -224,19 +232,19 @@ public class ArtifactControllerTest
 
         mdos.flush();
 
-        System.out.println("Wrote " + total + " bytes.");
-        System.out.println("Partial read, terminated after writing " + partialRead + " bytes.");
-        System.out.println("Partial read, continued and wrote " + len2 + " bytes.");
-        System.out.println("Partial reads: total written bytes: " + (partialRead + len2) + ".");
+        logger.debug("Wrote " + total + " bytes.");
+        logger.debug("Partial read, terminated after writing " + partialRead + " bytes.");
+        logger.debug("Partial read, continued and wrote " + len2 + " bytes.");
+        logger.debug("Partial reads: total written bytes: " + (partialRead + len2) + ".");
 
         final String md5Local = mdos.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
         final String sha1Local = mdos.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
 
-        System.out.println("MD5   [Remote]: " + md5Remote);
-        System.out.println("MD5   [Local ]: " + md5Local);
+        logger.debug("MD5   [Remote]: " + md5Remote);
+        logger.debug("MD5   [Local ]: " + md5Local);
 
-        System.out.println("SHA-1 [Remote]: " + sha1Remote);
-        System.out.println("SHA-1 [Local ]: " + sha1Local);
+        logger.debug("SHA-1 [Remote]: " + sha1Remote);
+        logger.debug("SHA-1 [Local ]: " + sha1Local);
 
         File artifact = new File("target/partial-foo-3.1.jar");
         if (artifact.exists())
@@ -282,16 +290,16 @@ public class ArtifactControllerTest
                                     .when()
                                     .get(url);
         Headers allHeaders = response.getHeaders();
-        System.out.println("HTTP GET " + url);
-        System.out.println("Response headers:");
+        logger.debug("HTTP GET " + url);
+        logger.debug("Response headers:");
         allHeaders.forEach(header ->
                            {
-                               System.out.println("\t" + header.getName() + " = " + header.getValue());
+                               logger.debug("\t" + header.getName() + " = " + header.getValue());
                            });
 
         response.then().statusCode(statusCode);
         byte[] result = response.getMockHttpServletResponse().getContentAsByteArray();
-        System.out.println("Received " + result.length + " bytes.");
+        logger.debug("Received " + result.length + " bytes.");
 
         return result;
     }
@@ -493,7 +501,7 @@ public class ArtifactControllerTest
         assertTrue(".index directory should not be browsable!",
                    indexDirectoryListing.response().getStatusCode() == 404);
 
-        System.out.println(directoryListingContent);
+        logger.debug(directoryListingContent);
 
         assertTrue(directoryListingContent.contains("org/carlspring/strongbox/browse"));
         assertTrue(fileListingContent.contains("foo-bar-1.0.jar"));
@@ -576,9 +584,9 @@ public class ArtifactControllerTest
             throws FileNotFoundException, NoSuchAlgorithmException
     {
         File artifactFile = new File(artifactDeployer.getBasedir(), ArtifactUtils.convertArtifactToPath(artifact));
-        System.out.println(artifactDeployer.getBasedir());
-        System.out.println(artifact);
-        System.out.println(artifactFile);
+        logger.debug(artifactDeployer.getBasedir());
+        logger.debug(artifact.toString());
+        logger.debug(artifactFile.toString());
         ArtifactInputStream is = new ArtifactInputStream(artifact, new FileInputStream(artifactFile));
     }
 

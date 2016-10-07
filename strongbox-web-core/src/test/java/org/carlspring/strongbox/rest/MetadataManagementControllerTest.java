@@ -23,8 +23,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -50,7 +48,6 @@ public class MetadataManagementControllerTest
                                                                      "/storages/storage0/releases");
     private static final File REPOSITORY_BASEDIR_SNAPSHOTS = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                                       "/storages/storage0/snapshots");
-    private static final Logger logger = LoggerFactory.getLogger(MetadataManagementControllerTest.class);
 
     @Autowired
     private ArtifactMetadataService artifactMetadataService;
@@ -99,7 +96,7 @@ public class MetadataManagementControllerTest
             return;
         }
 
-        System.out.println("Removing directory " + dir.getAbsolutePath());
+        logger.debug("Removing directory " + dir.getAbsolutePath());
 
         if (dir.isDirectory())
         {
@@ -115,7 +112,7 @@ public class MetadataManagementControllerTest
         else
         {
             boolean res = dir.delete();
-            System.out.println("Remove " + dir.getAbsolutePath() + " " + res);
+            logger.debug("Remove " + dir.getAbsolutePath() + " " + res);
         }
     }
 
@@ -226,16 +223,19 @@ public class MetadataManagementControllerTest
                                     .when()
                                     .get(url);
         Headers allHeaders = response.getHeaders();
-        System.out.println("HTTP GET " + url);
-        System.out.println("Response headers:");
+
+        logger.debug("HTTP GET " + url);
+        logger.debug("Response headers:");
+
         allHeaders.forEach(header ->
                            {
-                               System.out.println("\t" + header.getName() + " = " + header.getValue());
+                               logger.debug("\t" + header.getName() + " = " + header.getValue());
                            });
 
         response.then().statusCode(statusCode);
         byte[] result = response.getMockHttpServletResponse().getContentAsByteArray();
-        System.out.println("Received " + result.length + " bytes.");
+
+        logger.debug("Received " + result.length + " bytes.");
 
         return result;
     }
@@ -330,8 +330,8 @@ public class MetadataManagementControllerTest
                                            .get(url);
 
         Headers allHeaders = response.getHeaders();
-        System.out.println("HTTP GET " + url);
-        System.out.println("Response headers:");
+        logger.debug("HTTP GET " + url);
+        logger.debug("Response headers:");
         allHeaders.forEach(header ->
                            {
                                System.out.println("\t" + header.getName() + " = " + header.getValue());
@@ -339,7 +339,7 @@ public class MetadataManagementControllerTest
 
         response.then().statusCode(200);
         byte[] result = response.getMockHttpServletResponse().getContentAsByteArray();
-        System.out.println("Received " + result.length + " bytes.");
+        logger.debug("Received " + result.length + " bytes.");
 
         InputStream is = new ByteArrayInputStream(result);
         Metadata metadata2 = artifactMetadataService.getMetadata(is);
@@ -350,8 +350,8 @@ public class MetadataManagementControllerTest
         Assert.assertNotNull("Failed to retrieve MD5 checksum via HTTP header!", md5);
         Assert.assertNotNull("Failed to retrieve SHA-1 checksum via HTTP header!", sha1);
 
-        System.out.println("MD5:   " + md5);
-        System.out.println("SHA-1: " + sha1);
+        logger.debug("MD5:   " + md5);
+        logger.debug("SHA-1: " + sha1);
 
         Assert.assertNotNull("Incorrect metadata!", metadata2.getVersioning());
         Assert.assertNotNull("Incorrect metadata!", metadata2.getVersioning().getLatest());

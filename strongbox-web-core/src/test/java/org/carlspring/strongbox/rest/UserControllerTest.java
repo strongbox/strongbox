@@ -9,7 +9,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -18,8 +17,11 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = WebConfig.class)
@@ -38,14 +40,14 @@ public class UserControllerTest
     public void greetTest()
     {
 
-        RestAssuredMockMvc.given()
-                          .contentType(ContentType.JSON)
-                          .param("The param", "Johan")
-                          .when()
-                          .get("/users/greet")
-                          .then()
-                          .statusCode(200)
-                          .body(containsString("hello, Johan"));
+        given()
+                .contentType(ContentType.JSON)
+                .param("The param", "Johan")
+                .when()
+                .get("/users/greet")
+                .then()
+                .statusCode(200)
+                .body(containsString("hello, Johan"));
     }
 
     @Test
@@ -55,14 +57,14 @@ public class UserControllerTest
     {
         final String userName = "admin";
 
-        RestAssuredMockMvc.given()
-                          .contentType(ContentType.JSON)
-                          .param("The name of the user", userName)
-                          .when()
-                          .get("/users/user/" + userName)
-                          .then()
-                          .statusCode(200)
-                          .body(containsString("admin"));
+        given()
+                .contentType(ContentType.JSON)
+                .param("The name of the user", userName)
+                .when()
+                .get("/users/user/" + userName)
+                .then()
+                .statusCode(200)
+                .body(containsString("admin"));
 
     }
 
@@ -73,16 +75,16 @@ public class UserControllerTest
     {
         User test = buildUser("test", "password");
 
-        RestAssuredMockMvc.given()
-                          .contentType("application/json")
-                          .param("juser", test)
-                          .when()
-                          .post("/users/user")
-                          .peek() // Use peek() to print the ouput
-                          .then()
-                          .statusCode(200) // check http status code
-                          .extract()
-                          .asString();
+        given()
+                .contentType("application/json")
+                .param("juser", test)
+                .when()
+                .post("/users/user")
+                .peek() // Use peek() to print the ouput
+                .then()
+                .statusCode(200) // check http status code
+                .extract()
+                .asString();
     }
 
     @Test
@@ -92,15 +94,15 @@ public class UserControllerTest
     {
 
         String response =
-                RestAssuredMockMvc.given()
-                                  .contentType("application/json")
-                                  .when()
-                                  .get("/users/all")
-                                  .peek() // Use peek() to print the ouput
-                                  .then()
-                                  .statusCode(200) // check http status code
-                                  .extract()
-                                  .asString();
+                given()
+                        .contentType("application/json")
+                        .when()
+                        .get("/users/all")
+                        .peek() // Use peek() to print the ouput
+                        .then()
+                        .statusCode(200) // check http status code
+                        .extract()
+                        .asString();
 
         List<User> users = objectMapper.readValue(response,
                                                   objectMapper.getTypeFactory().constructCollectionType(List.class,
@@ -120,16 +122,16 @@ public class UserControllerTest
         // create new user
         User test = buildUser("test-update", "password-update");
 
-        RestAssuredMockMvc.given()
-                          .contentType("application/json")
-                          .param("juser", test)
-                          .when()
-                          .post("/users/user")
-                          .peek() // Use peek() to print the ouput
-                          .then()
-                          .statusCode(200) // check http status code
-                          .extract()
-                          .asString();
+        given()
+                .contentType("application/json")
+                .param("juser", test)
+                .when()
+                .post("/users/user")
+                .peek() // Use peek() to print the ouput
+                .then()
+                .statusCode(200) // check http status code
+                .extract()
+                .asString();
 
         // retrieve newly created user and store the id
         User createdUser = retrieveUserByName(test.getUsername());
@@ -140,16 +142,16 @@ public class UserControllerTest
 
         // send update request
 
-        String response = RestAssuredMockMvc.given()
-                                            .contentType("application/json")
-                                            .param("juser", createdUser)
-                                            .when()
-                                            .put("/users/user")
-                                            .peek() // Use peek() to print the ouput
-                                            .then()
-                                            .statusCode(200) // check http status code
-                                            .extract()
-                                            .asString();
+        String response = given()
+                                  .contentType("application/json")
+                                  .param("juser", createdUser)
+                                  .when()
+                                  .put("/users/user")
+                                  .peek() // Use peek() to print the ouput
+                                  .then()
+                                  .statusCode(200) // check http status code
+                                  .extract()
+                                  .asString();
 
         // deserialize response
         User updatedUser = objectMapper.readValue(response, User.class);
@@ -166,27 +168,27 @@ public class UserControllerTest
         // create new user
         User test = buildUser("test-update", "password-update");
 
-        RestAssuredMockMvc.given()
-                          .contentType("application/json")
-                          .param("juser", test)
-                          .when()
-                          .post("/users/user")
-                          .peek() // Use peek() to print the ouput
-                          .then()
-                          .statusCode(200) // check http status code
-                          .extract()
-                          .asString();
+        given()
+                .contentType("application/json")
+                .param("juser", test)
+                .when()
+                .post("/users/user")
+                .peek() // Use peek() to print the ouput
+                .then()
+                .statusCode(200) // check http status code
+                .extract()
+                .asString();
 
-        RestAssuredMockMvc.given()
-                          .contentType("application/json")
-                          .param("The name of the user", test.getUsername())
-                          .when()
-                          .delete("/users/user/" + test.getUsername())
-                          .peek() // Use peek() to print the ouput
-                          .then()
-                          .statusCode(200) // check http status code
-                          .extract()
-                          .asString();
+        given()
+                .contentType("application/json")
+                .param("The name of the user", test.getUsername())
+                .when()
+                .delete("/users/user/" + test.getUsername())
+                .peek() // Use peek() to print the ouput
+                .then()
+                .statusCode(200) // check http status code
+                .extract()
+                .asString();
 
     }
 
@@ -195,16 +197,16 @@ public class UserControllerTest
     {
         String response;
 
-        response = RestAssuredMockMvc.given()
-                                     .contentType("application/json")
-                                     .param("The name of the user", name)
-                                     .when()
-                                     .get("/users/user/" + name)
-                                     .peek() // Use peek() to print the ouput
-                                     .then()
-                                     .statusCode(200) // check http status code
-                                     .extract()
-                                     .asString();
+        response = given()
+                           .contentType("application/json")
+                           .param("The name of the user", name)
+                           .when()
+                           .get("/users/user/" + name)
+                           .peek() // Use peek() to print the ouput
+                           .then()
+                           .statusCode(200) // check http status code
+                           .extract()
+                           .asString();
 
         User admin = objectMapper.readValue(response, User.class);
         return admin;

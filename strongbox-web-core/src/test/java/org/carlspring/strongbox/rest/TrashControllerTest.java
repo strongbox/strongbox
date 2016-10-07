@@ -47,8 +47,8 @@ public class TrashControllerTest
 
         final String gavtc = "org.carlspring.strongbox:test-artifact-to-trash::jar";
 
-        System.out.println("REPOSITORY_WITH_TRASH_BASEDIR: " + REPOSITORY_WITH_TRASH_BASEDIR);
-        System.out.println("BASEDIR.getAbsolutePath(): " + BASEDIR.getAbsolutePath());
+        logger.debug("REPOSITORY_WITH_TRASH_BASEDIR: " + REPOSITORY_WITH_TRASH_BASEDIR);
+        logger.debug("BASEDIR.getAbsolutePath(): " + BASEDIR.getAbsolutePath());
 
         TestCaseWithArtifactGeneration.generateArtifact(REPOSITORY_WITH_TRASH_BASEDIR, gavtc, new String[]{ "1.0" });
         TestCaseWithArtifactGeneration.generateArtifact(
@@ -75,7 +75,7 @@ public class TrashControllerTest
             return;
         }
 
-        System.out.println("Removing directory " + dir.getAbsolutePath());
+        logger.debug("Removing directory " + dir.getAbsolutePath());
 
         if (dir.isDirectory())
         {
@@ -91,7 +91,7 @@ public class TrashControllerTest
         else
         {
             boolean res = dir.delete();
-            System.out.println("Remove " + dir.getAbsolutePath() + " " + res);
+            logger.debug("Remove " + dir.getAbsolutePath() + " " + res);
         }
     }
 
@@ -104,7 +104,7 @@ public class TrashControllerTest
         final File repositoryDir = new File(BASEDIR + "/storages/storage0/releases-with-trash/.trash");
         final File artifactFile = new File(repositoryDir, artifactPath);
 
-        System.out.println("Artifact file: " + artifactFile.getAbsolutePath());
+        logger.debug("Artifact file: " + artifactFile.getAbsolutePath());
 
         Assert.assertTrue("Should have moved the artifact to the trash during a force delete operation, " +
                           "when allowsForceDeletion is not enabled!",

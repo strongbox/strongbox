@@ -76,7 +76,7 @@ public class SearchControllerTest
         GenericParser<SearchResults> parser = new GenericParser<>(SearchResults.class);
         SearchResults serializedProxyConfiguration = parser.deserialize(response);
 
-        System.out.println(serializedProxyConfiguration);
+        logger.debug(serializedProxyConfiguration.toString());
         /*Assert.assertTrue("Received unexpected response!",
                 response.contains(">1.0.11.3<") && response.contains(">1.0.11.3.1<"));*/
     }

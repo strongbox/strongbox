@@ -9,9 +9,14 @@ import java.net.URI;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -24,38 +29,43 @@ import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
 /**
  * Created by yury on 9/8/16.
  */
-public class ArtifactSpringClient {
+public class ArtifactSpringClient
+{
 
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ArtifactSpringClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactSpringClient.class);
+
     protected String username = "maven";
     protected String password = "password";
     private String protocol = "http";
     private String host =
             System.getProperty("strongbox.host") != null ? System.getProperty("strongbox.host") : "localhost";
     private int port = System.getProperty("strongbox.port") != null ?
-            Integer.parseInt(System.getProperty("strongbox.port")) :
-            48080;
+                       Integer.parseInt(System.getProperty("strongbox.port")) :
+                       48080;
     private String contextBaseUrl;
     private RestTemplate restTemplate = new RestTemplate();
 
 
-    public static ArtifactSpringClient getTestInstance() {
+    public static ArtifactSpringClient getTestInstance()
+    {
         return getTestInstance("maven", "password");
     }
 
-    public static ArtifactSpringClient getTestInstanceLoggedInAsAdmin() {
+    public static ArtifactSpringClient getTestInstanceLoggedInAsAdmin()
+    {
         return getTestInstance("admin", "password");
     }
 
     public static ArtifactSpringClient getTestInstance(String username,
-                                                       String password) {
+                                                       String password)
+    {
         String host = System.getProperty("strongbox.host") != null ?
-                System.getProperty("strongbox.host") :
-                "localhost";
+                      System.getProperty("strongbox.host") :
+                      "localhost";
 
         int port = System.getProperty("strongbox.port") != null ?
-                Integer.parseInt(System.getProperty("strongbox.port")) :
-                48080;
+                   Integer.parseInt(System.getProperty("strongbox.port")) :
+                   48080;
 
         ArtifactSpringClient client = new ArtifactSpringClient();
         client.setUsername(username);
@@ -71,7 +81,8 @@ public class ArtifactSpringClient {
                             String storageId,
                             String repositoryId,
                             InputStream is)
-            throws ArtifactOperationException {
+            throws ArtifactOperationException
+    {
         String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId;
 
         logger.debug("Deploying " + url + "...");
@@ -87,7 +98,8 @@ public class ArtifactSpringClient {
                             String storageId,
                             String repositoryId,
                             InputStream is)
-            throws ArtifactOperationException {
+            throws ArtifactOperationException
+    {
         String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + path;
 
         logger.debug("Deploying " + url + "...");
@@ -99,7 +111,8 @@ public class ArtifactSpringClient {
                            String url,
                            String path,
                            String fileName)
-            throws ArtifactOperationException {
+            throws ArtifactOperationException
+    {
         put(is, url, path, fileName, MediaType.APPLICATION_OCTET_STREAM);
     }
 
@@ -107,7 +120,8 @@ public class ArtifactSpringClient {
                                String url,
                                String path,
                                String fileName)
-            throws ArtifactOperationException {
+            throws ArtifactOperationException
+    {
         put(is, url, path, fileName, MediaType.APPLICATION_XML);
     }
 
@@ -131,7 +145,7 @@ public class ArtifactSpringClient {
         }
         catch (IOException e)
         {
-            new RuntimeException("Parce error on put method, class ArtifactSpringClient...");
+            throw new RuntimeException("Parse error on put method, class ArtifactSpringClient...", e);
         }
 
         HttpEntity<byte[]> entity = new HttpEntity<byte[]>(bytes, headers);
@@ -149,9 +163,6 @@ public class ArtifactSpringClient {
 
         UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(url).queryParams(params).build();
         URI uri = uriComponents.toUri();
-        System.out.println(uri);
-
-        System.out.println(url + " +++++++ " + path);
 
         ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.PUT, entity, String.class);
 
@@ -161,7 +172,8 @@ public class ArtifactSpringClient {
     public void getArtifact(Artifact artifact,
                             String repository)
             throws ArtifactTransportException,
-            IOException {
+                   IOException
+    {
         String url = getContextBaseUrl() + "/" + repository + "/" + ArtifactUtils.convertArtifactToPath(artifact);
 
         logger.debug("Getting " + url + "...");
@@ -172,9 +184,12 @@ public class ArtifactSpringClient {
         ResponseEntity<Resource> response = restTemplate.exchange(url, HttpMethod.GET, entity, Resource.class);
 
         java.io.InputStream is;
-        try {
+        try
+        {
             is = response.getBody().getInputStream();
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             throw new RuntimeException(e);
         }
 
@@ -202,15 +217,18 @@ public class ArtifactSpringClient {
         }
     }
 
-    public java.io.InputStream getResource(String path, String url)
+    public java.io.InputStream getResource(String path,
+                                           String url)
             throws ArtifactTransportException,
-            IOException {
+                   IOException
+    {
         return getResource(path, url, 0);
     }
 
     public ResponseEntity getResourceWithResponse(String pathVar)
             throws ArtifactTransportException,
-            IOException {
+                   IOException
+    {
         String path = "/storages/storage0/releases";
         String url = getContextBaseUrl() + (!path.startsWith("/") ? "/" : "") + path + ("?path=" + pathVar);
 
@@ -224,10 +242,12 @@ public class ArtifactSpringClient {
         return response;
     }
 
-    public java.io.InputStream getResource(String path, String url,
+    public java.io.InputStream getResource(String path,
+                                           String url,
                                            long offset)
             throws ArtifactTransportException,
-            IOException {
+                   IOException
+    {
 
         path = (!path.startsWith("/") ? "/" : "") + path;
         url = getContextBaseUrl() + url + ("?path=" + path);
@@ -236,12 +256,15 @@ public class ArtifactSpringClient {
 
         ResponseEntity<Resource> response;
 
-        if (offset > 0) {
+        if (offset > 0)
+        {
             HttpHeaders headers = new HttpHeaders();
             headers.add("Range", "bytes=" + offset + "-");
             HttpEntity<String> entity = new HttpEntity<String>(headers);
             response = restTemplate.exchange(url, HttpMethod.GET, entity, Resource.class);
-        } else {
+        }
+        else
+        {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.TEXT_PLAIN);
             HttpEntity<String> entity = new HttpEntity<String>(headers);
@@ -249,9 +272,12 @@ public class ArtifactSpringClient {
         }
 
         java.io.InputStream is;
-        try {
+        try
+        {
             is = response.getBody().getInputStream();
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             throw new RuntimeException(e);
         }
 
@@ -262,7 +288,8 @@ public class ArtifactSpringClient {
     public void deleteArtifact(Artifact artifact,
                                String storageId,
                                String repositoryId)
-            throws ArtifactOperationException {
+            throws ArtifactOperationException
+    {
         String url = getUrlForArtifact(artifact, storageId, repositoryId);
 
         HttpHeaders headers = new HttpHeaders();
@@ -276,7 +303,8 @@ public class ArtifactSpringClient {
     public void delete(String storageId,
                        String repositoryId,
                        String path)
-            throws ArtifactOperationException {
+            throws ArtifactOperationException
+    {
         delete(storageId, repositoryId, path, false);
     }
 
@@ -284,10 +312,11 @@ public class ArtifactSpringClient {
                        String repositoryId,
                        String path,
                        boolean force)
-            throws ArtifactOperationException {
+            throws ArtifactOperationException
+    {
         @SuppressWarnings("ConstantConditions")
         String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "?path=" + path +
-                (force ? "?force=" + force : "");
+                     (force ? "?force=" + force : "");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.TEXT_PLAIN);
@@ -299,7 +328,8 @@ public class ArtifactSpringClient {
 
     public void deleteTrash(String storageId,
                             String repositoryId)
-            throws ArtifactOperationException {
+            throws ArtifactOperationException
+    {
         String url = getUrlForTrash(storageId, repositoryId);
 
         HttpHeaders headers = new HttpHeaders();
@@ -311,7 +341,8 @@ public class ArtifactSpringClient {
     }
 
     public void deleteTrash()
-            throws ArtifactOperationException {
+            throws ArtifactOperationException
+    {
         String url = getContextBaseUrl() + "/trash";
 
         HttpHeaders headers = new HttpHeaders();
@@ -324,30 +355,31 @@ public class ArtifactSpringClient {
 
     public String getUrlForArtifact(Artifact artifact,
                                     String storageId,
-                                    String repositoryId) {
+                                    String repositoryId)
+    {
         return getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" +
-                ArtifactUtils.convertArtifactToPath(artifact);
+               ArtifactUtils.convertArtifactToPath(artifact);
     }
 
     public String getUrlForTrash(String storageId,
-                                 String repositoryId) {
+                                 String repositoryId)
+    {
         return getContextBaseUrl() + "/trash/" + storageId + "/" + repositoryId;
     }
 
 
-    public boolean pathExists(String path, String url) {
+    public boolean pathExists(String path,
+                              String url)
+    {
 
         path = (path.startsWith("/") ? path : '/' + path);
         url = getContextBaseUrl() + "/" + url + ("?path=" + path);
 
-        logger.debug("Path to artifact: " + url);
+        logger.debug("Path to artifact: " + path + " URL " + url);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.TEXT_PLAIN);
         HttpEntity<Integer> entity = new HttpEntity<Integer>(headers);
-
-        System.out.println(" Path :" + path);
-        System.out.println(" URL :" + url);
 
         ResponseEntity response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
 
@@ -357,7 +389,8 @@ public class ArtifactSpringClient {
     public void undelete(String storageId,
                          String repositoryId,
                          String path)
-            throws ArtifactOperationException {
+            throws ArtifactOperationException
+    {
         @SuppressWarnings("ConstantConditions")
         String url = getUrlForTrash(storageId, repositoryId) + "?path=" + path;
 
@@ -372,7 +405,8 @@ public class ArtifactSpringClient {
     // Not checked**
     public void undeleteTrash(String storageId,
                               String repositoryId)
-            throws ArtifactOperationException {
+            throws ArtifactOperationException
+    {
         String url = getUrlForTrash(storageId, repositoryId);
 
         HttpHeaders headers = new HttpHeaders();
@@ -385,7 +419,8 @@ public class ArtifactSpringClient {
 
     // НУЖНО ПРОТЕСТИТЬ
     public void undeleteTrash()
-            throws ArtifactOperationException {
+            throws ArtifactOperationException
+    {
         String url = getContextBaseUrl() + "/trash";
 
         HttpHeaders headers = new HttpHeaders();
@@ -399,14 +434,20 @@ public class ArtifactSpringClient {
     public boolean artifactExists(Artifact artifact,
                                   String storageId,
                                   String repositoryId)
-            throws ResponseException {
+            throws ResponseException
+    {
         ResponseEntity response = artifactExistsStatusCode(artifact, storageId, repositoryId);
 
-        if (response.getStatusCode().value() == 200) {
+        if (response.getStatusCode().value() == 200)
+        {
             return true;
-        } else if (response.getStatusCode().value() == 404) {
+        }
+        else if (response.getStatusCode().value() == 404)
+        {
             return false;
-        } else {
+        }
+        else
+        {
             throw new ResponseException(response.getStatusCode().toString(), response.getStatusCode().value());
         }
     }
@@ -414,7 +455,8 @@ public class ArtifactSpringClient {
     public ResponseEntity artifactExistsStatusCode(Artifact artifact,
                                                    String storageId,
                                                    String repositoryId)
-            throws ResponseException {
+            throws ResponseException
+    {
         String url = getUrlForArtifact(artifact, storageId, repositoryId);
 
         logger.debug("Path to artifact: " + url);
@@ -429,20 +471,25 @@ public class ArtifactSpringClient {
 
     private void handleFailures(ResponseEntity response,
                                 String message)
-            throws ArtifactOperationException, AuthenticationServiceException {
+            throws ArtifactOperationException, AuthenticationServiceException
+    {
 
         int status = response.getStatusCode().value();
 
-        if (status == SC_UNAUTHORIZED || status == SC_FORBIDDEN) {
+        if (status == SC_UNAUTHORIZED || status == SC_FORBIDDEN)
+        {
             // TODO Handle authentication exceptions in a right way
             throw new AuthenticationServiceException(message +
-                    "\nUser is unauthorized to execute that operation. " +
-                    "Check assigned roles and privileges.");
-        } else if (status != 200) {
+                                                     "\nUser is unauthorized to execute that operation. " +
+                                                     "Check assigned roles and privileges.");
+        }
+        else if (status != 200)
+        {
             StringBuilder messageBuilder = new StringBuilder();
             messageBuilder.append("\n ERROR ").append(status).append(" ").append(message).append("\n");
             Object entity = response.getBody().toString();
-            if (entity != null) {
+            if (entity != null)
+            {
                 messageBuilder.append(entity.toString());
             }
             logger.error(messageBuilder.toString());
@@ -450,55 +497,68 @@ public class ArtifactSpringClient {
     }
 
 
-    public String getProtocol() {
+    public String getProtocol()
+    {
         return protocol;
     }
 
-    public void setProtocol(String protocol) {
+    public void setProtocol(String protocol)
+    {
         this.protocol = protocol;
     }
 
-    public String getHost() {
+    public String getHost()
+    {
         return host;
     }
 
-    public void setHost(String host) {
+    public void setHost(String host)
+    {
         this.host = host;
     }
 
-    public int getPort() {
+    public int getPort()
+    {
         return port;
     }
 
-    public void setPort(int port) {
+    public void setPort(int port)
+    {
         this.port = port;
     }
 
-    public String getContextBaseUrl() {
-        if (contextBaseUrl == null) {
+    public String getContextBaseUrl()
+    {
+        if (contextBaseUrl == null)
+        {
             contextBaseUrl = protocol + "://" + host + ":" + port;
         }
 
         return contextBaseUrl;
     }
 
-    public void setContextBaseUrl(String contextBaseUrl) {
+    public void setContextBaseUrl(String contextBaseUrl)
+    {
         this.contextBaseUrl = contextBaseUrl;
     }
 
-    public String getUsername() {
+    public String getUsername()
+    {
         return username;
     }
 
-    public void setUsername(String username) {
+    public void setUsername(String username)
+    {
         this.username = username;
     }
 
-    public String getPassword() {
+    public String getPassword()
+    {
         return password;
     }
 
-    public void setPassword(String password) {
+    public void setPassword(String password)
+    {
         this.password = password;
     }
 

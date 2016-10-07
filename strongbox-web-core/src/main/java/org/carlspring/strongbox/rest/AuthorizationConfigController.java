@@ -109,7 +109,7 @@ public class AuthorizationConfigController
         Role role = parser.deserialize(serializedJson);
 
         logger.debug("Trying to add new role from JSON\n" + serializedJson);
-        System.out.println(role);
+        logger.debug(role.toString());
         return processConfig(config ->
                              {
                                  //  Role role = read(json, Role.class);

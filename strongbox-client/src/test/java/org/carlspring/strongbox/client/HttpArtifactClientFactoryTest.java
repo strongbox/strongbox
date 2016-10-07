@@ -11,6 +11,8 @@ import org.apache.http.util.EntityUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -20,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 public class HttpArtifactClientFactoryTest
 {
 
+    private static final Logger logger = LoggerFactory.getLogger(HttpArtifactClientFactoryTest.class);
 
     public static final String HOST_NAME = "localhost";
 
@@ -73,18 +76,19 @@ public class HttpArtifactClientFactoryTest
 
             if (proxy != null)
             {
-                System.out.println("Executing request " + request.getRequestLine() + " to " + target + " via " + proxy + "...");
+                logger.debug(
+                        "Executing request " + request.getRequestLine() + " to " + target + " via " + proxy + "...");
             }
             else
             {
-                System.out.println("Executing request " + request.getRequestLine() + " to " + target + "...");
+                logger.debug("Executing request " + request.getRequestLine() + " to " + target + "...");
             }
 
             CloseableHttpResponse response = client.execute(target, request);
             try
             {
-                System.out.println("----------------------------------------");
-                System.out.println(response.getStatusLine());
+                logger.debug("----------------------------------------");
+                logger.debug(response.getStatusLine().toString());
 
                 EntityUtils.consume(response.getEntity());
             }

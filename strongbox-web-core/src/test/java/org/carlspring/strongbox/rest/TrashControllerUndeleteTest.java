@@ -7,7 +7,6 @@ import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 
 import java.io.File;
 
-import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -52,8 +52,8 @@ public class TrashControllerUndeleteTest
 
         final String gavtc = "org.carlspring.strongbox.undelete:test-artifact-undelete::jar";
 
-        System.out.println("REPOSITORY_WITH_TRASH_BASEDIR: " + REPOSITORY_WITH_TRASH_BASEDIR);
-        System.out.println("BASEDIR.getAbsolutePath(): " + BASEDIR.getAbsolutePath());
+        logger.debug("REPOSITORY_WITH_TRASH_BASEDIR: " + REPOSITORY_WITH_TRASH_BASEDIR);
+        logger.debug("BASEDIR.getAbsolutePath(): " + BASEDIR.getAbsolutePath());
 
         TestCaseWithArtifactGeneration.generateArtifact(REPOSITORY_WITH_TRASH_BASEDIR, gavtc, new String[]{ "1.0" });
         TestCaseWithArtifactGeneration.generateArtifact(
@@ -81,7 +81,7 @@ public class TrashControllerUndeleteTest
             return;
         }
 
-        System.out.println("Removing directory " + dir.getAbsolutePath());
+        logger.debug("Removing directory " + dir.getAbsolutePath());
 
         if (dir.isDirectory())
         {
@@ -97,7 +97,7 @@ public class TrashControllerUndeleteTest
         else
         {
             boolean res = dir.delete();
-            System.out.println("Remove " + dir.getAbsolutePath() + " " + res);
+            logger.debug("Remove " + dir.getAbsolutePath() + " " + res);
         }
     }
 
@@ -111,7 +111,7 @@ public class TrashControllerUndeleteTest
         final File repositoryDir = new File(BASEDIR + "/storages/storage0/releases-with-trash/.trash");
         final File artifactFile = new File(repositoryDir, artifactPath);
 
-        System.out.println("Artifact file: " + artifactFile.getAbsolutePath());
+        logger.debug("Artifact file: " + artifactFile.getAbsolutePath());
 
         assertTrue("Should have moved the artifact to the trash during a force delete operation, " +
                    "when allowsForceDeletion is not enabled!",
@@ -124,15 +124,15 @@ public class TrashControllerUndeleteTest
     {
         String url = getContextBaseUrl() + "/trash/" + STORAGE + "/" + REPOSITORY_WITH_TRASH;
 
-        RestAssuredMockMvc.given()
-                          .contentType(MediaType.TEXT_PLAIN_VALUE)
-                          .param("path",
-                                 "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/test-artifact-undelete-1.0.jar")
-                          .when()
-                          .post(url)
-                          .peek()
-                          .then()
-                          .statusCode(200);
+        given()
+                .contentType(MediaType.TEXT_PLAIN_VALUE)
+                .param("path",
+                       "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/test-artifact-undelete-1.0.jar")
+                .when()
+                .post(url)
+                .peek()
+                .then()
+                .statusCode(200);
 
         File artifactFileRestoredFromTrash = new File(REPOSITORY_WITH_TRASH_BASEDIR + "/" +
                                                       "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/" +
@@ -153,13 +153,13 @@ public class TrashControllerUndeleteTest
 
         String url = getContextBaseUrl() + "/trash";
 
-        RestAssuredMockMvc.given()
-                          .contentType(MediaType.TEXT_PLAIN_VALUE)
-                          .when()
-                          .post(url)
-                          .peek()
-                          .then()
-                          .statusCode(200);
+        given()
+                .contentType(MediaType.TEXT_PLAIN_VALUE)
+                .when()
+                .post(url)
+                .peek()
+                .then()
+                .statusCode(200);
 
         File artifactFileRestoredFromTrash = new File(REPOSITORY_WITH_TRASH_BASEDIR + "/" +
                                                       "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/" +
@@ -189,14 +189,14 @@ public class TrashControllerUndeleteTest
     {
         String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId;
 
-        RestAssuredMockMvc.given()
-                          .contentType(MediaType.TEXT_PLAIN_VALUE)
-                          .params("path", path, "force", force)
-                          .when()
-                          .delete(url)
-                          .peek()
-                          .then()
-                          .statusCode(200);
+        given()
+                .contentType(MediaType.TEXT_PLAIN_VALUE)
+                .params("path", path, "force", force)
+                .when()
+                .delete(url)
+                .peek()
+                .then()
+                .statusCode(200);
     }
 
 }

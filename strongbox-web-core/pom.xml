@@ -107,7 +107,7 @@
             <plugin>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
-                <version>9.3.12.v20160915</version>
+                <version>${version.jetty.maven.plugin}</version>
                 <configuration>
                     <scanIntervalSeconds>10</scanIntervalSeconds>
 
@@ -308,7 +308,6 @@
     </build>
 
     <dependencies>
-
 
         <!-- Java EE 7 dependencies -->
         <!-- TODO: Replace with separate modules -->
