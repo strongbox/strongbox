@@ -71,6 +71,10 @@ import static org.junit.Assert.assertTrue;
  * Created by yury on 8/3/16.
  */
 
+// testMetadataAtVersionLevel doesn't work
+// Artifact org/carlspring/strongbox/metadata/metadata-foo/3.1-SNAPSHOT/maven-metadata.xml not found
+
+// maven-metadata.xml was not generated properly
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = WebConfig.class)
 @WebAppConfiguration

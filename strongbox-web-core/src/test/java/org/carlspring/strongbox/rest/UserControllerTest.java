@@ -42,7 +42,7 @@ public class UserControllerTest
 
         given()
                 .contentType(ContentType.JSON)
-                .param("The param", "Johan")
+                .param("name", "Johan")
                 .when()
                 .get("/users/greet")
                 .then()

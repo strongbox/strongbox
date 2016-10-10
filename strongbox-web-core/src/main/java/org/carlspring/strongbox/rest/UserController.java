@@ -22,7 +22,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequestMapping("/users")
@@ -50,11 +54,11 @@ public class UserController
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("authenticated")
-    @RequestMapping(value = "{anyString}", method = RequestMethod.GET)
+    @RequestMapping(value = "{anyString}", method = RequestMethod.GET)  // maps to /greet or any other string
     public
     @ResponseBody
     synchronized ResponseEntity greet(@PathVariable String anyString,
-                                      @RequestParam(value = "The param", required = false) String param)
+                                      @RequestParam(value = "name", required = false) String param)
     {
         logger.debug("UserController -> Say hello to " + param);
         return toResponse("hello, " + param);
@@ -94,8 +98,7 @@ public class UserController
     @RequestMapping(value = "user/{name}", method = RequestMethod.GET)
     public
     @ResponseBody
-    synchronized ResponseEntity getUser(@RequestParam(value = "The name of the user", required = true)
-                                        @PathVariable String name)
+    ResponseEntity getUser(@PathVariable String name)
     {
         return toResponse(userService.findByUserName(name));
     }

@@ -7,6 +7,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -33,7 +34,7 @@ public class CustomAuthenticationProvider
                                                   UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken)
             throws AuthenticationException
     {
-        logger.debug("Execute password check for " + userDetails.getUsername());
+        logger.info("Execute password check for " + userDetails.getUsername());
 
         String password = usernamePasswordAuthenticationToken.getCredentials().toString();
         if (!userDetails.getPassword().equals(password))
@@ -47,6 +48,11 @@ public class CustomAuthenticationProvider
                                        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken)
             throws AuthenticationException
     {
+        if (SecurityContextHolder.getContext().getAuthentication() == null)
+        {
+            throw new RuntimeException("Authentication is null");
+        }
+
         return userDetailsService.loadUserByUsername(s);
     }
 

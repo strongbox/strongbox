@@ -20,6 +20,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -43,6 +44,7 @@ import static org.junit.Assert.assertTrue;
 @WebAppConfiguration
 @WithUserDetails("admin")
 @Rollback(false)
+@Ignore
 public class SpringClientTest
         extends BackendBaseTest
 {
