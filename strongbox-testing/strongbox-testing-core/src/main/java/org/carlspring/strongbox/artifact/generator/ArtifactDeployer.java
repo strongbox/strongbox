@@ -105,7 +105,7 @@ public class ArtifactDeployer extends ArtifactGenerator
         }
         try
         {
-            mergeMetada(artifact,storageId,repositoryId);
+            mergeMetadata(artifact, storageId, repositoryId);
         }
         catch (ArtifactTransportException e)
         {
@@ -116,9 +116,9 @@ public class ArtifactDeployer extends ArtifactGenerator
     }
 
 
-    public void mergeMetada(Artifact artifact,
-                             String storageId,
-                             String repositoryId)
+    public void mergeMetadata(Artifact artifact,
+                              String storageId,
+                              String repositoryId)
             throws ArtifactTransportException,
                    IOException,
                    XmlPullParserException,
@@ -139,7 +139,7 @@ public class ArtifactDeployer extends ArtifactGenerator
                                                                                     repositoryId + "/" +
                                                                                     ArtifactUtils.getVersionLevelMetadataPath(artifact)));
 
-            createMetadataArchive(metadata, path);
+            createMetadata(metadata, path);
             deployMetadata(metadata, path,storageId,repositoryId);
         }
 
@@ -148,7 +148,7 @@ public class ArtifactDeployer extends ArtifactGenerator
                                                                                            repositoryId + "/" +
                                                                                            ArtifactUtils.getArtifactLevelMetadataPath(artifact)));
 
-        createMetadataArchive(metadata, path);
+        createMetadata(metadata, path);
         deployMetadata(metadata, path,storageId,repositoryId);
 
         if (artifact instanceof PluginArtifact)
@@ -157,7 +157,7 @@ public class ArtifactDeployer extends ArtifactGenerator
             metadata = metadataMerger.updateMetadataAtGroupLevel((PluginArtifact) artifact, retrieveMetadata("storages/" + storageId + "/" +
                                                                                                              repositoryId + "/" +
                                                                                                              ArtifactUtils.getGroupLevelMetadataPath(artifact)));
-            createMetadataArchive(metadata, path);
+            createMetadata(metadata, path);
             deployMetadata(metadata,path,storageId,repositoryId);
         }
     }

@@ -142,7 +142,7 @@ public class SpringArtifactDeployer
                                                                                     ArtifactUtils.getVersionLevelMetadataPath(
                                                                                             artifact)));
 
-            createMetadataArchive(metadata, path);
+            createMetadata(metadata, path);
             deployMetadata(metadata, path, storageId, repositoryId);
         }
 
@@ -153,7 +153,7 @@ public class SpringArtifactDeployer
                                                                                  ArtifactUtils.getArtifactLevelMetadataPath(
                                                                                          artifact)));
 
-        createMetadataArchive(metadata, path);
+        createMetadata(metadata, path);
         deployMetadata(metadata, path, storageId, repositoryId);
 
         if (artifact instanceof PluginArtifact)
@@ -164,7 +164,7 @@ public class SpringArtifactDeployer
                                                                                   repositoryId,
                                                                                   ArtifactUtils.getGroupLevelMetadataPath(
                                                                                           artifact)));
-            createMetadataArchive(metadata, path);
+            createMetadata(metadata, path);
             deployMetadata(metadata, path, storageId, repositoryId);
         }
     }

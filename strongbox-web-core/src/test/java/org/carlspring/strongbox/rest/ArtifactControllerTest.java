@@ -83,12 +83,16 @@ public class ArtifactControllerTest
 {
 
     public static final String PACKAGING_JAR = "jar";
+
     private static final String TEST_RESOURCES = "target/test-resources";
-    private static final File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                           "/local");
+
+    private static final File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/local");
+
     private static final File REPOSITORY_BASEDIR_RELEASES = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                                      "/storages/storage0/releases");
+
     private MetadataMerger metadataMerger;
+
 
     @Before
     public void setUpClass()
@@ -137,7 +141,6 @@ public class ArtifactControllerTest
         new File(TEST_RESOURCES).mkdirs();
     }
 
-
     @Test
     @WithUserDetails("admin")
     public void testUserAuth()
@@ -146,16 +149,13 @@ public class ArtifactControllerTest
 
         String url = getContextBaseUrl() + "/storages/greet";
 
-
-        given()
-                .contentType(ContentType.JSON)
-                .when()
-                .get(url)
-                .then()
-                .statusCode(200)
-                .body(containsString("success"))
-                .toString();
-
+        given().contentType(ContentType.JSON)
+               .when()
+               .get(url)
+               .then()
+               .statusCode(200)
+               .body(containsString("success"))
+               .toString();
     }
 
 
@@ -170,26 +170,23 @@ public class ArtifactControllerTest
 
         logger.info("Getting " + url + "...");
 
-        given()
-                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .param("path", pathToJar)
-                .when()
-                .get(url)
-                .then()
-                .statusCode(200);
+        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+               .param("path", pathToJar)
+               .when()
+               .get(url)
+               .then()
+               .statusCode(200);
 
         // read remote checksum
-        String md5Remote = MessageDigestUtils.readChecksumFile(
-                getArtifactAsStream(pathToJar + ".md5", url)
-        );
-        String sha1Remote = MessageDigestUtils.readChecksumFile(
-                getArtifactAsStream(pathToJar + ".sha1", url)
-        );
+        String md5Remote = MessageDigestUtils.readChecksumFile(getArtifactAsStream(url, pathToJar + ".md5"));
+        String sha1Remote = MessageDigestUtils.readChecksumFile(getArtifactAsStream(url, pathToJar + ".sha1"));
+
         logger.info("Remote md5 checksum " + md5Remote);
         logger.info("Remote sha1 checksum " + sha1Remote);
 
         // calculate local checksum for given algorithms
-        InputStream is = getArtifactAsStream(pathToJar, url);
+        InputStream is = getArtifactAsStream(url, pathToJar);
+
         logger.debug("Wrote " + is.available() + " bytes.");
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -219,7 +216,7 @@ public class ArtifactControllerTest
 
         logger.debug("Read " + total + " bytes.");
 
-        is = getArtifactAsStream(pathToJar, url, total);
+        is = getArtifactAsStream(url, pathToJar, total);
 
         logger.debug("Skipped " + total + " bytes.");
 
@@ -256,6 +253,7 @@ public class ArtifactControllerTest
             artifact.delete();
             artifact.createNewFile();
         }
+
         FileOutputStream output = new FileOutputStream(artifact);
         output.write(baos.toByteArray());
         output.close();
@@ -264,22 +262,39 @@ public class ArtifactControllerTest
         assertEquals("Glued partial fetches did not match SHA-1 checksum!", sha1Remote, sha1Local);
     }
 
-    private InputStream getArtifactAsStream(String path,
-                                            String url)
+    private InputStream getArtifactAsStream(String url)
     {
-        return getArtifactAsStream(path, url, -1);
+        return getArtifactAsStream(url, -1);
     }
 
-    private InputStream getArtifactAsStream(String path,
-                                            String url,
+    private InputStream getArtifactAsStream(String url, String path)
+    {
+        return getArtifactAsStream(url, path, -1);
+    }
+
+    private InputStream getArtifactAsStream(String url,
+                                            String path,
                                             int offset)
     {
-        return new ByteArrayInputStream(getArtifactAsByteArray(path, url, offset));
+        return new ByteArrayInputStream(getArtifactAsByteArray(url, path, offset));
 
     }
 
-    private byte[] getArtifactAsByteArray(String path,
-                                          String url,
+    private InputStream getArtifactAsStream(String url,
+                                            int offset)
+    {
+        return new ByteArrayInputStream(getArtifactAsByteArray(url, offset));
+
+    }
+
+    private byte[] getArtifactAsByteArray(String url,
+                                          String path,
+                                          int offset)
+    {
+        return getArtifactAsByteArray(url + "/" + path, offset);
+    }
+
+    private byte[] getArtifactAsByteArray(String url,
                                           int offset)
     {
         MockMvcRequestSpecification o = given().contentType(MediaType.TEXT_PLAIN_VALUE);
@@ -290,12 +305,14 @@ public class ArtifactControllerTest
             statusCode = 206;
         }
 
-        MockMvcResponse response = o.param("path", path)
+        MockMvcResponse response = o/*.param("path", path)*/
                                     .when()
                                     .get(url);
         Headers allHeaders = response.getHeaders();
+
         logger.debug("HTTP GET " + url);
         logger.debug("Response headers:");
+
         allHeaders.forEach(header ->
                            {
                                logger.debug("\t" + header.getName() + " = " + header.getValue());
@@ -303,6 +320,7 @@ public class ArtifactControllerTest
 
         response.then().statusCode(statusCode);
         byte[] result = response.getMockHttpServletResponse().getContentAsByteArray();
+
         logger.debug("Received " + result.length + " bytes.");
 
         return result;
@@ -316,17 +334,15 @@ public class ArtifactControllerTest
 
         Integer response;
 
-        response =
-                given()
-                        .contentType(ContentType.TEXT)
-                        .when()
-                        .get(url)
-                        .then()
-                        .statusCode(200)
-                        .extract()
-                        .response()
-                        .body()
-                        .path("entity");
+        response = given().contentType(ContentType.TEXT)
+                          .when()
+                          .get(url)
+                          .then()
+                          .statusCode(200)
+                          .extract()
+                          .response()
+                          .body()
+                          .path("entity");
 
         return response == 200;
     }
@@ -348,16 +364,18 @@ public class ArtifactControllerTest
 
         String url = getContextBaseUrl() + "/storages/copy";
 
-        given()
-                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .params("path", artifactPath, "srcStorageId", "storage0", "srcRepositoryId", "releases",
-                        "destStorageId", "storage0", "destRepositoryId", "releases-with-trash")
-                .when()
-                .post(url)
-                .peek()
-                .then()
-                .statusCode(200)
-                .extract();
+        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+               .params("path", artifactPath,
+                       "srcStorageId", "storage0",
+                       "srcRepositoryId", "releases",
+                       "destStorageId", "storage0",
+                       "destRepositoryId", "releases-with-trash")
+               .when()
+               .post(url)
+               .peek()
+               .then()
+               .statusCode(200)
+               .extract();
 
         assertTrue("Failed to copy artifact to destination repository '" + destRepositoryBasedir + "'!",
                    artifactFileRestoredFromTrash.exists());
@@ -380,16 +398,18 @@ public class ArtifactControllerTest
 
         String url = getContextBaseUrl() + "/storages/copy";
 
-        given()
-                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .params("path", artifactPath, "srcStorageId", "storage0", "srcRepositoryId", "releases",
-                        "destStorageId", "storage0", "destRepositoryId", "releases-with-trash")
-                .when()
-                .post(url)
-                .peek()
-                .then()
-                .statusCode(200)
-                .extract();
+        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+               .params("path", artifactPath,
+                       "srcStorageId", "storage0",
+                       "srcRepositoryId", "releases",
+                       "destStorageId", "storage0",
+                       "destRepositoryId", "releases-with-trash")
+               .when()
+               .post(url)
+               .peek()
+               .then()
+               .statusCode(200)
+               .extract();
 
         assertTrue("Failed to copy artifact to destination repository '" + destRepositoryBasedir + "'!",
                    artifactFileRestoredFromTrash.exists());
@@ -409,15 +429,15 @@ public class ArtifactControllerTest
 
         String url = getContextBaseUrl() + "/storages/" + "storage0" + "/" + "releases";
 
-        MockMvcResponse response = given()
-                                           .contentType(MediaType.TEXT_PLAIN_VALUE)
-                                           .params("path", artifactPath)
-                                           .when()
-                                           .delete(url)
-                                           .peek()
-                                           .then()
-                                           .statusCode(200)
-                                           .extract().response();
+        MockMvcResponse response = given().contentType(MediaType.TEXT_PLAIN_VALUE)
+                                          .params("path", artifactPath)
+                                          .when()
+                                          .delete(url)
+                                          .peek()
+                                          .then()
+                                          .statusCode(200)
+                                          .extract()
+                                          .response();
 
         String message = "Failed to delete artifact!";
 
@@ -439,6 +459,7 @@ public class ArtifactControllerTest
             {
                 messageBuilder.append(entity.toString());
             }
+
             logger.error(messageBuilder.toString());
         }
 
@@ -460,15 +481,14 @@ public class ArtifactControllerTest
 
         String url = getContextBaseUrl() + "/storages/" + "storage0" + "/" + "releases";
 
-        given()
-                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .params("path", artifactPath)
-                .when()
-                .delete(url)
-                .peek()
-                .then()
-                .statusCode(200)
-                .extract();
+        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+               .params("path", artifactPath)
+               .when()
+               .delete(url)
+               .peek()
+               .then()
+               .statusCode(200)
+               .extract();
 
         assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
                     deletedArtifact.exists());
@@ -522,14 +542,13 @@ public class ArtifactControllerTest
 
         logger.debug("Getting " + url + "...");
 
-        ExtractableResponse repositoryRootContent = given()
-                                                            .contentType(MediaType.TEXT_PLAIN_VALUE)
-                                                            .param("path", pathVar)
-                                                            .when()
-                                                            .get(url)
-                                                            .peek()
-                                                            .then()
-                                                            .extract();
+        ExtractableResponse repositoryRootContent = given().contentType(MediaType.TEXT_PLAIN_VALUE)
+                                                           .param("path", pathVar)
+                                                           .when()
+                                                           .get(url)
+                                                           .peek()
+                                                           .then()
+                                                           .extract();
         return repositoryRootContent;
     }
 
@@ -545,42 +564,35 @@ public class ArtifactControllerTest
 
         Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":3.1-SNAPSHOT");
         TestCaseWithArtifactGeneration generator = new TestCaseWithArtifactGeneration();
-        Artifact artifact1WithTimestamp1 = ArtifactUtils.getArtifactFromGAVTC(
-                ga + ":" + generator.createSnapshotVersion("3.1", 1));
-        Artifact artifact1WithTimestamp2 = ArtifactUtils.getArtifactFromGAVTC(
-                ga + ":" + generator.createSnapshotVersion("3.1", 2));
-        Artifact artifact1WithTimestamp3 = ArtifactUtils.getArtifactFromGAVTC(
-                ga + ":" + generator.createSnapshotVersion("3.1", 3));
-        Artifact artifact1WithTimestamp4 = ArtifactUtils.getArtifactFromGAVTC(
-                ga + ":" + generator.createSnapshotVersion("3.1", 4));
+        Artifact artifact1WithTimestamp1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + generator.createSnapshotVersion("3.1", 1));
+        Artifact artifact1WithTimestamp2 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + generator.createSnapshotVersion("3.1", 2));
+        Artifact artifact1WithTimestamp3 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + generator.createSnapshotVersion("3.1", 3));
+        Artifact artifact1WithTimestamp4 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + generator.createSnapshotVersion("3.1", 4));
 
         // artifactDeployer.setClient(client);
 
         String storageId = "storage0";
         String repositoryId = "snapshots";
 
-/*        generateAndDeployArtifact(artifact1WithTimestamp1, storageId, repositoryId);
+        generateAndDeployArtifact(artifact1WithTimestamp1, storageId, repositoryId);
         generateAndDeployArtifact(artifact1WithTimestamp2, storageId, repositoryId);
         generateAndDeployArtifact(artifact1WithTimestamp3, storageId, repositoryId);
-        generateAndDeployArtifact(artifact1WithTimestamp4, storageId, repositoryId);*/
+        generateAndDeployArtifact(artifact1WithTimestamp4, storageId, repositoryId);
 
         String path = ArtifactUtils.getVersionLevelMetadataPath(artifact1);
 
         String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId;
 
-        Metadata versionLevelMetadata = retrieveMetadata(path, url);
+        Metadata versionLevelMetadata = retrieveMetadata(url);
 
         Assert.assertNotNull(versionLevelMetadata);
         Assert.assertEquals("org.carlspring.strongbox.metadata", versionLevelMetadata.getGroupId());
         Assert.assertEquals("metadata-foo", versionLevelMetadata.getArtifactId());
-/*        Assert.assertEquals(4, versionLevelMetadata.getVersioning().getSnapshot().getBuildNumber());
+        Assert.assertEquals(4, versionLevelMetadata.getVersioning().getSnapshot().getBuildNumber());
         Assert.assertNotNull(versionLevelMetadata.getVersioning().getLastUpdated());
-        Assert.assertEquals(12, versionLevelMetadata.getVersioning().getSnapshotVersions().size());*/
+        Assert.assertEquals(12, versionLevelMetadata.getVersioning().getSnapshotVersions().size());
     }
 
-    /**
-     * Looks up a storage by it's ID.
-     */
     private void generateAndDeployArtifact(Artifact artifact,
                                            String storageId,
                                            String repositoryId,
@@ -615,9 +627,12 @@ public class ArtifactControllerTest
                    IOException,
                    ArtifactOperationException
     {
-        ArtifactDeployer artifactDeployer = new ArtifactDeployer(GENERATOR_BASEDIR);
-        artifactDeployer.generatePom(artifact, packaging);
-        artifactDeployer.createArchive(artifact);
+//        ArtifactDeployer artifactDeployer = new ArtifactDeployer(GENERATOR_BASEDIR);
+//        artifactDeployer.generatePom(artifact, packaging);
+//        artifactDeployer.createArchive(artifact);
+
+        generatePom(artifact, packaging);
+        createArchive(artifact);
 
         deploy(artifact, storageId, repositoryId);
         deployPOM(ArtifactUtils.getPOMArtifact(artifact), storageId, repositoryId);
@@ -632,14 +647,15 @@ public class ArtifactControllerTest
                                                                                      artifact.getVersion() + ":" +
                                                                                      artifact.getType() + ":" +
                                                                                      classifier);
-                artifactDeployer.generate(artifactWithClassifier);
+                generate(artifactWithClassifier);
 
                 deploy(artifactWithClassifier, storageId, repositoryId);
             }
         }
+
         try
         {
-            mergeMetada(artifact, storageId, repositoryId);
+            mergeMetadata(artifact, storageId, repositoryId);
         }
         catch (ArtifactTransportException e)
         {
@@ -657,7 +673,6 @@ public class ArtifactControllerTest
         generatePom(artifact, PACKAGING_JAR);
         createArchive(artifact);
     }
-
 
     public void createArchive(Artifact artifact)
             throws NoSuchAlgorithmException,
@@ -818,7 +833,6 @@ public class ArtifactControllerTest
         MessageDigestUtils.writeChecksum(artifactFile, EncryptionAlgorithmsEnum.SHA1.getExtension(), sha1);
     }
 
-
     private void deployPOM(Artifact artifact,
                            String storageId,
                            String repositoryId)
@@ -835,7 +849,6 @@ public class ArtifactControllerTest
 
         deployChecksum(ais, storageId, repositoryId, artifact);
     }
-
 
     public void deploy(Artifact artifact,
                        String storageId,
@@ -891,14 +904,12 @@ public class ArtifactControllerTest
         }
     }
 
-
     public void deployFile(InputStream is,
                            String url,
                            String fileName,
                            String path)
             throws ArtifactOperationException, IOException
     {
-
         String contentDisposition = "attachment; filename=\"" + fileName + "\"";
         byte[] bytes = ByteStreams.toByteArray(is);
 
@@ -911,12 +922,11 @@ public class ArtifactControllerTest
                .then()
                .statusCode(200)
                .extract().response();
-
     }
 
-    public void mergeMetada(Artifact artifact,
-                            String storageId,
-                            String repositoryId)
+    public void mergeMetadata(Artifact artifact,
+                              String storageId,
+                              String repositoryId)
             throws ArtifactTransportException,
                    IOException,
                    XmlPullParserException,
@@ -933,55 +943,55 @@ public class ArtifactControllerTest
         {
             String path = ArtifactUtils.getVersionLevelMetadataPath(artifact);
             metadata = metadataMerger.updateMetadataAtVersionLevel(artifact,
-                                                                   retrieveMetadata(
-                                                                           "storages/" + storageId + "/" + repositoryId,
-                                                                           ArtifactUtils.getVersionLevelMetadataPath(
-                                                                                   artifact)));
+                                                                   retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
+                                                                                    ArtifactUtils.getVersionLevelMetadataPath(artifact)));
 
-            createMetadataArchive(metadata, path);
+            createMetadata(metadata, path);
             deployMetadata(metadata, path, storageId, repositoryId);
         }
 
         String path = ArtifactUtils.getArtifactLevelMetadataPath(artifact);
         metadata = metadataMerger.updateMetadataAtArtifactLevel(artifact,
-                                                                retrieveMetadata("storages/" + storageId + "/" +
-                                                                                 repositoryId,
-                                                                                 ArtifactUtils.getArtifactLevelMetadataPath(
-                                                                                         artifact)));
+                                                                retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
+                                                                                 ArtifactUtils.getArtifactLevelMetadataPath(artifact)));
 
-        createMetadataArchive(metadata, path);
+        createMetadata(metadata, path);
         deployMetadata(metadata, path, storageId, repositoryId);
 
         if (artifact instanceof PluginArtifact)
         {
             path = ArtifactUtils.getGroupLevelMetadataPath(artifact);
             metadata = metadataMerger.updateMetadataAtGroupLevel((PluginArtifact) artifact,
-                                                                 retrieveMetadata("storages/" + storageId + "/" +
-                                                                                  repositoryId,
-                                                                                  ArtifactUtils.getGroupLevelMetadataPath(
-                                                                                          artifact)));
-            createMetadataArchive(metadata, path);
+                                                                 retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
+                                                                                  ArtifactUtils.getGroupLevelMetadataPath(artifact)));
+            createMetadata(metadata, path);
             deployMetadata(metadata, path, storageId, repositoryId);
         }
     }
 
-    private Metadata retrieveMetadata(String path,
-                                      String url)
+    private Metadata retrieveMetadata(String path)
             throws ArtifactTransportException,
                    IOException,
                    XmlPullParserException
     {
-        MockMvcResponse response = given()
-                                           .contentType(MediaType.TEXT_PLAIN_VALUE)
-                                           .param("path", path)
-                                           .when()
-                                           .get(url)
-                                           .then()
-                                           .statusCode(200).extract().response();
+        String url = getContextBaseUrl() + '/' + path;
+
+        MockMvcResponse response = given().contentType(MediaType.TEXT_PLAIN_VALUE)
+                                          //.param("path", path)
+                                          .when()
+                                          .get(url)
+                                          .andReturn();
+
+                                          /*
+                                          .then()
+                                          .statusCode(200)
+                                          .extract()
+                                          .response();
+                                          */
 
         if (response.statusCode() == 200)
         {
-            InputStream is = getArtifactAsStream(path, url);
+            InputStream is = getArtifactAsStream(url);
             MetadataXpp3Reader reader = new MetadataXpp3Reader();
 
             return reader.read(is);
@@ -1053,8 +1063,8 @@ public class ArtifactControllerTest
         }
     }
 
-    protected void createMetadataArchive(Metadata metadata,
-                                         String metadataPath)
+    protected void createMetadata(Metadata metadata,
+                                  String metadataPath)
             throws NoSuchAlgorithmException, IOException
     {
         OutputStream os = null;
@@ -1068,6 +1078,7 @@ public class ArtifactControllerTest
 
             if (metadataFile.exists())
             {
+                //noinspection ResultOfMethodCallIgnored
                 metadataFile.delete();
             }
 

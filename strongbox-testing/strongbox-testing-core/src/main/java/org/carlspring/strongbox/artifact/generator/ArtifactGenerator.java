@@ -133,7 +133,7 @@ public class ArtifactGenerator
         }
     }
 
-    protected void createMetadataArchive(Metadata metadata, String metadataPath)
+    protected void createMetadata(Metadata metadata, String metadataPath)
             throws NoSuchAlgorithmException, IOException
     {
         OutputStream os = null;
