@@ -3,8 +3,8 @@ package org.carlspring.strongbox.rest;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.metadata.MetadataManager;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 
 import java.io.IOException;
 
@@ -24,7 +24,7 @@ public abstract class BaseArtifactController
     protected ArtifactManagementService artifactManagementService;
 
     @Autowired
-    protected MetadataManager metadataManager;
+    protected MavenMetadataManager mavenMetadataManager;
 
     @Autowired
     protected ObjectMapper objectMapper;
@@ -93,14 +93,14 @@ public abstract class BaseArtifactController
         this.artifactManagementService = artifactManagementService;
     }
 
-    public MetadataManager getMetadataManager()
+    public MavenMetadataManager getMavenMetadataManager()
     {
-        return metadataManager;
+        return mavenMetadataManager;
     }
 
-    public void setMetadataManager(MetadataManager metadataManager)
+    public void setMavenMetadataManager(MavenMetadataManager mavenMetadataManager)
     {
-        this.metadataManager = metadataManager;
+        this.mavenMetadataManager = mavenMetadataManager;
     }
 
 }

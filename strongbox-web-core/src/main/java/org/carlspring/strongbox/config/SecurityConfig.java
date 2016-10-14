@@ -52,7 +52,7 @@ public class SecurityConfig
             .formLogin()
             .and()
             .authorizeRequests()
-            .antMatchers("/docs/**").permitAll()
+            .antMatchers("/docs/**", "/assets/**").permitAll()
             .and()
             .anonymous().authenticationFilter(anonymousAuthenticationFilter)
             .and()

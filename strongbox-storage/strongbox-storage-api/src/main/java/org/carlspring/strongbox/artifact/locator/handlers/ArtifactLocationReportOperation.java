@@ -21,7 +21,7 @@ public class ArtifactLocationReportOperation
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactLocationReportOperation.class);
 
-    private static String previousPath;
+    private String previousPath;
 
 
     public ArtifactLocationReportOperation()

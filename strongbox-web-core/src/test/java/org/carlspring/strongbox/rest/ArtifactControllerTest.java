@@ -6,7 +6,7 @@ import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.commons.io.RandomInputStream;
 import org.carlspring.maven.commons.model.ModelWriter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.artifact.generator.ArtifactDeployer;
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.WebConfig;
@@ -17,16 +17,7 @@ import org.carlspring.strongbox.storage.metadata.MetadataMerger;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Writer;
+import java.io.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.Properties;
@@ -61,11 +52,10 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
+import static org.carlspring.maven.commons.util.ArtifactUtils.getArtifactFileName;
 import static org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration.generateArtifact;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Created by yury on 8/3/16.
@@ -593,6 +583,7 @@ public class ArtifactControllerTest
         Assert.assertEquals(12, versionLevelMetadata.getVersioning().getSnapshotVersions().size());
     }
 
+    /*
     private void generateAndDeployArtifact(Artifact artifact,
                                            String storageId,
                                            String repositoryId,
@@ -605,6 +596,7 @@ public class ArtifactControllerTest
         logger.debug(artifactFile.toString());
         ArtifactInputStream is = new ArtifactInputStream(artifact, new FileInputStream(artifactFile));
     }
+    */
 
     public void generateAndDeployArtifact(Artifact artifact,
                                           String storageId,
@@ -843,7 +835,7 @@ public class ArtifactControllerTest
         File pomFile = new File(GENERATOR_BASEDIR.getAbsolutePath(), ArtifactUtils.convertArtifactToPath(artifact));
 
         InputStream is = new FileInputStream(pomFile);
-        ArtifactInputStream ais = new ArtifactInputStream(artifact, is);
+        ArtifactInputStream ais = new ArtifactInputStream(new MavenArtifactCoordinates(artifact), is);
 
         addArtifact(artifact, storageId, repositoryId, ais);
 
@@ -857,7 +849,9 @@ public class ArtifactControllerTest
     {
         File artifactFile = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                      "/local", ArtifactUtils.convertArtifactToPath(artifact));
-        ArtifactInputStream ais = new ArtifactInputStream(artifact, new FileInputStream(artifactFile));
+
+        InputStream is = new FileInputStream(artifactFile);
+        ArtifactInputStream ais = new ArtifactInputStream(new MavenArtifactCoordinates(artifact), is);
 
         addArtifact(artifact, storageId, repositoryId, ais);
     }
@@ -873,7 +867,7 @@ public class ArtifactControllerTest
 
         logger.debug("Deploying " + url + "...");
 
-        String fileName = ArtifactUtils.getArtifactFileName(artifact);
+        String fileName = getArtifactFileName(artifact);
 
         deployFile(is, url, fileName, path);
     }
@@ -897,8 +891,8 @@ public class ArtifactControllerTest
             final String extensionForAlgorithm = EncryptionAlgorithmsEnum.fromAlgorithm(algorithm).getExtension();
 
             String artifactToPath = ArtifactUtils.convertArtifactToPath(artifact) + extensionForAlgorithm;
-            String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId;
-            String artifactFileName = ais.getArtifactFileName() + extensionForAlgorithm;
+            String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + artifactToPath;
+            String artifactFileName = getArtifactFileName(artifact) + extensionForAlgorithm;
 
             deployFile(bais, url, artifactFileName, artifactToPath);
         }

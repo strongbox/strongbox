@@ -1,11 +1,10 @@
 package org.carlspring.strongbox.storage.validation.version;
 
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import java.io.IOException;
-
-import org.apache.maven.artifact.Artifact;
 
 /**
  * @author mtodorov
@@ -17,9 +16,9 @@ public interface VersionValidator
      * Checks if an artifact version is acceptable by the repository.
      *
      * @param repository    The repository.
-     * @param artifact      The artifact being deployed.
+     * @param coordinates   The artifact being deployed.
      */
-    void validate(Repository repository, Artifact artifact)
+    void validate(Repository repository, ArtifactCoordinates coordinates)
             throws VersionValidationException,
                    ProviderImplementationException,
                    IOException;

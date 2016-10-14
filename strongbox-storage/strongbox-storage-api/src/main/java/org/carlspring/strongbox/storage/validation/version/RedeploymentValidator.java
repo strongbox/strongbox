@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.storage.validation.version;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
@@ -9,7 +9,6 @@ import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
 import java.io.IOException;
 
-import org.apache.maven.artifact.Artifact;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +26,7 @@ public class RedeploymentValidator
 
     @Override
     public void validate(Repository repository,
-                         Artifact artifact)
+                         ArtifactCoordinates coordinates)
             throws VersionValidationException,
                    ProviderImplementationException,
                    IOException
@@ -35,12 +34,12 @@ public class RedeploymentValidator
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
 
         if (repository.getPolicy().equals(RepositoryPolicyEnum.RELEASE.getPolicy()) &&
-            (!repository.allowsRedeployment() && layoutProvider.containsArtifact(repository, artifact)))
+            (!repository.allowsRedeployment() && layoutProvider.containsArtifact(repository, coordinates)))
         {
             throw new VersionValidationException("The " + repository.getStorage().getId() + ":" +
                                                  repository.toString() +
                                                  " repository does not allow artifact re-deployment! (" +
-                                                 ArtifactUtils.convertArtifactToPath(artifact) + ")");
+                                                 coordinates.toPath() + ")");
         }
     }
 

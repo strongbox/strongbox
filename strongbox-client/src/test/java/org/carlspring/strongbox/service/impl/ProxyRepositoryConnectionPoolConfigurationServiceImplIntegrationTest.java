@@ -6,6 +6,7 @@ import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurati
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author korest
  */
+@Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 public class ProxyRepositoryConnectionPoolConfigurationServiceImplIntegrationTest

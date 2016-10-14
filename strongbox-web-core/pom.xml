@@ -72,8 +72,7 @@
                     <systemPropertyVariables>
                         <strongbox.home>${project.build.directory}/strongbox</strongbox.home>
                         <strongbox.vault>${project.build.directory}/strongbox-vault</strongbox.vault>
-                        <strongbox.storage.booter.basedir>${project.build.directory}/strongbox-vault/storages
-                        </strongbox.storage.booter.basedir>
+                        <strongbox.storage.booter.basedir>${project.build.directory}/strongbox-vault/storages</strongbox.storage.booter.basedir>
                         <strongbox.host>${strongbox.host}</strongbox.host>
                         <strongbox.port>${strongbox.port}</strongbox.port>
                         <logging.dir>${project.build.directory}/strongbox/logs</logging.dir>
@@ -352,11 +351,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-storage-indexing</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-storage-metadata</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

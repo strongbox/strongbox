@@ -2,11 +2,13 @@ package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.commons.io.resource.ResourceCloser;
-import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.client.MavenArtifactClient;
 import org.carlspring.strongbox.io.ArtifactFile;
 import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.RemoteRepository;
@@ -17,7 +19,6 @@ import javax.ws.rs.core.Response;
 import java.io.*;
 import java.security.NoSuchAlgorithmException;
 
-import org.apache.maven.artifact.Artifact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,9 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
 
     @Autowired
     private RepositoryProviderRegistry repositoryProviderRegistry;
+
+    @Autowired
+    private LayoutProviderRegistry layoutProviderRegistry;
 
     @Autowired
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
@@ -70,8 +74,11 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
 
         Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
 
-        Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
-        ArtifactFile artifactFile = new ArtifactFile(repository, artifact, true);
+        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getImplementation());
+
+        ArtifactCoordinates coordinates = (ArtifactCoordinates) layoutProvider.getArtifactCoordinates(artifactPath);
+
+        ArtifactFile artifactFile = new ArtifactFile(repository, coordinates, true);
 
         logger.debug(" -> Checking for " + artifactFile.getCanonicalPath() + "...");
 

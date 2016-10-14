@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.io;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.config.CommonConfig;
 import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.configuration.Configuration;
@@ -50,7 +52,8 @@ public class ArtifactFileOutputStreamTest
         final Repository repository = storage.getRepository("releases");
 
         final Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.foo:temp-file-test:1.2.3:jar");
-        final ArtifactFile artifactFile = new ArtifactFile(repository, artifact, true);
+        final ArtifactCoordinates coordinates = new MavenArtifactCoordinates(artifact);
+        final ArtifactFile artifactFile = new ArtifactFile(repository, coordinates, true);
         artifactFile.createParents();
 
         final ArtifactFileOutputStream afos = new ArtifactFileOutputStream(artifactFile);
@@ -73,7 +76,8 @@ public class ArtifactFileOutputStreamTest
         final Repository repository = storage.getRepository("releases");
 
         final Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.foo:temp-file-test:1.2.4:jar");
-        final ArtifactFile artifactFile = new ArtifactFile(repository, artifact, true);
+        final ArtifactCoordinates coordinates = new MavenArtifactCoordinates(artifact);
+        final ArtifactFile artifactFile = new ArtifactFile(repository, coordinates, true);
         artifactFile.createParents();
 
         final ArtifactFileOutputStream afos = new ArtifactFileOutputStream(artifactFile, false);
