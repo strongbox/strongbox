@@ -17,7 +17,15 @@ import org.carlspring.strongbox.storage.metadata.MetadataMerger;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Writer;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.Properties;
@@ -55,7 +63,9 @@ import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
 import static org.carlspring.maven.commons.util.ArtifactUtils.getArtifactFileName;
 import static org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration.generateArtifact;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by yury on 8/3/16.
@@ -158,7 +168,7 @@ public class ArtifactControllerTest
         String url = getContextBaseUrl() + "/storages/storage0/releases";
         String pathToJar = "/org/carlspring/strongbox/partial/partial-foo/3.1/partial-foo-3.1.jar";
 
-        logger.info("Getting " + url + "...");
+        logger.info("[testPartialFetch] Getting " + url + "?path=" + pathToJar);
 
         given().contentType(MediaType.TEXT_PLAIN_VALUE)
                .param("path", pathToJar)
@@ -168,15 +178,14 @@ public class ArtifactControllerTest
                .statusCode(200);
 
         // read remote checksum
-        String md5Remote = MessageDigestUtils.readChecksumFile(getArtifactAsStream(url, pathToJar + ".md5"));
-        String sha1Remote = MessageDigestUtils.readChecksumFile(getArtifactAsStream(url, pathToJar + ".sha1"));
+        String md5Remote = MessageDigestUtils.readChecksumFile(getArtifactAsStream(pathToJar + ".md5", url));
+        String sha1Remote = MessageDigestUtils.readChecksumFile(getArtifactAsStream(pathToJar + ".sha1", url));
 
         logger.info("Remote md5 checksum " + md5Remote);
         logger.info("Remote sha1 checksum " + sha1Remote);
 
         // calculate local checksum for given algorithms
-        InputStream is = getArtifactAsStream(url, pathToJar);
-
+        InputStream is = getArtifactAsStream(pathToJar, url);
         logger.debug("Wrote " + is.available() + " bytes.");
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -206,7 +215,7 @@ public class ArtifactControllerTest
 
         logger.debug("Read " + total + " bytes.");
 
-        is = getArtifactAsStream(url, pathToJar, total);
+        is = getArtifactAsStream(pathToJar, url, total);
 
         logger.debug("Skipped " + total + " bytes.");
 
@@ -252,39 +261,22 @@ public class ArtifactControllerTest
         assertEquals("Glued partial fetches did not match SHA-1 checksum!", sha1Remote, sha1Local);
     }
 
-    private InputStream getArtifactAsStream(String url)
+    private InputStream getArtifactAsStream(String path,
+                                            String url)
     {
-        return getArtifactAsStream(url, -1);
+        return getArtifactAsStream(path, url, -1);
     }
 
-    private InputStream getArtifactAsStream(String url, String path)
-    {
-        return getArtifactAsStream(url, path, -1);
-    }
-
-    private InputStream getArtifactAsStream(String url,
-                                            String path,
+    private InputStream getArtifactAsStream(String path,
+                                            String url,
                                             int offset)
     {
-        return new ByteArrayInputStream(getArtifactAsByteArray(url, path, offset));
+        return new ByteArrayInputStream(getArtifactAsByteArray(path, url, offset));
 
     }
 
-    private InputStream getArtifactAsStream(String url,
-                                            int offset)
-    {
-        return new ByteArrayInputStream(getArtifactAsByteArray(url, offset));
-
-    }
-
-    private byte[] getArtifactAsByteArray(String url,
-                                          String path,
-                                          int offset)
-    {
-        return getArtifactAsByteArray(url + "/" + path, offset);
-    }
-
-    private byte[] getArtifactAsByteArray(String url,
+    private byte[] getArtifactAsByteArray(String path,
+                                          String url,
                                           int offset)
     {
         MockMvcRequestSpecification o = given().contentType(MediaType.TEXT_PLAIN_VALUE);
@@ -295,11 +287,12 @@ public class ArtifactControllerTest
             statusCode = 206;
         }
 
-        MockMvcResponse response = o/*.param("path", path)*/
+        logger.debug("[getArtifactAsByteArray] URL " + url + "?path=" + path);
+
+        MockMvcResponse response = o.param("path", path)
                                     .when()
                                     .get(url);
         Headers allHeaders = response.getHeaders();
-
         logger.debug("HTTP GET " + url);
         logger.debug("Response headers:");
 
@@ -968,7 +961,7 @@ public class ArtifactControllerTest
                    IOException,
                    XmlPullParserException
     {
-        String url = getContextBaseUrl() + '/' + path;
+        String url = getContextBaseUrl();
 
         MockMvcResponse response = given().contentType(MediaType.TEXT_PLAIN_VALUE)
                                           //.param("path", path)
@@ -985,7 +978,7 @@ public class ArtifactControllerTest
 
         if (response.statusCode() == 200)
         {
-            InputStream is = getArtifactAsStream(url);
+            InputStream is = getArtifactAsStream(path, url);
             MetadataXpp3Reader reader = new MetadataXpp3Reader();
 
             return reader.read(is);
