@@ -1,18 +1,19 @@
 package org.carlspring.strongbox.configuration;
 
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.carlspring.strongbox.services.ServerConfigurationService;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Optional;
+
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component("configurationRepository")
 @Transactional
@@ -20,16 +21,16 @@ public class ConfigurationRepository
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationRepository.class);
-    
+
     @Autowired
     ServerConfigurationService serverConfigurationService;
-    
+
     @Autowired
     ConfigurationCache configurationCache;
-    
+
     @Autowired
     private OObjectDatabaseTx databaseTx;
-    
+
     private String currentDatabaseId;
 
 
@@ -91,22 +92,13 @@ public class ConfigurationRepository
         else
         {
             InputStream is = getClass().getClassLoader().getResourceAsStream("etc/conf/strongbox.xml");
-            if (is == null) {
-                String hardcodedPath = "/home/yury/Projects/strongboxFinal/strongbox-resources/strongbox-storage-resources/strongbox-storage-api-resources/src/main/resources/etc/conf/strongbox.xml";
-
-                try {
-                    configuration = parser.parse(new File(hardcodedPath));
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            } else {
-
-                try {
-                    configuration = parser.parse(is);
-                } catch (Exception e) {
-                    logger.error("Unable to parse configuration from input stream.", e);
-                    throw new RuntimeException(e);
-                }
+            try
+            {
+                configuration = parser.parse(is);
+            }
+            catch (Exception e)
+            {
+                logger.error("Unable to parse configuration from input stream.", e);
             }
         }
 
@@ -138,8 +130,6 @@ public class ConfigurationRepository
             final String data = configurationCache.getParser().serialize(configuration);
             final String configurationId = configuration.getId();
 
-            logger.trace("Trying to save new configuration\n" + data);
-
             // update existing configuration with new data (if possible)
             if (configurationId != null)
             {
@@ -163,8 +153,8 @@ public class ConfigurationRepository
         }
         catch (Exception e)
         {
-            throw new RuntimeException("Unable to save configuration\n\n" + configuration, e);
-            //return Optional.empty();
+            logger.error("Unable to save configuration\n\n" + configuration, e);
+            return Optional.empty();
         }
 
         return Optional.of(configuration);
@@ -178,5 +168,5 @@ public class ConfigurationRepository
         binaryConfiguration = serverConfigurationService.save(binaryConfiguration);
         currentDatabaseId = binaryConfiguration.getId();
     }
-    
+
 }

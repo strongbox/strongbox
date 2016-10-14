@@ -176,6 +176,8 @@ public class StorageBooter
     {
         final File repositoryBasedir = new File(storage.getBasedir(), repositoryId);
 
+        logger.debug(" * Initializing '" + repositoryBasedir.getAbsolutePath() + "'...");
+
         repositoryManagementService.createRepository(storage.getId(), repositoryId);
 
         if (storage.getRepository(repositoryId).isIndexingEnabled())

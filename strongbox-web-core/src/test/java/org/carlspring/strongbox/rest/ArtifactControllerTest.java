@@ -6,10 +6,11 @@ import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.commons.io.RandomInputStream;
 import org.carlspring.maven.commons.model.ModelWriter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.StorageIndexingConfig;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.config.WebConfig;
+import org.carlspring.strongbox.config.*;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.resource.ResourceCloser;
@@ -43,6 +44,8 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -81,6 +84,15 @@ public class ArtifactControllerTest
     private static final File REPOSITORY_BASEDIR_RELEASES = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                                      "/storages/storage0/releases");
 
+    @Configuration
+    @Import({ StorageIndexingConfig.class,
+              StorageApiConfig.class,
+              CommonConfig.class,
+              ClientConfig.class,
+              DataServiceConfig.class
+            })
+    public static class SpringConfig { }
+
     private MetadataMerger metadataMerger;
 
 
@@ -88,44 +100,44 @@ public class ArtifactControllerTest
     public void setUpClass()
             throws Exception
     {
-        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                         "org.carlspring.strongbox.resolve.only:foo",
-                         "1.1" // Used by testResolveViaProxy()
-        );
-
-        // Generate releases
-        // Used by testPartialFetch():
-        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                         "org.carlspring.strongbox.partial:partial-foo",
-                         "3.1", // Used by testPartialFetch()
-                         "3.2"  // Used by testPartialFetch()
-        );
-
-        // Used by testCopy*():
-        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                         "org.carlspring.strongbox.copy:copy-foo",
-                         "1.1", // Used by testCopyArtifactFile()
-                         "1.2"  // Used by testCopyArtifactDirectory()
-        );
-
-        // Used by testDelete():
-        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                         "com.artifacts.to.delete.releases:delete-foo",
-                         "1.2.1", // Used by testDeleteArtifactFile
-                         "1.2.2"  // Used by testDeleteArtifactDirectory
-        );
-
-        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                         "org.carlspring.strongbox.partial:partial-foo",
-                         "3.1", // Used by testPartialFetch()
-                         "3.2"  // Used by testPartialFetch()
-        );
-
-        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                         "org.carlspring.strongbox.browse:foo-bar",
-                         "1.0", // Used by testDirectoryListing()
-                         "2.4"  // Used by testDirectoryListing()
-        );
+//        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+//                         "org.carlspring.strongbox.resolve.only:foo",
+//                         "1.1" // Used by testResolveViaProxy()
+//        );
+//
+//        // Generate releases
+//        // Used by testPartialFetch():
+//        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+//                         "org.carlspring.strongbox.partial:partial-foo",
+//                         "3.1", // Used by testPartialFetch()
+//                         "3.2"  // Used by testPartialFetch()
+//        );
+//
+//        // Used by testCopy*():
+//        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+//                         "org.carlspring.strongbox.copy:copy-foo",
+//                         "1.1", // Used by testCopyArtifactFile()
+//                         "1.2"  // Used by testCopyArtifactDirectory()
+//        );
+//
+//        // Used by testDelete():
+//        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+//                         "com.artifacts.to.delete.releases:delete-foo",
+//                         "1.2.1", // Used by testDeleteArtifactFile
+//                         "1.2.2"  // Used by testDeleteArtifactDirectory
+//        );
+//
+//        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+//                         "org.carlspring.strongbox.partial:partial-foo",
+//                         "3.1", // Used by testPartialFetch()
+//                         "3.2"  // Used by testPartialFetch()
+//        );
+//
+//        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+//                         "org.carlspring.strongbox.browse:foo-bar",
+//                         "1.0", // Used by testDirectoryListing()
+//                         "2.4"  // Used by testDirectoryListing()
+//        );
 
         //noinspection ResultOfMethodCallIgnored
         new File(TEST_RESOURCES).mkdirs();

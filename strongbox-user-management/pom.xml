@@ -145,7 +145,7 @@
                                     <type>jar</type>
 
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${dir.strongbox.vault}</outputDirectory>
+                                    <outputDirectory>${dir.strongbox.home}</outputDirectory>
                                     <includes>etc/conf/strongbox.xml</includes>
                                 </artifactItem>
                                 <artifactItem>
@@ -155,7 +155,7 @@
                                     <type>jar</type>
 
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${dir.strongbox.vault}</outputDirectory>
+                                    <outputDirectory>${dir.strongbox.home}</outputDirectory>
                                     <includes>etc/conf/security-users.xml</includes>
                                 </artifactItem>
                             </artifactItems>
