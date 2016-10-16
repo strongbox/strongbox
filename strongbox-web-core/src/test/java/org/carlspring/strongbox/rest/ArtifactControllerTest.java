@@ -110,44 +110,44 @@ public class ArtifactControllerTest
     public void setUpClass()
             throws Exception
     {
-//        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-//                         "org.carlspring.strongbox.resolve.only:foo",
-//                         "1.1" // Used by testResolveViaProxy()
-//        );
-//
-//        // Generate releases
-//        // Used by testPartialFetch():
-//        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-//                         "org.carlspring.strongbox.partial:partial-foo",
-//                         "3.1", // Used by testPartialFetch()
-//                         "3.2"  // Used by testPartialFetch()
-//        );
-//
-//        // Used by testCopy*():
-//        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-//                         "org.carlspring.strongbox.copy:copy-foo",
-//                         "1.1", // Used by testCopyArtifactFile()
-//                         "1.2"  // Used by testCopyArtifactDirectory()
-//        );
-//
-//        // Used by testDelete():
-//        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-//                         "com.artifacts.to.delete.releases:delete-foo",
-//                         "1.2.1", // Used by testDeleteArtifactFile
-//                         "1.2.2"  // Used by testDeleteArtifactDirectory
-//        );
-//
-//        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-//                         "org.carlspring.strongbox.partial:partial-foo",
-//                         "3.1", // Used by testPartialFetch()
-//                         "3.2"  // Used by testPartialFetch()
-//        );
-//
-//        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-//                         "org.carlspring.strongbox.browse:foo-bar",
-//                         "1.0", // Used by testDirectoryListing()
-//                         "2.4"  // Used by testDirectoryListing()
-//        );
+        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                         "org.carlspring.strongbox.resolve.only:foo",
+                         "1.1" // Used by testResolveViaProxy()
+        );
+
+        // Generate releases
+        // Used by testPartialFetch():
+        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                         "org.carlspring.strongbox.partial:partial-foo",
+                         "3.1", // Used by testPartialFetch()
+                         "3.2"  // Used by testPartialFetch()
+        );
+
+        // Used by testCopy*():
+        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                         "org.carlspring.strongbox.copy:copy-foo",
+                         "1.1", // Used by testCopyArtifactFile()
+                         "1.2"  // Used by testCopyArtifactDirectory()
+        );
+
+        // Used by testDelete():
+        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                         "com.artifacts.to.delete.releases:delete-foo",
+                         "1.2.1", // Used by testDeleteArtifactFile
+                         "1.2.2"  // Used by testDeleteArtifactDirectory
+        );
+
+        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                         "org.carlspring.strongbox.partial:partial-foo",
+                         "3.1", // Used by testPartialFetch()
+                         "3.2"  // Used by testPartialFetch()
+        );
+
+        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                         "org.carlspring.strongbox.browse:foo-bar",
+                         "1.0", // Used by testDirectoryListing()
+                         "2.4"  // Used by testDirectoryListing()
+        );
 
         //noinspection ResultOfMethodCallIgnored
         new File(TEST_RESOURCES).mkdirs();

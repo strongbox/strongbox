@@ -61,6 +61,7 @@ public class StorageBooter
         if (!lockExists())
         {
             createLockFile();
+            createTempDir();
 
             initializeStorages();
 
@@ -74,13 +75,25 @@ public class StorageBooter
                 }
                 catch (IOException e)
                 {
-                    logger.error("Failed to initialize the repository.", e);
+                    logger.error("Failed to initialize the repositories for storage '" + storageKey + "'.", e);
+
+                    throw new RuntimeException("Failed to initialize the repositories for storage '" + storageKey + "'.");
                 }
             }
         }
         else
         {
             logger.debug("Failed to initialize the repositories. Another JVM may have already done this.");
+        }
+    }
+
+    private void createTempDir()
+    {
+        File tempDir = new File(ConfigurationResourceResolver.getVaultDirectory(), "tmp");
+        if (!tempDir.exists())
+        {
+            //noinspection ResultOfMethodCallIgnored
+            tempDir.mkdirs();
         }
     }
 
@@ -176,7 +189,7 @@ public class StorageBooter
     {
         final File repositoryBasedir = new File(storage.getBasedir(), repositoryId);
 
-        logger.debug(" * Initializing '" + repositoryBasedir.getAbsolutePath() + "'...");
+        logger.debug("  * Initializing '" + repositoryBasedir.getAbsolutePath() + "'...");
 
         repositoryManagementService.createRepository(storage.getId(), repositoryId);
 
@@ -184,8 +197,6 @@ public class StorageBooter
         {
             initializeRepositoryIndex(storage, repositoryId);
         }
-
-        logger.debug(" -> Initialized '" + repositoryBasedir.getAbsolutePath() + "'.");
     }
 
     private void initializeRepositoryIndex(Storage storage,
