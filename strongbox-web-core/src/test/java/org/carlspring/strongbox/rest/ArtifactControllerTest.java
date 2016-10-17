@@ -18,15 +18,7 @@ import org.carlspring.strongbox.storage.metadata.MetadataMerger;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Writer;
+import java.io.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.Properties;
@@ -66,9 +58,7 @@ import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
 import static org.carlspring.maven.commons.util.ArtifactUtils.getArtifactFileName;
 import static org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration.generateArtifact;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Created by yury on 8/3/16.
@@ -850,7 +840,10 @@ public class ArtifactControllerTest
     public void deploy(Artifact artifact,
                        String storageId,
                        String repositoryId)
-            throws ArtifactOperationException, IOException, NoSuchAlgorithmException, XmlPullParserException
+            throws ArtifactOperationException,
+                   IOException,
+                   NoSuchAlgorithmException,
+                   XmlPullParserException
     {
         File artifactFile = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                      "/local", ArtifactUtils.convertArtifactToPath(artifact));
@@ -859,6 +852,8 @@ public class ArtifactControllerTest
         ArtifactInputStream ais = new ArtifactInputStream(new MavenArtifactCoordinates(artifact), is);
 
         addArtifact(artifact, storageId, repositoryId, ais);
+
+        deployChecksum(ais, storageId, repositoryId, artifact);
     }
 
     public void addArtifact(Artifact artifact,
@@ -867,8 +862,8 @@ public class ArtifactControllerTest
                             InputStream is)
             throws ArtifactOperationException, IOException
     {
-        String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId;
         String path = ArtifactUtils.convertArtifactToPath(artifact);
+        String url = getContextBaseUrl() + "/storages/" + storageId + '/' + repositoryId + '/' + path;
 
         logger.debug("Deploying " + url + "...");
 
@@ -912,15 +907,20 @@ public class ArtifactControllerTest
         String contentDisposition = "attachment; filename=\"" + fileName + "\"";
         byte[] bytes = ByteStreams.toByteArray(is);
 
+        System.out.println();
+        System.out.println(" path = " + path);
+        System.out.println();
+
         given().param("path", path)
                .header("Content-Disposition", contentDisposition)
-               .body(new String(bytes))
+               .body(bytes)
                .when()
                .put(url)
                .peek()
                .then()
                .statusCode(200)
-               .extract().response();
+               .extract()
+               .response();
     }
 
     public void mergeMetadata(Artifact artifact,
