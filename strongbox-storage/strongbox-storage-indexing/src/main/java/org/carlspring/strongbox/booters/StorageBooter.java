@@ -87,13 +87,18 @@ public class StorageBooter
         }
     }
 
-    private void createTempDir()
+    public static void createTempDir()
     {
         File tempDir = new File(ConfigurationResourceResolver.getVaultDirectory(), "tmp");
         if (!tempDir.exists())
         {
             //noinspection ResultOfMethodCallIgnored
             tempDir.mkdirs();
+        }
+
+        if (System.getProperty("java.tmp.dir") == null)
+        {
+            System.setProperty("java.tmp.dir", tempDir.getAbsolutePath());
         }
     }
 

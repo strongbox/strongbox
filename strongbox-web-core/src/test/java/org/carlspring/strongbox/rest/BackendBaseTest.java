@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.WebApplicationContext;
+import static org.carlspring.strongbox.booters.StorageBooter.createTempDir;
 
 /**
  * General settings for the testing subsystem.
@@ -61,6 +62,7 @@ public abstract class BackendBaseTest
     public void init()
     {
         RestAssuredMockMvc.webAppContextSetup(context);
+        createTempDir();
     }
 
     @After
