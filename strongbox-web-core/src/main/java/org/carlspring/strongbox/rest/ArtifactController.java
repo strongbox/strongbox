@@ -15,7 +15,10 @@ import org.carlspring.strongbox.util.MessageDigestUtils;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBException;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
@@ -35,16 +38,21 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.HandlerMapping;
 import static org.carlspring.strongbox.rest.ByteRangeRequestHandler.handlePartialDownload;
 import static org.carlspring.strongbox.rest.ByteRangeRequestHandler.isRangedRequest;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @RestController
-@RequestMapping("/storages")
+@RequestMapping("/storages/**")
 public class ArtifactController
         extends BaseArtifactController
 {
@@ -63,26 +71,27 @@ public class ArtifactController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deployed successfully."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
-    @RequestMapping(value = "{storageId}/{repositoryId}", method = RequestMethod.PUT)
-    public ResponseEntity upload(
-                                        @PathVariable String storageId,
-                                        @PathVariable String repositoryId,
-                                        @RequestParam(name = "path") String path,
-                                        HttpEntity<byte[]> requestEntity)
+    @RequestMapping(value = "{storageId}/{repositoryId}/{path:.*}", method = RequestMethod.PUT)
+    public ResponseEntity upload(@PathVariable(name = "storageId") String storageId,
+                                 @PathVariable(name = "repositoryId") String repositoryId,
+                                 MultipartFile multipartFile,
+                                 HttpServletRequest request)
             throws IOException,
                    AuthenticationException,
-                   NoSuchAlgorithmException, JAXBException, ProviderImplementationException
+                   NoSuchAlgorithmException,
+                   JAXBException,
+                   ProviderImplementationException
     {
         try
         {
-            byte[] payload = requestEntity.getBody();
-            InputStream is = new ByteArrayInputStream(payload);
-            HttpHeaders headers = requestEntity.getHeaders();
+            logger.debug("Received request to deploy to storageId:    " + storageId);
+            logger.debug("Received request to deploy to repositoryId: " + repositoryId);
 
-            /*byte[] payload = requestEntity.getBytes();
-            System.out.println("Received " + payload.length);
+            String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
 
-            InputStream is = new ByteArrayInputStream(payload);*/
+            logger.debug("Received request to deploy to path:         " + path);
+
+            InputStream is = multipartFile.getInputStream();
             getArtifactManagementService().store(storageId, repositoryId, path, is);
 
             return ResponseEntity.ok("The artifact was deployed successfully.");
@@ -102,13 +111,12 @@ public class ArtifactController
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @RequestMapping(value = "{storageId}/{repositoryId}", method = RequestMethod.GET,
             consumes = MediaType.TEXT_PLAIN_VALUE)
-    public void download(
-                                @PathVariable String storageId,
-                                @PathVariable String repositoryId,
-                                @RequestParam(name = "path") String path,
-                                @RequestHeader HttpHeaders httpHeaders,
-                                HttpServletRequest request,
-                                HttpServletResponse response
+    public void download(@PathVariable String storageId,
+                         @PathVariable String repositoryId,
+                         @RequestParam(name = "path") String path,
+                         @RequestHeader HttpHeaders httpHeaders,
+                         HttpServletRequest request,
+                         HttpServletResponse response
     )
             throws Exception
     {
@@ -373,16 +381,11 @@ public class ArtifactController
                                     message = "The source/destination storageId/repositoryId/path does not exist!") })
     @PreAuthorize("hasAuthority('ARTIFACTS_COPY')")
     @RequestMapping(produces = MediaType.TEXT_PLAIN_VALUE, value = "/copy", method = RequestMethod.POST)
-    public ResponseEntity copy(
-                                      @RequestParam(name = "path") String path,
-                                      @RequestParam(name = "srcStorageId")
-                                              String srcStorageId,
-                                      @RequestParam(name = "srcRepositoryId")
-                                              String srcRepositoryId,
-                                      @RequestParam(name = "destStorageId")
-                                              String destStorageId,
-                                      @RequestParam(name = "destRepositoryId")
-                                              String destRepositoryId)
+    public ResponseEntity copy(@RequestParam(name = "path") String path,
+                               @RequestParam(name = "srcStorageId") String srcStorageId,
+                               @RequestParam(name = "srcRepositoryId") String srcRepositoryId,
+                               @RequestParam(name = "destStorageId") String destStorageId,
+                               @RequestParam(name = "destRepositoryId") String destRepositoryId)
             throws IOException, JAXBException
     {
         logger.debug("Copying " + path +
@@ -435,13 +438,10 @@ public class ArtifactController
                                     message = "The specified storageId/repositoryId/path does not exist!") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
     @RequestMapping(value = "{storageId}/{repositoryId}", method = RequestMethod.DELETE)
-    public ResponseEntity delete(
-                                        @PathVariable String storageId,
-                                        @PathVariable String repositoryId,
-                                        @RequestParam(name = "path") String path,
-                                        @RequestParam(defaultValue = "false",
-                                                name = "force", required = true)
-                                                boolean force)
+    public ResponseEntity delete(@PathVariable String storageId,
+                                 @PathVariable String repositoryId,
+                                 @RequestParam(name = "path") String path,
+                                 @RequestParam(defaultValue = "false", name = "force", required = true) boolean force)
             throws IOException, JAXBException
     {
         logger.debug("DELETE: " + path);
