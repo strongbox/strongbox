@@ -63,4 +63,22 @@ public class SpringSecurityTest
                           .then()
                           .statusCode(UNAUTHORIZED.value());
     }
+
+    @Test
+    public void testUrlAsPathVariable()
+    {
+        String someUrl = "org/foo/bar/metadata/metadata-foo/3.1-SNAPSHOT/metadata-foo-3.1-20161017.182007-1.jar";
+
+        // storage0     -> storageId
+        // snapshots    -> repositoryId
+        String requestUrl = getContextBaseUrl() + "/test/storage0/snapshots/" + someUrl;
+
+        RestAssuredMockMvc.given()
+                          .contentType(MediaType.TEXT_PLAIN_VALUE)
+                          .when()
+                          .get(requestUrl)
+                          .peek() // Use peek() to print the output
+                          .then()
+                          .statusCode(HttpStatus.OK.value());
+    }
 }

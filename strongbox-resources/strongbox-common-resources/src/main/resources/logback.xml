@@ -31,7 +31,10 @@
     </appender>
 
     <logger name="org.springframework">
-        <level value="WARN"/>
+        <level value="ERROR"/>
+    </logger>
+    <logger name="org.springframework.web">
+        <level value="TRACE"/>
     </logger>
     <logger name="org.apache">
         <level value="ERROR"/>
