@@ -1000,26 +1000,7 @@ public class ArtifactControllerTest
         return null;
     }
 
-    private void deployMetadata(Metadata metadata,
-                                String metadataPath,
-                                String storageId,
-                                String repositoryId)
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   ArtifactOperationException
-    {
-        File metadataFile = new File(GENERATOR_BASEDIR.getAbsolutePath(), metadataPath);
-
-        InputStream is = new FileInputStream(metadataFile);
-        MultipleDigestInputStream mdis = new MultipleDigestInputStream(is);
-
-        addMetadata(metadata, metadataPath, storageId, repositoryId, is);
-        deployChecksum(mdis,
-                       storageId,
-                       repositoryId,
-                       metadataPath.substring(0, metadataPath.lastIndexOf('/') + 1), "maven-metadata.xml");
-    }
-
+    /*
     public void addMetadata(Metadata metadata,
                             String path,
                             String storageId,
@@ -1034,6 +1015,29 @@ public class ArtifactControllerTest
         //deployMetadata(is, url, path.substring(path.lastIndexOf("/")));
         deployMetadata(metadata, path, storageId, repositoryId);
     }
+    */
+
+    private void deployMetadata(Metadata metadata,
+                                String metadataPath,
+                                String storageId,
+                                String repositoryId)
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   ArtifactOperationException
+    {
+        File metadataFile = new File(GENERATOR_BASEDIR.getAbsolutePath(), metadataPath);
+
+        InputStream is = new FileInputStream(metadataFile);
+        MultipleDigestInputStream mdis = new MultipleDigestInputStream(is);
+
+        // addMetadata(metadata, metadataPath, storageId, repositoryId, is);
+        deployChecksum(mdis,
+                       storageId,
+                       repositoryId,
+                       metadataPath.substring(0, metadataPath.lastIndexOf('/') + 1), "maven-metadata.xml");
+    }
+
+
 
     private void deployChecksum(MultipleDigestInputStream mdis,
                                 String storageId,
