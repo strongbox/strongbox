@@ -6,6 +6,7 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -101,6 +102,16 @@ public abstract class BaseArtifactController
     public void setMavenMetadataManager(MavenMetadataManager mavenMetadataManager)
     {
         this.mavenMetadataManager = mavenMetadataManager;
+    }
+
+    public String convertRequestToPath(String rootMapping,
+                                       String storageId,
+                                       String repositoryId,
+                                       HttpServletRequest request)
+    {
+        int totalPrefixLength = rootMapping.length() + storageId.length() + repositoryId.length() + 3;
+
+        return request.getRequestURI().substring(totalPrefixLength);
     }
 
 }

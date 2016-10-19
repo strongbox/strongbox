@@ -34,7 +34,7 @@
         <level value="ERROR"/>
     </logger>
     <logger name="org.springframework.web">
-        <level value="TRACE"/>
+        <level value="ERROR"/>
     </logger>
     <logger name="org.apache">
         <level value="ERROR"/>

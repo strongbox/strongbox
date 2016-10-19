@@ -912,6 +912,7 @@ public class ArtifactControllerTest
         System.out.println();
 
         given().param("path", path)
+               .contentType(ContentType.BINARY)
                .header("Content-Disposition", contentDisposition)
                .body(bytes)
                .when()

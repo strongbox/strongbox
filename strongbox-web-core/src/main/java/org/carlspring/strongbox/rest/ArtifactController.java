@@ -15,10 +15,7 @@ import org.carlspring.strongbox.util.MessageDigestUtils;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBException;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URLEncoder;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
@@ -28,7 +25,9 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.regex.Matcher;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.ByteStreams;
+import com.google.inject.Inject;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -38,26 +37,24 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.HandlerMapping;
 import static org.carlspring.strongbox.rest.ByteRangeRequestHandler.handlePartialDownload;
 import static org.carlspring.strongbox.rest.ByteRangeRequestHandler.isRangedRequest;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @RestController
-@RequestMapping("/storages/**")
+@RequestMapping("/storages")
 public class ArtifactController
         extends BaseArtifactController
 {
 
     private static final Logger logger = LogManager.getLogger(ArtifactController.class.getName());
+
+    @Inject
+    ObjectMapper objectMapper;
 
 
     @PreAuthorize("authenticated")
@@ -70,11 +67,11 @@ public class ArtifactController
     @ApiOperation(value = "Used to deploy an artifact", position = 0)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deployed successfully."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
-    @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
-    @RequestMapping(value = "{storageId}/{repositoryId}/{path:.*}", method = RequestMethod.PUT)
+    // @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
+    @RequestMapping(value = "{storageId}/{repositoryId}/**", method = RequestMethod.PUT)
     public ResponseEntity upload(@PathVariable(name = "storageId") String storageId,
                                  @PathVariable(name = "repositoryId") String repositoryId,
-                                 MultipartFile multipartFile,
+                                 HttpEntity<byte[]> requestEntity,
                                  HttpServletRequest request)
             throws IOException,
                    AuthenticationException,
@@ -87,11 +84,11 @@ public class ArtifactController
             logger.debug("Received request to deploy to storageId:    " + storageId);
             logger.debug("Received request to deploy to repositoryId: " + repositoryId);
 
-            String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+            String path = convertRequestToPath("/storages", storageId, repositoryId, request);
 
             logger.debug("Received request to deploy to path:         " + path);
 
-            InputStream is = multipartFile.getInputStream();
+            InputStream is = new ByteArrayInputStream(requestEntity.getBody());
             getArtifactManagementService().store(storageId, repositoryId, path, is);
 
             return ResponseEntity.ok("The artifact was deployed successfully.");
