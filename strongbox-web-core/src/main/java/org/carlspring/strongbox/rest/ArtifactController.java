@@ -88,7 +88,7 @@ public class ArtifactController
 
             logger.debug("Received request to deploy to path:         " + path);
 
-            InputStream is = new ByteArrayInputStream(requestEntity.getBody());
+            InputStream is = request.getInputStream();
             getArtifactManagementService().store(storageId, repositoryId, path, is);
 
             return ResponseEntity.ok("The artifact was deployed successfully.");

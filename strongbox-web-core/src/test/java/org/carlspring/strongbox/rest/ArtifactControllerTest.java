@@ -1000,23 +1000,6 @@ public class ArtifactControllerTest
         return null;
     }
 
-    /*
-    public void addMetadata(Metadata metadata,
-                            String path,
-                            String storageId,
-                            String repositoryId,
-                            InputStream is)
-            throws ArtifactOperationException, IOException, NoSuchAlgorithmException
-    {
-        String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + path;
-
-        logger.debug("Deploying " + url + "...");
-
-        //deployMetadata(is, url, path.substring(path.lastIndexOf("/")));
-        deployMetadata(metadata, path, storageId, repositoryId);
-    }
-    */
-
     private void deployMetadata(Metadata metadata,
                                 String metadataPath,
                                 String storageId,
@@ -1030,7 +1013,6 @@ public class ArtifactControllerTest
         InputStream is = new FileInputStream(metadataFile);
         MultipleDigestInputStream mdis = new MultipleDigestInputStream(is);
 
-        // addMetadata(metadata, metadataPath, storageId, repositoryId, is);
         deployChecksum(mdis,
                        storageId,
                        repositoryId,
