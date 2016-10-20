@@ -81,12 +81,7 @@ public class ArtifactController
     {
         try
         {
-            logger.debug("Received request to deploy to storageId:    " + storageId);
-            logger.debug("Received request to deploy to repositoryId: " + repositoryId);
-
             String path = convertRequestToPath("/storages", storageId, repositoryId, request);
-
-            logger.debug("Received request to deploy to path:         " + path);
 
             InputStream is = request.getInputStream();
             getArtifactManagementService().store(storageId, repositoryId, path, is);
@@ -113,8 +108,7 @@ public class ArtifactController
                          @RequestParam(name = "path") String path,
                          @RequestHeader HttpHeaders httpHeaders,
                          HttpServletRequest request,
-                         HttpServletResponse response
-    )
+                         HttpServletResponse response)
             throws Exception
     {
         logger.debug(" repository = " + repositoryId + ", path = " + path);

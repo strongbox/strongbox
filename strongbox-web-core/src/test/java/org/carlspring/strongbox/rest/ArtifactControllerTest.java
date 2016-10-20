@@ -890,11 +890,11 @@ public class ArtifactControllerTest
 
             final String extensionForAlgorithm = EncryptionAlgorithmsEnum.fromAlgorithm(algorithm).getExtension();
 
-            String artifactToPath = ArtifactUtils.convertArtifactToPath(artifact) + extensionForAlgorithm;
-            String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + artifactToPath;
+            String artifactPath = ArtifactUtils.convertArtifactToPath(artifact) + extensionForAlgorithm;
+            String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + artifactPath;
             String artifactFileName = getArtifactFileName(artifact) + extensionForAlgorithm;
 
-            deployFile(bais, url, artifactFileName, artifactToPath);
+            deployFile(bais, url, artifactFileName, artifactPath);
         }
     }
 
@@ -908,7 +908,8 @@ public class ArtifactControllerTest
         byte[] bytes = ByteStreams.toByteArray(is);
 
         System.out.println();
-        System.out.println(" path = " + path);
+        System.out.println(" client> path = " + path);
+        System.out.println(" client> url = " + url);
         System.out.println();
 
         given().param("path", path)
@@ -1013,13 +1014,18 @@ public class ArtifactControllerTest
         InputStream is = new FileInputStream(metadataFile);
         MultipleDigestInputStream mdis = new MultipleDigestInputStream(is);
 
+        System.out.println(" metadataPath = " + metadataPath);
+
+        String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + metadataPath;
+
+        deployFile(is, url, "maven-metadata.xml", metadataPath);
+
         deployChecksum(mdis,
                        storageId,
                        repositoryId,
                        metadataPath.substring(0, metadataPath.lastIndexOf('/') + 1), "maven-metadata.xml");
+
     }
-
-
 
     private void deployChecksum(MultipleDigestInputStream mdis,
                                 String storageId,
@@ -1041,11 +1047,11 @@ public class ArtifactControllerTest
 
             final String extensionForAlgorithm = EncryptionAlgorithmsEnum.fromAlgorithm(algorithm).getExtension();
 
-            String artifactToPath = path + metadataFileName + extensionForAlgorithm;
-            String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId;
+            String metadataPath = path + metadataFileName + extensionForAlgorithm;
+            String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + metadataPath;
             String artifactFileName = metadataFileName + extensionForAlgorithm;
 
-            deployFile(bais, url, artifactFileName, artifactToPath);
+            deployFile(bais, url, artifactFileName, metadataPath);
         }
     }
 
