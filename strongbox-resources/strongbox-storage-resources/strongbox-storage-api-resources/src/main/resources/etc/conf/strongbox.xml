@@ -179,8 +179,8 @@
 
                 <repository id="group-sbt-proxies" policy="release" implementation="file-system" layout="Maven 2" type="group" secured="true">
                     <group>
-                        <repository>storage-ivy-proxies</repository>
                         <repository>sbt-plugin-releases</repository>
+                        <repository>storage-ivy-proxies:group-ivy-proxies</repository>
                     </group>
                 </repository>
             </repositories>

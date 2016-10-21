@@ -237,10 +237,14 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
                    ArtifactTransportException,
                    ProviderImplementationException
     {
-        return getLayoutProviderRegistry().getProvider(repository.getLayout())
-                                          .getInputStream(repository.getStorage().getId(),
-                                                          repository.getId(),
-                                                          artifactPath);
+        getRepositoryProviderRegistry().dump();
+
+        RepositoryProvider provider = getRepositoryProviderRegistry().getProvider(repository.getType());
+        ArtifactInputStream is = provider.getInputStream(repository.getStorage().getId(),
+                                                         repository.getId(),
+                                                         artifactPath);
+
+        return is;
     }
 
     @Override

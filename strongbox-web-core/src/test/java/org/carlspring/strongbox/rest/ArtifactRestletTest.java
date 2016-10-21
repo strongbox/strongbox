@@ -169,13 +169,12 @@ public class ArtifactRestletTest
      * @throws Exception
      */
     @Test
-    @Ignore
     public void testResolveViaProxyToMavenCentral()
             throws Exception
     {
         client = RestClient.getTestInstance();
 
-        String artifactPath = "storages/storage-common-proxies/maven-central/org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.jar";
+        String artifactPath = "storages/public/public-group/org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.jar";
 
         InputStream is = client.getResource(artifactPath);
         if (is == null)
@@ -210,8 +209,8 @@ public class ArtifactRestletTest
         System.out.println("SHA-1 [Remote]: " + sha1Remote);
         System.out.println("SHA-1 [Local ]: " + sha1Local);
 
-        assertEquals("MD5 checksums did not match!", md5Remote, md5Local);
-        assertEquals("SHA-1 checksums did not match!", sha1Remote, sha1Local);
+        assertEquals("MD5 checksums did not match!", md5Local, md5Remote);
+        assertEquals("SHA-1 checksums did not match!", sha1Local, sha1Remote);
     }
 
     private void createProxiedRepository(String storageId,

@@ -30,6 +30,9 @@
         </encoder>
     </appender>
 
+    <logger name="net.sf.ehcache">
+        <level value="ERROR"/>
+    </logger>
     <logger name="org.springframework">
         <level value="ERROR"/>
     </logger>
@@ -45,6 +48,9 @@
 
     <logger name="org.carlspring">
         <level value="DEBUG"/>
+    </logger>
+    <logger name="org.carlspring.strongbox.security.authentication">
+        <level value="ERROR"/>
     </logger>
 
     <root>
