@@ -3,8 +3,8 @@ package org.carlspring.strongbox.rest;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -110,8 +110,16 @@ public abstract class BaseArtifactController
                                        HttpServletRequest request)
     {
         int totalPrefixLength = rootMapping.length() + storageId.length() + repositoryId.length() + 3;
+        int requestUriLength = request.getRequestURI().length();
 
-        return request.getRequestURI().substring(totalPrefixLength);
+        if (requestUriLength > totalPrefixLength)
+        {
+            return request.getRequestURI().substring(totalPrefixLength);
+        }
+        else
+        {
+            logger.warn("Unable to calculate path for request uri " + request.getRequestURI());
+            return null;
+        }
     }
-
 }

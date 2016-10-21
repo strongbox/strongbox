@@ -18,7 +18,6 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-import org.springframework.web.util.UrlPathHelper;
 
 @Configuration
 @ComponentScan
@@ -48,12 +47,6 @@ public class WebConfig
         logger.debug("Initialized web configuration.");
     }
 
-    private static class MyUrlPathHelper
-            extends UrlPathHelper
-    {
-
-    }
-
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters)
     {
@@ -67,22 +60,6 @@ public class WebConfig
         converters.add(new MappingJackson2XmlHttpMessageConverter());
         converters.add(new ResourceHttpMessageConverter());
     }
-
-  /*  @Override
-    public void configurePathMatch(PathMatchConfigurer configurer) {
-        configurer
-                .setUseSuffixPatternMatch(true)
-                .setUseTrailingSlashMatch(true)
-                .setUseRegisteredSuffixPatternMatch(false)
-                .setUrlPathHelper(urlPathHelper());
-    }
-
-    private UrlPathHelper urlPathHelper()
-    {
-        UrlPathHelper pathHelper = new MyUrlPathHelper();
-        pathHelper.setUrlDecode(false);
-        return pathHelper;
-    }*/
 
     @Bean
     public ObjectMapper objectMapper()

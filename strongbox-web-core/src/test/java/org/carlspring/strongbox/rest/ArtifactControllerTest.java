@@ -39,7 +39,6 @@ import org.apache.maven.model.Model;
 import org.apache.maven.project.artifact.PluginArtifact;
 import org.codehaus.plexus.util.WriterFactory;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -170,24 +169,23 @@ public class ArtifactControllerTest
         String url = getContextBaseUrl() + "/storages/storage0/releases";
         String pathToJar = "/org/carlspring/strongbox/partial/partial-foo/3.1/partial-foo-3.1.jar";
 
-        logger.info("[testPartialFetch] Getting " + url + "?path=" + pathToJar);
+        logger.info("[testPartialFetch] Getting " + url);
 
         given().contentType(MediaType.TEXT_PLAIN_VALUE)
-               .param("path", pathToJar)
                .when()
-               .get(url)
+               .get(url + pathToJar)
                .then()
                .statusCode(200);
 
         // read remote checksum
-        String md5Remote = MessageDigestUtils.readChecksumFile(getArtifactAsStream(pathToJar + ".md5", url));
-        String sha1Remote = MessageDigestUtils.readChecksumFile(getArtifactAsStream(pathToJar + ".sha1", url));
+        String md5Remote = MessageDigestUtils.readChecksumFile(getArtifactAsStream(url + pathToJar + ".md5"));
+        String sha1Remote = MessageDigestUtils.readChecksumFile(getArtifactAsStream(url + pathToJar + ".sha1"));
 
         logger.info("Remote md5 checksum " + md5Remote);
         logger.info("Remote sha1 checksum " + sha1Remote);
 
         // calculate local checksum for given algorithms
-        InputStream is = getArtifactAsStream(pathToJar, url);
+        InputStream is = getArtifactAsStream(url + pathToJar);
         logger.debug("Wrote " + is.available() + " bytes.");
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -217,7 +215,7 @@ public class ArtifactControllerTest
 
         logger.debug("Read " + total + " bytes.");
 
-        is = getArtifactAsStream(pathToJar, url, total);
+        is = getArtifactAsStream(url + pathToJar, total);
 
         logger.debug("Skipped " + total + " bytes.");
 
@@ -263,22 +261,18 @@ public class ArtifactControllerTest
         assertEquals("Glued partial fetches did not match SHA-1 checksum!", sha1Remote, sha1Local);
     }
 
-    private InputStream getArtifactAsStream(String path,
-                                            String url)
+    private InputStream getArtifactAsStream(String url)
     {
-        return getArtifactAsStream(path, url, -1);
+        return getArtifactAsStream(url, -1);
     }
 
-    private InputStream getArtifactAsStream(String path,
-                                            String url,
+    private InputStream getArtifactAsStream(String url,
                                             int offset)
     {
-        return new ByteArrayInputStream(getArtifactAsByteArray(path, url, offset));
-
+        return new ByteArrayInputStream(getArtifactAsByteArray(url, offset));
     }
 
-    private byte[] getArtifactAsByteArray(String path,
-                                          String url,
+    private byte[] getArtifactAsByteArray(String url,
                                           int offset)
     {
         MockMvcRequestSpecification o = given().contentType(MediaType.TEXT_PLAIN_VALUE);
@@ -289,19 +283,14 @@ public class ArtifactControllerTest
             statusCode = 206;
         }
 
-        logger.debug("[getArtifactAsByteArray] URL " + url + "?path=" + path);
+        logger.info("[getArtifactAsByteArray] URL " + url);
 
-        MockMvcResponse response = o.param("path", path)
-                                    .when()
-                                    .get(url);
+        MockMvcResponse response = o.when().get(url);
         Headers allHeaders = response.getHeaders();
         logger.debug("HTTP GET " + url);
         logger.debug("Response headers:");
 
-        allHeaders.forEach(header ->
-                           {
-                               logger.debug("\t" + header.getName() + " = " + header.getValue());
-                           });
+        allHeaders.forEach(header -> logger.debug("\t" + header.getName() + " = " + header.getValue()));
 
         response.then().statusCode(statusCode);
         byte[] result = response.getMockHttpServletResponse().getContentAsByteArray();
@@ -554,8 +543,6 @@ public class ArtifactControllerTest
         Artifact artifact1WithTimestamp3 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + generator.createSnapshotVersion("3.1", 3));
         Artifact artifact1WithTimestamp4 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + generator.createSnapshotVersion("3.1", 4));
 
-        // artifactDeployer.setClient(client);
-
         String storageId = "storage0";
         String repositoryId = "snapshots";
 
@@ -565,17 +552,29 @@ public class ArtifactControllerTest
         generateAndDeployArtifact(artifact1WithTimestamp4, storageId, repositoryId);
 
         String path = ArtifactUtils.getVersionLevelMetadataPath(artifact1);
+        String url = "/storages/" + storageId + "/" + repositoryId + "/";
 
-        String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId;
+        String metadataUrl = url + path;
 
-        Metadata versionLevelMetadata = retrieveMetadata(url);
+        logger.info("[retrieveMetadata] Load metadata by URL " + metadataUrl);
 
-        Assert.assertNotNull(versionLevelMetadata);
-        Assert.assertEquals("org.carlspring.strongbox.metadata", versionLevelMetadata.getGroupId());
-        Assert.assertEquals("metadata-foo", versionLevelMetadata.getArtifactId());
-        Assert.assertEquals(4, versionLevelMetadata.getVersioning().getSnapshot().getBuildNumber());
-        Assert.assertNotNull(versionLevelMetadata.getVersioning().getLastUpdated());
-        Assert.assertEquals(12, versionLevelMetadata.getVersioning().getSnapshotVersions().size());
+        Metadata versionLevelMetadata = retrieveMetadata(url + path);
+
+        assertNotNull(versionLevelMetadata);
+        assertEquals("org.carlspring.strongbox.metadata", versionLevelMetadata.getGroupId());
+        assertEquals("metadata-foo", versionLevelMetadata.getArtifactId());
+
+        // TODO M.Todorov
+        // This check doesn't make sense because we could launch the test multiple time
+        // and unit test need to be idempotent -> not depend from call count
+        // remove that check or calculate test execution count properly
+        // assertEquals(4, versionLevelMetadata.getVersioning().getSnapshot().getBuildNumber());
+
+        assertNotNull(versionLevelMetadata.getVersioning().getLastUpdated());
+
+        // TODO M.Todorov
+        // The same as for getBuildNumber() checks
+        // assertEquals(12, versionLevelMetadata.getVersioning().getSnapshotVersions().size());
     }
 
     /*
@@ -975,30 +974,10 @@ public class ArtifactControllerTest
                    IOException,
                    XmlPullParserException
     {
-        String url = getContextBaseUrl();
+        InputStream is = getArtifactAsStream(getContextBaseUrl() + "/" + path);
+        MetadataXpp3Reader reader = new MetadataXpp3Reader();
 
-        MockMvcResponse response = given().contentType(MediaType.TEXT_PLAIN_VALUE)
-                                          //.param("path", path)
-                                          .when()
-                                          .get(url)
-                                          .andReturn();
-
-                                          /*
-                                          .then()
-                                          .statusCode(200)
-                                          .extract()
-                                          .response();
-                                          */
-
-        if (response.statusCode() == 200)
-        {
-            InputStream is = getArtifactAsStream(path, url);
-            MetadataXpp3Reader reader = new MetadataXpp3Reader();
-
-            return reader.read(is);
-        }
-
-        return null;
+        return reader.read(is);
     }
 
     private void deployMetadata(Metadata metadata,

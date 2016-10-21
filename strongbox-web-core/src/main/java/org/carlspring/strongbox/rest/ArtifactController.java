@@ -15,7 +15,10 @@ import org.carlspring.strongbox.util.MessageDigestUtils;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBException;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
@@ -37,7 +40,10 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import static org.carlspring.strongbox.rest.ByteRangeRequestHandler.handlePartialDownload;
@@ -67,11 +73,10 @@ public class ArtifactController
     @ApiOperation(value = "Used to deploy an artifact", position = 0)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deployed successfully."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
-    // @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
+    @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
     @RequestMapping(value = "{storageId}/{repositoryId}/**", method = RequestMethod.PUT)
     public ResponseEntity upload(@PathVariable(name = "storageId") String storageId,
                                  @PathVariable(name = "repositoryId") String repositoryId,
-                                 HttpEntity<byte[]> requestEntity,
                                  HttpServletRequest request)
             throws IOException,
                    AuthenticationException,
@@ -101,16 +106,17 @@ public class ArtifactController
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(value = "{storageId}/{repositoryId}", method = RequestMethod.GET,
+    @RequestMapping(value = "{storageId}/{repositoryId}/**", method = RequestMethod.GET,
             consumes = MediaType.TEXT_PLAIN_VALUE)
     public void download(@PathVariable String storageId,
                          @PathVariable String repositoryId,
-                         @RequestParam(name = "path") String path,
                          @RequestHeader HttpHeaders httpHeaders,
                          HttpServletRequest request,
                          HttpServletResponse response)
             throws Exception
     {
+        String path = convertRequestToPath("/storages", storageId, repositoryId, request);
+
         logger.debug(" repository = " + repositoryId + ", path = " + path);
         Storage storage = configurationManager.getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);

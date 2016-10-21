@@ -1,11 +1,17 @@
 package org.carlspring.strongbox.rest;
 
+import org.carlspring.strongbox.users.domain.Roles;
+
+import java.util.Collection;
+
 import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.web.context.WebApplicationContext;
 import static org.carlspring.strongbox.booters.StorageBooter.createTempDir;
 
@@ -26,6 +32,9 @@ public abstract class BackendBaseTest
 
     @Autowired
     protected WebApplicationContext context;
+
+    @Autowired
+    AnonymousAuthenticationFilter anonymousAuthenticationFilter;
 
     private String host;
 
@@ -63,6 +72,11 @@ public abstract class BackendBaseTest
     {
         RestAssuredMockMvc.webAppContextSetup(context);
         createTempDir();
+
+        // security settings for tests
+        // by default all operations incl. deletion etc. are allowed (careful)
+        // override #provideAuthorities if you wanna be more specific
+        anonymousAuthenticationFilter.getAuthorities().addAll(provideAuthorities());
     }
 
     @After
@@ -74,5 +88,10 @@ public abstract class BackendBaseTest
     public String getContextBaseUrl()
     {
         return contextBaseUrl;
+    }
+
+    protected Collection<? extends GrantedAuthority> provideAuthorities()
+    {
+        return Roles.ADMIN.getPrivileges();
     }
 }
