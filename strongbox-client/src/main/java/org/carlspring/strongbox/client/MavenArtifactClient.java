@@ -37,6 +37,7 @@ public class MavenArtifactClient implements Closeable
 
     private Client client;
 
+
     public MavenArtifactClient(Client client)
     {
         this.client = client;
