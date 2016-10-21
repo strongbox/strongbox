@@ -20,6 +20,7 @@ import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import java.io.*;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
@@ -33,6 +34,7 @@ import com.jayway.restassured.response.ExtractableResponse;
 import com.jayway.restassured.response.Headers;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Writer;
 import org.apache.maven.model.Model;
@@ -538,10 +540,16 @@ public class ArtifactControllerTest
 
         Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":3.1-SNAPSHOT");
         TestCaseWithArtifactGeneration generator = new TestCaseWithArtifactGeneration();
-        Artifact artifact1WithTimestamp1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + generator.createSnapshotVersion("3.1", 1));
-        Artifact artifact1WithTimestamp2 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + generator.createSnapshotVersion("3.1", 2));
-        Artifact artifact1WithTimestamp3 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + generator.createSnapshotVersion("3.1", 3));
-        Artifact artifact1WithTimestamp4 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + generator.createSnapshotVersion("3.1", 4));
+
+        String snapshotVersion1 = generator.createSnapshotVersion("3.1", 1);
+        String snapshotVersion2 = generator.createSnapshotVersion("3.1", 2);
+        String snapshotVersion3 = generator.createSnapshotVersion("3.1", 3);
+        String snapshotVersion4 = generator.createSnapshotVersion("3.1", 4);
+
+        Artifact artifact1WithTimestamp1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + snapshotVersion1);
+        Artifact artifact1WithTimestamp2 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + snapshotVersion2);
+        Artifact artifact1WithTimestamp3 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + snapshotVersion3);
+        Artifact artifact1WithTimestamp4 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + snapshotVersion4);
 
         String storageId = "storage0";
         String repositoryId = "snapshots";
@@ -564,17 +572,44 @@ public class ArtifactControllerTest
         assertEquals("org.carlspring.strongbox.metadata", versionLevelMetadata.getGroupId());
         assertEquals("metadata-foo", versionLevelMetadata.getArtifactId());
 
-        // TODO M.Todorov
-        // This check doesn't make sense because we could launch the test multiple time
-        // and unit test need to be idempotent -> not depend from call count
-        // remove that check or calculate test execution count properly
-        // assertEquals(4, versionLevelMetadata.getVersioning().getSnapshot().getBuildNumber());
+        checkSnapshotVersionExistsInMetadata(versionLevelMetadata, snapshotVersion1, null, "jar");
+        checkSnapshotVersionExistsInMetadata(versionLevelMetadata, snapshotVersion1, "javadoc", "jar");
+        checkSnapshotVersionExistsInMetadata(versionLevelMetadata, snapshotVersion1, null, "pom");
+
+        checkSnapshotVersionExistsInMetadata(versionLevelMetadata, snapshotVersion2, null, "jar");
+        checkSnapshotVersionExistsInMetadata(versionLevelMetadata, snapshotVersion2, "javadoc", "jar");
+        checkSnapshotVersionExistsInMetadata(versionLevelMetadata, snapshotVersion2, null, "pom");
+
+        checkSnapshotVersionExistsInMetadata(versionLevelMetadata, snapshotVersion3, null, "jar");
+        checkSnapshotVersionExistsInMetadata(versionLevelMetadata, snapshotVersion3, "javadoc", "jar");
+        checkSnapshotVersionExistsInMetadata(versionLevelMetadata, snapshotVersion3, null, "pom");
+
+        checkSnapshotVersionExistsInMetadata(versionLevelMetadata, snapshotVersion4, null, "jar");
+        checkSnapshotVersionExistsInMetadata(versionLevelMetadata, snapshotVersion4, "javadoc", "jar");
+        checkSnapshotVersionExistsInMetadata(versionLevelMetadata, snapshotVersion4, null, "pom");
 
         assertNotNull(versionLevelMetadata.getVersioning().getLastUpdated());
+    }
 
-        // TODO M.Todorov
-        // The same as for getBuildNumber() checks
-        // assertEquals(12, versionLevelMetadata.getVersioning().getSnapshotVersions().size());
+    private boolean checkSnapshotVersionExistsInMetadata(Metadata versionLevelMetadata,
+                                                         String version,
+                                                         String classifier,
+                                                         String extension)
+    {
+        boolean exists = false;
+
+        List<SnapshotVersion> versions = versionLevelMetadata.getVersioning().getSnapshotVersions();
+        for (SnapshotVersion snapshotVersion : versions)
+        {
+            if (snapshotVersion.getVersion().equals(version) &&
+                snapshotVersion.getClassifier().equals(classifier) &&
+                snapshotVersion.getExtension().equals(extension))
+            {
+                return true;
+            }
+        }
+
+        return exists;
     }
 
     /*
