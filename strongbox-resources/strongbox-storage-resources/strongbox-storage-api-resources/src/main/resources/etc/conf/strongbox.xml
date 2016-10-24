@@ -92,6 +92,13 @@
                                        checksum-validation="true" />
                 </repository>
 
+                <repository id="carlspring" policy="mixed" implementation="file-system" layout="Maven 2" type="proxy">
+                    <remote-repository url="http://dev.carlspring.org/nexus/content/groups/carlspring"
+                                       download-remote-indexes="true"
+                                       auto-blocking="true"
+                                       checksum-validation="true" />
+                </repository>
+
                 <repository id="apache-snapshots" policy="snapshot" implementation="file-system" layout="Maven 2" type="proxy">
                     <remote-repository url="https://repository.apache.org/snapshots/"
                                        download-remote-indexes="true"
@@ -108,6 +115,7 @@
 
                 <repository id="group-common-proxies" policy="release" implementation="file-system" layout="Maven 2" type="group" secured="true">
                     <group>
+                        <repository>carlspring</repository>
                         <repository>maven-central</repository>
                         <repository>apache-snapshots</repository>
                         <repository>jboss-public-releases</repository>
@@ -207,6 +215,22 @@
     </storages>
 
     <routing-rules>
+        <accepted>
+            <rule-set group-repository="group-common-proxies">
+                <rule pattern=".*(com|org)/carlspring.*">
+                    <repositories>
+                        <repository>carlspring</repository>
+                    </repositories>
+                </rule>
+            </rule-set>
+            <rule-set group-repository="*">
+                <rule pattern=".*(com|org)/artifacts.in.releases.*">
+                    <repositories>
+                        <repository>releases</repository>
+                    </repositories>
+                </rule>
+            </rule-set>
+        </accepted>
         <accepted>
             <rule-set group-repository="group-releases">
                 <rule pattern=".*(com|org)/artifacts.in.releases.with.trash.*">
