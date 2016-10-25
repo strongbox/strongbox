@@ -9,9 +9,6 @@ import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 
 import com.google.common.io.ByteStreams;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +20,6 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author carlspring
  */
-@Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 public class ProxyRepositoryProviderTest
