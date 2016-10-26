@@ -136,8 +136,8 @@ public class ArtifactControllerTest
         assertPathExists(artifactPath);
 
         // read remote checksum
-        String md5Remote = MessageDigestUtils.readChecksumFile(getArtifactAsStream(artifactPath + ".md5"));
-        String sha1Remote = MessageDigestUtils.readChecksumFile(getArtifactAsStream(artifactPath + ".sha1"));
+        String md5Remote = MessageDigestUtils.readChecksumFile(getArtifactAsStream(artifactPath + ".md5", true));
+        String sha1Remote = MessageDigestUtils.readChecksumFile(getArtifactAsStream(artifactPath + ".sha1", true));
 
         logger.info("Remote md5 checksum " + md5Remote);
         logger.info("Remote sha1 checksum " + sha1Remote);
@@ -438,21 +438,6 @@ public class ArtifactControllerTest
         return exists;
     }
 
-    /*
-    private void generateAndDeployArtifact(Artifact artifact,
-                                           String storageId,
-                                           String repositoryId,
-                                           ArtifactDeployer artifactDeployer)
-            throws FileNotFoundException, NoSuchAlgorithmException
-    {
-        File artifactFile = new File(artifactDeployer.getBasedir(), ArtifactUtils.convertArtifactToPath(artifact));
-        logger.debug(artifactDeployer.getBasedir());
-        logger.debug(artifact.toString());
-        logger.debug(artifactFile.toString());
-        ArtifactInputStream is = new ArtifactInputStream(artifact, new FileInputStream(artifactFile));
-    }
-    */
-
     public void generateAndDeployArtifact(Artifact artifact,
                                           String storageId,
                                           String repositoryId)
@@ -474,10 +459,6 @@ public class ArtifactControllerTest
                    IOException,
                    ArtifactOperationException
     {
-//        ArtifactDeployer artifactDeployer = new ArtifactDeployer(GENERATOR_BASEDIR);
-//        artifactDeployer.generatePom(artifact, packaging);
-//        artifactDeployer.createArchive(artifact);
-
         generatePom(artifact, packaging);
         createArchive(artifact);
 
@@ -582,7 +563,6 @@ public class ArtifactControllerTest
         bais.close();
         zos.closeEntry();
     }
-
 
     private void addMavenPomFile(Artifact artifact,
                                  ZipOutputStream zos)
@@ -835,10 +815,15 @@ public class ArtifactControllerTest
                    IOException,
                    XmlPullParserException
     {
-        InputStream is = getArtifactAsStream(getContextBaseUrl() + "/" + path);
-        MetadataXpp3Reader reader = new MetadataXpp3Reader();
+        InputStream is = getArtifactAsStream(getContextBaseUrl() + "/" + path, false);
+        if (is != null)
+        {
+            MetadataXpp3Reader reader = new MetadataXpp3Reader();
 
-        return reader.read(is);
+            return reader.read(is);
+        }
+
+        return null;
     }
 
     private void deployMetadata(Metadata metadata,

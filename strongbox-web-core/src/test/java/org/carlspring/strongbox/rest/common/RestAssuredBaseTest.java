@@ -148,13 +148,28 @@ public abstract class RestAssuredBaseTest
 
     protected InputStream getArtifactAsStream(String url)
     {
-        return getArtifactAsStream(url, -1);
+        return getArtifactAsStream(url, -1, false);
+    }
+
+    protected InputStream getArtifactAsStream(String url, boolean validate)
+    {
+        return getArtifactAsStream(url, -1, validate);
+    }
+
+    protected InputStream getArtifactAsStream(String url,
+                                              int offset,
+                                              boolean validate)
+    {
+        byte[] bytes = getArtifactAsByteArray(url, offset, validate);
+        return bytes != null ? new ByteArrayInputStream(bytes) : null;
     }
 
     protected InputStream getArtifactAsStream(String url,
                                               int offset)
     {
-        return new ByteArrayInputStream(getArtifactAsByteArray(url, offset));
+        byte[] bytes = getArtifactAsByteArray(url, offset, false);
+
+        return bytes != null ? new ByteArrayInputStream(bytes) : null;
     }
 
     /**
@@ -162,7 +177,8 @@ public abstract class RestAssuredBaseTest
      * RestAssured-specific case for working with file uploading when multipart specification is not used.
      */
     protected byte[] getArtifactAsByteArray(String url,
-                                            int offset)
+                                            int offset,
+                                            boolean validate)
     {
         MockMvcRequestSpecification o = given().contentType(MediaType.TEXT_PLAIN_VALUE);
         int statusCode = 200;
@@ -176,17 +192,29 @@ public abstract class RestAssuredBaseTest
 
         MockMvcResponse response = o.when().get(url);
         Headers allHeaders = response.getHeaders();
+
         logger.debug("HTTP GET " + url);
         logger.debug("Response headers:");
 
         allHeaders.forEach(header -> logger.trace("\t" + header.getName() + " = " + header.getValue()));
 
-        response.then().statusCode(statusCode);
-        byte[] result = response.getMockHttpServletResponse().getContentAsByteArray();
+        if (validate)
+        {
+            response.then().statusCode(statusCode);
+        }
 
-        logger.debug("Received " + result.length + " bytes.");
+        if (response.getStatusCode() == 200)
+        {
+            byte[] result = response.getMockHttpServletResponse().getContentAsByteArray();
 
-        return result;
+            logger.debug("Received " + result.length + " bytes.");
+
+            return result;
+        }
+        else
+        {
+            return null;
+        }
     }
 
     protected void copy(String path,
@@ -195,19 +223,18 @@ public abstract class RestAssuredBaseTest
                         String destStorageId,
                         String destRepositoryId)
     {
-        given()
-                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .params("path", path,
-                        "srcStorageId", srcStorageId,
-                        "srcRepositoryId", srcRepositoryId,
-                        "destStorageId", destStorageId,
-                        "destRepositoryId", destRepositoryId)
-                .when()
-                .post(getContextBaseUrl() + "/storages/copy")
-                .peek()
-                .then()
-                .statusCode(HttpStatus.OK.value())
-                .extract();
+        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+               .params("path", path,
+                       "srcStorageId", srcStorageId,
+                       "srcRepositoryId", srcRepositoryId,
+                       "destStorageId", destStorageId,
+                       "destRepositoryId", destRepositoryId)
+               .when()
+               .post(getContextBaseUrl() + "/storages/copy")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .extract();
     }
 
     protected void delete(String storageId,
@@ -252,4 +279,5 @@ public abstract class RestAssuredBaseTest
                                             .then()
                                             .extract();
     }
+
 }
