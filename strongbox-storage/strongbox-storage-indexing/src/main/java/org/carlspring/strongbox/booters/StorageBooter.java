@@ -9,6 +9,7 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexerFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Singleton;
@@ -178,10 +179,21 @@ public class StorageBooter
 
         repositoryManagementService.createRepository(storage.getId(), repositoryId);
 
-        if (storage.getRepository(repositoryId).isIndexingEnabled())
+        Repository repository = storage.getRepository(repositoryId);
+        if (repository.isIndexingEnabled())
         {
             initializeRepositoryIndex(storage, repositoryId);
         }
+
+        /*
+        if (repository.isProxyRepository())
+        {
+            if ()
+            {
+                // TODO: Add certificate
+            }
+        }
+        */
 
         logger.debug(" -> Initialized '" + repositoryBasedir.getAbsolutePath() + "'.");
     }
