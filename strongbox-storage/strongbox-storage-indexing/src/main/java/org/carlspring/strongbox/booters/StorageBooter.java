@@ -185,16 +185,6 @@ public class StorageBooter
             initializeRepositoryIndex(storage, repositoryId);
         }
 
-        /*
-        if (repository.isProxyRepository())
-        {
-            if ()
-            {
-                // TODO: Add certificate
-            }
-        }
-        */
-
         logger.debug(" -> Initialized '" + repositoryBasedir.getAbsolutePath() + "'.");
     }
 
