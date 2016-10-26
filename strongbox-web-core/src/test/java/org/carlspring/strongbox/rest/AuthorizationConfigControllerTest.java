@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.rest;
 
 import org.carlspring.strongbox.config.WebConfig;
+import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.security.Role;
 import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.security.AuthorizationConfig;
@@ -29,7 +30,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @WebAppConfiguration
 @WithUserDetails("admin")
 public class AuthorizationConfigControllerTest
-        extends BackendBaseTest
+        extends RestAssuredBaseTest
 {
 
     private final GenericParser<AuthorizationConfig> configGenericParser = new GenericParser<>(AuthorizationConfig.class);

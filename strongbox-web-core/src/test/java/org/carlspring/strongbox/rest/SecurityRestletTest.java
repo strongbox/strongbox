@@ -25,7 +25,7 @@ import static junit.framework.TestCase.assertEquals;
 @RunWith(SpringJUnit4ClassRunner.class)
 @RestletTestContext
 @Ignore
-public class SecurityTest
+public class SecurityRestletTest
 {
 
     private static RestClient client = new RestClient();

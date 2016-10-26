@@ -3,6 +3,7 @@ package org.carlspring.strongbox.rest;
 import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import java.io.File;
@@ -34,7 +35,7 @@ import static org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration.ge
 @ContextConfiguration(classes = WebConfig.class)
 @WebAppConfiguration
 public class ProxyRepositoryConnectionPoolConfigurationManagementControllerTest
-        extends BackendBaseTest
+        extends RestAssuredBaseTest
 {
 
     private static final File STORAGE_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +

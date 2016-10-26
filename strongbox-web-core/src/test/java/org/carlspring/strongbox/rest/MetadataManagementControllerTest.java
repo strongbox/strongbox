@@ -2,6 +2,7 @@ package org.carlspring.strongbox.rest;
 
 import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
@@ -41,7 +42,7 @@ import static org.springframework.test.util.AssertionErrors.assertEquals;
 @ContextConfiguration(classes = WebConfig.class)
 @WebAppConfiguration
 public class MetadataManagementControllerTest
-        extends BackendBaseTest
+        extends RestAssuredBaseTest
 {
 
     private static final File REPOSITORY_BASEDIR_RELEASES = new File(ConfigurationResourceResolver.getVaultDirectory() +
@@ -86,34 +87,6 @@ public class MetadataManagementControllerTest
                                                     "jar",
                                                     null, 5);
 
-    }
-
-    private void removeDir(File dir)
-    {
-
-        if (dir == null)
-        {
-            return;
-        }
-
-        logger.debug("Removing directory " + dir.getAbsolutePath());
-
-        if (dir.isDirectory())
-        {
-            File[] files = dir.listFiles();
-            if (files != null)
-            {
-                for (File file : files)
-                {
-                    removeDir(file);
-                }
-            }
-        }
-        else
-        {
-            boolean res = dir.delete();
-            logger.debug("Remove " + dir.getAbsolutePath() + " " + res);
-        }
     }
 
     @Test

@@ -3,6 +3,7 @@ package org.carlspring.strongbox.rest;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.indexing.SearchResults;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
@@ -32,7 +33,7 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 @WebAppConfiguration
 @WithUserDetails("admin")
 public class SearchControllerTest
-        extends BackendBaseTest
+        extends RestAssuredBaseTest
 {
 
     @Autowired

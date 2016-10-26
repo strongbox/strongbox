@@ -5,6 +5,7 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MetadataMerger;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -46,7 +47,7 @@ import static org.junit.Assert.assertTrue;
 @Rollback(false)
 @Ignore
 public class SpringClientTest
-        extends BackendBaseTest
+        extends RestAssuredBaseTest
 {
 
     public static final String PACKAGING_JAR = "jar";
@@ -133,34 +134,6 @@ public class SpringClientTest
         client.delete(STORAGE,
                       "releases",
                       "org/carlspring/strongbox/undelete/test-artifact-undelete/1.1/test-artifact-undelete-1.1.jar");
-    }
-
-    private void removeDir(File dir)
-    {
-
-        if (dir == null)
-        {
-            return;
-        }
-
-        System.out.println("Removing directory " + dir.getAbsolutePath());
-
-        if (dir.isDirectory())
-        {
-            File[] files = dir.listFiles();
-            if (files != null)
-            {
-                for (File file : files)
-                {
-                    removeDir(file);
-                }
-            }
-        }
-        else
-        {
-            boolean res = dir.delete();
-            System.out.println("Remove " + dir.getAbsolutePath() + " " + res);
-        }
     }
 
     @Test

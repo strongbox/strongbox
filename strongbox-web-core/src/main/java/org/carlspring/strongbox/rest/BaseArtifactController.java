@@ -112,6 +112,12 @@ public abstract class BaseArtifactController
         int totalPrefixLength = rootMapping.length() + storageId.length() + repositoryId.length() + 3;
         int requestUriLength = request.getRequestURI().length();
 
+        // process "/" and "" paths
+        if (totalPrefixLength == requestUriLength || totalPrefixLength == requestUriLength + 1)
+        {
+            return "/";
+        }
+
         if (requestUriLength > totalPrefixLength)
         {
             return request.getRequestURI().substring(totalPrefixLength);

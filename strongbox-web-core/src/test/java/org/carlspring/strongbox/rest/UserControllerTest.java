@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.rest;
 
 import org.carlspring.strongbox.config.WebConfig;
+import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.domain.User;
 
 import javax.inject.Inject;
@@ -19,15 +20,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = WebConfig.class)
 @WebAppConfiguration
 public class UserControllerTest
-        extends BackendBaseTest
+        extends RestAssuredBaseTest
 {
 
     private static final Logger logger = LoggerFactory.getLogger(UserControllerTest.class);

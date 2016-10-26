@@ -1,8 +1,10 @@
 package org.carlspring.strongbox.rest;
 
 import org.carlspring.strongbox.config.WebConfig;
+import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.security.authentication.CustomAnonymousAuthenticationFilter;
 
+import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,10 +13,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.hamcrest.Matchers.containsString;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 /**
@@ -24,7 +29,7 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 @ContextConfiguration(classes = WebConfig.class)
 @WebAppConfiguration
 public class SpringSecurityTest
-        extends BackendBaseTest
+        extends RestAssuredBaseTest
 {
 
     @Autowired
@@ -44,6 +49,23 @@ public class SpringSecurityTest
                           .peek() // Use peek() to print the output
                           .then()
                           .statusCode(HttpStatus.OK.value());
+    }
+
+    @Test
+    @WithUserDetails("admin")
+    public void testUserAuth()
+            throws Exception
+    {
+
+        String url = getContextBaseUrl() + "/storages/greet";
+
+        given().contentType(ContentType.JSON)
+               .when()
+               .get(url)
+               .then()
+               .statusCode(200)
+               .body(containsString("success"))
+               .toString();
     }
 
     @Test

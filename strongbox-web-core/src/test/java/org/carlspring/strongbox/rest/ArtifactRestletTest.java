@@ -123,6 +123,7 @@ public class ArtifactRestletTest
         }
     }
 
+    // was moved to SpringSecurityTest during refactoring
     @Test
     public void testUserAuth()
             throws Exception

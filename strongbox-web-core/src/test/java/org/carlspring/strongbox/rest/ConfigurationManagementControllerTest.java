@@ -4,6 +4,7 @@ package org.carlspring.strongbox.rest;
 import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
+import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
@@ -13,11 +14,7 @@ import org.carlspring.strongbox.xml.parsers.GenericParser;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
@@ -48,7 +45,7 @@ import static org.junit.Assert.assertTrue;
 @WithUserDetails("admin")
 @Rollback(false)
 public class ConfigurationManagementControllerTest
-        extends BackendBaseTest
+        extends RestAssuredBaseTest
 {
 
     public static final String ADD_ACCEPTED_RULE_SET_JSON = "{\n" +

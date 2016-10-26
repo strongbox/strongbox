@@ -3,6 +3,7 @@ package org.carlspring.strongbox.rest;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 
 import java.io.File;
@@ -25,7 +26,7 @@ import static org.junit.Assert.assertFalse;
 @ContextConfiguration(classes = WebConfig.class)
 @WebAppConfiguration
 public class TrashControllerTest
-        extends BackendBaseTest
+        extends RestAssuredBaseTest
 {
 
     private static final File BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory()).getAbsoluteFile();
@@ -65,34 +66,6 @@ public class TrashControllerTest
                "releases",
                "org/carlspring/strongbox/test-artifact-to-trash/1.1/test-artifact-to-trash-1.1.jar",
                true);
-    }
-
-    private void removeDir(File dir)
-    {
-
-        if (dir == null)
-        {
-            return;
-        }
-
-        logger.debug("Removing directory " + dir.getAbsolutePath());
-
-        if (dir.isDirectory())
-        {
-            File[] files = dir.listFiles();
-            if (files != null)
-            {
-                for (File file : files)
-                {
-                    removeDir(file);
-                }
-            }
-        }
-        else
-        {
-            boolean res = dir.delete();
-            logger.debug("Remove " + dir.getAbsolutePath() + " " + res);
-        }
     }
 
     @Test

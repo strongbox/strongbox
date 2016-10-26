@@ -6,14 +6,14 @@ import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.commons.io.RandomInputStream;
 import org.carlspring.maven.commons.model.ModelWriter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.StorageIndexingConfig;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.config.*;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.resource.ResourceCloser;
+import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import org.carlspring.strongbox.rest.context.RestAssuredTest;
 import org.carlspring.strongbox.storage.metadata.MetadataMerger;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.util.MessageDigestUtils;
@@ -27,10 +27,7 @@ import java.util.zip.ZipOutputStream;
 
 import com.google.common.io.ByteStreams;
 import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
-import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import com.jayway.restassured.response.ExtractableResponse;
-import com.jayway.restassured.response.Headers;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
@@ -39,66 +36,49 @@ import org.apache.maven.model.Model;
 import org.apache.maven.project.artifact.PluginArtifact;
 import org.codehaus.plexus.util.WriterFactory;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.apache.http.HttpStatus.SC_FORBIDDEN;
-import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
 import static org.carlspring.maven.commons.util.ArtifactUtils.getArtifactFileName;
 import static org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration.generateArtifact;
-import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.*;
 
 /**
- * Created by yury on 8/3/16.
+ * Test cases for {@link ArtifactController}.
+ *
+ * @author Alex Oreshkevich, Martin Todorov
  */
-
-// testMetadataAtVersionLevel doesn't work
-// Artifact org/carlspring/strongbox/metadata/metadata-foo/3.1-SNAPSHOT/maven-metadata.xml not found
-
-// maven-metadata.xml was not generated properly
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = WebConfig.class)
-@WebAppConfiguration
+@RestAssuredTest
 public class ArtifactControllerTest
-        extends BackendBaseTest
+        extends RestAssuredBaseTest
 {
 
     public static final String PACKAGING_JAR = "jar";
 
     private static final String TEST_RESOURCES = "target/test-resources";
 
-    private static final File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/local");
+    private static final File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                           "/local");
 
     private static final File REPOSITORY_BASEDIR_RELEASES = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                                      "/storages/storage0/releases");
 
-    @Configuration
-    @Import({ StorageIndexingConfig.class,
-              StorageApiConfig.class,
-              CommonConfig.class,
-              ClientConfig.class,
-              DataServiceConfig.class
-            })
-    public static class SpringConfig { }
-
     private MetadataMerger metadataMerger;
 
 
-    @Before
-    public void setUpClass()
+    @BeforeClass
+    public static void setUpClass()
             throws Exception
     {
+        // to make this test idempotent (in general) we will check and remove previous generated artifacts if they are present
+        // notice that we can't delete the whole repository basedir because it contains also .index, .trash etc.
+        removeDir(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/org");
+        removeDir(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/com");
+
+
         generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
                          "org.carlspring.strongbox.resolve.only:foo",
                          "1.1" // Used by testResolveViaProxy()
@@ -143,49 +123,25 @@ public class ArtifactControllerTest
     }
 
     @Test
-    @WithUserDetails("admin")
-    public void testUserAuth()
-            throws Exception
-    {
-
-        String url = getContextBaseUrl() + "/storages/greet";
-
-        given().contentType(ContentType.JSON)
-               .when()
-               .get(url)
-               .then()
-               .statusCode(200)
-               .body(containsString("success"))
-               .toString();
-    }
-
-
-    @Test
-    @WithUserDetails("admin")
     public void testPartialFetch()
             throws Exception
     {
         // test that given artifact exists
         String url = getContextBaseUrl() + "/storages/storage0/releases";
         String pathToJar = "/org/carlspring/strongbox/partial/partial-foo/3.1/partial-foo-3.1.jar";
+        String artifactPath = url + pathToJar;
 
-        logger.info("[testPartialFetch] Getting " + url);
-
-        given().contentType(MediaType.TEXT_PLAIN_VALUE)
-               .when()
-               .get(url + pathToJar)
-               .then()
-               .statusCode(200);
+        assertPathExists(artifactPath);
 
         // read remote checksum
-        String md5Remote = MessageDigestUtils.readChecksumFile(getArtifactAsStream(url + pathToJar + ".md5"));
-        String sha1Remote = MessageDigestUtils.readChecksumFile(getArtifactAsStream(url + pathToJar + ".sha1"));
+        String md5Remote = MessageDigestUtils.readChecksumFile(getArtifactAsStream(artifactPath + ".md5"));
+        String sha1Remote = MessageDigestUtils.readChecksumFile(getArtifactAsStream(artifactPath + ".sha1"));
 
         logger.info("Remote md5 checksum " + md5Remote);
         logger.info("Remote sha1 checksum " + sha1Remote);
 
         // calculate local checksum for given algorithms
-        InputStream is = getArtifactAsStream(url + pathToJar);
+        InputStream is = getArtifactAsStream(artifactPath);
         logger.debug("Wrote " + is.available() + " bytes.");
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -215,7 +171,7 @@ public class ArtifactControllerTest
 
         logger.debug("Read " + total + " bytes.");
 
-        is = getArtifactAsStream(url + pathToJar, total);
+        is = getArtifactAsStream(artifactPath, total);
 
         logger.debug("Skipped " + total + " bytes.");
 
@@ -261,66 +217,6 @@ public class ArtifactControllerTest
         assertEquals("Glued partial fetches did not match SHA-1 checksum!", sha1Remote, sha1Local);
     }
 
-    private InputStream getArtifactAsStream(String url)
-    {
-        return getArtifactAsStream(url, -1);
-    }
-
-    private InputStream getArtifactAsStream(String url,
-                                            int offset)
-    {
-        return new ByteArrayInputStream(getArtifactAsByteArray(url, offset));
-    }
-
-    private byte[] getArtifactAsByteArray(String url,
-                                          int offset)
-    {
-        MockMvcRequestSpecification o = given().contentType(MediaType.TEXT_PLAIN_VALUE);
-        int statusCode = 200;
-        if (offset != -1)
-        {
-            o = o.header("Range", "bytes=" + offset + "-");
-            statusCode = 206;
-        }
-
-        logger.info("[getArtifactAsByteArray] URL " + url);
-
-        MockMvcResponse response = o.when().get(url);
-        Headers allHeaders = response.getHeaders();
-        logger.debug("HTTP GET " + url);
-        logger.debug("Response headers:");
-
-        allHeaders.forEach(header -> logger.debug("\t" + header.getName() + " = " + header.getValue()));
-
-        response.then().statusCode(statusCode);
-        byte[] result = response.getMockHttpServletResponse().getContentAsByteArray();
-
-        logger.debug("Received " + result.length + " bytes.");
-
-        return result;
-    }
-
-    public boolean pathExists(String path)
-    {
-        String url = getContextBaseUrl() + (path.startsWith("/") ? path : '/' + path);
-
-        logger.debug("Path to artifact: " + url);
-
-        Integer response;
-
-        response = given().contentType(ContentType.TEXT)
-                          .when()
-                          .get(url)
-                          .then()
-                          .statusCode(200)
-                          .extract()
-                          .response()
-                          .body()
-                          .path("entity");
-
-        return response == 200;
-    }
-
     @Test
     public void testCopyArtifactFile()
             throws Exception
@@ -336,27 +232,17 @@ public class ArtifactControllerTest
             artifactFileRestoredFromTrash.delete();
         }
 
-        String url = getContextBaseUrl() + "/storages/copy";
-
-        given().contentType(MediaType.TEXT_PLAIN_VALUE)
-               .params("path", artifactPath,
-                       "srcStorageId", "storage0",
-                       "srcRepositoryId", "releases",
-                       "destStorageId", "storage0",
-                       "destRepositoryId", "releases-with-trash")
-               .when()
-               .post(url)
-               .peek()
-               .then()
-               .statusCode(200)
-               .extract();
+        copy(artifactPath,
+             "storage0",
+             "releases",
+             "storage0",
+             "releases-with-trash");
 
         assertTrue("Failed to copy artifact to destination repository '" + destRepositoryBasedir + "'!",
                    artifactFileRestoredFromTrash.exists());
     }
 
     @Test
-    @Ignore
     public void testCopyArtifactDirectory()
             throws Exception
     {
@@ -365,25 +251,21 @@ public class ArtifactControllerTest
 
         String artifactPath = "org/carlspring/strongbox/copy/copy-foo/1.2";
 
+        // clean up directory from possible previous test executions
         File artifactFileRestoredFromTrash = new File(destRepositoryBasedir + "/" + artifactPath).getAbsoluteFile();
+        if (artifactFileRestoredFromTrash.exists())
+        {
+            removeDir(artifactFileRestoredFromTrash);
+        }
 
         assertFalse("Unexpected artifact in repository '" + destRepositoryBasedir + "'!",
                     artifactFileRestoredFromTrash.exists());
 
-        String url = getContextBaseUrl() + "/storages/copy";
-
-        given().contentType(MediaType.TEXT_PLAIN_VALUE)
-               .params("path", artifactPath,
-                       "srcStorageId", "storage0",
-                       "srcRepositoryId", "releases",
-                       "destStorageId", "storage0",
-                       "destRepositoryId", "releases-with-trash")
-               .when()
-               .post(url)
-               .peek()
-               .then()
-               .statusCode(200)
-               .extract();
+        copy(artifactPath,
+             "storage0",
+             "releases",
+             "storage0",
+             "releases-with-trash");
 
         assertTrue("Failed to copy artifact to destination repository '" + destRepositoryBasedir + "'!",
                    artifactFileRestoredFromTrash.exists());
@@ -401,41 +283,7 @@ public class ArtifactControllerTest
         assertTrue("Failed to locate artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
                    deletedArtifact.exists());
 
-        String url = getContextBaseUrl() + "/storages/" + "storage0" + "/" + "releases";
-
-        MockMvcResponse response = given().contentType(MediaType.TEXT_PLAIN_VALUE)
-                                          .params("path", artifactPath)
-                                          .when()
-                                          .delete(url)
-                                          .peek()
-                                          .then()
-                                          .statusCode(200)
-                                          .extract()
-                                          .response();
-
-        String message = "Failed to delete artifact!";
-
-        int status = response.getStatusCode();
-
-        if (status == SC_UNAUTHORIZED || status == SC_FORBIDDEN)
-        {
-            // TODO Handle authentication exceptions in a right way
-            throw new AuthenticationServiceException(message +
-                                                     "\nUser is unauthorized to execute that operation. " +
-                                                     "Check assigned roles and privileges.");
-        }
-        else if (status != 200)
-        {
-            StringBuilder messageBuilder = new StringBuilder();
-            messageBuilder.append("\n ERROR ").append(status).append(" ").append(message).append("\n");
-            Object entity = response.getBody();
-            if (entity != null)
-            {
-                messageBuilder.append(entity.toString());
-            }
-
-            logger.error(messageBuilder.toString());
-        }
+        delete("storage0", "releases", artifactPath);
 
         assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
                     deletedArtifact.exists());
@@ -453,16 +301,7 @@ public class ArtifactControllerTest
         assertTrue("Failed to locate artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
                    deletedArtifact.exists());
 
-        String url = getContextBaseUrl() + "/storages/" + "storage0" + "/" + "releases";
-
-        given().contentType(MediaType.TEXT_PLAIN_VALUE)
-               .params("path", artifactPath)
-               .when()
-               .delete(url)
-               .peek()
-               .then()
-               .statusCode(200)
-               .extract();
+        delete("storage0", "releases", artifactPath);
 
         assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
                     deletedArtifact.exists());
@@ -478,12 +317,17 @@ public class ArtifactControllerTest
 
         assertTrue("Failed to locate artifact file '" + artifact.getAbsolutePath() + "'!", artifact.exists());
 
-        ExtractableResponse repositoryRoot = getResourceWithResponse("");
-        ExtractableResponse trashDirectoryListing = getResourceWithResponse(".trash");
-        ExtractableResponse indexDirectoryListing = getResourceWithResponse(".index");
-        ExtractableResponse directoryListing = getResourceWithResponse("/org/carlspring/strongbox/browse");
-        ExtractableResponse fileListing = getResourceWithResponse("/org/carlspring/strongbox/browse/foo-bar/1.0");
-        ExtractableResponse invalidPath = getResourceWithResponse("/org/carlspring/strongbox/browse/1.0");
+        String basePath = "storages/storage0/releases";
+
+        ExtractableResponse repositoryRoot = getResourceWithResponse(basePath, "");
+        ExtractableResponse trashDirectoryListing = getResourceWithResponse(basePath, ".trash");
+        ExtractableResponse indexDirectoryListing = getResourceWithResponse(basePath, ".index");
+        ExtractableResponse directoryListing = getResourceWithResponse(basePath,
+                                                                       "org/carlspring/strongbox/browse");
+        ExtractableResponse fileListing = getResourceWithResponse(basePath,
+                                                                  "org/carlspring/strongbox/browse/foo-bar/1.0");
+        ExtractableResponse invalidPath = getResourceWithResponse(basePath,
+                                                                  "org/carlspring/strongbox/browse/1.0");
 
         String repositoryRootContent = repositoryRoot.asString();
         String directoryListingContent = directoryListing.asString();
@@ -508,24 +352,6 @@ public class ArtifactControllerTest
         assertTrue(invalidPath.response().getStatusCode() == 404);
     }
 
-    private ExtractableResponse getResourceWithResponse(String pathVar)
-    {
-
-        String path = "/storages/storage0/releases";
-        String url = getContextBaseUrl() + (!path.startsWith("/") ? "/" : "") + path;
-
-        logger.debug("Getting " + url + "...");
-
-        ExtractableResponse repositoryRootContent = given().contentType(MediaType.TEXT_PLAIN_VALUE)
-                                                           .param("path", pathVar)
-                                                           .when()
-                                                           .get(url)
-                                                           .peek()
-                                                           .then()
-                                                           .extract();
-        return repositoryRootContent;
-    }
-
     @Test
     public void testMetadataAtVersionLevel()
             throws NoSuchAlgorithmException,
@@ -538,10 +364,14 @@ public class ArtifactControllerTest
 
         Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":3.1-SNAPSHOT");
         TestCaseWithArtifactGeneration generator = new TestCaseWithArtifactGeneration();
-        Artifact artifact1WithTimestamp1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + generator.createSnapshotVersion("3.1", 1));
-        Artifact artifact1WithTimestamp2 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + generator.createSnapshotVersion("3.1", 2));
-        Artifact artifact1WithTimestamp3 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + generator.createSnapshotVersion("3.1", 3));
-        Artifact artifact1WithTimestamp4 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + generator.createSnapshotVersion("3.1", 4));
+        Artifact artifact1WithTimestamp1 = ArtifactUtils.getArtifactFromGAVTC(
+                ga + ":" + generator.createSnapshotVersion("3.1", 1));
+        Artifact artifact1WithTimestamp2 = ArtifactUtils.getArtifactFromGAVTC(
+                ga + ":" + generator.createSnapshotVersion("3.1", 2));
+        Artifact artifact1WithTimestamp3 = ArtifactUtils.getArtifactFromGAVTC(
+                ga + ":" + generator.createSnapshotVersion("3.1", 3));
+        Artifact artifact1WithTimestamp4 = ArtifactUtils.getArtifactFromGAVTC(
+                ga + ":" + generator.createSnapshotVersion("3.1", 4));
 
         String storageId = "storage0";
         String repositoryId = "snapshots";
@@ -943,8 +773,10 @@ public class ArtifactControllerTest
         {
             String path = ArtifactUtils.getVersionLevelMetadataPath(artifact);
             metadata = metadataMerger.updateMetadataAtVersionLevel(artifact,
-                                                                   retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
-                                                                                    ArtifactUtils.getVersionLevelMetadataPath(artifact)));
+                                                                   retrieveMetadata("storages/" + storageId + "/" +
+                                                                                    repositoryId + "/" +
+                                                                                    ArtifactUtils.getVersionLevelMetadataPath(
+                                                                                            artifact)));
 
             createMetadata(metadata, path);
             deployMetadata(metadata, path, storageId, repositoryId);
@@ -952,8 +784,11 @@ public class ArtifactControllerTest
 
         String path = ArtifactUtils.getArtifactLevelMetadataPath(artifact);
         metadata = metadataMerger.updateMetadataAtArtifactLevel(artifact,
-                                                                retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
-                                                                                 ArtifactUtils.getArtifactLevelMetadataPath(artifact)));
+                                                                retrieveMetadata(
+                                                                        "storages/" + storageId + "/" + repositoryId +
+                                                                        "/" +
+                                                                        ArtifactUtils.getArtifactLevelMetadataPath(
+                                                                                artifact)));
 
         createMetadata(metadata, path);
         deployMetadata(metadata, path, storageId, repositoryId);
@@ -962,8 +797,11 @@ public class ArtifactControllerTest
         {
             path = ArtifactUtils.getGroupLevelMetadataPath(artifact);
             metadata = metadataMerger.updateMetadataAtGroupLevel((PluginArtifact) artifact,
-                                                                 retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
-                                                                                  ArtifactUtils.getGroupLevelMetadataPath(artifact)));
+                                                                 retrieveMetadata(
+                                                                         "storages/" + storageId + "/" + repositoryId +
+                                                                         "/" +
+                                                                         ArtifactUtils.getGroupLevelMetadataPath(
+                                                                                 artifact)));
             createMetadata(metadata, path);
             deployMetadata(metadata, path, storageId, repositoryId);
         }
@@ -1073,4 +911,24 @@ public class ArtifactControllerTest
         }
     }
 
+    public boolean pathExists(String path)
+    {
+        String url = getContextBaseUrl() + (path.startsWith("/") ? path : '/' + path);
+
+        logger.debug("Path to artifact: " + url);
+
+        Integer response;
+
+        response = given().contentType(ContentType.TEXT)
+                          .when()
+                          .get(url)
+                          .then()
+                          .statusCode(200)
+                          .extract()
+                          .response()
+                          .body()
+                          .path("entity");
+
+        return response == 200;
+    }
 }
