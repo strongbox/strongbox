@@ -202,23 +202,22 @@ public abstract class RestAssuredBaseTest
         logger.debug("HTTP GET " + url);
         logger.debug("Response headers:");
 
-        allHeaders.forEach(header -> logger.trace("\t" + header.getName() + " = " + header.getValue()));
+        allHeaders.forEach(header -> logger.debug("\t" + header.getName() + " = " + header.getValue()));
 
         if (validate)
         {
             response.then().statusCode(statusCode);
         }
 
-        if (response.getStatusCode() == 200)
+        if (response.getStatusCode() == 200 || response.getStatusCode() == 206)
         {
             byte[] result = response.getMockHttpServletResponse().getContentAsByteArray();
-
             logger.debug("Received " + result.length + " bytes.");
-
             return result;
         }
         else
         {
+            logger.warn("[getArtifactAsByteArray] response " + response.getStatusCode());
             return null;
         }
     }

@@ -20,7 +20,6 @@ import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import java.io.*;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
@@ -31,7 +30,6 @@ import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.ExtractableResponse;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Writer;
 import org.apache.maven.model.Model;
@@ -422,20 +420,12 @@ public class ArtifactControllerTest
                                                          String classifier,
                                                          String extension)
     {
-        boolean exists = false;
-
-        List<SnapshotVersion> versions = versionLevelMetadata.getVersioning().getSnapshotVersions();
-        for (SnapshotVersion snapshotVersion : versions)
-        {
-            if (snapshotVersion.getVersion().equals(version) &&
-                snapshotVersion.getClassifier().equals(classifier) &&
-                snapshotVersion.getExtension().equals(extension))
-            {
-                return true;
-            }
-        }
-
-        return exists;
+        return versionLevelMetadata.getVersioning().getSnapshotVersions().stream()
+                                   .filter(snapshotVersion ->
+                                                   snapshotVersion.getVersion().equals(version) &&
+                                                   snapshotVersion.getClassifier().equals(classifier) &&
+                                                   snapshotVersion.getExtension().equals(extension)
+                                   ).findAny().isPresent();
     }
 
     public void generateAndDeployArtifact(Artifact artifact,
@@ -784,8 +774,10 @@ public class ArtifactControllerTest
         {
             String path = ArtifactUtils.getVersionLevelMetadataPath(artifact);
             metadata = metadataMerger.updateMetadataAtVersionLevel(artifact,
-                                                                   retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
-                                                                                    ArtifactUtils.getVersionLevelMetadataPath(artifact)));
+                                                                   retrieveMetadata("storages/" + storageId + "/" +
+                                                                                    repositoryId + "/" +
+                                                                                    ArtifactUtils.getVersionLevelMetadataPath(
+                                                                                            artifact)));
 
             createMetadata(metadata, path);
             deployMetadata(metadata, path, storageId, repositoryId);
@@ -793,8 +785,11 @@ public class ArtifactControllerTest
 
         String path = ArtifactUtils.getArtifactLevelMetadataPath(artifact);
         metadata = metadataMerger.updateMetadataAtArtifactLevel(artifact,
-                                                                retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
-                                                                                 ArtifactUtils.getArtifactLevelMetadataPath(artifact)));
+                                                                retrieveMetadata(
+                                                                        "storages/" + storageId + "/" + repositoryId +
+                                                                        "/" +
+                                                                        ArtifactUtils.getArtifactLevelMetadataPath(
+                                                                                artifact)));
 
         createMetadata(metadata, path);
         deployMetadata(metadata, path, storageId, repositoryId);
@@ -803,8 +798,11 @@ public class ArtifactControllerTest
         {
             path = ArtifactUtils.getGroupLevelMetadataPath(artifact);
             metadata = metadataMerger.updateMetadataAtGroupLevel((PluginArtifact) artifact,
-                                                                 retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
-                                                                                  ArtifactUtils.getGroupLevelMetadataPath(artifact)));
+                                                                 retrieveMetadata(
+                                                                         "storages/" + storageId + "/" + repositoryId +
+                                                                         "/" +
+                                                                         ArtifactUtils.getGroupLevelMetadataPath(
+                                                                                 artifact)));
             createMetadata(metadata, path);
             deployMetadata(metadata, path, storageId, repositoryId);
         }
@@ -917,26 +915,5 @@ public class ArtifactControllerTest
 
             generateChecksumsForArtifact(metadataFile);
         }
-    }
-
-    public boolean pathExists(String path)
-    {
-        String url = getContextBaseUrl() + (path.startsWith("/") ? path : '/' + path);
-
-        logger.debug("Path to artifact: " + url);
-
-        Integer response;
-
-        response = given().contentType(ContentType.TEXT)
-                          .when()
-                          .get(url)
-                          .then()
-                          .statusCode(200)
-                          .extract()
-                          .response()
-                          .body()
-                          .path("entity");
-
-        return response == 200;
     }
 }
