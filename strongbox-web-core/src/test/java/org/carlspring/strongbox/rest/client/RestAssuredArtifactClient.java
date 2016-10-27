@@ -3,6 +3,7 @@ package org.carlspring.strongbox.rest.client;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.client.BaseArtifactClient;
+import org.carlspring.strongbox.rest.ArtifactController;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -198,13 +199,12 @@ public class RestAssuredArtifactClient
                      String destRepositoryId)
     {
         given().contentType(MediaType.TEXT_PLAIN_VALUE)
-               .params("path", path,
-                       "srcStorageId", srcStorageId,
+               .params("srcStorageId", srcStorageId,
                        "srcRepositoryId", srcRepositoryId,
                        "destStorageId", destStorageId,
                        "destRepositoryId", destRepositoryId)
                .when()
-               .post(getContextBaseUrl() + "/storages/copy")
+               .post(getContextBaseUrl() + ArtifactController.ROOT_CONTEXT + "/copy/" + path)
                .peek()
                .then()
                .statusCode(OK)
@@ -225,10 +225,11 @@ public class RestAssuredArtifactClient
                        boolean force)
             throws ArtifactOperationException
     {
-        String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId;
+        String url =
+                getContextBaseUrl() + ArtifactController.ROOT_CONTEXT + "/" + storageId + "/" + repositoryId + "/" +
+                path;
 
         given().contentType(MediaType.TEXT_PLAIN_VALUE)
-               .param("path", path)
                .param("force", force)
                .when()
                .delete(url)

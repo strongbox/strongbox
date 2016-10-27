@@ -105,11 +105,21 @@ public abstract class BaseArtifactController
     }
 
     public String convertRequestToPath(String rootMapping,
-                                       String storageId,
-                                       String repositoryId,
-                                       HttpServletRequest request)
+                                       HttpServletRequest request,
+                                       String... pathVariables)
     {
-        int totalPrefixLength = rootMapping.length() + storageId.length() + repositoryId.length() + 3;
+        int pathVarsLength = 0;
+        int pathVarsCount = 0;
+        for (String pathVariable : pathVariables)
+        {
+            if (pathVariable != null)
+            {
+                pathVarsLength += pathVariable.length();
+                pathVarsCount++;
+            }
+        }
+
+        int totalPrefixLength = rootMapping.length() + pathVarsLength + pathVarsCount + 1;
         int requestUriLength = request.getRequestURI().length();
 
         // process "/" and "" paths

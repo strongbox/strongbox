@@ -59,6 +59,9 @@ public class ArtifactController
 
     private static final Logger logger = LogManager.getLogger(ArtifactController.class.getName());
 
+    // must be the same as @RequestMapping value on the class definition
+    public final static String ROOT_CONTEXT = "/storages";
+
     @Inject
     ObjectMapper objectMapper;
 
@@ -86,7 +89,7 @@ public class ArtifactController
     {
         try
         {
-            String path = convertRequestToPath("/storages", storageId, repositoryId, request);
+            String path = convertRequestToPath(ROOT_CONTEXT, request, storageId, repositoryId);
 
             InputStream is = request.getInputStream();
             getArtifactManagementService().store(storageId, repositoryId, path, is);
@@ -115,7 +118,7 @@ public class ArtifactController
                          HttpServletResponse response)
             throws Exception
     {
-        String path = convertRequestToPath("/storages", storageId, repositoryId, request);
+        String path = convertRequestToPath(ROOT_CONTEXT, request, storageId, repositoryId);
 
         logger.debug(" repository = " + repositoryId + ", path = " + path);
         Storage storage = configurationManager.getConfiguration().getStorage(storageId);
@@ -376,15 +379,18 @@ public class ArtifactController
                             @ApiResponse(code = 400, message = "Bad request."),
                             @ApiResponse(code = 404,
                                     message = "The source/destination storageId/repositoryId/path does not exist!") })
-    @PreAuthorize("hasAuthority('ARTIFACTS_COPY')")
-    @RequestMapping(produces = MediaType.TEXT_PLAIN_VALUE, value = "/copy", method = RequestMethod.POST)
-    public ResponseEntity copy(@RequestParam(name = "path") String path,
-                               @RequestParam(name = "srcStorageId") String srcStorageId,
+    @PreAuthorize("hasAuthority('ARTIFACTS_COPY')") // {storageId}/{repositoryId}/**
+    @RequestMapping(produces = MediaType.TEXT_PLAIN_VALUE, value = "/copy/**", method = RequestMethod.POST)
+    public ResponseEntity copy(@RequestParam(name = "srcStorageId") String srcStorageId,
                                @RequestParam(name = "srcRepositoryId") String srcRepositoryId,
                                @RequestParam(name = "destStorageId") String destStorageId,
-                               @RequestParam(name = "destRepositoryId") String destRepositoryId)
+                               @RequestParam(name = "destRepositoryId") String destRepositoryId,
+                               HttpServletRequest request)
+
             throws IOException, JAXBException
     {
+        String path = convertRequestToPath(ROOT_CONTEXT, request, "copy");
+
         logger.debug("Copying " + path +
                      " from " + srcStorageId + ":" + srcRepositoryId +
                      " to " + destStorageId + ":" + destRepositoryId + "...");
@@ -434,14 +440,16 @@ public class ArtifactController
                             @ApiResponse(code = 404,
                                     message = "The specified storageId/repositoryId/path does not exist!") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
-    @RequestMapping(value = "{storageId}/{repositoryId}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "{storageId}/{repositoryId}/**", method = RequestMethod.DELETE)
     public ResponseEntity delete(@PathVariable String storageId,
                                  @PathVariable String repositoryId,
-                                 @RequestParam(name = "path") String path,
-                                 @RequestParam(defaultValue = "false", name = "force", required = true) boolean force)
+                                 @RequestParam(defaultValue = "false", name = "force") boolean force,
+                                 HttpServletRequest request)
             throws IOException, JAXBException
     {
-        logger.debug("DELETE: " + path);
+        String path = convertRequestToPath(ROOT_CONTEXT, request, storageId, repositoryId);
+
+        logger.info("[delete] path " + path);
         logger.debug(storageId + ":" + repositoryId + ": " + path);
 
         try
