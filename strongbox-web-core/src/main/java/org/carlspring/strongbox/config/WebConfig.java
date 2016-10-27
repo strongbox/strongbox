@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.converter.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
+import org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
@@ -57,7 +57,7 @@ public class WebConfig
         converters.add(stringConverter);
         converters.add(new FormHttpMessageConverter());
         converters.add(new MappingJackson2HttpMessageConverter());
-        converters.add(new MappingJackson2XmlHttpMessageConverter());
+        converters.add(jaxbConverter());
         converters.add(new ResourceHttpMessageConverter());
     }
 
@@ -65,5 +65,11 @@ public class WebConfig
     public ObjectMapper objectMapper()
     {
         return new ObjectMapper();
+    }
+
+    @Bean
+    public Jaxb2RootElementHttpMessageConverter jaxbConverter()
+    {
+        return new Jaxb2RootElementHttpMessageConverter();
     }
 }
