@@ -1,17 +1,12 @@
 package org.carlspring.strongbox.rest;
 
 import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
-import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
-import org.carlspring.commons.io.RandomInputStream;
-import org.carlspring.maven.commons.model.ModelWriter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.artifact.generator.ArtifactDeployer;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.rest.context.RestAssuredTest;
 import org.carlspring.strongbox.storage.metadata.MetadataMerger;
@@ -20,28 +15,15 @@ import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import java.io.*;
 import java.security.NoSuchAlgorithmException;
-import java.util.Map;
-import java.util.Properties;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
-import com.google.common.io.ByteStreams;
-import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.ExtractableResponse;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
-import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Writer;
-import org.apache.maven.model.Model;
-import org.apache.maven.project.artifact.PluginArtifact;
-import org.codehaus.plexus.util.WriterFactory;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.maven.commons.util.ArtifactUtils.getArtifactFileName;
 import static org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration.generateArtifact;
 import static org.junit.Assert.*;
 
@@ -134,14 +116,15 @@ public class ArtifactControllerTest
         assertPathExists(artifactPath);
 
         // read remote checksum
-        String md5Remote = MessageDigestUtils.readChecksumFile(getArtifactAsStream(artifactPath + ".md5", true));
-        String sha1Remote = MessageDigestUtils.readChecksumFile(getArtifactAsStream(artifactPath + ".sha1", true));
+        String md5Remote = MessageDigestUtils.readChecksumFile(client.getArtifactAsStream(artifactPath + ".md5", true));
+        String sha1Remote = MessageDigestUtils.readChecksumFile(
+                client.getArtifactAsStream(artifactPath + ".sha1", true));
 
         logger.info("Remote md5 checksum " + md5Remote);
         logger.info("Remote sha1 checksum " + sha1Remote);
 
         // calculate local checksum for given algorithms
-        InputStream is = getArtifactAsStream(artifactPath);
+        InputStream is = client.getArtifactAsStream(artifactPath);
         logger.debug("Wrote " + is.available() + " bytes.");
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -171,7 +154,7 @@ public class ArtifactControllerTest
 
         logger.debug("Read " + total + " bytes.");
 
-        is = getArtifactAsStream(artifactPath, total);
+        is = client.getArtifactAsStream(artifactPath, total);
 
         logger.debug("Skipped " + total + " bytes.");
 
@@ -232,11 +215,11 @@ public class ArtifactControllerTest
             artifactFileRestoredFromTrash.delete();
         }
 
-        copy(artifactPath,
-             "storage0",
-             "releases",
-             "storage0",
-             "releases-with-trash");
+        client.copy(artifactPath,
+                    "storage0",
+                    "releases",
+                    "storage0",
+                    "releases-with-trash");
 
         assertTrue("Failed to copy artifact to destination repository '" + destRepositoryBasedir + "'!",
                    artifactFileRestoredFromTrash.exists());
@@ -261,11 +244,11 @@ public class ArtifactControllerTest
         assertFalse("Unexpected artifact in repository '" + destRepositoryBasedir + "'!",
                     artifactFileRestoredFromTrash.exists());
 
-        copy(artifactPath,
-             "storage0",
-             "releases",
-             "storage0",
-             "releases-with-trash");
+        client.copy(artifactPath,
+                    "storage0",
+                    "releases",
+                    "storage0",
+                    "releases-with-trash");
 
         assertTrue("Failed to copy artifact to destination repository '" + destRepositoryBasedir + "'!",
                    artifactFileRestoredFromTrash.exists());
@@ -283,7 +266,7 @@ public class ArtifactControllerTest
         assertTrue("Failed to locate artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
                    deletedArtifact.exists());
 
-        delete("storage0", "releases", artifactPath);
+        client.delete("storage0", "releases", artifactPath);
 
         assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
                     deletedArtifact.exists());
@@ -301,7 +284,7 @@ public class ArtifactControllerTest
         assertTrue("Failed to locate artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
                    deletedArtifact.exists());
 
-        delete("storage0", "releases", artifactPath);
+        client.delete("storage0", "releases", artifactPath);
 
         assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
                     deletedArtifact.exists());
@@ -319,15 +302,15 @@ public class ArtifactControllerTest
 
         String basePath = "storages/storage0/releases";
 
-        ExtractableResponse repositoryRoot = getResourceWithResponse(basePath, "");
-        ExtractableResponse trashDirectoryListing = getResourceWithResponse(basePath, ".trash");
-        ExtractableResponse indexDirectoryListing = getResourceWithResponse(basePath, ".index");
-        ExtractableResponse directoryListing = getResourceWithResponse(basePath,
+        ExtractableResponse repositoryRoot = client.getResourceWithResponse(basePath, "");
+        ExtractableResponse trashDirectoryListing = client.getResourceWithResponse(basePath, ".trash");
+        ExtractableResponse indexDirectoryListing = client.getResourceWithResponse(basePath, ".index");
+        ExtractableResponse directoryListing = client.getResourceWithResponse(basePath,
                                                                        "org/carlspring/strongbox/browse");
-        ExtractableResponse fileListing = getResourceWithResponse(basePath,
-                                                                  "org/carlspring/strongbox/browse/foo-bar/1.0");
-        ExtractableResponse invalidPath = getResourceWithResponse(basePath,
-                                                                  "org/carlspring/strongbox/browse/1.0");
+        ExtractableResponse fileListing = client.getResourceWithResponse(basePath,
+                                                                         "org/carlspring/strongbox/browse/foo-bar/1.0");
+        ExtractableResponse invalidPath = client.getResourceWithResponse(basePath,
+                                                                         "org/carlspring/strongbox/browse/1.0");
 
         String repositoryRootContent = repositoryRoot.asString();
         String directoryListingContent = directoryListing.asString();
@@ -375,13 +358,16 @@ public class ArtifactControllerTest
         Artifact artifact1WithTimestamp3 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + snapshotVersion3);
         Artifact artifact1WithTimestamp4 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + snapshotVersion4);
 
+        ArtifactDeployer artifactDeployer = new ArtifactDeployer(GENERATOR_BASEDIR);
+        artifactDeployer.setClient(client);
+
         String storageId = "storage0";
         String repositoryId = "snapshots";
 
-        generateAndDeployArtifact(artifact1WithTimestamp1, storageId, repositoryId);
-        generateAndDeployArtifact(artifact1WithTimestamp2, storageId, repositoryId);
-        generateAndDeployArtifact(artifact1WithTimestamp3, storageId, repositoryId);
-        generateAndDeployArtifact(artifact1WithTimestamp4, storageId, repositoryId);
+        artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp1, storageId, repositoryId);
+        artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp2, storageId, repositoryId);
+        artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp3, storageId, repositoryId);
+        artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp4, storageId, repositoryId);
 
         String path = ArtifactUtils.getVersionLevelMetadataPath(artifact1);
         String url = "/storages/" + storageId + "/" + repositoryId + "/";
@@ -390,7 +376,7 @@ public class ArtifactControllerTest
 
         logger.info("[retrieveMetadata] Load metadata by URL " + metadataUrl);
 
-        Metadata versionLevelMetadata = retrieveMetadata(url + path);
+        Metadata versionLevelMetadata = client.retrieveMetadata(url + path);
 
         assertNotNull(versionLevelMetadata);
         assertEquals("org.carlspring.strongbox.metadata", versionLevelMetadata.getGroupId());
@@ -426,494 +412,5 @@ public class ArtifactControllerTest
                                                    snapshotVersion.getClassifier().equals(classifier) &&
                                                    snapshotVersion.getExtension().equals(extension)
                                    ).findAny().isPresent();
-    }
-
-    public void generateAndDeployArtifact(Artifact artifact,
-                                          String storageId,
-                                          String repositoryId)
-            throws NoSuchAlgorithmException,
-                   XmlPullParserException,
-                   IOException,
-                   ArtifactOperationException
-    {
-        generateAndDeployArtifact(artifact, null, storageId, repositoryId, "jar");
-    }
-
-    public void generateAndDeployArtifact(Artifact artifact,
-                                          String[] classifiers,
-                                          String storageId,
-                                          String repositoryId,
-                                          String packaging)
-            throws NoSuchAlgorithmException,
-                   XmlPullParserException,
-                   IOException,
-                   ArtifactOperationException
-    {
-        generatePom(artifact, packaging);
-        createArchive(artifact);
-
-        deploy(artifact, storageId, repositoryId);
-        deployPOM(ArtifactUtils.getPOMArtifact(artifact), storageId, repositoryId);
-
-        if (classifiers != null)
-        {
-            for (String classifier : classifiers)
-            {
-                // We're assuming the type of the classifier is the same as the one of the main artifact
-                Artifact artifactWithClassifier = ArtifactUtils.getArtifactFromGAVTC(artifact.getGroupId() + ":" +
-                                                                                     artifact.getArtifactId() + ":" +
-                                                                                     artifact.getVersion() + ":" +
-                                                                                     artifact.getType() + ":" +
-                                                                                     classifier);
-                generate(artifactWithClassifier);
-
-                deploy(artifactWithClassifier, storageId, repositoryId);
-            }
-        }
-
-        try
-        {
-            mergeMetadata(artifact, storageId, repositoryId);
-        }
-        catch (ArtifactTransportException e)
-        {
-            // TODO SB-230: What should we do if we get ArtifactTransportException,
-            // IOException or XmlPullParserException
-            logger.error(e.getMessage(), e);
-        }
-    }
-
-    public void generate(Artifact artifact)
-            throws IOException,
-                   XmlPullParserException,
-                   NoSuchAlgorithmException
-    {
-        generatePom(artifact, PACKAGING_JAR);
-        createArchive(artifact);
-    }
-
-    public void createArchive(Artifact artifact)
-            throws NoSuchAlgorithmException,
-                   IOException
-    {
-        ZipOutputStream zos = null;
-
-        File artifactFile = null;
-
-        try
-        {
-            artifactFile = new File(GENERATOR_BASEDIR.getAbsolutePath(), ArtifactUtils.convertArtifactToPath(artifact));
-
-            // Make sure the artifact's parent directory exists before writing the model.
-            //noinspection ResultOfMethodCallIgnored
-            artifactFile.getParentFile().mkdirs();
-
-            zos = new ZipOutputStream(new FileOutputStream(artifactFile));
-
-            createMavenPropertiesFile(artifact, zos);
-            addMavenPomFile(artifact, zos);
-            createRandomSizeFile(zos);
-        }
-        finally
-        {
-            ResourceCloser.close(zos, logger);
-
-            generateChecksumsForArtifact(artifactFile);
-        }
-    }
-
-
-    private void createMavenPropertiesFile(Artifact artifact,
-                                           ZipOutputStream zos)
-            throws IOException
-    {
-        ZipEntry ze = new ZipEntry("META-INF/maven/" +
-                                   artifact.getGroupId() + "/" +
-                                   artifact.getArtifactId() + "/" +
-                                   "pom.properties");
-        zos.putNextEntry(ze);
-
-        Properties properties = new Properties();
-        properties.setProperty("groupId", artifact.getGroupId());
-        properties.setProperty("artifactId", artifact.getArtifactId());
-        properties.setProperty("version", artifact.getVersion());
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        properties.store(baos, null);
-
-        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-
-        byte[] buffer = new byte[4096];
-        int len;
-        while ((len = bais.read(buffer)) > 0)
-        {
-            zos.write(buffer, 0, len);
-        }
-
-        bais.close();
-        zos.closeEntry();
-    }
-
-    private void addMavenPomFile(Artifact artifact,
-                                 ZipOutputStream zos)
-            throws IOException
-    {
-        final Artifact pomArtifact = ArtifactUtils.getPOMArtifact(artifact);
-        File pomFile = new File(GENERATOR_BASEDIR.getAbsolutePath(), ArtifactUtils.convertArtifactToPath(pomArtifact));
-
-        ZipEntry ze = new ZipEntry("META-INF/maven/" +
-                                   artifact.getGroupId() + "/" +
-                                   artifact.getArtifactId() + "/" +
-                                   "pom.xml");
-        zos.putNextEntry(ze);
-
-        try (FileInputStream fis = new FileInputStream(pomFile))
-        {
-
-            byte[] buffer = new byte[4096];
-            int len;
-            while ((len = fis.read(buffer)) > 0)
-            {
-                zos.write(buffer, 0, len);
-            }
-        }
-        finally
-        {
-            zos.closeEntry();
-        }
-    }
-
-    private void createRandomSizeFile(ZipOutputStream zos)
-            throws IOException
-    {
-        ZipEntry ze = new ZipEntry("random-size-file");
-        zos.putNextEntry(ze);
-
-        RandomInputStream ris = new RandomInputStream(true, 1000000);
-
-        byte[] buffer = new byte[4096];
-        int len;
-        while ((len = ris.read(buffer)) > 0)
-        {
-            zos.write(buffer, 0, len);
-        }
-
-        ris.close();
-        zos.closeEntry();
-    }
-
-    public void generatePom(Artifact artifact,
-                            String packaging)
-            throws IOException,
-                   XmlPullParserException,
-                   NoSuchAlgorithmException
-    {
-        final Artifact pomArtifact = ArtifactUtils.getPOMArtifact(artifact);
-        File pomFile = new File(GENERATOR_BASEDIR.getAbsolutePath(), ArtifactUtils.convertArtifactToPath(pomArtifact));
-
-        // Make sure the artifact's parent directory exists before writing the model.
-        //noinspection ResultOfMethodCallIgnored
-        pomFile.getParentFile().mkdirs();
-
-        Model model = new Model();
-        model.setGroupId(artifact.getGroupId());
-        model.setArtifactId(artifact.getArtifactId());
-        model.setVersion(artifact.getVersion());
-        model.setPackaging(packaging);
-
-        logger.debug("Generating pom file for " + artifact.toString() + "...");
-
-        ModelWriter writer = new ModelWriter(model, pomFile);
-        writer.write();
-
-        generateChecksumsForArtifact(pomFile);
-    }
-
-    private void generateChecksumsForArtifact(File artifactFile)
-            throws NoSuchAlgorithmException, IOException
-    {
-        InputStream is = new FileInputStream(artifactFile);
-        MultipleDigestInputStream mdis = new MultipleDigestInputStream(is);
-
-        int size = 4096;
-        byte[] bytes = new byte[size];
-
-        //noinspection StatementWithEmptyBody
-        while (mdis.read(bytes, 0, size) != -1) ;
-
-        mdis.close();
-
-        String md5 = mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
-        String sha1 = mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
-
-        MessageDigestUtils.writeChecksum(artifactFile, EncryptionAlgorithmsEnum.MD5.getExtension(), md5);
-        MessageDigestUtils.writeChecksum(artifactFile, EncryptionAlgorithmsEnum.SHA1.getExtension(), sha1);
-    }
-
-    private void deployPOM(Artifact artifact,
-                           String storageId,
-                           String repositoryId)
-            throws NoSuchAlgorithmException,
-                   IOException,
-                   ArtifactOperationException
-    {
-        File pomFile = new File(GENERATOR_BASEDIR.getAbsolutePath(), ArtifactUtils.convertArtifactToPath(artifact));
-
-        InputStream is = new FileInputStream(pomFile);
-        ArtifactInputStream ais = new ArtifactInputStream(new MavenArtifactCoordinates(artifact), is);
-
-        addArtifact(artifact, storageId, repositoryId, ais);
-
-        deployChecksum(ais, storageId, repositoryId, artifact);
-    }
-
-    public void deploy(Artifact artifact,
-                       String storageId,
-                       String repositoryId)
-            throws ArtifactOperationException,
-                   IOException,
-                   NoSuchAlgorithmException,
-                   XmlPullParserException
-    {
-        File artifactFile = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                     "/local", ArtifactUtils.convertArtifactToPath(artifact));
-
-        InputStream is = new FileInputStream(artifactFile);
-        ArtifactInputStream ais = new ArtifactInputStream(new MavenArtifactCoordinates(artifact), is);
-
-        addArtifact(artifact, storageId, repositoryId, ais);
-
-        deployChecksum(ais, storageId, repositoryId, artifact);
-    }
-
-    public void addArtifact(Artifact artifact,
-                            String storageId,
-                            String repositoryId,
-                            InputStream is)
-            throws ArtifactOperationException, IOException
-    {
-        String path = ArtifactUtils.convertArtifactToPath(artifact);
-        String url = getContextBaseUrl() + "/storages/" + storageId + '/' + repositoryId + '/' + path;
-
-        logger.debug("Deploying " + url + "...");
-
-        String fileName = getArtifactFileName(artifact);
-
-        deployFile(is, url, fileName, path);
-    }
-
-    private void deployChecksum(ArtifactInputStream ais,
-                                String storageId,
-                                String repositoryId,
-                                Artifact artifact)
-            throws ArtifactOperationException, IOException
-    {
-        ais.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
-        ais.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
-
-        for (Map.Entry entry : ais.getHexDigests().entrySet())
-        {
-            final String algorithm = (String) entry.getKey();
-            final String checksum = (String) entry.getValue();
-
-            ByteArrayInputStream bais = new ByteArrayInputStream(checksum.getBytes());
-
-            final String extensionForAlgorithm = EncryptionAlgorithmsEnum.fromAlgorithm(algorithm).getExtension();
-
-            String artifactPath = ArtifactUtils.convertArtifactToPath(artifact) + extensionForAlgorithm;
-            String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + artifactPath;
-            String artifactFileName = getArtifactFileName(artifact) + extensionForAlgorithm;
-
-            deployFile(bais, url, artifactFileName, artifactPath);
-        }
-    }
-
-    public void deployFile(InputStream is,
-                           String url,
-                           String fileName,
-                           String path)
-            throws ArtifactOperationException, IOException
-    {
-        String contentDisposition = "attachment; filename=\"" + fileName + "\"";
-        byte[] bytes = ByteStreams.toByteArray(is);
-
-        System.out.println();
-        System.out.println(" client> path = " + path);
-        System.out.println(" client> url = " + url);
-        System.out.println();
-
-        given().param("path", path)
-               .contentType(ContentType.BINARY)
-               .header("Content-Disposition", contentDisposition)
-               .body(bytes)
-               .when()
-               .put(url)
-               .peek()
-               .then()
-               .statusCode(200)
-               .extract()
-               .response();
-    }
-
-    public void mergeMetadata(Artifact artifact,
-                              String storageId,
-                              String repositoryId)
-            throws ArtifactTransportException,
-                   IOException,
-                   XmlPullParserException,
-                   NoSuchAlgorithmException,
-                   ArtifactOperationException
-    {
-        if (metadataMerger == null)
-        {
-            metadataMerger = new MetadataMerger();
-        }
-
-        Metadata metadata;
-        if (ArtifactUtils.isSnapshot(artifact.getVersion()))
-        {
-            String path = ArtifactUtils.getVersionLevelMetadataPath(artifact);
-            metadata = metadataMerger.updateMetadataAtVersionLevel(artifact,
-                                                                   retrieveMetadata("storages/" + storageId + "/" +
-                                                                                    repositoryId + "/" +
-                                                                                    ArtifactUtils.getVersionLevelMetadataPath(
-                                                                                            artifact)));
-
-            createMetadata(metadata, path);
-            deployMetadata(metadata, path, storageId, repositoryId);
-        }
-
-        String path = ArtifactUtils.getArtifactLevelMetadataPath(artifact);
-        metadata = metadataMerger.updateMetadataAtArtifactLevel(artifact,
-                                                                retrieveMetadata(
-                                                                        "storages/" + storageId + "/" + repositoryId +
-                                                                        "/" +
-                                                                        ArtifactUtils.getArtifactLevelMetadataPath(
-                                                                                artifact)));
-
-        createMetadata(metadata, path);
-        deployMetadata(metadata, path, storageId, repositoryId);
-
-        if (artifact instanceof PluginArtifact)
-        {
-            path = ArtifactUtils.getGroupLevelMetadataPath(artifact);
-            metadata = metadataMerger.updateMetadataAtGroupLevel((PluginArtifact) artifact,
-                                                                 retrieveMetadata(
-                                                                         "storages/" + storageId + "/" + repositoryId +
-                                                                         "/" +
-                                                                         ArtifactUtils.getGroupLevelMetadataPath(
-                                                                                 artifact)));
-            createMetadata(metadata, path);
-            deployMetadata(metadata, path, storageId, repositoryId);
-        }
-    }
-
-    private Metadata retrieveMetadata(String path)
-            throws ArtifactTransportException,
-                   IOException,
-                   XmlPullParserException
-    {
-        InputStream is = getArtifactAsStream(getContextBaseUrl() + "/" + path, false);
-        if (is != null)
-        {
-            MetadataXpp3Reader reader = new MetadataXpp3Reader();
-
-            return reader.read(is);
-        }
-
-        return null;
-    }
-
-    private void deployMetadata(Metadata metadata,
-                                String metadataPath,
-                                String storageId,
-                                String repositoryId)
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   ArtifactOperationException
-    {
-        File metadataFile = new File(GENERATOR_BASEDIR.getAbsolutePath(), metadataPath);
-
-        InputStream is = new FileInputStream(metadataFile);
-        MultipleDigestInputStream mdis = new MultipleDigestInputStream(is);
-
-        System.out.println(" metadataPath = " + metadataPath);
-
-        String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + metadataPath;
-
-        deployFile(is, url, "maven-metadata.xml", metadataPath);
-
-        deployChecksum(mdis,
-                       storageId,
-                       repositoryId,
-                       metadataPath.substring(0, metadataPath.lastIndexOf('/') + 1), "maven-metadata.xml");
-
-    }
-
-    private void deployChecksum(MultipleDigestInputStream mdis,
-                                String storageId,
-                                String repositoryId,
-                                String path,
-                                String metadataFileName)
-            throws ArtifactOperationException,
-                   IOException
-    {
-        mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
-        mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
-
-        for (Map.Entry entry : mdis.getHexDigests().entrySet())
-        {
-            final String algorithm = (String) entry.getKey();
-            final String checksum = (String) entry.getValue();
-
-            ByteArrayInputStream bais = new ByteArrayInputStream(checksum.getBytes());
-
-            final String extensionForAlgorithm = EncryptionAlgorithmsEnum.fromAlgorithm(algorithm).getExtension();
-
-            String metadataPath = path + metadataFileName + extensionForAlgorithm;
-            String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + metadataPath;
-            String artifactFileName = metadataFileName + extensionForAlgorithm;
-
-            deployFile(bais, url, artifactFileName, metadataPath);
-        }
-    }
-
-    protected void createMetadata(Metadata metadata,
-                                  String metadataPath)
-            throws NoSuchAlgorithmException, IOException
-    {
-        OutputStream os = null;
-        Writer writer = null;
-
-        File metadataFile = null;
-
-        try
-        {
-            metadataFile = new File(GENERATOR_BASEDIR.getAbsolutePath(), metadataPath);
-
-            if (metadataFile.exists())
-            {
-                //noinspection ResultOfMethodCallIgnored
-                metadataFile.delete();
-            }
-
-            // Make sure the artifact's parent directory exists before writing
-            // the model.
-            // noinspection ResultOfMethodCallIgnored
-            metadataFile.getParentFile().mkdirs();
-
-            os = new MultipleDigestOutputStream(metadataFile, new FileOutputStream(metadataFile));
-            writer = WriterFactory.newXmlWriter(os);
-            MetadataXpp3Writer mappingWriter = new MetadataXpp3Writer();
-            mappingWriter.write(writer, metadata);
-
-            os.flush();
-        }
-        finally
-        {
-            ResourceCloser.close(os, logger);
-
-            generateChecksumsForArtifact(metadataFile);
-        }
     }
 }

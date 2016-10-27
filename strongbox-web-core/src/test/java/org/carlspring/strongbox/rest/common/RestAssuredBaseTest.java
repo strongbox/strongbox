@@ -1,18 +1,11 @@
 package org.carlspring.strongbox.rest.common;
 
-import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.users.domain.Roles;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.InputStream;
 import java.util.Collection;
 
 import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
-import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
-import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
-import com.jayway.restassured.response.ExtractableResponse;
-import com.jayway.restassured.response.Headers;
 import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
@@ -47,6 +40,9 @@ public abstract class RestAssuredBaseTest
 
     @Autowired
     AnonymousAuthenticationFilter anonymousAuthenticationFilter;
+
+    @Autowired
+    protected RestAssuredArtifactClient client;
 
     private String host;
 
@@ -89,6 +85,9 @@ public abstract class RestAssuredBaseTest
         // by default all operations incl. deletion etc. are allowed (careful)
         // override #provideAuthorities if you wanna be more specific
         anonymousAuthenticationFilter.getAuthorities().addAll(provideAuthorities());
+
+        // base URL depends only on test execution context
+        client.setContextBaseUrl(contextBaseUrl);
     }
 
     @After
@@ -145,144 +144,4 @@ public abstract class RestAssuredBaseTest
     {
         given().contentType(MediaType.TEXT_PLAIN_VALUE).when().get(url).then().statusCode(HttpStatus.OK.value());
     }
-
-    protected InputStream getArtifactAsStream(String url)
-    {
-        return getArtifactAsStream(url, -1, false);
-    }
-
-    protected InputStream getArtifactAsStream(String url,
-                                              boolean validate)
-    {
-        return getArtifactAsStream(url, -1, validate);
-    }
-
-    protected InputStream getArtifactAsStream(String url,
-                                              int offset,
-                                              boolean validate)
-    {
-        byte[] bytes = getArtifactAsByteArray(url, offset, validate);
-        if (bytes == null)
-        {
-            return null;
-        }
-        else
-        {
-            return new ByteArrayInputStream(bytes);
-        }
-    }
-
-    protected InputStream getArtifactAsStream(String url,
-                                              int offset)
-    {
-        return getArtifactAsStream(url, offset, false);
-    }
-
-    /**
-     * Converts response output to byte array to properly use it later as a stream.
-     * RestAssured-specific case for working with file uploading when multipart specification is not used.
-     */
-    protected byte[] getArtifactAsByteArray(String url,
-                                            int offset,
-                                            boolean validate)
-    {
-        MockMvcRequestSpecification o = given().contentType(MediaType.TEXT_PLAIN_VALUE);
-        int statusCode = 200;
-        if (offset != -1)
-        {
-            o = o.header("Range", "bytes=" + offset + "-");
-            statusCode = 206;
-        }
-
-        logger.debug("[getArtifactAsByteArray] URL " + url);
-
-        MockMvcResponse response = o.when().get(url);
-        Headers allHeaders = response.getHeaders();
-
-        logger.debug("HTTP GET " + url);
-        logger.debug("Response headers:");
-
-        allHeaders.forEach(header -> logger.debug("\t" + header.getName() + " = " + header.getValue()));
-
-        if (validate)
-        {
-            response.then().statusCode(statusCode);
-        }
-
-        if (response.getStatusCode() == 200 || response.getStatusCode() == 206)
-        {
-            byte[] result = response.getMockHttpServletResponse().getContentAsByteArray();
-            logger.debug("Received " + result.length + " bytes.");
-            return result;
-        }
-        else
-        {
-            logger.warn("[getArtifactAsByteArray] response " + response.getStatusCode());
-            return null;
-        }
-    }
-
-    protected void copy(String path,
-                        String srcStorageId,
-                        String srcRepositoryId,
-                        String destStorageId,
-                        String destRepositoryId)
-    {
-        given().contentType(MediaType.TEXT_PLAIN_VALUE)
-               .params("path", path,
-                       "srcStorageId", srcStorageId,
-                       "srcRepositoryId", srcRepositoryId,
-                       "destStorageId", destStorageId,
-                       "destRepositoryId", destRepositoryId)
-               .when()
-               .post(getContextBaseUrl() + "/storages/copy")
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value())
-               .extract();
-    }
-
-    protected void delete(String storageId,
-                          String repositoryId,
-                          String path)
-            throws ArtifactOperationException
-    {
-        delete(storageId, repositoryId, path, false);
-    }
-
-    protected void delete(String storageId,
-                          String repositoryId,
-                          String path,
-                          boolean force)
-            throws ArtifactOperationException
-    {
-        String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId;
-
-        given().contentType(MediaType.TEXT_PLAIN_VALUE)
-               .param("path", path)
-               .param("force", force)
-               .when()
-               .delete(url)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value());
-    }
-
-    protected ExtractableResponse getResourceWithResponse(String path,
-                                                          String pathVar)
-    {
-        String url = getContextBaseUrl() + "/" + path;
-        if (pathVar != null && !pathVar.isEmpty())
-        {
-            url += "/" + pathVar;
-        }
-
-        return (ExtractableResponse) given().contentType(MediaType.TEXT_PLAIN_VALUE)
-                                            .when()
-                                            .get(url)
-                                            .peek()
-                                            .then()
-                                            .extract();
-    }
-
 }

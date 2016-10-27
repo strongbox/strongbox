@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.artifact.generator;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.client.ArtifactClient;
 import org.carlspring.strongbox.client.ArtifactOperationException;
+import org.carlspring.strongbox.client.JerseyArtifactClient;
 import org.carlspring.strongbox.config.TestingCoreConfig;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.testing.AssignedPorts;
@@ -36,7 +36,7 @@ public class ArtifactDeployerTest
     @Autowired
     private AssignedPorts assignedPorts;
 
-    private static ArtifactClient client;
+    private static JerseyArtifactClient client;
 
 
     @Before
@@ -48,7 +48,7 @@ public class ArtifactDeployerTest
             //noinspection ResultOfMethodCallIgnored
             BASEDIR.mkdirs();
 
-            client = new ArtifactClient();
+            client = new JerseyArtifactClient();
             client.setUsername("maven");
             client.setPassword("password");
             client.setPort(assignedPorts.getPort("port.jetty.listen"));
