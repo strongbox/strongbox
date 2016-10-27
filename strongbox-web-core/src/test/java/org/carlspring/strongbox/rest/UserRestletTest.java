@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.rest;
 
 import org.carlspring.strongbox.client.RestClient;
-import org.carlspring.strongbox.rest.context.RestletTestContext;
+import org.carlspring.strongbox.rest.context.JerseyTest;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.users.domain.User;
 
@@ -29,7 +29,7 @@ import static org.junit.Assert.*;
  * @author Alex Oreshkevich
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@RestletTestContext
+@JerseyTest
 @Ignore
 public class UserRestletTest
         extends TestCaseWithArtifactGeneration

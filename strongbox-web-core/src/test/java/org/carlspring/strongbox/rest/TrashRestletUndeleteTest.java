@@ -2,7 +2,7 @@ package org.carlspring.strongbox.rest;
 
 import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.rest.context.RestletTestContext;
+import org.carlspring.strongbox.rest.context.JerseyTest;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 
 import java.io.File;
@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
  * @author mtodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@RestletTestContext
+@JerseyTest
 @Ignore
 public class TrashRestletUndeleteTest
         extends TestCaseWithArtifactGeneration

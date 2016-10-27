@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.rest;
 
 import org.carlspring.strongbox.client.RestClient;
-import org.carlspring.strongbox.rest.context.RestletTestContext;
+import org.carlspring.strongbox.rest.context.JerseyTest;
 import org.carlspring.strongbox.security.Role;
 import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.security.AuthorizationConfig;
@@ -34,7 +34,7 @@ import static org.junit.Assert.assertEquals;
  * @author Alex Oreshkevich
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@RestletTestContext
+@JerseyTest
 @Ignore
 public class AuthorizationConfigRestletTest
 {

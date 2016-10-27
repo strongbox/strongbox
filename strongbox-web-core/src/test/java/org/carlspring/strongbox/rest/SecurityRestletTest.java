@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.rest;
 
 import org.carlspring.strongbox.client.RestClient;
-import org.carlspring.strongbox.rest.context.RestletTestContext;
+import org.carlspring.strongbox.rest.context.JerseyTest;
 
 import javax.ws.rs.core.Response;
 
@@ -23,7 +23,7 @@ import static junit.framework.TestCase.assertEquals;
  * @author Alex Oreshkevich
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@RestletTestContext
+@JerseyTest
 @Ignore
 public class SecurityRestletTest
 {

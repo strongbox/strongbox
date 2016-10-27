@@ -111,15 +111,15 @@ public class ArtifactControllerTest
         assertPathExists(artifactPath);
 
         // read remote checksum
-        String md5Remote = MessageDigestUtils.readChecksumFile(client.getArtifactAsStream(artifactPath + ".md5", true));
+        String md5Remote = MessageDigestUtils.readChecksumFile(client.getResource(artifactPath + ".md5", true));
         String sha1Remote = MessageDigestUtils.readChecksumFile(
-                client.getArtifactAsStream(artifactPath + ".sha1", true));
+                client.getResource(artifactPath + ".sha1", true));
 
         logger.info("Remote md5 checksum " + md5Remote);
         logger.info("Remote sha1 checksum " + sha1Remote);
 
         // calculate local checksum for given algorithms
-        InputStream is = client.getArtifactAsStream(artifactPath);
+        InputStream is = client.getResource(artifactPath);
         logger.debug("Wrote " + is.available() + " bytes.");
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -149,7 +149,7 @@ public class ArtifactControllerTest
 
         logger.debug("Read " + total + " bytes.");
 
-        is = client.getArtifactAsStream(artifactPath, total);
+        is = client.getResource(artifactPath, total);
 
         logger.debug("Skipped " + total + " bytes.");
 

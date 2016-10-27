@@ -4,7 +4,7 @@ import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.rest.context.RestletTestContext;
+import org.carlspring.strongbox.rest.context.JerseyTest;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
@@ -27,7 +27,7 @@ import static org.junit.Assert.*;
  * @author mtodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@RestletTestContext
+@JerseyTest
 @Ignore
 public class ConfigurationManagementRestletTest
 {

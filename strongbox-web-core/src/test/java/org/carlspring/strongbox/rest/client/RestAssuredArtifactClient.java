@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.rest.common;
+package org.carlspring.strongbox.rest.client;
 
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
@@ -20,6 +20,8 @@ import org.springframework.stereotype.Component;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 
 /**
+ * Implementation of {@link org.carlspring.strongbox.client.ArtifactClient} for rest-assured tests.
+ *
  * @author Alex Oreshkevich
  */
 @Component
@@ -27,12 +29,25 @@ public class RestAssuredArtifactClient
         extends BaseArtifactClient
 {
 
+    /**
+     * Default validation policy for GET requests.
+     */
+    public final static boolean VALIDATE_RESOURCE_ON_GET = false;
+
+    public final static int OK = HttpStatus.OK.value();
+    public final static int PARTIAL_CONTENT = HttpStatus.PARTIAL_CONTENT.value();
+
     private String contextBaseUrl;
 
     @Override
     public String getContextBaseUrl()
     {
         return contextBaseUrl;
+    }
+
+    public void setContextBaseUrl(String contextBaseUrl)
+    {
+        this.contextBaseUrl = contextBaseUrl;
     }
 
     @Override
@@ -43,7 +58,7 @@ public class RestAssuredArtifactClient
         return given().contentType(ContentType.TEXT)
                       .when()
                       .get(url)
-                      .getStatusCode() == HttpStatus.OK.value();
+                      .getStatusCode() == OK;
     }
 
     @Override
@@ -51,7 +66,7 @@ public class RestAssuredArtifactClient
                                    long offset)
             throws ArtifactTransportException, IOException
     {
-        return getArtifactAsStream(path, (int) offset);
+        return getResource(path, (int) offset);
     }
 
     public void deployFile(InputStream is,
@@ -100,25 +115,20 @@ public class RestAssuredArtifactClient
                .statusCode(HttpStatus.OK.value());
     }
 
-    void setContextBaseUrl(String contextBaseUrl)
+    public InputStream getResource(String url)
     {
-        this.contextBaseUrl = contextBaseUrl;
+        return getResource(url, -1, VALIDATE_RESOURCE_ON_GET);
     }
 
-    public InputStream getArtifactAsStream(String url)
+    public InputStream getResource(String url,
+                                   boolean validate)
     {
-        return getArtifactAsStream(url, -1, false);
+        return getResource(url, -1, validate);
     }
 
-    public InputStream getArtifactAsStream(String url,
-                                           boolean validate)
-    {
-        return getArtifactAsStream(url, -1, validate);
-    }
-
-    public InputStream getArtifactAsStream(String url,
-                                           int offset,
-                                           boolean validate)
+    public InputStream getResource(String url,
+                                   int offset,
+                                   boolean validate)
     {
         byte[] bytes = getArtifactAsByteArray(url, offset, validate);
         if (bytes == null)
@@ -131,10 +141,10 @@ public class RestAssuredArtifactClient
         }
     }
 
-    public InputStream getArtifactAsStream(String url,
-                                           int offset)
+    public InputStream getResource(String url,
+                                   int offset)
     {
-        return getArtifactAsStream(url, offset, false);
+        return getResource(url, offset, VALIDATE_RESOURCE_ON_GET);
     }
 
     /**
@@ -146,11 +156,11 @@ public class RestAssuredArtifactClient
                                          boolean validate)
     {
         MockMvcRequestSpecification o = given().contentType(MediaType.TEXT_PLAIN_VALUE);
-        int statusCode = 200;
+        int statusCode = OK;
         if (offset != -1)
         {
             o = o.header("Range", "bytes=" + offset + "-");
-            statusCode = 206;
+            statusCode = PARTIAL_CONTENT;
         }
 
         logger.debug("[getArtifactAsByteArray] URL " + url);
@@ -168,7 +178,7 @@ public class RestAssuredArtifactClient
             response.then().statusCode(statusCode);
         }
 
-        if (response.getStatusCode() == 200 || response.getStatusCode() == 206)
+        if (response.getStatusCode() == OK || response.getStatusCode() == PARTIAL_CONTENT)
         {
             byte[] result = response.getMockHttpServletResponse().getContentAsByteArray();
             logger.debug("Received " + result.length + " bytes.");
@@ -197,7 +207,7 @@ public class RestAssuredArtifactClient
                .post(getContextBaseUrl() + "/storages/copy")
                .peek()
                .then()
-               .statusCode(HttpStatus.OK.value())
+               .statusCode(OK)
                .extract();
     }
 
@@ -224,7 +234,7 @@ public class RestAssuredArtifactClient
                .delete(url)
                .peek()
                .then()
-               .statusCode(HttpStatus.OK.value());
+               .statusCode(OK);
     }
 
     public ExtractableResponse getResourceWithResponse(String path,

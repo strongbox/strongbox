@@ -3,7 +3,7 @@ package org.carlspring.strongbox.rest;
 import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.rest.context.RestletTestContext;
+import org.carlspring.strongbox.rest.context.JerseyTest;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 
@@ -32,7 +32,7 @@ import static org.junit.Assert.assertEquals;
  * @author korest
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@RestletTestContext
+@JerseyTest
 @Ignore
 public class ProxyRepositoryConnectionPoolConfigurationManagementRestletTest
         extends TestCaseWithArtifactGeneration
