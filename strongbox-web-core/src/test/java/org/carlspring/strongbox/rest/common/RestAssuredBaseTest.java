@@ -151,7 +151,8 @@ public abstract class RestAssuredBaseTest
         return getArtifactAsStream(url, -1, false);
     }
 
-    protected InputStream getArtifactAsStream(String url, boolean validate)
+    protected InputStream getArtifactAsStream(String url,
+                                              boolean validate)
     {
         return getArtifactAsStream(url, -1, validate);
     }
@@ -161,15 +162,20 @@ public abstract class RestAssuredBaseTest
                                               boolean validate)
     {
         byte[] bytes = getArtifactAsByteArray(url, offset, validate);
-        return bytes != null ? new ByteArrayInputStream(bytes) : null;
+        if (bytes == null)
+        {
+            return null;
+        }
+        else
+        {
+            return new ByteArrayInputStream(bytes);
+        }
     }
 
     protected InputStream getArtifactAsStream(String url,
                                               int offset)
     {
-        byte[] bytes = getArtifactAsByteArray(url, offset, false);
-
-        return bytes != null ? new ByteArrayInputStream(bytes) : null;
+        return getArtifactAsStream(url, offset, false);
     }
 
     /**
