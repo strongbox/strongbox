@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.rest.common;
 
+import org.carlspring.strongbox.artifact.generator.ArtifactDeployer;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.users.domain.Roles;
 
 import java.io.File;
@@ -49,6 +51,8 @@ public abstract class RestAssuredBaseTest
     private int port;
 
     private String contextBaseUrl;
+
+    private TestCaseWithArtifactGeneration generator = new TestCaseWithArtifactGeneration();
 
     public RestAssuredBaseTest()
     {
@@ -143,5 +147,18 @@ public abstract class RestAssuredBaseTest
     protected void assertPathExists(String url)
     {
         given().contentType(MediaType.TEXT_PLAIN_VALUE).when().get(url).then().statusCode(HttpStatus.OK.value());
+    }
+
+    protected ArtifactDeployer buildArtifactDeployer(File file)
+    {
+        ArtifactDeployer artifactDeployer = new ArtifactDeployer(file.getAbsolutePath());
+        artifactDeployer.setClient(client);
+        return artifactDeployer;
+    }
+
+    public String createSnapshotVersion(String baseSnapshotVersion,
+                                        int buildNumber)
+    {
+        return generator.createSnapshotVersion(baseSnapshotVersion, buildNumber);
     }
 }
