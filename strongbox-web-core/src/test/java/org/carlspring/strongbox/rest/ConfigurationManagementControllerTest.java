@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.rest;
 
-
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
@@ -137,7 +136,6 @@ public class ConfigurationManagementControllerTest
                      pc.getNonProxyHosts());
     }
 
-
     @Test
     public void testAddGetStorage()
             throws Exception
@@ -148,11 +146,8 @@ public class ConfigurationManagementControllerTest
 
         String url = getContextBaseUrl() + "/configuration/strongbox/storages";
 
-        GenericParser<Storage> parser = new GenericParser<>(Storage.class);
-        String serializedStorage = parser.serialize(storage1);
-
-        given().contentType(MediaType.TEXT_PLAIN_VALUE)
-               .body(serializedStorage)
+        given().contentType(MediaType.APPLICATION_XML_VALUE)
+               .body(storage1)
                .when()
                .put(url)
                .then()
@@ -371,7 +366,6 @@ public class ConfigurationManagementControllerTest
         final Configuration c = getConfiguration();
         Assert.assertNotNull("Failed to create storage3!", c.getStorage("storage3"));
     }
-
 
     public Configuration getConfiguration()
             throws IOException, JAXBException

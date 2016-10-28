@@ -151,7 +151,7 @@
                         </systemProperty>
                         <systemProperty>
                             <name>java.io.tmpdir</name>
-                            <value>${dir.strongbox.home}/tmp</value>
+                            <value>${dir.strongbox.vault}/tmp</value>
                         </systemProperty>
                         <systemProperty>
                             <name>ehcache.disk.store.dir</name>

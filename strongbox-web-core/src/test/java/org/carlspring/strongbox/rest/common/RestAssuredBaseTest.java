@@ -25,7 +25,6 @@ import org.springframework.security.web.authentication.AnonymousAuthenticationFi
 import org.springframework.web.context.WebApplicationContext;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static junit.framework.TestCase.assertTrue;
-import static org.carlspring.strongbox.booters.StorageBooter.createTempDir;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
 
 /**
@@ -94,7 +93,6 @@ public abstract class RestAssuredBaseTest
     public void init()
     {
         RestAssuredMockMvc.webAppContextSetup(context);
-        createTempDir();
 
         // security settings for tests
         // by default all operations incl. deletion etc. are allowed (careful)

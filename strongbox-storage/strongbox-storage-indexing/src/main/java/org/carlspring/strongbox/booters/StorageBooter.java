@@ -9,7 +9,6 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexerFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Singleton;
@@ -88,18 +87,26 @@ public class StorageBooter
         }
     }
 
-    public static void createTempDir()
+    public void createTempDir()
     {
         File tempDir = new File(ConfigurationResourceResolver.getVaultDirectory(), "tmp");
         if (!tempDir.exists())
         {
             //noinspection ResultOfMethodCallIgnored
             tempDir.mkdirs();
+
+            logger.debug("Created temporary directory: " + tempDir.getAbsolutePath() + ".");
         }
 
         if (System.getProperty("java.tmp.dir") == null)
         {
             System.setProperty("java.tmp.dir", tempDir.getAbsolutePath());
+
+            logger.debug("Set java.tmp.dir to " + tempDir.getAbsolutePath() + ".");
+        }
+        else
+        {
+            logger.debug("The java.tmp.dir is already set to " + System.getProperty("java.tmp.dir") + ".");
         }
     }
 
