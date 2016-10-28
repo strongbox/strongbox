@@ -96,7 +96,7 @@
                     <remote-repository url="http://dev.carlspring.org/nexus/content/groups/carlspring"
                                        download-remote-indexes="true"
                                        auto-blocking="true"
-                                       checksum-validation="true" />
+                                       checksum-validation="true"/>
                 </repository>
 
                 <repository id="apache-snapshots" policy="snapshot" implementation="file-system" layout="Maven 2" type="proxy">
