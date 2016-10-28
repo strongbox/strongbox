@@ -8,14 +8,10 @@ import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 
-import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
-import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
-import com.jayway.restassured.response.Headers;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.junit.Assert;
@@ -28,10 +24,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertNotNull;
 import static org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration.generateArtifact;
 import static org.junit.Assert.assertTrue;
-import static org.springframework.test.util.AssertionErrors.assertEquals;
 
 @RestAssuredTest
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -201,115 +195,38 @@ public class MetadataManagementControllerTest
                             metadata2AfterSnapshotVersions.get(metadata2AfterSnapshotVersions.size() - 1).getVersion());
     }
 
-
-    private void rebuildReleaseMetadataAndDeleteAVersion()
+    @Test
+    public void testRebuildReleaseMetadataAndDeleteAVersion()
             throws Exception
     {
 
-        // define bla bla bla
-        String metadataPath = "/storages/storage0/releases";
-        String path = "org/carlspring/strongbox/metadata/strongbox-metadata/maven-metadata.xml";
+        String metadataPath = "/storages/storage0/releases/org/carlspring/strongbox/metadata/strongbox-metadata/maven-metadata.xml";
+
         String artifactPath = "org/carlspring/strongbox/metadata/strongbox-metadata";
 
-        String url = getContextBaseUrl() + (metadataPath.startsWith("/") ? metadataPath : '/' + metadataPath);
-        url += "/" + path;
-
-        logger.debug("Path to artifact: " + url);
-
-        // assert that metadata don't exists (404)
-        given()
-                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .when()
-                .get(url)
-                .peek()
-                .then()
-                .statusCode(HttpStatus.NOT_FOUND.value());
+        Assert.assertFalse("Metadata already exists!", client.pathExists(metadataPath));
 
         // create new metadata
-        client.rebuildMetadata("storage0", "releases", artifactPath);
+        client.rebuildMetadata("storage0", "releases", null);
 
-        given()
-                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .when()
-                .get(url)
-                .peek()
-                .then()
-                .statusCode(200);
+        assertTrue("Failed to rebuild release metadata!", client.pathExists(metadataPath));
 
-        InputStream is = getArtifactAsStream(path, metadataPath);
-
+        InputStream is = client.getResource(metadataPath);
         Metadata metadataBefore = artifactMetadataService.getMetadata(is);
 
-        assertNotNull("Incorrect metadata!", metadataBefore.getVersioning());
-        assertNotNull("Incorrect metadata!", metadataBefore.getVersioning().getLatest());
-        assertEquals("Incorrect metadata!", "3.2", metadataBefore.getVersioning().getLatest());
+        Assert.assertNotNull("Incorrect metadata!", metadataBefore.getVersioning());
+        Assert.assertNotNull("Incorrect metadata!", metadataBefore.getVersioning().getLatest());
+        Assert.assertEquals("Incorrect metadata!", "3.2", metadataBefore.getVersioning().getLatest());
 
-        url = getContextBaseUrl() + "/metadata/" +
-              "storage0" + "/" + "releases";
+        client.removeVersionFromMetadata("storage0", "releases", artifactPath, "3.2", null,
+                                         MetadataType.ARTIFACT_ROOT_LEVEL.getType());
 
-        given()
-                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .params("path", artifactPath, "version", "3.2", "classifier", "", "metadataType",
-                        MetadataType.ARTIFACT_ROOT_LEVEL.getType())
-                .when()
-                .delete(url)
-                .peek()
-                .then()
-                .statusCode(200);
-
-        is = getArtifactAsStream(path, metadataPath);
+        is = client.getResource(metadataPath);
         Metadata metadataAfter = artifactMetadataService.getMetadata(is);
 
-        assertNotNull("Incorrect metadata!", metadataAfter.getVersioning());
-        assertFalse("Unexpected set of versions!", MetadataHelper.containsVersion(metadataAfter, "3.2"));
-        assertNotNull("Incorrect metadata!", metadataAfter.getVersioning().getLatest());
-        assertEquals("Incorrect metadata!", "3.1", metadataAfter.getVersioning().getLatest());
-    }
-
-    private InputStream getArtifactAsStream(String path,
-                                            String url)
-    {
-        return getArtifactAsStream(path, url, -1);
-    }
-
-    private InputStream getArtifactAsStream(String path,
-                                            String url,
-                                            int offset)
-    {
-        return new ByteArrayInputStream(getArtifactAsByteArray(path, url, offset));
-
-    }
-
-    private byte[] getArtifactAsByteArray(String path,
-                                          String url,
-                                          int offset)
-    {
-        MockMvcRequestSpecification o = given().contentType(MediaType.TEXT_PLAIN_VALUE);
-        int statusCode = 200;
-        if (offset != -1)
-        {
-            o = o.header("Range", "bytes=" + offset + "-");
-            statusCode = 206;
-        }
-
-        MockMvcResponse response = o.param("path", path)
-                                    .when()
-                                    .get(url);
-        Headers allHeaders = response.getHeaders();
-
-        logger.debug("HTTP GET " + url);
-        logger.debug("Response headers:");
-
-        allHeaders.forEach(header ->
-                           {
-                               logger.debug("\t" + header.getName() + " = " + header.getValue());
-                           });
-
-        response.then().statusCode(statusCode);
-        byte[] result = response.getMockHttpServletResponse().getContentAsByteArray();
-
-        logger.debug("Received " + result.length + " bytes.");
-
-        return result;
+        Assert.assertNotNull("Incorrect metadata!", metadataAfter.getVersioning());
+        Assert.assertFalse("Unexpected set of versions!", MetadataHelper.containsVersion(metadataAfter, "3.2"));
+        Assert.assertNotNull("Incorrect metadata!", metadataAfter.getVersioning().getLatest());
+        Assert.assertEquals("Incorrect metadata!", "3.1", metadataAfter.getVersioning().getLatest());
     }
 }
