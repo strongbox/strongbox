@@ -6,6 +6,7 @@ import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
@@ -29,15 +30,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 /**
  * @author Martin Todorov
  */
-
 @Controller
 @RequestMapping("/metadata")
 @PreAuthorize("hasAuthority('ROOT')")
 public class MetadataManagementController
-        extends BaseRestlet
+        extends BaseArtifactController
 {
 
     private static final Logger logger = LoggerFactory.getLogger(MetadataManagementController.class);
+
+    public final static String ROOT_CONTEXT = "/metadata";
 
     @Autowired
     private ArtifactMetadataService artifactMetadataService;
@@ -46,11 +48,11 @@ public class MetadataManagementController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The metadata was successfully rebuilt!"),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('MANAGEMENT_REBUILD_METADATA')")
-    @RequestMapping(value = "{storageId}/{repositoryId}", method = RequestMethod.POST,
+    @RequestMapping(value = "{storageId}/{repositoryId}/**", method = RequestMethod.POST,
             produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity rebuild(@PathVariable String storageId,
                                   @PathVariable String repositoryId,
-                                  @RequestParam(name = "path") String path)
+                                  HttpServletRequest request)
             throws IOException,
                    AuthenticationException,
                    NoSuchAlgorithmException,
@@ -58,6 +60,7 @@ public class MetadataManagementController
     {
         try
         {
+            String path = convertRequestToPath(ROOT_CONTEXT, request, storageId, repositoryId);
             artifactMetadataService.rebuildMetadata(storageId, repositoryId, path);
 
             return ResponseEntity.ok("The metadata was successfully rebuilt!");
@@ -73,22 +76,25 @@ public class MetadataManagementController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully removed metadata entry."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('MANAGEMENT_DELETE_METADATA')")
-    @RequestMapping(value = "{storageId}/{repositoryId}", method = RequestMethod.DELETE,
+    @RequestMapping(value = "{storageId}/{repositoryId}/**", method = RequestMethod.DELETE,
             produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity delete(
                                         @PathVariable String storageId,
                                         @PathVariable String repositoryId,
-                                        @RequestParam(name = "path") String path,
                                         @RequestParam(name = "version") String version,
                                         @RequestParam(name = "classifier") String classifier,
-                                        @RequestParam(name = "metadataType") String metadataType)
+                                        @RequestParam(name = "metadataType") String metadataType,
+                                        HttpServletRequest request)
             throws IOException,
                    AuthenticationException,
                    NoSuchAlgorithmException,
                    XmlPullParserException
     {
+        logger.info("[delete] storageId " + storageId + " repositoryId " + repositoryId + " version " + version);
+
         try
         {
+            String path = convertRequestToPath(ROOT_CONTEXT, request, storageId, repositoryId);
             if (ArtifactUtils.isReleaseVersion(version))
             {
                 artifactMetadataService.removeVersion(storageId, repositoryId, path, version,

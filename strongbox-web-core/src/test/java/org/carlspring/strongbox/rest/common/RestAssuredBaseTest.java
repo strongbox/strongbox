@@ -6,22 +6,27 @@ import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.users.domain.Roles;
 
 import java.io.File;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
+import org.apache.maven.artifact.Artifact;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.web.context.WebApplicationContext;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static junit.framework.TestCase.assertTrue;
 import static org.carlspring.strongbox.booters.StorageBooter.createTempDir;
+import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
 
 /**
  * General settings for the testing subsystem.
@@ -149,9 +154,14 @@ public abstract class RestAssuredBaseTest
         file.delete();
     }
 
+    protected boolean pathExists(String url)
+    {
+        return given().contentType(MediaType.TEXT_PLAIN_VALUE).when().get(url).getStatusCode() == OK;
+    }
+
     protected void assertPathExists(String url)
     {
-        given().contentType(MediaType.TEXT_PLAIN_VALUE).when().get(url).then().statusCode(HttpStatus.OK.value());
+        assertTrue(pathExists(url));
     }
 
     protected ArtifactDeployer buildArtifactDeployer(File file)
@@ -165,5 +175,18 @@ public abstract class RestAssuredBaseTest
                                         int buildNumber)
     {
         return generator.createSnapshotVersion(baseSnapshotVersion, buildNumber);
+    }
+
+    public Artifact createTimestampedSnapshotArtifact(String repositoryBasedir,
+                                                      String groupId,
+                                                      String artifactId,
+                                                      String baseSnapshotVersion,
+                                                      String packaging,
+                                                      String[] classifiers,
+                                                      int numberOfBuilds)
+            throws NoSuchAlgorithmException, XmlPullParserException, IOException
+    {
+        return generator.createTimestampedSnapshotArtifact(repositoryBasedir, groupId, artifactId, baseSnapshotVersion,
+                                                           packaging, classifiers, numberOfBuilds);
     }
 }

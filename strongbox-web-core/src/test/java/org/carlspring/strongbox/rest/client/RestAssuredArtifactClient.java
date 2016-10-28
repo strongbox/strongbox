@@ -5,6 +5,7 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.client.BaseArtifactClient;
 import org.carlspring.strongbox.rest.ArtifactController;
 
+import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -253,5 +254,45 @@ public class RestAssuredArtifactClient
                                             .peek()
                                             .then()
                                             .extract();
+    }
+
+    public void rebuildMetadata(String storageId,
+                                String repositoryId,
+                                String basePath)
+            throws IOException, JAXBException
+    {
+        String url = getContextBaseUrl() + "/metadata/" + storageId + "/" + repositoryId + "/" +
+                     (basePath != null ? basePath : "");
+
+        given()
+                .contentType(MediaType.TEXT_PLAIN_VALUE)
+                .when()
+                .post(url)
+                .peek()
+                .then()
+                .statusCode(OK);
+    }
+
+    public void removeVersionFromMetadata(String storageId,
+                                          String repositoryId,
+                                          String artifactPath,
+                                          String version,
+                                          String classifier,
+                                          String metadataType)
+    {
+        String url = getContextBaseUrl() + "/metadata/" +
+                     storageId + "/" + repositoryId + "/" +
+                     (artifactPath != null ? artifactPath : "");
+
+        given()
+                .contentType(MediaType.TEXT_PLAIN_VALUE)
+                .params("version", version,
+                        "classifier", classifier,
+                        "metadataType", metadataType)
+                .when()
+                .delete(url)
+                .peek()
+                .then()
+                .statusCode(OK);
     }
 }

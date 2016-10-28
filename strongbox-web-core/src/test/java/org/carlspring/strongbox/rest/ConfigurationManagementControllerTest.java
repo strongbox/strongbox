@@ -1,35 +1,29 @@
 package org.carlspring.strongbox.rest;
 
 
-import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import org.carlspring.strongbox.rest.context.RestAssuredTest;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RuleSet;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
-import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.client.HttpServerErrorException;
+import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertNotNull;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -37,54 +31,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Created by yury on 8/9/16.
+ * @author Alex Oreshkevich
  */
+@RestAssuredTest
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = WebConfig.class)
-@WebAppConfiguration
-@WithUserDetails("admin")
-@Rollback(false)
 public class ConfigurationManagementControllerTest
         extends RestAssuredBaseTest
 {
-
-    public static final String ADD_ACCEPTED_RULE_SET_JSON = "{\n" +
-                                                            "  \"rule-set\": {\n" +
-                                                            "    \"group-repository\": \"group-releases-2\",\n" +
-                                                            "    \"rule\": [\n" +
-                                                            "      {\n" +
-                                                            "        \"pattern\": \".*some.test\",\n" +
-                                                            "        \"repository\": [\n" +
-                                                            "          \"releases-with-trash\",\n" +
-                                                            "          \"releases-with-redeployment\"\n" +
-                                                            "        ]\n" +
-                                                            "      }\n" +
-                                                            "    ]\n" +
-                                                            "  }\n" +
-                                                            "}";
-    public static final String ADD_ACCEPTED_REPO_JSON = "{\n" +
-                                                        "  \"rule\": {\n" +
-                                                        "    \"pattern\": \".*some.test\",\n" +
-                                                        "    \"repository\": [\n" +
-                                                        "      \"releases2\",\n" +
-                                                        "      \"releases3\"\n" +
-                                                        "    ]\n" +
-                                                        "  }\n" +
-                                                        "}";
-    public static final String OVERRIDE_REPO_JSON = "{\n" +
-                                                    "          \"rule\":\n" +
-                                                    "            {\n" +
-                                                    "              \"pattern\": \".*some.test\",\n" +
-                                                    "              \"repository\": [\n" +
-                                                    "                \"releases22\", \"releases32\"\n" +
-                                                    "              ]\n" +
-                                                    "            }\n" +
-                                                    "\n" +
-                                                    "}";
-
-    @Inject
-    ObjectMapper objectMapper;
-
     @Test
     public void testSetAndGetPort()
             throws Exception
@@ -93,24 +46,24 @@ public class ConfigurationManagementControllerTest
 
         String url = getContextBaseUrl() + "/configuration/strongbox/port/" + newPort;
 
-        int status = RestAssuredMockMvc.given()
-                                       .contentType(MediaType.APPLICATION_JSON_VALUE)
-                                       .when()
-                                       .put(url)
-                                       .then()
-                                       .statusCode(200) // check http status code
-                                       .extract()
-                                       .statusCode();
+        int status = given()
+                             .contentType(MediaType.APPLICATION_JSON_VALUE)
+                             .when()
+                             .put(url)
+                             .then()
+                             .statusCode(200) // check http status code
+                             .extract()
+                             .statusCode();
 
         url = getContextBaseUrl() + "/configuration/strongbox/port";
 
-        String port = RestAssuredMockMvc.given()
-                                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                                        .when()
-                                        .get(url)
-                                        .then()
-                                        .statusCode(200) // check http status code
-                                        .extract().asString();
+        String port = given()
+                              .contentType(MediaType.APPLICATION_JSON_VALUE)
+                              .when()
+                              .get(url)
+                              .then()
+                              .statusCode(200) // check http status code
+                              .extract().asString();
 
         assertEquals("Failed to set port!", 200, status);
         assertEquals("Failed to get port!", newPort, Integer.parseInt(port));
@@ -125,25 +78,25 @@ public class ConfigurationManagementControllerTest
 
         String url = getContextBaseUrl() + "/configuration/strongbox/baseUrl";
 
-        RestAssuredMockMvc.given()
-                          .contentType(MediaType.TEXT_PLAIN_VALUE)
-                          .body(baseUrl)
-                          .when()
-                          .put(url)
-                          .then()
-                          .statusCode(200)
-                          .extract();
+        given()
+                .contentType(MediaType.TEXT_PLAIN_VALUE)
+                .body(baseUrl)
+                .when()
+                .put(url)
+                .then()
+                .statusCode(200)
+                .extract();
 
 
         url = getContextBaseUrl() + "/configuration/strongbox/baseUrl";
 
-        RestAssuredMockMvc.given()
-                          .contentType(MediaType.APPLICATION_JSON_VALUE)
-                          .when()
-                          .get(url)
-                          .then()
-                          .statusCode(200)
-                          .body("baseUrl", equalTo(baseUrl));
+        given()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when()
+                .get(url)
+                .then()
+                .statusCode(200)
+                .body("baseUrl", equalTo(baseUrl));
 
     }
 
@@ -159,25 +112,25 @@ public class ConfigurationManagementControllerTest
 
         String url = getContextBaseUrl() + "/configuration/strongbox/proxy-configuration";
 
-        RestAssuredMockMvc.given()
-                          .contentType(MediaType.TEXT_PLAIN_VALUE)
-                          .body(serializedConfig)
-                          .when()
-                          .put(url)
-                          .then()
-                          .statusCode(200);
+        given()
+                .contentType(MediaType.TEXT_PLAIN_VALUE)
+                .body(serializedConfig)
+                .when()
+                .put(url)
+                .then()
+                .statusCode(200);
 
         url = getContextBaseUrl() + "/configuration/strongbox/proxy-configuration";
 
-        System.out.println(proxyConfiguration.getHost() + "++++++++");
+        logger.debug("Current proxy host: " + proxyConfiguration.getHost());
 
-        String response = RestAssuredMockMvc.given()
-                                            .contentType(MediaType.APPLICATION_XML_VALUE)
-                                            .when()
-                                            .get(url)
-                                            .then()
-                                            .statusCode(200)
-                                            .extract().response().getBody().asString();
+        String response = given()
+                                  .contentType(MediaType.APPLICATION_XML_VALUE)
+                                  .when()
+                                  .get(url)
+                                  .then()
+                                  .statusCode(200)
+                                  .extract().response().getBody().asString();
 
         GenericParser<ProxyConfiguration> parser2 = new GenericParser<>(ProxyConfiguration.class);
         ProxyConfiguration pc = parser2.deserialize(response);
@@ -194,7 +147,6 @@ public class ConfigurationManagementControllerTest
 
 
     @Test
-    @WithUserDetails("admin")
     public void testAddGetStorage()
             throws Exception
     {
@@ -207,13 +159,13 @@ public class ConfigurationManagementControllerTest
         GenericParser<Storage> parser = new GenericParser<>(Storage.class);
         String serializedStorage = parser.serialize(storage1);
 
-        RestAssuredMockMvc.given()
-                          .contentType(MediaType.TEXT_PLAIN_VALUE)
-                          .body(serializedStorage)
-                          .when()
-                          .put(url)
-                          .then()
-                          .statusCode(200);
+        given()
+                .contentType(MediaType.TEXT_PLAIN_VALUE)
+                .body(serializedStorage)
+                .when()
+                .put(url)
+                .then()
+                .statusCode(200);
 
         Repository r1 = new Repository("repository0");
         r1.setAllowsRedeployment(true);
@@ -250,26 +202,26 @@ public class ConfigurationManagementControllerTest
                      storage.getRepositories().get("repository1").getProxyConfiguration().getHost());
     }
 
-    public Storage getStorage(String storageId)
+    private Storage getStorage(String storageId)
             throws IOException, JAXBException
     {
 
         String url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId;
 
-        String response = RestAssuredMockMvc.given()
-                                            .contentType(MediaType.TEXT_PLAIN_VALUE)
-                                            .when()
-                                            .get(url)
-                                            .then()
-                                            .statusCode(200)
-                                            .extract().response().getBody().asString();
+        String response = given()
+                                  .contentType(MediaType.TEXT_PLAIN_VALUE)
+                                  .when()
+                                  .get(url)
+                                  .then()
+                                  .statusCode(200)
+                                  .extract().response().getBody().asString();
 
         GenericParser<Storage> parser2 = new GenericParser<>(Storage.class);
         Storage storage = parser2.deserialize(response);
         return storage;
     }
 
-    public int addRepository(Repository repository)
+    private int addRepository(Repository repository)
             throws IOException, JAXBException
     {
         String url;
@@ -301,20 +253,17 @@ public class ConfigurationManagementControllerTest
         GenericParser<Repository> parser = new GenericParser<>(Repository.class);
         String serializedRepository = parser.serialize(repository);
 
-        int status = RestAssuredMockMvc.given()
-                                       .contentType(MediaType.TEXT_PLAIN_VALUE)
-                                       .body(serializedRepository)
-                                       .when()
-                                       .put(url)
-                                       .then()
-                                       .statusCode(200)
-                                       .extract().statusCode();
-
-        return status;
+        return given()
+                       .contentType(MediaType.TEXT_PLAIN_VALUE)
+                       .body(serializedRepository)
+                       .when()
+                       .put(url)
+                       .then()
+                       .statusCode(200)
+                       .extract().statusCode();
     }
 
     @Test
-    @WithUserDetails("admin")
     @Ignore
     /*
         This test is ignored because index hashTable that is used from server side is empty and
@@ -334,14 +283,14 @@ public class ConfigurationManagementControllerTest
         GenericParser<Storage> parser = new GenericParser<>(Storage.class);
         String serializedStorage = parser.serialize(storage2);
 
-        RestAssuredMockMvc.given()
-                          .contentType(MediaType.TEXT_PLAIN_VALUE)
-                          .body(serializedStorage)
-                          .when()
-                          .put(url)
-                          .peek() // Use peek() to print the ouput
-                          .then()
-                          .statusCode(200);
+        given()
+                .contentType(MediaType.TEXT_PLAIN_VALUE)
+                .body(serializedStorage)
+                .when()
+                .put(url)
+                .peek() // Use peek() to print the ouput
+                .then()
+                .statusCode(200);
 
         Repository r1 = new Repository(repositoryId1);
         r1.setAllowsRedeployment(true);
@@ -359,15 +308,15 @@ public class ConfigurationManagementControllerTest
 
         url = getContextBaseUrl() + "/configuration/strongbox/proxy-configuration";
 
-        RestAssuredMockMvc.given()
-                          .contentType(MediaType.APPLICATION_XML_VALUE)
-                          .params("storageId", storageId, "repositoryId", repositoryId1)
-                          .when()
-                          .get(url)
-                          .peek() // Use peek() to print the ouput
-                          .then()
-                          .statusCode(200)
-                          .extract();
+        given()
+                .contentType(MediaType.APPLICATION_XML_VALUE)
+                .params("storageId", storageId, "repositoryId", repositoryId1)
+                .when()
+                .get(url)
+                .peek() // Use peek() to print the ouput
+                .then()
+                .statusCode(200)
+                .extract();
 
         Storage storage = getStorage(storageId);
 
@@ -379,31 +328,30 @@ public class ConfigurationManagementControllerTest
         url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId + "/" + repositoryId1;
         logger.debug(url);
 
-        RestAssuredMockMvc.given()
-                          .contentType(MediaType.TEXT_PLAIN_VALUE)
-                          .param("force", true)
-                          .when()
-                          .delete(url)
-                          .peek() // Use peek() to print the ouput
-                          .then()
-                          .statusCode(200);
+        given()
+                .contentType(MediaType.TEXT_PLAIN_VALUE)
+                .param("force", true)
+                .when()
+                .delete(url)
+                .peek() // Use peek() to print the ouput
+                .then()
+                .statusCode(200);
 
         url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId + "/" + repositoryId1;
 
         logger.debug(storageId);
         logger.debug(repositoryId1);
 
-        RestAssuredMockMvc.given()
-                          .contentType(MediaType.TEXT_PLAIN_VALUE)
-                          .when()
-                          .get(url)
-                          .peek() // Use peek() to print the ouput
-                          .then()
-                          .statusCode(404);
+        given()
+                .contentType(MediaType.TEXT_PLAIN_VALUE)
+                .when()
+                .get(url)
+                .peek() // Use peek() to print the ouput
+                .then()
+                .statusCode(404);
     }
 
     @Test
-    @WithUserDetails("admin")
     public void testGetAndSetConfiguration()
             throws IOException, JAXBException
     {
@@ -418,13 +366,13 @@ public class ConfigurationManagementControllerTest
         GenericParser<Configuration> parser2 = new GenericParser<>(Configuration.class);
         String serializedConfiguration = parser2.serialize(configuration);
 
-        RestAssuredMockMvc.given()
-                          .contentType(MediaType.TEXT_PLAIN_VALUE)
-                          .body(serializedConfiguration)
-                          .when()
-                          .put(url)
-                          .then()
-                          .statusCode(200);
+        given()
+                .contentType(MediaType.TEXT_PLAIN_VALUE)
+                .body(serializedConfiguration)
+                .when()
+                .put(url)
+                .then()
+                .statusCode(200);
 
         final Configuration c = getConfiguration();
         Assert.assertNotNull("Failed to create storage3!", c.getStorage("storage3"));
@@ -437,13 +385,13 @@ public class ConfigurationManagementControllerTest
     {
         String url = getContextBaseUrl() + "/configuration/strongbox/xml";
 
-        String response = RestAssuredMockMvc.given()
-                                            .contentType(MediaType.TEXT_PLAIN_VALUE)
-                                            .when()
-                                            .get(url)
-                                            .then()
-                                            .statusCode(200)
-                                            .extract().response().getBody().asString();
+        String response = given()
+                                  .contentType(MediaType.TEXT_PLAIN_VALUE)
+                                  .when()
+                                  .get(url)
+                                  .then()
+                                  .statusCode(200)
+                                  .extract().response().getBody().asString();
 
         GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
         Configuration configuration = parser.deserialize(response);
@@ -467,12 +415,12 @@ public class ConfigurationManagementControllerTest
 
         String url = getContextBaseUrl() + "/configuration/strongbox/routing/rules/set/accepted/group-releases-2";
 
-        RestAssuredMockMvc.given()
-                          .contentType(MediaType.APPLICATION_JSON_VALUE)
-                          .when()
-                          .delete(url)
-                          .then()
-                          .statusCode(200);
+        given()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when()
+                .delete(url)
+                .then()
+                .statusCode(200);
     }
 
     @Test
@@ -493,12 +441,12 @@ public class ConfigurationManagementControllerTest
         String url = getContextBaseUrl() +
                      "/configuration/strongbox/routing/rules/accepted/group-releases-2/repositories/releases3?pattern=.*some.test";
 
-        RestAssuredMockMvc.given()
-                          .contentType(MediaType.APPLICATION_JSON_VALUE)
-                          .when()
-                          .delete(url)
-                          .then()
-                          .statusCode(200);
+        given()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when()
+                .delete(url)
+                .then()
+                .statusCode(200);
 
     }
 
@@ -530,13 +478,13 @@ public class ConfigurationManagementControllerTest
             e.printStackTrace();
         }
 
-        RestAssuredMockMvc.given()
-                          .contentType(MediaType.APPLICATION_JSON_VALUE)
-                          .body(serialezeRoutingRule)
-                          .when()
-                          .put(url)
-                          .then()
-                          .statusCode(200);
+        given()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(serialezeRoutingRule)
+                .when()
+                .put(url)
+                .then()
+                .statusCode(200);
     }
 
     private void acceptedRuleSet()
@@ -568,13 +516,13 @@ public class ConfigurationManagementControllerTest
             e.printStackTrace();
         }
 
-        RestAssuredMockMvc.given()
-                          .contentType(MediaType.TEXT_PLAIN_VALUE)
-                          .body(serializeRuleSet)
-                          .when()
-                          .put(url)
-                          .then()
-                          .statusCode(200);
+        given()
+                .contentType(MediaType.TEXT_PLAIN_VALUE)
+                .body(serializeRuleSet)
+                .when()
+                .put(url)
+                .then()
+                .statusCode(200);
     }
 
     private void acceptedRepository()
@@ -601,13 +549,13 @@ public class ConfigurationManagementControllerTest
             e.printStackTrace();
         }
 
-        RestAssuredMockMvc.given()
-                          .contentType(MediaType.TEXT_PLAIN_VALUE)
-                          .body(serialezeRoutingRule)
-                          .when()
-                          .put(url)
-                          .then()
-                          .statusCode(200);
+        given()
+                .contentType(MediaType.TEXT_PLAIN_VALUE)
+                .body(serialezeRoutingRule)
+                .when()
+                .put(url)
+                .then()
+                .statusCode(200);
     }
 
     private ProxyConfiguration createProxyConfiguration()
