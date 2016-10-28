@@ -90,9 +90,7 @@ public class ArtifactController
         try
         {
             String path = convertRequestToPath(ROOT_CONTEXT, request, storageId, repositoryId);
-
-            InputStream is = request.getInputStream();
-            getArtifactManagementService().store(storageId, repositoryId, path, is);
+            getArtifactManagementService().store(storageId, repositoryId, path, request.getInputStream());
 
             return ResponseEntity.ok("The artifact was deployed successfully.");
         }
@@ -189,10 +187,9 @@ public class ArtifactController
             response.flushBuffer();
             inputStream.close();
         }
-        catch (final IOException e)
+        catch (IOException e)
         {
-            logger.error(e);
-            throw new IllegalStateException(e);
+            throw new RuntimeException("Unable copy to response", e);
         }
     }
 

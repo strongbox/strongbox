@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.rest;
 
-import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import org.carlspring.strongbox.rest.context.RestAssuredTest;
 import org.carlspring.strongbox.security.Role;
 import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.security.AuthorizationConfig;
@@ -12,28 +12,19 @@ import javax.xml.bind.JAXBException;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 
+@RestAssuredTest
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = WebConfig.class)
-@WebAppConfiguration
-@WithUserDetails("admin")
 public class AuthorizationConfigControllerTest
         extends RestAssuredBaseTest
 {
-
-    private final GenericParser<AuthorizationConfig> configGenericParser = new GenericParser<>(AuthorizationConfig.class);
 
     @Autowired
     AuthorizationConfigProvider configProvider;
@@ -41,11 +32,8 @@ public class AuthorizationConfigControllerTest
     @Autowired
     OObjectDatabaseTx databaseTx;
 
-    @Autowired
-    ObjectMapper objectMapper;
-
     @Test
-    public synchronized void testThatRoleCouldBeAdded()
+    public void testThatRoleCouldBeAdded()
             throws Exception
     {
         // prepare new role
@@ -71,6 +59,7 @@ public class AuthorizationConfigControllerTest
     public void testThatConfigCouldBeSerialized()
             throws Exception
     {
+        final GenericParser<AuthorizationConfig> configGenericParser = new GenericParser<>(AuthorizationConfig.class);
         configProvider.getConfig().ifPresent(
                 authorizationConfig ->
                 {
@@ -86,11 +75,10 @@ public class AuthorizationConfigControllerTest
     }
 
     @Test
-    public synchronized void testThatConfigXMLCouldBeDownloaded()
+    public void testThatConfigXMLCouldBeDownloaded()
             throws Exception
     {
         RestAssuredMockMvc.given()
-                          .contentType(ContentType.JSON)
                           .when()
                           .get("/configuration/authorization/xml")
                           .peek() // Use peek() to print the ouput

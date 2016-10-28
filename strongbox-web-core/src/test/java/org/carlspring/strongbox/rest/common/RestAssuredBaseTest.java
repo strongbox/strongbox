@@ -8,6 +8,7 @@ import org.carlspring.strongbox.users.domain.Roles;
 import java.io.File;
 import java.util.Collection;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.After;
 import org.junit.Before;
@@ -46,6 +47,9 @@ public abstract class RestAssuredBaseTest
 
     @Autowired
     protected RestAssuredArtifactClient client;
+
+    @Autowired
+    protected ObjectMapper objectMapper;
 
     private String host;
 
