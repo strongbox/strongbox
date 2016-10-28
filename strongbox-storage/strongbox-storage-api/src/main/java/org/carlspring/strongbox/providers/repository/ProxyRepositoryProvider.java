@@ -2,12 +2,10 @@ package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.commons.io.resource.ResourceCloser;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.client.MavenArtifactClient;
+import org.carlspring.strongbox.client.ArtifactResolver;
 import org.carlspring.strongbox.io.ArtifactFile;
 import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.storage.Storage;
@@ -74,16 +72,14 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
 
         Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
 
-        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getImplementation());
+        File file = new File(repository.getBasedir(), artifactPath);
 
-        ArtifactCoordinates coordinates = (ArtifactCoordinates) layoutProvider.getArtifactCoordinates(artifactPath);
+        logger.debug(" -> Checking for " + file.getCanonicalPath() + "...");
 
-        ArtifactFile artifactFile = new ArtifactFile(repository, coordinates, true);
-
-        logger.debug(" -> Checking for " + artifactFile.getCanonicalPath() + "...");
-
-        if (artifactFile.exists())
+        if (file.exists())
         {
+            ArtifactFile artifactFile = new ArtifactFile(file);
+
             logger.debug("The artifact was found in the local cache.");
             logger.debug("Resolved " + artifactFile.getCanonicalPath() + "!");
 
@@ -96,9 +92,11 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
         {
             logger.debug("The artifact was not found in the local cache.");
 
+            ArtifactFile artifactFile = new ArtifactFile(repository, artifactPath, true);
+
             RemoteRepository remoteRepository = repository.getRemoteRepository();
 
-            MavenArtifactClient client = new MavenArtifactClient(proxyRepositoryConnectionPoolConfigurationService.getClient());
+            ArtifactResolver client = new ArtifactResolver(proxyRepositoryConnectionPoolConfigurationService.getClient());
             client.setRepositoryBaseUrl(remoteRepository.getUrl());
             client.setUsername(remoteRepository.getUsername());
             client.setPassword(remoteRepository.getPassword());
@@ -140,14 +138,14 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
             ResourceCloser.close(remoteIs, logger);
             ResourceCloser.close(client, logger);
 
-            artifactFile.moveTempFileToOriginalDestination();
-
             // TODO: Add a policy for validating the checksums of downloaded artifacts
             // TODO: Validate the local checksum against the remote's checksums
 
+            artifactFile.moveTempFileToOriginalDestination();
+
             // 1 b) If it exists on the remote, serve the downloaded artifact
 
-            ArtifactInputStream ais = new ArtifactInputStream(new FileInputStream(artifactFile));
+            ArtifactInputStream ais = new ArtifactInputStream(new FileInputStream(file));
             ais.setLength(artifactFile.length());
 
             return ais;

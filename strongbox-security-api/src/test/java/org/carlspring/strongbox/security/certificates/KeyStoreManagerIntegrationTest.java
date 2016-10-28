@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.security.certificates;
 
-import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
 import org.carlspring.strongbox.net.ConnectionChecker;
 import org.carlspring.strongbox.testing.AssignedPorts;
 
@@ -20,11 +19,10 @@ import java.security.cert.X509Certificate;
 import java.util.Map;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertEquals;
@@ -32,13 +30,11 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
-public class KeyStoresTest
+public class KeyStoreManagerIntegrationTest
 {
 
     @org.springframework.context.annotation.Configuration
-    @Import({
-            StrongboxSecurityConfig.class
-    })
+    @ComponentScan(basePackages = { "org.carlspring.strongbox.security", "org.carlspring.strongbox.testing"})
     public static class SpringConfig { }
 
 
@@ -69,6 +65,9 @@ public class KeyStoresTest
 
     private File f;
 
+    @Autowired
+    KeyStoreManager keyStoreManager;
+
 
     @Before
     public void init()
@@ -85,7 +84,6 @@ public class KeyStoresTest
         LDAPS_PORT = assignedPorts.getPort("port.unboundid");
     }
 
-    @Ignore    
     @Test
     public void testWithoutProxy()
             throws IOException,
@@ -94,15 +92,15 @@ public class KeyStoresTest
                    KeyStoreException,
                    KeyManagementException
     {
-        KeyStores.createNew(f, KEYSTORE_PASSWORD.toCharArray());
-        final KeyStore ks = KeyStores.addCertificates(f,
-                                                      KEYSTORE_PASSWORD.toCharArray(),
-                                                      InetAddress.getLocalHost(),
-                                                      LDAPS_PORT);
+        keyStoreManager.createNew(f, KEYSTORE_PASSWORD.toCharArray());
+        final KeyStore ks = keyStoreManager.addCertificates(f,
+                                                            KEYSTORE_PASSWORD.toCharArray(),
+                                                            InetAddress.getLocalHost(),
+                                                            LDAPS_PORT);
 
         assertEquals("localhost should have three certificates in the chain", 1, ks.size());
 
-        Map<String, Certificate> certs = KeyStores.listCertificates(f, KEYSTORE_PASSWORD.toCharArray());
+        Map<String, Certificate> certs = keyStoreManager.listCertificates(f, KEYSTORE_PASSWORD.toCharArray());
         for (final Map.Entry<String, Certificate> cert : certs.entrySet())
         {
             System.out.println(cert.getKey() + " : " + ((X509Certificate)cert.getValue()).getSubjectDN());
@@ -110,15 +108,13 @@ public class KeyStoresTest
 
         final String newPassword = "newpassword";
 
-        KeyStores.changePassword(f, KEYSTORE_PASSWORD.toCharArray(), newPassword.toCharArray());
-        KeyStores.removeCertificates(f, newPassword.toCharArray(), InetAddress.getLocalHost(), LDAPS_PORT );
-        certs = KeyStores.listCertificates(f, newPassword.toCharArray());
+        keyStoreManager.changePassword(f, KEYSTORE_PASSWORD.toCharArray(), newPassword.toCharArray());
+        keyStoreManager.removeCertificates(f, newPassword.toCharArray(), InetAddress.getLocalHost(), LDAPS_PORT );
+        certs = keyStoreManager.listCertificates(f, newPassword.toCharArray());
 
         assertTrue(certs.isEmpty());
     }
 
-    // TODO: This test case needs to be fixed!
-    @Ignore
     @Test
     public void testSocksProxy()
             throws IOException,
@@ -133,17 +129,17 @@ public class KeyStoresTest
             return;
         }
 
-        KeyStores.createNew(f, KEYSTORE_PASSWORD.toCharArray());
-        final KeyStore ks = KeyStores.addSslCertificates(f,
-                                                         KEYSTORE_PASSWORD.toCharArray(),
-                                                         PROXY_SOCKS,
-                                                         credentials,
-                                                         "google.com",
-                                                         443);
+        keyStoreManager.createNew(f, KEYSTORE_PASSWORD.toCharArray());
+        final KeyStore ks = keyStoreManager.addSslCertificates(f,
+                                                               KEYSTORE_PASSWORD.toCharArray(),
+                                                               PROXY_SOCKS,
+                                                               credentials,
+                                                               "google.com",
+                                                               443);
 
         assertEquals("localhost should have one certificate in the chain", 1, ks.size());
 
-        Map<String, Certificate> certs = KeyStores.listCertificates(f, KEYSTORE_PASSWORD.toCharArray());
+        Map<String, Certificate> certs = keyStoreManager.listCertificates(f, KEYSTORE_PASSWORD.toCharArray());
         for (final Map.Entry<String, Certificate> cert : certs.entrySet())
         {
             System.out.println(cert.getKey() + " : " + ((X509Certificate) cert.getValue()).getSubjectDN());
@@ -151,14 +147,14 @@ public class KeyStoresTest
 
         final String newPassword = "newpassword";
 
-        KeyStores.changePassword(f, KEYSTORE_PASSWORD.toCharArray(), newPassword.toCharArray());
-        KeyStores.removeCertificates(f, newPassword.toCharArray(), InetAddress.getLocalHost(), LDAPS_PORT);
-        certs = KeyStores.listCertificates(f, newPassword.toCharArray());
+        keyStoreManager.changePassword(f, KEYSTORE_PASSWORD.toCharArray(), newPassword.toCharArray());
+        keyStoreManager.removeCertificates(f, newPassword.toCharArray(), InetAddress.getLocalHost(), LDAPS_PORT);
+        certs = keyStoreManager.listCertificates(f, newPassword.toCharArray());
 
         assertTrue(certs.isEmpty());
     }
 
-    @Ignore    
+    // @Ignore
     @Test
     public void testHttpProxy()
             throws IOException,
@@ -175,17 +171,17 @@ public class KeyStoresTest
 
         System.out.println("Executing HTTP proxy test...");
 
-        KeyStores.createNew(f, KEYSTORE_PASSWORD.toCharArray());
-        final KeyStore ks = KeyStores.addHttpsCertificates(f,
-                                                           KEYSTORE_PASSWORD.toCharArray(),
-                                                           PROXY_HTTP,
-                                                           credentials,
-                                                           "google.com",
-                                                           443);
+        keyStoreManager.createNew(f, KEYSTORE_PASSWORD.toCharArray());
+        final KeyStore ks = keyStoreManager.addHttpsCertificates(f,
+                                                                 KEYSTORE_PASSWORD.toCharArray(),
+                                                                 PROXY_HTTP,
+                                                                 credentials,
+                                                                 "google.com",
+                                                                 443);
 
         assertEquals("google.com should have three certificate in the chain", 3, ks.size());
 
-        Map<String, Certificate> certs = KeyStores.listCertificates(f, KEYSTORE_PASSWORD.toCharArray());
+        Map<String, Certificate> certs = keyStoreManager.listCertificates(f, KEYSTORE_PASSWORD.toCharArray());
         for (final Map.Entry<String, Certificate> cert : certs.entrySet())
         {
             System.out.println(cert.getKey() + " : " + ((X509Certificate) cert.getValue()).getSubjectDN());

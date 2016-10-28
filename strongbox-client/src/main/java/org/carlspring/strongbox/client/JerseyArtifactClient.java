@@ -400,8 +400,16 @@ public class JerseyArtifactClient
         }
     }
 
+    private String escapeUrl(String path)
+    {
+        String baseUrl = getContextBaseUrl() + (getContextBaseUrl().endsWith("/") ? "" : "/");
+        String p = (path.startsWith("/") ? path.substring(1, path.length()) : path);
+
+        return baseUrl + p;
+    }
+
     public void handleFailures(Response response,
-                               String message)
+                                String message)
             throws ArtifactOperationException, AuthenticationServiceException
     {
 
@@ -453,6 +461,25 @@ public class JerseyArtifactClient
         {
             throw new ServerErrorException("Unable to setup authentication", Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public Metadata retrieveMetadata(String path)
+            throws ArtifactTransportException, IOException, XmlPullParserException
+    {
+        if (pathExists(path))
+        {
+            InputStream is = getResource(path);
+            try
+            {
+                MetadataXpp3Reader reader = new MetadataXpp3Reader();
+                return reader.read(is);
+            }
+            finally
+            {
+                is.close();
+            }
+        }
+        return null;
     }
 
     public String getProtocol()

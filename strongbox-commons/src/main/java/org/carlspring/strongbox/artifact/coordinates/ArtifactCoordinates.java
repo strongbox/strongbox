@@ -30,4 +30,6 @@ public interface ArtifactCoordinates
 
     void setCoordinates(Map<String, String> coordinates);
 
+    void dump();
+
 }

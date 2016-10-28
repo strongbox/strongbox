@@ -9,12 +9,7 @@ import java.util.List;
 
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.OServerMain;
-import com.orientechnologies.orient.server.config.OServerConfiguration;
-import com.orientechnologies.orient.server.config.OServerEntryConfiguration;
-import com.orientechnologies.orient.server.config.OServerNetworkConfiguration;
-import com.orientechnologies.orient.server.config.OServerNetworkListenerConfiguration;
-import com.orientechnologies.orient.server.config.OServerNetworkProtocolConfiguration;
-import com.orientechnologies.orient.server.config.OServerUserConfiguration;
+import com.orientechnologies.orient.server.config.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,12 +38,17 @@ public class EmbeddedOrientDbServer
     public void init()
             throws Exception
     {
+        if (server != null)
+        {
+            return;
+        }
+
         server = OServerMain.create();
         serverConfiguration = new OServerConfiguration();
 
         OServerNetworkListenerConfiguration binaryListener = new OServerNetworkListenerConfiguration();
         binaryListener.ipAddress = "0.0.0.0";
-        binaryListener.portRange = "2424-2430";
+        binaryListener.portRange = "2424-2500";
         binaryListener.protocol = "binary";
         binaryListener.socket = "default";
 

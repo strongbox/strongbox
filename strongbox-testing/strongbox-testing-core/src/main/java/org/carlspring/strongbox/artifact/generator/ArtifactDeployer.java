@@ -268,8 +268,7 @@ public class ArtifactDeployer
             final String extensionForAlgorithm = EncryptionAlgorithmsEnum.fromAlgorithm(algorithm).getExtension();
 
             String artifactToPath = ArtifactUtils.convertArtifactToPath(artifact) + extensionForAlgorithm;
-            String url =
-                    client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + artifactToPath;
+            String url = client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + artifactToPath;
             String artifactFileName = getArtifactFileName(artifact) + extensionForAlgorithm;
 
             client.deployFile(bais, url, artifactFileName);
