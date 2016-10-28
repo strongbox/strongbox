@@ -3,6 +3,7 @@ package org.carlspring.strongbox.rest.client;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.client.BaseArtifactClient;
+import org.carlspring.strongbox.client.IArtifactClient;
 import org.carlspring.strongbox.rest.ArtifactController;
 
 import javax.xml.bind.JAXBException;
@@ -22,7 +23,7 @@ import org.springframework.stereotype.Component;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 
 /**
- * Implementation of {@link org.carlspring.strongbox.client.ArtifactClient} for rest-assured tests.
+ * Implementation of {@link IArtifactClient} for rest-assured tests.
  *
  * @author Alex Oreshkevich
  */

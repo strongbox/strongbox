@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
  * @author Alex Oreshkevich
  */
 public abstract class BaseArtifactClient
-        implements ArtifactClient
+        implements IArtifactClient
 {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
