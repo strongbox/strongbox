@@ -24,10 +24,11 @@ import java.io.InputStream;
 /**
  * @author mtodorov
  */
-public class MavenArtifactClient implements Closeable
+public class ArtifactResolver
+        implements Closeable
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(MavenArtifactClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactResolver.class);
 
     private String repositoryBaseUrl;
 
@@ -37,22 +38,23 @@ public class MavenArtifactClient implements Closeable
 
     private Client client;
 
-    public MavenArtifactClient(Client client)
+
+    public ArtifactResolver(Client client)
     {
         this.client = client;
     }
 
-    public static MavenArtifactClient getTestInstance(Client client,
-                                                      String repositoryBaseUrl,
-                                                      String username,
-                                                      String password)
+    public static ArtifactResolver getTestInstance(Client client,
+                                                   String repositoryBaseUrl,
+                                                   String username,
+                                                   String password)
     {
-        MavenArtifactClient mavenArtifactClient = new MavenArtifactClient(client);
-        mavenArtifactClient.setUsername(username);
-        mavenArtifactClient.setPassword(password);
-        mavenArtifactClient.setRepositoryBaseUrl(repositoryBaseUrl);
+        ArtifactResolver resolver = new ArtifactResolver(client);
+        resolver.setUsername(username);
+        resolver.setPassword(password);
+        resolver.setRepositoryBaseUrl(repositoryBaseUrl);
 
-        return mavenArtifactClient;
+        return resolver;
     }
 
     public Client getClientInstance()

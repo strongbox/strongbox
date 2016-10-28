@@ -7,6 +7,8 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author mtodorov
@@ -15,19 +17,43 @@ public class ArtifactFile
         extends File
 {
 
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactFile.class);
+
     private Repository repository;
 
     private ArtifactCoordinates artifactCoordinates;
 
-    private long temporaryTimestamp;
+    private long temporaryTimestamp = System.nanoTime();
 
     private boolean temporaryMode;
+
+    /**
+     * This is to only be used internally in case the artifact coordinates have not been passed in.
+     */
+    private String relativePath;
 
 
     public ArtifactFile(Repository repository,
                         ArtifactCoordinates artifactCoordinates)
     {
         this(repository, artifactCoordinates, false);
+    }
+
+    public ArtifactFile(Repository repository,
+                        String path)
+    {
+        this(repository, path, false);
+    }
+
+    public ArtifactFile(Repository repository,
+                        String path,
+                        boolean temporaryMode)
+    {
+        this(new File(repository.getBasedir(), path));
+
+        this.repository = repository;
+        this.relativePath = path;
+        this.temporaryMode = temporaryMode;
     }
 
     public ArtifactFile(Repository repository,
@@ -39,7 +65,6 @@ public class ArtifactFile
         this.repository = repository;
         this.artifactCoordinates = artifactCoordinates;
         this.temporaryMode = temporaryMode;
-        this.temporaryTimestamp = System.currentTimeMillis();
     }
 
     public ArtifactFile(File file)
@@ -49,10 +74,14 @@ public class ArtifactFile
 
     public ArtifactFile getTemporaryFile()
     {
-        return new ArtifactFile(new File(repository.getBasedir() +
-                                         "/.temp/" +
-                                         artifactCoordinates.toPath() +
-                                         "." + temporaryTimestamp));
+        File tempFile = new File(repository.getBasedir() +
+                                 "/.temp/" +
+                                 (artifactCoordinates != null ? artifactCoordinates.toPath() : relativePath) +
+                                 "." + temporaryTimestamp);
+
+        // logger.debug("Creating temporary file '" +tempFile.getAbsolutePath() + "'...");
+
+        return new ArtifactFile(tempFile);
     }
 
     public void createParents()
@@ -88,6 +117,8 @@ public class ArtifactFile
         {
             FileUtils.forceDelete(this);
         }
+
+        // logger.debug("Moving temporary file '" + getTemporaryFile().getAbsolutePath() + "' to '" + this.getAbsolutePath() + "'...");
 
         FileUtils.moveFile(getTemporaryFile(), this);
     }

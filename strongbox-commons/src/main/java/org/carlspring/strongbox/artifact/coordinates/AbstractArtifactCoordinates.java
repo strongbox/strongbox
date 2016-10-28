@@ -29,6 +29,17 @@ public abstract class AbstractArtifactCoordinates implements ArtifactCoordinates
         }
     }
 
+    @Override
+    public void dump()
+    {
+        for (String coordinateName : coordinates.keySet())
+        {
+            String coordinateValue = coordinates.get(coordinateName);
+
+            System.out.println(coordinateName + " : " + coordinateValue);
+        }
+    }
+
     public void defineCoordinate(String coordinate)
     {
         coordinates.put(coordinate, null);

@@ -2,6 +2,9 @@ package org.carlspring.strongbox.client;
 
 import org.carlspring.strongbox.config.ClientConfig;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
+
+import java.io.IOException;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,9 +15,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import java.io.IOException;
-
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -22,10 +22,10 @@ import static org.junit.Assert.assertEquals;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
-public class MavenArtifactClientIntegrationTest
+public class ArtifactResolverIntegrationTest
 {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MavenArtifactClientIntegrationTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactResolverIntegrationTest.class);
 
     @Configuration
     @Import({ClientConfig.class})
@@ -33,7 +33,7 @@ public class MavenArtifactClientIntegrationTest
     {
     }
 
-    private MavenArtifactClient mavenArtifactClient;
+    private ArtifactResolver artifactResolver;
 
     // fake url
     private String repositoryUrl = "https://repo.maven.apache.org/maven2/";
@@ -44,7 +44,7 @@ public class MavenArtifactClientIntegrationTest
     @Before
     public void setUp()
     {
-        mavenArtifactClient = MavenArtifactClient
+        artifactResolver = ArtifactResolver
                 .getTestInstance(proxyRepositoryConnectionPoolConfigurationService.getClient(), repositoryUrl, null,
                         null);
     }
@@ -55,7 +55,7 @@ public class MavenArtifactClientIntegrationTest
         MultiHttpClientConnThread[] threads = new MultiHttpClientConnThread[10];
         for (int i = 0; i < threads.length; i++)
         {
-            threads[i] = new MultiHttpClientConnThread(mavenArtifactClient, repositoryUrl);
+            threads[i] = new MultiHttpClientConnThread(artifactResolver, repositoryUrl);
             threads[i].start();
         }
 
@@ -71,13 +71,14 @@ public class MavenArtifactClientIntegrationTest
     public static final class MultiHttpClientConnThread extends Thread
     {
 
-        private MavenArtifactClient mavenArtifactClient;
+        private ArtifactResolver artifactResolver;
 
         private String url;
 
-        public MultiHttpClientConnThread(MavenArtifactClient mavenArtifactClient, String url)
+        public MultiHttpClientConnThread(ArtifactResolver artifactResolver,
+                                         String url)
         {
-            this.mavenArtifactClient = mavenArtifactClient;
+            this.artifactResolver = artifactResolver;
             this.url = url;
         }
 
@@ -86,7 +87,7 @@ public class MavenArtifactClientIntegrationTest
         {
             try
             {
-                mavenArtifactClient.getResource(url);
+                artifactResolver.getResource(url);
             }
             catch (ArtifactTransportException e)
             {

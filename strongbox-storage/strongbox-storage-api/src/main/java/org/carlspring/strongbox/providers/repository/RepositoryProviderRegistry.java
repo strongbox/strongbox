@@ -1,12 +1,13 @@
 package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.strongbox.providers.AbstractMappedProviderRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * @author carlspring
@@ -27,6 +28,15 @@ public class RepositoryProviderRegistry extends AbstractMappedProviderRegistry<R
     public void initialize()
     {
         logger.info("Initialized the repository provider registry.");
+    }
+
+    public void dump()
+    {
+        logger.debug("Listing repository providers:");
+        for (String providerName : getProviders().keySet())
+        {
+            logger.debug(" provider: " + providerName);
+        }
     }
 
     /**

@@ -11,7 +11,7 @@ import org.apache.maven.artifact.repository.metadata.Metadata;
  *
  * @author Alex Oreshkevich
  */
-public interface ArtifactClient
+public interface IArtifactClient    // named with I prefix because of existing ArtifactClient class in master branch
 {
 
     void addMetadata(Metadata metadata,

@@ -427,5 +427,25 @@ public class Repository
     {
         this.allowsDirectoryBrowsing = allowsDirectoryBrowsing;
     }
-    
+
+    public boolean isHostedRepository()
+    {
+        return getType().equals(RepositoryTypeEnum.HOSTED.getType());
+    }
+
+    public boolean isProxyRepository()
+    {
+        return getType().equals(RepositoryTypeEnum.PROXY.getType());
+    }
+
+    public boolean isGroupRepository()
+    {
+        return getType().equals(RepositoryTypeEnum.GROUP.getType());
+    }
+
+    public boolean isVirtualRepository()
+    {
+        return getType().equals(RepositoryTypeEnum.VIRTUAL.getType());
+    }
+
 }
