@@ -29,11 +29,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author mtodorov
@@ -188,20 +184,16 @@ public class ConfigurationManagementController
         return ResponseEntity.ok(configurationManagementService.getPort());
     }
 
-    @ApiOperation(
-            value = "Updates the proxy configuration for a repository, if one is specified, or, otherwise, the global proxy settings.")
+    @ApiOperation(value = "Updates the proxy configuration for a repository, if one is specified, or, otherwise, the global proxy settings.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The proxy configuration was updated successfully."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_SET_GLOBAL_PROXY_CFG')")
-    @RequestMapping(value = "/proxy-configuration", method = RequestMethod.PUT,
-            consumes = MediaType.TEXT_PLAIN_VALUE
-    )
-    public ResponseEntity setProxyConfiguration(@RequestParam(value = "storageId", required = false)
-                                                        String storageId,
-                                                @RequestParam(value = "repositoryId", required = false)
-                                                        String repositoryId,
+    @RequestMapping(value = "/proxy-configuration", method = RequestMethod.PUT, consumes = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity setProxyConfiguration(@RequestParam(value = "storageId", required = false) String storageId,
+                                                @RequestParam(value = "repositoryId", required = false) String repositoryId,
                                                 @RequestBody String serializedProxyConfiguration)
-            throws IOException, JAXBException
+            throws IOException,
+                   JAXBException
     {
         GenericParser<ProxyConfiguration> parser = new GenericParser<>(ProxyConfiguration.class);
         ProxyConfiguration proxyConfiguration = parser.deserialize(serializedProxyConfiguration);
@@ -221,20 +213,14 @@ public class ConfigurationManagementController
         }
     }
 
-    @ApiOperation(
-            value = "Returns the proxy configuration for a repository, if one is specified, or, otherwise, the global proxy settings.")
+    @ApiOperation(value = "Returns the proxy configuration for a repository, if one is specified, or, otherwise, the global proxy settings.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
-                            @ApiResponse(code = 404,
-                                    message = "The proxy configuration for '${storageId}:${repositoryId}' was not found.") })
+                            @ApiResponse(code = 404, message = "The proxy configuration for '${storageId}:${repositoryId}' was not found.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_GLOBAL_PROXY_CFG')")
     @RequestMapping(value = "/proxy-configuration", method = RequestMethod.GET,
             produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity getProxyConfiguration(@RequestParam(value = "storageId",
-            required = false)
-                                                        String storageId,
-                                                @RequestParam(value = "repositoryId",
-                                                        required = false)
-                                                        String repositoryId)
+    public ResponseEntity getProxyConfiguration(@RequestParam(value = "storageId", required = false) String storageId,
+                                                @RequestParam(value = "repositoryId", required = false) String repositoryId)
             throws IOException, JAXBException
     {
         ProxyConfiguration proxyConfiguration;
@@ -270,13 +256,12 @@ public class ConfigurationManagementController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The storage was updated successfully."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_ADD_UPDATE_STORAGE')")
-    @RequestMapping(value = "/storages", method = RequestMethod.PUT, consumes = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity addOrUpdateStorage(@RequestBody String storage1)
+    @RequestMapping(value = "/storages",
+                    method = RequestMethod.PUT,
+                    consumes = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity addOrUpdateStorage(@RequestBody Storage storage)
             throws IOException, JAXBException
     {
-
-        GenericParser<Storage> parser = new GenericParser<>(Storage.class);
-        Storage storage = parser.deserialize(storage1);
         try
         {
             configurationManagementService.addOrUpdateStorage(storage);
@@ -335,11 +320,8 @@ public class ConfigurationManagementController
     @PreAuthorize("hasAuthority('CONFIGURATION_DELETE_STORAGE_CONFIGURATION')")
     @RequestMapping(value = "/storages/{storageId}", method = RequestMethod.DELETE,
             produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity removeStorage(
-                                               @PathVariable final String storageId,
-                                               @RequestParam(
-                                                       name = "force", defaultValue = "false", required = true)
-                                               final boolean force)
+    public ResponseEntity removeStorage(@PathVariable final String storageId,
+                                        @RequestParam(name = "force", defaultValue = "false", required = true) final boolean force)
             throws IOException, JAXBException
     {
         if (configurationManagementService.getStorage(storageId) != null)
@@ -378,18 +360,18 @@ public class ConfigurationManagementController
                             @ApiResponse(code = 404, message = "Repository ${repositoryId} not found!"),
                             @ApiResponse(code = 500, message = "Failed to remove repository ${repositoryId}!") })
     @PreAuthorize("hasAuthority('CONFIGURATION_ADD_UPDATE_REPOSITORY')")
-    @RequestMapping(value = "/storages/{storageId}/{repositoryId}", method = RequestMethod.PUT,
-            consumes = MediaType.TEXT_PLAIN_VALUE)
+    @RequestMapping(value = "/storages/{storageId}/{repositoryId}",
+                    method = RequestMethod.PUT,
+                    consumes = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity addOrUpdateRepository(@PathVariable String storageId,
                                                 @PathVariable String repositoryId,
-                                                @RequestBody String repository1)
+                                                @RequestBody Repository repository)
             throws IOException, JAXBException
     {
-        GenericParser<Repository> parser = new GenericParser<>(Repository.class);
-        Repository repository = parser.deserialize(repository1);
-
         try
         {
+            logger.debug("Creating repository " + storageId + ":" + repositoryId + "...");
+
             repository.setStorage(configurationManagementService.getStorage(storageId));
             configurationManagementService.addOrUpdateRepository(storageId, repository);
 
@@ -418,9 +400,8 @@ public class ConfigurationManagementController
     @RequestMapping(value = "/storages/{storageId}/{repositoryId}", method = RequestMethod.GET,
             produces = MediaType.TEXT_PLAIN_VALUE)
     @SuppressWarnings("UnnecessaryLocalVariable")
-    public ResponseEntity getRepository(
-                                               @PathVariable final String storageId,
-                                               @PathVariable final String repositoryId)
+    public ResponseEntity getRepository(@PathVariable final String storageId,
+                                        @PathVariable final String repositoryId)
             throws IOException, ParseException, JAXBException
     {
 
@@ -457,11 +438,9 @@ public class ConfigurationManagementController
     @PreAuthorize("hasAuthority('CONFIGURATION_DELETE_REPOSITORY')")
     @RequestMapping(value = "/storages/{storageId}/{repositoryId}", method = RequestMethod.DELETE,
             produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity removeRepository(
-                                                  @PathVariable final String storageId,
-                                                  @PathVariable final String repositoryId,
-                                                  @RequestParam(name = "force", defaultValue = "false")
-                                                          boolean force)
+    public ResponseEntity removeRepository(@PathVariable final String storageId,
+                                           @PathVariable final String repositoryId,
+                                           @RequestParam(name = "force", defaultValue = "false") boolean force)
             throws IOException
     {
         final Repository repository = configurationManagementService.getStorage(storageId).getRepository(repositoryId);

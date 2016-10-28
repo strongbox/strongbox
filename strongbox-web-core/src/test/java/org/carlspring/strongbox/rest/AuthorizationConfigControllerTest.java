@@ -50,7 +50,7 @@ public class AuthorizationConfigControllerTest
                           .body(serializedRole)
                           .when()
                           .post("/configuration/authorization/role")
-                          .peek() // Use peek() to print the ouput
+                          .peek() // Use peek() to print the output
                           .then()
                           .statusCode(200); // check http status code
     }
@@ -81,7 +81,7 @@ public class AuthorizationConfigControllerTest
         RestAssuredMockMvc.given()
                           .when()
                           .get("/configuration/authorization/xml")
-                          .peek() // Use peek() to print the ouput
+                          .peek() // Use peek() to print the output
                           .then()
                           .statusCode(200) // check http status code
                           .extract()

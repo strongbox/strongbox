@@ -16,11 +16,11 @@ import java.io.IOException;
 import java.util.*;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.HttpServerErrorException;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
@@ -38,6 +38,7 @@ import static org.junit.Assert.assertTrue;
 public class ConfigurationManagementControllerTest
         extends RestAssuredBaseTest
 {
+
     @Test
     public void testSetAndGetPort()
             throws Exception
@@ -46,28 +47,25 @@ public class ConfigurationManagementControllerTest
 
         String url = getContextBaseUrl() + "/configuration/strongbox/port/" + newPort;
 
-        int status = given()
-                             .contentType(MediaType.APPLICATION_JSON_VALUE)
-                             .when()
-                             .put(url)
-                             .then()
-                             .statusCode(200) // check http status code
-                             .extract()
-                             .statusCode();
+        int status = given().contentType(MediaType.APPLICATION_JSON_VALUE)
+                            .when()
+                            .put(url)
+                            .then()
+                            .statusCode(200) // check http status code
+                            .extract()
+                            .statusCode();
 
         url = getContextBaseUrl() + "/configuration/strongbox/port";
 
-        String port = given()
-                              .contentType(MediaType.APPLICATION_JSON_VALUE)
-                              .when()
-                              .get(url)
-                              .then()
-                              .statusCode(200) // check http status code
-                              .extract().asString();
+        String port = given().contentType(MediaType.APPLICATION_JSON_VALUE)
+                             .when()
+                             .get(url)
+                             .then()
+                             .statusCode(200) // check http status code
+                             .extract().asString();
 
         assertEquals("Failed to set port!", 200, status);
         assertEquals("Failed to get port!", newPort, Integer.parseInt(port));
-
     }
 
     @Test
@@ -78,26 +76,22 @@ public class ConfigurationManagementControllerTest
 
         String url = getContextBaseUrl() + "/configuration/strongbox/baseUrl";
 
-        given()
-                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .body(baseUrl)
-                .when()
-                .put(url)
-                .then()
-                .statusCode(200)
-                .extract();
-
+        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+               .body(baseUrl)
+               .when()
+               .put(url)
+               .then()
+               .statusCode(200)
+               .extract();
 
         url = getContextBaseUrl() + "/configuration/strongbox/baseUrl";
 
-        given()
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .when()
-                .get(url)
-                .then()
-                .statusCode(200)
-                .body("baseUrl", equalTo(baseUrl));
-
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(url)
+               .then()
+               .statusCode(200)
+               .body("baseUrl", equalTo(baseUrl));
     }
 
     @Test
@@ -112,25 +106,23 @@ public class ConfigurationManagementControllerTest
 
         String url = getContextBaseUrl() + "/configuration/strongbox/proxy-configuration";
 
-        given()
-                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .body(serializedConfig)
-                .when()
-                .put(url)
-                .then()
-                .statusCode(200);
+        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+               .body(serializedConfig)
+               .when()
+               .put(url)
+               .then()
+               .statusCode(200);
 
         url = getContextBaseUrl() + "/configuration/strongbox/proxy-configuration";
 
         logger.debug("Current proxy host: " + proxyConfiguration.getHost());
 
-        String response = given()
-                                  .contentType(MediaType.APPLICATION_XML_VALUE)
-                                  .when()
-                                  .get(url)
-                                  .then()
-                                  .statusCode(200)
-                                  .extract().response().getBody().asString();
+        String response = given().contentType(MediaType.APPLICATION_XML_VALUE)
+                                 .when()
+                                 .get(url)
+                                 .then()
+                                 .statusCode(200)
+                                 .extract().response().getBody().asString();
 
         GenericParser<ProxyConfiguration> parser2 = new GenericParser<>(ProxyConfiguration.class);
         ProxyConfiguration pc = parser2.deserialize(response);
@@ -159,13 +151,12 @@ public class ConfigurationManagementControllerTest
         GenericParser<Storage> parser = new GenericParser<>(Storage.class);
         String serializedStorage = parser.serialize(storage1);
 
-        given()
-                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .body(serializedStorage)
-                .when()
-                .put(url)
-                .then()
-                .statusCode(200);
+        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+               .body(serializedStorage)
+               .when()
+               .put(url)
+               .then()
+               .statusCode(200);
 
         Repository r1 = new Repository("repository0");
         r1.setAllowsRedeployment(true);
@@ -208,13 +199,15 @@ public class ConfigurationManagementControllerTest
 
         String url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId;
 
-        String response = given()
-                                  .contentType(MediaType.TEXT_PLAIN_VALUE)
-                                  .when()
-                                  .get(url)
-                                  .then()
-                                  .statusCode(200)
-                                  .extract().response().getBody().asString();
+        String response = given().contentType(MediaType.TEXT_PLAIN_VALUE)
+                                 .when()
+                                 .get(url)
+                                 .then()
+                                 .statusCode(200)
+                                 .extract()
+                                 .response()
+                                 .getBody()
+                                 .asString();
 
         GenericParser<Storage> parser2 = new GenericParser<>(Storage.class);
         Storage storage = parser2.deserialize(response);
@@ -250,25 +243,20 @@ public class ConfigurationManagementControllerTest
             throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        GenericParser<Repository> parser = new GenericParser<>(Repository.class);
-        String serializedRepository = parser.serialize(repository);
+        int status = given().contentType(MediaType.APPLICATION_XML_VALUE)
+                            .body(repository)
+                            .when()
+                            .put(url)
+                            .then()
+                            .statusCode(200)
+                            .extract()
+                            .statusCode();
 
-        return given()
-                       .contentType(MediaType.TEXT_PLAIN_VALUE)
-                       .body(serializedRepository)
-                       .when()
-                       .put(url)
-                       .then()
-                       .statusCode(200)
-                       .extract().statusCode();
+        return status;
     }
 
     @Test
-    @Ignore
-    /*
-        This test is ignored because index hashTable that is used from server side is empty and
-        never populated with any data. Functionality of indexes is not ready for testing yet.
-     */
+    @WithUserDetails("admin")
     public void testCreateAndDeleteStorage()
             throws IOException, JAXBException
     {
@@ -280,17 +268,13 @@ public class ConfigurationManagementControllerTest
 
         String url = getContextBaseUrl() + "/configuration/strongbox/storages";
 
-        GenericParser<Storage> parser = new GenericParser<>(Storage.class);
-        String serializedStorage = parser.serialize(storage2);
-
-        given()
-                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .body(serializedStorage)
-                .when()
-                .put(url)
-                .peek() // Use peek() to print the ouput
-                .then()
-                .statusCode(200);
+        given().contentType(MediaType.APPLICATION_XML_VALUE)
+               .body(storage2)
+               .when()
+               .put(url)
+               .peek() // Use peek() to print the ouput
+               .then()
+               .statusCode(200);
 
         Repository r1 = new Repository(repositoryId1);
         r1.setAllowsRedeployment(true);
@@ -306,17 +290,28 @@ public class ConfigurationManagementControllerTest
         addRepository(r1);
         addRepository(r2);
 
+        /*
+        final ProxyConfiguration pc = client.getProxyConfiguration(storageId, repositoryId1);
+
+        assertNotNull("Failed to get proxy configuration!", pc);
+        assertEquals("Failed to get proxy configuration!", pc.getHost(), pc.getHost());
+        assertEquals("Failed to get proxy configuration!", pc.getPort(), pc.getPort());
+        assertEquals("Failed to get proxy configuration!", pc.getUsername(), pc.getUsername());
+        assertEquals("Failed to get proxy configuration!", pc.getPassword(), pc.getPassword());
+        assertEquals("Failed to get proxy configuration!", pc.getType(), pc.getType());
+        */
+
+
         url = getContextBaseUrl() + "/configuration/strongbox/proxy-configuration";
 
-        given()
-                .contentType(MediaType.APPLICATION_XML_VALUE)
-                .params("storageId", storageId, "repositoryId", repositoryId1)
-                .when()
-                .get(url)
-                .peek() // Use peek() to print the ouput
-                .then()
-                .statusCode(200)
-                .extract();
+        given().contentType(MediaType.APPLICATION_XML_VALUE)
+               .params("storageId", storageId, "repositoryId", repositoryId1)
+               .when()
+               .get(url)
+               .peek() // Use peek() to print the ouput
+               .then()
+               .statusCode(200)
+               .extract();
 
         Storage storage = getStorage(storageId);
 
@@ -342,16 +337,16 @@ public class ConfigurationManagementControllerTest
         logger.debug(storageId);
         logger.debug(repositoryId1);
 
-        given()
-                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .when()
-                .get(url)
-                .peek() // Use peek() to print the ouput
-                .then()
-                .statusCode(404);
+        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+               .when()
+               .get(url)
+               .peek() // Use peek() to print the ouput
+               .then()
+               .statusCode(404);
     }
 
     @Test
+    @WithUserDetails("admin")
     public void testGetAndSetConfiguration()
             throws IOException, JAXBException
     {
@@ -366,17 +361,15 @@ public class ConfigurationManagementControllerTest
         GenericParser<Configuration> parser2 = new GenericParser<>(Configuration.class);
         String serializedConfiguration = parser2.serialize(configuration);
 
-        given()
-                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .body(serializedConfiguration)
-                .when()
-                .put(url)
-                .then()
-                .statusCode(200);
+        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+               .body(serializedConfiguration)
+               .when()
+               .put(url)
+               .then()
+               .statusCode(200);
 
         final Configuration c = getConfiguration();
         Assert.assertNotNull("Failed to create storage3!", c.getStorage("storage3"));
-
     }
 
 
@@ -385,13 +378,12 @@ public class ConfigurationManagementControllerTest
     {
         String url = getContextBaseUrl() + "/configuration/strongbox/xml";
 
-        String response = given()
-                                  .contentType(MediaType.TEXT_PLAIN_VALUE)
-                                  .when()
-                                  .get(url)
-                                  .then()
-                                  .statusCode(200)
-                                  .extract().response().getBody().asString();
+        String response = given().contentType(MediaType.TEXT_PLAIN_VALUE)
+                                 .when()
+                                 .get(url)
+                                 .then()
+                                 .statusCode(200)
+                                 .extract().response().getBody().asString();
 
         GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
         Configuration configuration = parser.deserialize(response);
@@ -415,12 +407,11 @@ public class ConfigurationManagementControllerTest
 
         String url = getContextBaseUrl() + "/configuration/strongbox/routing/rules/set/accepted/group-releases-2";
 
-        given()
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .when()
-                .delete(url)
-                .then()
-                .statusCode(200);
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .delete(url)
+               .then()
+               .statusCode(200);
     }
 
     @Test
@@ -441,13 +432,11 @@ public class ConfigurationManagementControllerTest
         String url = getContextBaseUrl() +
                      "/configuration/strongbox/routing/rules/accepted/group-releases-2/repositories/releases3?pattern=.*some.test";
 
-        given()
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .when()
-                .delete(url)
-                .then()
-                .statusCode(200);
-
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .delete(url)
+               .then()
+               .statusCode(200);
     }
 
     @Test
@@ -478,13 +467,12 @@ public class ConfigurationManagementControllerTest
             e.printStackTrace();
         }
 
-        given()
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(serialezeRoutingRule)
-                .when()
-                .put(url)
-                .then()
-                .statusCode(200);
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .body(serialezeRoutingRule)
+               .when()
+               .put(url)
+               .then()
+               .statusCode(200);
     }
 
     private void acceptedRuleSet()
@@ -516,13 +504,12 @@ public class ConfigurationManagementControllerTest
             e.printStackTrace();
         }
 
-        given()
-                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .body(serializeRuleSet)
-                .when()
-                .put(url)
-                .then()
-                .statusCode(200);
+        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+               .body(serializeRuleSet)
+               .when()
+               .put(url)
+               .then()
+               .statusCode(200);
     }
 
     private void acceptedRepository()
@@ -549,13 +536,12 @@ public class ConfigurationManagementControllerTest
             e.printStackTrace();
         }
 
-        given()
-                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .body(serialezeRoutingRule)
-                .when()
-                .put(url)
-                .then()
-                .statusCode(200);
+        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+               .body(serialezeRoutingRule)
+               .when()
+               .put(url)
+               .then()
+               .statusCode(200);
     }
 
     private ProxyConfiguration createProxyConfiguration()

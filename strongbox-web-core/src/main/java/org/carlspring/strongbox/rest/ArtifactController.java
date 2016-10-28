@@ -471,8 +471,7 @@ public class ArtifactController
             }
 
             getArtifactManagementService().delete(storageId, repositoryId, path, force);
-            deleteMethodFromMetadaInFS(storageId, repositoryId, path);
-
+            deleteMetadataFromFS(storageId, repositoryId, path);
         }
         catch (ArtifactStorageException e)
         {
@@ -483,9 +482,9 @@ public class ArtifactController
         return ResponseEntity.ok("The artifact was deleted.");
     }
 
-    private void deleteMethodFromMetadaInFS(String storageId,
-                                            String repositoryId,
-                                            String metadataPath)
+    private void deleteMetadataFromFS(String storageId,
+                                      String repositoryId,
+                                      String metadataPath)
     {
         Storage storage = configurationManager.getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
@@ -496,10 +495,8 @@ public class ArtifactController
             File artifactFile = new File(repoPath, metadataPath).getCanonicalFile();
             if (!artifactFile.isFile())
             {
-                String version = artifactFile.getPath().substring(
-                        artifactFile.getPath().lastIndexOf(File.separatorChar) + 1);
-                java.nio.file.Path path = Paths.get(
-                        artifactFile.getPath().substring(0, artifactFile.getPath().lastIndexOf(File.separatorChar)));
+                String version = artifactFile.getPath().substring(artifactFile.getPath().lastIndexOf(File.separatorChar) + 1);
+                java.nio.file.Path path = Paths.get(artifactFile.getPath().substring(0, artifactFile.getPath().lastIndexOf(File.separatorChar)));
 
                 Metadata metadata = getMavenMetadataManager().readMetadata(path);
                 if (metadata != null && metadata.getVersioning() != null

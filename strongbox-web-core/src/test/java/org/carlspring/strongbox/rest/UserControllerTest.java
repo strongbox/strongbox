@@ -79,7 +79,7 @@ public class UserControllerTest
                 .param("juser", test)
                 .when()
                 .post("/users/user")
-                .peek() // Use peek() to print the ouput
+                .peek() // Use peek() to print the output
                 .then()
                 .statusCode(200) // check http status code
                 .extract()
@@ -97,7 +97,7 @@ public class UserControllerTest
                         .contentType("application/json")
                         .when()
                         .get("/users/all")
-                        .peek() // Use peek() to print the ouput
+                        .peek() // Use peek() to print the output
                         .then()
                         .statusCode(200) // check http status code
                         .extract()
@@ -126,7 +126,7 @@ public class UserControllerTest
                 .param("juser", test)
                 .when()
                 .post("/users/user")
-                .peek() // Use peek() to print the ouput
+                .peek() // Use peek() to print the output
                 .then()
                 .statusCode(200) // check http status code
                 .extract()
@@ -146,7 +146,7 @@ public class UserControllerTest
                                   .param("juser", createdUser)
                                   .when()
                                   .put("/users/user")
-                                  .peek() // Use peek() to print the ouput
+                                  .peek() // Use peek() to print the output
                                   .then()
                                   .statusCode(200) // check http status code
                                   .extract()
@@ -172,7 +172,7 @@ public class UserControllerTest
                 .param("juser", test)
                 .when()
                 .post("/users/user")
-                .peek() // Use peek() to print the ouput
+                .peek() // Use peek() to print the output
                 .then()
                 .statusCode(200) // check http status code
                 .extract()
@@ -183,7 +183,7 @@ public class UserControllerTest
                 .param("The name of the user", test.getUsername())
                 .when()
                 .delete("/users/user/" + test.getUsername())
-                .peek() // Use peek() to print the ouput
+                .peek() // Use peek() to print the output
                 .then()
                 .statusCode(200) // check http status code
                 .extract()
@@ -201,7 +201,7 @@ public class UserControllerTest
                            .param("The name of the user", name)
                            .when()
                            .get("/users/user/" + name)
-                           .peek() // Use peek() to print the ouput
+                           .peek() // Use peek() to print the output
                            .then()
                            .statusCode(200) // check http status code
                            .extract()

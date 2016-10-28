@@ -48,8 +48,9 @@ public class MetadataManagementController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The metadata was successfully rebuilt!"),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('MANAGEMENT_REBUILD_METADATA')")
-    @RequestMapping(value = "{storageId}/{repositoryId}/**", method = RequestMethod.POST,
-            produces = MediaType.TEXT_PLAIN_VALUE)
+    @RequestMapping(value = "{storageId}/{repositoryId}/**",
+                    method = RequestMethod.POST,
+                    produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity rebuild(@PathVariable String storageId,
                                   @PathVariable String repositoryId,
                                   HttpServletRequest request)
@@ -76,33 +77,39 @@ public class MetadataManagementController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully removed metadata entry."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('MANAGEMENT_DELETE_METADATA')")
-    @RequestMapping(value = "{storageId}/{repositoryId}/**", method = RequestMethod.DELETE,
-            produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity delete(
-                                        @PathVariable String storageId,
-                                        @PathVariable String repositoryId,
-                                        @RequestParam(name = "version") String version,
-                                        @RequestParam(name = "classifier") String classifier,
-                                        @RequestParam(name = "metadataType") String metadataType,
-                                        HttpServletRequest request)
+    @RequestMapping(value = "{storageId}/{repositoryId}/**",
+                    method = RequestMethod.DELETE,
+                    produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity delete(@PathVariable String storageId,
+                                 @PathVariable String repositoryId,
+                                 @RequestParam(name = "version") String version,
+                                 @RequestParam(name = "classifier") String classifier,
+                                 @RequestParam(name = "metadataType") String metadataType,
+                                 HttpServletRequest request)
             throws IOException,
                    AuthenticationException,
                    NoSuchAlgorithmException,
                    XmlPullParserException
     {
-        logger.info("[delete] storageId " + storageId + " repositoryId " + repositoryId + " version " + version);
+        logger.debug("[delete] storageId " + storageId + " repositoryId " + repositoryId + " version " + version);
 
         try
         {
             String path = convertRequestToPath(ROOT_CONTEXT, request, storageId, repositoryId);
             if (ArtifactUtils.isReleaseVersion(version))
             {
-                artifactMetadataService.removeVersion(storageId, repositoryId, path, version,
+                artifactMetadataService.removeVersion(storageId,
+                                                      repositoryId,
+                                                      path,
+                                                      version,
                                                       MetadataType.from(metadataType));
             }
             else
             {
-                artifactMetadataService.removeTimestampedSnapshotVersion(storageId, repositoryId, path, version,
+                artifactMetadataService.removeTimestampedSnapshotVersion(storageId,
+                                                                         repositoryId,
+                                                                         path,
+                                                                         version,
                                                                          classifier);
             }
 

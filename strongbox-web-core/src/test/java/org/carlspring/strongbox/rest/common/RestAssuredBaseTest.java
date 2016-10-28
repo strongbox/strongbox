@@ -37,6 +37,7 @@ public abstract class RestAssuredBaseTest
 {
 
     public final static int DEFAULT_PORT = 48080;
+
     public final static String DEFAULT_HOST = "localhost";
 
     /**
@@ -64,9 +65,9 @@ public abstract class RestAssuredBaseTest
 
     private TestCaseWithArtifactGeneration generator = new TestCaseWithArtifactGeneration();
 
+
     public RestAssuredBaseTest()
     {
-
         // initialize host
         host = System.getProperty("strongbox.host");
         if (host == null)
@@ -132,7 +133,6 @@ public abstract class RestAssuredBaseTest
      */
     public static void removeDir(File file)
     {
-
         if (file == null || !file.exists())
         {
             return;
@@ -148,7 +148,6 @@ public abstract class RestAssuredBaseTest
                     removeDir(f);
                 }
             }
-
         }
 
         file.delete();
@@ -186,7 +185,13 @@ public abstract class RestAssuredBaseTest
                                                       int numberOfBuilds)
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
-        return generator.createTimestampedSnapshotArtifact(repositoryBasedir, groupId, artifactId, baseSnapshotVersion,
-                                                           packaging, classifiers, numberOfBuilds);
+        return generator.createTimestampedSnapshotArtifact(repositoryBasedir,
+                                                           groupId,
+                                                           artifactId,
+                                                           baseSnapshotVersion,
+                                                           packaging,
+                                                           classifiers,
+                                                           numberOfBuilds);
     }
+
 }

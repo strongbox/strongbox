@@ -19,9 +19,12 @@ public class RepositoryMapAdapter
             throws Exception
     {
         RepositoryMap repositoryMap = new RepositoryMap();
-        for (Map.Entry<String, Repository> entry : map.entrySet())
+        if (map != null)
         {
-            repositoryMap.getEntries().add(entry.getValue());
+            for (Map.Entry<String, Repository> entry : map.entrySet())
+            {
+                repositoryMap.getEntries().add(entry.getValue());
+            }
         }
 
         return repositoryMap;
@@ -31,12 +34,17 @@ public class RepositoryMapAdapter
     public Map<String, Repository> unmarshal(RepositoryMap repositoryMap)
             throws Exception
     {
-        List<Repository> entries = repositoryMap.getEntries();
+        Map<String, Repository> map = new LinkedHashMap<>();
 
-        Map<String, Repository> map = new LinkedHashMap<>(entries.size());
-        for (Repository repository : entries)
+        if (repositoryMap != null && repositoryMap.getEntries() != null)
         {
-            map.put(repository.getId(), repository);
+            List<Repository> entries = repositoryMap.getEntries();
+
+            map = new LinkedHashMap<>(entries.size());
+            for (Repository repository : entries)
+            {
+                map.put(repository.getId(), repository);
+            }
         }
 
         return map;

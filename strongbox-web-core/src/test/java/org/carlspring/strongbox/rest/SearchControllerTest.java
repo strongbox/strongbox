@@ -93,7 +93,7 @@ public class SearchControllerTest
                                             .header("accept", MediaType.TEXT_PLAIN_VALUE)
                                             .when()
                                             .get(url)
-                                            .peek() // Use peek() to print the ouput
+                                            .peek() // Use peek() to print the output
                                             .then()
                                             .statusCode(200).extract().response().getBody().asString();
 
