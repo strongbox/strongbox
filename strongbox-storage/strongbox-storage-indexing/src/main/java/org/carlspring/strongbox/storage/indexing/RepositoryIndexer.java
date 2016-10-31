@@ -5,11 +5,7 @@ import org.carlspring.strongbox.configuration.Configuration;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
@@ -20,16 +16,8 @@ import org.apache.lucene.util.Version;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
-import org.apache.maven.index.ArtifactContext;
-import org.apache.maven.index.ArtifactInfo;
-import org.apache.maven.index.ArtifactScanningListener;
-import org.apache.maven.index.FlatSearchRequest;
-import org.apache.maven.index.FlatSearchResponse;
-import org.apache.maven.index.Indexer;
-import org.apache.maven.index.MAVEN;
+import org.apache.maven.index.*;
 import org.apache.maven.index.Scanner;
-import org.apache.maven.index.ScanningRequest;
-import org.apache.maven.index.ScanningResult;
 import org.apache.maven.index.context.IndexCreator;
 import org.apache.maven.index.context.IndexingContext;
 import org.apache.maven.index.expr.SourcedSearchExpression;
@@ -45,7 +33,11 @@ public class RepositoryIndexer
 
     private static final Version luceneVersion = Version.LUCENE_48;
 
-    private static final String [] luceneFields = new String [] { "g", "a", "v", "p", "c" };
+    private static final String[] luceneFields = new String[]{ "g",
+                                                               "a",
+                                                               "v",
+                                                               "p",
+                                                               "c" };
 
     private static final WhitespaceAnalyzer luceneAnalyzer = new WhitespaceAnalyzer(luceneVersion);
 
@@ -290,7 +282,7 @@ public class RepositoryIndexer
                                                      artifact.getGroupId(),
                                                      artifact.getArtifactId(),
                                                      artifact.getVersion(),
-                                                     artifact.getClassifier(),
+                                                     obtainClassifier(artifact),
                                                      extension);
         if (artifact.getType() != null)
         {
@@ -303,19 +295,30 @@ public class RepositoryIndexer
                                                                               artifact.getClassifier() + ":" +
                                                                               extension,
                                                                               repositoryId,
-                                                                              artifact.getType()});
+                                                                              artifact.getType() });
 
         File pomFile = new File(artifactFile.getAbsolutePath() + ".pom");
         // TODO: Improve this to support timestamped SNAPSHOT-s:
         File metadataFile = new File(artifactFile.getParentFile().getParentFile(), "maven-metadata.xml");
 
-        getIndexer().addArtifactsToIndex(asList(new ArtifactContext(pomFile.exists()? pomFile : null,
+        getIndexer().addArtifactsToIndex(asList(new ArtifactContext(pomFile.exists() ? pomFile : null,
                                                                     artifactFile,
                                                                     metadataFile.exists() ? metadataFile : null,
                                                                     artifactInfo,
                                                                     artifactInfo.calculateGav())),
                                          indexingContext);
     }
+
+    private String obtainClassifier(Artifact artifactInfo)
+    {
+        String classifier = artifactInfo.getClassifier();
+        if (classifier == null || classifier.isEmpty() || classifier.equalsIgnoreCase("null"))
+        {
+            return null;
+        }
+        return classifier;
+    }
+
 
     private class ReindexArtifactScanningListener
             implements ArtifactScanningListener
