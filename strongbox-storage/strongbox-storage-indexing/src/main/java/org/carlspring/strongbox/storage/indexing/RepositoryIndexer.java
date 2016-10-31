@@ -292,7 +292,7 @@ public class RepositoryIndexer
         logger.debug("Adding artifact: {}; repo: {}; type: {}", new String[]{ artifact.getGroupId() + ":" +
                                                                               artifact.getArtifactId() + ":" +
                                                                               artifact.getVersion() + ":" +
-                                                                              artifact.getClassifier() + ":" +
+                                                                              artifactInfo.getClassifier() + ":" +
                                                                               extension,
                                                                               repositoryId,
                                                                               artifact.getType() });
