@@ -41,9 +41,9 @@ public class HttpConnectionPoolConfigurationManagementControllerTest
                    XmlPullParserException,
                    IOException
     {
-        File STORAGE_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0");
+        File storageBasedir = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0");
 
-        generateArtifact(STORAGE_BASEDIR.getAbsolutePath(),
+        generateArtifact(storageBasedir.getAbsolutePath(),
                          "org.carlspring.strongbox:strongbox-utils:8.2:jar",
                          "1.0");
     }
