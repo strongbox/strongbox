@@ -50,6 +50,9 @@ import static org.carlspring.strongbox.utils.ByteRangeRequestHandler.isRangedReq
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
+/**
+ * test
+ */
 @RestController
 @RequestMapping("/storages")
 public class ArtifactController
