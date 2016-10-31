@@ -28,10 +28,9 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.regex.Matcher;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.ByteStreams;
-import com.google.inject.Inject;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.apache.commons.io.FileUtils;
@@ -62,10 +61,6 @@ public class ArtifactController
     // must be the same as @RequestMapping value on the class definition
     public final static String ROOT_CONTEXT = "/storages";
 
-    @Inject
-    ObjectMapper objectMapper;
-
-
     @PreAuthorize("authenticated")
     @RequestMapping(value = "greet", method = RequestMethod.GET)
     public ResponseEntity greet()
@@ -78,7 +73,9 @@ public class ArtifactController
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
     @RequestMapping(value = "{storageId}/{repositoryId}/**", method = RequestMethod.PUT)
-    public ResponseEntity upload(@PathVariable(name = "storageId") String storageId,
+    public ResponseEntity upload(@ApiParam(value = "The storageId", required = true)
+                                 @PathVariable(name = "storageId") String storageId,
+                                 @ApiParam(value = "The repositoryId", required = true)
                                  @PathVariable(name = "repositoryId") String repositoryId,
                                  HttpServletRequest request)
             throws IOException,
@@ -109,7 +106,9 @@ public class ArtifactController
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @RequestMapping(value = "{storageId}/{repositoryId}/**", method = RequestMethod.GET,
             consumes = MediaType.TEXT_PLAIN_VALUE)
-    public void download(@PathVariable String storageId,
+    public void download(@ApiParam(value = "The storageId", required = true)
+                         @PathVariable String storageId,
+                         @ApiParam(value = "The repositoryId", required = true)
                          @PathVariable String repositoryId,
                          @RequestHeader HttpHeaders httpHeaders,
                          HttpServletRequest request,
@@ -378,9 +377,13 @@ public class ArtifactController
                                     message = "The source/destination storageId/repositoryId/path does not exist!") })
     @PreAuthorize("hasAuthority('ARTIFACTS_COPY')") // {storageId}/{repositoryId}/**
     @RequestMapping(produces = MediaType.TEXT_PLAIN_VALUE, value = "/copy/**", method = RequestMethod.POST)
-    public ResponseEntity copy(@RequestParam(name = "srcStorageId") String srcStorageId,
+    public ResponseEntity copy(@ApiParam(value = "The source storageId", required = true)
+                               @RequestParam(name = "srcStorageId") String srcStorageId,
+                               @ApiParam(value = "The source repositoryId", required = true)
                                @RequestParam(name = "srcRepositoryId") String srcRepositoryId,
+                               @ApiParam(value = "The destination storageId", required = true)
                                @RequestParam(name = "destStorageId") String destStorageId,
+                               @ApiParam(value = "The destination repositoryId", required = true)
                                @RequestParam(name = "destRepositoryId") String destRepositoryId,
                                HttpServletRequest request)
 
@@ -438,8 +441,11 @@ public class ArtifactController
                                     message = "The specified storageId/repositoryId/path does not exist!") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
     @RequestMapping(value = "{storageId}/{repositoryId}/**", method = RequestMethod.DELETE)
-    public ResponseEntity delete(@PathVariable String storageId,
+    public ResponseEntity delete(@ApiParam(value = "The storageId", required = true)
+                                 @PathVariable String storageId,
+                                 @ApiParam(value = "The repositoryId", required = true)
                                  @PathVariable String repositoryId,
+                                 @ApiParam(value = "Whether to use force delete")
                                  @RequestParam(defaultValue = "false", name = "force") boolean force,
                                  HttpServletRequest request)
             throws IOException, JAXBException
@@ -495,8 +501,10 @@ public class ArtifactController
             File artifactFile = new File(repoPath, metadataPath).getCanonicalFile();
             if (!artifactFile.isFile())
             {
-                String version = artifactFile.getPath().substring(artifactFile.getPath().lastIndexOf(File.separatorChar) + 1);
-                java.nio.file.Path path = Paths.get(artifactFile.getPath().substring(0, artifactFile.getPath().lastIndexOf(File.separatorChar)));
+                String version = artifactFile.getPath().substring(
+                        artifactFile.getPath().lastIndexOf(File.separatorChar) + 1);
+                java.nio.file.Path path = Paths.get(
+                        artifactFile.getPath().substring(0, artifactFile.getPath().lastIndexOf(File.separatorChar)));
 
                 Metadata metadata = getMavenMetadataManager().readMetadata(path);
                 if (metadata != null && metadata.getVersioning() != null
