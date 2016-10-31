@@ -66,7 +66,7 @@ public class ArtifactDeployer
             throws NoSuchAlgorithmException,
                    XmlPullParserException,
                    IOException,
-                   ArtifactOperationException
+                   ArtifactOperationException, ArtifactTransportException
     {
         generateAndDeployArtifact(artifact, null, storageId, repositoryId, "jar");
     }
@@ -79,7 +79,7 @@ public class ArtifactDeployer
             throws NoSuchAlgorithmException,
                    XmlPullParserException,
                    IOException,
-                   ArtifactOperationException
+                   ArtifactOperationException, ArtifactTransportException
     {
         if (client == null)
         {
@@ -107,16 +107,8 @@ public class ArtifactDeployer
                 deploy(artifactWithClassifier, storageId, repositoryId);
             }
         }
-        try
-        {
-            mergeMetadata(artifact, storageId, repositoryId);
-        }
-        catch (ArtifactTransportException e)
-        {
-            // TODO SB-230: What should we do if we get ArtifactTransportException,
-            // IOException or XmlPullParserException
-            logger.error(e.getMessage(), e);
-        }
+
+        mergeMetadata(artifact, storageId, repositoryId);
     }
 
     public void mergeMetadata(Artifact artifact,

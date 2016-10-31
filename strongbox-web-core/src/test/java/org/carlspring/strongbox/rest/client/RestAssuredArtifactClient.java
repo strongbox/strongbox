@@ -209,10 +209,8 @@ public class RestAssuredArtifactClient
                        "destRepositoryId", destRepositoryId)
                .when()
                .post(getContextBaseUrl() + ArtifactController.ROOT_CONTEXT + "/copy/" + path)
-               .peek()
                .then()
-               .statusCode(OK)
-               .extract();
+               .statusCode(OK);
     }
 
     public void delete(String storageId,
