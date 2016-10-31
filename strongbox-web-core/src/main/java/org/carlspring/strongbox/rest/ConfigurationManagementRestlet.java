@@ -33,6 +33,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Path("/configuration/strongbox")
 @Api(value = "/configuration/strongbox")
+@Deprecated
 public class ConfigurationManagementRestlet
         extends BaseRestlet
 {

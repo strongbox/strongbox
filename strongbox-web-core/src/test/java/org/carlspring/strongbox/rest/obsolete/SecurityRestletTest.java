@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.rest;
+package org.carlspring.strongbox.rest.obsolete;
 
 import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.rest.context.JerseyTest;
@@ -25,6 +25,7 @@ import static junit.framework.TestCase.assertEquals;
 @RunWith(SpringJUnit4ClassRunner.class)
 @JerseyTest
 @Ignore
+@Deprecated
 public class SecurityRestletTest
 {
 

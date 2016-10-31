@@ -49,6 +49,7 @@ import static org.carlspring.commons.http.range.ByteRangeRequestHandler.isRanged
 @Component
 @Path("/storages")
 @Api(value = "/storages")
+@Deprecated
 public class ArtifactRestlet
         extends BaseArtifactRestlet
 {

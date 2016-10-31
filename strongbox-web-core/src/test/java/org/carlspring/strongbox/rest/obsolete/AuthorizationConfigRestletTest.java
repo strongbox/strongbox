@@ -1,6 +1,7 @@
-package org.carlspring.strongbox.rest;
+package org.carlspring.strongbox.rest.obsolete;
 
 import org.carlspring.strongbox.client.RestClient;
+import org.carlspring.strongbox.rest.AuthorizationConfigRestlet;
 import org.carlspring.strongbox.rest.context.JerseyTest;
 import org.carlspring.strongbox.security.Role;
 import org.carlspring.strongbox.users.domain.Privileges;
@@ -36,6 +37,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(SpringJUnit4ClassRunner.class)
 @JerseyTest
 @Ignore
+@Deprecated
 public class AuthorizationConfigRestletTest
 {
 

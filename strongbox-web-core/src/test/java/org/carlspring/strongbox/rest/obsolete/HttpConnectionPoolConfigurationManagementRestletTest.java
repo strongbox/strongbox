@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.rest;
+package org.carlspring.strongbox.rest.obsolete;
 
 import org.carlspring.strongbox.client.RestClient;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
@@ -34,6 +34,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(SpringJUnit4ClassRunner.class)
 @JerseyTest
 @Ignore
+@Deprecated
 public class HttpConnectionPoolConfigurationManagementRestletTest
         extends TestCaseWithArtifactGeneration
 {

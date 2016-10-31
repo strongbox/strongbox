@@ -3,7 +3,7 @@ package org.carlspring.strongbox.rest;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.rest.context.RestAssuredTest;
+import org.carlspring.strongbox.rest.context.IntegrationTest;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
@@ -26,7 +26,7 @@ import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static junit.framework.TestCase.assertEquals;
 import static org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration.generateArtifact;
 
-@RestAssuredTest
+@IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
 public class HttpConnectionPoolConfigurationManagementControllerTest
         extends RestAssuredBaseTest

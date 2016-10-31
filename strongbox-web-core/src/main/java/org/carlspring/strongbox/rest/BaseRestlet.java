@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
  * @author Martin Todorov
  */
 @Component
+@Deprecated
 public abstract class BaseRestlet
 {
 

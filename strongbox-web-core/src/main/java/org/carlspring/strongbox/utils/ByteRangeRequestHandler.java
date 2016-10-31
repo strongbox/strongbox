@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.rest;
+package org.carlspring.strongbox.utils;
 
 /**
  * Created by yury on 8/8/16.

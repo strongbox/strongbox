@@ -1,30 +1,25 @@
 package org.carlspring.strongbox.rest;
 
-import org.carlspring.strongbox.client.ArtifactOperationException;
-import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import org.carlspring.strongbox.rest.context.IntegrationTest;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 
 import java.io.File;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.junit.Assert.assertFalse;
 
 /**
- * Created by yury on 8/27/16.
+ * @author Alex Oreshkevich
  */
+@IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = WebConfig.class)
-@WebAppConfiguration
 public class TrashControllerTest
         extends RestAssuredBaseTest
 {
@@ -38,34 +33,43 @@ public class TrashControllerTest
                                                                 "org/carlspring/strongbox/test-artifact-to-trash/1.0/" +
                                                                 "test-artifact-to-trash-1.0.jar").getAbsoluteFile();
 
-    @Before
-    public void setUp()
-            throws Exception
+    @Override
+    public void init()
     {
+        super.init();
+
         // remove release directory
         removeDir(new File(REPOSITORY_WITH_TRASH));
         removeDir(new File(REPOSITORY_WITH_TRASH_BASEDIR));
 
-        final String gavtc = "org.carlspring.strongbox:test-artifact-to-trash::jar";
+        try
+        {
+            final String gavtc = "org.carlspring.strongbox:test-artifact-to-trash::jar";
 
-        logger.debug("REPOSITORY_WITH_TRASH_BASEDIR: " + REPOSITORY_WITH_TRASH_BASEDIR);
-        logger.debug("BASEDIR.getAbsolutePath(): " + BASEDIR.getAbsolutePath());
+            logger.debug("REPOSITORY_WITH_TRASH_BASEDIR: " + REPOSITORY_WITH_TRASH_BASEDIR);
+            logger.debug("BASEDIR.getAbsolutePath(): " + BASEDIR.getAbsolutePath());
 
-        TestCaseWithArtifactGeneration.generateArtifact(REPOSITORY_WITH_TRASH_BASEDIR, gavtc, new String[]{ "1.0" });
-        TestCaseWithArtifactGeneration.generateArtifact(
-                BASEDIR.getAbsolutePath() + "/storages/" + STORAGE + "/releases", gavtc, new String[]{ "1.1" });
+            TestCaseWithArtifactGeneration.generateArtifact(REPOSITORY_WITH_TRASH_BASEDIR, gavtc,
+                                                            new String[]{ "1.0" });
+            TestCaseWithArtifactGeneration.generateArtifact(
+                    BASEDIR.getAbsolutePath() + "/storages/" + STORAGE + "/releases", gavtc, new String[]{ "1.1" });
 
-        // Delete the artifact (this one should get placed under the .trash)
-        delete(STORAGE,
-               REPOSITORY_WITH_TRASH,
-               "org/carlspring/strongbox/test-artifact-to-trash/1.0/test-artifact-to-trash-1.0.jar",
-               true);
+            // Delete the artifact (this one should get placed under the .trash)
+            client.delete(STORAGE,
+                          REPOSITORY_WITH_TRASH,
+                          "org/carlspring/strongbox/test-artifact-to-trash/1.0/test-artifact-to-trash-1.0.jar",
+                          true);
 
-        // Delete the artifact (this one shouldn't get placed under the .trash)
-        delete(STORAGE,
-               "releases",
-               "org/carlspring/strongbox/test-artifact-to-trash/1.1/test-artifact-to-trash-1.1.jar",
-               true);
+            // Delete the artifact (this one shouldn't get placed under the .trash)
+            client.delete(STORAGE,
+                          "releases",
+                          "org/carlspring/strongbox/test-artifact-to-trash/1.1/test-artifact-to-trash-1.1.jar",
+                          true);
+        }
+        catch (Exception e)
+        {
+            throw new AssertionError("Unable to initialize test", e);
+        }
     }
 
     @Test
@@ -138,29 +142,4 @@ public class TrashControllerTest
         assertFalse("Failed to empty trash for repository '" + REPOSITORY_WITH_TRASH + "'!",
                     ARTIFACT_FILE_IN_TRASH.exists());
     }
-
-    public void delete(String storageId,
-                       String repositoryId,
-                       String path,
-                       boolean force)
-            throws ArtifactOperationException
-    {
-        @SuppressWarnings("ConstantConditions")
-        String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId;
-
-        given()
-                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .params("path", path, "force", force)
-                .when()
-                .delete(url)
-                .peek()
-                .then()
-                .statusCode(200);
-    }
-
-    public static class SpringConfig
-    {
-
-    }
-
 }

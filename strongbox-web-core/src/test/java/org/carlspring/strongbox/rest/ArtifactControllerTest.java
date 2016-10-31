@@ -6,9 +6,10 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.generator.ArtifactDeployer;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.controller.ArtifactController;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.rest.context.RestAssuredTest;
+import org.carlspring.strongbox.rest.context.IntegrationTest;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import java.io.*;
@@ -33,7 +34,7 @@ import static org.junit.Assert.*;
  *
  * @author Alex Oreshkevich, Martin Todorov
  */
-@RestAssuredTest
+@IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ArtifactControllerTest
         extends RestAssuredBaseTest

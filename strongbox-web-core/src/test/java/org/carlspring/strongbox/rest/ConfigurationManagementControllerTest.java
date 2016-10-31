@@ -3,7 +3,7 @@ package org.carlspring.strongbox.rest;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.rest.context.RestAssuredTest;
+import org.carlspring.strongbox.rest.context.IntegrationTest;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
@@ -31,7 +31,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Alex Oreshkevich
  */
-@RestAssuredTest
+@IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ConfigurationManagementControllerTest
         extends RestAssuredBaseTest

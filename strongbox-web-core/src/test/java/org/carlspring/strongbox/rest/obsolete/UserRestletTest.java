@@ -1,6 +1,7 @@
-package org.carlspring.strongbox.rest;
+package org.carlspring.strongbox.rest.obsolete;
 
 import org.carlspring.strongbox.client.RestClient;
+import org.carlspring.strongbox.rest.UserRestlet;
 import org.carlspring.strongbox.rest.context.JerseyTest;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.users.domain.User;
@@ -31,6 +32,7 @@ import static org.junit.Assert.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @JerseyTest
 @Ignore
+@Deprecated
 public class UserRestletTest
         extends TestCaseWithArtifactGeneration
 {

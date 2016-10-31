@@ -1,41 +1,27 @@
 package org.carlspring.strongbox.rest;
 
-import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import org.carlspring.strongbox.rest.context.IntegrationTest;
 import org.carlspring.strongbox.users.domain.User;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.http.ContentType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.*;
 
+@IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = WebConfig.class)
-@WebAppConfiguration
 public class UserControllerTest
         extends RestAssuredBaseTest
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserControllerTest.class);
-
-    @Inject
-    ObjectMapper objectMapper;
-
     @Test
-    @WithUserDetails("admin")
     public void greetTest()
     {
 
@@ -50,7 +36,6 @@ public class UserControllerTest
     }
 
     @Test
-    @WithUserDetails("admin")
     public void testRetrieveUser()
             throws Exception
     {
@@ -68,7 +53,6 @@ public class UserControllerTest
     }
 
     @Test
-    @WithUserDetails("admin")
     public void testCreateUser()
             throws Exception
     {
@@ -87,7 +71,6 @@ public class UserControllerTest
     }
 
     @Test
-    @WithUserDetails("admin")
     public void testRetrieveAllUsers()
             throws Exception
     {
@@ -114,7 +97,6 @@ public class UserControllerTest
     }
 
     @Test
-    @WithUserDetails("admin")
     public void testUpdateUser()
             throws Exception
     {
@@ -160,7 +142,6 @@ public class UserControllerTest
     }
 
     @Test
-    @WithUserDetails("admin")
     public void testDeleteUser()
             throws Exception
     {

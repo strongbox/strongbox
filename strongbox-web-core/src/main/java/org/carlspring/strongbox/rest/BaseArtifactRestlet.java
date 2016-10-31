@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
  * @author carlspring
  */
 @Component
-
+@Deprecated
 public class BaseArtifactRestlet
         extends BaseRestlet
 {

@@ -1,5 +1,6 @@
-package org.carlspring.strongbox.rest;
+package org.carlspring.strongbox.controller;
 
+import org.carlspring.strongbox.rest.BaseRestlet;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.Storage;

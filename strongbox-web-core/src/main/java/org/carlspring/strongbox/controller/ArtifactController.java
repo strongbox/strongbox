@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.rest;
+package org.carlspring.strongbox.controller;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
@@ -46,8 +46,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import static org.carlspring.strongbox.rest.ByteRangeRequestHandler.handlePartialDownload;
-import static org.carlspring.strongbox.rest.ByteRangeRequestHandler.isRangedRequest;
+import static org.carlspring.strongbox.utils.ByteRangeRequestHandler.handlePartialDownload;
+import static org.carlspring.strongbox.utils.ByteRangeRequestHandler.isRangedRequest;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 

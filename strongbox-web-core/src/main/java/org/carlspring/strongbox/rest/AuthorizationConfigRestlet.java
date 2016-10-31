@@ -39,6 +39,7 @@ import org.springframework.stereotype.Component;
 @Produces(MediaType.TEXT_PLAIN)
 @Consumes(MediaType.TEXT_PLAIN)
 @PreAuthorize("hasAuthority('ADMIN')")
+@Deprecated
 public class AuthorizationConfigRestlet
         extends BaseArtifactRestlet
 {

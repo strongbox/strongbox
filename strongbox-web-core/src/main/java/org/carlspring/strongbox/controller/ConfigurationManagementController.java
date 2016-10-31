@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.rest;
+package org.carlspring.strongbox.controller;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
@@ -34,14 +34,13 @@ import org.springframework.web.bind.annotation.*;
 /**
  * @author mtodorov
  */
-
 @Controller
 @RequestMapping("/configuration/strongbox")
 public class ConfigurationManagementController
-        extends BaseRestlet
+        extends BaseController
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(ConfigurationManagementController.class);
+    private static final Logger logger = LoggerFactory.getLogger(BaseController.class);
 
     @Autowired
     private ConfigurationManagementService configurationManagementService;

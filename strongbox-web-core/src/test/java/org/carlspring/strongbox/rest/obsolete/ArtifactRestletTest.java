@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.rest;
+package org.carlspring.strongbox.rest.obsolete;
 
 import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
@@ -38,6 +38,7 @@ import static org.junit.Assert.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @JerseyTest
 @Ignore
+@Deprecated
 public class ArtifactRestletTest
         extends TestCaseWithArtifactGeneration
 {

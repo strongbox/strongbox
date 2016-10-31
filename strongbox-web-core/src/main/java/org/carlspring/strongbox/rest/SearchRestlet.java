@@ -4,6 +4,7 @@ import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
 import org.carlspring.strongbox.storage.indexing.SearchResults;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -19,7 +20,6 @@ import io.swagger.annotations.*;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
@@ -32,7 +32,7 @@ public class SearchRestlet
 
     private static final Logger logger = LoggerFactory.getLogger(SearchRestlet.class);
 
-    @Autowired
+    @Inject
     private ArtifactSearchService artifactSearchService;
 
     /**

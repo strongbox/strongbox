@@ -11,7 +11,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 /**
- * Helper meta annotation for all rest-assured based tests.
+ * Helper meta annotation for all rest-assured based tests. Specifies tests that require web server and remote HTTP protocol.
  *
  * @author Alex Oreshkevich
  */
@@ -19,7 +19,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @Retention(RetentionPolicy.RUNTIME)
 @ContextConfiguration(classes = WebConfig.class)
 @WebAppConfiguration
-public @interface RestAssuredTest
+public @interface IntegrationTest
 {
 
 }

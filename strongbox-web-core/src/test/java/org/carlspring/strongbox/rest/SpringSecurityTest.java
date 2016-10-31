@@ -1,23 +1,22 @@
 package org.carlspring.strongbox.rest;
 
-import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import org.carlspring.strongbox.rest.context.IntegrationTest;
 import org.carlspring.strongbox.security.authentication.CustomAnonymousAuthenticationFilter;
+
+import javax.inject.Inject;
 
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
@@ -25,14 +24,13 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 /**
  * @author Alex Oreshkevich
  */
+@IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = WebConfig.class)
-@WebAppConfiguration
 public class SpringSecurityTest
         extends RestAssuredBaseTest
 {
 
-    @Autowired
+    @Inject
     AnonymousAuthenticationFilter anonymousAuthenticationFilter;
 
     @Test
@@ -69,7 +67,6 @@ public class SpringSecurityTest
     }
 
     @Test
-    //@WithMockUser(username = "user", password = "password321")
     public void testUnauthorizedRequest()
     {
         // clear default anonymous authorization context and disable it's population

@@ -4,12 +4,14 @@ import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.client.BaseArtifactClient;
 import org.carlspring.strongbox.client.IArtifactClient;
-import org.carlspring.strongbox.rest.ArtifactController;
+import org.carlspring.strongbox.controller.ArtifactController;
 
 import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 import com.google.common.io.ByteStreams;
 import com.jayway.restassured.http.ContentType;
@@ -295,5 +297,38 @@ public class RestAssuredArtifactClient
                 .peek()
                 .then()
                 .statusCode(OK);
+    }
+
+    public String search(String query,
+                         String mediaType)
+            throws UnsupportedEncodingException
+    {
+        return search(null, query, mediaType);
+    }
+
+    public String search(String repositoryId,
+                         String query,
+                         String mediaType)
+            throws UnsupportedEncodingException
+    {
+        String url = getContextBaseUrl() + "/search";
+
+        if (repositoryId == null)
+        {
+            repositoryId = "";
+        }
+        else
+        {
+            repositoryId = URLEncoder.encode(repositoryId, "UTF-8");
+        }
+
+        query = URLEncoder.encode(query, "UTF-8");
+
+        return given().params("repositoryId", repositoryId, "q", query)
+                      .header("accept", mediaType)
+                      .when()
+                      .get(url)
+                      .then()
+                      .statusCode(OK).extract().response().getBody().asString();
     }
 }

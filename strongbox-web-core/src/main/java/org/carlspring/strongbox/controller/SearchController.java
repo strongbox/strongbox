@@ -1,10 +1,10 @@
-package org.carlspring.strongbox.rest;
+package org.carlspring.strongbox.controller;
 
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
 import org.carlspring.strongbox.storage.indexing.SearchResults;
-import org.carlspring.strongbox.xml.parsers.GenericParser;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -13,9 +13,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,18 +24,16 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
- * Created by yury on 9/6/16.
+ * @author Alex Oreshkevich
  */
 @Controller
 @RequestMapping("/search")
 public class SearchController
-        extends BaseArtifactRestlet
+        extends BaseController
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(SearchRestlet.class);
-
-    @Autowired
-    private ArtifactSearchService artifactSearchService;
+    @Inject
+    ArtifactSearchService artifactSearchService;
 
     /**
      * Performs a search against the Lucene index of a specified repository,
@@ -54,26 +49,29 @@ public class SearchController
     @ApiOperation(value = "Used to search for artifacts.", response = SearchResults.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "") })
     @PreAuthorize("hasAuthority('SEARCH_ARTIFACTS')")
-    @RequestMapping(value = "", method = RequestMethod.GET, consumes = { MediaType.APPLICATION_OCTET_STREAM_VALUE,
-                                                                         MediaType.TEXT_PLAIN_VALUE }, produces = { MediaType.APPLICATION_XML_VALUE,
-                                                                                                                    MediaType.APPLICATION_JSON_VALUE,
-                                                                                                                    MediaType.TEXT_PLAIN_VALUE })
-    public ResponseEntity search(
-                                        @RequestParam(name = "storageId", required = false) final String storageId,
-                                        @RequestParam(name = "repositoryId") final String repositoryId,
-                                        @RequestParam(name = "q") final String query,
-                                        @RequestHeader HttpHeaders headers,
-                                        HttpServletRequest request)
+    @RequestMapping(
+            value = "",
+            method = RequestMethod.GET,
+            consumes = {
+                               MediaType.APPLICATION_OCTET_STREAM_VALUE,
+                               MediaType.TEXT_PLAIN_VALUE },
+            produces = {
+                               MediaType.APPLICATION_XML_VALUE,
+                               MediaType.APPLICATION_JSON_VALUE,
+                               MediaType.TEXT_PLAIN_VALUE
+            }
+    )
+    public ResponseEntity search(@RequestParam(name = "storageId", required = false) final String storageId,
+                                 @RequestParam(name = "repositoryId") final String repositoryId,
+                                 @RequestParam(name = "q") final String query,
+                                 @RequestHeader HttpHeaders headers,
+                                 HttpServletRequest request)
             throws IOException, ParseException, JAXBException
     {
         if (request.getHeader("accept").equalsIgnoreCase("text/plain"))
         {
             final SearchResults artifacts = getSearchResults(storageId, repositoryId, query);
-
-            GenericParser<SearchResults> parser = new GenericParser<>(SearchResults.class);
-            String serializedProxyConfiguration = parser.serialize(artifacts);
-
-            return ResponseEntity.ok(serializedProxyConfiguration.toString());
+            return ResponseEntity.ok(artifacts.toString());
         }
         else
         {
@@ -81,11 +79,7 @@ public class SearchController
             // which the Jersey method returns, hence this is "artifacts".
             @SuppressWarnings("UnnecessaryLocalVariable")
             final SearchResults artifacts = getSearchResults(storageId, repositoryId, query);
-
-            GenericParser<SearchResults> parser = new GenericParser<>(SearchResults.class);
-            String serializedProxyConfiguration = parser.serialize(artifacts);
-
-            return ResponseEntity.ok(serializedProxyConfiguration);
+            return ResponseEntity.ok(artifacts);
         }
     }
 

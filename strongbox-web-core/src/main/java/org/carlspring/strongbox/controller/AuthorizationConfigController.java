@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.rest;
+package org.carlspring.strongbox.controller;
 
 import org.carlspring.strongbox.security.Privilege;
 import org.carlspring.strongbox.security.Role;
