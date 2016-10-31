@@ -7,6 +7,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.web.WebAppConfiguration;
 
@@ -19,6 +20,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @Retention(RetentionPolicy.RUNTIME)
 @ContextConfiguration(classes = WebConfig.class)
 @WebAppConfiguration
+@WithUserDetails(value = "admin")
 public @interface IntegrationTest
 {
 

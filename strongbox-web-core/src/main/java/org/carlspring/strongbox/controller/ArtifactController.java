@@ -299,7 +299,7 @@ public class ArtifactController
         if (file.isDirectory() && !requestUri.endsWith("/"))
         {
             response.setLocale(new Locale(request.getRequestURI() + "/"));
-            response.setStatus(307);
+            response.setStatus(HttpStatus.TEMPORARY_REDIRECT.value());
 
         }
 
@@ -312,7 +312,7 @@ public class ArtifactController
             sb.append("<head>");
             sb.append(
                     "<style>body{font-family: \"Trebuchet MS\", verdana, lucida, arial, helvetica, sans-serif;} table tr {text-align: left;}</style>");
-            sb.append("<title>Index of " + request.getRequestURI() + "" + request.getParameter("path") + "</title>");
+            sb.append("<title>Index of " + request.getRequestURI() + "</title>");
             sb.append("</head>");
             sb.append("<body>");
             sb.append("<h1>Index of " + request.getRequestURI() + "</h1>");
@@ -344,9 +344,9 @@ public class ArtifactController
                             new Date(childFile.lastModified()));
 
                     sb.append("<tr>");
-                    sb.append(
-                            "<td><a href='" + URLEncoder.encode(name, "UTF-8") + (childFile.isDirectory() ? "/" : "") +
-                            "'>" + name + (childFile.isDirectory() ? "/" : "") + "</a></td>");
+                    sb.append("<td><a href='" + URLEncoder.encode(name, "UTF-8") + (childFile.isDirectory() ?
+                                                                                    "/" : "") + "'>" + name +
+                              (childFile.isDirectory() ? "/" : "") + "</a></td>");
                     sb.append("<td>" + lastModified + "</td>");
                     sb.append("<td>" + FileUtils.byteCountToDisplaySize(childFile.length()) + "</td>");
                     sb.append("</tr>");
