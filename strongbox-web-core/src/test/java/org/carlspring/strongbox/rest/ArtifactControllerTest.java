@@ -40,6 +40,7 @@ public class ArtifactControllerTest
         extends RestAssuredBaseTest
 {
 
+    private static final String TEST_RESOURCES = "target/test-resources";
     private static File GENERATOR_BASEDIR;
     private static File REPOSITORY_BASEDIR_RELEASES;
 
@@ -97,7 +98,55 @@ public class ArtifactControllerTest
         );
 
         //noinspection ResultOfMethodCallIgnored
-        new File("target/test-resources").mkdirs();
+        new File(TEST_RESOURCES).mkdirs();
+    }
+
+    /**
+     * Note: This test requires access to the Internet.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testResolveViaProxyToMavenCentral()
+            throws Exception
+    {
+        String artifactPath = "storages/public/public-group/org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.jar";
+
+        InputStream is = client.getResource(artifactPath);
+        if (is == null)
+        {
+            fail("Failed to resolve 'derby-maven-plugin:1.10:jar' from Maven Central!");
+        }
+
+        FileOutputStream fos = new FileOutputStream(new File(TEST_RESOURCES, "derby-maven-plugin-1.10.jar"));
+        MultipleDigestOutputStream mdos = new MultipleDigestOutputStream(fos);
+
+        int len;
+        final int size = 1024;
+        byte[] bytes = new byte[size];
+
+        while ((len = is.read(bytes, 0, size)) != -1)
+        {
+            mdos.write(bytes, 0, len);
+        }
+
+        mdos.flush();
+        mdos.close();
+
+        String md5Remote = MessageDigestUtils.readChecksumFile(client.getResource(artifactPath + ".md5"));
+        String sha1Remote = MessageDigestUtils.readChecksumFile(client.getResource(artifactPath + ".sha1"));
+
+        final String md5Local = mdos.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
+        final String sha1Local = mdos.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
+
+        System.out.println("MD5   [Remote]: " + md5Remote);
+        System.out.println("MD5   [Local ]: " + md5Local);
+
+        System.out.println("SHA-1 [Remote]: " + sha1Remote);
+        System.out.println("SHA-1 [Local ]: " + sha1Local);
+
+        assertEquals("MD5 checksums did not match!", md5Local, md5Remote);
+        assertEquals("SHA-1 checksums did not match!", sha1Local, sha1Remote);
     }
 
     @Test
