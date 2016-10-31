@@ -19,7 +19,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.HttpServerErrorException;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
@@ -251,7 +250,6 @@ public class ConfigurationManagementControllerTest
     }
 
     @Test
-    @WithUserDetails("admin")
     public void testCreateAndDeleteStorage()
             throws IOException, JAXBException
     {
@@ -341,7 +339,6 @@ public class ConfigurationManagementControllerTest
     }
 
     @Test
-    @WithUserDetails("admin")
     public void testGetAndSetConfiguration()
             throws IOException, JAXBException
     {

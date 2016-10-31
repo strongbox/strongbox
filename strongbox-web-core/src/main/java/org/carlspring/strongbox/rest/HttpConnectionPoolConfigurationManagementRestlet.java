@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Path("/configuration/proxy/connection-pool")
 @Api(value = "/configuration/proxy/connection-pool")
-public class ProxyRepositoryConnectionPoolConfigurationManagementRestlet
+public class HttpConnectionPoolConfigurationManagementRestlet
         extends BaseRestlet
 {
 

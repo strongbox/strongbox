@@ -34,7 +34,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(SpringJUnit4ClassRunner.class)
 @JerseyTest
 @Ignore
-public class ProxyRepositoryConnectionPoolConfigurationManagementRestletTest
+public class HttpConnectionPoolConfigurationManagementRestletTest
         extends TestCaseWithArtifactGeneration
 {
 
