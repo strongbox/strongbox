@@ -1,28 +1,26 @@
 package org.carlspring.strongbox.cron;
 
-import org.carlspring.strongbox.cron.config.CronTasksConfig;
+import org.carlspring.strongbox.cron.context.CronTaskTest;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.exceptions.CronTaskException;
 import org.carlspring.strongbox.cron.exceptions.CronTaskNotFoundException;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 
+import javax.inject.Inject;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.quartz.SchedulerException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+@CronTaskTest
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { CronTasksConfig.class })
-@WebAppConfiguration
 public class CronTaskConfigurationServiceTest
 {
 
-    @Autowired
+    @Inject
     private CronTaskConfigurationService cronTaskConfigurationService;
 
     @Test

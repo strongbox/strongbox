@@ -10,7 +10,7 @@ import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-abstract class BaseArtifactController
+public abstract class BaseArtifactController
         extends BaseController
 {
 

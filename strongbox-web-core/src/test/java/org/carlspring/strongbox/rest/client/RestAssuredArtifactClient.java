@@ -120,6 +120,17 @@ public class RestAssuredArtifactClient
                .statusCode(HttpStatus.OK.value());
     }
 
+    public MockMvcResponse put(String relativeUrl,
+                               Object body,
+                               String mediaType)
+    {
+        return given().contentType(mediaType)
+                      .body(body)
+                      .when()
+                      .put(relativeUrl)
+                      .peek();
+    }
+
     public InputStream getResource(String url)
     {
         return getResource(url, -1, VALIDATE_RESOURCE_ON_GET);

@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.cron.controller;
 
+import org.carlspring.strongbox.controller.BaseController;
 import org.carlspring.strongbox.cron.api.jobs.GroovyCronJob;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.exceptions.CronTaskException;
@@ -7,7 +8,9 @@ import org.carlspring.strongbox.cron.exceptions.CronTaskNotFoundException;
 import org.carlspring.strongbox.cron.quartz.GroovyScriptNames;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.xml.parsers.GenericParser;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -15,22 +18,16 @@ import java.io.*;
 import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.quartz.SchedulerException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Defines cron task processing API.
@@ -41,24 +38,31 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/configuration/crontasks")
 @PreAuthorize("hasAuthority('ADMIN')")
 public class CronTaskController
+        extends BaseController
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(CronTaskController.class);
+    private final GenericParser<CronTaskConfiguration> configParser = new GenericParser<>(CronTaskConfiguration.class);
 
-    @Autowired
+    @Inject
     private CronTaskConfigurationService cronTaskConfigurationService;
+
+    @Inject
+    OObjectDatabaseTx databaseTx;
 
     @ApiOperation(value = "Used to save the configuration", position = 0)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The configuration was saved successfully."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
-    @RequestMapping(value = "/cron", method = RequestMethod.PUT, consumes = { MediaType.APPLICATION_JSON,
-                                                                              MediaType.APPLICATION_XML })
-    public ResponseEntity saveConfiguration(CronTaskConfiguration cronTaskConfiguration)
+    @RequestMapping(
+            value = "/cron",
+            method = RequestMethod.PUT,
+            consumes = { MediaType.APPLICATION_JSON,
+                         MediaType.APPLICATION_XML }
+    )
+    public ResponseEntity saveConfiguration(@RequestBody CronTaskConfiguration cronTaskConfiguration)
     {
-        ObjectMapper objectMapper = new ObjectMapper();
         try
         {
-            logger.debug(objectMapper.writeValueAsString(cronTaskConfiguration));
+            logger.debug("Cron task configuration: " + objectMapper.writeValueAsString(cronTaskConfiguration));
             logger.debug("Save Cron Task config call");
 
             cronTaskConfigurationService.saveConfiguration(cronTaskConfiguration);
@@ -106,6 +110,8 @@ public class CronTaskController
                     }
                 }
             }
+            System.out.println("\n\n");
+            logger.info("Configuration " + name + " was deleted.");
         }
         catch (ClassNotFoundException | SchedulerException | CronTaskNotFoundException |
                        InstantiationException | IllegalAccessException ex)
@@ -113,7 +119,7 @@ public class CronTaskController
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
         }
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body("Configuration " + name + " removed");
     }
 
     @ApiOperation(value = "Used to get the configuration on given cron task name", position = 2)
@@ -130,7 +136,19 @@ public class CronTaskController
                                  .body("Cron task config not found by this name!");
         }
 
-        return ResponseEntity.ok(config);
+        try
+        {
+            // used to serialize entity to JSON directly (without proxies)
+            databaseTx.activateOnCurrentThread();
+            config = databaseTx.detachAll(config, false);
+
+            return ResponseEntity.ok(configParser.serialize(config));
+        }
+        catch (Exception e)
+        {
+            logger.error("Unable to serialize config", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
     @ApiOperation(value = "Used to get list of all the configurations", position = 3)

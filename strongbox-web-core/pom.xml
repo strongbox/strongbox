@@ -72,8 +72,10 @@
                     <systemPropertyVariables>
                         <strongbox.home>${project.build.directory}/strongbox</strongbox.home>
                         <strongbox.vault>${project.build.directory}/strongbox-vault</strongbox.vault>
-                        <strongbox.storage.booter.basedir>${project.build.directory}/strongbox-vault/storages</strongbox.storage.booter.basedir>
-                        <repository.config.xml>${project.build.directory}/strongbox/etc/conf/strongbox.xml</repository.config.xml>
+                        <strongbox.storage.booter.basedir>${project.build.directory}/strongbox-vault/storages
+                        </strongbox.storage.booter.basedir>
+                        <repository.config.xml>${project.build.directory}/strongbox/etc/conf/strongbox.xml
+                        </repository.config.xml>
                         <strongbox.host>${strongbox.host}</strongbox.host>
                         <strongbox.port>${strongbox.port}</strongbox.port>
                         <logging.dir>${project.build.directory}/strongbox/logs</logging.dir>
@@ -91,6 +93,7 @@
                         <phase>package</phase>
                         <goals>
                             <goal>jar</goal>
+                            <goal>test-jar</goal>
                         </goals>
                         <configuration>
                             <classifier>classes</classifier>
@@ -354,13 +357,11 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-client</artifactId>
             <version>${project.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-rest-client</artifactId>
             <version>${project.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -496,6 +497,7 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
         </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

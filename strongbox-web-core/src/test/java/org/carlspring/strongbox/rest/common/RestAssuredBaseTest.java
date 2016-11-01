@@ -99,8 +99,7 @@ public abstract class RestAssuredBaseTest
         // override #provideAuthorities if you wanna be more specific
         anonymousAuthenticationFilter.getAuthorities().addAll(provideAuthorities());
 
-        // base URL depends only on test execution context
-        client.setContextBaseUrl(contextBaseUrl);
+        setContextBaseUrl(contextBaseUrl);
     }
 
     @After
@@ -112,6 +111,14 @@ public abstract class RestAssuredBaseTest
     public String getContextBaseUrl()
     {
         return contextBaseUrl;
+    }
+
+    public void setContextBaseUrl(String contextBaseUrl)
+    {
+        this.contextBaseUrl = contextBaseUrl;
+
+        // base URL depends only on test execution context
+        client.setContextBaseUrl(contextBaseUrl);
     }
 
     protected Collection<? extends GrantedAuthority> provideAuthorities()
