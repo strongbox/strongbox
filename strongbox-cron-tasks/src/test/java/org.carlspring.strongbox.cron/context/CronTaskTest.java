@@ -9,6 +9,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.annotation.IfProfileValue;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.web.WebAppConfiguration;
 
@@ -23,7 +24,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
                                   WebConfig.class })
 @WebAppConfiguration
 @WithUserDetails(value = "admin")
-//@IfProfileValue(name = "spring.profiles.active", values = { "quartz-integration-test" })
+@IfProfileValue(name = "spring.profiles.active", values = { "quartz-integration-test" })
 public @interface CronTaskTest
 {
 
