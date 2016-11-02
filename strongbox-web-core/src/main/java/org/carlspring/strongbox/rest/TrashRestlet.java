@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Path("/trash")
 @Api(value = "/trash")
+@Deprecated
 public class TrashRestlet
         extends BaseArtifactRestlet
 {

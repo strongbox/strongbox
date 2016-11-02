@@ -1,8 +1,9 @@
-package org.carlspring.strongbox.rest;
+package org.carlspring.strongbox.controller;
 
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 
@@ -20,7 +21,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * @author Martin Todorov
@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 @RequestMapping("/trash")
 public class TrashController
-        extends BaseArtifactRestlet
+        extends BaseArtifactController
 {
 
     private static final Logger logger = LoggerFactory.getLogger(TrashController.class);
@@ -108,16 +108,17 @@ public class TrashController
                             @ApiResponse(code = 404,
                                     message = "The specified (storageId/repositoryId/path) does not exist!") })
     @PreAuthorize("hasAuthority('MANAGEMENT_UNDELETE_TRASH')")
-    @RequestMapping(value = "{storageId}/{repositoryId}", method = RequestMethod.POST,
+    @RequestMapping(value = "{storageId}/{repositoryId}/**", method = RequestMethod.POST,
             produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity undelete(
                                           @PathVariable String storageId,
                                           @PathVariable String repositoryId,
-                                          @RequestParam(name = "path") String path)
+                                          HttpServletRequest request)
             throws IOException
     {
-        logger.debug("UNDELETE: " + path);
-        logger.debug(storageId + ":" + repositoryId + ": " + path);
+        String path = convertRequestToPath("trash", request, storageId, repositoryId);
+
+        logger.debug("[undelete] by path " + path);
 
         if (getStorage(storageId) == null)
         {

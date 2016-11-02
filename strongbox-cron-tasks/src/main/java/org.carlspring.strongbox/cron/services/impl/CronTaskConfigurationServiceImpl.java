@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
-public class CronTaskConfigurationServiceImpl
+class CronTaskConfigurationServiceImpl
         implements CronTaskConfigurationService
 {
 
@@ -78,12 +78,21 @@ public class CronTaskConfigurationServiceImpl
         cronJobSchedulerService.deleteJob(cronTaskConfiguration);
     }
 
-    public CronTaskConfiguration getConfiguration(String name)
+    public List<CronTaskConfiguration> getConfiguration(String name)
     {
-        logger.debug("CronTaskConfigurationService.getConfiguration()");
+        return cronTaskDataService.findByName(name);
+    }
 
-        Optional<CronTaskConfiguration> optional = cronTaskDataService.findByName(name);
-        return optional.isPresent() ? optional.get() : null;
+    @Override
+    public CronTaskConfiguration findOne(String name)
+    {
+        List<CronTaskConfiguration> configurations = getConfiguration(name);
+        if (configurations == null || configurations.isEmpty())
+        {
+            return null;
+        }
+
+        return configurations.get(0);
     }
 
     public List<CronTaskConfiguration> getConfigurations()
@@ -102,5 +111,4 @@ public class CronTaskConfigurationServiceImpl
 
         return cronJobSchedulerService.getGroovyScriptsName();
     }
-
 }

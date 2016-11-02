@@ -5,6 +5,7 @@ import org.carlspring.strongbox.users.service.UserService;
 
 import java.util.Optional;
 
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,6 +29,9 @@ public class OrientCrudRepositoryTest
     @Autowired
     UserService userService;
 
+    @Autowired
+    OObjectDatabaseTx databaseTx;
+
     @Before
     public void setup()
     {
@@ -44,7 +48,7 @@ public class OrientCrudRepositoryTest
         user.setEnabled(true);
         user.setUsername(testUserName);
         user.setPassword("test-pwd");
-        final User savedUser = userService.save(user);
+        final User savedUser = databaseTx.detachAll(userService.save(user), true);
         assertNotNull(savedUser);
 
         String id = savedUser.getId();

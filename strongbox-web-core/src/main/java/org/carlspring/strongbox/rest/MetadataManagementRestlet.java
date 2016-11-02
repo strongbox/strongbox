@@ -31,6 +31,7 @@ import org.springframework.stereotype.Component;
 @Path("/metadata")
 @Api(value = "/metadata")
 @PreAuthorize("hasAuthority('ROOT')")
+@Deprecated
 public class MetadataManagementRestlet
         extends BaseRestlet
 {

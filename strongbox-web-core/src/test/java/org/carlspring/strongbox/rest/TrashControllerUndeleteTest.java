@@ -96,11 +96,10 @@ public class TrashControllerUndeleteTest
             throws Exception
     {
         String url = getContextBaseUrl() + "/trash/" + STORAGE + "/" + REPOSITORY_WITH_TRASH;
+        url += "/org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/test-artifact-undelete-1.0.jar";
 
         given()
                 .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .param("path",
-                       "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/test-artifact-undelete-1.0.jar")
                 .when()
                 .post(url)
                 .peek()

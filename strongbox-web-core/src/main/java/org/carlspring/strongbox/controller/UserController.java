@@ -1,5 +1,6 @@
-package org.carlspring.strongbox.rest;
+package org.carlspring.strongbox.controller;
 
+import org.carlspring.strongbox.rest.UserRestlet;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.service.UserService;
 

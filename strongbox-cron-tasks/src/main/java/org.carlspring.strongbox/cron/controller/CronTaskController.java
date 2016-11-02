@@ -4,7 +4,6 @@ import org.carlspring.strongbox.controller.BaseController;
 import org.carlspring.strongbox.cron.api.jobs.GroovyCronJob;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.exceptions.CronTaskException;
-import org.carlspring.strongbox.cron.exceptions.CronTaskNotFoundException;
 import org.carlspring.strongbox.cron.quartz.GroovyScriptNames;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
@@ -12,22 +11,23 @@ import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import java.io.*;
+import java.util.LinkedList;
 import java.util.List;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.quartz.SchedulerException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * Defines cron task processing API.
@@ -69,10 +69,9 @@ public class CronTaskController
 
             return ResponseEntity.ok().build();
         }
-        catch (ClassNotFoundException | SchedulerException | CronTaskException |
-                       InstantiationException | IllegalAccessException | JsonProcessingException e)
+        catch (Exception e)
         {
-            logger.trace(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
@@ -83,40 +82,39 @@ public class CronTaskController
     @RequestMapping(value = "/cron", method = RequestMethod.DELETE)
     public ResponseEntity deleteConfiguration(@RequestParam("name") String name)
     {
-        CronTaskConfiguration config = cronTaskConfigurationService.getConfiguration(name);
-        if (config == null)
-        {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                 .body("Configuration not found by this name!");
-        }
-
-        try
-        {
-            cronTaskConfigurationService.deleteConfiguration(config);
-            if (config.contain("jobClass"))
+        final List<Exception> errors = new LinkedList<>();
+        cronTaskConfigurationService.getConfiguration(name).forEach(config ->
+                                                                    {
+                                                                        try
             {
-                Class c = Class.forName(config.getProperty("jobClass"));
-                Object classInstance = c.newInstance();
-
-                logger.debug("> " + c.getSuperclass().getCanonicalName());
-
-                if (classInstance instanceof GroovyCronJob)
+                cronTaskConfigurationService.deleteConfiguration(config);
+                if (config.contain("jobClass"))
                 {
-                    File file = new File(config.getProperty("script.path"));
-                    if (file.exists())
+                    Class c = Class.forName(config.getProperty("jobClass"));
+                    Object classInstance = c.newInstance();
+
+                    logger.debug("> " + c.getSuperclass().getCanonicalName());
+
+                    if (classInstance instanceof GroovyCronJob)
                     {
-                        //noinspection ResultOfMethodCallIgnored
-                        file.delete();
+                        File file = new File(config.getProperty("script.path"));
+                        if (file.exists())
+                        {
+                            //noinspection ResultOfMethodCallIgnored
+                            file.delete();
+                        }
                     }
                 }
             }
-            System.out.println("\n\n");
-            logger.info("Configuration " + name + " was deleted.");
-        }
-        catch (ClassNotFoundException | SchedulerException | CronTaskNotFoundException |
-                       InstantiationException | IllegalAccessException ex)
+                                                                        catch (Exception e)
+                                                                        {
+                                                                            errors.add(e);
+                                                                        }
+                                                                    });
+
+        if (!errors.isEmpty())
         {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors.get(0).getMessage());
         }
 
         return ResponseEntity.ok().body("Configuration " + name + " removed");
@@ -129,7 +127,7 @@ public class CronTaskController
                                                                               MediaType.APPLICATION_XML })
     public ResponseEntity getConfiguration(@RequestParam("name") String name)
     {
-        CronTaskConfiguration config = cronTaskConfigurationService.getConfiguration(name);
+        CronTaskConfiguration config = cronTaskConfigurationService.findOne(name);
         if (config == null)
         {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -173,17 +171,17 @@ public class CronTaskController
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @RequestMapping(value = "/cron/groovy", method = RequestMethod.PUT)
     public ResponseEntity uploadGroovyScript(@RequestParam("cronName") String cronName,
-                                             @RequestHeader HttpHeaders headers,
                                              HttpServletRequest request)
     {
-        String fileName = headers.getRequestHeader("fileName").get(0);
+
+        String fileName = request.getHeader("fileName");
         if (!fileName.endsWith(".groovy"))
         {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                                  .body("Uploaded file must be groovy");
         }
 
-        CronTaskConfiguration cronTaskConfiguration = cronTaskConfigurationService.getConfiguration(cronName);
+        CronTaskConfiguration cronTaskConfiguration = cronTaskConfigurationService.findOne(cronName);
         if (cronTaskConfiguration == null)
         {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

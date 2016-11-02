@@ -3,6 +3,8 @@ package org.carlspring.strongbox.cron.repository;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.data.repository.OrientRepository;
 
+import java.util.List;
+
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -13,5 +15,5 @@ public interface CronTaskConfigurationRepository
         extends OrientRepository<CronTaskConfiguration>
 {
 
-    CronTaskConfiguration findByName(String name);
+    List<CronTaskConfiguration> findByName(String name);
 }

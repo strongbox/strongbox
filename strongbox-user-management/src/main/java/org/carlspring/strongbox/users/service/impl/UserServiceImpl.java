@@ -36,7 +36,7 @@ class UserServiceImpl
 
     @Override
     @Transactional
-    @Cacheable(value = "users", key = "#name")
+    @Cacheable(value = "users", key = "#name", sync = true)
     public synchronized User findByUserName(String name)
     {
         try
@@ -45,7 +45,9 @@ class UserServiceImpl
         }
         catch (Exception e)
         {
-            logger.warn("Internal spring-data-orientdb exception.", e);
+            logger.warn("Internal spring-data-orientdb exception: " + e.getLocalizedMessage());
+            logger.trace("Exception details: ", e);
+
             return null;
         }
     }
@@ -54,14 +56,9 @@ class UserServiceImpl
     @Transactional
     public synchronized <S extends User> S save(S var1)
     {
-        S res = repository.save(var1);
-        if (res.getId() == null)
-        {
-            throw new RuntimeException("Id was not assigned by database after entity creation...");
-        }
-
-        logger.debug("Saved user " + res);
-        return res;
+        // ID non-null check was removed because there will be no ID assigned by database
+        // until transaction is not committed (depends on PROPAGATE value)
+        return repository.save(var1);
     }
 
     @Override
@@ -75,6 +72,11 @@ class UserServiceImpl
     @Transactional
     public synchronized Optional<User> findOne(String var1)
     {
+        if (var1 == null)
+        {
+            return Optional.empty();
+        }
+
         return Optional.ofNullable(repository.findOne(var1));
     }
 

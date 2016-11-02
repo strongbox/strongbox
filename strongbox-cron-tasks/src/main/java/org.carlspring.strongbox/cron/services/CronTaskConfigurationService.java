@@ -8,9 +8,7 @@ import org.carlspring.strongbox.cron.quartz.GroovyScriptNames;
 import java.util.List;
 
 import org.quartz.SchedulerException;
-import org.springframework.stereotype.Service;
 
-@Service
 public interface CronTaskConfigurationService
 {
 
@@ -27,10 +25,11 @@ public interface CronTaskConfigurationService
                    CronTaskNotFoundException,
                    ClassNotFoundException;
 
-    CronTaskConfiguration getConfiguration(String name);
+    List<CronTaskConfiguration> getConfiguration(String name);
+
+    CronTaskConfiguration findOne(String name);
 
     List<CronTaskConfiguration> getConfigurations();
 
     GroovyScriptNames getGroovyScriptsName();
-
 }

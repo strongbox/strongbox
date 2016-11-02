@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Api(value = "/users")
 @Produces(MediaType.TEXT_PLAIN)
 @Consumes(MediaType.TEXT_PLAIN)
+@Deprecated
 public class UserRestlet
         extends BaseArtifactRestlet
 {

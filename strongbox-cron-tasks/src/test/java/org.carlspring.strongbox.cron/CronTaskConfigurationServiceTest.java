@@ -52,7 +52,7 @@ public class CronTaskConfigurationServiceTest
 
         cronTaskConfigurationService.saveConfiguration(cronTaskConfiguration);
 
-        CronTaskConfiguration obj = cronTaskConfigurationService.getConfiguration(name);
+        CronTaskConfiguration obj = cronTaskConfigurationService.findOne(name);
         assertNotNull(obj);
     }
 
@@ -64,7 +64,7 @@ public class CronTaskConfigurationServiceTest
                    IllegalAccessException
     {
         String name = "Cron-Task-1";
-        CronTaskConfiguration cronTaskConfiguration = cronTaskConfigurationService.getConfiguration(name);
+        CronTaskConfiguration cronTaskConfiguration = cronTaskConfigurationService.findOne(name);
 
         assertNotNull(cronTaskConfiguration);
 
@@ -77,14 +77,22 @@ public class CronTaskConfigurationServiceTest
             throws SchedulerException, CronTaskNotFoundException, ClassNotFoundException
     {
         String name = "Cron-Task-1";
-        CronTaskConfiguration cronTaskConfiguration = cronTaskConfigurationService.getConfiguration(name);
 
-        assertNotNull(cronTaskConfiguration);
+        cronTaskConfigurationService.getConfiguration(name).forEach(cronTaskConfiguration ->
+                                                                    {
+                                                                        assertNotNull(cronTaskConfiguration);
+                                                                        try
+                                                                        {
+                                                                            cronTaskConfigurationService.deleteConfiguration(
+                                                                                    cronTaskConfiguration);
+                                                                        }
+                                                                        catch (Exception e)
+                                                                        {
+                                                                            throw new RuntimeException(e);
+                                                                        }
+                                                                    });
 
-        cronTaskConfigurationService.deleteConfiguration(cronTaskConfiguration);
-
-        cronTaskConfiguration = cronTaskConfigurationService.getConfiguration(name);
-        assertNull(cronTaskConfiguration);
+        assertNull(cronTaskConfigurationService.findOne(name));
     }
 
 }

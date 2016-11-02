@@ -26,6 +26,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Path("/search")
 @Api(value = "/search")
+@Deprecated
 public class SearchRestlet
         extends BaseArtifactRestlet
 {

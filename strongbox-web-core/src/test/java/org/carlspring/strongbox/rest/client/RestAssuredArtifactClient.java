@@ -91,10 +91,10 @@ public class RestAssuredArtifactClient
     }
 
     @Override
-    protected void put(InputStream is,
-                       String url,
-                       String fileName,
-                       String mediaType)
+    public void put(InputStream is,
+                    String url,
+                    String fileName,
+                    String mediaType)
             throws ArtifactOperationException
     {
         String contentDisposition = "attachment; filename=\"" + fileName + "\"";
@@ -112,6 +112,7 @@ public class RestAssuredArtifactClient
 
         given().contentType(mediaType)
                .header("Content-Disposition", contentDisposition)
+               .header("filename", fileName)
                .body(bytes)
                .when()
                .put(url)
@@ -120,15 +121,11 @@ public class RestAssuredArtifactClient
                .statusCode(HttpStatus.OK.value());
     }
 
-    public MockMvcResponse put(String relativeUrl,
-                               Object body,
-                               String mediaType)
+    public MockMvcResponse put2(String relativeUrl,
+                                Object body,
+                                String mediaType)
     {
-        return given().contentType(mediaType)
-                      .body(body)
-                      .when()
-                      .put(relativeUrl)
-                      .peek();
+        return given().contentType(mediaType).body(body).when().put(relativeUrl).peek();
     }
 
     public InputStream getResource(String url)

@@ -4,6 +4,7 @@ import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.repository.CronTaskConfigurationRepository;
 import org.carlspring.strongbox.cron.services.CronTaskDataService;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,17 +31,16 @@ public class CronTaskDataServiceImpl
 
     @Override
     @Transactional
-    public Optional<CronTaskConfiguration> findByName(String name)
+    public List<CronTaskConfiguration> findByName(String name)
     {
         try
         {
-            CronTaskConfiguration user = repository.findByName(name);
-            return Optional.ofNullable(user);
+            return repository.findByName(name);
         }
         catch (Exception e)
         {
             logger.warn("Internal spring-data-orientdb exception: " + e.getMessage());
-            return Optional.empty();
+            return new LinkedList<>();
         }
     }
 
