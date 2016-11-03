@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
+import java.net.URLDecoder;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -66,7 +67,7 @@ public class SearchController
     {
         if (request.getHeader("accept").equalsIgnoreCase("text/plain"))
         {
-            final SearchResults artifacts = getSearchResults(storageId, repositoryId, query);
+            final SearchResults artifacts = getSearchResults(storageId, repositoryId, URLDecoder.decode(query, "UTF-8"));
             return ResponseEntity.ok(artifacts.toString());
         }
         else
@@ -84,7 +85,7 @@ public class SearchController
                                            String query)
             throws IOException, ParseException
     {
-        final SearchRequest searchRequest = new SearchRequest(storageId, repositoryId, query);
+        final SearchRequest searchRequest = new SearchRequest(storageId, repositoryId, URLDecoder.decode(query, "UTF-8"));
 
         return artifactSearchService.search(searchRequest);
     }

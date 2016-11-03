@@ -333,7 +333,11 @@ public class RestAssuredArtifactClient
                       .when()
                       .get(url)
                       .then()
-                      .statusCode(OK).extract().response().getBody().asString();
+                      .statusCode(OK)
+                      .extract()
+                      .response()
+                      .getBody()
+                      .asString();
     }
 
 }

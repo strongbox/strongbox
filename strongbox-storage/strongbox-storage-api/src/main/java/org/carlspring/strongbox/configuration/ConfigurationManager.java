@@ -130,7 +130,7 @@ public class ConfigurationManager
     {
         logger.info("Configuration version: " + getConfiguration().getVersion());
 
-        final File lockFile = new File(ConfigurationResourceResolver.getVaultDirectory(), "storage-booter.lock");
+        final File lockFile = getStrongboxLockFile();
         if (!lockFile.exists())
         {
             if (!getConfiguration().getStorages().isEmpty())
@@ -156,6 +156,11 @@ public class ConfigurationManager
         {
             logger.warn("Storages and repositories appear to have already been loaded. (" + lockFile.getAbsolutePath() + " already exists).");
         }
+    }
+
+    public static File getStrongboxLockFile()
+    {
+        return new File(ConfigurationResourceResolver.getVaultDirectory(), "storage-booter.lock");
     }
 
     public Repository getRepository(String storageAndRepositoryId)

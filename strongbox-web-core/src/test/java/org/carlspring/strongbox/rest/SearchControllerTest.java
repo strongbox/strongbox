@@ -9,9 +9,7 @@ import org.carlspring.strongbox.rest.context.IntegrationTest;
 import java.io.File;
 
 import org.apache.maven.artifact.Artifact;
-import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.MediaType;
@@ -23,27 +21,29 @@ import static org.junit.Assert.assertTrue;
  */
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
-@Ignore // waiting for proper search indexes on backend
 public class SearchControllerTest
         extends RestAssuredBaseTest
 {
+
 
     @Before
     public synchronized void setUp()
             throws Exception
     {
-        if (isInitialized())
+        // Don't ever change this check in order "to make the tests omnipotent".
+        // They are sharing the same resources and this is good enough test data which *will not* change during testing.
+        File repositoryBasedir = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/releases");
+        if (new File(repositoryBasedir, "org/carlspring/strongbox/searches/test-project").exists())
         {
-            return; // storage/storage0/releases do not allow artifact redeployment
+            return;
         }
 
         File strongboxBaseDir = new File(ConfigurationResourceResolver.getVaultDirectory() + "/tmp");
-        String[] classifiers = new String[]{ "javadoc",
-                                             "tests" };
+        String[] classifiers = new String[]{ "javadoc", "tests" };
 
-        Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.maven:test-project:1.0.11.3");
-        Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.maven:test-project:1.0.11.3.1");
-        Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.maven:test-project:1.0.11.3.2");
+        Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.searches:test-project:1.0.11.3");
+        Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.searches:test-project:1.0.11.3.1");
+        Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.searches:test-project:1.0.11.3.2");
 
         ArtifactDeployer artifactDeployer = buildArtifactDeployer(strongboxBaseDir);
 
@@ -56,43 +56,38 @@ public class SearchControllerTest
     public void testSearchPlainText()
             throws Exception
     {
-        String response = client.search("g:org.carlspring.maven a:test-project", MediaType.TEXT_PLAIN_VALUE);
+        String response = client.search("g:org.carlspring.strongbox.searches a:test-project", MediaType.TEXT_PLAIN_VALUE);
 
         logger.debug(response);
 
         assertTrue("Received unexpected response!",
-                   response.contains("org.carlspring.maven:test-project:1.0.11.3:jar") &&
-                   response.contains("org.carlspring.maven:test-project:1.0.11.3.1:jar"));
+                   response.contains("org.carlspring.strongbox.searches:test-project:1.0.11.3:jar") &&
+                   response.contains("org.carlspring.strongbox.searches:test-project:1.0.11.3.1:jar"));
     }
 
     @Test
     public void testSearchJSON()
             throws Exception
     {
-        String response = client.search("g:org.carlspring.maven a:test-project", MediaType.APPLICATION_JSON_VALUE);
+        String response = client.search("g:org.carlspring.strongbox.searches a:test-project", MediaType.APPLICATION_JSON_VALUE);
 
         System.out.println(response);
 
-        Assert.assertTrue("Received unexpected response!",
-                          response.contains("\"version\" : \"1.0.11.3\"") &&
-                          response.contains("\"version\" : \"1.0.11.3.1\""));
+        assertTrue("Received unexpected response!",
+                   response.contains("\"version\" : \"1.0.11.3\"") &&
+                   response.contains("\"version\" : \"1.0.11.3.1\""));
     }
 
     @Test
     public void testSearchXML()
             throws Exception
     {
-        String response = client.search("g:org.carlspring.maven a:test-project", MediaType.APPLICATION_XML_VALUE);
+        String response = client.search("g:org.carlspring.strongbox.searches a:test-project", MediaType.APPLICATION_XML_VALUE);
 
         System.out.println(response);
 
-        Assert.assertTrue("Received unexpected response!",
-                          response.contains(">1.0.11.3<") && response.contains(">1.0.11.3.1<"));
+        assertTrue("Received unexpected response!",
+                   response.contains(">1.0.11.3<") && response.contains(">1.0.11.3.1<"));
     }
 
-    private boolean isInitialized()
-    {
-        return new File(ConfigurationResourceResolver.getVaultDirectory() +
-                        "/storages/storage0/releases/org/carlspring/maven/test-project").exists();
-    }
 }

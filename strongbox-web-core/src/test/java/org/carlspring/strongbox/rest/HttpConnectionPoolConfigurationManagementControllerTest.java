@@ -54,13 +54,13 @@ public class HttpConnectionPoolConfigurationManagementControllerTest
 
         String url = getContextBaseUrl() + "/configuration/proxy/connection-pool";
 
-        ExtractableResponse response = given()
-                                               .contentType(MediaType.TEXT_PLAIN_VALUE)
-                                               .when()
-                                               .get(url)
-                                               .peek()
-                                               .then()
-                                               .statusCode(200).extract();
+        ExtractableResponse response = given().contentType(MediaType.TEXT_PLAIN_VALUE)
+                                              .when()
+                                              .get(url)
+                                              .peek()
+                                              .then()
+                                              .statusCode(200)
+                                              .extract();
 
         String str = response.response().getBody().asString();
 
@@ -73,13 +73,13 @@ public class HttpConnectionPoolConfigurationManagementControllerTest
     {
         String url = getContextBaseUrl() + "/configuration/proxy/connection-pool/max/200";
 
-        ExtractableResponse response = given()
-                                               .contentType(MediaType.TEXT_PLAIN_VALUE)
-                                               .when()
-                                               .put(url)
-                                               .peek()
-                                               .then()
-                                               .statusCode(200).extract();
+        ExtractableResponse response = given().contentType(MediaType.TEXT_PLAIN_VALUE)
+                                              .when()
+                                              .put(url)
+                                              .peek()
+                                              .then()
+                                              .statusCode(200)
+                                              .extract();
 
         Assert.assertEquals("Max number of connections for proxy repository was updated successfully.",
                             response.response().getBody().asString());
@@ -92,13 +92,13 @@ public class HttpConnectionPoolConfigurationManagementControllerTest
         String url = getContextBaseUrl() + "/configuration/proxy/connection-pool/default-number";
 
 
-        ExtractableResponse response = given()
-                                               .contentType(MediaType.TEXT_PLAIN_VALUE)
-                                               .when()
-                                               .get(url)
-                                               .peek()
-                                               .then()
-                                               .statusCode(200).extract();
+        ExtractableResponse response = given().contentType(MediaType.TEXT_PLAIN_VALUE)
+                                              .when()
+                                              .get(url)
+                                              .peek()
+                                              .then()
+                                              .statusCode(200)
+                                              .extract();
 
         String str = response.response().getBody().asString();
         Assert.assertEquals(Integer.valueOf(5), Integer.valueOf(str));
@@ -109,13 +109,13 @@ public class HttpConnectionPoolConfigurationManagementControllerTest
     {
         String url = getContextBaseUrl() + "/configuration/proxy/connection-pool/default/5";
 
-        ExtractableResponse response = given()
-                                               .contentType(MediaType.TEXT_PLAIN_VALUE)
-                                               .when()
-                                               .put(url)
-                                               .peek()
-                                               .then()
-                                               .statusCode(200).extract();
+        ExtractableResponse response = given().contentType(MediaType.TEXT_PLAIN_VALUE)
+                                              .when()
+                                              .put(url)
+                                              .peek()
+                                              .then()
+                                              .statusCode(200)
+                                              .extract();
 
         Assert.assertEquals("Default number of connections for proxy repository was updated successfully.",
                             response.response().getBody().asString());
@@ -142,13 +142,13 @@ public class HttpConnectionPoolConfigurationManagementControllerTest
                      repository.getStorage().getId() + "/" +
                      repository.getId() + "/5";
 
-        ExtractableResponse response = given()
-                                               .contentType(MediaType.TEXT_PLAIN_VALUE)
-                                               .when()
-                                               .put(url)
-                                               .peek()
-                                               .then()
-                                               .statusCode(200).extract();
+        ExtractableResponse response = given().contentType(MediaType.TEXT_PLAIN_VALUE)
+                                              .when()
+                                              .put(url)
+                                              .peek()
+                                              .then()
+                                              .statusCode(200)
+                                              .extract();
 
         Assert.assertEquals("Number of pool connections for repository was updated successfully.",
                             response.response().getBody().asString());
@@ -175,13 +175,13 @@ public class HttpConnectionPoolConfigurationManagementControllerTest
                 getContextBaseUrl() + "/configuration/proxy/connection-pool/" + repository.getStorage().getId() + "/" +
                 repository.getId();
 
-        ExtractableResponse response = given()
-                                               .contentType(MediaType.TEXT_PLAIN_VALUE)
-                                               .when()
-                                               .get(url)
-                                               .peek()
-                                               .then()
-                                               .statusCode(200).extract();
+        ExtractableResponse response = given().contentType(MediaType.TEXT_PLAIN_VALUE)
+                                              .when()
+                                              .get(url)
+                                              .peek()
+                                              .then()
+                                              .statusCode(200)
+                                              .extract();
 
         Assert.assertEquals(new PoolStats(0, 0, 0, 5).toString(), response.response().getBody().asString());
     }
