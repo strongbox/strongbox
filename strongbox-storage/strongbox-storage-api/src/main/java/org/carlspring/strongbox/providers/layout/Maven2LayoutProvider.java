@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import static org.carlspring.commons.io.FileUtils.moveDirectory;
+import static org.carlspring.strongbox.util.FileUtils.deleteIfExists;
 
 /**
  * @author carlspring
@@ -181,6 +182,8 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
                 if ((repository.isTrashEnabled() && !force) || (force && !repository.allowsForceDeletion()))
                 {
                     File trashFile = storageProvider.getFileImplementation(basedirTrash.getPath(), path).getCanonicalFile();
+                    deleteIfExists(trashFile);
+
                     FileUtils.moveFile(artifactFile, trashFile);
 
                     logger.debug("Moved /" + repositoryId + "/" + path + " to trash (" + trashFile.getAbsolutePath() + ").");
@@ -200,6 +203,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
                 if ((repository.isTrashEnabled() && !force) || (force && !repository.allowsForceDeletion()))
                 {
                     File trashFile = storageProvider.getFileImplementation(basedirTrash.getPath(), path).getCanonicalFile();
+                    deleteIfExists(trashFile);
 
                     moveDirectory(artifactFile.toPath(), trashFile.toPath());
 
@@ -227,6 +231,8 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         if (md5ChecksumFile.exists())
         {
             File md5TrashFile = storageProvider.getFileImplementation(basedirTrash.getPath(), path + ".md5").getCanonicalFile();
+            deleteIfExists(md5TrashFile);
+
             FileUtils.moveFile(md5ChecksumFile, md5TrashFile);
 
             logger.debug("Moved /" + repository.getId() + "/" + path + ".md5" + " to trash (" + md5TrashFile.getAbsolutePath() + ").");
@@ -236,6 +242,8 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         if (sha1ChecksumFile.exists())
         {
             File sha1TrashFile = storageProvider.getFileImplementation(basedirTrash.getPath(), path + ".sha1").getCanonicalFile();
+            deleteIfExists(sha1TrashFile);
+
             FileUtils.moveFile(sha1ChecksumFile, sha1TrashFile);
 
             logger.debug("Moved /" + repository.getId() + "/" + path + ".sha1" + " to trash (" + sha1TrashFile.getAbsolutePath() + ").");

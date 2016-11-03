@@ -376,8 +376,7 @@ public class ArtifactController
     @ApiOperation(value = "Copies a path from one repository to another.", position = 4)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The path was copied successfully."),
                             @ApiResponse(code = 400, message = "Bad request."),
-                            @ApiResponse(code = 404,
-                                    message = "The source/destination storageId/repositoryId/path does not exist!") })
+                            @ApiResponse(code = 404, message = "The source/destination storageId/repositoryId/path does not exist!") })
     @PreAuthorize("hasAuthority('ARTIFACTS_COPY')")
     @RequestMapping(produces = MediaType.TEXT_PLAIN_VALUE, value = "/copy/**", method = RequestMethod.POST)
     public ResponseEntity copy(@ApiParam(value = "The source storageId", required = true)

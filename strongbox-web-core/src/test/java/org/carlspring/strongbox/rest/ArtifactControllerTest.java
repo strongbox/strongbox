@@ -41,8 +41,11 @@ public class ArtifactControllerTest
 {
 
     private static final String TEST_RESOURCES = "target/test-resources";
+
     private static File GENERATOR_BASEDIR;
+
     private static File REPOSITORY_BASEDIR_RELEASES;
+
 
     @BeforeClass
     public static void setUpClass()
@@ -249,15 +252,20 @@ public class ArtifactControllerTest
     public void testCopyArtifactFile()
             throws Exception
     {
+        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+                         "org.carlspring.strongbox.copy:copy-foo",
+                         "1.1" );
+
         final File destRepositoryBasedir = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                     "/storages/storage0/releases-with-trash");
 
         String artifactPath = "org/carlspring/strongbox/copy/copy-foo/1.1/copy-foo-1.1.jar";
 
-        File artifactFileRestoredFromTrash = new File(destRepositoryBasedir + "/" + artifactPath).getAbsoluteFile();
-        if (artifactFileRestoredFromTrash.exists())
+        File destArtifactFile = new File(destRepositoryBasedir + "/" + artifactPath).getAbsoluteFile();
+        if (destArtifactFile.exists())
         {
-            artifactFileRestoredFromTrash.delete();
+            //noinspection ResultOfMethodCallIgnored
+            destArtifactFile.delete();
         }
 
         client.copy(artifactPath,
@@ -267,7 +275,7 @@ public class ArtifactControllerTest
                     "releases-with-trash");
 
         assertTrue("Failed to copy artifact to destination repository '" + destRepositoryBasedir + "'!",
-                   artifactFileRestoredFromTrash.exists());
+                   destArtifactFile.exists());
     }
 
     @Test
@@ -513,42 +521,42 @@ public class ArtifactControllerTest
         Metadata groupLevelMetadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
                                                               ArtifactUtils.getGroupLevelMetadataPath(artifact1));
 
-        Assert.assertNotNull(groupLevelMetadata);
-        Assert.assertEquals(2, groupLevelMetadata.getPlugins().size());
+        assertNotNull(groupLevelMetadata);
+        assertEquals(2, groupLevelMetadata.getPlugins().size());
 
         // Artifact Level metadata
         Metadata artifactLevelMetadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
                                                                  ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
 
-        Assert.assertNotNull(artifactLevelMetadata);
-        Assert.assertEquals(groupId, artifactLevelMetadata.getGroupId());
-        Assert.assertEquals(artifactId1, artifactLevelMetadata.getArtifactId());
-        Assert.assertEquals(version2, artifactLevelMetadata.getVersioning().getLatest());
-        Assert.assertEquals(version2, artifactLevelMetadata.getVersioning().getRelease());
-        Assert.assertEquals(2, artifactLevelMetadata.getVersioning().getVersions().size());
-        Assert.assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
+        assertNotNull(artifactLevelMetadata);
+        assertEquals(groupId, artifactLevelMetadata.getGroupId());
+        assertEquals(artifactId1, artifactLevelMetadata.getArtifactId());
+        assertEquals(version2, artifactLevelMetadata.getVersioning().getLatest());
+        assertEquals(version2, artifactLevelMetadata.getVersioning().getRelease());
+        assertEquals(2, artifactLevelMetadata.getVersioning().getVersions().size());
+        assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
 
         artifactLevelMetadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
                                                         ArtifactUtils.getArtifactLevelMetadataPath(artifact2));
 
-        Assert.assertNotNull(artifactLevelMetadata);
-        Assert.assertEquals(groupId, artifactLevelMetadata.getGroupId());
-        Assert.assertEquals(artifactId2, artifactLevelMetadata.getArtifactId());
-        Assert.assertEquals(version2, artifactLevelMetadata.getVersioning().getLatest());
-        Assert.assertEquals(version2, artifactLevelMetadata.getVersioning().getRelease());
-        Assert.assertEquals(2, artifactLevelMetadata.getVersioning().getVersions().size());
-        Assert.assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
+        assertNotNull(artifactLevelMetadata);
+        assertEquals(groupId, artifactLevelMetadata.getGroupId());
+        assertEquals(artifactId2, artifactLevelMetadata.getArtifactId());
+        assertEquals(version2, artifactLevelMetadata.getVersioning().getLatest());
+        assertEquals(version2, artifactLevelMetadata.getVersioning().getRelease());
+        assertEquals(2, artifactLevelMetadata.getVersioning().getVersions().size());
+        assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
 
         artifactLevelMetadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
                                                         ArtifactUtils.getArtifactLevelMetadataPath(artifact5));
 
-        Assert.assertNotNull(artifactLevelMetadata);
-        Assert.assertEquals(groupId, artifactLevelMetadata.getGroupId());
-        Assert.assertEquals(artifactId3, artifactLevelMetadata.getArtifactId());
-        Assert.assertEquals(version2, artifactLevelMetadata.getVersioning().getLatest());
-        Assert.assertEquals(version2, artifactLevelMetadata.getVersioning().getRelease());
-        Assert.assertEquals(2, artifactLevelMetadata.getVersioning().getVersions().size());
-        Assert.assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
+        assertNotNull(artifactLevelMetadata);
+        assertEquals(groupId, artifactLevelMetadata.getGroupId());
+        assertEquals(artifactId3, artifactLevelMetadata.getArtifactId());
+        assertEquals(version2, artifactLevelMetadata.getVersioning().getLatest());
+        assertEquals(version2, artifactLevelMetadata.getVersioning().getRelease());
+        assertEquals(2, artifactLevelMetadata.getVersioning().getVersions().size());
+        assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
     }
 
     @Test
@@ -583,7 +591,7 @@ public class ArtifactControllerTest
         //Aca deberiamos mirar el FS y a la mierda
         Metadata metadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
                                                     ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
-        Assert.assertTrue(!metadata.getVersioning().getVersions().contains("1.2.2"));
+        assertTrue(!metadata.getVersioning().getVersions().contains("1.2.2"));
     }
 
     @Test
@@ -625,7 +633,7 @@ public class ArtifactControllerTest
         // Then
         Metadata metadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
                                                     ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
-        Assert.assertTrue(!metadata.getVersioning().getVersions().contains("3.1-SNAPSHOT"));
+        assertTrue(!metadata.getVersioning().getVersions().contains("3.1-SNAPSHOT"));
     }
 
     private boolean checkSnapshotVersionExistsInMetadata(Metadata versionLevelMetadata,

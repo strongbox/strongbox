@@ -40,6 +40,7 @@ public class RestAssuredArtifactClient
     public final static boolean VALIDATE_RESOURCE_ON_GET = false;
 
     public final static int OK = HttpStatus.OK.value();
+
     public final static int PARTIAL_CONTENT = HttpStatus.PARTIAL_CONTENT.value();
 
     private String contextBaseUrl;
@@ -235,9 +236,8 @@ public class RestAssuredArtifactClient
                        boolean force)
             throws ArtifactOperationException
     {
-        String url =
-                getContextBaseUrl() + ArtifactController.ROOT_CONTEXT + "/" + storageId + "/" + repositoryId + "/" +
-                path;
+        String url = getContextBaseUrl() + ArtifactController.ROOT_CONTEXT + "/" +
+                     storageId + "/" + repositoryId + "/" + path;
 
         given().contentType(MediaType.TEXT_PLAIN_VALUE)
                .param("force", force)
@@ -273,13 +273,12 @@ public class RestAssuredArtifactClient
         String url = getContextBaseUrl() + "/metadata/" + storageId + "/" + repositoryId + "/" +
                      (basePath != null ? basePath : "");
 
-        given()
-                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .when()
-                .post(url)
-                .peek()
-                .then()
-                .statusCode(OK);
+        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+               .when()
+               .post(url)
+               .peek()
+               .then()
+               .statusCode(OK);
     }
 
     public void removeVersionFromMetadata(String storageId,
@@ -293,16 +292,15 @@ public class RestAssuredArtifactClient
                      storageId + "/" + repositoryId + "/" +
                      (artifactPath != null ? artifactPath : "");
 
-        given()
-                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .params("version", version,
-                        "classifier", classifier,
-                        "metadataType", metadataType)
-                .when()
-                .delete(url)
-                .peek()
-                .then()
-                .statusCode(OK);
+        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+               .params("version", version,
+                       "classifier", classifier,
+                       "metadataType", metadataType)
+               .when()
+               .delete(url)
+               .peek()
+               .then()
+               .statusCode(OK);
     }
 
     public String search(String query,
@@ -337,4 +335,5 @@ public class RestAssuredArtifactClient
                       .then()
                       .statusCode(OK).extract().response().getBody().asString();
     }
+
 }

@@ -7,11 +7,13 @@ import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 
 import java.io.File;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration.generateArtifact;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -43,8 +45,10 @@ public class TrashControllerUndeleteTest
         super.init();
 
         // remove release directory
-        removeDir(new File(REPOSITORY_WITH_TRASH));
-        removeDir(new File(REPOSITORY_WITH_TRASH_BASEDIR));
+        removeDir(new File(REPOSITORY_WITH_TRASH, "org"));
+        removeDir(new File(REPOSITORY_WITH_TRASH, "com"));
+        removeDir(new File(REPOSITORY_WITH_TRASH, ".trash/org"));
+        removeDir(new File(REPOSITORY_WITH_TRASH, ".trash/com"));
 
         try
         {
@@ -53,10 +57,8 @@ public class TrashControllerUndeleteTest
             logger.debug("REPOSITORY_WITH_TRASH_BASEDIR: " + REPOSITORY_WITH_TRASH_BASEDIR);
             logger.debug("BASEDIR.getAbsolutePath(): " + BASEDIR.getAbsolutePath());
 
-            TestCaseWithArtifactGeneration.generateArtifact(REPOSITORY_WITH_TRASH_BASEDIR, gavtc,
-                                                            new String[]{ "1.0" });
-            TestCaseWithArtifactGeneration.generateArtifact(
-                    BASEDIR.getAbsolutePath() + "/storages/" + STORAGE + "/releases", gavtc, new String[]{ "1.1" });
+            generateArtifact(REPOSITORY_WITH_TRASH_BASEDIR, gavtc, "1.0");
+            generateArtifact(BASEDIR.getAbsolutePath() + "/storages/" + STORAGE + "/releases", gavtc, "1.1");
 
             // Delete the artifact (this one should get placed under the .trash)
             client.delete(STORAGE,
