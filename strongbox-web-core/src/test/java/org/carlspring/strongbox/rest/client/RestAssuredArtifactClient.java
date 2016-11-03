@@ -109,7 +109,7 @@ public class RestAssuredArtifactClient
             throw new ArtifactOperationException("Unable to convert to byte array", e);
         }
 
-        logger.debug("[put] url = " + url);
+        logger.debug("Deploying " + url);
 
         given().contentType(mediaType)
                .header("Content-Disposition", contentDisposition)
