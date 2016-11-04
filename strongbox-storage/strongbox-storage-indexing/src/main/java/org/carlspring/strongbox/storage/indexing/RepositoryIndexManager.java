@@ -31,7 +31,7 @@ public class RepositoryIndexManager
     @PreDestroy
     private void close()
     {
-        /*
+
         for (String storageAndRepository : indexes.keySet())
         {
             try
@@ -42,7 +42,7 @@ public class RepositoryIndexManager
             {
                 logger.error(e.getMessage(), e);
             }
-        }*/
+        }
     }
 
     public void closeIndexersForStorage(String storageId)

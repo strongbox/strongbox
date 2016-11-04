@@ -47,9 +47,11 @@ public class MetadataManagementControllerTest
             throws Exception
     {
 
-        // remove release and snapshot directories
-        removeDir(new File(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath()));
-        removeDir(new File(REPOSITORY_BASEDIR_SNAPSHOTS.getAbsolutePath()));
+        // remove possible artifacts from previous test execution
+        removeDir(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() +
+                  "/org/carlspring/strongbox/metadata/strongbox-metadata");
+        removeDir(REPOSITORY_BASEDIR_SNAPSHOTS.getAbsolutePath() +
+                  "/org/carlspring/strongbox/metadata/strongbox-metadata");
 
         // Generate releases
         generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
