@@ -275,38 +275,46 @@ public class RepositoryIndexer
                                    Artifact artifact)
             throws IOException
     {
-        String extension = artifactFile.getName().substring(artifactFile.getName().lastIndexOf(".") + 1,
-                                                            artifactFile.getName().length());
-
-        ArtifactInfo artifactInfo = new ArtifactInfo(repositoryId,
-                                                     artifact.getGroupId(),
-                                                     artifact.getArtifactId(),
-                                                     artifact.getVersion(),
-                                                     obtainClassifier(artifact),
-                                                     extension);
-        if (artifact.getType() != null)
+        try
         {
-            artifactInfo.setFieldValue(MAVEN.PACKAGING, artifact.getType());
+            String extension = artifactFile.getName().substring(artifactFile.getName().lastIndexOf(".") + 1,
+                                                                artifactFile.getName().length());
+
+            ArtifactInfo artifactInfo = new ArtifactInfo(repositoryId,
+                                                         artifact.getGroupId(),
+                                                         artifact.getArtifactId(),
+                                                         artifact.getVersion(),
+                                                         obtainClassifier(artifact),
+                                                         extension);
+
+            if (artifact.getType() != null)
+            {
+                artifactInfo.setFieldValue(MAVEN.PACKAGING, artifact.getType());
+            }
+
+            logger.debug("Adding artifact: {}; repo: {}; type: {}", new String[]{ artifact.getGroupId() + ":" +
+                                                                                  artifact.getArtifactId() + ":" +
+                                                                                  artifact.getVersion() + ":" +
+                                                                                  artifactInfo.getClassifier() + ":" +
+                                                                                  extension,
+                                                                                  repositoryId,
+                                                                                  artifact.getType() });
+
+            File pomFile = new File(artifactFile.getAbsolutePath() + ".pom");
+            // TODO: Improve this to support timestamped SNAPSHOT-s:
+            File metadataFile = new File(artifactFile.getParentFile().getParentFile(), "maven-metadata.xml");
+
+            getIndexer().addArtifactsToIndex(asList(new ArtifactContext(pomFile.exists() ? pomFile : null,
+                                                                        artifactFile,
+                                                                        metadataFile.exists() ? metadataFile : null,
+                                                                        artifactInfo,
+                                                                        artifactInfo.calculateGav())),
+                                             indexingContext);
         }
-
-        logger.debug("Adding artifact: {}; repo: {}; type: {}", new String[]{ artifact.getGroupId() + ":" +
-                                                                              artifact.getArtifactId() + ":" +
-                                                                              artifact.getVersion() + ":" +
-                                                                              artifactInfo.getClassifier() + ":" +
-                                                                              extension,
-                                                                              repositoryId,
-                                                                              artifact.getType() });
-
-        File pomFile = new File(artifactFile.getAbsolutePath() + ".pom");
-        // TODO: Improve this to support timestamped SNAPSHOT-s:
-        File metadataFile = new File(artifactFile.getParentFile().getParentFile(), "maven-metadata.xml");
-
-        getIndexer().addArtifactsToIndex(asList(new ArtifactContext(pomFile.exists() ? pomFile : null,
-                                                                    artifactFile,
-                                                                    metadataFile.exists() ? metadataFile : null,
-                                                                    artifactInfo,
-                                                                    artifactInfo.calculateGav())),
-                                         indexingContext);
+        catch (Exception e) // it's not really a critical problem, artifacts could be added to index later
+        {
+            logger.warn("Unable to add artifacts to index", e);
+        }
     }
 
     private String obtainClassifier(Artifact artifactInfo)

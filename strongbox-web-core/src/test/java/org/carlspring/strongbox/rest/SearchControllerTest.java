@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -39,6 +40,11 @@ public class SearchControllerTest
     {
         super.init();
 
+        prepareMockData();
+    }
+
+    private void prepareMockData()
+    {
         File repositoryBasedir = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                           "/storages/storage0/releases");
         removeDir(new File(repositoryBasedir, "org/carlspring/strongbox/searches/test-project").getAbsolutePath());
@@ -62,23 +68,20 @@ public class SearchControllerTest
             artifactDeployer.generateAndDeployArtifact(artifact2, classifiers, "storage0", "releases", "jar");
             artifactDeployer.generateAndDeployArtifact(artifact3, classifiers, "storage0", "releases", "jar");
 
-            // initialize indexes
-            storageBooter.reInitializeRepositoryIndex("storage0", "releases");
-
+            // initialize indexes (for IDE launches)
             if (repositoryIndexManager.getIndexes().isEmpty())
             {
-                throw new RuntimeException("Indexes are empty");
-            }
-            else
-            {
+                storageBooter.reInitializeRepositoryIndex("storage0", "releases");
+
                 final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndex(
                         "storage0:releases");
+                assertNotNull(repositoryIndexer);
                 repositoryIndexer.index(new File("org/carlspring/strongbox/searches"));
             }
         }
         catch (Exception e)
         {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Unable to prepare mock data", e);
         }
     }
 
@@ -86,15 +89,12 @@ public class SearchControllerTest
     public void doSearchTests()
             throws Exception
     {
-
         final String q = "g:org.carlspring.strongbox.searches a:test-project";
 
         // testSearchPlainText
         String response = client.search(q, MediaType.TEXT_PLAIN_VALUE);
 
-        logger.debug(response);
-
-        assertTrue("Received unexpected response!",
+        assertTrue("Received unexpected response! \n" + response + "\n",
                    response.contains("org.carlspring.strongbox.searches:test-project:1.0.11.3:jar") &&
                    response.contains("org.carlspring.strongbox.searches:test-project:1.0.11.3.1:jar"));
 
@@ -102,18 +102,14 @@ public class SearchControllerTest
 
         response = client.search(q, MediaType.APPLICATION_JSON_VALUE);
 
-        logger.debug(response);
-
-        assertTrue("Received unexpected response!",
+        assertTrue("Received unexpected response! \n" + response + "\n",
                    response.contains("\"version\":\"1.0.11.3\"") &&
                    response.contains("\"version\":\"1.0.11.3.1\""));
 
         // testSearchXML
         response = client.search(q, MediaType.APPLICATION_XML_VALUE);
 
-        System.out.println(response);
-
-        assertTrue("Received unexpected response!",
+        assertTrue("Received unexpected response! \n" + response + "\n",
                    response.contains(">1.0.11.3<") && response.contains(">1.0.11.3.1<"));
     }
 }

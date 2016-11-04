@@ -94,12 +94,10 @@ public class ArtifactController
 
             return ResponseEntity.ok("The artifact was deployed successfully.");
         }
-        catch (IOException e)
+        catch (Exception e)
         {
-            // TODO: Figure out if this is the correct response type...
             logger.error(e.getMessage(), e);
-
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 

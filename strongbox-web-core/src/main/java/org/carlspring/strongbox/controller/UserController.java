@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.controller;
 
-import org.carlspring.strongbox.rest.UserRestlet;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.service.UserService;
 
@@ -10,15 +9,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -28,9 +23,8 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 @RequestMapping("/users")
 public class UserController
+        extends BaseController
 {
-
-    private static final Logger logger = LoggerFactory.getLogger(UserRestlet.class);
 
     @Inject
     UserService userService;
@@ -40,9 +34,6 @@ public class UserController
 
     @Inject
     CacheManager cacheManager;
-
-    @Inject
-    ObjectMapper objectMapper;
 
     // ----------------------------------------------------------------------------------------------------------------
     // This method exists for testing purpose
@@ -55,7 +46,7 @@ public class UserController
     public
     @ResponseBody
     ResponseEntity greet(@PathVariable String anyString,
-                                      @RequestParam(value = "name", required = false) String param)
+                         @RequestParam(value = "name", required = false) String param)
     {
         logger.debug("UserController -> Say hello to " + param + ". Path variable " + anyString);
         return toResponse("hello, " + param);
@@ -72,7 +63,7 @@ public class UserController
     @RequestMapping(value = "/user", method = RequestMethod.POST)
     public
     @ResponseBody
-    synchronized ResponseEntity create(@RequestParam(value = "juser", required = false) String userJson)
+    ResponseEntity create(@RequestParam(value = "juser", required = false) String userJson)
     {
         databaseTx.activateOnCurrentThread();
         User user = databaseTx.detach(userService.save(read(userJson, User.class)), true);
@@ -111,7 +102,7 @@ public class UserController
     @RequestMapping(value = "/all", method = RequestMethod.GET)
     public
     @ResponseBody
-    synchronized ResponseEntity getUsers()
+    ResponseEntity getUsers()
     {
         Optional<List<User>> possibleUsers = userService.findAll();
         if (possibleUsers.isPresent())
@@ -139,7 +130,7 @@ public class UserController
     @RequestMapping(value = "user", method = RequestMethod.PUT)
     public
     @ResponseBody
-    synchronized ResponseEntity update(@RequestParam(value = "juser", required = false) String userJson)
+    ResponseEntity update(@RequestParam(value = "juser", required = false) String userJson)
     {
 
         User user = read(userJson, User.class);
@@ -209,16 +200,5 @@ public class UserController
         {
             return toError(e);
         }
-    }
-
-    private synchronized ResponseEntity toError(String message)
-    {
-        return toError(new RuntimeException(message));
-    }
-
-    private synchronized ResponseEntity toError(Throwable cause)
-    {
-        logger.error(cause.getMessage(), cause);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(cause.getMessage());
     }
 }
