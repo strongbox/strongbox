@@ -77,7 +77,8 @@ public class StorageBooter
                 {
                     logger.error("Failed to initialize the repositories for storage '" + storageKey + "'.", e);
 
-                    throw new RuntimeException("Failed to initialize the repositories for storage '" + storageKey + "'.");
+                    throw new RuntimeException("Failed to initialize the repositories for storage '" + storageKey +
+                                               "'.");
                 }
             }
         }
@@ -227,7 +228,18 @@ public class StorageBooter
                                                                                                repositoryBasedir,
                                                                                                indexDir);
 
-        repositoryIndexManager.addRepositoryIndex(storage + ":" + repositoryId, repositoryIndexer);
+        repositoryIndexManager.addRepositoryIndex(storage.getId() + ":" + repositoryId, repositoryIndexer);
+    }
+
+    public void reInitializeRepositoryIndex(String storageId,
+                                            String repositoryId)
+            throws Exception
+    {
+        Storage storage = getConfiguration().getStorage(storageId);
+        if (storage != null)
+        {
+            initializeRepositoryIndex(storage, repositoryId);
+        }
     }
 
     public RepositoryManagementService getRepositoryManagementService()
@@ -254,5 +266,4 @@ public class StorageBooter
     {
         return configurationManager.getConfiguration();
     }
-
 }

@@ -65,11 +65,12 @@ public class SearchController
                                  HttpServletRequest request)
             throws IOException, ParseException, JAXBException
     {
-
+        String accept = request.getHeader("accept");
         String q = URLDecoder.decode(query, "UTF-8");
-        logger.info("[search] " + q);
+        logger.info("[search] " + q + "\n\taccept " + accept + "\n\tstorageId = " + storageId + "\n\trepositoryId = " +
+                    repositoryId);
 
-        if (request.getHeader("accept").equalsIgnoreCase("text/plain"))
+        if (accept.equalsIgnoreCase("text/plain"))
         {
             final SearchResults artifacts = getSearchResults(storageId, repositoryId, q);
             return ResponseEntity.ok(artifacts.toString());

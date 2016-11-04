@@ -2,10 +2,14 @@ package org.carlspring.strongbox.rest;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.generator.ArtifactDeployer;
+import org.carlspring.strongbox.booters.StorageBooter;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.rest.context.IntegrationTest;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 
+import javax.inject.Inject;
 import java.io.File;
 
 import org.apache.maven.artifact.Artifact;
@@ -24,12 +28,19 @@ public class SearchControllerTest
         extends RestAssuredBaseTest
 {
 
+    @Inject
+    StorageBooter storageBooter;
+
+    @Inject
+    RepositoryIndexManager repositoryIndexManager;
+
     @Override
     public void init()
     {
         super.init();
 
-        File repositoryBasedir = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/releases");
+        File repositoryBasedir = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                          "/storages/storage0/releases");
         removeDir(new File(repositoryBasedir, "org/carlspring/strongbox/searches/test-project").getAbsolutePath());
 
         try
@@ -50,6 +61,20 @@ public class SearchControllerTest
             artifactDeployer.generateAndDeployArtifact(artifact1, classifiers, "storage0", "releases", "jar");
             artifactDeployer.generateAndDeployArtifact(artifact2, classifiers, "storage0", "releases", "jar");
             artifactDeployer.generateAndDeployArtifact(artifact3, classifiers, "storage0", "releases", "jar");
+
+            // initialize indexes
+            storageBooter.reInitializeRepositoryIndex("storage0", "releases");
+
+            if (repositoryIndexManager.getIndexes().isEmpty())
+            {
+                throw new RuntimeException("Indexes are empty");
+            }
+            else
+            {
+                final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndex(
+                        "storage0:releases");
+                repositoryIndexer.index(new File("org/carlspring/strongbox/searches"));
+            }
         }
         catch (Exception e)
         {
@@ -58,41 +83,37 @@ public class SearchControllerTest
     }
 
     @Test
-    public void testSearchPlainText()
+    public void doSearchTests()
             throws Exception
     {
-        String response = client.search("g:org.carlspring.strongbox.searches a:test-project", MediaType.TEXT_PLAIN_VALUE);
+
+        final String q = "g:org.carlspring.strongbox.searches a:test-project";
+
+        // testSearchPlainText
+        String response = client.search(q, MediaType.TEXT_PLAIN_VALUE);
 
         logger.debug(response);
 
         assertTrue("Received unexpected response!",
                    response.contains("org.carlspring.strongbox.searches:test-project:1.0.11.3:jar") &&
                    response.contains("org.carlspring.strongbox.searches:test-project:1.0.11.3.1:jar"));
-    }
 
-    @Test
-    public void testSearchJSON()
-            throws Exception
-    {
-        String response = client.search("g:org.carlspring.strongbox.searches a:test-project", MediaType.APPLICATION_JSON_VALUE);
+        // testSearchJSON
 
-        System.out.println(response);
+        response = client.search(q, MediaType.APPLICATION_JSON_VALUE);
+
+        logger.debug(response);
 
         assertTrue("Received unexpected response!",
-                   response.contains("\"version\" : \"1.0.11.3\"") &&
-                   response.contains("\"version\" : \"1.0.11.3.1\""));
-    }
+                   response.contains("\"version\":\"1.0.11.3\"") &&
+                   response.contains("\"version\":\"1.0.11.3.1\""));
 
-    @Test
-    public void testSearchXML()
-            throws Exception
-    {
-        String response = client.search("g:org.carlspring.strongbox.searches a:test-project", MediaType.APPLICATION_XML_VALUE);
+        // testSearchXML
+        response = client.search(q, MediaType.APPLICATION_XML_VALUE);
 
         System.out.println(response);
 
         assertTrue("Received unexpected response!",
                    response.contains(">1.0.11.3<") && response.contains(">1.0.11.3.1<"));
     }
-
 }
