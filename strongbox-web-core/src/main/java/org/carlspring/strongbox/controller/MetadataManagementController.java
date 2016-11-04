@@ -10,12 +10,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -32,12 +28,11 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 @Controller
 @RequestMapping("/metadata")
+@Api(value = "/metadata")
 @PreAuthorize("hasAuthority('ROOT')")
 public class MetadataManagementController
         extends BaseArtifactController
 {
-
-    private static final Logger logger = LoggerFactory.getLogger(MetadataManagementController.class);
 
     public final static String ROOT_CONTEXT = "/metadata";
 
@@ -49,9 +44,11 @@ public class MetadataManagementController
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('MANAGEMENT_REBUILD_METADATA')")
     @RequestMapping(value = "{storageId}/{repositoryId}/**",
-                    method = RequestMethod.POST,
-                    produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity rebuild(@PathVariable String storageId,
+            method = RequestMethod.POST,
+            produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity rebuild(@ApiParam(value = "The storageId", required = true)
+                                  @PathVariable String storageId,
+                                  @ApiParam(value = "The repositoryId", required = true)
                                   @PathVariable String repositoryId,
                                   HttpServletRequest request)
             throws IOException,
@@ -78,12 +75,17 @@ public class MetadataManagementController
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('MANAGEMENT_DELETE_METADATA')")
     @RequestMapping(value = "{storageId}/{repositoryId}/**",
-                    method = RequestMethod.DELETE,
-                    produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity delete(@PathVariable String storageId,
+            method = RequestMethod.DELETE,
+            produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity delete(@ApiParam(value = "The storageId", required = true)
+                                 @PathVariable String storageId,
+                                 @ApiParam(value = "The repositoryId", required = true)
                                  @PathVariable String repositoryId,
+                                 @ApiParam(value = "The version of the artifact.", required = true)
                                  @RequestParam(name = "version") String version,
+                                 @ApiParam(value = "The classifier of the artifact.")
                                  @RequestParam(name = "classifier") String classifier,
+                                 @ApiParam(value = "The type of metadata (artifact/snapshot/plugin).")
                                  @RequestParam(name = "metadataType") String metadataType,
                                  HttpServletRequest request)
             throws IOException,

@@ -10,9 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.springframework.cache.CacheManager;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/users")
+@Api(value = "/users")
 public class UserController
         extends BaseController
 {
@@ -46,7 +45,9 @@ public class UserController
     public
     @ResponseBody
     ResponseEntity greet(@PathVariable String anyString,
-                         @RequestParam(value = "name", required = false) String param)
+                         @ApiParam(value = "The param name", required = true)
+                         @RequestParam(value = "name", required = false)
+                                 String param)
     {
         logger.debug("UserController -> Say hello to " + param + ". Path variable " + anyString);
         return toResponse("hello, " + param);
@@ -63,7 +64,8 @@ public class UserController
     @RequestMapping(value = "/user", method = RequestMethod.POST)
     public
     @ResponseBody
-    ResponseEntity create(@RequestParam(value = "juser", required = false) String userJson)
+    ResponseEntity create(@ApiParam(value = "The user JSON", required = true)
+                          @RequestParam(value = "juser", required = false) String userJson)
     {
         databaseTx.activateOnCurrentThread();
         User user = databaseTx.detach(userService.save(read(userJson, User.class)), true);
@@ -86,7 +88,8 @@ public class UserController
     @RequestMapping(value = "user/{name}", method = RequestMethod.GET)
     public
     @ResponseBody
-    ResponseEntity getUser(@PathVariable String name)
+    ResponseEntity getUser(@ApiParam(value = "The name of the user", required = true)
+                           @PathVariable String name)
     {
         return toResponse(userService.findByUserName(name));
     }
@@ -160,7 +163,7 @@ public class UserController
     @RequestMapping(value = "user/{name}", method = RequestMethod.DELETE)
     public
     @ResponseBody
-    ResponseEntity delete(@RequestParam(value = "The name of the user", required = true) @PathVariable String name)
+    ResponseEntity delete(@ApiParam(value = "The name of the user") @PathVariable String name)
             throws Exception
     {
         User user = userService.findByUserName(name);

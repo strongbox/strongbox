@@ -1,9 +1,5 @@
 package org.carlspring.strongbox.utils;
 
-/**
- * Created by yury on 8/8/16.
- */
-
 import org.carlspring.commons.http.range.ByteRange;
 import org.carlspring.commons.http.range.ByteRangeHeaderParser;
 import org.carlspring.commons.io.ByteRangeInputStream;
@@ -21,8 +17,7 @@ import static org.springframework.http.HttpStatus.REQUESTED_RANGE_NOT_SATISFIABL
 public class ByteRangeRequestHandler
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(
-            org.carlspring.commons.http.range.ByteRangeRequestHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(ByteRangeRequestHandler.class);
 
     public ByteRangeRequestHandler()
     {

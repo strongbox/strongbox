@@ -138,12 +138,9 @@ public class AuthorizationConfigController
     public synchronized ResponseEntity getAuthorizationConfig()
             throws JAXBException
     {
-        logger.debug("Trying to receive authorization config as XML file...");
+        logger.debug("Trying to receive authorization config as XML / JSON file...");
 
-        // TODO Due to internal error in spring-data-orientdb
-        // com.orientechnologies.orient.client.remote.OStorageRemote cannot be cast to
-        // com.orientechnologies.orient.core.storage.impl.local.paginated.OLocalPaginatedStorage
-        return processConfig(null, config -> ResponseEntity.ok(configGenericParser.serialize(config)));
+        return processConfig(null, ResponseEntity::ok);
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -194,7 +191,8 @@ public class AuthorizationConfigController
     // ----------------------------------------------------------------------------------------------------------------
     // Assign privileges to the anonymous user
 
-    @RequestMapping(value = "anonymous/privileges", method = RequestMethod.POST,
+    @RequestMapping(value = "anonymous/privileges",
+            method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public synchronized ResponseEntity addPrivilegesToAnonymous(@RequestBody List<Privilege> privileges)
     {
@@ -205,7 +203,9 @@ public class AuthorizationConfigController
     // ----------------------------------------------------------------------------------------------------------------
     // Assign roles to the anonymous user
 
-    @RequestMapping(value = "anonymous/roles", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "anonymous/roles",
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
     public synchronized ResponseEntity addRolesToAnonymous(List<Role> roles)
     {
         return processConfig(config -> roles.forEach(role -> config.getRoles().getRoles().stream().filter(

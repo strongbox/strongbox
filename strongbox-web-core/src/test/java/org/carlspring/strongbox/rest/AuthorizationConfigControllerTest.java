@@ -8,6 +8,7 @@ import org.carlspring.strongbox.users.security.AuthorizationConfig;
 import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
+import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -16,9 +17,9 @@ import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -26,10 +27,10 @@ public class AuthorizationConfigControllerTest
         extends RestAssuredBaseTest
 {
 
-    @Autowired
+    @Inject
     AuthorizationConfigProvider configProvider;
 
-    @Autowired
+    @Inject
     OObjectDatabaseTx databaseTx;
 
     @Test
@@ -79,6 +80,7 @@ public class AuthorizationConfigControllerTest
             throws Exception
     {
         RestAssuredMockMvc.given()
+                          .contentType(APPLICATION_JSON_VALUE)
                           .when()
                           .get("/configuration/authorization/xml")
                           .peek() // Use peek() to print the output

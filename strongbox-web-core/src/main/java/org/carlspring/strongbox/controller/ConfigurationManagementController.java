@@ -17,12 +17,8 @@ import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -36,11 +32,10 @@ import org.springframework.web.bind.annotation.*;
  */
 @Controller
 @RequestMapping("/configuration/strongbox")
+@Api(value = "/configuration/strongbox")
 public class ConfigurationManagementController
         extends BaseController
 {
-
-    private static final Logger logger = LoggerFactory.getLogger(BaseController.class);
 
     @Autowired
     private ConfigurationManagementService configurationManagementService;
@@ -59,9 +54,13 @@ public class ConfigurationManagementController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The configuration was updated successfully."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_UPLOAD')")
-    @RequestMapping(value = "/xml", method = RequestMethod.PUT, produces = MediaType.TEXT_PLAIN_VALUE,
+    @RequestMapping(
+            value = "/xml",
+            method = RequestMethod.PUT,
+            produces = MediaType.TEXT_PLAIN_VALUE,
             consumes = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity setConfigurationXML(@RequestBody String serializedConfiguration)
+    public ResponseEntity setConfigurationXML(@ApiParam(value = "The strongbox.xml configuration file", required = true)
+                                              @RequestBody String serializedConfiguration)
             throws IOException,
                    AuthenticationException,
                    JAXBException
@@ -107,7 +106,8 @@ public class ConfigurationManagementController
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_SET_BASE_URL')")
     @RequestMapping(value = "/baseUrl", method = RequestMethod.PUT, consumes = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity setBaseUrl(@RequestBody String newBaseUrl)
+    public ResponseEntity setBaseUrl(@ApiParam(value = "The base URL", required = true)
+                                     @RequestBody String newBaseUrl)
             throws IOException,
                    AuthenticationException,
                    JAXBException
@@ -132,7 +132,10 @@ public class ConfigurationManagementController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "", response = String.class),
                             @ApiResponse(code = 404, message = "No value for baseUrl has been defined yet.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_BASE_URL')")
-    @RequestMapping(value = "/baseUrl", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(
+            value = "/baseUrl",
+            method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getBaseUrl()
             throws IOException,
                    AuthenticationException
@@ -153,7 +156,8 @@ public class ConfigurationManagementController
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_SET_PORT')")
     @RequestMapping(value = "port/{port}", method = RequestMethod.PUT, produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity setPort(@PathVariable int port)
+    public ResponseEntity setPort(@ApiParam(value = "The port of the service", required = true)
+                                  @PathVariable int port)
             throws IOException, JAXBException
     {
         try
@@ -188,8 +192,12 @@ public class ConfigurationManagementController
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_SET_GLOBAL_PROXY_CFG')")
     @RequestMapping(value = "/proxy-configuration", method = RequestMethod.PUT, consumes = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity setProxyConfiguration(@RequestParam(value = "storageId", required = false) String storageId,
-                                                @RequestParam(value = "repositoryId", required = false) String repositoryId,
+    public ResponseEntity setProxyConfiguration(@ApiParam(value = "The storageId")
+                                                @RequestParam(value = "storageId", required = false) String storageId,
+                                                @ApiParam(value = "The repositoryId")
+                                                @RequestParam(value = "repositoryId", required = false)
+                                                        String repositoryId,
+                                                @ApiParam(value = "The proxy configuration for this proxy repository", required = true)
                                                 @RequestBody String serializedProxyConfiguration)
             throws IOException,
                    JAXBException
@@ -218,8 +226,11 @@ public class ConfigurationManagementController
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_GLOBAL_PROXY_CFG')")
     @RequestMapping(value = "/proxy-configuration", method = RequestMethod.GET,
             produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity getProxyConfiguration(@RequestParam(value = "storageId", required = false) String storageId,
-                                                @RequestParam(value = "repositoryId", required = false) String repositoryId)
+    public ResponseEntity getProxyConfiguration(@ApiParam(value = "The storageId")
+                                                @RequestParam(value = "storageId", required = false) String storageId,
+                                                @ApiParam(value = "The repositoryId")
+                                                @RequestParam(value = "repositoryId", required = false)
+                                                        String repositoryId)
             throws IOException, JAXBException
     {
         ProxyConfiguration proxyConfiguration;
@@ -256,9 +267,11 @@ public class ConfigurationManagementController
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_ADD_UPDATE_STORAGE')")
     @RequestMapping(value = "/storages",
-                    method = RequestMethod.PUT,
-                    consumes = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity addOrUpdateStorage(@RequestBody Storage storage)
+            method = RequestMethod.PUT,
+            consumes = { MediaType.APPLICATION_XML_VALUE,
+                         MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity addOrUpdateStorage(@ApiParam(value = "The storage object", required = true)
+                                             @RequestBody Storage storage)
             throws IOException, JAXBException
     {
         try
@@ -286,7 +299,8 @@ public class ConfigurationManagementController
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_STORAGE_CONFIGURATION')")
     @RequestMapping(value = "/storages/{storageId}", method = RequestMethod.GET,
             consumes = { MediaType.TEXT_PLAIN_VALUE })
-    public ResponseEntity getStorage(@PathVariable final String storageId)
+    public ResponseEntity getStorage(@ApiParam(value = "The storageId", required = true)
+                                     @PathVariable final String storageId)
             throws IOException, ParseException
     {
         final Storage storage = configurationManagementService.getStorage(storageId);
@@ -319,8 +333,11 @@ public class ConfigurationManagementController
     @PreAuthorize("hasAuthority('CONFIGURATION_DELETE_STORAGE_CONFIGURATION')")
     @RequestMapping(value = "/storages/{storageId}", method = RequestMethod.DELETE,
             produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity removeStorage(@PathVariable final String storageId,
-                                        @RequestParam(name = "force", defaultValue = "false", required = true) final boolean force)
+    public ResponseEntity removeStorage(@ApiParam(value = "The storageId", required = true)
+                                        @PathVariable final String storageId,
+                                        @ApiParam(value = "Whether to force delete and remove the storage from the file system")
+                                        @RequestParam(name = "force", defaultValue = "false")
+                                        final boolean force)
             throws IOException, JAXBException
     {
         if (configurationManagementService.getStorage(storageId) != null)
@@ -360,10 +377,14 @@ public class ConfigurationManagementController
                             @ApiResponse(code = 500, message = "Failed to remove repository ${repositoryId}!") })
     @PreAuthorize("hasAuthority('CONFIGURATION_ADD_UPDATE_REPOSITORY')")
     @RequestMapping(value = "/storages/{storageId}/{repositoryId}",
-                    method = RequestMethod.PUT,
-                    consumes = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity addOrUpdateRepository(@PathVariable String storageId,
+            method = RequestMethod.PUT,
+            consumes = { MediaType.APPLICATION_XML_VALUE,
+                         MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity addOrUpdateRepository(@ApiParam(value = "The storageId", required = true)
+                                                @PathVariable String storageId,
+                                                @ApiParam(value = "The repositoryId", required = true)
                                                 @PathVariable String repositoryId,
+                                                @ApiParam(value = "The repository object", required = true)
                                                 @RequestBody Repository repository)
             throws IOException, JAXBException
     {
@@ -399,7 +420,9 @@ public class ConfigurationManagementController
     @RequestMapping(value = "/storages/{storageId}/{repositoryId}", method = RequestMethod.GET,
             produces = MediaType.TEXT_PLAIN_VALUE)
     @SuppressWarnings("UnnecessaryLocalVariable")
-    public ResponseEntity getRepository(@PathVariable final String storageId,
+    public ResponseEntity getRepository(@ApiParam(value = "The storageId", required = true)
+                                        @PathVariable final String storageId,
+                                        @ApiParam(value = "The repositoryId", required = true)
                                         @PathVariable final String repositoryId)
             throws IOException, ParseException, JAXBException
     {
@@ -437,9 +460,12 @@ public class ConfigurationManagementController
     @PreAuthorize("hasAuthority('CONFIGURATION_DELETE_REPOSITORY')")
     @RequestMapping(value = "/storages/{storageId}/{repositoryId}", method = RequestMethod.DELETE,
             produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity removeRepository(@PathVariable final String storageId,
+    public ResponseEntity removeRepository(@ApiParam(value = "The storageId", required = true)
+                                           @PathVariable final String storageId,
+                                           @ApiParam(value = "The repositoryId", required = true)
                                            @PathVariable final String repositoryId,
-                                           @RequestParam(name = "force", defaultValue = "false") boolean force)
+                                           @ApiParam(value = "Whether to force delete the repository from the file system")
+                                           @RequestParam(name = "force", defaultValue = "false") final boolean force)
             throws IOException
     {
         final Repository repository = configurationManagementService.getStorage(storageId).getRepository(repositoryId);
@@ -483,14 +509,18 @@ public class ConfigurationManagementController
         }
     }
 
-    @RequestMapping(value = "/routing/rules", method = RequestMethod.GET, produces = { MediaType.APPLICATION_JSON_VALUE,
-                                                                                       MediaType.APPLICATION_XML_VALUE })
+    @RequestMapping(value = "/routing/rules",
+            method = RequestMethod.GET,
+            produces = { MediaType.APPLICATION_JSON_VALUE,
+                         MediaType.APPLICATION_XML_VALUE })
     public ResponseEntity getRoutingRules()
     {
         return ResponseEntity.ok(configurationManagementService.getRoutingRules());
     }
 
-    @RequestMapping(value = "/routing/rules/set/accepted", method = RequestMethod.PUT, consumes = MediaType.TEXT_PLAIN_VALUE)
+    @RequestMapping(value = "/routing/rules/set/accepted",
+            method = RequestMethod.PUT,
+            consumes = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity addAcceptedRuleSet(@RequestBody String serializeRuleSet)
     {
 
@@ -502,7 +532,8 @@ public class ConfigurationManagementController
         }
         catch (JAXBException e)
         {
-            e.printStackTrace();
+            logger.error("[addAcceptedRuleSet] deserialize error", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
         final boolean added = configurationManagementService.addOrUpdateAcceptedRuleSet(ruleSet);
@@ -516,13 +547,19 @@ public class ConfigurationManagementController
         }
     }
 
-    @RequestMapping(value = "/routing/rules/set/accepted/{groupRepository}", method = RequestMethod.DELETE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(
+            value = "/routing/rules/set/accepted/{groupRepository}",
+            method = RequestMethod.DELETE,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity removeAcceptedRuleSet(@PathVariable String groupRepository)
     {
         return getResponse(configurationManagementService.removeAcceptedRuleSet(groupRepository));
     }
 
-    @RequestMapping(value = "/routing/rules/accepted/{groupRepository}/repositories", method = RequestMethod.PUT, consumes = MediaType.TEXT_PLAIN_VALUE)
+    @RequestMapping(
+            value = "/routing/rules/accepted/{groupRepository}/repositories",
+            method = RequestMethod.PUT,
+            consumes = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity addAcceptedRepository(@PathVariable String groupRepository,
                                                 @RequestBody String serializeRoutingRule)
     {
@@ -535,7 +572,8 @@ public class ConfigurationManagementController
         }
         catch (JAXBException e)
         {
-            e.printStackTrace();
+            logger.error("[addAcceptedRepository] deserialize error", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
         logger.debug("[addAcceptedRepository] Routing rule " + routingRule);
@@ -570,7 +608,8 @@ public class ConfigurationManagementController
         }
         catch (JAXBException e)
         {
-            e.printStackTrace();
+            logger.error("[overrideAcceptedRepository] deserialize error", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
         logger.debug("[addAcceptedRepository] Routing rule " + routingRule);

@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.controller;
 
-import org.carlspring.strongbox.rest.BaseRestlet;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.Storage;
@@ -10,6 +9,7 @@ import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -28,9 +28,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
  */
 @Controller
 @RequestMapping("/configuration/proxy/connection-pool")
+@Api(value = "/configuration/proxy/connection-pool")
 @PreAuthorize("hasAuthority('ADMIN')")
 public class HttpConnectionPoolConfigurationManagementController
-        extends BaseRestlet
+        extends BaseController
 {
 
     @Inject

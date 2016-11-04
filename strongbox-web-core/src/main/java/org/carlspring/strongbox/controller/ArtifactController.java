@@ -15,7 +15,6 @@ import org.carlspring.strongbox.util.MessageDigestUtils;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBException;
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,7 +27,6 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.regex.Matcher;
 
-import com.google.common.io.ByteStreams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -174,23 +172,6 @@ public class ArtifactController
         setHeadersForChecksums(storageId, repositoryId, path, response);
 
         logger.info("Download success.");
-    }
-
-    private void copyToResponse(InputStream inputStream,
-                                HttpServletResponse response)
-            throws Exception
-    {
-        try
-        {
-            long totalBytes = ByteStreams.copy(new BufferedInputStream(inputStream), response.getOutputStream());
-            response.setHeader("Content-Length", totalBytes + "");
-            response.flushBuffer();
-            inputStream.close();
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException("Unable copy to response", e);
-        }
     }
 
     private void setMediaTypeHeader(String path,

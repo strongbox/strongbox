@@ -3,16 +3,12 @@ package org.carlspring.strongbox.controller;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.swagger.annotations.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,15 +23,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
  */
 @Controller
 @RequestMapping("/trash")
+@Api(value = "/trash")
 public class TrashController
         extends BaseArtifactController
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(TrashController.class);
-
-    @Autowired
+    @Inject
     private ArtifactManagementService artifactManagementService;
-
 
     @ApiOperation(value = "Used to delete the trash for a specified repository.", position = 1)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The trash for ${storageId}:${repositoryId}' was removed successfully."),
@@ -43,9 +37,11 @@ public class TrashController
                             @ApiResponse(code = 404, message = "The specified (storageId/repositoryId) does not exist!") })
     @PreAuthorize("hasAuthority('MANAGEMENT_DELETE_TRASH')")
     @RequestMapping(value = "{storageId}/{repositoryId}",
-                    method = RequestMethod.DELETE,
-                    produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity delete(@PathVariable String storageId,
+            method = RequestMethod.DELETE,
+            produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity delete(@ApiParam(value = "The storageId", required = true)
+                                 @PathVariable String storageId,
+                                 @ApiParam(value = "The repositoryId", required = true)
                                  @PathVariable String repositoryId)
             throws IOException
     {
@@ -104,16 +100,16 @@ public class TrashController
                             @ApiResponse(code = 404, message = "The specified (storageId/repositoryId/path) does not exist!") })
     @PreAuthorize("hasAuthority('MANAGEMENT_UNDELETE_TRASH')")
     @RequestMapping(value = "{storageId}/{repositoryId}/**",
-                    method = RequestMethod.POST,
-                    produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity undelete(@PathVariable String storageId,
+            method = RequestMethod.POST,
+            produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity undelete(@ApiParam(value = "The storageId", required = true)
+                                   @PathVariable String storageId,
+                                   @ApiParam(value = "The repositoryId", required = true)
                                    @PathVariable String repositoryId,
                                    HttpServletRequest request)
             throws IOException
     {
         String path = convertRequestToPath("trash", request, storageId, repositoryId);
-
-        logger.debug("[undelete] by path " + path);
 
         if (getStorage(storageId) == null)
         {
@@ -132,7 +128,8 @@ public class TrashController
         {
             artifactManagementService.undelete(storageId, repositoryId, path);
 
-            logger.debug("Undeleted trash for path " + path + " under repository " + storageId + ":" + repositoryId + ".");
+            logger.debug(
+                    "Undeleted trash for path " + path + " under repository " + storageId + ":" + repositoryId + ".");
         }
         catch (ArtifactStorageException e)
         {
@@ -148,9 +145,11 @@ public class TrashController
                             @ApiResponse(code = 404, message = "The specified (storageId/repositoryId) does not exist!") })
     @PreAuthorize("hasAuthority('MANAGEMENT_UNDELETE_TRASH')")
     @RequestMapping(value = "{storageId}/{repositoryId}",
-                    method = RequestMethod.PUT,
-                    produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity undelete(@PathVariable String storageId,
+            method = RequestMethod.PUT,
+            produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity undelete(@ApiParam(value = "The storageId", required = true)
+                                   @PathVariable String storageId,
+                                   @ApiParam(value = "The repositoryId", required = true)
                                    @PathVariable String repositoryId)
             throws Exception
     {
@@ -170,13 +169,15 @@ public class TrashController
                 }
                 else if (artifactManagementService.getStorage(storageId).getRepository(repositoryId) == null)
                 {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The specified repositoryId does not exist!");
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                            "The specified repositoryId does not exist!");
                 }
 
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
             }
 
-            return ResponseEntity.ok("The trash for '" + storageId + ":" + repositoryId + "' was been restored successfully.");
+            return ResponseEntity.ok(
+                    "The trash for '" + storageId + ":" + repositoryId + "' was been restored successfully.");
         }
         else
         {
