@@ -21,7 +21,6 @@ import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.artifact.PluginArtifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,8 +56,11 @@ public class ArtifactControllerTest
 
         // to make this test idempotent (in general) we will check and remove previous generated artifacts if they are present
         // notice that we can't delete the whole repository basedir because it contains also .index, .trash etc.
-        removeDir(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/org");
-        removeDir(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/com");
+        removeDir(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/org/carlspring/strongbox/resolve");
+        removeDir(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/org/carlspring/strongbox/partial");
+        removeDir(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/org/carlspring/strongbox/copy");
+        removeDir(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/org/carlspring/strongbox/browse");
+        removeDir(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/com/artifacts/to/delete");
 
 
         generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
