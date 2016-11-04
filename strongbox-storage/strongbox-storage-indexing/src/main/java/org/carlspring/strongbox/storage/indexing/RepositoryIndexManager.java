@@ -1,13 +1,13 @@
 package org.carlspring.strongbox.storage.indexing;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
 import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * @author mtodorov
@@ -31,6 +31,7 @@ public class RepositoryIndexManager
     @PreDestroy
     private void close()
     {
+        /*
         for (String storageAndRepository : indexes.keySet())
         {
             try
@@ -41,7 +42,7 @@ public class RepositoryIndexManager
             {
                 logger.error(e.getMessage(), e);
             }
-        }
+        }*/
     }
 
     public void closeIndexersForStorage(String storageId)
