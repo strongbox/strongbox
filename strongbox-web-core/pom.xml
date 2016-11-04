@@ -308,20 +308,6 @@
 
     <dependencies>
 
-        <!-- Java EE 7 dependencies -->
-        <!-- TODO: Replace with separate modules -->
-        <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-api</artifactId>
-        </dependency>
-        <!-- Overrides any jersey-related servlet-api version -->
-        <!-- Will be removed later when all restlet dependencies will gone -->
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-        </dependency>
-
-
         <!-- Strongbox dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -413,6 +399,10 @@
             <artifactId>maven-core</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+        </dependency>
 
         <!-- Spring Framework dependencies -->
         <dependency>

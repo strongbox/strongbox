@@ -20,8 +20,10 @@ import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
 
 /**
+ * @deprecated use {@link ArtifactSpringClient} instead
  * @author mtodorov
  */
+@Deprecated
 public class JerseyArtifactClient
         extends BaseArtifactClient
         implements Closeable
