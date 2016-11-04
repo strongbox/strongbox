@@ -80,4 +80,5 @@ public abstract class BaseArtifactController
     {
         this.mavenMetadataManager = mavenMetadataManager;
     }
+
 }

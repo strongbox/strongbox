@@ -34,6 +34,7 @@ public class UserController
     @Inject
     CacheManager cacheManager;
 
+
     // ----------------------------------------------------------------------------------------------------------------
     // This method exists for testing purpose
 
@@ -46,8 +47,7 @@ public class UserController
     @ResponseBody
     ResponseEntity greet(@PathVariable String anyString,
                          @ApiParam(value = "The param name", required = true)
-                         @RequestParam(value = "name", required = false)
-                                 String param)
+                         @RequestParam(value = "name", required = false) String param)
     {
         logger.debug("UserController -> Say hello to " + param + ". Path variable " + anyString);
         return toResponse("hello, " + param);
@@ -157,8 +157,7 @@ public class UserController
     // Delete user by name
     @ApiOperation(value = "Deletes a user from a repository.", position = 3)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The user was deleted."),
-                            @ApiResponse(code = 400, message = "Bad request.")
-    })
+                            @ApiResponse(code = 400, message = "Bad request.") })
     @PreAuthorize("hasAuthority('DELETE_USER')")
     @RequestMapping(value = "user/{name}", method = RequestMethod.DELETE)
     public
@@ -204,4 +203,5 @@ public class UserController
             return toError(e);
         }
     }
+
 }

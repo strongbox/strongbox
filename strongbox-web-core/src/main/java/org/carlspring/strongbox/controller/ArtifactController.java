@@ -103,8 +103,9 @@ public class ArtifactController
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(value = "{storageId}/{repositoryId}/**", method = RequestMethod.GET,
-            consumes = MediaType.TEXT_PLAIN_VALUE)
+    @RequestMapping(value = "{storageId}/{repositoryId}/**",
+                    method = RequestMethod.GET,
+                    consumes = MediaType.TEXT_PLAIN_VALUE)
     public void download(@ApiParam(value = "The storageId", required = true)
                          @PathVariable String storageId,
                          @ApiParam(value = "The repositoryId", required = true)
@@ -196,7 +197,10 @@ public class ArtifactController
                                         String repositoryId,
                                         String path,
                                         HttpServletResponse response)
-            throws IOException, JAXBException, NoSuchAlgorithmException, ProviderImplementationException
+            throws IOException,
+                   JAXBException,
+                   NoSuchAlgorithmException,
+                   ProviderImplementationException
     {
         Storage storage = configurationManager.getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
@@ -423,8 +427,7 @@ public class ArtifactController
     @ApiOperation(value = "Deletes a path from a repository.", position = 3)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deleted."),
                             @ApiResponse(code = 400, message = "Bad request."),
-                            @ApiResponse(code = 404,
-                                    message = "The specified storageId/repositoryId/path does not exist!") })
+                            @ApiResponse(code = 404, message = "The specified storageId/repositoryId/path does not exist!") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
     @RequestMapping(value = "{storageId}/{repositoryId}/**", method = RequestMethod.DELETE)
     public ResponseEntity delete(@ApiParam(value = "The storageId", required = true)

@@ -33,6 +33,7 @@ public abstract class BaseController
     @Autowired
     protected ConfigurationManager configurationManager;
 
+
     protected ResponseEntity toError(String message)
     {
         return toError(new RuntimeException(message));
@@ -100,4 +101,5 @@ public abstract class BaseController
             throw new RuntimeException("Unable copy to response", e);
         }
     }
+
 }

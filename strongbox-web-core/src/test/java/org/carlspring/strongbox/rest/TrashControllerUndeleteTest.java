@@ -100,13 +100,12 @@ public class TrashControllerUndeleteTest
         String url = getContextBaseUrl() + "/trash/" + STORAGE + "/" + REPOSITORY_WITH_TRASH;
         url += "/org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/test-artifact-undelete-1.0.jar";
 
-        given()
-                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .when()
-                .post(url)
-                .peek()
-                .then()
-                .statusCode(200);
+        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+               .when()
+               .post(url)
+               .peek()
+               .then()
+               .statusCode(200);
 
         File artifactFileRestoredFromTrash = new File(REPOSITORY_WITH_TRASH_BASEDIR + "/" +
                                                       "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/" +
@@ -127,13 +126,12 @@ public class TrashControllerUndeleteTest
 
         String url = getContextBaseUrl() + "/trash";
 
-        given()
-                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .when()
-                .post(url)
-                .peek()
-                .then()
-                .statusCode(200);
+        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+               .when()
+               .post(url)
+               .peek()
+               .then()
+               .statusCode(200);
 
         File artifactFileRestoredFromTrash = new File(REPOSITORY_WITH_TRASH_BASEDIR + "/" +
                                                       "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/" +
@@ -145,4 +143,5 @@ public class TrashControllerUndeleteTest
                    "' (" + artifactFileRestoredFromTrash.getAbsolutePath() + " does not exist)!",
                    artifactFileRestoredFromTrash.exists());
     }
+
 }

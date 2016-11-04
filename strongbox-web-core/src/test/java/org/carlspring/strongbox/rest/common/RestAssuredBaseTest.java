@@ -155,6 +155,7 @@ public abstract class RestAssuredBaseTest
             }
         }
 
+        //noinspection ResultOfMethodCallIgnored
         file.delete();
     }
 

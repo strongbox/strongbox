@@ -50,13 +50,12 @@ public class SearchController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "") })
     @PreAuthorize("hasAuthority('SEARCH_ARTIFACTS')")
     @RequestMapping(value = "",
-            method = RequestMethod.GET,
-            consumes = { MediaType.APPLICATION_OCTET_STREAM_VALUE,
-                         MediaType.TEXT_PLAIN_VALUE },
-            produces = { MediaType.APPLICATION_XML_VALUE,
-                         MediaType.APPLICATION_JSON_VALUE,
-                         MediaType.TEXT_PLAIN_VALUE }
-    )
+                    method = RequestMethod.GET,
+                    consumes = { MediaType.APPLICATION_OCTET_STREAM_VALUE,
+                                 MediaType.TEXT_PLAIN_VALUE },
+                    produces = { MediaType.APPLICATION_XML_VALUE,
+                                 MediaType.APPLICATION_JSON_VALUE,
+                                 MediaType.TEXT_PLAIN_VALUE })
     public ResponseEntity search(@ApiParam(value = "The storageId")
                                  @RequestParam(name = "storageId", required = false) final String storageId,
                                  @ApiParam(value = "The repositoryId", required = true)
@@ -69,8 +68,9 @@ public class SearchController
     {
         String accept = request.getHeader("accept");
         String q = URLDecoder.decode(query, "UTF-8");
-        logger.info("[search] " + q + "\n\taccept " + accept + "\n\tstorageId = " + storageId + "\n\trepositoryId = " +
-                    repositoryId);
+
+        logger.debug("[search] " + q + "\n\taccept " + accept + "\n\tstorageId = " +
+                     storageId + "\n\trepositoryId = " + repositoryId);
 
         if (accept.equalsIgnoreCase("text/plain"))
         {
@@ -94,4 +94,5 @@ public class SearchController
     {
         return artifactSearchService.search(new SearchRequest(storageId, repositoryId, query));
     }
+
 }

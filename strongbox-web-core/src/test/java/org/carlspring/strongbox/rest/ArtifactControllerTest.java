@@ -25,6 +25,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import static org.carlspring.maven.commons.util.ArtifactUtils.getArtifactFromGAVTC;
 import static org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration.generateArtifact;
 import static org.junit.Assert.*;
 
@@ -167,8 +168,7 @@ public class ArtifactControllerTest
 
         // read remote checksum
         String md5Remote = MessageDigestUtils.readChecksumFile(client.getResource(artifactPath + ".md5", true));
-        String sha1Remote = MessageDigestUtils.readChecksumFile(
-                client.getResource(artifactPath + ".sha1", true));
+        String sha1Remote = MessageDigestUtils.readChecksumFile(client.getResource(artifactPath + ".sha1", true));
 
         logger.info("Remote md5 checksum " + md5Remote);
         logger.info("Remote sha1 checksum " + sha1Remote);
@@ -238,7 +238,9 @@ public class ArtifactControllerTest
         File artifact = new File("target/partial-foo-3.1.jar");
         if (artifact.exists())
         {
+            //noinspection ResultOfMethodCallIgnored
             artifact.delete();
+            //noinspection ResultOfMethodCallIgnored
             artifact.createNewFile();
         }
 
@@ -400,17 +402,17 @@ public class ArtifactControllerTest
     {
         String ga = "org.carlspring.strongbox.metadata:metadata-foo";
 
-        Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":3.1-SNAPSHOT");
+        Artifact artifact1 = getArtifactFromGAVTC(ga + ":3.1-SNAPSHOT");
 
         String snapshotVersion1 = createSnapshotVersion("3.1", 1);
         String snapshotVersion2 = createSnapshotVersion("3.1", 2);
         String snapshotVersion3 = createSnapshotVersion("3.1", 3);
         String snapshotVersion4 = createSnapshotVersion("3.1", 4);
 
-        Artifact artifact1WithTimestamp1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + snapshotVersion1);
-        Artifact artifact1WithTimestamp2 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + snapshotVersion2);
-        Artifact artifact1WithTimestamp3 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + snapshotVersion3);
-        Artifact artifact1WithTimestamp4 = ArtifactUtils.getArtifactFromGAVTC(ga + ":" + snapshotVersion4);
+        Artifact artifact1WithTimestamp1 = getArtifactFromGAVTC(ga + ":" + snapshotVersion1);
+        Artifact artifact1WithTimestamp2 = getArtifactFromGAVTC(ga + ":" + snapshotVersion2);
+        Artifact artifact1WithTimestamp3 = getArtifactFromGAVTC(ga + ":" + snapshotVersion3);
+        Artifact artifact1WithTimestamp4 = getArtifactFromGAVTC(ga + ":" + snapshotVersion4);
 
         ArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR);
 
@@ -471,14 +473,14 @@ public class ArtifactControllerTest
         String version1 = "3.1";
         String version2 = "3.2";
 
-        Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(groupId + ":" + artifactId1 + ":" + version1);
-        Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC(groupId + ":" + artifactId2 + ":" + version1);
-        Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC(groupId + ":" + artifactId1 + ":" + version2);
-        Artifact artifact4 = ArtifactUtils.getArtifactFromGAVTC(groupId + ":" + artifactId2 + ":" + version2);
+        Artifact artifact1 = getArtifactFromGAVTC(groupId + ":" + artifactId1 + ":" + version1);
+        Artifact artifact2 = getArtifactFromGAVTC(groupId + ":" + artifactId2 + ":" + version1);
+        Artifact artifact3 = getArtifactFromGAVTC(groupId + ":" + artifactId1 + ":" + version2);
+        Artifact artifact4 = getArtifactFromGAVTC(groupId + ":" + artifactId2 + ":" + version2);
 
         // Artifacts
-        Artifact artifact5 = ArtifactUtils.getArtifactFromGAVTC(groupId + ":" + artifactId3 + ":" + version1);
-        Artifact artifact6 = ArtifactUtils.getArtifactFromGAVTC(groupId + ":" + artifactId3 + ":" + version2);
+        Artifact artifact5 = getArtifactFromGAVTC(groupId + ":" + artifactId3 + ":" + version1);
+        Artifact artifact6 = getArtifactFromGAVTC(groupId + ":" + artifactId3 + ":" + version2);
 
         Plugin p1 = new Plugin();
         p1.setGroupId(artifact1.getGroupId());
@@ -575,8 +577,8 @@ public class ArtifactControllerTest
         String version1 = "1.2.1";
         String version2 = "1.2.2";
 
-        Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(groupId + ":" + artifactId + ":" + version1);
-        Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC(groupId + ":" + artifactId + ":" + version2);
+        Artifact artifact1 = getArtifactFromGAVTC(groupId + ":" + artifactId + ":" + version1);
+        Artifact artifact2 = getArtifactFromGAVTC(groupId + ":" + artifactId + ":" + version2);
 
         ArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR);
 
@@ -607,15 +609,11 @@ public class ArtifactControllerTest
         // Given
         String ga = "org.carlspring.strongbox.metadata:metadata-foo";
 
-        Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(ga + ":3.1-SNAPSHOT");
-        Artifact artifact1WithTimestamp1 = ArtifactUtils.getArtifactFromGAVTC(
-                ga + ":" + createSnapshotVersion("3.1", 1));
-        Artifact artifact1WithTimestamp2 = ArtifactUtils.getArtifactFromGAVTC(
-                ga + ":" + createSnapshotVersion("3.1", 2));
-        Artifact artifact1WithTimestamp3 = ArtifactUtils.getArtifactFromGAVTC(
-                ga + ":" + createSnapshotVersion("3.1", 3));
-        Artifact artifact1WithTimestamp4 = ArtifactUtils.getArtifactFromGAVTC(
-                ga + ":" + createSnapshotVersion("3.1", 4));
+        Artifact artifact1 = getArtifactFromGAVTC(ga + ":3.1-SNAPSHOT");
+        Artifact artifact1WithTimestamp1 = getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 1));
+        Artifact artifact1WithTimestamp2 = getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 2));
+        Artifact artifact1WithTimestamp3 = getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 3));
+        Artifact artifact1WithTimestamp4 = getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 4));
 
         ArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR);
 
@@ -650,4 +648,5 @@ public class ArtifactControllerTest
                                                    snapshotVersion.getExtension().equals(extension)
                                    ).findAny().isPresent();
     }
+
 }

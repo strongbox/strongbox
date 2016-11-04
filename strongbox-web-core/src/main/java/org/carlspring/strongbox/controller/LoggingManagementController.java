@@ -141,11 +141,10 @@ public class LoggingManagementController
         }
     }
 
-    @RequestMapping(
-            value = "/logback",
-            method = RequestMethod.POST,
-            consumes = APPLICATION_XML_VALUE,
-            produces = TEXT_PLAIN_VALUE)
+    @RequestMapping(value = "/logback",
+                    method = RequestMethod.POST,
+                    consumes = APPLICATION_XML_VALUE,
+                    produces = TEXT_PLAIN_VALUE)
     public ResponseEntity uploadLogbackConfiguration(HttpServletRequest request)
     {
         try
@@ -161,4 +160,5 @@ public class LoggingManagementController
             return ResponseEntity.status(BAD_REQUEST).body("Failed to resolve the logging configuration!");
         }
     }
+
 }
