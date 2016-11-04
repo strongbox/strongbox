@@ -65,9 +65,13 @@ public class SearchController
                                  HttpServletRequest request)
             throws IOException, ParseException, JAXBException
     {
+
+        String q = URLDecoder.decode(query, "UTF-8");
+        logger.info("[search] " + q);
+
         if (request.getHeader("accept").equalsIgnoreCase("text/plain"))
         {
-            final SearchResults artifacts = getSearchResults(storageId, repositoryId, URLDecoder.decode(query, "UTF-8"));
+            final SearchResults artifacts = getSearchResults(storageId, repositoryId, q);
             return ResponseEntity.ok(artifacts.toString());
         }
         else
@@ -75,7 +79,7 @@ public class SearchController
             // Apparently, the JSON root tag's name is based on the name of the object
             // which the Jersey method returns, hence this is "artifacts".
             @SuppressWarnings("UnnecessaryLocalVariable")
-            final SearchResults artifacts = getSearchResults(storageId, repositoryId, query);
+            final SearchResults artifacts = getSearchResults(storageId, repositoryId, q);
             return ResponseEntity.ok(artifacts);
         }
     }
@@ -85,7 +89,7 @@ public class SearchController
                                            String query)
             throws IOException, ParseException
     {
-        final SearchRequest searchRequest = new SearchRequest(storageId, repositoryId, URLDecoder.decode(query, "UTF-8"));
+        final SearchRequest searchRequest = new SearchRequest(storageId, repositoryId, query);
 
         return artifactSearchService.search(searchRequest);
     }

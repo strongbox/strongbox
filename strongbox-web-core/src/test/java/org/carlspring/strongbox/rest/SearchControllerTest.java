@@ -9,7 +9,6 @@ import org.carlspring.strongbox.rest.context.IntegrationTest;
 import java.io.File;
 
 import org.apache.maven.artifact.Artifact;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.MediaType;
@@ -25,31 +24,37 @@ public class SearchControllerTest
         extends RestAssuredBaseTest
 {
 
-
-    @Before
-    public synchronized void setUp()
-            throws Exception
+    @Override
+    public void init()
     {
-        // Don't ever change this check in order "to make the tests omnipotent".
-        // They are sharing the same resources and this is good enough test data which *will not* change during testing.
+        super.init();
+
         File repositoryBasedir = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/releases");
-        if (new File(repositoryBasedir, "org/carlspring/strongbox/searches/test-project").exists())
+        removeDir(new File(repositoryBasedir, "org/carlspring/strongbox/searches/test-project").getAbsolutePath());
+
+        try
         {
-            return;
+            File strongboxBaseDir = new File(ConfigurationResourceResolver.getVaultDirectory() + "/tmp");
+            String[] classifiers = new String[]{ "javadoc",
+                                                 "tests" };
+
+            Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(
+                    "org.carlspring.strongbox.searches:test-project:1.0.11.3");
+            Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC(
+                    "org.carlspring.strongbox.searches:test-project:1.0.11.3.1");
+            Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC(
+                    "org.carlspring.strongbox.searches:test-project:1.0.11.3.2");
+
+            ArtifactDeployer artifactDeployer = buildArtifactDeployer(strongboxBaseDir);
+
+            artifactDeployer.generateAndDeployArtifact(artifact1, classifiers, "storage0", "releases", "jar");
+            artifactDeployer.generateAndDeployArtifact(artifact2, classifiers, "storage0", "releases", "jar");
+            artifactDeployer.generateAndDeployArtifact(artifact3, classifiers, "storage0", "releases", "jar");
         }
-
-        File strongboxBaseDir = new File(ConfigurationResourceResolver.getVaultDirectory() + "/tmp");
-        String[] classifiers = new String[]{ "javadoc", "tests" };
-
-        Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.searches:test-project:1.0.11.3");
-        Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.searches:test-project:1.0.11.3.1");
-        Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.searches:test-project:1.0.11.3.2");
-
-        ArtifactDeployer artifactDeployer = buildArtifactDeployer(strongboxBaseDir);
-
-        artifactDeployer.generateAndDeployArtifact(artifact1, classifiers, "storage0", "releases", "jar");
-        artifactDeployer.generateAndDeployArtifact(artifact2, classifiers, "storage0", "releases", "jar");
-        artifactDeployer.generateAndDeployArtifact(artifact3, classifiers, "storage0", "releases", "jar");
+        catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
