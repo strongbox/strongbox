@@ -164,30 +164,37 @@ public class RepositoryIndexer
     public Set<SearchResult> search(final String queryText)
             throws ParseException, IOException
     {
-        final Query query = new MultiFieldQueryParser(luceneVersion, luceneFields, luceneAnalyzer).parse(queryText);
-
-        logger.debug("Text of the query: {}", queryText);
-        logger.debug("Executing search query: {}; ctx id: {}; idx dir: {}",
-                     new String[]{ query.toString(),
-                                   indexingContext.getId(),
-                                   indexingContext.getIndexDirectory().toString() });
-
-        final FlatSearchResponse response = getIndexer().searchFlat(new FlatSearchRequest(query, indexingContext));
-
-        logger.debug("Hit count: {}", response.getReturnedHitsCount());
-
-        final Set<ArtifactInfo> r = response.getResults();
-        final Set<SearchResult> results = asSearchResults(r);
-
-        if (logger.isDebugEnabled())
+        try
         {
-            for (final SearchResult result : results)
-            {
-                logger.debug("Found artifact: {}", result.toString());
-            }
-        }
+            final Query query = new MultiFieldQueryParser(luceneVersion, luceneFields, luceneAnalyzer).parse(queryText);
 
-        return results;
+            logger.debug("Text of the query: {}", queryText);
+            logger.debug("Executing search query: {}; ctx id: {}; idx dir: {}",
+                         new String[]{ query.toString(),
+                                       indexingContext.getId(),
+                                       indexingContext.getIndexDirectory().toString() });
+
+            final FlatSearchResponse response = getIndexer().searchFlat(new FlatSearchRequest(query, indexingContext));
+
+            logger.debug("Hit count: {}", response.getReturnedHitsCount());
+
+            final Set<ArtifactInfo> r = response.getResults();
+            final Set<SearchResult> results = asSearchResults(r);
+
+            if (logger.isDebugEnabled())
+            {
+                for (final SearchResult result : results)
+                {
+                    logger.debug("Found artifact: {}", result.toString());
+                }
+            }
+            return results;
+        }
+        catch (Exception e)
+        {
+            logger.warn("Unable execute search query", e);
+            return new HashSet<>();
+        }
     }
 
     public Set<SearchResult> searchBySHA1(final String checksum)
