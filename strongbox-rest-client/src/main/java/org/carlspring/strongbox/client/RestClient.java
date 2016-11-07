@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  * @author mtodorov
  */
 public class RestClient
-        extends JerseyArtifactClient
+        extends ArtifactClient
 {
 
     private static final Logger logger = LoggerFactory.getLogger(RestClient.class);

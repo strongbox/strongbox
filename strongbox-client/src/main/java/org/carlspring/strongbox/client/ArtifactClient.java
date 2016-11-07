@@ -20,11 +20,9 @@ import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
 
 /**
- * @deprecated use {@link ArtifactSpringClient} instead
  * @author mtodorov
  */
-@Deprecated
-public class JerseyArtifactClient
+public class ArtifactClient
         extends BaseArtifactClient
         implements Closeable
 {
@@ -45,22 +43,22 @@ public class JerseyArtifactClient
 
     private Client client;
 
-    public JerseyArtifactClient()
+    public ArtifactClient()
     {
     }
 
-    public static JerseyArtifactClient getTestInstance()
+    public static ArtifactClient getTestInstance()
     {
         return getTestInstance("maven", "password");
     }
 
-    public static JerseyArtifactClient getTestInstanceLoggedInAsAdmin()
+    public static ArtifactClient getTestInstanceLoggedInAsAdmin()
     {
         return getTestInstance("admin", "password");
     }
 
-    public static JerseyArtifactClient getTestInstance(String username,
-                                                       String password)
+    public static ArtifactClient getTestInstance(String username,
+                                                 String password)
     {
         String host = System.getProperty("strongbox.host") != null ?
                       System.getProperty("strongbox.host") :
@@ -70,7 +68,7 @@ public class JerseyArtifactClient
                    Integer.parseInt(System.getProperty("strongbox.port")) :
                    48080;
 
-        JerseyArtifactClient client = new JerseyArtifactClient();
+        ArtifactClient client = new ArtifactClient();
         client.setUsername(username);
         client.setPassword(password);
         client.setPort(port);
