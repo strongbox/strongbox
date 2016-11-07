@@ -2,6 +2,9 @@ package org.carlspring.strongbox.client;
 
 import org.carlspring.strongbox.config.ClientConfig;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
+
+import java.io.IOException;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,9 +15,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import java.io.IOException;
-
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -75,7 +75,8 @@ public class ArtifactResolverIntegrationTest
 
         private String url;
 
-        public MultiHttpClientConnThread(ArtifactResolver artifactResolver, String url)
+        public MultiHttpClientConnThread(ArtifactResolver artifactResolver,
+                                         String url)
         {
             this.artifactResolver = artifactResolver;
             this.url = url;

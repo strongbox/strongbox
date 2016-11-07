@@ -1,12 +1,12 @@
 package org.carlspring.strongbox.storage.routing;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.Version;
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Set;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * @author mtodorov
@@ -81,8 +81,15 @@ public class RoutingRule
         return version;
     }
 
-    public void setVersion(Long version)
-    {
+    public void setVersion(Long version) {
         this.version = version;
+    }
+
+    @Override
+    public String toString() {
+        return "RoutingRule{" +
+                ", \n\tpattern='" + pattern + '\'' +
+                ", \n\trepositories=" + repositories +
+                '}';
     }
 }

@@ -36,12 +36,12 @@ public abstract class GenericEntity
     {
     }
 
-    public String getId()
+    public final String getId()
     {
         return id;
     }
 
-    public void setId(String id)
+    public final void setId(String id)
     {
         this.id = id;
     }

@@ -1,67 +1,26 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-         version="2.5"
-         metadata-complete="true">
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+		 http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         version="3.1">
 
     <display-name>strongbox</display-name>
-    <description>Strongbox Webapp</description>
+    <description>Strongbox Web Application</description>
 
-    <session-config>
-        <session-timeout>60</session-timeout>
-    </session-config>
+    <servlet>
+        <servlet-name>dispatcherServlet</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>classpath:META-INF/spring/strongbox-web-context.xml</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
 
-    <context-param>
-        <param-name>contextConfigLocation</param-name>
-        <param-value>classpath*:/META-INF/spring/strongbox-web-context.xml</param-value>
-    </context-param>
-
-    <listener>
-           <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-    </listener>
-
-    <filter>
-        <filter-name>springSecurityFilterChain</filter-name>
-        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>springSecurityFilterChain</filter-name>
+    <servlet-mapping>
+        <servlet-name>dispatcherServlet</servlet-name>
         <url-pattern>/*</url-pattern>
-    </filter-mapping>
-
-    <filter>
-        <filter-name>jersey-servlet</filter-name>
-        <filter-class>org.glassfish.jersey.servlet.ServletContainer</filter-class>
-        <init-param>
-            <param-name>javax.ws.rs.Application</param-name>
-            <param-value>org.carlspring.strongbox.rest.app.StrongboxApplication</param-value>
-        </init-param>
-        <init-param>
-            <param-name>jersey.config.xml.formatOutput</param-name>
-            <param-value>true</param-value>
-        </init-param>
-        <init-param>
-            <param-name>jersey.config.server.provider.packages</param-name>
-            <param-value>org.carlspring.strongbox,com.carlspring.strongbox</param-value>
-        </init-param>
-        <init-param>
-            <param-name>jersey.config.servlet.filter.staticContentRegex</param-name>
-            <param-value>/(.*\.html|assets/.*)</param-value>
-        </init-param>
-        <!-- See 4.7.1. Servlet 2.x Container section of https://jersey.java.net/documentation/latest/deployment.html -->
-        <init-param>
-            <param-name>jersey.config.servlet.filter.contextPath</param-name>
-            <param-value>/</param-value>
-        </init-param>
-    </filter>
-
-    <!-- Catch all requests -->
-    <filter-mapping>
-        <filter-name>jersey-servlet</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
+    </servlet-mapping>
 
     <welcome-file-list>
         <welcome-file>/index.html</welcome-file>

@@ -56,7 +56,7 @@ public class MessageDigestUtils
 
         try (FileOutputStream fos = new FileOutputStream(checksumFile))
         {
-            fos.write((checksum + "\n").getBytes());
+            fos.write((checksum).getBytes());
             fos.flush();
         }
     }

@@ -9,7 +9,6 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexerFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Singleton;
@@ -62,6 +61,7 @@ public class StorageBooter
         if (!lockExists())
         {
             createLockFile();
+            createTempDir();
 
             initializeStorages();
 
@@ -75,13 +75,39 @@ public class StorageBooter
                 }
                 catch (IOException e)
                 {
-                    logger.error("Failed to initialize the repository.", e);
+                    logger.error("Failed to initialize the repositories for storage '" + storageKey + "'.", e);
+
+                    throw new RuntimeException("Failed to initialize the repositories for storage '" + storageKey +
+                                               "'.");
                 }
             }
         }
         else
         {
             logger.debug("Failed to initialize the repositories. Another JVM may have already done this.");
+        }
+    }
+
+    public void createTempDir()
+    {
+        File tempDir = new File(ConfigurationResourceResolver.getVaultDirectory(), "tmp");
+        if (!tempDir.exists())
+        {
+            //noinspection ResultOfMethodCallIgnored
+            tempDir.mkdirs();
+
+            logger.debug("Created temporary directory: " + tempDir.getAbsolutePath() + ".");
+        }
+
+        if (System.getProperty("java.tmp.dir") == null)
+        {
+            System.setProperty("java.tmp.dir", tempDir.getAbsolutePath());
+
+            logger.debug("Set java.tmp.dir to " + tempDir.getAbsolutePath() + ".");
+        }
+        else
+        {
+            logger.debug("The java.tmp.dir is already set to " + System.getProperty("java.tmp.dir") + ".");
         }
     }
 
@@ -177,6 +203,8 @@ public class StorageBooter
     {
         final File repositoryBasedir = new File(storage.getBasedir(), repositoryId);
 
+        logger.debug("  * Initializing '" + repositoryBasedir.getAbsolutePath() + "'...");
+
         repositoryManagementService.createRepository(storage.getId(), repositoryId);
 
         Repository repository = storage.getRepository(repositoryId);
@@ -184,8 +212,6 @@ public class StorageBooter
         {
             initializeRepositoryIndex(storage, repositoryId);
         }
-
-        logger.debug(" -> Initialized '" + repositoryBasedir.getAbsolutePath() + "'.");
     }
 
     private void initializeRepositoryIndex(Storage storage,
@@ -202,7 +228,18 @@ public class StorageBooter
                                                                                                repositoryBasedir,
                                                                                                indexDir);
 
-        repositoryIndexManager.addRepositoryIndex(storage + ":" + repositoryId, repositoryIndexer);
+        repositoryIndexManager.addRepositoryIndex(storage.getId() + ":" + repositoryId, repositoryIndexer);
+    }
+
+    public void reInitializeRepositoryIndex(String storageId,
+                                            String repositoryId)
+            throws Exception
+    {
+        Storage storage = getConfiguration().getStorage(storageId);
+        if (storage != null)
+        {
+            initializeRepositoryIndex(storage, repositoryId);
+        }
     }
 
     public RepositoryManagementService getRepositoryManagementService()
@@ -229,5 +266,4 @@ public class StorageBooter
     {
         return configurationManager.getConfiguration();
     }
-
 }

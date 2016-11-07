@@ -4,9 +4,10 @@ import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
-import org.carlspring.strongbox.client.ArtifactClient;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.client.IArtifactClient;
+import org.carlspring.strongbox.client.JerseyArtifactClient;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.storage.metadata.MetadataMerger;
 
@@ -26,7 +27,8 @@ import static org.carlspring.maven.commons.util.ArtifactUtils.getArtifactFileNam
 /**
  * @author mtodorov
  */
-public class ArtifactDeployer extends ArtifactGenerator
+public class ArtifactDeployer
+        extends ArtifactGenerator
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactDeployer.class);
@@ -35,10 +37,9 @@ public class ArtifactDeployer extends ArtifactGenerator
 
     private String password;
 
-    private ArtifactClient client;
+    private IArtifactClient client;
 
     private MetadataMerger metadataMerger;
-
 
     public ArtifactDeployer()
     {
@@ -54,9 +55,9 @@ public class ArtifactDeployer extends ArtifactGenerator
         super(basedir);
     }
 
-    public void initializeClient()
+    private IArtifactClient getDefaultArtifactClient()
     {
-        client = ArtifactClient.getTestInstance();
+        return JerseyArtifactClient.getTestInstance();
     }
 
     public void generateAndDeployArtifact(Artifact artifact,
@@ -65,7 +66,7 @@ public class ArtifactDeployer extends ArtifactGenerator
             throws NoSuchAlgorithmException,
                    XmlPullParserException,
                    IOException,
-                   ArtifactOperationException
+                   ArtifactOperationException, ArtifactTransportException
     {
         generateAndDeployArtifact(artifact, null, storageId, repositoryId, "jar");
     }
@@ -78,11 +79,11 @@ public class ArtifactDeployer extends ArtifactGenerator
             throws NoSuchAlgorithmException,
                    XmlPullParserException,
                    IOException,
-                   ArtifactOperationException
+                   ArtifactOperationException, ArtifactTransportException
     {
         if (client == null)
         {
-            initializeClient();
+            client = getDefaultArtifactClient();
         }
 
         generatePom(artifact, packaging);
@@ -106,21 +107,13 @@ public class ArtifactDeployer extends ArtifactGenerator
                 deploy(artifactWithClassifier, storageId, repositoryId);
             }
         }
-        try
-        {
-            mergeMetada(artifact,storageId,repositoryId);
-        }
-        catch (ArtifactTransportException e)
-        {
-            // TODO SB-230: What should we do if we get ArtifactTransportException,
-            // IOException or XmlPullParserException
-            logger.error(e.getMessage(), e);
-        }
+
+        mergeMetadata(artifact, storageId, repositoryId);
     }
 
-    private void mergeMetada(Artifact artifact,
-                             String storageId,
-                             String repositoryId)
+    public void mergeMetadata(Artifact artifact,
+                              String storageId,
+                              String repositoryId)
             throws ArtifactTransportException,
                    IOException,
                    XmlPullParserException,
@@ -139,28 +132,33 @@ public class ArtifactDeployer extends ArtifactGenerator
             metadata = metadataMerger.updateMetadataAtVersionLevel(artifact,
                                                                    retrieveMetadata("storages/" + storageId + "/" +
                                                                                     repositoryId + "/" +
-                                                                                    ArtifactUtils.getVersionLevelMetadataPath(artifact)));
+                                                                                    ArtifactUtils.getVersionLevelMetadataPath(
+                                                                                            artifact)));
 
-            createMetadataArchive(metadata, path);
-            deployMetadata(metadata, path,storageId,repositoryId);
+            createMetadata(metadata, path);
+            deployMetadata(metadata, path, storageId, repositoryId);
         }
 
         String path = ArtifactUtils.getArtifactLevelMetadataPath(artifact);
-        metadata = metadataMerger.updateMetadataAtArtifactLevel(artifact, retrieveMetadata("storages/" + storageId + "/" +
-                                                                                           repositoryId + "/" +
-                                                                                           ArtifactUtils.getArtifactLevelMetadataPath(artifact)));
+        metadata = metadataMerger.updateMetadataAtArtifactLevel(artifact,
+                                                                retrieveMetadata("storages/" + storageId + "/" +
+                                                                                 repositoryId + "/" +
+                                                                                 ArtifactUtils.getArtifactLevelMetadataPath(
+                                                                                         artifact)));
 
-        createMetadataArchive(metadata, path);
-        deployMetadata(metadata, path,storageId,repositoryId);
+        createMetadata(metadata, path);
+        deployMetadata(metadata, path, storageId, repositoryId);
 
         if (artifact instanceof PluginArtifact)
         {
             path = ArtifactUtils.getGroupLevelMetadataPath(artifact);
-            metadata = metadataMerger.updateMetadataAtGroupLevel((PluginArtifact) artifact, retrieveMetadata("storages/" + storageId + "/" +
-                                                                                                             repositoryId + "/" +
-                                                                                                             ArtifactUtils.getGroupLevelMetadataPath(artifact)));
-            createMetadataArchive(metadata, path);
-            deployMetadata(metadata,path,storageId,repositoryId);
+            metadata = metadataMerger.updateMetadataAtGroupLevel((PluginArtifact) artifact,
+                                                                 retrieveMetadata("storages/" + storageId + "/" +
+                                                                                  repositoryId + "/" +
+                                                                                  ArtifactUtils.getGroupLevelMetadataPath(
+                                                                                          artifact)));
+            createMetadata(metadata, path);
+            deployMetadata(metadata, path, storageId, repositoryId);
         }
     }
 
@@ -173,11 +171,11 @@ public class ArtifactDeployer extends ArtifactGenerator
                    ArtifactOperationException
     {
         File metadataFile = new File(getBasedir(), metadataPath);
-        
+
         InputStream is = new FileInputStream(metadataFile);
         MultipleDigestInputStream mdis = new MultipleDigestInputStream(is);
-        
-        client.addMetadata(metadata, metadataPath,storageId, repositoryId, is);
+
+        client.addMetadata(metadata, metadataPath, storageId, repositoryId, is);
         deployChecksum(mdis,
                        storageId,
                        repositoryId,
@@ -194,7 +192,7 @@ public class ArtifactDeployer extends ArtifactGenerator
     {
         mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
         mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
-        
+
         for (Map.Entry entry : mdis.getHexDigests().entrySet())
         {
             final String algorithm = (String) entry.getKey();
@@ -204,9 +202,9 @@ public class ArtifactDeployer extends ArtifactGenerator
 
             final String extensionForAlgorithm = EncryptionAlgorithmsEnum.fromAlgorithm(algorithm).getExtension();
 
-            String artifactToPath = path + metadataFileName +extensionForAlgorithm;
+            String artifactToPath = path + metadataFileName + extensionForAlgorithm;
             String url = client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/"
-                    + artifactToPath;
+                         + artifactToPath;
             String artifactFileName = metadataFileName + extensionForAlgorithm;
 
             client.deployFile(bais, url, artifactFileName);
@@ -229,11 +227,14 @@ public class ArtifactDeployer extends ArtifactGenerator
         return null;
     }
 
-    public void deploy(Artifact artifact, String storageId, String repositoryId)
+    public void deploy(Artifact artifact,
+                       String storageId,
+                       String repositoryId)
             throws ArtifactOperationException, IOException, NoSuchAlgorithmException, XmlPullParserException
     {
         File artifactFile = new File(getBasedir(), ArtifactUtils.convertArtifactToPath(artifact));
-        ArtifactInputStream ais = new ArtifactInputStream(new MavenArtifactCoordinates(artifact), new FileInputStream(artifactFile));
+        ArtifactInputStream ais = new ArtifactInputStream(new MavenArtifactCoordinates(artifact),
+                                                          new FileInputStream(artifactFile));
 
         client.addArtifact(artifact, storageId, repositoryId, ais);
 
@@ -248,7 +249,7 @@ public class ArtifactDeployer extends ArtifactGenerator
     {
         ais.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
         ais.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
-        
+
         for (Map.Entry entry : ais.getHexDigests().entrySet())
         {
             final String algorithm = (String) entry.getKey();
@@ -259,7 +260,8 @@ public class ArtifactDeployer extends ArtifactGenerator
             final String extensionForAlgorithm = EncryptionAlgorithmsEnum.fromAlgorithm(algorithm).getExtension();
 
             String artifactToPath = ArtifactUtils.convertArtifactToPath(artifact) + extensionForAlgorithm;
-            String url = client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + artifactToPath;
+            String url =
+                    client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + artifactToPath;
             String artifactFileName = getArtifactFileName(artifact) + extensionForAlgorithm;
 
             client.deployFile(bais, url, artifactFileName);
@@ -303,12 +305,12 @@ public class ArtifactDeployer extends ArtifactGenerator
         this.password = password;
     }
 
-    public ArtifactClient getClient()
+    public IArtifactClient getClient()
     {
         return client;
     }
 
-    public void setClient(ArtifactClient client)
+    public void setClient(IArtifactClient client)
     {
         this.client = client;
     }
