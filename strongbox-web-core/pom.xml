@@ -441,6 +441,11 @@
             <artifactId>spring-security-web</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.jayway.restassured</groupId>
+            <artifactId>spring-mock-mvc</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <!-- Serialization and data format dependencies -->
         <dependency>

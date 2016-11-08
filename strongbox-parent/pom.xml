@@ -177,6 +177,40 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.carlspring.commons</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${version.carlspring.commons.io}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.carlspring.commons</groupId>
+                <artifactId>commons-http</artifactId>
+                <version>${version.carlspring.commons.http}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.carlspring.maven</groupId>
+                <artifactId>maven-commons</artifactId>
+                <version>${version.carlspring.maven.commons}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.carlspring.logging</groupId>
+                <artifactId>logback-configuration-rest</artifactId>
+                <version>${version.carlspring.logback.config}</version>
+            </dependency>
 
             <dependency>
                 <groupId>javax.servlet</groupId>
@@ -235,39 +269,11 @@
                 <version>${version.spring.security}</version>
                 <scope>test</scope>
             </dependency>
+
             <dependency>
-                <groupId>org.carlspring.commons</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>${version.carlspring.commons.io}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.carlspring.commons</groupId>
-                <artifactId>commons-http</artifactId>
-                <version>${version.carlspring.commons.http}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.carlspring.maven</groupId>
-                <artifactId>maven-commons</artifactId>
-                <version>${version.carlspring.maven.commons}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>log4j</groupId>
-                        <artifactId>log4j</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.carlspring.logging</groupId>
-                <artifactId>logback-configuration-rest</artifactId>
-                <version>${version.carlspring.logback.config}</version>
+                <groupId>com.jayway.restassured</groupId>
+                <artifactId>spring-mock-mvc</artifactId>
+                <version>2.7.0</version>
             </dependency>
 
             <dependency>

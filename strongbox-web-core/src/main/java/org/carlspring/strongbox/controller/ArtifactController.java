@@ -118,6 +118,7 @@ public class ArtifactController
         String path = convertRequestToPath(ROOT_CONTEXT, request, storageId, repositoryId);
 
         logger.debug(" repository = " + repositoryId + ", path = " + path);
+
         Storage storage = configurationManager.getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
@@ -130,29 +131,35 @@ public class ArtifactController
 
         if (repository.allowsDirectoryBrowsing() && probeForDirectoryListing(repository, path))
         {
-            logger.debug("GenerateDirectoryListing...");
             try
             {
                 generateDirectoryListing(repository, path, request, response);
             }
             catch (Exception e)
             {
-                logger.error("Unable to GenerateDirectoryListing", e);
-                response.setStatus(INTERNAL_SERVER_ERROR.value());
+                logger.error("Unable to generate directory listing for " +
+                             "/" + storageId + "/" + repositoryId + "/" + path, e);
 
+                response.setStatus(INTERNAL_SERVER_ERROR.value());
             }
+
             return;
         }
 
-        InputStream is;
+        ArtifactInputStream is;
         try
         {
-            is = getArtifactManagementService().resolve(storageId, repositoryId, path);
+            is = (ArtifactInputStream) getArtifactManagementService().resolve(storageId, repositoryId, path);
+            if (is == null)
+            {
+                response.setStatus(NOT_FOUND.value());
+                return;
+            }
 
             if (isRangedRequest(httpHeaders))
             {
                 logger.debug("Detecting range request....");
-                copyToResponse(handlePartialDownload((ArtifactInputStream) is, httpHeaders, response), response);
+                copyToResponse(handlePartialDownload(is, httpHeaders, response), response);
             }
             else
             {
@@ -172,7 +179,7 @@ public class ArtifactController
 
         setHeadersForChecksums(storageId, repositoryId, path, response);
 
-        logger.info("Download success.");
+        logger.debug("Download succeeded.");
     }
 
     private void setMediaTypeHeader(String path,
@@ -214,7 +221,10 @@ public class ArtifactController
         try
         {
             isMd5 = getArtifactManagementService().resolve(storageId, repositoryId, path + ".md5");
-            response.setHeader("Checksum-MD5", MessageDigestUtils.readChecksumFile(isMd5));
+            if (isMd5 != null)
+            {
+                response.setHeader("Checksum-MD5", MessageDigestUtils.readChecksumFile(isMd5));
+            }
         }
         catch (IOException | ArtifactTransportException e)
         {
@@ -227,7 +237,10 @@ public class ArtifactController
         try
         {
             isSha1 = getArtifactManagementService().resolve(storageId, repositoryId, path + ".sha1");
-            response.setHeader("Checksum-SHA1", MessageDigestUtils.readChecksumFile(isSha1));
+            if (isSha1 != null)
+            {
+                response.setHeader("Checksum-SHA1", MessageDigestUtils.readChecksumFile(isSha1));
+            }
         }
         catch (IOException | ArtifactTransportException e)
         {

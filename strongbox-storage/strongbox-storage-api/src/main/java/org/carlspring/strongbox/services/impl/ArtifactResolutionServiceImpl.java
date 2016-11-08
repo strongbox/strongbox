@@ -53,9 +53,11 @@ public class ArtifactResolutionServiceImpl
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
         ArtifactInputStream is = repositoryProvider.getInputStream(storageId, repositoryId, artifactPath);
-        if (is == null) {
-            throw new ArtifactResolutionException("Artifact " + artifactPath + " not found");
+        if (is == null)
+        {
+            throw new ArtifactResolutionException("Artifact " + artifactPath + " not found.");
         }
+        
         return is;
     }
 
