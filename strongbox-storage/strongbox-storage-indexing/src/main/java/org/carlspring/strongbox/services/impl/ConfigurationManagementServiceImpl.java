@@ -13,6 +13,11 @@ import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.RuleSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -21,20 +26,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 /**
  * @author mtodorov
  */
 @Component
+@Transactional
 public class ConfigurationManagementServiceImpl
         implements ConfigurationManagementService
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(ConfigurationManagementServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(ConfigurationManagementService.class);
 
     @Autowired
     private ConfigurationManager configurationManager;
@@ -276,6 +277,7 @@ public class ConfigurationManagementServiceImpl
         configuration.getRoutingRules().addAcceptRule(ruleSet.getGroupRepository(), ruleSet);
         updateConfiguration(configuration);
 
+
         return true;
     }
 
@@ -300,7 +302,11 @@ public class ConfigurationManagementServiceImpl
                                                  RoutingRule routingRule)
     {
         final Configuration configuration = getConfig();
-        final Map<String, RuleSet> acceptedRulesMap = configuration.getRoutingRules().getAccepted();
+        RoutingRules routingRules = configuration.getRoutingRules();
+
+        logger.info("Routing rules: \n" + routingRules + "\nAccepted empty " + routingRules.getAccepted().isEmpty());
+
+        final Map<String, RuleSet> acceptedRulesMap = routingRules.getAccepted();
         boolean added = false;
         if (acceptedRulesMap.containsKey(groupRepository))
         {

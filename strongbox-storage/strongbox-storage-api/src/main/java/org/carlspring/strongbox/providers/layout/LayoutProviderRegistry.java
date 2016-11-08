@@ -76,7 +76,22 @@ public class LayoutProviderRegistry extends AbstractMappedProviderRegistry<Layou
             for (Repository repository : repositories.values())
             {
                 LayoutProvider layoutProvider = getLayoutProvider(repository, this);
-                layoutProvider.undeleteTrash(storage.getId(), repository.getId());
+
+                final String storageId = storage.getId();
+                final String repositoryId = repository.getId();
+
+                try
+                {
+                    if (repository.isTrashEnabled())
+                    {
+                        layoutProvider.undeleteTrash(storageId, repositoryId);
+                    }
+                }
+                catch (Exception e)
+                {
+                    throw new RuntimeException("Unable to undelete trash for storage " + storageId + " in repository " +
+                                               repositoryId, e);
+                }
             }
         }
     }

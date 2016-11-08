@@ -3,11 +3,7 @@ package org.carlspring.strongbox.client;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 
 import javax.ws.rs.ServerErrorException;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.client.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.Closeable;
@@ -16,14 +12,9 @@ import java.io.InputStream;
 
 import org.apache.http.HttpStatus;
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
@@ -32,10 +23,9 @@ import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
  * @author mtodorov
  */
 public class ArtifactClient
+        extends BaseArtifactClient
         implements Closeable
 {
-
-    private static final Logger logger = LoggerFactory.getLogger(ArtifactClient.class);
 
     protected String username = "maven";
 
@@ -119,36 +109,6 @@ public class ArtifactClient
         }
     }
 
-    public void addArtifact(Artifact artifact,
-                            String storageId,
-                            String repositoryId,
-                            InputStream is)
-            throws ArtifactOperationException
-    {
-        String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" +
-                     ArtifactUtils.convertArtifactToPath(artifact);
-
-        logger.debug("Deploying " + url + "...");
-
-        String fileName = ArtifactUtils.getArtifactFileName(artifact);
-
-        deployFile(is, url, fileName);
-    }
-
-    public void addMetadata(Metadata metadata,
-                            String path,
-                            String storageId,
-                            String repositoryId,
-                            InputStream is)
-            throws ArtifactOperationException
-    {
-        String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + path;
-
-        logger.debug("Deploying " + url + "...");
-
-        deployMetadata(is, url, path.substring(path.lastIndexOf("/")));
-    }
-
     public void deployFile(InputStream is,
                            String url,
                            String fileName)
@@ -220,13 +180,6 @@ public class ArtifactClient
         {
             throw new ArtifactTransportException("Artifact size was zero!");
         }
-    }
-
-    public InputStream getResource(String path)
-            throws ArtifactTransportException,
-                   IOException
-    {
-        return getResource(path, 0);
     }
 
     public InputStream getResource(String path,
@@ -447,16 +400,8 @@ public class ArtifactClient
         }
     }
 
-    private String escapeUrl(String path)
-    {
-        String baseUrl = getContextBaseUrl() + (getContextBaseUrl().endsWith("/") ? "" : "/");
-        String p = (path.startsWith("/") ? path.substring(1, path.length()) : path);
-
-        return baseUrl + p;
-    }
-
     public void handleFailures(Response response,
-                                String message)
+                               String message)
             throws ArtifactOperationException, AuthenticationServiceException
     {
 
@@ -508,25 +453,6 @@ public class ArtifactClient
         {
             throw new ServerErrorException("Unable to setup authentication", Response.Status.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    public Metadata retrieveMetadata(String path)
-            throws ArtifactTransportException, IOException, XmlPullParserException
-    {
-        if (pathExists(path))
-        {
-            InputStream is = getResource(path);
-            try
-            {
-                MetadataXpp3Reader reader = new MetadataXpp3Reader();
-                return reader.read(is);
-            }
-            finally
-            {
-                is.close();
-            }
-        }
-        return null;
     }
 
     public String getProtocol()

@@ -166,7 +166,7 @@ public class KeyStoreManager
     {
         KeyStore keyStore = load(fileName, password);
         String prefix = host.getCanonicalHostName() + ":" + Integer.toString(port);
-        X509Certificate [] chain = remoteCertificateChain(host, port);
+        X509Certificate[] chain = remoteCertificateChain(host, port);
 
         for (X509Certificate cert : chain)
         {
@@ -236,7 +236,7 @@ public class KeyStoreManager
     {
         KeyStore keyStore = load(fileName, password);
         String prefix = host + ":" + Integer.toString(port);
-        X509Certificate [] chain = remoteCertificateChain(socksProxy, credentials, host, port);
+        X509Certificate[] chain = remoteCertificateChain(socksProxy, credentials, host, port);
 
         for (X509Certificate cert : chain)
         {
@@ -313,9 +313,9 @@ public class KeyStoreManager
                            int port)
             throws IOException
     {
-        SSLSocket socket = (SSLSocket)(proxySocket == null ?
-                                             ctx.getSocketFactory().createSocket(host, port) :
-                                             ctx.getSocketFactory().createSocket(proxySocket, host, port, true));
+        SSLSocket socket = (SSLSocket) (proxySocket == null ?
+                                        ctx.getSocketFactory().createSocket(host, port) :
+                                        ctx.getSocketFactory().createSocket(proxySocket, host, port, true));
 
         try
         {

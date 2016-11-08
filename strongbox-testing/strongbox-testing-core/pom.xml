@@ -100,9 +100,8 @@
         </dependency>
 
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <scope>test</scope>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
         </dependency>
 
         <dependency>
@@ -140,6 +139,25 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jayway.restassured</groupId>
+            <artifactId>spring-mock-mvc</artifactId>
+            <version>2.9.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.codehaus.groovy</groupId>
+                    <artifactId>groovy</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.codehaus.groovy</groupId>
+                    <artifactId>groovy-xml</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.codehaus.groovy</groupId>
+                    <artifactId>groovy-json</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
     
@@ -232,102 +250,6 @@
                                 </configuration>
                             </execution>
                         </executions>
-                    </plugin>
-
-                    <plugin>
-                        <groupId>org.eclipse.jetty</groupId>
-                        <artifactId>jetty-maven-plugin</artifactId>
-
-                        <configuration>
-                            <daemon>true</daemon>
-
-                            <webApp>
-                                <contextPath>/</contextPath>
-                                <descriptor>${dir.strongbox.home}/webapp/WEB-INF/web.xml</descriptor>
-                            </webApp>
-
-                            <stopPort>${port.jetty.shutdown}</stopPort>
-                            <stopKey>53AS9DS1FD8E3WEFEW9GR1ER8G2ER0WE31</stopKey>
-                            <stopWait>10</stopWait>
-
-                            <httpConnector>
-                                <port>${port.jetty.listen}</port>
-                            </httpConnector>
-
-                            <systemProperties>
-                                <force>true</force>
-
-                                <systemProperty>
-                                    <name>strongbox.home</name>
-                                    <value>${dir.strongbox.home}</value>
-                                </systemProperty>
-                                <systemProperty>
-                                    <name>strongbox.vault</name>
-                                    <value>${project.build.directory}/strongbox-vault</value>
-                                </systemProperty>
-                                <systemProperty>
-                                    <name>repository.config.xml</name>
-                                    <value>${dir.strongbox.home}/etc/conf/strongbox.xml</value>
-                                </systemProperty>
-                                <systemProperty>
-                                    <name>strongbox.storage.booter.basedir</name>
-                                    <value>${project.build.directory}/strongbox-vault/storages</value>
-                                </systemProperty>
-                            </systemProperties>
-
-                            <useTestScope>true</useTestScope>
-                        </configuration>
-
-                        <executions>
-                            <execution>
-                                <id>jetty-start</id>
-
-                                <phase>test-compile</phase>
-                                <goals>
-                                    <goal>start</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>jetty-stop</id>
-
-                                <phase>test</phase>
-                                <goals>
-                                    <goal>stop</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-
-                        <dependencies>
-                            <dependency>
-                                <groupId>org.eclipse.jetty</groupId>
-                                <artifactId>jetty-util</artifactId>
-                                <version>${version.jetty}</version>
-                            </dependency>
-                            <dependency>
-                                <groupId>org.eclipse.jetty</groupId>
-                                <artifactId>jetty-runner</artifactId>
-                                <version>${version.jetty}</version>
-                            </dependency>
-                        </dependencies>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>block-jetty</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.eclipse.jetty</groupId>
-                        <artifactId>jetty-maven-plugin</artifactId>
-
-                        <configuration>
-                            <daemon>false</daemon>
-                        </configuration>
                     </plugin>
                 </plugins>
             </build>

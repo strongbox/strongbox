@@ -7,14 +7,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.net.URL;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -29,6 +22,8 @@ import org.slf4j.LoggerFactory;
  */
 public class GenericParser<T>
 {
+
+    public final static boolean IS_OUTPUT_FORMATTED = true;
 
     private static final Logger logger = LoggerFactory.getLogger(GenericParser.class);
 
@@ -134,7 +129,7 @@ public class GenericParser<T>
             JAXBContext context = getContext();
 
             Marshaller marshaller = context.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, IS_OUTPUT_FORMATTED);
 
             marshaller.marshal(object, os);
         }
@@ -161,7 +156,7 @@ public class GenericParser<T>
             JAXBContext context = getContext();
 
             Marshaller marshaller = context.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, false);
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, IS_OUTPUT_FORMATTED);
 
             marshaller.marshal(object, writer);
             return writer.getBuffer().toString();

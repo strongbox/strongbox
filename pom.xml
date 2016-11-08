@@ -31,6 +31,14 @@
             <name>Martin Todorov</name>
             <email>carlspring@gmail.com</email>
         </developer>
+        <developer>
+            <name>Alex Oreshkevich</name>
+            <email>alex.oreshkevich@redsoft.pro</email>
+        </developer>
+        <developer>
+            <name>Yougeshwar Khatri</name>
+            <email>ypkkhatri@gmail.com</email>
+        </developer>
     </developers>
 
     <inceptionYear>2014</inceptionYear>
@@ -51,9 +59,10 @@
         <module>strongbox-client</module>
         <module>strongbox-rest-client</module>
         <module>strongbox-storage</module>
-        <module>strongbox-web-core</module>
         <module>strongbox-data-service</module>
         <module>strongbox-user-management</module>
+        <module>strongbox-web-core</module>
+        <module>strongbox-cron-tasks</module>
     </modules>
 
 </project>

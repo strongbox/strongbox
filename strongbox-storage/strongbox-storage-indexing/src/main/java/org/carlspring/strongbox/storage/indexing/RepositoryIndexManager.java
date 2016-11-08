@@ -31,6 +31,7 @@ public class RepositoryIndexManager
     @PreDestroy
     private void close()
     {
+
         for (String storageAndRepository : indexes.keySet())
         {
             try
@@ -65,13 +66,16 @@ public class RepositoryIndexManager
     public void closeIndexer(String storageAndRepository)
             throws IOException
     {
+
         final RepositoryIndexer repositoryIndexer = indexes.get(storageAndRepository);
 
-        logger.debug("Closing indexer for " + repositoryIndexer.getStorageId() + ":" + repositoryIndexer.getRepositoryId() + "...");
+        System.out.println("Indexes size:" + indexes.size());
 
-        repositoryIndexer.close();
-
-        logger.debug("Closed indexer for " + repositoryIndexer.getStorageId() + ":" + repositoryIndexer.getRepositoryId() + ".");
+        if (repositoryIndexer != null) {
+            logger.debug("Closing indexer for " + repositoryIndexer.getStorageId() + ":" + repositoryIndexer.getRepositoryId() + "...");
+            repositoryIndexer.close();
+            logger.debug("Closed indexer for " + repositoryIndexer.getStorageId() + ":" + repositoryIndexer.getRepositoryId() + ".");
+        }
 
         indexes.remove(storageAndRepository);
     }

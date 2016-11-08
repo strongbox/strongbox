@@ -26,8 +26,11 @@ public class ProxyRepositoryProviderTest
 {
 
     @org.springframework.context.annotation.Configuration
-    @ComponentScan(basePackages = { "org.carlspring.strongbox.services"})
-    public static class SpringConfig { }
+    @ComponentScan(basePackages = { "org.carlspring.strongbox.services" })
+    public static class SpringConfig
+    {
+
+    }
 
     @Autowired
     private ArtifactResolutionService artifactResolutionService;

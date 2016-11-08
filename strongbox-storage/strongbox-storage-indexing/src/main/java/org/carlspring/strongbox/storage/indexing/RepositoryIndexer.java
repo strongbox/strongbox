@@ -5,11 +5,7 @@ import org.carlspring.strongbox.configuration.Configuration;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
@@ -20,16 +16,8 @@ import org.apache.lucene.util.Version;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
-import org.apache.maven.index.ArtifactContext;
-import org.apache.maven.index.ArtifactInfo;
-import org.apache.maven.index.ArtifactScanningListener;
-import org.apache.maven.index.FlatSearchRequest;
-import org.apache.maven.index.FlatSearchResponse;
-import org.apache.maven.index.Indexer;
-import org.apache.maven.index.MAVEN;
+import org.apache.maven.index.*;
 import org.apache.maven.index.Scanner;
-import org.apache.maven.index.ScanningRequest;
-import org.apache.maven.index.ScanningResult;
 import org.apache.maven.index.context.IndexCreator;
 import org.apache.maven.index.context.IndexingContext;
 import org.apache.maven.index.expr.SourcedSearchExpression;
@@ -45,7 +33,11 @@ public class RepositoryIndexer
 
     private static final Version luceneVersion = Version.LUCENE_48;
 
-    private static final String [] luceneFields = new String [] { "g", "a", "v", "p", "c" };
+    private static final String[] luceneFields = new String[]{ "g",
+                                                               "a",
+                                                               "v",
+                                                               "p",
+                                                               "c" };
 
     private static final WhitespaceAnalyzer luceneAnalyzer = new WhitespaceAnalyzer(luceneVersion);
 
@@ -172,30 +164,37 @@ public class RepositoryIndexer
     public Set<SearchResult> search(final String queryText)
             throws ParseException, IOException
     {
-        final Query query = new MultiFieldQueryParser(luceneVersion, luceneFields, luceneAnalyzer).parse(queryText);
-
-        logger.debug("Text of the query: {}", queryText);
-        logger.debug("Executing search query: {}; ctx id: {}; idx dir: {}",
-                     new String[]{ query.toString(),
-                                   indexingContext.getId(),
-                                   indexingContext.getIndexDirectory().toString() });
-
-        final FlatSearchResponse response = getIndexer().searchFlat(new FlatSearchRequest(query, indexingContext));
-
-        logger.debug("Hit count: {}", response.getReturnedHitsCount());
-
-        final Set<ArtifactInfo> r = response.getResults();
-        final Set<SearchResult> results = asSearchResults(r);
-
-        if (logger.isDebugEnabled())
+        try
         {
-            for (final SearchResult result : results)
-            {
-                logger.debug("Found artifact: {}", result.toString());
-            }
-        }
+            final Query query = new MultiFieldQueryParser(luceneVersion, luceneFields, luceneAnalyzer).parse(queryText);
 
-        return results;
+            logger.debug("Text of the query: {}", queryText);
+            logger.debug("Executing search query: {}; ctx id: {}; idx dir: {}",
+                         new String[]{ query.toString(),
+                                       indexingContext.getId(),
+                                       indexingContext.getIndexDirectory().toString() });
+
+            final FlatSearchResponse response = getIndexer().searchFlat(new FlatSearchRequest(query, indexingContext));
+
+            logger.debug("Hit count: {}", response.getReturnedHitsCount());
+
+            final Set<ArtifactInfo> r = response.getResults();
+            final Set<SearchResult> results = asSearchResults(r);
+
+            if (logger.isDebugEnabled())
+            {
+                for (final SearchResult result : results)
+                {
+                    logger.debug("Found artifact: {}", result.toString());
+                }
+            }
+            return results;
+        }
+        catch (Exception e)
+        {
+            logger.warn("Unable execute search query", e);
+            return new HashSet<>();
+        }
     }
 
     public Set<SearchResult> searchBySHA1(final String checksum)
@@ -283,39 +282,58 @@ public class RepositoryIndexer
                                    Artifact artifact)
             throws IOException
     {
-        String extension = artifactFile.getName().substring(artifactFile.getName().lastIndexOf(".") + 1,
-                                                            artifactFile.getName().length());
-
-        ArtifactInfo artifactInfo = new ArtifactInfo(repositoryId,
-                                                     artifact.getGroupId(),
-                                                     artifact.getArtifactId(),
-                                                     artifact.getVersion(),
-                                                     artifact.getClassifier(),
-                                                     extension);
-        if (artifact.getType() != null)
+        try
         {
-            artifactInfo.setFieldValue(MAVEN.PACKAGING, artifact.getType());
+            String extension = artifactFile.getName().substring(artifactFile.getName().lastIndexOf(".") + 1,
+                                                                artifactFile.getName().length());
+
+            ArtifactInfo artifactInfo = new ArtifactInfo(repositoryId,
+                                                         artifact.getGroupId(),
+                                                         artifact.getArtifactId(),
+                                                         artifact.getVersion(),
+                                                         obtainClassifier(artifact),
+                                                         extension);
+
+            if (artifact.getType() != null)
+            {
+                artifactInfo.setFieldValue(MAVEN.PACKAGING, artifact.getType());
+            }
+
+            logger.debug("Adding artifact: {}; repo: {}; type: {}", new String[]{ artifact.getGroupId() + ":" +
+                                                                                  artifact.getArtifactId() + ":" +
+                                                                                  artifact.getVersion() + ":" +
+                                                                                  artifactInfo.getClassifier() + ":" +
+                                                                                  extension,
+                                                                                  repositoryId,
+                                                                                  artifact.getType() });
+
+            File pomFile = new File(artifactFile.getAbsolutePath() + ".pom");
+            // TODO: Improve this to support timestamped SNAPSHOT-s:
+            File metadataFile = new File(artifactFile.getParentFile().getParentFile(), "maven-metadata.xml");
+
+            getIndexer().addArtifactsToIndex(asList(new ArtifactContext(pomFile.exists() ? pomFile : null,
+                                                                        artifactFile,
+                                                                        metadataFile.exists() ? metadataFile : null,
+                                                                        artifactInfo,
+                                                                        artifactInfo.calculateGav())),
+                                             indexingContext);
         }
-
-        logger.debug("Adding artifact: {}; repo: {}; type: {}", new String[]{ artifact.getGroupId() + ":" +
-                                                                              artifact.getArtifactId() + ":" +
-                                                                              artifact.getVersion() + ":" +
-                                                                              artifact.getClassifier() + ":" +
-                                                                              extension,
-                                                                              repositoryId,
-                                                                              artifact.getType()});
-
-        File pomFile = new File(artifactFile.getAbsolutePath() + ".pom");
-        // TODO: Improve this to support timestamped SNAPSHOT-s:
-        File metadataFile = new File(artifactFile.getParentFile().getParentFile(), "maven-metadata.xml");
-
-        getIndexer().addArtifactsToIndex(asList(new ArtifactContext(pomFile.exists()? pomFile : null,
-                                                                    artifactFile,
-                                                                    metadataFile.exists() ? metadataFile : null,
-                                                                    artifactInfo,
-                                                                    artifactInfo.calculateGav())),
-                                         indexingContext);
+        catch (Exception e) // it's not really a critical problem, artifacts could be added to index later
+        {
+            logger.warn("Unable to add artifacts to index", e);
+        }
     }
+
+    private String obtainClassifier(Artifact artifactInfo)
+    {
+        String classifier = artifactInfo.getClassifier();
+        if (classifier == null || classifier.isEmpty() || classifier.equalsIgnoreCase("null"))
+        {
+            return null;
+        }
+        return classifier;
+    }
+
 
     private class ReindexArtifactScanningListener
             implements ArtifactScanningListener

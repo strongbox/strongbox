@@ -11,8 +11,6 @@ import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-import org.apache.maven.artifact.Artifact;
-
 /**
  * @author mtodorov
  */

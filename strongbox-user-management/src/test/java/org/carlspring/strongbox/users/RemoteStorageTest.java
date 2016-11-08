@@ -1,8 +1,9 @@
 package org.carlspring.strongbox.users;
 
 import org.carlspring.strongbox.users.domain.User;
-import org.carlspring.strongbox.users.repository.UserRepository;
+import org.carlspring.strongbox.users.service.UserService;
 
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -23,8 +24,10 @@ public class RemoteStorageTest
     final String testUserName = "TEST";
 
     @Autowired
-    UserRepository repository;
+    UserService userService;
 
+    @Autowired
+    OObjectDatabaseTx databaseTx;
 
     @Test
     @Transactional
@@ -37,10 +40,10 @@ public class RemoteStorageTest
         // if such user already exists, drop it
         try
         {
-            User oldUser = repository.findByUsername(user.getUsername());
+            User oldUser = userService.findByUserName(user.getUsername());
             if (oldUser != null)
             {
-                repository.delete(oldUser.getId());
+                userService.delete(oldUser.getId());
             }
         }
         catch (IndexOutOfBoundsException e)
@@ -48,9 +51,9 @@ public class RemoteStorageTest
             // ignore internal spring-data-orientdb issue
         }
 
-        final String id = repository.save(user).getId();
+        User user1 = databaseTx.detachAll(userService.save(user), true);
 
-        User storedUser = repository.findOne(id);
+        User storedUser = userService.findOne(user1.getId()).get();
         assertNotNull(storedUser);
 
         logger.debug("Found user {}", storedUser);

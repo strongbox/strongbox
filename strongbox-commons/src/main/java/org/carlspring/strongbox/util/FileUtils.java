@@ -26,4 +26,13 @@ public class FileUtils
         return path;
     }
 
+    public static void deleteIfExists(File file)
+    {
+        if (file.exists())
+        {
+            //noinspection ResultOfMethodCallIgnored
+            file.delete();
+        }
+    }
+
 }

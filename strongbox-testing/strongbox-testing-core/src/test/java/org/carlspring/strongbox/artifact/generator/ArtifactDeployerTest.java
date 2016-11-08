@@ -1,9 +1,10 @@
 package org.carlspring.strongbox.artifact.generator;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.config.TestingCoreConfig;
-import org.carlspring.strongbox.client.ArtifactClient;
 import org.carlspring.strongbox.client.ArtifactOperationException;
+import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.client.ArtifactClient;
+import org.carlspring.strongbox.config.TestingCoreConfig;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.testing.AssignedPorts;
 
@@ -15,6 +16,7 @@ import org.apache.maven.artifact.Artifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +28,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TestingCoreConfig.class)
+@Ignore
 public class ArtifactDeployerTest
 {
 
-    private static final File BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/releases/.temp");
+    private static final File BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                 "/storages/storage0/releases/.temp");
 
     @Autowired
     private AssignedPorts assignedPorts;
@@ -69,15 +73,16 @@ public class ArtifactDeployerTest
             throws ArtifactOperationException,
                    IOException,
                    NoSuchAlgorithmException,
-                   XmlPullParserException
+                   XmlPullParserException, ArtifactTransportException
     {
         Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:test:1.2.3");
 
-        String[] classifiers = new String[] { "javadocs", "jdk14", "tests"};
+        String[] classifiers = new String[]{ "javadocs",
+                                             "jdk14",
+                                             "tests" };
 
         ArtifactDeployer artifactDeployer = new ArtifactDeployer(BASEDIR);
         artifactDeployer.setClient(client);
         artifactDeployer.generateAndDeployArtifact(artifact, classifiers, "storage0", "releases", "jar");
     }
-
 }

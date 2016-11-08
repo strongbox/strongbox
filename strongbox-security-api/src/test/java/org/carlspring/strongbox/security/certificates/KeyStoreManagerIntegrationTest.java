@@ -34,7 +34,8 @@ public class KeyStoreManagerIntegrationTest
 {
 
     @org.springframework.context.annotation.Configuration
-    @ComponentScan(basePackages = { "org.carlspring.strongbox.security", "org.carlspring.strongbox.testing"})
+    @ComponentScan(basePackages = { "org.carlspring.strongbox.security",
+                                    "org.carlspring.strongbox.testing" })
     public static class SpringConfig { }
 
 
@@ -109,7 +110,7 @@ public class KeyStoreManagerIntegrationTest
         final String newPassword = "newpassword";
 
         keyStoreManager.changePassword(f, KEYSTORE_PASSWORD.toCharArray(), newPassword.toCharArray());
-        keyStoreManager.removeCertificates(f, newPassword.toCharArray(), InetAddress.getLocalHost(), LDAPS_PORT );
+        keyStoreManager.removeCertificates(f, newPassword.toCharArray(), InetAddress.getLocalHost(), LDAPS_PORT);
         certs = keyStoreManager.listCertificates(f, newPassword.toCharArray());
 
         assertTrue(certs.isEmpty());
