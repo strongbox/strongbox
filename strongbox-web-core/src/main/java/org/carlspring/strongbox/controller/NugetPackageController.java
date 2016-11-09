@@ -1,11 +1,15 @@
 package org.carlspring.strongbox.controller;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang.StringUtils;
@@ -18,16 +22,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 /**
- * This Controller used to handle Nuget requests. 
+ * This Controller used to handle Nuget requests.
  * 
  * @author Sergey Bespalov
  *
@@ -47,7 +49,7 @@ public class NugetPackageController extends BaseController
     @RequestMapping(value = "{storageId}", method = RequestMethod.PUT, consumes = MediaType.MULTIPART_FORM_DATA)
     public ResponseEntity putPackage(@RequestHeader(name = "X-NuGet-ApiKey", required = false) String apiKey,
                                      @PathVariable(name = "storageId") String storageId,
-                                     @RequestParam("package") MultipartFile file)
+                                     HttpServletRequest request)
     {
         logger.info(String.format("Nuget push request: storageId-[%s];", storageId));
 
@@ -59,7 +61,8 @@ public class NugetPackageController extends BaseController
         URI resourceUri;
         try
         {
-            resourceUri = putPackageInternal(storageId, file);
+            ServletInputStream is = request.getInputStream();
+            resourceUri = putPackageInternal(storageId, is);
         } catch (Exception e)
         {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -69,25 +72,24 @@ public class NugetPackageController extends BaseController
     }
 
     private URI putPackageInternal(String storageId,
-                                   MultipartFile file)
+                                   InputStream is)
             throws IOException,
             URISyntaxException,
             NoSuchAlgorithmException
     {
-        // ServletInputStream is = file.getBytes();
 
-        // MultipleDigestInputStream mdis = new MultipleDigestInputStream(is);
-        // BufferedInputStream mdis = new BufferedInputStream(is);
-        //
-        // int readLength;
-        // byte[] bytes = new byte[4096];
-        //
-        // while ((readLength = mdis.read(bytes, 0, bytes.length)) != -1)
-        // {
-        //
-        // }
-        logger.debug(String.format("Nuget push request content: storageId-[%s]; readLength-[%s]", storageId,
-                file.getBytes().length));
+        int readLength;
+        int total = 0;
+        byte[] bytes = new byte[1024];
+        try (BufferedInputStream bis = new BufferedInputStream(is);)
+        {
+            while ((readLength = bis.read(bytes)) != -1)
+            {
+                total += readLength;
+            }
+        }
+
+        logger.debug(String.format("Nuget push request content: storageId-[%s]; readLength-[%s]", storageId, total));
 
         return new URI("");
     }
