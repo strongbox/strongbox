@@ -78,11 +78,11 @@ public class NugetPackageController extends BaseController
             NoSuchAlgorithmException
     {
 
-        int readLength;
-        int total = 0;
-        byte[] bytes = new byte[1024];
+        int total = 1;
         try (BufferedInputStream bis = new BufferedInputStream(is);)
         {
+            int readLength;
+            byte[] bytes = new byte[1024];
             while ((readLength = bis.read(bytes)) != -1)
             {
                 total += readLength;
