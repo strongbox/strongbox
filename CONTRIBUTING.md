@@ -30,3 +30,4 @@ To accept, please:
 | Bohdan Hliva                 |                                          | Lviv, Ukraine                           | 2016-08-09 |
 | Yougeshwar Khatri            |                                          | Karachi, Pakistan                       | 2016-04-01 |
 | Kate Novik                   | redsoft.pro                              | Minsk, Republic of Belarus              | 2016-11-16 |
+| Bespalov Sergey              |                                          | Novosibirsk, Russia                     | 2016-11-02 |
