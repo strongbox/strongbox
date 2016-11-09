@@ -112,12 +112,15 @@ public class ArtifactController
                          @PathVariable String repositoryId,
                          @RequestHeader HttpHeaders httpHeaders,
                          HttpServletRequest request,
-                         HttpServletResponse response)
+                         HttpServletResponse response
+                         /*@PathVariable("path") String path*/)
             throws Exception
     {
+        //String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+
         String path = convertRequestToPath(ROOT_CONTEXT, request, storageId, repositoryId);
 
-        logger.debug(" repository = " + repositoryId + ", path = " + path);
+        logger.debug("[download] repository = " + repositoryId + "\n\tpath = " + path);
         Storage storage = configurationManager.getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 

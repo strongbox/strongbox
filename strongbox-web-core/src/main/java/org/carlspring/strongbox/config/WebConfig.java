@@ -3,6 +3,7 @@ package org.carlspring.strongbox.config;
 import org.carlspring.strongbox.StorageIndexingConfig;
 import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
 import org.carlspring.strongbox.mapper.CustomJaxb2RootElementHttpMessageConverter;
+import org.carlspring.strongbox.utils.CustomUrlPathHelper;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -10,13 +11,15 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.converter.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox",
@@ -31,13 +34,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @EnableCaching
 @EnableWebMvc
 public class WebConfig
-        extends WebMvcConfigurerAdapter
+        extends WebMvcConfigurationSupport
 {
 
     private static final Logger logger = LoggerFactory.getLogger(WebConfig.class);
 
     @Inject
     CustomJaxb2RootElementHttpMessageConverter jaxb2RootElementHttpMessageConverter;
+
+    @Inject
+    CustomUrlPathHelper customUrlPathHelper;
 
     public WebConfig()
     {
@@ -56,5 +62,13 @@ public class WebConfig
         converters.add(new MappingJackson2HttpMessageConverter());
         converters.add(jaxb2RootElementHttpMessageConverter);
         converters.add(new ResourceHttpMessageConverter());
+    }
+
+    @Bean
+    public RequestMappingHandlerMapping requestMappingHandlerMapping() {
+        RequestMappingHandlerMapping mapping = super.requestMappingHandlerMapping();
+        mapping.setUseSuffixPatternMatch(false);
+        mapping.setUrlPathHelper(customUrlPathHelper);
+        return mapping;
     }
 }
