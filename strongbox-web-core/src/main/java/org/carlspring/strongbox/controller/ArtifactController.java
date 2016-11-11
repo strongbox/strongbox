@@ -52,7 +52,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
  * test
  */
 @RestController
-@RequestMapping("/storages")
+@RequestMapping(ArtifactController.ROOT_CONTEXT)
 public class ArtifactController
         extends BaseArtifactController
 {
@@ -74,16 +74,14 @@ public class ArtifactController
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
     @RequestMapping(value = "{storageId}/{repositoryId}/**", method = RequestMethod.PUT)
-    public ResponseEntity upload(@ApiParam(value = "The storageId", required = true)
-                                 @PathVariable(name = "storageId") String storageId,
+    public ResponseEntity upload(
+                                 @ApiParam(value = "The storageId", required = true)
+                                 @PathVariable(name = "storageId")
+                                 String storageId,
                                  @ApiParam(value = "The repositoryId", required = true)
-                                 @PathVariable(name = "repositoryId") String repositoryId,
+                                 @PathVariable(name = "repositoryId")
+                                 String repositoryId,
                                  HttpServletRequest request)
-            throws IOException,
-                   AuthenticationException,
-                   NoSuchAlgorithmException,
-                   JAXBException,
-                   ProviderImplementationException
     {
         try
         {
