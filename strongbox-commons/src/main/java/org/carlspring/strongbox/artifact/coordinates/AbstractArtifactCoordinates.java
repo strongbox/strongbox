@@ -65,4 +65,11 @@ public abstract class AbstractArtifactCoordinates implements ArtifactCoordinates
         this.coordinates = coordinates;
     }
 
+    @Override
+    public String toString()
+    {
+        return toPath();
+    }
+
+    
 }
