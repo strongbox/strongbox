@@ -1,20 +1,10 @@
 package org.carlspring.strongbox.controller;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.security.exceptions.AuthenticationException;
-import org.carlspring.strongbox.storage.ArtifactResolutionException;
-import org.carlspring.strongbox.storage.ArtifactStorageException;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.metadata.MetadataType;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.util.MessageDigestUtils;
+import static org.carlspring.strongbox.utils.ByteRangeRequestHandler.handlePartialDownload;
+import static org.carlspring.strongbox.utils.ByteRangeRequestHandler.isRangedRequest;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,32 +17,50 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.regex.Matcher;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.JAXBException;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.comparator.DirectoryFileComparator;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.storage.ArtifactResolutionException;
+import org.carlspring.strongbox.storage.ArtifactStorageException;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
+import org.carlspring.strongbox.storage.metadata.MetadataType;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-import static org.carlspring.strongbox.utils.ByteRangeRequestHandler.handlePartialDownload;
-import static org.carlspring.strongbox.utils.ByteRangeRequestHandler.isRangedRequest;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 /**
  * test
  */
 @RestController
-@RequestMapping(ArtifactController.ROOT_CONTEXT)
+@RequestMapping(path = ArtifactController.ROOT_CONTEXT, headers = "user-agent=Maven/*")
 public class ArtifactController
         extends BaseArtifactController
 {
@@ -62,6 +70,9 @@ public class ArtifactController
     // must be the same as @RequestMapping value on the class definition
     public final static String ROOT_CONTEXT = "/storages";
 
+    @Autowired
+    protected MavenMetadataManager mavenMetadataManager;
+    
     @PreAuthorize("authenticated")
     @RequestMapping(value = "greet", method = RequestMethod.GET)
     public ResponseEntity greet()
@@ -506,12 +517,12 @@ public class ArtifactController
                 java.nio.file.Path path = Paths.get(
                         artifactFile.getPath().substring(0, artifactFile.getPath().lastIndexOf(File.separatorChar)));
 
-                Metadata metadata = getMavenMetadataManager().readMetadata(path);
+                Metadata metadata = mavenMetadataManager.readMetadata(path);
                 if (metadata != null && metadata.getVersioning() != null
                     && metadata.getVersioning().getVersions().contains(version))
                 {
                     metadata.getVersioning().getVersions().remove(version);
-                    getMavenMetadataManager().storeMetadata(path, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
+                    mavenMetadataManager.storeMetadata(path, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
                 }
             }
         }
