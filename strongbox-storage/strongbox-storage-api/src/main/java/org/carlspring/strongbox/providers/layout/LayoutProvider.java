@@ -1,15 +1,13 @@
 package org.carlspring.strongbox.providers.layout;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.storage.repository.Repository;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
 
-import org.apache.maven.artifact.Artifact;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 /**
  * @author carlspring
