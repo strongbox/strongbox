@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
@@ -39,9 +41,10 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
 {
     private static final Logger logger = LoggerFactory.getLogger(NugetHierarchicalLayoutProvider.class);
 
-    public static final String ALIAS = NugetHierarchicalLayoutProvider.class.getSimpleName();
+    public static final String ALIAS = "Nuget Hierachlical";
 
     @Override
+    @PostConstruct
     public void register()
     {
         layoutProviderRegistry.addProvider(ALIAS, this);
