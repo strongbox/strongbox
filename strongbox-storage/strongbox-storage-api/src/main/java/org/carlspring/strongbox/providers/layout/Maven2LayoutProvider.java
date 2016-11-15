@@ -46,12 +46,6 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
     public static final String ALIAS = "Maven 2";
 
     @Autowired
-    private LayoutProviderRegistry layoutProviderRegistry;
-
-    @Autowired
-    private StorageProviderRegistry storageProviderRegistry;
-
-    @Autowired
     private MavenMetadataManager mavenMetadataManager;
 
 
