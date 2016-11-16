@@ -1,13 +1,14 @@
 package org.carlspring.strongbox.cron.api.jobs;
 
+import org.carlspring.strongbox.cron.config.ApplicationContextProvider;
+import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.services.ArtifactMetadataService;
+import org.carlspring.strongbox.services.impl.ArtifactMetadataServiceImpl;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,12 +22,13 @@ import java.util.List;
  */
 public class RebuildMetadataCronJob extends JavaCronJob {
 
-    private static final String BASEDIR_STORAGES = "/storages";
+    private static final String BASEDIR_STORAGES = "storages";
+
+    private static final String storagesBasePath = getStoragesBasePath();
 
     private final Logger logger = LoggerFactory.getLogger(RebuildMetadataCronJob.class);
 
-    @Autowired
-    ArtifactMetadataService artifactMetadataService;
+    private ArtifactMetadataServiceImpl artifactMetadataService = getArtifactMetadataService();
 
     @Override
     protected void executeInternal(JobExecutionContext jobExecutionContext)
@@ -36,9 +38,10 @@ public class RebuildMetadataCronJob extends JavaCronJob {
 
         try
         {
-            String storageId = getConfiguration().getProperty("storageId");
-            String repositoryId = getConfiguration().getProperty("repositoryId");
-            String basePath = getConfiguration().getProperty("basePath");
+            CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap().get("config");
+            String storageId = config.getProperty("storageId");
+            String repositoryId = config.getProperty("repositoryId");
+            String basePath = config.getProperty("basePath");
             if (storageId == null) {
                 List<String> storagesId = getStoragesId();
                 for (String storage : storagesId) {
@@ -91,7 +94,6 @@ public class RebuildMetadataCronJob extends JavaCronJob {
      * @return list of storageId
      */
     private List<String> getStoragesId () {
-        String storagesBasePath = ConfigurationResourceResolver.getVaultDirectory().concat(BASEDIR_STORAGES);
         File file = Paths.get(storagesBasePath).toFile();
         return getListDirectories(file);
     }
@@ -107,11 +109,24 @@ public class RebuildMetadataCronJob extends JavaCronJob {
         if (listFiles != null) {
             for (File file : listFiles) {
                 if (file.isDirectory()) {
-                    listDirectories.add(file.getAbsolutePath());
+                    String directoryId = file.getAbsolutePath().substring(0, storagesBasePath.length());
+                    listDirectories.add(directoryId);
                 }
             }
         }
         return listDirectories;
+    }
+
+    /**
+     * To get base path of storages
+     * @return String base path
+     */
+    private static String getStoragesBasePath () {
+        return Paths.get(ConfigurationResourceResolver.getVaultDirectory(), BASEDIR_STORAGES).toString();
+    }
+
+    private ArtifactMetadataServiceImpl getArtifactMetadataService () {
+        return ApplicationContextProvider.getApplicationContext().getBean(ArtifactMetadataServiceImpl.class);
     }
 
 }
