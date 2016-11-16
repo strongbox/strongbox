@@ -86,12 +86,8 @@ public class ArtifactController
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
     @RequestMapping(value = "{storageId}/{repositoryId}/**", method = RequestMethod.PUT)
     public ResponseEntity upload(
-                                 @ApiParam(value = "The storageId", required = true)
-                                 @PathVariable(name = "storageId")
-                                 String storageId,
-                                 @ApiParam(value = "The repositoryId", required = true)
-                                 @PathVariable(name = "repositoryId")
-                                 String repositoryId,
+                                 @ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
+                                 @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
                                  HttpServletRequest request)
     {
         try
