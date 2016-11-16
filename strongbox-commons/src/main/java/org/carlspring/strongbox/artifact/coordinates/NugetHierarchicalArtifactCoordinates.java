@@ -45,12 +45,4 @@ public class NugetHierarchicalArtifactCoordinates extends NugetArtifactCoordinat
                              versionLocal);
     }
 
-    public static void main(String[] args) throws Exception
-    {
-        NugetHierarchicalArtifactCoordinates nac = new NugetHierarchicalArtifactCoordinates("Org.Carlspring.Strongbox.Examples.Nuget.Mono/1.0/Org.Carlspring.Strongbox.Examples.Nuget.Mono.1.0.nupkg");
-        System.out.println(nac.getId());
-        System.out.println(nac.getVersion());
-        System.out.println(nac);
-    }
-
 }
