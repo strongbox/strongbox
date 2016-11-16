@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.cron.config;
 
 import org.carlspring.strongbox.config.DataServiceConfig;
+import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 
 import javax.annotation.PostConstruct;
@@ -25,7 +26,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.cron"
 })
-@Import({ DataServiceConfig.class
+@Import({ DataServiceConfig.class, StorageApiConfig.class
 })
 @EnableOrientRepositories(basePackages = "org.carlspring.strongbox.cron.repository")
 @EnableWebMvc
