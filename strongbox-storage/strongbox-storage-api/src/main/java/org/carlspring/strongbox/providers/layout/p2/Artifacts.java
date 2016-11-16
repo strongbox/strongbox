@@ -17,9 +17,7 @@ public class Artifacts
         return artifacts;
     }
 
-    ;
-
-    public void setArtifacts(List artifacts)
+    public void setArtifacts(List<Artifact> artifacts)
     {
         this.artifacts = artifacts;
     }

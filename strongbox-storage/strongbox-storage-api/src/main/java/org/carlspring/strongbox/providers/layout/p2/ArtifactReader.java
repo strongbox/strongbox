@@ -2,6 +2,7 @@ package org.carlspring.strongbox.providers.layout.p2;
 
 import org.carlspring.strongbox.artifact.coordinates.P2ArtifactCoordinates;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +36,6 @@ public class ArtifactReader
         catch (JAXBException | IOException e)
         {
             logger.error(e.getMessage(), e);
-            e.printStackTrace();
         }
 
         return null;
