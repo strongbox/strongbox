@@ -61,7 +61,7 @@ public class RestAssuredArtifactClient
     {
         String url = escapeUrl(path);
         logger.debug("Path to artifact: " + url);
-        return given().contentType(ContentType.TEXT)
+        return givenLocal().contentType(ContentType.TEXT)
                       .when()
                       .get(url)
                       .getStatusCode() == OK;
@@ -111,7 +111,7 @@ public class RestAssuredArtifactClient
 
         logger.debug("Deploying " + url);
 
-        given().contentType(mediaType)
+        givenLocal().contentType(mediaType)
                .header("Content-Disposition", contentDisposition)
                .header("filename", fileName)
                .body(bytes)
@@ -122,11 +122,16 @@ public class RestAssuredArtifactClient
                .statusCode(HttpStatus.OK.value());
     }
 
+    private MockMvcRequestSpecification givenLocal()
+    {
+        return given().header("user-agent", "Maven/*");
+    }
+
     public MockMvcResponse put2(String relativeUrl,
                                 Object body,
                                 String mediaType)
     {
-        return given().contentType(mediaType).body(body).when().put(relativeUrl).peek();
+        return givenLocal().contentType(mediaType).body(body).when().put(relativeUrl).peek();
     }
 
     public InputStream getResource(String url)
@@ -169,7 +174,7 @@ public class RestAssuredArtifactClient
                                          int offset,
                                          boolean validate)
     {
-        MockMvcRequestSpecification o = given().contentType(MediaType.TEXT_PLAIN_VALUE);
+        MockMvcRequestSpecification o = givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE);
         int statusCode = OK;
         if (offset != -1)
         {
@@ -211,7 +216,7 @@ public class RestAssuredArtifactClient
                      String destStorageId,
                      String destRepositoryId)
     {
-        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+        givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
                .params("srcStorageId", srcStorageId,
                        "srcRepositoryId", srcRepositoryId,
                        "destStorageId", destStorageId,
@@ -239,7 +244,7 @@ public class RestAssuredArtifactClient
         String url = getContextBaseUrl() + ArtifactController.ROOT_CONTEXT + "/" +
                      storageId + "/" + repositoryId + "/" + path;
 
-        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+        givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
                .param("force", force)
                .when()
                .delete(url)
@@ -257,7 +262,7 @@ public class RestAssuredArtifactClient
             url += "/" + pathVar;
         }
 
-        return (ExtractableResponse) given().contentType(MediaType.TEXT_PLAIN_VALUE)
+        return (ExtractableResponse) givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
                                             .when()
                                             .get(url)
                                             .peek()
@@ -273,7 +278,7 @@ public class RestAssuredArtifactClient
         String url = getContextBaseUrl() + "/metadata/" + storageId + "/" + repositoryId + "/" +
                      (basePath != null ? basePath : "");
 
-        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+        givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
                .when()
                .post(url)
                .peek()
@@ -292,7 +297,7 @@ public class RestAssuredArtifactClient
                      storageId + "/" + repositoryId + "/" +
                      (artifactPath != null ? artifactPath : "");
 
-        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+        givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
                .params("version", version,
                        "classifier", classifier,
                        "metadataType", metadataType)
@@ -328,7 +333,7 @@ public class RestAssuredArtifactClient
 
         query = URLEncoder.encode(query, "UTF-8");
 
-        return given().params("repositoryId", repositoryId, "q", query)
+        return givenLocal().params("repositoryId", repositoryId, "q", query)
                       .header("accept", mediaType)
                       .when()
                       .get(url)

@@ -1,12 +1,5 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Map;
-
-import org.carlspring.maven.commons.util.ArtifactUtils;
-
 /**
  * @author Sergey Bespalov
  *
@@ -29,8 +22,7 @@ public abstract class NugetArtifactCoordinates extends AbstractArtifactCoordinat
     }
 
     @Override
-    public void setId(
-                      String id)
+    public void setId(String id)
     {
         setCoordinate(ID, id);
     }
@@ -42,8 +34,7 @@ public abstract class NugetArtifactCoordinates extends AbstractArtifactCoordinat
     }
 
     @Override
-    public void setVersion(
-                           String version)
+    public void setVersion(String version)
     {
         setCoordinate(VERSION, version);
     }

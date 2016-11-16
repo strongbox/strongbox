@@ -21,9 +21,11 @@ import org.carlspring.strongbox.controller.NugetPackageController;
 /**
  * This filter used to map HTTP header values from one to another.<br>
  * Mapping example:<br>
- * &emsp;'user-agent = NuGet Command Line/2.8.60717.93 (Unix 4.4.0.45)'->'NuGet/*'<br>
+ * &emsp;'user-agent = NuGet Command Line/2.8.60717.93 (Unix
+ * 4.4.0.45)'->'NuGet/*'<br>
  * 
- * Such type of mapping is used in storage controllers to map requests according 'user-agent' header type.
+ * Such type of mapping is used in storage controllers to map requests according
+ * 'user-agent' header type.
  * 
  * @see {@link ArtifactController} {@link NugetPackageController}
  * 
@@ -36,13 +38,12 @@ public class HeaderMappingFilter implements Filter
 
     private static final String USER_AGENT_UNKNOWN = "unknown";
     private static final String USER_AGENT_NUGET = "NuGet";
-    private static final String USER_AGENT_MAVEN = "Mavent";
+    private static final String USER_AGENT_MAVEN = "Maven";
 
     private Map<String, String> userAgentMap = new HashMap<>();
 
     @Override
-    public void init(
-                     FilterConfig filterConfig) throws ServletException
+    public void init(FilterConfig filterConfig) throws ServletException
     {
         String format = "%s/*";
         userAgentMap.put(USER_AGENT_NUGET, String.format(format, USER_AGENT_NUGET));
@@ -50,8 +51,7 @@ public class HeaderMappingFilter implements Filter
     }
 
     @Override
-    public void doFilter(
-                         ServletRequest request,
+    public void doFilter(ServletRequest request,
                          ServletResponse response,
                          FilterChain chain) throws IOException, ServletException
     {
@@ -84,13 +84,11 @@ public class HeaderMappingFilter implements Filter
                 return headerValue;
             }
 
-            Optional<String> targetUserAgent = userAgentMap.keySet().stream().filter((
-                                                                                      k) -> {
+            Optional<String> targetUserAgent = userAgentMap.keySet().stream().filter((k) -> {
                 return headerValue.toUpperCase().contains(k.toUpperCase());
             }).findFirst();
 
-            return targetUserAgent.map((
-                                        k) -> {
+            return targetUserAgent.map((k) -> {
                 return userAgentMap.get(k);
             }).orElse(String.format("%s/*", USER_AGENT_UNKNOWN));
         }
