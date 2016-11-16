@@ -38,6 +38,9 @@ Welcome to the Strongbox Maven artifact repository manager's home.
 # What's in the works:
 * [Proxy repositories](https://github.com/strongbox/strongbox/wiki/Repositories#proxy)
 * [Maven Metadata](https://github.com/strongbox/strongbox/wiki/Maven-Metadata)
+* OSGI repository layouts (P2, OBR)
+* NuGet repository layouts
+* Cron tasks for core functionality
 * Security
   * Expression-based roles and privileges subsystem
 * Web UI
