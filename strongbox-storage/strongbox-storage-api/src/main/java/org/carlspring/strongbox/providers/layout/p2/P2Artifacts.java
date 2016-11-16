@@ -1,23 +1,25 @@
 package org.carlspring.strongbox.providers.layout.p2;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Artifacts
+@XmlRootElement(name = "artifacts")
+public class P2Artifacts
 {
 
     private Integer size;
 
-    private List<Artifact> artifacts = new ArrayList();
+    private List<P2Artifact> artifacts = new ArrayList();
 
     @XmlElement(name = "artifact")
-    public List<Artifact> getArtifacts()
+    public List<P2Artifact> getArtifacts()
     {
         return artifacts;
     }
 
-    public void setArtifacts(List<Artifact> artifacts)
+    public void setArtifacts(List<P2Artifact> artifacts)
     {
         this.artifacts = artifacts;
     }

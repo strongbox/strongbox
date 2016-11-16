@@ -3,8 +3,8 @@ package org.carlspring.strongbox.providers.layout.p2;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement
-public class Artifact
+@XmlRootElement(name = "artifact")
+public class P2Artifact
 {
 
     private String version;

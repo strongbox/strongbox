@@ -10,23 +10,23 @@ import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 
-public class ArtifactReader
+public class P2ArtifactReader
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(ArtifactReader.class);
+    private static final Logger logger = LoggerFactory.getLogger(P2ArtifactReader.class);
 
     public static P2ArtifactCoordinates getArtifact(String repositoryBaseDir,
                                                     String bundle)
     {
-        GenericParser<Repository> repositoryParser = new GenericParser<>(Repository.class);
+        GenericParser<P2Repository> repositoryParser = new GenericParser<>(P2Repository.class);
         try
         {
-            Repository repository = repositoryParser.parse(new File(repositoryBaseDir, "artifacts.xml"));
+            P2Repository p2Repository = repositoryParser.parse(new File(repositoryBaseDir, "artifacts.xml"));
             final P2ArtifactCoordinates artifactToFind = P2ArtifactCoordinates.create(bundle);
-            for (Artifact artifact : repository.getArtifacts().getArtifacts())
+            for (P2Artifact p2Artifact : p2Repository.getArtifacts().getArtifacts())
             {
-                P2ArtifactCoordinates foundArtifact = new P2ArtifactCoordinates(artifact.getId(), artifact.getVersion(),
-                                                                                artifact.getClassifier());
+                P2ArtifactCoordinates foundArtifact = new P2ArtifactCoordinates(p2Artifact.getId(), p2Artifact.getVersion(),
+                                                                                p2Artifact.getClassifier());
                 if (foundArtifact.equals(artifactToFind))
                 {
                     return foundArtifact;
