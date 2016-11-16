@@ -49,15 +49,9 @@ public class NugetPackageController extends BaseArtifactController
                             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
     @RequestMapping(value = "{storageId}/{repositoryId}/**", method = RequestMethod.PUT, consumes = MediaType.MULTIPART_FORM_DATA)
-    public ResponseEntity putPackage(
-                                     @RequestHeader(name = "X-NuGet-ApiKey", required = false)
-                                     String apiKey,
-                                     @ApiParam(value = "The storageId", required = true)
-                                     @PathVariable(name = "storageId")
-                                     String storageId,
-                                     @ApiParam(value = "The repositoryId", required = true)
-                                     @PathVariable(name = "repositoryId")
-                                     String repositoryId,
+    public ResponseEntity putPackage(@RequestHeader(name = "X-NuGet-ApiKey", required = false) String apiKey,
+                                     @ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
+                                     @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
                                      HttpServletRequest request)
     {
         logger.info(String.format("Nuget push request: storageId-[%s]; repositoryId-[%s]", storageId, repositoryId));
@@ -87,8 +81,7 @@ public class NugetPackageController extends BaseArtifactController
         return ResponseEntity.created(resourceUri).build();
     }
 
-    private URI putPackageInternal(
-                                   String storageId,
+    private URI putPackageInternal(String storageId,
                                    String repositoryId,
                                    String path,
                                    InputStream is) throws IOException, URISyntaxException, NoSuchAlgorithmException, ProviderImplementationException
