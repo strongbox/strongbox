@@ -1,22 +1,17 @@
 package org.carlspring.strongbox.providers.layout;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.maven.artifact.Artifact;
-import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.NugetHierarchicalArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactFile;
 import org.carlspring.strongbox.io.ArtifactFileOutputStream;
 import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.providers.storage.StorageProvider;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
@@ -25,7 +20,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Layout provider for Nuget package repository.<br>
- * It provides hierarchical directory layout lile follows: <br>
+ * It provides hierarchical directory layout like follows: <br>
  * &lt;packageID&gt;<br>
  * └─&lt;version&gt;<br>
  * &emsp;├─&lt;packageID&gt;.&lt;version&gt;.nupkg<br>
