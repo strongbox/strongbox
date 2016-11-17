@@ -5,6 +5,7 @@ import org.carlspring.maven.commons.io.filters.PomFilenameFilter;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -36,7 +37,9 @@ public class ArtifactLocationReportOperation
     public void execute(Path path)
     {
         File f = path.toAbsolutePath().toFile();
-        List<String> filePaths = Arrays.asList(f.list(new PomFilenameFilter()));
+
+        String[] list = f.list(new PomFilenameFilter());
+        List<String> filePaths = list != null ? Arrays.asList(list) : new ArrayList<>();
 
         String parentPath = path.getParent().toAbsolutePath().toString();
 
