@@ -134,7 +134,7 @@ public class NugetPackageController extends BaseArtifactController
                 // Content-Disposition: form-data; name="package";
                 // filename="package"
                 // Content-Type: application/octet-stream
-                if (!header.contains("package"))
+                if (!header.contains("\"package\""))
                 {
                     continue;
                 }
