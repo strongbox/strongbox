@@ -13,7 +13,6 @@
     </parent>
 
     <artifactId>strongbox-web-core</artifactId>
-    <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Strongbox: Web Core</name>
@@ -468,7 +467,10 @@
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-jaxb-annotations</artifactId>
         </dependency>
-
+		<dependency>
+		    <groupId>commons-fileupload</groupId>
+		    <artifactId>commons-fileupload</artifactId>
+		</dependency>
 
         <!-- Other utils: swagger, .. -->
         <dependency>

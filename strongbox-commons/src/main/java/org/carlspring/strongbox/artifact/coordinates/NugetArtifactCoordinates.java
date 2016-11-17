@@ -7,12 +7,13 @@ package org.carlspring.strongbox.artifact.coordinates;
 public abstract class NugetArtifactCoordinates extends AbstractArtifactCoordinates
 {
 
-    private static final String ID = "id";
-    private static final String VERSION = "version";
+    public static final String ID = "id";
+    public static final String VERSION = "version";
+    public static final String TYPE = "type";
 
     public NugetArtifactCoordinates()
     {
-        defineCoordinates(ID, VERSION);
+        defineCoordinates(ID, VERSION, TYPE);
     }
 
     @Override
@@ -37,6 +38,16 @@ public abstract class NugetArtifactCoordinates extends AbstractArtifactCoordinat
     public void setVersion(String version)
     {
         setCoordinate(VERSION, version);
+    }
+
+    public String getType()
+    {
+        return getCoordinate(TYPE);
+    }
+
+    public void setType(String type)
+    {
+        setCoordinate(TYPE, type);
     }
 
 }
