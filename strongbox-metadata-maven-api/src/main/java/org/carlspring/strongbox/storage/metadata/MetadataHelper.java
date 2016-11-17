@@ -24,7 +24,7 @@ import org.springframework.util.StringUtils;
 public class MetadataHelper
 {
 
-    public static SimpleDateFormat LAST_UPDATED_FIELD_FORMATTER;
+    private static SimpleDateFormat LAST_UPDATED_FIELD_FORMATTER;
 
 
     private MetadataHelper()
