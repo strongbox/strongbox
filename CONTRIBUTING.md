@@ -29,3 +29,4 @@ To accept, please:
 | Orest Kyrylchuk              |                                          | Lviv, Ukraine                           | 2016-05-28 |
 | Bohdan Hliva                 |                                          | Lviv, Ukraine                           | 2016-08-09 |
 | Yougeshwar Khatri            |                                          | Karachi, Pakistan                       | 2016-04-01 |
+| Kate Novik                   |                                          | Minsk, Republic of Belarus              | 2016-11-16 |
