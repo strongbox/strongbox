@@ -2,6 +2,7 @@ package org.carlspring.strongbox;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.apache.maven.index.ArtifactContextProducer;
 import org.apache.maven.index.DefaultArtifactContextProducer;
@@ -97,7 +98,7 @@ public class StorageIndexingConfig
     }
 
     @Bean(name = "indexers")
-    HashMap<String, AbstractIndexCreator> indexers()
+    Map<String, AbstractIndexCreator> indexers()
     {
         LinkedHashMap<String, AbstractIndexCreator> indexers = new LinkedHashMap<>();
         indexers.put("min", minimalArtifactInfoIndexCreator());

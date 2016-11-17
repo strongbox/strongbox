@@ -12,11 +12,7 @@ import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -27,7 +23,7 @@ import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
 
 /**
- * Created by yury on 9/8/16.
+ * @author yury
  */
 public class ArtifactSpringClient
 {
@@ -35,14 +31,19 @@ public class ArtifactSpringClient
     private static final Logger logger = LoggerFactory.getLogger(ArtifactSpringClient.class);
 
     protected String username = "maven";
+
     protected String password = "password";
+
     private String protocol = "http";
-    private String host =
-            System.getProperty("strongbox.host") != null ? System.getProperty("strongbox.host") : "localhost";
+
+    private String host = System.getProperty("strongbox.host") != null ? System.getProperty("strongbox.host") : "localhost";
+
     private int port = System.getProperty("strongbox.port") != null ?
                        Integer.parseInt(System.getProperty("strongbox.port")) :
                        48080;
+
     private String contextBaseUrl;
+
     private RestTemplate restTemplate = new RestTemplate();
 
 
@@ -158,7 +159,7 @@ public class ArtifactSpringClient
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
 
         UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(url).queryParams(params).build();

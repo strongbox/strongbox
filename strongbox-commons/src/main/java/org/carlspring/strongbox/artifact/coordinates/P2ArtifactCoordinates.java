@@ -88,15 +88,27 @@ public class P2ArtifactCoordinates
     @Override
     public boolean equals(Object o)
     {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+        {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass())
+        {
+            return false;
+        }
 
         P2ArtifactCoordinates that = (P2ArtifactCoordinates) o;
 
-        if (!getId().equals(that.getId())) return false;
-        if (!getVersion().equals(that.getVersion())) return false;
-        return getClassifier().equals(that.getClassifier());
+        if (!getId().equals(that.getId()))
+        {
+            return false;
+        }
+        if (!getVersion().equals(that.getVersion()))
+        {
+            return false;
+        }
 
+        return getClassifier().equals(that.getClassifier());
     }
 
     @Override
@@ -105,6 +117,8 @@ public class P2ArtifactCoordinates
         int result = getId().hashCode();
         result = 31 * result + getVersion().hashCode();
         result = 31 * result + getClassifier().hashCode();
+
         return result;
     }
+
 }

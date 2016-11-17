@@ -9,6 +9,7 @@ import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotNull;
+import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -31,7 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
  * sources.
  *
  * @author Alex Oreshkevich
- * @see {@linkplain https://dev.carlspring.org/youtrack/issue/SB-126}
+ * @see {@linkplain=https://dev.carlspring.org/youtrack/issue/SB-126}
  */
 @Component
 public class AuthorizationConfigProvider
@@ -74,7 +75,7 @@ public class AuthorizationConfigProvider
 
     @PostConstruct
     public synchronized void init()
-            throws Exception
+            throws IOException, JAXBException
     {
         // update schema in any case
         registerEntities();

@@ -87,12 +87,6 @@
             <artifactId>strongbox-common-resources</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-testing-web</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>org.carlspring.maven</groupId>
@@ -193,37 +187,6 @@
 
                                             <overWrite>true</overWrite>
                                             <outputDirectory>${dir.strongbox.home}/etc</outputDirectory>
-                                        </artifactItem>
-                                    </artifactItems>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>unpack-testing-web</id>
-                                <phase>process-resources</phase>
-                                <goals>
-                                    <goal>unpack</goal>
-                                </goals>
-                                <configuration>
-                                    <artifactItems>
-                                        <artifactItem>
-                                            <groupId>${project.groupId}</groupId>
-                                            <artifactId>strongbox-testing-web</artifactId>
-                                            <version>${project.version}</version>
-                                            <type>jar</type>
-
-                                            <overWrite>true</overWrite>
-
-                                            <excludes>webapp/**</excludes>
-                                        </artifactItem>
-                                        <artifactItem>
-                                            <groupId>${project.groupId}</groupId>
-                                            <artifactId>strongbox-testing-web</artifactId>
-                                            <version>${project.version}</version>
-                                            <type>jar</type>
-
-                                            <overWrite>true</overWrite>
-                                            <outputDirectory>${dir.strongbox.home}</outputDirectory>
-                                            <includes>webapp/**</includes>
                                         </artifactItem>
                                     </artifactItems>
                                 </configuration>

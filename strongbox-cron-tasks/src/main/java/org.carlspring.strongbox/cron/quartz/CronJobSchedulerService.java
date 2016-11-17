@@ -20,8 +20,7 @@ import org.springframework.stereotype.Service;
 public class CronJobSchedulerService
 {
 
-    private final Logger logger =
-            LoggerFactory.getLogger(CronJobSchedulerService.class);
+    private final Logger logger = LoggerFactory.getLogger(CronJobSchedulerService.class);
 
     @Autowired
     private SchedulerFactoryBean schedulerFactoryBean;
@@ -32,16 +31,18 @@ public class CronJobSchedulerService
             throws ClassNotFoundException, SchedulerException
     {
         Scheduler scheduler = schedulerFactoryBean.getScheduler();
+        String cronExpression = cronTaskConfiguration.getProperty("cronExpression");
+
         if (jobsMap.containsKey(cronTaskConfiguration.getName()))
         {
             CronTask cronTask = jobsMap.get(cronTaskConfiguration.getName());
             JobDetail jobDetail = cronTask.getJobDetail();
-            org.quartz.Trigger oldTrigger = cronTask.getTrigger();
+            Trigger oldTrigger = cronTask.getTrigger();
 
-            org.quartz.Trigger newTrigger = TriggerBuilder.newTrigger().withIdentity(
-                    cronTaskConfiguration.getName()).withSchedule(
-                    CronScheduleBuilder.cronSchedule(
-                            cronTaskConfiguration.getProperty("cronExpression").toString())).build();
+            Trigger newTrigger = TriggerBuilder.newTrigger()
+                                               .withIdentity(cronTaskConfiguration.getName())
+                                               .withSchedule(CronScheduleBuilder.cronSchedule(
+                                                       cronExpression)).build();
 
             scheduler.addJob(jobDetail, true, true);
             scheduler.rescheduleJob(oldTrigger.getKey(), newTrigger);
@@ -58,16 +59,16 @@ public class CronJobSchedulerService
             jobDataMap.put("schedulerFactoryBean", schedulerFactoryBean);
             jobDataMap.put("cronTask", cronTask);
 
-            JobDetail jobDetail = JobBuilder.newJob(
-                    (Class<? extends Job>) Class.forName(
-                            cronTaskConfiguration.getProperty("jobClass"))).withIdentity(
-                    cronTaskConfiguration.getName()).setJobData(jobDataMap).build();
+            //noinspection unchecked
+            Class<? extends Job> jobClass = (Class<? extends Job>) Class.forName(cronTaskConfiguration.getProperty("jobClass"));
+            JobDetail jobDetail = JobBuilder.newJob(jobClass)
+                                            .withIdentity(cronTaskConfiguration.getName())
+                                            .setJobData(jobDataMap).build();
 
-            org.quartz.Trigger trigger;
-            trigger = TriggerBuilder.newTrigger().withIdentity(
-                    cronTaskConfiguration.getName()).withSchedule(
-                    CronScheduleBuilder.cronSchedule(
-                            cronTaskConfiguration.getProperty("cronExpression"))).build();
+            Trigger trigger;
+            trigger = TriggerBuilder.newTrigger()
+                                    .withIdentity(cronTaskConfiguration.getName())
+                                    .withSchedule(CronScheduleBuilder.cronSchedule(cronExpression)).build();
 
             scheduler.scheduleJob(jobDetail, trigger);
 
@@ -97,7 +98,7 @@ public class CronJobSchedulerService
 
         CronTask cronTask = jobsMap.get(cronTaskConfiguration.getName());
         JobDetail jobDetail = cronTask.getJobDetail();
-        org.quartz.Trigger trigger = cronTask.getTrigger();
+        Trigger trigger = cronTask.getTrigger();
 
         scheduler.unscheduleJob(trigger.getKey());
         scheduler.deleteJob(jobDetail.getKey());
@@ -121,4 +122,5 @@ public class CronJobSchedulerService
 
         return groovyScriptNames;
     }
+
 }
