@@ -85,6 +85,8 @@ public class LoggingManagementController
         }
         catch (LoggerNotFoundException e)
         {
+            logger.trace(e.getMessage(), e);
+
             return ResponseEntity.status(NOT_FOUND).body("Logger '" + loggerPackage + "' not found!");
         }
     }
@@ -112,6 +114,8 @@ public class LoggingManagementController
         }
         catch (LoggerNotFoundException e)
         {
+            logger.trace(e.getMessage(), e);
+
             return ResponseEntity.status(NOT_FOUND).body("Logger '" + loggerPackage + "' not found!");
         }
     }
@@ -127,13 +131,15 @@ public class LoggingManagementController
         try
         {
             String path = convertRequestToPath("logging", request, "log");
+
             logger.debug("Received a request to retrieve log file " + path + ".");
 
             InputStream is = loggingManagementService.downloadLog(path);
             copyToResponse(is, response);
-            logger.debug("Received a request to retrieve log file " + path + ".");
-            response.setStatus(OK.value());
 
+            logger.debug("Received a request to retrieve log file " + path + ".");
+
+            response.setStatus(OK.value());
         }
         catch (LoggingConfigurationException e)
         {

@@ -29,7 +29,7 @@ public class MetadataMerger
             metadata.setVersion(newVersion);
         }
         // I generate timestamp once for all the merging
-        String timestamp = MetadataHelper.LAST_UPDATED_FIELD_FORMATTER.format(Calendar.getInstance().getTime());
+        String timestamp = MetadataHelper.getDateFormatInstance().format(Calendar.getInstance().getTime());
 
         // Update metadata o fill it for first time in case I have just created it
         Versioning versioning = metadata.getVersioning();
@@ -68,7 +68,7 @@ public class MetadataMerger
             metadata.setGroupId(artifact.getGroupId());
             metadata.setArtifactId(artifact.getArtifactId());
         }
-        String newVersion = ArtifactUtils.isReleaseVersion(artifact.getVersion())? artifact.getVersion() : artifact.getVersion().substring(0, artifact.getVersion().indexOf("-") +1).concat("SNAPSHOT");
+        String newVersion = ArtifactUtils.isReleaseVersion(artifact.getVersion()) ? artifact.getVersion() : artifact.getVersion().substring(0, artifact.getVersion().indexOf("-") + 1).concat("SNAPSHOT");
         Versioning versioning = metadata.getVersioning();
         if (versioning == null)
         {
@@ -86,7 +86,7 @@ public class MetadataMerger
         {
             versions.add(newVersion);
         }
-        versioning.setLastUpdated(MetadataHelper.LAST_UPDATED_FIELD_FORMATTER.format(Calendar.getInstance().getTime()));
+        versioning.setLastUpdated(MetadataHelper.getDateFormatInstance().format(Calendar.getInstance().getTime()));
         return metadata;
     }
 

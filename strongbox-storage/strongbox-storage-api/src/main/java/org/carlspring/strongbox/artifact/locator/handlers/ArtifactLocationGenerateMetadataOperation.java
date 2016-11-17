@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -46,7 +47,8 @@ public class ArtifactLocationGenerateMetadataOperation
     {
         File f = path.toAbsolutePath().toFile();
 
-        List<String> filePaths = Arrays.asList(f.list(new PomFilenameFilter()));
+        String[] list = f.list(new PomFilenameFilter());
+        List<String> filePaths = list != null ? Arrays.asList(list) : new ArrayList<>();
 
         String parentPath = path.getParent().toAbsolutePath().toString();
 

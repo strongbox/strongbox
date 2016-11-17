@@ -24,18 +24,28 @@ import org.springframework.util.StringUtils;
 public class MetadataHelper
 {
 
-    public static final SimpleDateFormat LAST_UPDATED_FIELD_FORMATTER = new SimpleDateFormat("yyyyMMddHHmmss");
+    public static SimpleDateFormat LAST_UPDATED_FIELD_FORMATTER;
 
-    private MetadataHelper() 
+
+    private MetadataHelper()
     {
     }
 
+    public static SimpleDateFormat getDateFormatInstance()
+    {
+        if (LAST_UPDATED_FIELD_FORMATTER == null)
+        {
+            LAST_UPDATED_FIELD_FORMATTER = new SimpleDateFormat("yyyyMMddHHmmss");
+        }
+
+        return LAST_UPDATED_FIELD_FORMATTER;
+    }
 
     public static void setLastUpdated(Versioning versioning)
     {
         if (versioning != null)
         {
-            versioning.setLastUpdated(LAST_UPDATED_FIELD_FORMATTER.format(Calendar.getInstance().getTime()));
+            versioning.setLastUpdated(getDateFormatInstance().format(Calendar.getInstance().getTime()));
         }
     }
 

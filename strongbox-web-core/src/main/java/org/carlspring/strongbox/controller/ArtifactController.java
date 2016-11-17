@@ -363,7 +363,7 @@ public class ArtifactController
         }
         catch (Exception e)
         {
-            logger.error(" error accessing requested directory: " + file.getAbsolutePath());
+            logger.error(" error accessing requested directory: " + file.getAbsolutePath(), e);
             response.setStatus(404);
         }
     }
@@ -405,7 +405,6 @@ public class ArtifactController
             if (getStorage(srcStorageId).getRepository(srcRepositoryId) == null)
             {
                 return ResponseEntity.status(NOT_FOUND).body("The source repositoryId does not exist!");
-
             }
             if (getStorage(destStorageId).getRepository(destRepositoryId) == null)
             {
@@ -417,7 +416,6 @@ public class ArtifactController
                 !new File(getStorage(srcStorageId).getRepository(srcRepositoryId).getBasedir(), path).exists())
             {
                 return ResponseEntity.status(NOT_FOUND).body("The source path does not exist!");
-
             }
 
             getArtifactManagementService().copy(srcStorageId, srcRepositoryId, path, destStorageId, destRepositoryId);
@@ -453,15 +451,13 @@ public class ArtifactController
     {
         String path = convertRequestToPath(ROOT_CONTEXT, request, storageId, repositoryId);
 
-        logger.info("[delete] path " + path);
-        logger.debug(storageId + ":" + repositoryId + ": " + path);
+        logger.info("Deleting " + storageId + ":" + repositoryId + "/" + path + "...");
 
         try
         {
             if (getStorage(storageId) == null)
             {
                 return ResponseEntity.status(NOT_FOUND).body("The specified storageId does not exist!");
-
             }
             if (getStorage(storageId).getRepository(repositoryId) == null)
             {
@@ -472,9 +468,7 @@ public class ArtifactController
                 getStorage(storageId).getRepository(repositoryId) != null &&
                 !new File(getStorage(storageId).getRepository(repositoryId).getBasedir(), path).exists())
             {
-
                 return ResponseEntity.status(NOT_FOUND).body("The specified path does not exist!");
-
             }
 
             getArtifactManagementService().delete(storageId, repositoryId, path, force);
@@ -482,8 +476,9 @@ public class ArtifactController
         }
         catch (ArtifactStorageException e)
         {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            logger.error(e.getMessage(), e);
 
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
 
         return ResponseEntity.ok("The artifact was deleted.");
@@ -502,10 +497,8 @@ public class ArtifactController
             File artifactFile = new File(repoPath, metadataPath).getCanonicalFile();
             if (!artifactFile.isFile())
             {
-                String version = artifactFile.getPath().substring(
-                        artifactFile.getPath().lastIndexOf(File.separatorChar) + 1);
-                java.nio.file.Path path = Paths.get(
-                        artifactFile.getPath().substring(0, artifactFile.getPath().lastIndexOf(File.separatorChar)));
+                String version = artifactFile.getPath().substring(artifactFile.getPath().lastIndexOf(File.separatorChar) + 1);
+                java.nio.file.Path path = Paths.get(artifactFile.getPath().substring(0, artifactFile.getPath().lastIndexOf(File.separatorChar)));
 
                 Metadata metadata = getMavenMetadataManager().readMetadata(path);
                 if (metadata != null && metadata.getVersioning() != null
