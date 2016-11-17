@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -20,8 +21,8 @@ import java.util.List;
 /**
  * @author Kate Novik
  */
-public class RebuildMetadataCronJob extends JavaCronJob {
-
+public class RebuildMetadataCronJob extends JavaCronJob
+{
     private static final String BASEDIR_STORAGES = "storages";
 
     private static final String storagesBasePath = getStoragesBasePath();
@@ -32,7 +33,7 @@ public class RebuildMetadataCronJob extends JavaCronJob {
 
     @Override
     protected void executeInternal(JobExecutionContext jobExecutionContext)
-            throws JobExecutionException
+               throws JobExecutionException
     {
         logger.debug("Executed RebuildMetadataCronJob.");
 
@@ -42,16 +43,25 @@ public class RebuildMetadataCronJob extends JavaCronJob {
             String storageId = config.getProperty("storageId");
             String repositoryId = config.getProperty("repositoryId");
             String basePath = config.getProperty("basePath");
-            if (storageId == null) {
+
+            if (storageId == null)
+            {
                 List<String> storagesId = getStoragesId();
-                for (String storage : storagesId) {
-                    List<String> repositoriesId = getRepositoriesId(storage);
+                for (String storage : storagesId)
+                {
+                    Path storagePath = Paths.get(getStoragesBasePath(), storage);
+                    List<String> repositoriesId = getRepositoriesId(storagePath);
                     rebuildRepositories(repositoriesId, storage, basePath);
                 }
-            } else if (repositoryId == null) {
-                List<String> repositoriesId = getRepositoriesId(storageId);
+            }
+            else if (repositoryId == null)
+            {
+                Path storagePath = Paths.get(getStoragesBasePath(), storageId);
+                List<String> repositoriesId = getRepositoriesId(storagePath);
                 rebuildRepositories(repositoriesId, storageId, basePath);
-            } else {
+            }
+            else
+            {
                 artifactMetadataService.rebuildMetadata(storageId, repositoryId, basePath);
             }
         }
@@ -60,32 +70,34 @@ public class RebuildMetadataCronJob extends JavaCronJob {
             e.printStackTrace();
             logger.error("IOException: ", e);
         }
-
     }
 
     /**
      * To rebuild artifact's metadata in repositories
      * @param repositories list of repositories
-     * @param storageId path of storage
-     * @param basePath basePath of artifact
+     * @param storageId    path of storage
+     * @param basePath     basePath of artifact
      * @throws NoSuchAlgorithmException
      * @throws XmlPullParserException
      * @throws IOException
      */
     private void rebuildRepositories(List<String> repositories, String storageId, String basePath)
-            throws NoSuchAlgorithmException, XmlPullParserException, IOException {
-        for (String repository : repositories) {
+             throws NoSuchAlgorithmException, XmlPullParserException, IOException
+    {
+        for (String repository : repositories)
+        {
             artifactMetadataService.rebuildMetadata(storageId, repository, basePath);
         }
     }
 
     /**
      * To get list of repositoryId in storage
-     * @param storageId
+     * @param storage
      * @return list of repositoryId
      */
-    private List<String> getRepositoriesId (String storageId) {
-        File file = Paths.get(storageId).toFile();
+    private List<String> getRepositoriesId(Path storage)
+    {
+        File file = storage.toFile();
         return getListDirectories(file);
     }
 
@@ -93,7 +105,8 @@ public class RebuildMetadataCronJob extends JavaCronJob {
      * To get list of storageId
      * @return list of storageId
      */
-    private List<String> getStoragesId () {
+    private List<String> getStoragesId()
+    {
         File file = Paths.get(storagesBasePath).toFile();
         return getListDirectories(file);
     }
@@ -103,13 +116,18 @@ public class RebuildMetadataCronJob extends JavaCronJob {
      * @param baseFile Object File
      * @return list of directories
      */
-    private List<String> getListDirectories (File baseFile) {
+    private List<String> getListDirectories(File baseFile)
+    {
         List<String> listDirectories = new ArrayList<>();
         File[] listFiles = baseFile.listFiles();
-        if (listFiles != null) {
-            for (File file : listFiles) {
-                if (file.isDirectory()) {
-                    String directoryId = file.getAbsolutePath().substring(0, storagesBasePath.length());
+
+        if (listFiles != null)
+        {
+            for (File file : listFiles)
+            {
+                if (file.isDirectory())
+                {
+                    String directoryId = file.getAbsolutePath().substring(baseFile.getAbsolutePath().length() + 1);
                     listDirectories.add(directoryId);
                 }
             }
@@ -121,11 +139,13 @@ public class RebuildMetadataCronJob extends JavaCronJob {
      * To get base path of storages
      * @return String base path
      */
-    private static String getStoragesBasePath () {
+    private static String getStoragesBasePath()
+    {
         return Paths.get(ConfigurationResourceResolver.getVaultDirectory(), BASEDIR_STORAGES).toString();
     }
 
-    private ArtifactMetadataServiceImpl getArtifactMetadataService () {
+    private ArtifactMetadataServiceImpl getArtifactMetadataService()
+    {
         return ApplicationContextProvider.getApplicationContext().getBean(ArtifactMetadataServiceImpl.class);
     }
 
