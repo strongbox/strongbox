@@ -57,7 +57,7 @@ public class ArtifactController
         extends BaseArtifactController
 {
 
-    private static final Logger logger = LogManager.getLogger(ArtifactController.class.getName());
+    private static final Logger logger = LogManager.getLogger(ArtifactController.class);
 
     // must be the same as @RequestMapping value on the class definition
     public final static String ROOT_CONTEXT = "/storages";

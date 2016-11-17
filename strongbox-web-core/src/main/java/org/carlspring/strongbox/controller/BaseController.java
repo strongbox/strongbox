@@ -25,7 +25,7 @@ import org.springframework.http.ResponseEntity;
 public abstract class BaseController
 {
 
-    protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
     protected ObjectMapper objectMapper;
