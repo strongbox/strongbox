@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 public class NugetHierarchicalArtifactCoordinates extends NugetArtifactCoordinates
 {
 
-    private static final String NUGET_PACKAGE_REGEXP_PATTERN = "([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_.-]+).nupkg";
+    private static final String NUGET_PACKAGE_REGEXP_PATTERN = "([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_.-]+).(nupkg|nuspec|nupkg\\.sha512)";
 
     public NugetHierarchicalArtifactCoordinates(String path)
     {
@@ -22,15 +22,16 @@ public class NugetHierarchicalArtifactCoordinates extends NugetArtifactCoordinat
         }
         String packageId = matcher.group(1);
         String version = matcher.group(2);
-        String packageArtifactName = String.format("%s.%s.nupkg",
-                                                   packageId,
-                                                   version);
-        if (!packageArtifactName.startsWith(matcher.group(3)))
+        String packageArtifactName = matcher.group(3);
+        String packageArtifactType = matcher.group(4);
+        
+        if (!String.format("%s.%s", packageId, version).startsWith(packageArtifactName))
         {
             return;
         }
         setId(packageId);
         setVersion(version);
+        setType(packageArtifactType);
     }
 
     @Override
@@ -38,11 +39,22 @@ public class NugetHierarchicalArtifactCoordinates extends NugetArtifactCoordinat
     {
         String idLocal = getId();
         String versionLocal = getVersion();
-        return String.format("%s/%s/%s.%s.nupkg",
-                             idLocal,
-                             versionLocal,
-                             idLocal,
-                             versionLocal);
+        String typeLocal = getType();
+
+        if (typeLocal.equals("nuspec"))
+        {
+            return String.format("%s/%s/%s.%s",
+                    idLocal,
+                    versionLocal,
+                    idLocal,
+                    typeLocal);
+        }
+        return String.format("%s/%s/%s.%s.%s",
+                idLocal,
+                versionLocal,
+                idLocal,
+                versionLocal,
+                typeLocal);
     }
 
 }

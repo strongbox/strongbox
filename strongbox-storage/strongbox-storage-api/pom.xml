@@ -13,7 +13,6 @@
     </parent>
 
     <artifactId>strongbox-storage-api</artifactId>
-    <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Strongbox: Storage [API]</name>
@@ -263,6 +262,14 @@
             <groupId>com.carmatechnologies.commons</groupId>
             <artifactId>commons-testing-logback</artifactId>
         </dependency>
+		<dependency>
+			<groupId>ru.aristar.nuget</groupId>
+			<artifactId>jnuget-core</artifactId>
+		</dependency>
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+        </dependency>		
     </dependencies>
 
     <!--
