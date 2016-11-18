@@ -296,7 +296,7 @@ public class ArtifactSpringClient
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.TEXT_PLAIN);
         HttpEntity<String> entity = new HttpEntity<String>(headers);
-        ResponseEntity response = response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class);
+        ResponseEntity response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class);
 
         handleFailures(response, "Failed to delete artifact!");
     }
@@ -322,7 +322,7 @@ public class ArtifactSpringClient
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.TEXT_PLAIN);
         HttpEntity<String> entity = new HttpEntity<String>(headers);
-        ResponseEntity response = response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class);
+        ResponseEntity response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class);
 
         handleFailures(response, "Failed to delete artifact!");
     }
@@ -336,7 +336,7 @@ public class ArtifactSpringClient
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.TEXT_PLAIN);
         HttpEntity<String> entity = new HttpEntity<String>(headers);
-        ResponseEntity response = response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class);
+        ResponseEntity response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class);
 
         handleFailures(response, "Failed to delete the trash for " + storageId + ":" + repositoryId + "!");
     }
@@ -349,7 +349,7 @@ public class ArtifactSpringClient
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.TEXT_PLAIN);
         HttpEntity<String> entity = new HttpEntity<String>(headers);
-        ResponseEntity response = response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class);
+        ResponseEntity response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class);
 
         handleFailures(response, "Failed to delete trash for all repositories!");
     }
