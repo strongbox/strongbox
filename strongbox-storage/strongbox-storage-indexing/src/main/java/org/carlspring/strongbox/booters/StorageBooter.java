@@ -233,7 +233,7 @@ public class StorageBooter
 
     public void reInitializeRepositoryIndex(String storageId,
                                             String repositoryId)
-            throws Exception
+            throws PlexusContainerException, ComponentLookupException, IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         if (storage != null)
