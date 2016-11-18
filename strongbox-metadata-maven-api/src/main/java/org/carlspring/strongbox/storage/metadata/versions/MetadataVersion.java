@@ -60,4 +60,40 @@ public class MetadataVersion implements Comparable<MetadataVersion>
         return diff;
     }
 
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o)
+        {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass())
+        {
+            return false;
+        }
+
+        MetadataVersion that = (MetadataVersion) o;
+
+        if (version != null ? !version.equals(that.version) : that.version != null)
+        {
+            return false;
+        }
+        if (createdDate != null ? !createdDate.equals(that.createdDate) : that.createdDate != null)
+        {
+            return false;
+        }
+
+        return snapshots != null ? snapshots.equals(that.snapshots) : that.snapshots == null;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = version != null ? version.hashCode() : 0;
+        result = 31 * result + (createdDate != null ? createdDate.hashCode() : 0);
+        result = 31 * result + (snapshots != null ? snapshots.hashCode() : 0);
+
+        return result;
+    }
+
 }
