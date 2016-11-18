@@ -51,11 +51,28 @@ public class NugetPackageController extends BaseArtifactController
 
     public final static String ROOT_CONTEXT = "/storages";
 
-    @ApiOperation(value = "Used to deploy an package", position = 0)
+    /**
+     * This method is used to check storage availability.<br>
+     * For example NuGet pings the root without credentials to determine if the
+     * repository is healthy. If this receives a 401 response then NuGet will
+     * prompt for authentication.
+     * 
+     * @return
+     */
+    @ApiOperation(value = "Used to check storage availability")
+    @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Storage available."),
+                            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Storage requires authorization.") })
+    @RequestMapping(path = { "{storageId}/{repositoryId}", "greet" }, method = RequestMethod.GET)
+    public ResponseEntity greet()
+    {
+        return new ResponseEntity<>("success", HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Used to deploy an package")
     @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "The package was deployed successfully."),
                             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
-    @RequestMapping(value = "{storageId}/{repositoryId}/**", method = RequestMethod.PUT, consumes = MediaType.MULTIPART_FORM_DATA)
+    @RequestMapping(path = "{storageId}/{repositoryId}/**", method = RequestMethod.PUT, consumes = MediaType.MULTIPART_FORM_DATA)
     public ResponseEntity putPackage(@RequestHeader(name = "X-NuGet-ApiKey", required = false) String apiKey,
                                      @ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
                                      @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
