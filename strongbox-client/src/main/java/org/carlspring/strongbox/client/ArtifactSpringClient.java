@@ -139,7 +139,7 @@ public class ArtifactSpringClient
         headers.setContentType(mediaType);
         headers.add("Content-Disposition", contentDisposition);
 
-        byte[] bytes = new byte[0];
+        byte[] bytes;
         try
         {
             bytes = IOUtils.toByteArray(is);
@@ -149,10 +149,10 @@ public class ArtifactSpringClient
             throw new RuntimeException("Parse error on put method, class ArtifactSpringClient...", e);
         }
 
-        HttpEntity<byte[]> entity = new HttpEntity<byte[]>(bytes, headers);
+        HttpEntity<byte[]> entity = new HttpEntity<>(bytes, headers);
         path = "/" + path;
 
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<String, String>();
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         try
         {
             params.add("path", path);

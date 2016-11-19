@@ -385,6 +385,7 @@ public class MavenMetadataManager
             }
             catch (FileNotFoundException e)
             {
+                logger.error(e.getMessage(), e);
                 throw new IOException("Artifact " + artifact.toString() + " doesn't contain any metadata," +
                                       " therefore we can't merge the metadata!");
             }

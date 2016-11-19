@@ -89,7 +89,7 @@ public class ArtifactManagementServiceImpl
         }
         catch (NoSuchAlgorithmException e)
         {
-            throw new ArtifactStorageException();
+            throw new ArtifactStorageException(e.getMessage(), e);
         }
 
         // If this is not a checksum file, store the file.
