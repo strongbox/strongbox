@@ -1,9 +1,8 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * Represents {@link ArtifactCoordinates} for P2 repository
