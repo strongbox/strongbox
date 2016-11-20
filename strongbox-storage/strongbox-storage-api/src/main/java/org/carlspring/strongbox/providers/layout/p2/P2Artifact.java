@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.providers.layout.p2;
 
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "artifact")
@@ -10,6 +11,7 @@ public class P2Artifact
     private String version;
     private String id;
     private String classifier;
+    private P2Properties properties;
 
     @XmlAttribute
     public String getVersion()
@@ -42,5 +44,16 @@ public class P2Artifact
     public void setClassifier(String classifier)
     {
         this.classifier = classifier;
+    }
+
+    @XmlElement(name = "properties")
+    public P2Properties getProperties()
+    {
+        return properties;
+    }
+
+    public void setProperties(P2Properties properties)
+    {
+        this.properties = properties;
     }
 }
