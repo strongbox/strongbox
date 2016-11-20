@@ -23,4 +23,5 @@ public class P2Artifacts
     {
         this.artifacts = artifacts;
     }
+
 }
