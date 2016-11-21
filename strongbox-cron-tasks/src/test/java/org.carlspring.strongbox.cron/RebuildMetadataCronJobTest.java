@@ -4,6 +4,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 
+import org.carlspring.strongbox.cron.config.IJobManager;
 import org.carlspring.strongbox.cron.api.jobs.RebuildMetadataCronJob;
 import org.carlspring.strongbox.cron.context.CronTaskTest;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
@@ -59,7 +60,7 @@ public class RebuildMetadataCronJobTest
     private RepositoryManagementService repositoryManagementService;
 
     @Inject
-    private JobManager jobManager;
+    private IJobManager jobManager;
 
     private static final File REPOSITORY_BASEDIR_1 = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                               "/storages/storage0/snapshots");
@@ -192,7 +193,13 @@ public class RebuildMetadataCronJobTest
 
         addRebuildCronJobConfig(jobName, "storage0", "snapshots", ARTIFACT_BASE_PATH_STRONGBOX_METADATA);
 
-        Thread.sleep(50000);
+        //Checking if job was executed
+        while (!jobManager.getExecutedJobs().containsKey(jobName))
+        {
+            Thread.sleep(8000);
+        }
+
+        System.out.println(jobManager.getExecutedJobs().toString());
 
         Metadata metadata = artifactMetadataService.getMetadata("storage0", "snapshots",
                                                                 "org/carlspring/strongbox/strongbox-metadata-one");
@@ -221,7 +228,11 @@ public class RebuildMetadataCronJobTest
 
         addRebuildCronJobConfig(jobName, "storage0", "snapshots", null);
 
-        Thread.sleep(50000);
+        //Checking if job was executed
+        while (!jobManager.getExecutedJobs().containsKey(jobName))
+        {
+            Thread.sleep(8000);
+        }
 
         Metadata metadata1 = artifactMetadataService.getMetadata("storage0", "snapshots",
                                                                  "org/carlspring/strongbox/strongbox-metadata-one");
@@ -260,7 +271,11 @@ public class RebuildMetadataCronJobTest
 
         addRebuildCronJobConfig(jobName, "storage0", null, null);
 
-        Thread.sleep(120000);
+        //Checking if job was executed
+        while (!jobManager.getExecutedJobs().containsKey(jobName))
+        {
+            Thread.sleep(8000);
+        }
 
         Metadata metadata1 = artifactMetadataService.getMetadata("storage0", "snapshots",
                                                                  "org/carlspring/strongbox/strongbox-metadata-one");
@@ -299,8 +314,11 @@ public class RebuildMetadataCronJobTest
 
         addRebuildCronJobConfig(jobName, null, null, null);
 
-
-        Thread.sleep(450000);
+        //Checking if job was executed
+        while (!jobManager.getExecutedJobs().containsKey(jobName))
+        {
+            Thread.sleep(8000);
+        }
 
         Metadata metadata1 = artifactMetadataService.getMetadata("storage0", "snapshots",
                                                                  "org/carlspring/strongbox/strongbox-metadata-one");
