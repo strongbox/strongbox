@@ -9,11 +9,11 @@ public abstract class NugetArtifactCoordinates extends AbstractArtifactCoordinat
 
     public static final String ID = "id";
     public static final String VERSION = "version";
-    public static final String TYPE = "type";
+    public static final String EXTENSION = "extension";
 
     public NugetArtifactCoordinates()
     {
-        defineCoordinates(ID, VERSION, TYPE);
+        defineCoordinates(ID, VERSION, EXTENSION);
     }
 
     @Override
@@ -42,12 +42,12 @@ public abstract class NugetArtifactCoordinates extends AbstractArtifactCoordinat
 
     public String getType()
     {
-        return getCoordinate(TYPE);
+        return getCoordinate(EXTENSION);
     }
 
     public void setType(String type)
     {
-        setCoordinate(TYPE, type);
+        setCoordinate(EXTENSION, type);
     }
 
 }
