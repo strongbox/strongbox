@@ -1,12 +1,14 @@
 package org.carlspring.strongbox.storage.repository;
 
 import javax.xml.bind.annotation.*;
+import java.io.Serializable;
 
 /**
  * @author carlspring
  */
 @XmlRootElement(name = "aws-configuration")
 public class AwsConfiguration extends CustomConfiguration
+        implements Serializable
 {
 
     @XmlAttribute
