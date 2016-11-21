@@ -4,6 +4,7 @@ import org.carlspring.strongbox.cron.config.ApplicationContextProvider;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.impl.ArtifactMetadataServiceImpl;
+
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -21,8 +22,10 @@ import java.util.List;
 /**
  * @author Kate Novik
  */
-public class RebuildMetadataCronJob extends JavaCronJob
+public class RebuildMetadataCronJob
+        extends JavaCronJob
 {
+
     private static final String BASEDIR_STORAGES = "storages";
 
     private static final String storagesBasePath = getStoragesBasePath();
@@ -33,13 +36,14 @@ public class RebuildMetadataCronJob extends JavaCronJob
 
     @Override
     protected void executeInternal(JobExecutionContext jobExecutionContext)
-               throws JobExecutionException
+            throws JobExecutionException
     {
         logger.debug("Executed RebuildMetadataCronJob.");
 
         try
         {
-            CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap().get("config");
+            CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap().get(
+                    "config");
             String storageId = config.getProperty("storageId");
             String repositoryId = config.getProperty("repositoryId");
             String basePath = config.getProperty("basePath");
@@ -74,6 +78,7 @@ public class RebuildMetadataCronJob extends JavaCronJob
 
     /**
      * To rebuild artifact's metadata in repositories
+     *
      * @param repositories list of repositories
      * @param storageId    path of storage
      * @param basePath     basePath of artifact
@@ -81,8 +86,10 @@ public class RebuildMetadataCronJob extends JavaCronJob
      * @throws XmlPullParserException
      * @throws IOException
      */
-    private void rebuildRepositories(List<String> repositories, String storageId, String basePath)
-             throws NoSuchAlgorithmException, XmlPullParserException, IOException
+    private void rebuildRepositories(List<String> repositories,
+                                     String storageId,
+                                     String basePath)
+            throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
         for (String repository : repositories)
         {
@@ -92,6 +99,7 @@ public class RebuildMetadataCronJob extends JavaCronJob
 
     /**
      * To get list of repositoryId in storage
+     *
      * @param storage
      * @return list of repositoryId
      */
@@ -103,6 +111,7 @@ public class RebuildMetadataCronJob extends JavaCronJob
 
     /**
      * To get list of storageId
+     *
      * @return list of storageId
      */
     private List<String> getStoragesId()
@@ -113,6 +122,7 @@ public class RebuildMetadataCronJob extends JavaCronJob
 
     /**
      * To get list of directories
+     *
      * @param baseFile Object File
      * @return list of directories
      */
@@ -137,6 +147,7 @@ public class RebuildMetadataCronJob extends JavaCronJob
 
     /**
      * To get base path of storages
+     *
      * @return String base path
      */
     private static String getStoragesBasePath()
