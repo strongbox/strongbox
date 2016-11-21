@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.cron.api.jobs;
 
 import org.carlspring.strongbox.cron.config.ApplicationContextProvider;
+import org.carlspring.strongbox.cron.config.JobManager;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.impl.ArtifactMetadataServiceImpl;
@@ -34,16 +35,17 @@ public class RebuildMetadataCronJob
 
     private ArtifactMetadataServiceImpl artifactMetadataService = getArtifactMetadataService();
 
+    private JobManager manager = getJobManager();
+
     @Override
     protected void executeInternal(JobExecutionContext jobExecutionContext)
             throws JobExecutionException
     {
         logger.debug("Executed RebuildMetadataCronJob.");
 
+        CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap().get("config");
         try
         {
-            CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap().get(
-                    "config");
             String storageId = config.getProperty("storageId");
             String repositoryId = config.getProperty("repositoryId");
             String basePath = config.getProperty("basePath");
@@ -74,6 +76,7 @@ public class RebuildMetadataCronJob
             e.printStackTrace();
             logger.error("IOException: ", e);
         }
+        manager.addExecutedJob(config.getName(), true);
     }
 
     /**
@@ -158,6 +161,11 @@ public class RebuildMetadataCronJob
     private ArtifactMetadataServiceImpl getArtifactMetadataService()
     {
         return ApplicationContextProvider.getApplicationContext().getBean(ArtifactMetadataServiceImpl.class);
+    }
+
+    private JobManager getJobManager()
+    {
+        return ApplicationContextProvider.getApplicationContext().getBean(JobManager.class);
     }
 
 }
