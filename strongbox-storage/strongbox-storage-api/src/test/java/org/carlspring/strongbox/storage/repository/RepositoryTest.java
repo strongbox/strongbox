@@ -9,15 +9,12 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.xml.bind.JAXBException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -28,7 +25,7 @@ import static org.junit.Assert.assertTrue;
 public class RepositoryTest
 {
 
-/*
+
     @org.springframework.context.annotation.Configuration
     @Import({ StorageApiConfig.class,
               CommonConfig.class,
@@ -39,7 +36,6 @@ public class RepositoryTest
 
     @Autowired
     private ConfigurationManager configurationManager;
-*/
 
 
     @Test
@@ -48,15 +44,29 @@ public class RepositoryTest
     {
         Repository repository = createTestRepository();
 
-        GenericParser<Repository> parser = new GenericParser<>(Repository.class,
-                                                               AwsConfiguration.class,
-                                                               GoogleCloudConfiguration.class);
+        GenericParser<Repository> parser = new GenericParser<>(Repository.class);
         String serialized = parser.serialize(repository);
 
         System.out.println(serialized);
 
-        assertTrue(serialized.contains("<aws-configuration bucket=\"test-bucket\" key=\"test-key\"/>"));
-        assertTrue(serialized.contains("<google-cloud-configuration bucket=\"test-bucket\" key=\"test-key\"/>"));
+        assertTrue(serialized.contains("<customConfiguration>\n" +
+                                       "        <entry>\n" +
+                                       "            <key>strongbox-storage-aws.aws.accessKey</key>\n" +
+                                       "            <value>ACCESSKEY</value>\n" +
+                                       "        </entry>\n" +
+                                       "        <entry>\n" +
+                                       "            <key>strongbox-storage-aws.aws.s3.unique-prefix-for-bucket</key>\n" +
+                                       "            <value>strongbox-test-</value>\n" +
+                                       "        </entry>\n" +
+                                       "        <entry>\n" +
+                                       "            <key>strongbox-storage-aws.aws.secretKey</key>\n" +
+                                       "            <value>SECRETKEY</value>\n" +
+                                       "        </entry>\n" +
+                                       "        <entry>\n" +
+                                       "            <key>strongbox-storage-aws.aws.s3.region</key>\n" +
+                                       "            <value>eu-west-1</value>\n" +
+                                       "        </entry>\n" +
+                                       "    </customConfiguration>"));
     }
 
     @Test
@@ -64,7 +74,7 @@ public class RepositoryTest
     {
         Repository repository = createTestRepository();
 
-        // configurationManager.getConfiguration().getStorage("storage0").addOrUpdateRepository(repository);
+        configurationManager.getConfiguration().getStorage("storage0").addOrUpdateRepository(repository);
     }
 
     private Repository createTestRepository()
@@ -73,19 +83,13 @@ public class RepositoryTest
         Repository repository = new Repository("test-repository");
         repository.setStorage(storage);
 
-        AwsConfiguration awsConfiguration = new AwsConfiguration();
-        awsConfiguration.setBucket("test-bucket");
-        awsConfiguration.setKey("test-key");
+        Map<String, String> customConfiguration = new HashMap<>();
+        customConfiguration.put("strongbox-storage-aws.aws.accessKey", "ACCESSKEY");
+        customConfiguration.put("strongbox-storage-aws.aws.secretKey", "SECRETKEY");
+        customConfiguration.put("strongbox-storage-aws.aws.s3.region", "eu-west-1");
+        customConfiguration.put("strongbox-storage-aws.aws.s3.unique-prefix-for-bucket", "strongbox-test-");
 
-        GoogleCloudConfiguration googleCloudConfiguration = new GoogleCloudConfiguration();
-        googleCloudConfiguration.setBucket("test-bucket");
-        googleCloudConfiguration.setKey("test-key");
-
-        List<CustomConfiguration> customConfigurations = new ArrayList<>();
-        customConfigurations.add(awsConfiguration);
-        customConfigurations.add(googleCloudConfiguration);
-
-        repository.setCustomConfigurations(customConfigurations);
+        repository.setCustomConfiguration(customConfiguration);
 
         return repository;
     }
