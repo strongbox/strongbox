@@ -23,7 +23,8 @@ public class DirUtils
             return;
         }
 
-        if (dir.list().length == 0)
+        String[] list = dir.list();
+        if (list != null && list.length == 0)
         {
             org.apache.commons.io.FileUtils.deleteDirectory(dir);
             removeEmptyAncestors(dir.getParentFile().getAbsolutePath(), stopAtPath);

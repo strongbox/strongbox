@@ -298,7 +298,7 @@ public class MetadataHelperTest
         versions.add(PRE_VERSION);
         metadata.getVersioning().setVersions(versions);
         metadata.getVersioning()
-                .setLastUpdated(MetadataHelper.LAST_UPDATED_FIELD_FORMATTER.format(Calendar.getInstance().getTime()));
+                .setLastUpdated(MetadataHelper.getDateFormatInstance().format(Calendar.getInstance().getTime()));
         return metadata;
     }
 
@@ -309,7 +309,7 @@ public class MetadataHelperTest
         metadata.setArtifactId(ARTIFACT_ID);
         metadata.setVersion(SNAPSHOT_VERSION);
 
-        String timestamp = MetadataHelper.LAST_UPDATED_FIELD_FORMATTER.format(Calendar.getInstance().getTime());
+        String timestamp = MetadataHelper.getDateFormatInstance().format(Calendar.getInstance().getTime());
 
         Snapshot snapshot = new Snapshot();
         snapshot.setBuildNumber(1);

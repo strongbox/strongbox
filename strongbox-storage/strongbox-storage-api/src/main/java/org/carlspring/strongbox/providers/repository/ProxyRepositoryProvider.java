@@ -115,28 +115,34 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
             FileOutputStream fos = new FileOutputStream(artifactFile.getTemporaryFile());
             MultipleDigestOutputStream mdos = new MultipleDigestOutputStream(fos);
 
-            // 1) Attempt to resolve it from the remote host
-            if (remoteIs == null)
+            try
             {
-                // 1 a) If the artifact does not exist, return null
-                // The remote failed to resolve the artifact as well.
-                return null;
+                // 1) Attempt to resolve it from the remote host
+                if (remoteIs == null)
+                {
+                    // 1 a) If the artifact does not exist, return null
+                    // The remote failed to resolve the artifact as well.
+                    return null;
+                }
+
+                int len;
+                final int size = 1024;
+                byte[] bytes = new byte[size];
+
+                while ((len = remoteIs.read(bytes, 0, size)) != -1)
+                {
+                    mdos.write(bytes, 0, len);
+                }
+
+                mdos.flush();
             }
-
-            int len;
-            final int size = 1024;
-            byte[] bytes = new byte[size];
-
-            while ((len = remoteIs.read(bytes, 0, size)) != -1)
+            finally
             {
-                mdos.write(bytes, 0, len);
+                ResourceCloser.close(mdos, logger);
+                ResourceCloser.close(fos, logger);
+                ResourceCloser.close(remoteIs, logger);
+                ResourceCloser.close(client, logger);
             }
-
-            fos.flush();
-
-            ResourceCloser.close(fos, logger);
-            ResourceCloser.close(remoteIs, logger);
-            ResourceCloser.close(client, logger);
 
             // TODO: Add a policy for validating the checksums of downloaded artifacts
             // TODO: Validate the local checksum against the remote's checksums

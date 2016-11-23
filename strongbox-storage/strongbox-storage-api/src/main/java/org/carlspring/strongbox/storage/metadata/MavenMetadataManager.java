@@ -12,6 +12,7 @@ import org.carlspring.strongbox.storage.metadata.comparators.VersionComparator;
 import org.carlspring.strongbox.storage.metadata.versions.MetadataVersion;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -179,10 +180,8 @@ public class MavenMetadataManager
      * @throws NoSuchAlgorithmException
      */
     public void generateMetadata(Repository repository, String path, VersionCollectionRequest request)
-            throws IOException,
-                   XmlPullParserException,
-                   NoSuchAlgorithmException,
-                   ProviderImplementationException
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException, ProviderImplementationException,
+                   UnknownRepositoryTypeException
     {
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
         if (layoutProvider.containsPath(repository, path))
@@ -270,7 +269,7 @@ public class MavenMetadataManager
             }
             else
             {
-                throw new RuntimeException("Repository policy type unknown: " + repository.getId());
+                throw new UnknownRepositoryTypeException("Repository policy type unknown: " + repository.getId());
             }
 
             // If this is a plugin, we need to add an additional metadata to the groupId.artifactId path.
@@ -386,6 +385,7 @@ public class MavenMetadataManager
             }
             catch (FileNotFoundException e)
             {
+                logger.error(e.getMessage(), e);
                 throw new IOException("Artifact " + artifact.toString() + " doesn't contain any metadata," +
                                       " therefore we can't merge the metadata!");
             }

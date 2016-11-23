@@ -18,6 +18,8 @@ import java.io.File;
 import java.io.IOException;
 
 import io.swagger.annotations.*;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,6 +38,8 @@ import org.springframework.web.bind.annotation.*;
 public class ConfigurationManagementController
         extends BaseController
 {
+
+    private static final Logger logger = LogManager.getLogger(ConfigurationManagementController.class);
 
     @Autowired
     private ConfigurationManagementService configurationManagementService;
@@ -316,7 +320,7 @@ public class ConfigurationManagementController
             }
             catch (JAXBException e)
             {
-                e.printStackTrace();
+                logger.error(e.getMessage(), e);
             }
 
             return ResponseEntity.status(HttpStatus.OK).body(serializedStorage);
@@ -447,9 +451,10 @@ public class ConfigurationManagementController
         }
         catch (Exception e)
         {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    "Repository " + storageId + ":" + repositoryId + " was not found.");
+            logger.error(e.getMessage(), e);
+
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                 .body("Repository " + storageId + ":" + repositoryId + " was not found.");
         }
     }
 

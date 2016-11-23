@@ -72,7 +72,7 @@ public class SearchController
         logger.debug("[search] " + q + "\n\taccept " + accept + "\n\tstorageId = " +
                      storageId + "\n\trepositoryId = " + repositoryId);
 
-        if (accept.equalsIgnoreCase("text/plain"))
+        if (accept.equalsIgnoreCase(MediaType.TEXT_PLAIN_VALUE))
         {
             final SearchResults artifacts = getSearchResults(storageId, repositoryId, q);
             return ResponseEntity.ok(artifacts.toString());

@@ -127,11 +127,12 @@ public class TrashController
         {
             artifactManagementService.undelete(storageId, repositoryId, path);
 
-            logger.debug(
-                    "Undeleted trash for path " + path + " under repository " + storageId + ":" + repositoryId + ".");
+            logger.debug("Undeleted trash for path " + path + " under repository " + storageId + ":" + repositoryId + ".");
         }
         catch (ArtifactStorageException e)
         {
+            logger.error(e.getMessage(), e);
+
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
 
@@ -168,15 +169,13 @@ public class TrashController
                 }
                 else if (artifactManagementService.getStorage(storageId).getRepository(repositoryId) == null)
                 {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                            "The specified repositoryId does not exist!");
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The specified repositoryId does not exist!");
                 }
 
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
             }
 
-            return ResponseEntity.ok(
-                    "The trash for '" + storageId + ":" + repositoryId + "' was been restored successfully.");
+            return ResponseEntity.ok("The trash for '" + storageId + ":" + repositoryId + "' was been restored successfully.");
         }
         else
         {

@@ -423,15 +423,19 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
             final File basedirTrash = repository.getTrashDir();
             final File basedirRepository = storageProvider.getFileImplementation(repository.getBasedir());
 
-            for (File dir : basedirTrash.listFiles(new DirectoryFilter()))
+            File[] dirs = basedirTrash.listFiles(new DirectoryFilter());
+            if (dirs != null)
             {
-                logger.debug("Restoring " + dir.getAbsolutePath() + " to " + basedirRepository);
+                for (File dir : dirs)
+                {
+                    logger.debug("Restoring " + dir.getAbsolutePath() + " to " + basedirRepository);
 
-                File srcDir = storageProvider.getFileImplementation(dir.getAbsolutePath());
+                    File srcDir = storageProvider.getFileImplementation(dir.getAbsolutePath());
 
-                // Because moving files has to be something so fucking stupidly implemented in Java.
-                FileUtils.copyDirectoryToDirectory(srcDir, basedirRepository);
-                FileUtils.deleteDirectory(srcDir);
+                    // Because moving files has to be something so fucking stupidly implemented in Java.
+                    FileUtils.copyDirectoryToDirectory(srcDir, basedirRepository);
+                    FileUtils.deleteDirectory(srcDir);
+                }
             }
         }
         else

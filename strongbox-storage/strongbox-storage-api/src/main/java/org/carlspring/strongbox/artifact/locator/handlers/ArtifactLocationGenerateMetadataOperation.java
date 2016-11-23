@@ -5,6 +5,8 @@ import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.metadata.VersionCollectionRequest;
 import org.carlspring.strongbox.storage.metadata.VersionCollector;
+import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
+
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -44,7 +47,8 @@ public class ArtifactLocationGenerateMetadataOperation
     {
         File f = path.toAbsolutePath().toFile();
 
-        List<String> filePaths = Arrays.asList(f.list(new PomFilenameFilter()));
+        String[] list = f.list(new PomFilenameFilter());
+        List<String> filePaths = list != null ? Arrays.asList(list) : new ArrayList<>();
 
         String parentPath = path.getParent().toAbsolutePath().toString();
 
@@ -102,10 +106,13 @@ public class ArtifactLocationGenerateMetadataOperation
                 {
                     mavenMetadataManager.generateMetadata(getRepository(), artifactPath, request);
                 }
-                catch (IOException | XmlPullParserException | NoSuchAlgorithmException | ProviderImplementationException e)
+                catch (IOException |
+                       XmlPullParserException |
+                       NoSuchAlgorithmException |
+                       ProviderImplementationException |
+                       UnknownRepositoryTypeException e)
                 {
-                    logger.error("Failed to generate metadata for " + artifactPath);
-                    logger.trace(e.getMessage(), e);
+                    logger.error("Failed to generate metadata for " + artifactPath, e);
                 }
             }
         }

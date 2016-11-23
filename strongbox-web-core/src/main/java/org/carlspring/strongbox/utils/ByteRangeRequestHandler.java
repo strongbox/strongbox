@@ -56,6 +56,7 @@ public class ByteRangeRequestHandler
             logger.debug("Calculated partial range length ->>> " + partialLength + "\n");
 
             bris.setCurrentByteRange(byteRange);
+            //noinspection ResultOfMethodCallIgnored
             bris.skip(byteRange.getOffset());
 
             response.setHeader("Content-Length", partialLength + "");
@@ -136,4 +137,5 @@ public class ByteRangeRequestHandler
                    !contentRange.equals("0");
         }
     }
+
 }

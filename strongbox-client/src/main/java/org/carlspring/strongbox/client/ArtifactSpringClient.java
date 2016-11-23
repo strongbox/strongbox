@@ -12,11 +12,7 @@ import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -27,7 +23,7 @@ import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
 
 /**
- * Created by yury on 9/8/16.
+ * @author yury
  */
 public class ArtifactSpringClient
 {
@@ -35,14 +31,19 @@ public class ArtifactSpringClient
     private static final Logger logger = LoggerFactory.getLogger(ArtifactSpringClient.class);
 
     protected String username = "maven";
+
     protected String password = "password";
+
     private String protocol = "http";
-    private String host =
-            System.getProperty("strongbox.host") != null ? System.getProperty("strongbox.host") : "localhost";
+
+    private String host = System.getProperty("strongbox.host") != null ? System.getProperty("strongbox.host") : "localhost";
+
     private int port = System.getProperty("strongbox.port") != null ?
                        Integer.parseInt(System.getProperty("strongbox.port")) :
                        48080;
+
     private String contextBaseUrl;
+
     private RestTemplate restTemplate = new RestTemplate();
 
 
@@ -138,7 +139,7 @@ public class ArtifactSpringClient
         headers.setContentType(mediaType);
         headers.add("Content-Disposition", contentDisposition);
 
-        byte[] bytes = new byte[0];
+        byte[] bytes;
         try
         {
             bytes = IOUtils.toByteArray(is);
@@ -148,17 +149,17 @@ public class ArtifactSpringClient
             throw new RuntimeException("Parse error on put method, class ArtifactSpringClient...", e);
         }
 
-        HttpEntity<byte[]> entity = new HttpEntity<byte[]>(bytes, headers);
+        HttpEntity<byte[]> entity = new HttpEntity<>(bytes, headers);
         path = "/" + path;
 
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<String, String>();
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         try
         {
             params.add("path", path);
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
 
         UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(url).queryParams(params).build();
@@ -295,7 +296,7 @@ public class ArtifactSpringClient
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.TEXT_PLAIN);
         HttpEntity<String> entity = new HttpEntity<String>(headers);
-        ResponseEntity response = response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class);
+        ResponseEntity response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class);
 
         handleFailures(response, "Failed to delete artifact!");
     }
@@ -321,7 +322,7 @@ public class ArtifactSpringClient
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.TEXT_PLAIN);
         HttpEntity<String> entity = new HttpEntity<String>(headers);
-        ResponseEntity response = response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class);
+        ResponseEntity response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class);
 
         handleFailures(response, "Failed to delete artifact!");
     }
@@ -335,7 +336,7 @@ public class ArtifactSpringClient
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.TEXT_PLAIN);
         HttpEntity<String> entity = new HttpEntity<String>(headers);
-        ResponseEntity response = response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class);
+        ResponseEntity response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class);
 
         handleFailures(response, "Failed to delete the trash for " + storageId + ":" + repositoryId + "!");
     }
@@ -348,7 +349,7 @@ public class ArtifactSpringClient
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.TEXT_PLAIN);
         HttpEntity<String> entity = new HttpEntity<String>(headers);
-        ResponseEntity response = response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class);
+        ResponseEntity response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class);
 
         handleFailures(response, "Failed to delete trash for all repositories!");
     }

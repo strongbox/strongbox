@@ -7,7 +7,7 @@ import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.client.IArtifactClient;
-import org.carlspring.strongbox.client.JerseyArtifactClient;
+import org.carlspring.strongbox.client.ArtifactClient;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.storage.metadata.MetadataMerger;
 
@@ -57,7 +57,7 @@ public class ArtifactDeployer
 
     private IArtifactClient getDefaultArtifactClient()
     {
-        return JerseyArtifactClient.getTestInstance();
+        return ArtifactClient.getTestInstance();
     }
 
     public void generateAndDeployArtifact(Artifact artifact,

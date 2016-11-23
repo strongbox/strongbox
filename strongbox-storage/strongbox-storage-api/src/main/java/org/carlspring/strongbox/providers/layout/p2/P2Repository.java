@@ -1,0 +1,23 @@
+package org.carlspring.strongbox.providers.layout.p2;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement(name = "repository")
+public class P2Repository
+{
+
+    private P2Artifacts artifacts;
+
+    @XmlElement(name = "artifacts")
+    public P2Artifacts getArtifacts()
+    {
+        return artifacts;
+    }
+
+    public void setArtifacts(P2Artifacts artifacts)
+    {
+        this.artifacts = artifacts;
+    }
+
+}

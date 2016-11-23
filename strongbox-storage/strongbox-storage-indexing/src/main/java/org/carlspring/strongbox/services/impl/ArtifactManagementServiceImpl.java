@@ -89,7 +89,7 @@ public class ArtifactManagementServiceImpl
         }
         catch (NoSuchAlgorithmException e)
         {
-            throw new ArtifactStorageException();
+            throw new ArtifactStorageException(e.getMessage(), e);
         }
 
         // If this is not a checksum file, store the file.
@@ -185,8 +185,12 @@ public class ArtifactManagementServiceImpl
         }
         catch (IOException | NoSuchAlgorithmException e)
         {
-            throw new ArtifactResolutionException(e.getMessage(), e);
+            // This is not necessarily an error. It could simply be a check
+            // whether a resource exists, before uploading/updating it.
+            logger.info("The requested path does not exist: /" + storageId + "/" + repositoryId + "/" + path);
         }
+
+        return null;
     }
 
     private boolean performRepositoryAcceptanceValidation(String storageId,

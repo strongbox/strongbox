@@ -30,7 +30,7 @@
         <dir.jetty.etc>${dir.strongbox.home}/etc/jetty</dir.jetty.etc>
 
         <version.quartz>2.2.3</version.quartz>
-        <version.groovy>2.0.1</version.groovy>
+        <version.groovy>2.3.0-beta-2</version.groovy>
 
     </properties>
 
@@ -304,7 +304,8 @@
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
-            <version>2.4.7</version>
+            <version>${version.groovy}</version>
+            <!--<version>2.4.7</version>-->
         </dependency>
         <!-- <dependency>
              <groupId>org.codehaus.groovy</groupId>

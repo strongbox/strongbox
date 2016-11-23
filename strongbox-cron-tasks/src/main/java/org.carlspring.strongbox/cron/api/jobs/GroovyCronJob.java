@@ -29,14 +29,13 @@ public class GroovyCronJob
         {
             Class scriptClass = new GroovyClassLoader().parseClass(new File(getScriptPath()));
             Object scriptInstance = scriptClass.newInstance();
-            scriptClass.getDeclaredMethod("execute", new Class[]{}).invoke(scriptInstance, new Object[]{});
+            //noinspection unchecked
+            scriptClass.getDeclaredMethod("execute", new Class[]{}).invoke(scriptInstance);
         }
         catch (IOException | IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e)
         {
-            e.printStackTrace();
             logger.error("IOException: ", e);
         }
-
     }
 
     public String getScriptPath()

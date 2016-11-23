@@ -57,7 +57,7 @@ public class ArtifactController
         extends BaseArtifactController
 {
 
-    private static final Logger logger = LogManager.getLogger(ArtifactController.class.getName());
+    private static final Logger logger = LogManager.getLogger(ArtifactController.class);
 
     // must be the same as @RequestMapping value on the class definition
     public final static String ROOT_CONTEXT = "/storages";
@@ -131,29 +131,35 @@ public class ArtifactController
 
         if (repository.allowsDirectoryBrowsing() && probeForDirectoryListing(repository, path))
         {
-            logger.debug("GenerateDirectoryListing...");
             try
             {
                 generateDirectoryListing(repository, path, request, response);
             }
             catch (Exception e)
             {
-                logger.error("Unable to GenerateDirectoryListing", e);
-                response.setStatus(INTERNAL_SERVER_ERROR.value());
+                logger.error("Unable to generate directory listing for " +
+                             "/" + storageId + "/" + repositoryId + "/" + path, e);
 
+                response.setStatus(INTERNAL_SERVER_ERROR.value());
             }
+
             return;
         }
 
-        InputStream is;
+        ArtifactInputStream is;
         try
         {
-            is = getArtifactManagementService().resolve(storageId, repositoryId, path);
+            is = (ArtifactInputStream) getArtifactManagementService().resolve(storageId, repositoryId, path);
+            if (is == null)
+            {
+                response.setStatus(NOT_FOUND.value());
+                return;
+            }
 
             if (isRangedRequest(httpHeaders))
             {
                 logger.debug("Detecting range request....");
-                copyToResponse(handlePartialDownload((ArtifactInputStream) is, httpHeaders, response), response);
+                copyToResponse(handlePartialDownload(is, httpHeaders, response), response);
             }
             else
             {
@@ -173,7 +179,7 @@ public class ArtifactController
 
         setHeadersForChecksums(storageId, repositoryId, path, response);
 
-        logger.info("Download success.");
+        logger.debug("Download succeeded.");
     }
 
     private void setMediaTypeHeader(String path,
@@ -215,7 +221,10 @@ public class ArtifactController
         try
         {
             isMd5 = getArtifactManagementService().resolve(storageId, repositoryId, path + ".md5");
-            response.setHeader("Checksum-MD5", MessageDigestUtils.readChecksumFile(isMd5));
+            if (isMd5 != null)
+            {
+                response.setHeader("Checksum-MD5", MessageDigestUtils.readChecksumFile(isMd5));
+            }
         }
         catch (IOException | ArtifactTransportException e)
         {
@@ -228,7 +237,10 @@ public class ArtifactController
         try
         {
             isSha1 = getArtifactManagementService().resolve(storageId, repositoryId, path + ".sha1");
-            response.setHeader("Checksum-SHA1", MessageDigestUtils.readChecksumFile(isSha1));
+            if (isSha1 != null)
+            {
+                response.setHeader("Checksum-SHA1", MessageDigestUtils.readChecksumFile(isSha1));
+            }
         }
         catch (IOException | ArtifactTransportException e)
         {
@@ -352,7 +364,7 @@ public class ArtifactController
         }
         catch (Exception e)
         {
-            logger.error(" error accessing requested directory: " + file.getAbsolutePath());
+            logger.error(" error accessing requested directory: " + file.getAbsolutePath(), e);
             response.setStatus(404);
         }
     }
@@ -392,7 +404,6 @@ public class ArtifactController
             if (getStorage(srcStorageId).getRepository(srcRepositoryId) == null)
             {
                 return ResponseEntity.status(NOT_FOUND).body("The source repositoryId does not exist!");
-
             }
             if (getStorage(destStorageId).getRepository(destRepositoryId) == null)
             {
@@ -404,7 +415,6 @@ public class ArtifactController
                 !new File(getStorage(srcStorageId).getRepository(srcRepositoryId).getBasedir(), path).exists())
             {
                 return ResponseEntity.status(NOT_FOUND).body("The source path does not exist!");
-
             }
 
             getArtifactManagementService().copy(srcStorageId, srcRepositoryId, path, destStorageId, destRepositoryId);
@@ -438,15 +448,13 @@ public class ArtifactController
                                  @PathVariable String path)
             throws IOException, JAXBException
     {
-        logger.info("[delete] path " + path);
-        logger.debug(storageId + ":" + repositoryId + ": " + path);
+        logger.info("Deleting " + storageId + ":" + repositoryId + "/" + path + "...");
 
         try
         {
             if (getStorage(storageId) == null)
             {
                 return ResponseEntity.status(NOT_FOUND).body("The specified storageId does not exist!");
-
             }
             if (getStorage(storageId).getRepository(repositoryId) == null)
             {
@@ -457,9 +465,7 @@ public class ArtifactController
                 getStorage(storageId).getRepository(repositoryId) != null &&
                 !new File(getStorage(storageId).getRepository(repositoryId).getBasedir(), path).exists())
             {
-
                 return ResponseEntity.status(NOT_FOUND).body("The specified path does not exist!");
-
             }
 
             getArtifactManagementService().delete(storageId, repositoryId, path, force);
@@ -467,8 +473,9 @@ public class ArtifactController
         }
         catch (ArtifactStorageException e)
         {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            logger.error(e.getMessage(), e);
 
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
 
         return ResponseEntity.ok("The artifact was deleted.");
@@ -487,10 +494,8 @@ public class ArtifactController
             File artifactFile = new File(repoPath, metadataPath).getCanonicalFile();
             if (!artifactFile.isFile())
             {
-                String version = artifactFile.getPath().substring(
-                        artifactFile.getPath().lastIndexOf(File.separatorChar) + 1);
-                java.nio.file.Path path = Paths.get(
-                        artifactFile.getPath().substring(0, artifactFile.getPath().lastIndexOf(File.separatorChar)));
+                String version = artifactFile.getPath().substring(artifactFile.getPath().lastIndexOf(File.separatorChar) + 1);
+                java.nio.file.Path path = Paths.get(artifactFile.getPath().substring(0, artifactFile.getPath().lastIndexOf(File.separatorChar)));
 
                 Metadata metadata = getMavenMetadataManager().readMetadata(path);
                 if (metadata != null && metadata.getVersioning() != null

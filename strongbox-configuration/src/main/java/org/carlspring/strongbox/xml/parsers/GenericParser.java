@@ -179,10 +179,6 @@ public class GenericParser<T>
             Unmarshaller m = context.createUnmarshaller();
             return (T) m.unmarshal(new StringReader(input));
         }
-        catch (ClassCastException e)
-        {
-            throw new RuntimeException("Type mismatch", e);
-        }
         finally
         {
             lock.unlock();
