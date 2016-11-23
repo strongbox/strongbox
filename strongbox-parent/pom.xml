@@ -522,8 +522,13 @@
 	        <dependency>
 	            <groupId>ru.aristar.nuget</groupId>
 	            <artifactId>jnuget-core</artifactId>
-	            <version>0.8.2-SNAPSHOT</version>
+	            <version>SB-0.8.2-SNAPSHOT</version>
 	        </dependency>
+            <dependency>
+                <groupId>ru.aristar.nuget</groupId>
+                <artifactId>jnuget-server</artifactId>
+                <version>SB-0.8.2-SNAPSHOT</version>
+            </dependency>	        
 	        <dependency>
 	            <groupId>xerces</groupId>
 	            <artifactId>xercesImpl</artifactId>

@@ -84,9 +84,13 @@ public class HeaderMappingFilter implements Filter
                 return headerValue;
             }
 
-            Optional<String> targetUserAgent = userAgentMap.keySet().stream().filter((k) -> {
-                return headerValue.toUpperCase().contains(k.toUpperCase());
-            }).findFirst();
+            Optional<String> targetUserAgent = userAgentMap.keySet()
+                    .stream()
+                    .filter((k) -> {
+                        return headerValue.toUpperCase()
+                                .contains(k.toUpperCase());
+                    })
+                    .findFirst();
 
             return targetUserAgent.map((k) -> {
                 return userAgentMap.get(k);

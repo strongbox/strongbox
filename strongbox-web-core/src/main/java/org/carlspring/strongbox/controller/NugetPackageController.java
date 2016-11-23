@@ -21,6 +21,12 @@ import org.apache.commons.fileupload.MultipartStream.MalformedStreamException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -63,17 +69,19 @@ public class NugetPackageController extends BaseArtifactController
     @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Storage available."),
                             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Storage requires authorization.") })
     @RequestMapping(path = { "{storageId}/{repositoryId}", "greet" }, method = RequestMethod.GET)
-    public ResponseEntity greet()
+    public
+           ResponseEntity greet()
     {
         return new ResponseEntity<>("success", HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Used to deploy an package")
+    @ApiOperation(value = "Used to deploy a package")
     @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "The package was deployed successfully."),
                             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
-    @RequestMapping(path = "{storageId}/{repositoryId}/**", method = RequestMethod.PUT, consumes = MediaType.MULTIPART_FORM_DATA)
-    public ResponseEntity putPackage(@RequestHeader(name = "X-NuGet-ApiKey", required = false) String apiKey,
+    @RequestMapping(path = "{storageId}/{repositoryId}", method = RequestMethod.PUT, consumes = MediaType.MULTIPART_FORM_DATA)
+    public
+           ResponseEntity putPackage(@RequestHeader(name = "X-NuGet-ApiKey", required = false) String apiKey,
                                      @ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
                                      @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
                                      @RequestHeader("content-type") String contentType,
@@ -114,7 +122,62 @@ public class NugetPackageController extends BaseArtifactController
         return ResponseEntity.created(resourceUri).build();
     }
 
-    private String extractBoundary(String contentType)
+    @ApiOperation(value = "Used to download a package")
+    @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "The package was downloaded successfully."),
+                            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred.") })
+    @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
+    @RequestMapping(path = "{storageId}/{repositoryId}/download/{packageId}/{packageVersion}", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM)
+    public
+           ResponseEntity<?> getPackage(@ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
+                                        @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
+                                        @ApiParam(value = "The packageId", required = true) @PathVariable(name = "packageId") String packageId,
+                                        @ApiParam(value = "The packageVersion", required = true) @PathVariable(name = "packageVersion") String packageVersion)
+    {
+        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+
+        if (!repository.isInService())
+        {
+            logger.error("Repository is not in service...");
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
+        }
+
+        String path = String.format("%s/%s/%s.%s.nupkg", packageId, packageVersion,
+                packageId, packageVersion);
+
+        try
+        {
+            InputStream is = (ArtifactInputStream) getArtifactManagementService().resolve(storageId, repositoryId,
+                    path);
+            if (is == null)
+            {
+                return ResponseEntity.notFound().build();
+            }
+
+            try (TempNupkgFile nupkgFile = new TempNupkgFile(is))
+            {
+                HttpHeaders headers = new HttpHeaders();
+                headers.add("Content-Length", String.valueOf(nupkgFile.getSize()));
+                headers.add("Content-Disposition",
+                        String.format("attachment; filename=\"%s\"", nupkgFile.getFileName()));
+                return new ResponseEntity<Resource>(new InputStreamResource(nupkgFile.getStream()),
+                        headers,
+                        HttpStatus.OK);
+
+            }
+
+        }
+        catch (Exception e)
+        {
+            logger.error(String.format(
+                    "Failed to process Nuget get request: storageId-[%s]; repositoryId-[%s]; packageId-[%s]; version-[%s]",
+                    storageId, repositoryId, packageId, packageVersion), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    private
+            String extractBoundary(String contentType)
     {
         String boundaryString = "";
         Pattern pattern = Pattern.compile("multipart/form-data; boundary=(.*)");
@@ -126,7 +189,8 @@ public class NugetPackageController extends BaseArtifactController
         return boundaryString;
     }
 
-    private FileInputStream extractPackageMultipartStream(String boundaryString,
+    private
+            FileInputStream extractPackageMultipartStream(String boundaryString,
                                                           ServletInputStream is) throws IOException, FileNotFoundException, FileUploadIOException, MalformedStreamException
     {
 
@@ -171,7 +235,8 @@ public class NugetPackageController extends BaseArtifactController
         return new FileInputStream(packagePartFile);
     }
 
-    private URI storePackage(String storageId,
+    private
+            URI storePackage(String storageId,
                              String repositoryId,
                              InputStream is) throws Exception
     {

@@ -8,7 +8,7 @@
     <storages>
         <storage id="nuget-common-storage">
             <repositories>
-                <repository id="releases" policy="release" implementation="file-system" layout="Nuget Hierarchical" type="hosted" allows-force-deletion="true" checksum-headers-enabled="true"/>
+                <repository id="releases" policy="release" implementation="file-system" layout="Nuget Hierarchical" type="hosted" allows-force-deletion="true" checksum-headers-enabled="true" indexing-enabled="true"/>
             </repositories>
         </storage>
         <storage id="storage0">
