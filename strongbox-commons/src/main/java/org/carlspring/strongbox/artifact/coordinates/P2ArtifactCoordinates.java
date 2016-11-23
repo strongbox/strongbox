@@ -1,5 +1,9 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Represents {@link ArtifactCoordinates} for P2 repository
  * <p>
@@ -16,7 +20,11 @@ public class P2ArtifactCoordinates
 
     public static final String CLASSIFIER = "classifier";
 
+    public static final String FILENAME = "filename";
+
     private static final String SEPARATOR = "/";
+
+    private Map<String, String> properties = new HashMap<>();
 
     public P2ArtifactCoordinates(String id,
                                  String version,
@@ -66,9 +74,14 @@ public class P2ArtifactCoordinates
         return getId() + SEPARATOR + getVersion() + SEPARATOR + getClassifier();
     }
 
+    public void setFilename(String filename)
+    {
+        setCoordinate(FILENAME, filename);
+    }
+
     public String getFilename()
     {
-        return "plugins/" + getId() + "_" + getVersion() + ".jar";
+        return getCoordinate(FILENAME);
     }
 
     public static P2ArtifactCoordinates create(String path)
@@ -83,6 +96,17 @@ public class P2ArtifactCoordinates
         }
 
         throw new IllegalArgumentException("Path is not properly formatted");
+    }
+
+    public void addProperty(String key,
+                            String value)
+    {
+        properties.put(key, value);
+    }
+
+    public Map<String, String> getProperties()
+    {
+        return Collections.unmodifiableMap(properties);
     }
 
     @Override
