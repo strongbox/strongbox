@@ -267,6 +267,10 @@
 			<artifactId>jnuget-core</artifactId>
 		</dependency>
         <dependency>
+            <groupId>ru.aristar.nuget</groupId>
+            <artifactId>jnuget-server</artifactId>
+        </dependency>		
+        <dependency>
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
         </dependency>		
