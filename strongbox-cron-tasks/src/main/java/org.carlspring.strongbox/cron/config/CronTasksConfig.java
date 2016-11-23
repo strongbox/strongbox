@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.cron.config;
 
 import org.carlspring.strongbox.config.DataServiceConfig;
+import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 
 import javax.annotation.PostConstruct;
@@ -9,6 +10,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -18,14 +20,17 @@ import org.springframework.http.converter.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
+import org.springframework.scheduling.quartz.SpringBeanJobFactory;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.cron"
 })
-@Import({ DataServiceConfig.class
+@Import({ DataServiceConfig.class,
+          StorageApiConfig.class
 })
 @EnableOrientRepositories(basePackages = "org.carlspring.strongbox.cron.repository")
 @EnableWebMvc
@@ -35,11 +40,23 @@ public class CronTasksConfig
 
     @Autowired
     private OObjectDatabaseTx databaseTx;
+    @Autowired
+    ApplicationContext applicationContext;
 
     @Bean
     public SchedulerFactoryBean schedulerFactoryBean()
     {
-        return new SchedulerFactoryBean();
+        SchedulerFactoryBean schedulerFactoryBean = new SchedulerFactoryBean();
+        schedulerFactoryBean.setJobFactory(springBeanJobFactory());
+        return schedulerFactoryBean;
+    }
+
+    @Bean
+    public SpringBeanJobFactory springBeanJobFactory()
+    {
+        AutowiringSpringBeanJobFactory jobFactory = new AutowiringSpringBeanJobFactory();
+        jobFactory.setApplicationContext(applicationContext);
+        return jobFactory;
     }
 
     @PostConstruct
