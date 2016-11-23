@@ -10,8 +10,8 @@ import java.io.Serializable;
 /**
  * @author carlspring
  */
-@XmlType(factoryClass=AwsObjectFactory.class, factoryMethod="createAwsConfiguration")
-@XmlRootElement(name = "aws-configuration")
+@XmlType
+@XmlRootElement(name="aws-configuration")
 public class AwsConfiguration extends CustomConfiguration
         implements Serializable
 {

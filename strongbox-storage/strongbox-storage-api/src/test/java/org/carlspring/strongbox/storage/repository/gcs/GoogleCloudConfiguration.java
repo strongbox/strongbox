@@ -10,8 +10,8 @@ import java.io.Serializable;
 /**
  * @author carlspring
  */
-@XmlType(factoryClass=GoogleCloudObjectFactory.class, factoryMethod="createGoogleCloudConfiguration")
-@XmlRootElement(name = "google-cloud-configuration")
+@XmlType
+@XmlRootElement(name="google-cloud-configuration")
 public class GoogleCloudConfiguration
         extends CustomConfiguration
         implements Serializable

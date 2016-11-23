@@ -50,6 +50,10 @@ public class RepositoryTest
 
         assertTrue(serialized.contains("<aws-configuration bucket=\"test-bucket\" key=\"test-key\"/>"));
         assertTrue(serialized.contains("<google-cloud-configuration bucket=\"test-bucket\" key=\"test-key\"/>"));
+        
+        Repository deserializedRepository = parser.deserialize(serialized);
+        assertTrue(deserializedRepository.getCustomConfigurations().get(0) instanceof AwsConfiguration);
+        assertTrue(deserializedRepository.getCustomConfigurations().get(1) instanceof GoogleCloudConfiguration);
     }
 
     @Test
