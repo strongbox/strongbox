@@ -7,7 +7,7 @@ import java.io.Serializable;
 /**
  * @author carlspring
  */
-//@XmlAccessorType(XmlAccessType.FIELD)
+@XmlAccessorType(XmlAccessType.FIELD)
 public abstract class CustomConfiguration
         implements Serializable
 {
