@@ -24,15 +24,13 @@ public class UserControllerTest
     @Test
     public void greetTest()
     {
-
-        given()
-                .contentType(ContentType.JSON)
-                .param("name", "Johan")
-                .when()
-                .get("/users/greet")
-                .then()
-                .statusCode(200)
-                .body(containsString("hello, Johan"));
+        given().contentType(ContentType.JSON)
+               .param("name", "Johan")
+               .when()
+               .get("/users/greet")
+               .then()
+               .statusCode(200)
+               .body(containsString("hello, Johan"));
     }
 
     @Test
@@ -41,15 +39,13 @@ public class UserControllerTest
     {
         final String userName = "admin";
 
-        given()
-                .contentType(ContentType.JSON)
-                .param("The name of the user", userName)
-                .when()
-                .get("/users/user/" + userName)
-                .then()
-                .statusCode(200)
-                .body(containsString("admin"));
-
+        given().contentType(ContentType.JSON)
+               .param("The name of the user", userName)
+               .when()
+               .get("/users/user/" + userName)
+               .then()
+               .statusCode(200)
+               .body(containsString("admin"));
     }
 
     @Test
@@ -58,16 +54,15 @@ public class UserControllerTest
     {
         User test = buildUser("test", "password");
 
-        given()
-                .contentType("application/json")
-                .param("juser", test)
-                .when()
-                .post("/users/user")
-                .peek() // Use peek() to print the output
-                .then()
-                .statusCode(200) // check http status code
-                .extract()
-                .asString();
+        given().contentType("application/json")
+               .param("juser", test)
+               .when()
+               .post("/users/user")
+               .peek() // Use peek() to print the output
+               .then()
+               .statusCode(200) // check http status code
+               .extract()
+               .asString();
     }
 
     @Test
@@ -75,16 +70,14 @@ public class UserControllerTest
             throws Exception
     {
 
-        String response =
-                given()
-                        .contentType("application/json")
-                        .when()
-                        .get("/users/all")
-                        .peek() // Use peek() to print the output
-                        .then()
-                        .statusCode(200) // check http status code
-                        .extract()
-                        .asString();
+        String response = given().contentType("application/json")
+                                 .when()
+                                 .get("/users/all")
+                                 .peek() // Use peek() to print the output
+                                 .then()
+                                 .statusCode(200) // check http status code
+                                 .extract()
+                                 .asString();
 
         List<User> users = objectMapper.readValue(response,
                                                   objectMapper.getTypeFactory().constructCollectionType(List.class,
@@ -103,16 +96,15 @@ public class UserControllerTest
         // create new user
         User test = buildUser("test-update", "password-update");
 
-        given()
-                .contentType("application/json")
-                .param("juser", test)
-                .when()
-                .post("/users/user")
-                .peek() // Use peek() to print the output
-                .then()
-                .statusCode(200) // check http status code
-                .extract()
-                .asString();
+        given().contentType("application/json")
+               .param("juser", test)
+               .when()
+               .post("/users/user")
+               .peek() // Use peek() to print the output
+               .then()
+               .statusCode(200) // check http status code
+               .extract()
+               .asString();
 
         // retrieve newly created user and store the id
         User createdUser = retrieveUserByName(test.getUsername());
@@ -123,22 +115,20 @@ public class UserControllerTest
 
         // send update request
 
-        String response = given()
-                                  .contentType("application/json")
-                                  .param("juser", createdUser)
-                                  .when()
-                                  .put("/users/user")
-                                  .peek() // Use peek() to print the output
-                                  .then()
-                                  .statusCode(200) // check http status code
-                                  .extract()
-                                  .asString();
+        String response = given().contentType("application/json")
+                                 .param("juser", createdUser)
+                                 .when()
+                                 .put("/users/user")
+                                 .peek() // Use peek() to print the output
+                                 .then()
+                                 .statusCode(200) // check http status code
+                                 .extract()
+                                 .asString();
 
         // deserialize response
         User updatedUser = objectMapper.readValue(response, User.class);
 
         assertEquals(createdUser, updatedUser);
-
     }
 
     @Test
@@ -148,27 +138,25 @@ public class UserControllerTest
         // create new user
         User test = buildUser("test-update", "password-update");
 
-        given()
-                .contentType("application/json")
-                .param("juser", test)
-                .when()
-                .post("/users/user")
-                .peek() // Use peek() to print the output
-                .then()
-                .statusCode(200) // check http status code
-                .extract()
-                .asString();
+        given().contentType("application/json")
+               .param("juser", test)
+               .when()
+               .post("/users/user")
+               .peek() // Use peek() to print the output
+               .then()
+               .statusCode(200) // check http status code
+               .extract()
+               .asString();
 
-        given()
-                .contentType("application/json")
-                .param("The name of the user", test.getUsername())
-                .when()
-                .delete("/users/user/" + test.getUsername())
-                .peek() // Use peek() to print the output
-                .then()
-                .statusCode(200) // check http status code
-                .extract()
-                .asString();
+        given().contentType("application/json")
+               .param("The name of the user", test.getUsername())
+               .when()
+               .delete("/users/user/" + test.getUsername())
+               .peek() // Use peek() to print the output
+               .then()
+               .statusCode(200) // check http status code
+               .extract()
+               .asString();
 
     }
 
@@ -177,16 +165,15 @@ public class UserControllerTest
     {
         String response;
 
-        response = given()
-                           .contentType("application/json")
-                           .param("The name of the user", name)
-                           .when()
-                           .get("/users/user/" + name)
-                           .peek() // Use peek() to print the output
-                           .then()
-                           .statusCode(200) // check http status code
-                           .extract()
-                           .asString();
+        response = given().contentType("application/json")
+                          .param("The name of the user", name)
+                          .when()
+                          .get("/users/user/" + name)
+                          .peek() // Use peek() to print the output
+                          .then()
+                          .statusCode(200) // check http status code
+                          .extract()
+                          .asString();
 
         User admin = objectMapper.readValue(response, User.class);
         return admin;
@@ -199,6 +186,7 @@ public class UserControllerTest
         test.setUsername(name);
         test.setPassword(password);
         test.setEnabled(false);
+
         return test;
     }
 

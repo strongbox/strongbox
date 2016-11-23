@@ -40,8 +40,8 @@ public class AuthorizationConfigControllerTest
         // prepare new role
         final Role customRole = new Role();
         customRole.setName("MyNewRole".toUpperCase());
-        customRole.setPrivileges(
-                new HashSet<>(Arrays.asList(Privileges.ADMIN_LIST_REPO.name(), Privileges.ARTIFACTS_DEPLOY.name())));
+        customRole.setPrivileges(new HashSet<>(Arrays.asList(Privileges.ADMIN_LIST_REPO.name(),
+                                                             Privileges.ARTIFACTS_DEPLOY.name())));
 
         GenericParser<Role> parser = new GenericParser<>(Role.class);
         String serializedRole = parser.serialize(customRole);

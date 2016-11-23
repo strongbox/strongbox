@@ -52,12 +52,15 @@ public class ByteRangeRequestHandler
         if (byteRange.getOffset() < bris.getLength())
         {
             long partialLength = calculatePartialRangeLength(byteRange, bris.getLength());
-            System.out.println("\nCalculated partial range length ->>> " + partialLength + "\n");
+
+            logger.debug("Calculated partial range length ->>> " + partialLength + "\n");
 
             bris.setCurrentByteRange(byteRange);
             bris.skip(byteRange.getOffset());
+
             response.setHeader("Content-Length", partialLength + "");
             response.setStatus(PARTIAL_CONTENT.value());
+
             return prepareResponseBuilderForPartialRequest(bris, response);
         }
         else
@@ -91,6 +94,7 @@ public class ByteRangeRequestHandler
             logger.debug("Partial content byteRange.getOffset: " + byteRange.getOffset());
             logger.debug("Partial content byteRange.getLimit: " + byteRange.getLimit());
             logger.debug("Partial content length: " + (byteRange.getLimit() - byteRange.getOffset()));
+
             return byteRange.getLimit() - byteRange.getOffset();
         }
         else if (length > 0L && byteRange.getOffset() > 0L && byteRange.getLimit() == 0L)
@@ -111,8 +115,11 @@ public class ByteRangeRequestHandler
         response.setHeader("Content-Range",
                            "bytes " + bris.getCurrentByteRange().getOffset() + "-" + (bris.getLength() - 1L) + "/" +
                            bris.getLength());
-        System.out.println("Content-Range HEADER ->>> " + response.getHeader("Content-Range"));
+
+        logger.debug("Content-Range HEADER ->>> " + response.getHeader("Content-Range"));
+
         response.setHeader("Pragma", "no-cache");
+
         return bris;
     }
 
@@ -124,8 +131,7 @@ public class ByteRangeRequestHandler
         }
         else
         {
-            String contentRange =
-                    headers.getFirst("Range") != null ? headers.getFirst("Range") : null;
+            String contentRange = headers.getFirst("Range") != null ? headers.getFirst("Range") : null;
             return contentRange != null && !contentRange.equals("0/*") && !contentRange.equals("0-") &&
                    !contentRange.equals("0");
         }

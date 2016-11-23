@@ -40,19 +40,16 @@ public class HttpConnectionPoolConfigurationManagementController
     @Inject
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
 
+
     @ApiOperation(value = "Update number of pool connections pool for proxy repository")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Number of pool connections for proxy repository was updated successfully."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
-    @RequestMapping(
-            value = "{storageId}/{repositoryId}/{numberOfConnections}",
-            method = RequestMethod.PUT,
-            produces = MediaType.TEXT_PLAIN_VALUE
-    )
+    @RequestMapping(value = "{storageId}/{repositoryId}/{numberOfConnections}",
+                    method = RequestMethod.PUT,
+                    produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity setNumberOfConnectionsForProxyRepository(@PathVariable(value = "storageId") String storageId,
-                                                                   @PathVariable(value = "repositoryId")
-                                                                           String repositoryId,
-                                                                   @PathVariable(value = "numberOfConnections")
-                                                                           int numberOfConnections
+                                                                   @PathVariable(value = "repositoryId") String repositoryId,
+                                                                   @PathVariable(value = "numberOfConnections") int numberOfConnections
     )
             throws IOException, JAXBException
     {
@@ -85,11 +82,9 @@ public class HttpConnectionPoolConfigurationManagementController
     @ApiOperation(value = "Get proxy repository pool stats")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Proxy repository pool stats where retrieved."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
-    @RequestMapping(
-            value = "{storageId}/{repositoryId}",
-            method = RequestMethod.GET,
-            produces = MediaType.TEXT_PLAIN_VALUE
-    )
+    @RequestMapping(value = "{storageId}/{repositoryId}",
+                    method = RequestMethod.GET,
+                    produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity getPoolStatsForProxyRepository(@PathVariable(value = "storageId") String storageId,
                                                          @PathVariable(value = "repositoryId") String repositoryId)
     {
@@ -118,17 +113,13 @@ public class HttpConnectionPoolConfigurationManagementController
     }
 
     @ApiOperation(value = "Update default number of connections for proxy repository")
-    @ApiResponses(value = {
-                                  @ApiResponse(code = 200,
-                                          message = "Default number of connections for proxy repository was updated successfully."),
-                                  @ApiResponse(code = 500, message = "An error occurred.") })
-    @RequestMapping(
-            value = "default/{numberOfConnections}",
-            method = RequestMethod.PUT,
-            produces = MediaType.TEXT_PLAIN_VALUE
-    )
-    public ResponseEntity setDefaultNumberOfConnectionsForProxyRepository(@PathVariable(value = "numberOfConnections")
-                                                                                  int numberOfConnections)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "Default number of connections for proxy repository was updated successfully."),
+                            @ApiResponse(code = 500, message = "An error occurred.") })
+    @RequestMapping(value = "default/{numberOfConnections}",
+                    method = RequestMethod.PUT,
+                    produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity setDefaultNumberOfConnectionsForProxyRepository(@PathVariable(value = "numberOfConnections") int numberOfConnections)
     {
         proxyRepositoryConnectionPoolConfigurationService.setDefaultMaxPerRepository(numberOfConnections);
         return ResponseEntity.ok("Default number of connections for proxy repository was updated successfully.");
@@ -137,11 +128,9 @@ public class HttpConnectionPoolConfigurationManagementController
     @ApiOperation(value = "Get default number of connections for proxy repository")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Default number of connections was retrieved."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
-    @RequestMapping(
-            value = "default-number",
-            method = RequestMethod.GET,
-            produces = MediaType.TEXT_PLAIN_VALUE
-    )
+    @RequestMapping(value = "default-number",
+                    method = RequestMethod.GET,
+                    produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity getDefaultNumberOfConnectionsForProxyRepository()
     {
         int defaultNumber = proxyRepositoryConnectionPoolConfigurationService.getDefaultMaxPerRepository();
@@ -151,11 +140,9 @@ public class HttpConnectionPoolConfigurationManagementController
     @ApiOperation(value = "Update max number of connections for proxy repository")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Max number of connections for proxy repository was updated successfully."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
-    @RequestMapping(
-            value = "max/{numberOfConnections}",
-            method = RequestMethod.PUT,
-            produces = MediaType.TEXT_PLAIN_VALUE
-    )
+    @RequestMapping(value = "max/{numberOfConnections}",
+                    method = RequestMethod.PUT,
+                    produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity setMaxNumberOfConnectionsForProxyRepository(@PathVariable(value = "numberOfConnections")
                                                                               int numberOfConnections)
     {
@@ -166,13 +153,12 @@ public class HttpConnectionPoolConfigurationManagementController
     @ApiOperation(value = "Get max number of connections for proxy repository")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Max number of connections for proxy repository was retrieved."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
-    @RequestMapping(
-            method = RequestMethod.GET,
-            produces = MediaType.TEXT_PLAIN_VALUE
-    )
+    @RequestMapping(method = RequestMethod.GET,
+                    produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity getMaxNumberOfConnectionsForProxyRepository()
     {
         int maxNumberOfConnections = proxyRepositoryConnectionPoolConfigurationService.getTotalStats().getMax();
         return ResponseEntity.ok(Integer.toString(maxNumberOfConnections));
     }
+
 }

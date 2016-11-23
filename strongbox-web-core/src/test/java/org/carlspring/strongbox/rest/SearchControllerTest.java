@@ -17,11 +17,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import static org.carlspring.maven.commons.util.ArtifactUtils.getArtifactFromGAVTC;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
- * @author Alex Oreshkevich, Martin Todorov
+ * @author Alex Oreshkevich
+ * @author Martin Todorov
  */
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -34,6 +36,7 @@ public class SearchControllerTest
 
     @Inject
     RepositoryIndexManager repositoryIndexManager;
+
 
     @Override
     public void init()
@@ -55,12 +58,9 @@ public class SearchControllerTest
             String[] classifiers = new String[]{ "javadoc",
                                                  "tests" };
 
-            Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(
-                    "org.carlspring.strongbox.searches:test-project:1.0.11.3");
-            Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC(
-                    "org.carlspring.strongbox.searches:test-project:1.0.11.3.1");
-            Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC(
-                    "org.carlspring.strongbox.searches:test-project:1.0.11.3.2");
+            Artifact artifact1 = getArtifactFromGAVTC("org.carlspring.strongbox.searches:test-project:1.0.11.3");
+            Artifact artifact2 = getArtifactFromGAVTC("org.carlspring.strongbox.searches:test-project:1.0.11.3.1");
+            Artifact artifact3 = getArtifactFromGAVTC("org.carlspring.strongbox.searches:test-project:1.0.11.3.2");
 
             ArtifactDeployer artifactDeployer = buildArtifactDeployer(strongboxBaseDir);
 
@@ -73,9 +73,10 @@ public class SearchControllerTest
             {
                 storageBooter.reInitializeRepositoryIndex("storage0", "releases");
 
-                final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndex(
-                        "storage0:releases");
+                final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndex("storage0:releases");
+
                 assertNotNull(repositoryIndexer);
+
                 repositoryIndexer.index(new File("org/carlspring/strongbox/searches"));
             }
         }
@@ -112,4 +113,5 @@ public class SearchControllerTest
         assertTrue("Received unexpected response! \n" + response + "\n",
                    response.contains(">1.0.11.3<") && response.contains(">1.0.11.3.1<"));
     }
+
 }

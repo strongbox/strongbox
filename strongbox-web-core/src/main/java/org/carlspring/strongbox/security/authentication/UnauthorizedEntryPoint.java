@@ -24,7 +24,7 @@ public class UnauthorizedEntryPoint
 
         // Use the type of authException to decide what to present to the user.
         // This simple impl just redirects to /login but it could be that the
-        // user is already logged in and (s)he has not enough rights
+        // user is already logged in and do not have enough rights
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         // response.sendRedirect("/login");
     }

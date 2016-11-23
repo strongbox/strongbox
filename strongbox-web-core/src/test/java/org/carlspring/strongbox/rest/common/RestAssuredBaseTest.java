@@ -155,11 +155,13 @@ public abstract class RestAssuredBaseTest
             }
         }
 
+        //noinspection ResultOfMethodCallIgnored
         file.delete();
     }
 
     protected boolean pathExists(String url)
     {
+        logger.debug("\n\t[pathExists] URL -> " + url);
         return given().contentType(MediaType.TEXT_PLAIN_VALUE).when().get(url).getStatusCode() == OK;
     }
 

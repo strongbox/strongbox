@@ -44,8 +44,8 @@ public class MetadataManagementController
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('MANAGEMENT_REBUILD_METADATA')")
     @RequestMapping(value = "{storageId}/{repositoryId}/**",
-            method = RequestMethod.POST,
-            produces = MediaType.TEXT_PLAIN_VALUE)
+                    method = RequestMethod.POST,
+                    produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity rebuild(@ApiParam(value = "The storageId", required = true)
                                   @PathVariable String storageId,
                                   @ApiParam(value = "The repositoryId", required = true)
@@ -75,8 +75,8 @@ public class MetadataManagementController
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('MANAGEMENT_DELETE_METADATA')")
     @RequestMapping(value = "{storageId}/{repositoryId}/**",
-            method = RequestMethod.DELETE,
-            produces = MediaType.TEXT_PLAIN_VALUE)
+                    method = RequestMethod.DELETE,
+                    produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity delete(@ApiParam(value = "The storageId", required = true)
                                  @PathVariable String storageId,
                                  @ApiParam(value = "The repositoryId", required = true)

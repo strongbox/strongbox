@@ -25,10 +25,14 @@ public class TrashControllerTest
 {
 
     private static final File BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory()).getAbsoluteFile();
+
     private static final String STORAGE = "storage0";
+
     private static final String REPOSITORY_WITH_TRASH = "releases-with-trash";
+
     private static final String REPOSITORY_WITH_TRASH_BASEDIR = BASEDIR.getAbsolutePath() +
                                                                 "/storages/" + STORAGE + "/" + REPOSITORY_WITH_TRASH;
+
     private static final File ARTIFACT_FILE_IN_TRASH = new File(REPOSITORY_WITH_TRASH_BASEDIR + "/.trash/" +
                                                                 "org/carlspring/strongbox/test-artifact-to-trash/1.0/" +
                                                                 "test-artifact-to-trash-1.0.jar").getAbsoluteFile();
@@ -139,4 +143,5 @@ public class TrashControllerTest
         assertFalse("Failed to empty trash for repository '" + REPOSITORY_WITH_TRASH + "'!",
                     ARTIFACT_FILE_IN_TRASH.exists());
     }
+
 }

@@ -82,4 +82,5 @@ public class SpringSecurityTest
                           .then()
                           .statusCode(UNAUTHORIZED.value());
     }
+
 }

@@ -37,8 +37,8 @@ public class TrashController
                             @ApiResponse(code = 404, message = "The specified (storageId/repositoryId) does not exist!") })
     @PreAuthorize("hasAuthority('MANAGEMENT_DELETE_TRASH')")
     @RequestMapping(value = "{storageId}/{repositoryId}",
-            method = RequestMethod.DELETE,
-            produces = MediaType.TEXT_PLAIN_VALUE)
+                    method = RequestMethod.DELETE,
+                    produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity delete(@ApiParam(value = "The storageId", required = true)
                                  @PathVariable String storageId,
                                  @ApiParam(value = "The repositoryId", required = true)
@@ -100,8 +100,8 @@ public class TrashController
                             @ApiResponse(code = 404, message = "The specified (storageId/repositoryId/path) does not exist!") })
     @PreAuthorize("hasAuthority('MANAGEMENT_UNDELETE_TRASH')")
     @RequestMapping(value = "{storageId}/{repositoryId}/**",
-            method = RequestMethod.POST,
-            produces = MediaType.TEXT_PLAIN_VALUE)
+                    method = RequestMethod.POST,
+                    produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity undelete(@ApiParam(value = "The storageId", required = true)
                                    @PathVariable String storageId,
                                    @ApiParam(value = "The repositoryId", required = true)
@@ -145,8 +145,8 @@ public class TrashController
                             @ApiResponse(code = 404, message = "The specified (storageId/repositoryId) does not exist!") })
     @PreAuthorize("hasAuthority('MANAGEMENT_UNDELETE_TRASH')")
     @RequestMapping(value = "{storageId}/{repositoryId}",
-            method = RequestMethod.PUT,
-            produces = MediaType.TEXT_PLAIN_VALUE)
+                    method = RequestMethod.PUT,
+                    produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity undelete(@ApiParam(value = "The storageId", required = true)
                                    @PathVariable String storageId,
                                    @ApiParam(value = "The repositoryId", required = true)

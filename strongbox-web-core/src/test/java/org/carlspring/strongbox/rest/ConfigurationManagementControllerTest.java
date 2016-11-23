@@ -14,7 +14,6 @@ import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.*;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
@@ -316,14 +315,13 @@ public class ConfigurationManagementControllerTest
         url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId + "/" + repositoryId1;
         logger.debug(url);
 
-        given()
-                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .param("force", true)
-                .when()
-                .delete(url)
-                .peek() // Use peek() to print the ouput
-                .then()
-                .statusCode(200);
+        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+               .param("force", true)
+               .when()
+               .delete(url)
+               .peek() // Use peek() to print the ouput
+               .then()
+               .statusCode(200);
 
         url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId + "/" + repositoryId1;
 
@@ -361,7 +359,8 @@ public class ConfigurationManagementControllerTest
                .statusCode(200);
 
         final Configuration c = getConfiguration();
-        Assert.assertNotNull("Failed to create storage3!", c.getStorage("storage3"));
+
+        assertNotNull("Failed to create storage3!", c.getStorage("storage3"));
     }
 
     public Configuration getConfiguration()
@@ -506,8 +505,7 @@ public class ConfigurationManagementControllerTest
     private void acceptedRepository()
             throws IOException
     {
-        String url =
-                getContextBaseUrl() + "/configuration/strongbox/routing/rules/accepted/group-releases-2/repositories";
+        String url = getContextBaseUrl() + "/configuration/strongbox/routing/rules/accepted/group-releases-2/repositories";
 
         RoutingRule routingRule = new RoutingRule();
         routingRule.setPattern(".*some.test");

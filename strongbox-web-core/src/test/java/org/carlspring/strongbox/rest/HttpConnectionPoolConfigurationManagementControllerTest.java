@@ -65,7 +65,6 @@ public class HttpConnectionPoolConfigurationManagementControllerTest
         String str = response.response().getBody().asString();
 
         assertEquals(Integer.valueOf(200), Integer.valueOf(str));
-
     }
 
     @Test
@@ -81,8 +80,8 @@ public class HttpConnectionPoolConfigurationManagementControllerTest
                                               .statusCode(200)
                                               .extract();
 
-        Assert.assertEquals("Max number of connections for proxy repository was updated successfully.",
-                            response.response().getBody().asString());
+        assertEquals("Max number of connections for proxy repository was updated successfully.",
+                     response.response().getBody().asString());
     }
 
     @Test
@@ -101,7 +100,8 @@ public class HttpConnectionPoolConfigurationManagementControllerTest
                                               .extract();
 
         String str = response.response().getBody().asString();
-        Assert.assertEquals(Integer.valueOf(5), Integer.valueOf(str));
+
+        assertEquals(Integer.valueOf(5), Integer.valueOf(str));
     }
 
     @Test
@@ -117,8 +117,8 @@ public class HttpConnectionPoolConfigurationManagementControllerTest
                                               .statusCode(200)
                                               .extract();
 
-        Assert.assertEquals("Default number of connections for proxy repository was updated successfully.",
-                            response.response().getBody().asString());
+        assertEquals("Default number of connections for proxy repository was updated successfully.",
+                     response.response().getBody().asString());
     }
 
     @Test
@@ -150,7 +150,7 @@ public class HttpConnectionPoolConfigurationManagementControllerTest
                                               .statusCode(200)
                                               .extract();
 
-        Assert.assertEquals("Number of pool connections for repository was updated successfully.",
+        assertEquals("Number of pool connections for repository was updated successfully.",
                             response.response().getBody().asString());
     }
 
@@ -171,9 +171,9 @@ public class HttpConnectionPoolConfigurationManagementControllerTest
 
         Repository repository = repositoryOpt.get();
 
-        String url =
-                getContextBaseUrl() + "/configuration/proxy/connection-pool/" + repository.getStorage().getId() + "/" +
-                repository.getId();
+        String url = getContextBaseUrl() + "/configuration/proxy/connection-pool/" +
+                     repository.getStorage().getId() + "/" +
+                     repository.getId();
 
         ExtractableResponse response = given().contentType(MediaType.TEXT_PLAIN_VALUE)
                                               .when()
@@ -183,7 +183,7 @@ public class HttpConnectionPoolConfigurationManagementControllerTest
                                               .statusCode(200)
                                               .extract();
 
-        Assert.assertEquals(new PoolStats(0, 0, 0, 5).toString(), response.response().getBody().asString());
+        assertEquals(new PoolStats(0, 0, 0, 5).toString(), response.response().getBody().asString());
     }
 
 }
