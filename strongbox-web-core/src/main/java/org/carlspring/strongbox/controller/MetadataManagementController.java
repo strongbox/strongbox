@@ -43,13 +43,14 @@ public class MetadataManagementController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The metadata was successfully rebuilt!"),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('MANAGEMENT_REBUILD_METADATA')")
-    @RequestMapping(value = "{storageId}/{repositoryId}/**",
-                    method = RequestMethod.POST,
-                    produces = MediaType.TEXT_PLAIN_VALUE)
+    @RequestMapping(value = "{storageId}/{repositoryId}/{path:.+}",
+            method = RequestMethod.POST,
+            produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity rebuild(@ApiParam(value = "The storageId", required = true)
                                   @PathVariable String storageId,
                                   @ApiParam(value = "The repositoryId", required = true)
                                   @PathVariable String repositoryId,
+                                  @PathVariable String path,
                                   HttpServletRequest request)
             throws IOException,
                    AuthenticationException,
@@ -58,7 +59,6 @@ public class MetadataManagementController
     {
         try
         {
-            String path = convertRequestToPath(ROOT_CONTEXT, request, storageId, repositoryId);
             artifactMetadataService.rebuildMetadata(storageId, repositoryId, path);
 
             return ResponseEntity.ok("The metadata was successfully rebuilt!");
@@ -74,9 +74,9 @@ public class MetadataManagementController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully removed metadata entry."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('MANAGEMENT_DELETE_METADATA')")
-    @RequestMapping(value = "{storageId}/{repositoryId}/**",
-                    method = RequestMethod.DELETE,
-                    produces = MediaType.TEXT_PLAIN_VALUE)
+    @RequestMapping(value = "{storageId}/{repositoryId}/{path:.+}",
+            method = RequestMethod.DELETE,
+            produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity delete(@ApiParam(value = "The storageId", required = true)
                                  @PathVariable String storageId,
                                  @ApiParam(value = "The repositoryId", required = true)
@@ -87,6 +87,7 @@ public class MetadataManagementController
                                  @RequestParam(name = "classifier") String classifier,
                                  @ApiParam(value = "The type of metadata (artifact/snapshot/plugin).")
                                  @RequestParam(name = "metadataType") String metadataType,
+                                 @PathVariable String path,
                                  HttpServletRequest request)
             throws IOException,
                    AuthenticationException,
@@ -97,7 +98,6 @@ public class MetadataManagementController
 
         try
         {
-            String path = convertRequestToPath(ROOT_CONTEXT, request, storageId, repositoryId);
             if (ArtifactUtils.isReleaseVersion(version))
             {
                 artifactMetadataService.removeVersion(storageId,

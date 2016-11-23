@@ -192,8 +192,8 @@ public class AuthorizationConfigController
     // Assign privileges to the anonymous user
 
     @RequestMapping(value = "anonymous/privileges",
-                    method = RequestMethod.POST,
-                    consumes = MediaType.APPLICATION_JSON_VALUE)
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
     public synchronized ResponseEntity addPrivilegesToAnonymous(@RequestBody List<Privilege> privileges)
     {
         return processConfig(config -> privileges.forEach(this::addAnonymousAuthority));
@@ -204,8 +204,8 @@ public class AuthorizationConfigController
     // Assign roles to the anonymous user
 
     @RequestMapping(value = "anonymous/roles",
-                    method = RequestMethod.POST,
-                    consumes = MediaType.APPLICATION_JSON_VALUE)
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
     public synchronized ResponseEntity addRolesToAnonymous(List<Role> roles)
     {
         return processConfig(config -> roles.forEach(role -> config.getRoles().getRoles().stream().filter(

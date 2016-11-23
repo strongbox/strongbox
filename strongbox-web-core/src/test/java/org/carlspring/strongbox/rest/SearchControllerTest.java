@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.rest;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.generator.ArtifactDeployer;
 import org.carlspring.strongbox.booters.StorageBooter;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
@@ -73,7 +72,8 @@ public class SearchControllerTest
             {
                 storageBooter.reInitializeRepositoryIndex("storage0", "releases");
 
-                final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndex("storage0:releases");
+                final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndex(
+                        "storage0:releases");
 
                 assertNotNull(repositoryIndexer);
 

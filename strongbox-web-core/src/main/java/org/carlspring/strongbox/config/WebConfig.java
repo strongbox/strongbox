@@ -3,9 +3,9 @@ package org.carlspring.strongbox.config;
 import org.carlspring.strongbox.StorageIndexingConfig;
 import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
 import org.carlspring.strongbox.mapper.CustomJaxb2RootElementHttpMessageConverter;
-import org.carlspring.strongbox.utils.CustomUrlPathHelper;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,9 +18,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.converter.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox",
@@ -35,7 +36,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 @EnableCaching
 @EnableWebMvc
 public class WebConfig
-        extends WebMvcConfigurationSupport
+        extends WebMvcConfigurerAdapter
 {
 
     private static final Logger logger = LoggerFactory.getLogger(WebConfig.class);
@@ -44,7 +45,8 @@ public class WebConfig
     CustomJaxb2RootElementHttpMessageConverter jaxb2RootElementHttpMessageConverter;
 
     @Inject
-    CustomUrlPathHelper customUrlPathHelper;
+    @Named("customAntPathMatcher")
+    AntPathMatcher antPathMatcher;
 
     @Inject
     ObjectMapper objectMapper;
@@ -76,11 +78,13 @@ public class WebConfig
         return converter;
     }
 
-    @Bean
-    public RequestMappingHandlerMapping requestMappingHandlerMapping() {
-        RequestMappingHandlerMapping mapping = super.requestMappingHandlerMapping();
-        mapping.setUseSuffixPatternMatch(false);
-        mapping.setUrlPathHelper(customUrlPathHelper);
-        return mapping;
+    @Override
+    public void configurePathMatch(PathMatchConfigurer configurer)
+    {
+        configurer
+                .setUseSuffixPatternMatch(true)
+                .setUseTrailingSlashMatch(false)
+                .setUseRegisteredSuffixPatternMatch(true)
+                .setPathMatcher(antPathMatcher);
     }
 }

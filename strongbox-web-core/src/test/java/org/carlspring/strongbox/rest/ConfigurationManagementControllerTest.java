@@ -505,7 +505,8 @@ public class ConfigurationManagementControllerTest
     private void acceptedRepository()
             throws IOException
     {
-        String url = getContextBaseUrl() + "/configuration/strongbox/routing/rules/accepted/group-releases-2/repositories";
+        String url =
+                getContextBaseUrl() + "/configuration/strongbox/routing/rules/accepted/group-releases-2/repositories";
 
         RoutingRule routingRule = new RoutingRule();
         routingRule.setPattern(".*some.test");

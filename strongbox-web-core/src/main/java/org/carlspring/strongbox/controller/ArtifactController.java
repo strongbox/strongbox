@@ -73,11 +73,12 @@ public class ArtifactController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deployed successfully."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
-    @RequestMapping(value = "{storageId}/{repositoryId}/**", method = RequestMethod.PUT)
+    @RequestMapping(value = "{storageId}/{repositoryId}/{subPath:.+}", method = RequestMethod.PUT)
     public ResponseEntity upload(@ApiParam(value = "The storageId", required = true)
                                  @PathVariable(name = "storageId") String storageId,
                                  @ApiParam(value = "The repositoryId", required = true)
                                  @PathVariable(name = "repositoryId") String repositoryId,
+                                 @PathVariable("subPath") String path,
                                  HttpServletRequest request)
             throws IOException,
                    AuthenticationException,
@@ -87,7 +88,6 @@ public class ArtifactController
     {
         try
         {
-            String path = convertRequestToPath(ROOT_CONTEXT, request, storageId, repositoryId);
             getArtifactManagementService().store(storageId, repositoryId, path, request.getInputStream());
 
             return ResponseEntity.ok("The artifact was deployed successfully.");
@@ -103,24 +103,22 @@ public class ArtifactController
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(value = "{storageId}/{repositoryId}/**",
-                    method = RequestMethod.GET,
-                    consumes = MediaType.TEXT_PLAIN_VALUE)
+    @RequestMapping(value = { "{storageId}/{repositoryId}/{subPath:.+}" },    // {subPath:.+} will be processed as **
+            method = RequestMethod.GET,
+            consumes = MediaType.TEXT_PLAIN_VALUE)
     public void download(@ApiParam(value = "The storageId", required = true)
                          @PathVariable String storageId,
                          @ApiParam(value = "The repositoryId", required = true)
                          @PathVariable String repositoryId,
                          @RequestHeader HttpHeaders httpHeaders,
+                         @PathVariable("subPath") String path,
                          HttpServletRequest request,
                          HttpServletResponse response
-                         /*@PathVariable("path") String path*/)
+    )
             throws Exception
     {
-        //String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-
-        String path = convertRequestToPath(ROOT_CONTEXT, request, storageId, repositoryId);
-
         logger.debug("[download] repository = " + repositoryId + "\n\tpath = " + path);
+
         Storage storage = configurationManager.getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
@@ -164,7 +162,7 @@ public class ArtifactController
         }
         catch (ArtifactResolutionException | ArtifactTransportException e)
         {
-            logger.error("Unable to download artifact: " + e.getLocalizedMessage(), e);
+            logger.info("Unable to find artifact by path " + path);
             response.setStatus(NOT_FOUND.value());
             return;
         }
@@ -364,7 +362,7 @@ public class ArtifactController
                             @ApiResponse(code = 400, message = "Bad request."),
                             @ApiResponse(code = 404, message = "The source/destination storageId/repositoryId/path does not exist!") })
     @PreAuthorize("hasAuthority('ARTIFACTS_COPY')")
-    @RequestMapping(produces = MediaType.TEXT_PLAIN_VALUE, value = "/copy/**", method = RequestMethod.POST)
+    @RequestMapping(produces = MediaType.TEXT_PLAIN_VALUE, value = "/copy/{path:.+}", method = RequestMethod.POST)
     public ResponseEntity copy(@ApiParam(value = "The source storageId", required = true)
                                @RequestParam(name = "srcStorageId") String srcStorageId,
                                @ApiParam(value = "The source repositoryId", required = true)
@@ -373,12 +371,10 @@ public class ArtifactController
                                @RequestParam(name = "destStorageId") String destStorageId,
                                @ApiParam(value = "The destination repositoryId", required = true)
                                @RequestParam(name = "destRepositoryId") String destRepositoryId,
-                               HttpServletRequest request)
+                               @PathVariable String path)
 
             throws IOException, JAXBException
     {
-        String path = convertRequestToPath(ROOT_CONTEXT, request, "copy");
-
         logger.debug("Copying " + path +
                      " from " + srcStorageId + ":" + srcRepositoryId +
                      " to " + destStorageId + ":" + destRepositoryId + "...");
@@ -432,18 +428,16 @@ public class ArtifactController
                             @ApiResponse(code = 400, message = "Bad request."),
                             @ApiResponse(code = 404, message = "The specified storageId/repositoryId/path does not exist!") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
-    @RequestMapping(value = "{storageId}/{repositoryId}/**", method = RequestMethod.DELETE)
+    @RequestMapping(value = "{storageId}/{repositoryId}/{path:.+}", method = RequestMethod.DELETE)
     public ResponseEntity delete(@ApiParam(value = "The storageId", required = true)
                                  @PathVariable String storageId,
                                  @ApiParam(value = "The repositoryId", required = true)
                                  @PathVariable String repositoryId,
                                  @ApiParam(value = "Whether to use force delete")
                                  @RequestParam(defaultValue = "false", name = "force") boolean force,
-                                 HttpServletRequest request)
+                                 @PathVariable String path)
             throws IOException, JAXBException
     {
-        String path = convertRequestToPath(ROOT_CONTEXT, request, storageId, repositoryId);
-
         logger.info("[delete] path " + path);
         logger.debug(storageId + ":" + repositoryId + ": " + path);
 

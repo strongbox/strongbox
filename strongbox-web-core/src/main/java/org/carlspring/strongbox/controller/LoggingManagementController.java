@@ -14,6 +14,7 @@ import java.io.InputStream;
 import io.swagger.annotations.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -119,14 +120,14 @@ public class LoggingManagementController
     @ApiOperation(value = "Used to download log data.", position = 0)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger was retrieved successfully."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
-    @RequestMapping(value = "/log/**", method = RequestMethod.GET, produces = TEXT_PLAIN_VALUE)
-    public void downloadLog(HttpServletRequest request,
+    @RequestMapping(value = "/log/{path:.+}", method = RequestMethod.GET, produces = TEXT_PLAIN_VALUE)
+    public void downloadLog(@PathVariable String path,
+                            HttpServletRequest request,
                             HttpServletResponse response)
             throws Exception
     {
         try
         {
-            String path = convertRequestToPath("logging", request, "log");
             logger.debug("Received a request to retrieve log file " + path + ".");
 
             InputStream is = loggingManagementService.downloadLog(path);

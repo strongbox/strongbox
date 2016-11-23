@@ -50,12 +50,12 @@ public class SearchController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "") })
     @PreAuthorize("hasAuthority('SEARCH_ARTIFACTS')")
     @RequestMapping(value = "",
-                    method = RequestMethod.GET,
-                    consumes = { MediaType.APPLICATION_OCTET_STREAM_VALUE,
-                                 MediaType.TEXT_PLAIN_VALUE },
-                    produces = { MediaType.APPLICATION_XML_VALUE,
-                                 MediaType.APPLICATION_JSON_VALUE,
-                                 MediaType.TEXT_PLAIN_VALUE })
+            method = RequestMethod.GET,
+            consumes = { MediaType.APPLICATION_OCTET_STREAM_VALUE,
+                         MediaType.TEXT_PLAIN_VALUE },
+            produces = { MediaType.APPLICATION_XML_VALUE,
+                         MediaType.APPLICATION_JSON_VALUE,
+                         MediaType.TEXT_PLAIN_VALUE })
     public ResponseEntity search(@ApiParam(value = "The storageId")
                                  @RequestParam(name = "storageId", required = false) final String storageId,
                                  @ApiParam(value = "The repositoryId", required = true)

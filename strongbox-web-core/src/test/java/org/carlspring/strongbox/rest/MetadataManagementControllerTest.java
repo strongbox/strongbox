@@ -51,6 +51,9 @@ public class MetadataManagementControllerTest
         removeDir(REPOSITORY_BASEDIR_SNAPSHOTS.getAbsolutePath() +
                   "/org/carlspring/strongbox/metadata/strongbox-metadata");
 
+        removeDir(REPOSITORY_BASEDIR_SNAPSHOTS.getAbsolutePath() +
+                  "/org/carlspring/strongbox/metadata/foo");
+
         // Generate releases
         generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
                          "org.carlspring.strongbox.metadata:strongbox-metadata",

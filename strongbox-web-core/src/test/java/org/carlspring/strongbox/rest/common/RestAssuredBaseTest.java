@@ -167,7 +167,7 @@ public abstract class RestAssuredBaseTest
 
     protected void assertPathExists(String url)
     {
-        assertTrue(pathExists(url));
+        assertTrue("Path " + url + " doesn't exists.", pathExists(url));
     }
 
     protected ArtifactDeployer buildArtifactDeployer(File file)

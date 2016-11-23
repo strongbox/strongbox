@@ -37,8 +37,8 @@ public class TrashController
                             @ApiResponse(code = 404, message = "The specified (storageId/repositoryId) does not exist!") })
     @PreAuthorize("hasAuthority('MANAGEMENT_DELETE_TRASH')")
     @RequestMapping(value = "{storageId}/{repositoryId}",
-                    method = RequestMethod.DELETE,
-                    produces = MediaType.TEXT_PLAIN_VALUE)
+            method = RequestMethod.DELETE,
+            produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity delete(@ApiParam(value = "The storageId", required = true)
                                  @PathVariable String storageId,
                                  @ApiParam(value = "The repositoryId", required = true)
@@ -99,18 +99,17 @@ public class TrashController
                             @ApiResponse(code = 400, message = "An error occurred!"),
                             @ApiResponse(code = 404, message = "The specified (storageId/repositoryId/path) does not exist!") })
     @PreAuthorize("hasAuthority('MANAGEMENT_UNDELETE_TRASH')")
-    @RequestMapping(value = "{storageId}/{repositoryId}/**",
-                    method = RequestMethod.POST,
-                    produces = MediaType.TEXT_PLAIN_VALUE)
+    @RequestMapping(value = "{storageId}/{repositoryId}/{path:.+}",
+            method = RequestMethod.POST,
+            produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity undelete(@ApiParam(value = "The storageId", required = true)
                                    @PathVariable String storageId,
                                    @ApiParam(value = "The repositoryId", required = true)
                                    @PathVariable String repositoryId,
+                                   @PathVariable String path,
                                    HttpServletRequest request)
             throws IOException
     {
-        String path = convertRequestToPath("trash", request, storageId, repositoryId);
-
         if (getStorage(storageId) == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The specified storageId does not exist!");
@@ -145,8 +144,8 @@ public class TrashController
                             @ApiResponse(code = 404, message = "The specified (storageId/repositoryId) does not exist!") })
     @PreAuthorize("hasAuthority('MANAGEMENT_UNDELETE_TRASH')")
     @RequestMapping(value = "{storageId}/{repositoryId}",
-                    method = RequestMethod.PUT,
-                    produces = MediaType.TEXT_PLAIN_VALUE)
+            method = RequestMethod.PUT,
+            produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity undelete(@ApiParam(value = "The storageId", required = true)
                                    @PathVariable String storageId,
                                    @ApiParam(value = "The repositoryId", required = true)

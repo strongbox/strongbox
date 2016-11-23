@@ -16,7 +16,6 @@ import com.jayway.restassured.response.ExtractableResponse;
 import org.apache.commons.collections.MapUtils;
 import org.apache.http.pool.PoolStats;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -151,7 +150,7 @@ public class HttpConnectionPoolConfigurationManagementControllerTest
                                               .extract();
 
         assertEquals("Number of pool connections for repository was updated successfully.",
-                            response.response().getBody().asString());
+                     response.response().getBody().asString());
     }
 
     @Test
