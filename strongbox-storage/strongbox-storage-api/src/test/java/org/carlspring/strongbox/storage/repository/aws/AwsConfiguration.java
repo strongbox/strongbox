@@ -1,11 +1,16 @@
-package org.carlspring.strongbox.storage.repository;
+package org.carlspring.strongbox.storage.repository.aws;
 
-import javax.xml.bind.annotation.*;
+import org.carlspring.strongbox.storage.repository.CustomConfiguration;
+
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 import java.io.Serializable;
 
 /**
  * @author carlspring
  */
+@XmlType(factoryClass=AwsObjectFactory.class, factoryMethod="createAwsConfiguration")
 @XmlRootElement(name = "aws-configuration")
 public class AwsConfiguration extends CustomConfiguration
         implements Serializable
@@ -17,10 +22,6 @@ public class AwsConfiguration extends CustomConfiguration
     @XmlAttribute
     private String key;
 
-
-    public AwsConfiguration()
-    {
-    }
 
     public String getBucket()
     {

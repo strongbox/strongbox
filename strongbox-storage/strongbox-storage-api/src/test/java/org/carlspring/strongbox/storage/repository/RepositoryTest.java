@@ -1,11 +1,9 @@
 package org.carlspring.strongbox.storage.repository;
 
-import org.carlspring.strongbox.config.ClientConfig;
-import org.carlspring.strongbox.config.CommonConfig;
-import org.carlspring.strongbox.config.DataServiceConfig;
-import org.carlspring.strongbox.config.StorageApiConfig;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.aws.AwsConfiguration;
+import org.carlspring.strongbox.storage.repository.gcs.GoogleCloudConfiguration;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.xml.bind.JAXBException;
@@ -13,11 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -61,10 +54,23 @@ public class RepositoryTest
 
     @Test
     public void testAddRepositoryWithCustomConfiguration()
+            throws JAXBException
     {
         Repository repository = createTestRepository();
 
         // configurationManager.getConfiguration().getStorage("storage0").addOrUpdateRepository(repository);
+
+        Storage storage = new Storage("storage0");
+        storage.addOrUpdateRepository(repository);
+
+        Configuration configuration = new Configuration();
+        configuration.addStorage(storage);
+
+        GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
+
+        String serialized = parser.serialize(configuration);
+
+        System.out.println(serialized);
     }
 
     private Repository createTestRepository()

@@ -1,14 +1,19 @@
-package org.carlspring.strongbox.storage.repository;
+package org.carlspring.strongbox.storage.repository.gcs;
+
+import org.carlspring.strongbox.storage.repository.CustomConfiguration;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 import java.io.Serializable;
 
 /**
  * @author carlspring
  */
+@XmlType(factoryClass=GoogleCloudObjectFactory.class, factoryMethod="createGoogleCloudConfiguration")
 @XmlRootElement(name = "google-cloud-configuration")
-public class GoogleCloudConfiguration extends CustomConfiguration
+public class GoogleCloudConfiguration
+        extends CustomConfiguration
         implements Serializable
 {
 
@@ -18,10 +23,6 @@ public class GoogleCloudConfiguration extends CustomConfiguration
     @XmlAttribute
     private String key;
 
-
-    public GoogleCloudConfiguration()
-    {
-    }
 
     public String getBucket()
     {
