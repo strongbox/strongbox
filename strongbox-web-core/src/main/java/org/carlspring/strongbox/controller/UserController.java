@@ -91,7 +91,7 @@ public class UserController
     ResponseEntity getUser(@ApiParam(value = "The name of the user", required = true)
                            @PathVariable String name)
     {
-        return toResponse(userService.findByUserName(name));
+        return toResponse(userService.findByUsername(name));
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -165,7 +165,7 @@ public class UserController
     ResponseEntity delete(@ApiParam(value = "The name of the user") @PathVariable String name)
             throws Exception
     {
-        User user = userService.findByUserName(name);
+        User user = userService.findByUsername(name);
         if (user == null || user.getId() == null)
         {
             return toError("The specified user does not exist!");

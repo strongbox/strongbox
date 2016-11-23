@@ -1,7 +1,7 @@
-package org.carlspring.strongbox.users;
+package org.carlspring.strongbox.storage;
 
-import org.carlspring.strongbox.users.domain.User;
-import org.carlspring.strongbox.users.service.UserService;
+import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.services.ArtifactEntryService;
 
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.junit.Test;
@@ -11,20 +11,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-@UserServiceTestContext
+@ArtifactEntryServiceTestContext
 @RunWith(SpringJUnit4ClassRunner.class)
-public class RemoteStorageTest
+public class ArtifactEntryTest
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(RemoteStorageTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactEntryTest.class);
 
     final String testUserName = "TEST";
 
     @Autowired
-    UserService userService;
+    ArtifactEntryService a;
 
     @Autowired
     OObjectDatabaseTx databaseTx;

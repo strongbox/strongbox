@@ -185,4 +185,10 @@ public class MavenArtifactCoordinates extends AbstractArtifactCoordinates
         setCoordinate(EXTENSION, this.extension);
     }
 
+    @Override
+    public String toString()
+    {
+        return groupId + ":" + artifactId + ":" + version + ":" + extension + ":" + classifier;
+    }
+
 }

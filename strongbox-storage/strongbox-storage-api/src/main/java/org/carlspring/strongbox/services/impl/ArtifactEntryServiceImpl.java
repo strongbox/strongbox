@@ -1,8 +1,8 @@
-package org.carlspring.strongbox.users.service.impl;
+package org.carlspring.strongbox.services.impl;
 
-import org.carlspring.strongbox.users.domain.User;
-import org.carlspring.strongbox.users.repository.UserRepository;
-import org.carlspring.strongbox.users.service.UserService;
+import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.repository.ArtifactRepository;
+import org.carlspring.strongbox.services.ArtifactEntryService;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,32 +16,32 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * DAO implementation for {@link User} entities.
+ * DAO implementation for {@link ArtifactEntry} entities.
  *
  * @author Alex Oreshkevich
  */
 @Service
 @Transactional
-class UserServiceImpl
-        implements UserService
+class ArtifactEntryServiceImpl
+        implements ArtifactEntryService
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactEntryService.class);
 
     @Autowired
-    UserRepository repository;
+    ArtifactRepository repository;
 
     @Autowired
     CacheManager cacheManager;
 
     @Override
     @Transactional
-    @Cacheable(value = "users", key = "#name", sync = true)
-    public synchronized User findByUsername(String name)
+    @Cacheable(value = "artifacts", key = "#coordinates", sync = true)
+    public synchronized ArtifactEntry findByCoordinates(String coordinates)
     {
         try
         {
-            return repository.findByUsername(name);
+            return repository.findByCoordinates(coordinates);
         }
         catch (Exception e)
         {
@@ -54,7 +54,7 @@ class UserServiceImpl
 
     @Override
     @Transactional
-    public synchronized <S extends User> S save(S var1)
+    public synchronized <S extends ArtifactEntry> S save(S var1)
     {
         // ID non-null check was removed because there will be no ID assigned by database
         // until transaction is not committed (depends on PROPAGATE value)
@@ -63,14 +63,14 @@ class UserServiceImpl
 
     @Override
     @Transactional
-    public synchronized <S extends User> Iterable<S> save(Iterable<S> var1)
+    public synchronized <S extends ArtifactEntry> Iterable<S> save(Iterable<S> var1)
     {
         return repository.save(var1);
     }
 
     @Override
     @Transactional
-    public synchronized Optional<User> findOne(String var1)
+    public synchronized Optional<ArtifactEntry> findOne(String var1)
     {
         if (var1 == null)
         {
@@ -89,7 +89,7 @@ class UserServiceImpl
 
     @Override
     @Transactional
-    public synchronized Optional<List<User>> findAll()
+    public synchronized Optional<List<ArtifactEntry>> findAll()
     {
         try
         {
@@ -104,7 +104,7 @@ class UserServiceImpl
 
     @Override
     @Transactional
-    public synchronized Optional<List<User>> findAll(List<String> var1)
+    public synchronized Optional<List<ArtifactEntry>> findAll(List<String> var1)
     {
         try
         {
@@ -133,14 +133,14 @@ class UserServiceImpl
 
     @Override
     @Transactional
-    public synchronized void delete(User var1)
+    public synchronized void delete(ArtifactEntry var1)
     {
         repository.delete(var1);
     }
 
     @Override
     @Transactional
-    public synchronized void delete(Iterable<? extends User> var1)
+    public synchronized void delete(Iterable<? extends ArtifactEntry> var1)
     {
         repository.delete(var1);
     }
@@ -151,4 +151,5 @@ class UserServiceImpl
     {
         repository.deleteAll();
     }
+
 }

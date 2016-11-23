@@ -99,9 +99,17 @@ public class User
     @Override
     public boolean equals(Object o)
     {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+        {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass())
+        {
+            return false;
+        }
+
         User user = (User) o;
+
         return enabled == user.enabled &&
                Objects.equal(id, user.id) &&
                Objects.equal(username, user.username) &&
@@ -116,7 +124,6 @@ public class User
     {
         return Objects.hashCode(id, username, password, enabled, salt, roles, detachAll);
     }
-
 
     @Override
     public String toString()
