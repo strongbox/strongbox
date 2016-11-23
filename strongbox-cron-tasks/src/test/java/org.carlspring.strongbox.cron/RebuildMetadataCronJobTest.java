@@ -4,7 +4,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 
-import org.carlspring.strongbox.cron.config.IJobManager;
+import org.carlspring.strongbox.cron.config.JobManager;
 import org.carlspring.strongbox.cron.api.jobs.RebuildMetadataCronJob;
 import org.carlspring.strongbox.cron.context.CronTaskTest;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
@@ -60,7 +60,7 @@ public class RebuildMetadataCronJobTest
     private RepositoryManagementService repositoryManagementService;
 
     @Inject
-    private IJobManager jobManager;
+    private JobManager jobManager;
 
     private static final File REPOSITORY_BASEDIR_1 = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                               "/storages/storage0/snapshots");

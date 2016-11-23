@@ -1,31 +1,27 @@
 package org.carlspring.strongbox.cron.config;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
-import org.springframework.stereotype.Component;
+import java.util.Map;
 
 /**
  * @author Kate Novik.
  */
-@Component
-public class JobManager
-        implements IJobManager
+public interface JobManager
 {
 
-    private ConcurrentMap<String, Boolean> executedJobs = new ConcurrentHashMap<>();
+    /**
+     * Add executed job in map
+     *
+     * @param jobName        job's name type String
+     * @param statusExecuted executed job's status type Boolean
+     */
+    void addExecutedJob(String jobName,
+                        Boolean statusExecuted);
 
-    public void addExecutedJob(String jobName,
-                               Boolean statusExecuted)
-    {
-        executedJobs.put(jobName, statusExecuted);
-    }
-
-    public ConcurrentMap<String, Boolean> getExecutedJobs()
-    {
-        return executedJobs;
-    }
+    /**
+     * Get map of executed jobs
+     *
+     * @return executed jobs type Map<String, Boolean>
+     */
+    Map<String, Boolean> getExecutedJobs();
 
 }
