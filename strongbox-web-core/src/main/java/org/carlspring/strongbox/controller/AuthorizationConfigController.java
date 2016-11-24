@@ -60,7 +60,8 @@ public class AuthorizationConfigController
 
     private synchronized ResponseEntity processConfig(Consumer<AuthorizationConfig> consumer)
     {
-        return processConfig(consumer, config -> ResponseEntity.ok().build());
+        return processConfig(consumer, config -> ResponseEntity.ok()
+                                                               .build());
     }
 
     private synchronized ResponseEntity processConfig(Consumer<AuthorizationConfig> consumer,
@@ -98,9 +99,13 @@ public class AuthorizationConfigController
     // Add role
 
     @ApiOperation(value = "Used to add new roles")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The role was created successfully."),
-                            @ApiResponse(code = 400, message = "An error occurred.") })
-    @RequestMapping(value = "role", method = RequestMethod.POST, consumes = MediaType.TEXT_PLAIN_VALUE)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "The role was created successfully."),
+                            @ApiResponse(code = 400,
+                                         message = "An error occurred.") })
+    @RequestMapping(value = "role",
+                    method = RequestMethod.POST,
+                    consumes = MediaType.TEXT_PLAIN_VALUE)
     public synchronized ResponseEntity addRole(@RequestBody String serializedJson)
             throws JAXBException
     {
@@ -113,7 +118,9 @@ public class AuthorizationConfigController
         return processConfig(config ->
                              {
                                  //  Role role = read(json, Role.class);
-                                 boolean result = config.getRoles().getRoles().add(role);
+                                 boolean result = config.getRoles()
+                                                        .getRoles()
+                                                        .add(role);
 
                                  if (result)
                                  {
@@ -131,10 +138,14 @@ public class AuthorizationConfigController
     // View authorization config as XML file
 
     @ApiOperation(value = "Retrieves the security-authorization.xml configuration file.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
-                            @ApiResponse(code = 500, message = "An error occurred.") })
-    @RequestMapping(value = "/xml", method = RequestMethod.GET, produces = { MediaType.APPLICATION_XML_VALUE,
-                                                                             MediaType.APPLICATION_JSON_VALUE })
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = ""),
+                            @ApiResponse(code = 500,
+                                         message = "An error occurred.") })
+    @RequestMapping(value = "/xml",
+                    method = RequestMethod.GET,
+                    produces = { MediaType.APPLICATION_XML_VALUE,
+                                 MediaType.APPLICATION_JSON_VALUE })
     public synchronized ResponseEntity getAuthorizationConfig()
             throws JAXBException
     {
@@ -146,12 +157,17 @@ public class AuthorizationConfigController
     // ----------------------------------------------------------------------------------------------------------------
     // Revoke role by name
 
-    @ApiOperation(value = "Deletes a role by name.", position = 3)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The role was deleted."),
-                            @ApiResponse(code = 400, message = "Bad request.")
+    @ApiOperation(value = "Deletes a role by name.",
+                  position = 3)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "The role was deleted."),
+                            @ApiResponse(code = 400,
+                                         message = "Bad request.")
     })
-    @RequestMapping(value = "role/{name}", method = RequestMethod.DELETE)
-    public ResponseEntity deleteRole(@ApiParam(value = "The name of the role", required = true)
+    @RequestMapping(value = "role/{name}",
+                    method = RequestMethod.DELETE)
+    public ResponseEntity deleteRole(@ApiParam(value = "The name of the role",
+                                               required = true)
                                      @PathVariable("name") String name)
             throws Exception
     {
@@ -160,9 +176,11 @@ public class AuthorizationConfigController
 
                                  // find Privilege by name
                                  Role target = null;
-                                 for (Role role : config.getRoles().getRoles())
+                                 for (Role role : config.getRoles()
+                                                        .getRoles())
                                  {
-                                     if (role.getName().equalsIgnoreCase(name))
+                                     if (role.getName()
+                                             .equalsIgnoreCase(name))
                                      {
                                          target = role;
                                          break;
@@ -171,16 +189,20 @@ public class AuthorizationConfigController
                                  if (target != null)
                                  {
                                      // revoke role from current config
-                                     config.getRoles().getRoles().remove(target);
+                                     config.getRoles()
+                                           .getRoles()
+                                           .remove(target);
                                      configProvider.updateConfig(config);
 
                                      // revoke role from every user that exists in the system
                                      getAllUsers().forEach(user ->
                                                            {
-                                                               if (user.getRoles().remove(name.toUpperCase()))
+                                                               if (user.getRoles()
+                                                                       .remove(name.toUpperCase()))
                                                                {
                                                                    // evict such kind of users from cache
-                                                                   cacheManager.getCache("users").evict(user);
+                                                                   cacheManager.getCache("users")
+                                                                               .evict(user);
                                                                }
                                                            });
                                  }
@@ -192,8 +214,8 @@ public class AuthorizationConfigController
     // Assign privileges to the anonymous user
 
     @RequestMapping(value = "anonymous/privileges",
-            method = RequestMethod.POST,
-            consumes = MediaType.APPLICATION_JSON_VALUE)
+                    method = RequestMethod.POST,
+                    consumes = MediaType.APPLICATION_JSON_VALUE)
     public synchronized ResponseEntity addPrivilegesToAnonymous(@RequestBody List<Privilege> privileges)
     {
         return processConfig(config -> privileges.forEach(this::addAnonymousAuthority));
@@ -204,13 +226,21 @@ public class AuthorizationConfigController
     // Assign roles to the anonymous user
 
     @RequestMapping(value = "anonymous/roles",
-            method = RequestMethod.POST,
-            consumes = MediaType.APPLICATION_JSON_VALUE)
+                    method = RequestMethod.POST,
+                    consumes = MediaType.APPLICATION_JSON_VALUE)
     public synchronized ResponseEntity addRolesToAnonymous(List<Role> roles)
     {
-        return processConfig(config -> roles.forEach(role -> config.getRoles().getRoles().stream().filter(
-                role1 -> role1.getName().equalsIgnoreCase(role.getName())).forEach(
-                foundedRole -> foundedRole.getPrivileges().forEach(this::addAnonymousAuthority))));
+        return processConfig(config -> roles.forEach(role -> config.getRoles()
+                                                                   .getRoles()
+                                                                   .stream()
+                                                                   .filter(
+                                                                           role1 -> role1.getName()
+                                                                                         .equalsIgnoreCase(
+                                                                                                 role.getName()))
+                                                                   .forEach(
+                                                                           foundedRole -> foundedRole.getPrivileges()
+                                                                                                     .forEach(
+                                                                                                             this::addAnonymousAuthority))));
     }
 
     private void addAnonymousAuthority(Privilege authority)
@@ -221,16 +251,19 @@ public class AuthorizationConfigController
     private void addAnonymousAuthority(String authority)
     {
         SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(authority.toUpperCase());
-        config.getAnonymousAuthorities().add(simpleGrantedAuthority);
-        anonymousAuthenticationFilter.getAuthorities().add(simpleGrantedAuthority);
+        config.getAnonymousAuthorities()
+              .add(simpleGrantedAuthority);
+        anonymousAuthenticationFilter.getAuthorities()
+                                     .add(simpleGrantedAuthority);
     }
 
     private synchronized List<User> getAllUsers()
     {
         final List<User> users = new LinkedList<>();
         databaseTx.activateOnCurrentThread();
-        userService.findAll().ifPresent(
-                usersList -> usersList.forEach(user -> users.add(databaseTx.detach(user, true))));
+        userService.findAll()
+                   .ifPresent(
+                           usersList -> usersList.forEach(user -> users.add(databaseTx.detach(user, true))));
         return users;
     }
 

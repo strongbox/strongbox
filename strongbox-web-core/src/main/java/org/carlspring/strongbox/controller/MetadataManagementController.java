@@ -39,16 +39,21 @@ public class MetadataManagementController
     @Autowired
     private ArtifactMetadataService artifactMetadataService;
 
-    @ApiOperation(value = "Used to rebuild the metadata for a given path.", position = 0)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The metadata was successfully rebuilt!"),
-                            @ApiResponse(code = 500, message = "An error occurred.") })
+    @ApiOperation(value = "Used to rebuild the metadata for a given path.",
+                  position = 0)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "The metadata was successfully rebuilt!"),
+                            @ApiResponse(code = 500,
+                                         message = "An error occurred.") })
     @PreAuthorize("hasAuthority('MANAGEMENT_REBUILD_METADATA')")
     @RequestMapping(value = "{storageId}/{repositoryId}/{path:.+}",
-            method = RequestMethod.POST,
-            produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity rebuild(@ApiParam(value = "The storageId", required = true)
+                    method = RequestMethod.POST,
+                    produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity rebuild(@ApiParam(value = "The storageId",
+                                            required = true)
                                   @PathVariable String storageId,
-                                  @ApiParam(value = "The repositoryId", required = true)
+                                  @ApiParam(value = "The repositoryId",
+                                            required = true)
                                   @PathVariable String repositoryId,
                                   @PathVariable String path,
                                   HttpServletRequest request)
@@ -66,22 +71,29 @@ public class MetadataManagementController
         catch (ArtifactStorageException e)
         {
             logger.error(e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(e.getMessage());
         }
     }
 
-    @ApiOperation(value = "Used to delete metadata entries for an artifact", position = 0)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully removed metadata entry."),
-                            @ApiResponse(code = 500, message = "An error occurred.") })
+    @ApiOperation(value = "Used to delete metadata entries for an artifact",
+                  position = 0)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "Successfully removed metadata entry."),
+                            @ApiResponse(code = 500,
+                                         message = "An error occurred.") })
     @PreAuthorize("hasAuthority('MANAGEMENT_DELETE_METADATA')")
     @RequestMapping(value = "{storageId}/{repositoryId}/{path:.+}",
-            method = RequestMethod.DELETE,
-            produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity delete(@ApiParam(value = "The storageId", required = true)
+                    method = RequestMethod.DELETE,
+                    produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity delete(@ApiParam(value = "The storageId",
+                                           required = true)
                                  @PathVariable String storageId,
-                                 @ApiParam(value = "The repositoryId", required = true)
+                                 @ApiParam(value = "The repositoryId",
+                                           required = true)
                                  @PathVariable String repositoryId,
-                                 @ApiParam(value = "The version of the artifact.", required = true)
+                                 @ApiParam(value = "The version of the artifact.",
+                                           required = true)
                                  @RequestParam(name = "version") String version,
                                  @ApiParam(value = "The classifier of the artifact.")
                                  @RequestParam(name = "classifier") String classifier,
@@ -120,7 +132,8 @@ public class MetadataManagementController
         catch (ArtifactStorageException e)
         {
             logger.error(e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(e.getMessage());
         }
     }
 

@@ -49,10 +49,10 @@ public abstract class BaseArtifactController
     }
 
 
-
     public Storage getStorage(String storageId)
     {
-        return configurationManager.getConfiguration().getStorage(storageId);
+        return configurationManager.getConfiguration()
+                                   .getStorage(storageId);
     }
 
     public Repository getRepository(String storageId,

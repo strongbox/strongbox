@@ -81,10 +81,9 @@ public class WebConfig
     @Override
     public void configurePathMatch(PathMatchConfigurer configurer)
     {
-        configurer
-                .setUseSuffixPatternMatch(true)
-                .setUseTrailingSlashMatch(false)
-                .setUseRegisteredSuffixPatternMatch(true)
-                .setPathMatcher(antPathMatcher);
+        configurer.setUseSuffixPatternMatch(true)
+                  .setUseTrailingSlashMatch(false)
+                  .setUseRegisteredSuffixPatternMatch(true)
+                  .setPathMatcher(antPathMatcher);
     }
 }

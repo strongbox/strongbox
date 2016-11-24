@@ -24,7 +24,7 @@ public class CustomAntPathMatcher
     private String pathSeparator;
 
     // pattern that will be processed in the same way as **
-    public final static String TWO_STARS_ANALOGUE = ".+";
+    public static final String TWO_STARS_ANALOGUE = ".+";
 
     /**
      * Create a new instance with the {@link #DEFAULT_PATH_SEPARATOR}.
@@ -84,7 +84,12 @@ public class CustomAntPathMatcher
         return defaultMatchResult;
     }
 
-    // get actual PATH_VARIABLE_NAME from patterns like /ANY_STRING/ANY_STRING/../{PATH_VARIABLE_NAME:.+}
+    /**
+     * Extract path variable name from actual pattern.
+     *
+     * @param pattern URL pattern to parse
+     * @return path variable name
+     */
     private String getPathVariableName(String pattern)
     {
 
@@ -95,7 +100,13 @@ public class CustomAntPathMatcher
         return patternDirs[subPathIndex - 1].substring(1, patternDirs[subPathIndex - 1].indexOf(":"));
     }
 
-    // get subPath value that matches actual pattern
+    /**
+     * Extract path sub value that matches actual pattern.
+     *
+     * @param pattern URL pattern to parse
+     * @param path    reduced URL path (without host)
+     * @return path variable value
+     */
     private String getPathVariableValue(String pattern,
                                         String path)
     {

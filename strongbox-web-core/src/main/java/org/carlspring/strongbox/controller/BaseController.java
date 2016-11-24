@@ -41,7 +41,8 @@ public abstract class BaseController
     protected ResponseEntity toError(Throwable cause)
     {
         logger.error(cause.getMessage(), cause);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(cause.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                             .body(cause.getMessage());
     }
 
     protected Configuration getConfiguration()

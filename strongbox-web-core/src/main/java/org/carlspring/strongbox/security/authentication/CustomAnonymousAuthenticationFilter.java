@@ -46,7 +46,8 @@ public class CustomAnonymousAuthenticationFilter
         {
             logger.debug("Auto creation of SecurityContext was disabled. SecurityContextHolder was NOT modified.");
 
-            if (SecurityContextHolder.getContext().getAuthentication() == null)
+            if (SecurityContextHolder.getContext()
+                                     .getAuthentication() == null)
             {
                 HttpServletResponse response = (HttpServletResponse) res;
                 response.sendError(HttpStatus.UNAUTHORIZED.value(), "Authentication is null");
@@ -54,7 +55,9 @@ public class CustomAnonymousAuthenticationFilter
             else
             {
                 logger.debug(
-                        "Authenticated under " + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+                        "Authenticated under " + SecurityContextHolder.getContext()
+                                                                      .getAuthentication()
+                                                                      .getPrincipal());
                 chain.doFilter(req, res);
             }
         }

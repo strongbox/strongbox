@@ -31,27 +31,35 @@ public class TrashController
     @Inject
     private ArtifactManagementService artifactManagementService;
 
-    @ApiOperation(value = "Used to delete the trash for a specified repository.", position = 1)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The trash for ${storageId}:${repositoryId}' was removed successfully."),
-                            @ApiResponse(code = 400, message = "An error occurred!"),
-                            @ApiResponse(code = 404, message = "The specified (storageId/repositoryId) does not exist!") })
+    @ApiOperation(value = "Used to delete the trash for a specified repository.",
+                  position = 1)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "The trash for ${storageId}:${repositoryId}' was removed successfully."),
+                            @ApiResponse(code = 400,
+                                         message = "An error occurred!"),
+                            @ApiResponse(code = 404,
+                                         message = "The specified (storageId/repositoryId) does not exist!") })
     @PreAuthorize("hasAuthority('MANAGEMENT_DELETE_TRASH')")
     @RequestMapping(value = "{storageId}/{repositoryId}",
-            method = RequestMethod.DELETE,
-            produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity delete(@ApiParam(value = "The storageId", required = true)
+                    method = RequestMethod.DELETE,
+                    produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity delete(@ApiParam(value = "The storageId",
+                                           required = true)
                                  @PathVariable String storageId,
-                                 @ApiParam(value = "The repositoryId", required = true)
+                                 @ApiParam(value = "The repositoryId",
+                                           required = true)
                                  @PathVariable String repositoryId)
             throws IOException
     {
         if (getStorage(storageId) == null)
         {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The specified storageId does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                 .body("The specified storageId does not exist!");
         }
         if (getRepository(storageId, repositoryId) == null)
         {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The specified repositoryId does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                 .body("The specified repositoryId does not exist!");
         }
 
         try
@@ -64,17 +72,22 @@ public class TrashController
         {
             logger.error(e.getMessage(), e);
 
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body(e.getMessage());
         }
 
         return ResponseEntity.ok("The trash for '" + storageId + ":" + repositoryId + "' was removed successfully.");
     }
 
-    @ApiOperation(value = "Used to delete the trash for all repositories.", position = 2)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The trash for all repositories was successfully removed."),
-                            @ApiResponse(code = 500, message = "An error occurred!") })
+    @ApiOperation(value = "Used to delete the trash for all repositories.",
+                  position = 2)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "The trash for all repositories was successfully removed."),
+                            @ApiResponse(code = 500,
+                                         message = "An error occurred!") })
     @PreAuthorize("hasAuthority('MANAGEMENT_DELETE_ALL_TRASHES')")
-    @RequestMapping(method = RequestMethod.DELETE, produces = MediaType.TEXT_PLAIN_VALUE)
+    @RequestMapping(method = RequestMethod.DELETE,
+                    produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity delete()
             throws IOException
     {
@@ -88,23 +101,30 @@ public class TrashController
         {
             logger.error(e.getMessage(), e);
 
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(e.getMessage());
         }
 
         return ResponseEntity.ok("The trash for all repositories was successfully removed.");
     }
 
-    @ApiOperation(value = "Used to undelete the trash for a path under a specified repository.", position = 3)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The trash for '${storageId}:${repositoryId}' was restored successfully."),
-                            @ApiResponse(code = 400, message = "An error occurred!"),
-                            @ApiResponse(code = 404, message = "The specified (storageId/repositoryId/path) does not exist!") })
+    @ApiOperation(value = "Used to undelete the trash for a path under a specified repository.",
+                  position = 3)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "The trash for '${storageId}:${repositoryId}' was restored successfully."),
+                            @ApiResponse(code = 400,
+                                         message = "An error occurred!"),
+                            @ApiResponse(code = 404,
+                                         message = "The specified (storageId/repositoryId/path) does not exist!") })
     @PreAuthorize("hasAuthority('MANAGEMENT_UNDELETE_TRASH')")
     @RequestMapping(value = "{storageId}/{repositoryId}/{path:.+}",
-            method = RequestMethod.POST,
-            produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity undelete(@ApiParam(value = "The storageId", required = true)
+                    method = RequestMethod.POST,
+                    produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity undelete(@ApiParam(value = "The storageId",
+                                             required = true)
                                    @PathVariable String storageId,
-                                   @ApiParam(value = "The repositoryId", required = true)
+                                   @ApiParam(value = "The repositoryId",
+                                             required = true)
                                    @PathVariable String repositoryId,
                                    @PathVariable String path,
                                    HttpServletRequest request)
@@ -112,48 +132,60 @@ public class TrashController
     {
         if (getStorage(storageId) == null)
         {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The specified storageId does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                 .body("The specified storageId does not exist!");
         }
         if (getRepository(storageId, repositoryId) == null)
         {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The specified repositoryId does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                 .body("The specified repositoryId does not exist!");
         }
         if (!new File(getRepository(storageId, repositoryId).getBasedir() + "/.trash", path).exists())
         {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The specified path does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                 .body("The specified path does not exist!");
         }
 
         try
         {
             artifactManagementService.undelete(storageId, repositoryId, path);
 
-            logger.debug("Undeleted trash for path " + path + " under repository " + storageId + ":" + repositoryId + ".");
+            logger.debug(
+                    "Undeleted trash for path " + path + " under repository " + storageId + ":" + repositoryId + ".");
         }
         catch (ArtifactStorageException e)
         {
             logger.error(e.getMessage(), e);
 
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body(e.getMessage());
         }
 
         return ResponseEntity.ok("The trash for '" + storageId + ":" + repositoryId + "' was restored successfully.");
     }
 
-    @ApiOperation(value = "Used to undelete the trash for a specified repository.", position = 4)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The trash for '${storageId}:${repositoryId}' was restored successfully."),
-                            @ApiResponse(code = 400, message = "An error occurred!"),
-                            @ApiResponse(code = 404, message = "The specified (storageId/repositoryId) does not exist!") })
+    @ApiOperation(value = "Used to undelete the trash for a specified repository.",
+                  position = 4)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "The trash for '${storageId}:${repositoryId}' was restored successfully."),
+                            @ApiResponse(code = 400,
+                                         message = "An error occurred!"),
+                            @ApiResponse(code = 404,
+                                         message = "The specified (storageId/repositoryId) does not exist!") })
     @PreAuthorize("hasAuthority('MANAGEMENT_UNDELETE_TRASH')")
     @RequestMapping(value = "{storageId}/{repositoryId}",
-            method = RequestMethod.PUT,
-            produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity undelete(@ApiParam(value = "The storageId", required = true)
+                    method = RequestMethod.PUT,
+                    produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity undelete(@ApiParam(value = "The storageId",
+                                             required = true)
                                    @PathVariable String storageId,
-                                   @ApiParam(value = "The repositoryId", required = true)
+                                   @ApiParam(value = "The repositoryId",
+                                             required = true)
                                    @PathVariable String repositoryId)
             throws Exception
     {
-        if (getConfiguration().getStorage(storageId).getRepository(repositoryId) != null)
+        if (getConfiguration().getStorage(storageId)
+                              .getRepository(repositoryId) != null)
         {
             try
             {
@@ -165,29 +197,40 @@ public class TrashController
             {
                 if (artifactManagementService.getStorage(storageId) == null)
                 {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The specified storageId does not exist!");
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                         .body("The specified storageId does not exist!");
                 }
-                else if (artifactManagementService.getStorage(storageId).getRepository(repositoryId) == null)
+                else if (artifactManagementService.getStorage(storageId)
+                                                  .getRepository(repositoryId) == null)
                 {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The specified repositoryId does not exist!");
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                         .body(
+                                                 "The specified repositoryId does not exist!");
                 }
 
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                     .body(e.getMessage());
             }
 
-            return ResponseEntity.ok("The trash for '" + storageId + ":" + repositoryId + "' was been restored successfully.");
+            return ResponseEntity.ok(
+                    "The trash for '" + storageId + ":" + repositoryId + "' was been restored successfully.");
         }
         else
         {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Storage or repository could not be found!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                 .body("Storage or repository could not be found!");
         }
     }
 
-    @ApiOperation(value = "Used to undelete the trash for all repositories.", position = 5)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The trash for all repositories was successfully restored."),
-                            @ApiResponse(code = 400, message = "An error occurred!") })
+    @ApiOperation(value = "Used to undelete the trash for all repositories.",
+                  position = 5)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "The trash for all repositories was successfully restored."),
+                            @ApiResponse(code = 400,
+                                         message = "An error occurred!") })
     @PreAuthorize("hasAuthority('MANAGEMENT_UNDELETE_ALL_TRASHES')")
-    @RequestMapping(method = RequestMethod.POST, produces = MediaType.TEXT_PLAIN_VALUE)
+    @RequestMapping(method = RequestMethod.POST,
+                    produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity undelete()
             throws Exception
     {
@@ -201,7 +244,8 @@ public class TrashController
         {
             logger.error(e.getMessage(), e);
 
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body(e.getMessage());
         }
 
         return ResponseEntity.ok("The trash for all repositories was successfully restored.");

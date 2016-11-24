@@ -48,13 +48,16 @@ public class SecurityConfig
             .and()
             .httpBasic()
             .and()
-            .csrf().disable()
+            .csrf()
+            .disable()
             .formLogin()
             .and()
             .authorizeRequests()
-            .antMatchers("/docs/**", "/assets/**").permitAll()
+            .antMatchers("/docs/**", "/assets/**")
+            .permitAll()
             .and()
-            .anonymous().authenticationFilter(anonymousAuthenticationFilter)
+            .anonymous()
+            .authenticationFilter(anonymousAuthenticationFilter)
             .and()
             .logout()
             .logoutUrl("/logout");
@@ -71,9 +74,11 @@ public class SecurityConfig
     public void init()
     {
         // load anonymous user privileges from database
-        authorizationConfigProvider.getConfig().ifPresent(
-                config -> anonymousAuthenticationFilter.getAuthorities().addAll(config.getAnonymousAuthorities())
-        );
+        authorizationConfigProvider.getConfig()
+                                   .ifPresent(
+                                           config -> anonymousAuthenticationFilter.getAuthorities()
+                                                                                  .addAll(config.getAnonymousAuthorities())
+                                   );
     }
 
     @Bean
