@@ -1,12 +1,10 @@
 package org.carlspring.strongbox.controller;
 
-import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
-import org.carlspring.strongbox.storage.repository.Repository;
-
 import java.io.IOException;
 
+import org.carlspring.strongbox.services.ArtifactManagementService;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
@@ -16,9 +14,6 @@ public abstract class BaseArtifactController
 
     @Autowired
     protected ArtifactManagementService artifactManagementService;
-
-    @Autowired
-    protected MavenMetadataManager mavenMetadataManager;
 
     // ----------------------------------------------------------------------------------------------------------------
     // Common-purpose methods
@@ -69,16 +64,6 @@ public abstract class BaseArtifactController
     public void setArtifactManagementService(ArtifactManagementService artifactManagementService)
     {
         this.artifactManagementService = artifactManagementService;
-    }
-
-    public MavenMetadataManager getMavenMetadataManager()
-    {
-        return mavenMetadataManager;
-    }
-
-    public void setMavenMetadataManager(MavenMetadataManager mavenMetadataManager)
-    {
-        this.mavenMetadataManager = mavenMetadataManager;
     }
 
 }

@@ -91,7 +91,7 @@ public class MetadataManagementControllerTest
 
         client.rebuildMetadata("storage0", "snapshots", null);
 
-        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+        given().header("user-agent", "Maven/*").contentType(MediaType.TEXT_PLAIN_VALUE)
                .when()
                .get(url)
                .peek()
