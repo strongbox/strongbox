@@ -97,7 +97,8 @@ public abstract class RestAssuredBaseTest
         // security settings for tests
         // by default all operations incl. deletion etc. are allowed (careful)
         // override #provideAuthorities if you wanna be more specific
-        anonymousAuthenticationFilter.getAuthorities().addAll(provideAuthorities());
+        anonymousAuthenticationFilter.getAuthorities()
+                                     .addAll(provideAuthorities());
 
         setContextBaseUrl(contextBaseUrl);
     }
@@ -161,9 +162,12 @@ public abstract class RestAssuredBaseTest
 
     protected boolean pathExists(String url)
     {
-        return given().header("user-agent", "Maven/*").contentType(MediaType.TEXT_PLAIN_VALUE).when().get(url).getStatusCode() == OK;
         logger.trace("[pathExists] URL -> " + url);
-        return given().contentType(MediaType.TEXT_PLAIN_VALUE).when().get(url).getStatusCode() == OK;
+        return given().header("user-agent", "Maven/*")
+                      .contentType(MediaType.TEXT_PLAIN_VALUE)
+                      .when()
+                      .get(url)
+                      .getStatusCode() == OK;
     }
 
     protected void assertPathExists(String url)
