@@ -4,14 +4,15 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.security.exceptions.AuthenticationException;
 import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBException;
@@ -42,7 +43,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import static org.carlspring.strongbox.utils.ByteRangeRequestHandler.handlePartialDownload;
 import static org.carlspring.strongbox.utils.ByteRangeRequestHandler.isRangedRequest;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
@@ -57,7 +63,8 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
  * @see {@linkplain http://docs.spring.io/spring/docs/current/spring-framework-reference/html/mvc.html#mvc-config-path-matching}
  */
 @RestController
-@RequestMapping("/storages")
+@RequestMapping(path = ArtifactController.ROOT_CONTEXT,
+                headers = "user-agent=Maven/*")
 public class ArtifactController
         extends BaseArtifactController
 {
@@ -66,6 +73,9 @@ public class ArtifactController
 
     // must be the same as @RequestMapping value on the class definition
     public final static String ROOT_CONTEXT = "/storages";
+
+    @Inject
+    protected MavenMetadataManager mavenMetadataManager;
 
     @PreAuthorize("authenticated")
     @RequestMapping(value = "greet",
@@ -92,11 +102,6 @@ public class ArtifactController
                                  @PathVariable(name = "repositoryId") String repositoryId,
                                  @PathVariable String path,
                                  HttpServletRequest request)
-            throws IOException,
-                   AuthenticationException,
-                   NoSuchAlgorithmException,
-                   JAXBException,
-                   ProviderImplementationException
     {
         try
         {
@@ -135,7 +140,7 @@ public class ArtifactController
     )
             throws Exception
     {
-        logger.debug("[download] repository = " + repositoryId + "\n\tpath = " + path);
+        logger.debug(" repository = " + repositoryId + "\n\tpath = " + path);
 
         Storage storage = configurationManager.getConfiguration()
                                               .getStorage(storageId);
@@ -559,7 +564,7 @@ public class ArtifactController
                                     .substring(0, artifactFile.getPath()
                                                               .lastIndexOf(File.separatorChar)));
 
-                Metadata metadata = getMavenMetadataManager().readMetadata(path);
+                Metadata metadata = mavenMetadataManager.readMetadata(path);
                 if (metadata != null && metadata.getVersioning() != null
                     && metadata.getVersioning()
                                .getVersions()
@@ -568,7 +573,7 @@ public class ArtifactController
                     metadata.getVersioning()
                             .getVersions()
                             .remove(version);
-                    getMavenMetadataManager().storeMetadata(path, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
+                    mavenMetadataManager.storeMetadata(path, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
                 }
             }
         }

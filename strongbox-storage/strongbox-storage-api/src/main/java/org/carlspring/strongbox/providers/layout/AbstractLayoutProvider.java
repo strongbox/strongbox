@@ -10,14 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author mtodorov
  */
-public abstract class AbstractLayoutProvider<T> implements LayoutProvider
+public abstract class AbstractLayoutProvider<T> implements LayoutProvider<T>
 {
 
     @Autowired
-    private LayoutProviderRegistry layoutProviderRegistry;
+    protected LayoutProviderRegistry layoutProviderRegistry;
 
     @Autowired
-    private StorageProviderRegistry storageProviderRegistry;
+    protected StorageProviderRegistry storageProviderRegistry;
 
     @Autowired
     private ConfigurationManager configurationManager;

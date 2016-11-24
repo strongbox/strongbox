@@ -510,7 +510,7 @@ public class ArtifactControllerTest
         ArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR);
 
         String storageId = "storage0";
-        String repositoryId = "releases";
+        String repositoryId = "releases-with-redeployment";
 
         // When
         artifactDeployer.generateAndDeployArtifact(a, storageId, repositoryId);
@@ -583,7 +583,7 @@ public class ArtifactControllerTest
         ArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR);
 
         String storageId = "storage0";
-        String repositoryId = "releases";
+        String repositoryId = "releases-with-redeployment";
 
         artifactDeployer.generateAndDeployArtifact(artifact1, storageId, repositoryId);
         artifactDeployer.generateAndDeployArtifact(artifact2, storageId, repositoryId);

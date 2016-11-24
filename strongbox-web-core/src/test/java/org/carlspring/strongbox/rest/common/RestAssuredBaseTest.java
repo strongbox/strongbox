@@ -161,7 +161,8 @@ public abstract class RestAssuredBaseTest
 
     protected boolean pathExists(String url)
     {
-        logger.debug("\n\t[pathExists] URL -> " + url);
+        return given().header("user-agent", "Maven/*").contentType(MediaType.TEXT_PLAIN_VALUE).when().get(url).getStatusCode() == OK;
+        logger.trace("[pathExists] URL -> " + url);
         return given().contentType(MediaType.TEXT_PLAIN_VALUE).when().get(url).getStatusCode() == OK;
     }
 
