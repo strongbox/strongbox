@@ -10,7 +10,11 @@ import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.net.URLDecoder;
 
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -46,8 +50,10 @@ public class SearchController
      * @throws IOException
      * @throws ParseException
      */
-    @ApiOperation(value = "Used to search for artifacts.", response = SearchResults.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "") })
+    @ApiOperation(value = "Used to search for artifacts.",
+                  response = SearchResults.class)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "") })
     @PreAuthorize("hasAuthority('SEARCH_ARTIFACTS')")
     @RequestMapping(value = "",
                     method = RequestMethod.GET,
@@ -57,10 +63,13 @@ public class SearchController
                                  MediaType.APPLICATION_JSON_VALUE,
                                  MediaType.TEXT_PLAIN_VALUE })
     public ResponseEntity search(@ApiParam(value = "The storageId")
-                                 @RequestParam(name = "storageId", required = false) final String storageId,
-                                 @ApiParam(value = "The repositoryId", required = true)
+                                 @RequestParam(name = "storageId",
+                                               required = false) final String storageId,
+                                 @ApiParam(value = "The repositoryId",
+                                           required = true)
                                  @RequestParam(name = "repositoryId") final String repositoryId,
-                                 @ApiParam(value = "The search query", required = true)
+                                 @ApiParam(value = "The search query",
+                                           required = true)
                                  @RequestParam(name = "q") final String query,
                                  @RequestHeader HttpHeaders headers,
                                  HttpServletRequest request)

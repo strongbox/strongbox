@@ -51,35 +51,43 @@ public class StrongboxUserDetailService
         fullAuthorities = new HashSet<>();
         configuredRoles = new HashSet<>();
 
-        authorizationConfigProvider.getConfig().ifPresent(
-                config ->
-                {
-                    databaseTx.activateOnCurrentThread();
-                    try
-                    {
-                        config.getRoles().getRoles().forEach(
-                                role ->
-                                {
-                                    Role detached = databaseTx.detachAll(role, true);
-                                    detached.getPrivileges().forEach(privilegeName -> fullAuthorities.add(
-                                            new SimpleGrantedAuthority(privilegeName.toUpperCase())));
+        authorizationConfigProvider.getConfig()
+                                   .ifPresent(
+                                           config ->
+                                           {
+                                               databaseTx.activateOnCurrentThread();
+                                               try
+                                               {
+                                                   config.getRoles()
+                                                         .getRoles()
+                                                         .forEach(
+                                                                 role ->
+                                                                 {
+                                                                     Role detached = databaseTx.detachAll(role, true);
+                                                                     detached.getPrivileges()
+                                                                             .forEach(
+                                                                                     privilegeName -> fullAuthorities.add(
+                                                                                             new SimpleGrantedAuthority(privilegeName.toUpperCase())));
 
-                                });
+                                                                 });
 
-                        configuredRoles.addAll(config.getRoles().getRoles());
-                    }
-                    catch (Exception e)
-                    {
-                        logger.error("Unable to process authorization config", e);
-                    }
-                }
-        );
-        authorizationConfigProvider.getConfig().orElseThrow(
-                () -> new RuntimeException("Unable to get authorization config"));
+                                                   configuredRoles.addAll(config.getRoles()
+                                                                                .getRoles());
+                                               }
+                                               catch (Exception e)
+                                               {
+                                                   logger.error("Unable to process authorization config", e);
+                                               }
+                                           }
+                                   );
+        authorizationConfigProvider.getConfig()
+                                   .orElseThrow(
+                                           () -> new RuntimeException("Unable to get authorization config"));
     }
 
     @Override
-    @Cacheable(value = "userDetails", key = "#name")
+    @Cacheable(value = "userDetails",
+               key = "#name")
     public synchronized UserDetails loadUserByUsername(String name)
             throws UsernameNotFoundException
     {
@@ -99,7 +107,8 @@ public class StrongboxUserDetailService
 
         // thread-safe transformation of roles to authorities
         Set<GrantedAuthority> authorities = new HashSet<>();
-        user.getRoles().forEach(role -> authorities.addAll(getAuthoritiesByRoleName(role.toUpperCase())));
+        user.getRoles()
+            .forEach(role -> authorities.addAll(getAuthoritiesByRoleName(role.toUpperCase())));
 
         // extract (detach) user in current transaction
         SpringSecurityUser springUser = new SpringSecurityUser();
@@ -130,11 +139,13 @@ public class StrongboxUserDetailService
 
                                     databaseTx.activateOnCurrentThread();
                                     final Role detached = databaseTx.detachAll(role, true);
-                                    if (detached.getName().equalsIgnoreCase(roleName))
+                                    if (detached.getName()
+                                                .equalsIgnoreCase(roleName))
                                     {
-                                        detached.getPrivileges().forEach(
-                                                privilegeName -> authorities.add(
-                                                        new SimpleGrantedAuthority(privilegeName.toUpperCase())));
+                                        detached.getPrivileges()
+                                                .forEach(
+                                                        privilegeName -> authorities.add(
+                                                                new SimpleGrantedAuthority(privilegeName.toUpperCase())));
                                     }
                                 });
 

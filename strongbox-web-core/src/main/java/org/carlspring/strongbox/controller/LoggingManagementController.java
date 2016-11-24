@@ -11,9 +11,14 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,15 +41,23 @@ public class LoggingManagementController
     @Inject
     LoggingManagementService loggingManagementService;
 
-    @ApiOperation(value = "Used to add new logger.", position = 0)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger was added successfully."),
-                            @ApiResponse(code = 400, message = "An error occurred.") })
-    @RequestMapping(value = "/logger", method = RequestMethod.PUT, produces = TEXT_PLAIN_VALUE)
-    public ResponseEntity addLogger(@ApiParam(value = "The logger name", required = true)
+    @ApiOperation(value = "Used to add new logger.",
+                  position = 0)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "The logger was added successfully."),
+                            @ApiResponse(code = 400,
+                                         message = "An error occurred.") })
+    @RequestMapping(value = "/logger",
+                    method = RequestMethod.PUT,
+                    produces = TEXT_PLAIN_VALUE)
+    public ResponseEntity addLogger(@ApiParam(value = "The logger name",
+                                              required = true)
                                     @RequestParam("logger") String loggerPackage,
-                                    @ApiParam(value = "The logger level", required = true)
+                                    @ApiParam(value = "The logger level",
+                                              required = true)
                                     @RequestParam("level") String level,
-                                    @ApiParam(value = "The logger appender name", required = true)
+                                    @ApiParam(value = "The logger appender name",
+                                              required = true)
                                     @RequestParam("appenderName") String appenderName)
     {
         try
@@ -57,18 +70,27 @@ public class LoggingManagementController
         {
             logger.trace(e.getMessage(), e);
 
-            return ResponseEntity.status(BAD_REQUEST).body("Failed to add logger!");
+            return ResponseEntity.status(BAD_REQUEST)
+                                 .body("Failed to add logger!");
         }
     }
 
-    @ApiOperation(value = "Used to update existing logger.", position = 0)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger was updated successfully."),
-                            @ApiResponse(code = 400, message = "An error occurred."),
-                            @ApiResponse(code = 404, message = "Logger was not found.") })
-    @RequestMapping(value = "/logger", method = RequestMethod.POST, produces = TEXT_PLAIN_VALUE)
-    public ResponseEntity updateLogger(@ApiParam(value = "The logger name", required = true)
+    @ApiOperation(value = "Used to update existing logger.",
+                  position = 0)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "The logger was updated successfully."),
+                            @ApiResponse(code = 400,
+                                         message = "An error occurred."),
+                            @ApiResponse(code = 404,
+                                         message = "Logger was not found.") })
+    @RequestMapping(value = "/logger",
+                    method = RequestMethod.POST,
+                    produces = TEXT_PLAIN_VALUE)
+    public ResponseEntity updateLogger(@ApiParam(value = "The logger name",
+                                                 required = true)
                                        @RequestParam("logger") String loggerPackage,
-                                       @ApiParam(value = "The logger level", required = true)
+                                       @ApiParam(value = "The logger level",
+                                                 required = true)
                                        @RequestParam("level") String level)
     {
         try
@@ -81,22 +103,31 @@ public class LoggingManagementController
         {
             logger.trace(e.getMessage(), e);
 
-            return ResponseEntity.status(BAD_REQUEST).body("Failed to update logger!");
+            return ResponseEntity.status(BAD_REQUEST)
+                                 .body("Failed to update logger!");
         }
         catch (LoggerNotFoundException e)
         {
             logger.trace(e.getMessage(), e);
 
-            return ResponseEntity.status(NOT_FOUND).body("Logger '" + loggerPackage + "' not found!");
+            return ResponseEntity.status(NOT_FOUND)
+                                 .body("Logger '" + loggerPackage + "' not found!");
         }
     }
 
-    @ApiOperation(value = "Used to delete existing logger.", position = 0)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger was deleted successfully."),
-                            @ApiResponse(code = 400, message = "An error occurred."),
-                            @ApiResponse(code = 404, message = "Logger was not found.") })
-    @RequestMapping(value = "/logger", method = RequestMethod.DELETE, produces = TEXT_PLAIN_VALUE)
-    public ResponseEntity deleteLogger(@ApiParam(value = "The logger name", required = true)
+    @ApiOperation(value = "Used to delete existing logger.",
+                  position = 0)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "The logger was deleted successfully."),
+                            @ApiResponse(code = 400,
+                                         message = "An error occurred."),
+                            @ApiResponse(code = 404,
+                                         message = "Logger was not found.") })
+    @RequestMapping(value = "/logger",
+                    method = RequestMethod.DELETE,
+                    produces = TEXT_PLAIN_VALUE)
+    public ResponseEntity deleteLogger(@ApiParam(value = "The logger name",
+                                                 required = true)
                                        @RequestParam("logger") String loggerPackage)
             throws IOException
     {
@@ -110,28 +141,34 @@ public class LoggingManagementController
         {
             logger.trace(e.getMessage(), e);
 
-            return ResponseEntity.status(BAD_REQUEST).body("Failed to delete the logger!");
+            return ResponseEntity.status(BAD_REQUEST)
+                                 .body("Failed to delete the logger!");
         }
         catch (LoggerNotFoundException e)
         {
             logger.trace(e.getMessage(), e);
 
-            return ResponseEntity.status(NOT_FOUND).body("Logger '" + loggerPackage + "' not found!");
+            return ResponseEntity.status(NOT_FOUND)
+                                 .body("Logger '" + loggerPackage + "' not found!");
         }
     }
 
-    @ApiOperation(value = "Used to download log data.", position = 0)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger was retrieved successfully."),
-                            @ApiResponse(code = 400, message = "An error occurred.") })
-    @RequestMapping(value = "/log/**", method = RequestMethod.GET, produces = TEXT_PLAIN_VALUE)
-    public void downloadLog(HttpServletRequest request,
+    @ApiOperation(value = "Used to download log data.",
+                  position = 0)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "The logger was retrieved successfully."),
+                            @ApiResponse(code = 400,
+                                         message = "An error occurred.") })
+    @RequestMapping(value = "/log/{path:.+}",
+                    method = RequestMethod.GET,
+                    produces = TEXT_PLAIN_VALUE)
+    public void downloadLog(@PathVariable String path,
+                            HttpServletRequest request,
                             HttpServletResponse response)
             throws Exception
     {
         try
         {
-            String path = convertRequestToPath("logging", request, "log");
-
             logger.debug("Received a request to retrieve log file " + path + ".");
 
             InputStream is = loggingManagementService.downloadLog(path);
@@ -149,10 +186,15 @@ public class LoggingManagementController
         }
     }
 
-    @ApiOperation(value = "Used to download logback configuration.", position = 0)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger configuration was retrieved successfully."),
-                            @ApiResponse(code = 400, message = "An error occurred.") })
-    @RequestMapping(value = "/logback", method = RequestMethod.GET, produces = APPLICATION_XML_VALUE)
+    @ApiOperation(value = "Used to download logback configuration.",
+                  position = 0)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "The logger configuration was retrieved successfully."),
+                            @ApiResponse(code = 400,
+                                         message = "An error occurred.") })
+    @RequestMapping(value = "/logback",
+                    method = RequestMethod.GET,
+                    produces = APPLICATION_XML_VALUE)
     public void downloadLogbackConfiguration(HttpServletResponse response)
             throws Exception
     {
@@ -170,13 +212,16 @@ public class LoggingManagementController
         }
     }
 
-    @ApiOperation(value = "Used to upload logback configuration.", position = 0)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger configuration was uploaded successfully."),
-                            @ApiResponse(code = 400, message = "An error occurred.") })
+    @ApiOperation(value = "Used to upload logback configuration.",
+                  position = 0)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "The logger configuration was uploaded successfully."),
+                            @ApiResponse(code = 400,
+                                         message = "An error occurred.") })
     @RequestMapping(value = "/logback",
-            method = RequestMethod.POST,
-            consumes = APPLICATION_XML_VALUE,
-            produces = TEXT_PLAIN_VALUE)
+                    method = RequestMethod.POST,
+                    consumes = APPLICATION_XML_VALUE,
+                    produces = TEXT_PLAIN_VALUE)
     public ResponseEntity uploadLogbackConfiguration(HttpServletRequest request)
     {
         try
@@ -189,7 +234,8 @@ public class LoggingManagementController
         {
             logger.trace(e.getMessage(), e);
 
-            return ResponseEntity.status(BAD_REQUEST).body("Failed to resolve the logging configuration!");
+            return ResponseEntity.status(BAD_REQUEST)
+                                 .body("Failed to resolve the logging configuration!");
         }
     }
 

@@ -145,11 +145,11 @@ public class ArtifactControllerTest
         final String md5Local = mdos.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
         final String sha1Local = mdos.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
 
-        System.out.println("MD5   [Remote]: " + md5Remote);
-        System.out.println("MD5   [Local ]: " + md5Local);
+        logger.debug("MD5   [Remote]: " + md5Remote);
+        logger.debug("MD5   [Local ]: " + md5Local);
 
-        System.out.println("SHA-1 [Remote]: " + sha1Remote);
-        System.out.println("SHA-1 [Local ]: " + sha1Local);
+        logger.debug("SHA-1 [Remote]: " + sha1Remote);
+        logger.debug("SHA-1 [Local ]: " + sha1Local);
 
         assertEquals("MD5 checksums did not match!", md5Local, md5Remote);
         assertEquals("SHA-1 checksums did not match!", sha1Local, sha1Remote);
