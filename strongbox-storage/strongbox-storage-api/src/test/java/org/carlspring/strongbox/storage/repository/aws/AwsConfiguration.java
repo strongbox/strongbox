@@ -1,19 +1,18 @@
 package org.carlspring.strongbox.storage.repository.aws;
 
 import org.carlspring.strongbox.storage.repository.CustomConfiguration;
+import org.carlspring.strongbox.xml.CustomTag;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import java.io.Serializable;
 
 /**
  * @author carlspring
  */
-@XmlType(factoryClass=AwsObjectFactory.class, factoryMethod="createAwsConfiguration")
 @XmlRootElement(name = "aws-configuration")
 public class AwsConfiguration extends CustomConfiguration
-        implements Serializable
+        implements CustomTag
 {
 
     @XmlAttribute

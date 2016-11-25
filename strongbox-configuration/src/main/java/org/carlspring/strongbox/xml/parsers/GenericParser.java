@@ -2,12 +2,14 @@ package org.carlspring.strongbox.xml.parsers;
 
 import org.carlspring.strongbox.url.ClasspathURLStreamHandler;
 import org.carlspring.strongbox.url.ClasspathURLStreamHandlerFactory;
+import org.carlspring.strongbox.xml.CustomTagService;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import java.io.*;
+import java.lang.reflect.ParameterizedType;
 import java.net.URL;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -50,9 +52,15 @@ public class GenericParser<T>
         }
     }
 
+    public GenericParser()
+    {
+        this.classes.addAll(CustomTagService.getInstance().getImplementations());
+    }
+
     public GenericParser(Class... classes)
     {
         Collections.addAll(this.classes, classes);
+        this.classes.addAll(CustomTagService.getInstance().getImplementations());
     }
 
     public T parse(File file)

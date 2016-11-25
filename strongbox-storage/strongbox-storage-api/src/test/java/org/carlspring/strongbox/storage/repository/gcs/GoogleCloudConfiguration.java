@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.storage.repository.gcs;
 
 import org.carlspring.strongbox.storage.repository.CustomConfiguration;
+import org.carlspring.strongbox.xml.CustomTag;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -10,11 +11,10 @@ import java.io.Serializable;
 /**
  * @author carlspring
  */
-@XmlType(factoryClass=GoogleCloudObjectFactory.class, factoryMethod="createGoogleCloudConfiguration")
 @XmlRootElement(name = "google-cloud-configuration")
 public class GoogleCloudConfiguration
         extends CustomConfiguration
-        implements Serializable
+        implements CustomTag
 {
 
     @XmlAttribute

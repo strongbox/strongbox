@@ -3,7 +3,6 @@ package org.carlspring.strongbox.configuration;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.annotation.PostConstruct;
-import javax.xml.bind.JAXBException;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -35,15 +34,7 @@ public class ConfigurationCache
     @PostConstruct
     public synchronized void init()
     {
-        parser = new GenericParser<>();
-        try
-        {
-            parser.setContext(Configuration.class);
-        }
-        catch (JAXBException e)
-        {
-            logger.error("Unable to set JAXB context", e);
-        }
+        parser = new GenericParser<>(Configuration.class);
 
         configurationCache = cacheManager.getCache("configuration");
         if (configurationCache == null)

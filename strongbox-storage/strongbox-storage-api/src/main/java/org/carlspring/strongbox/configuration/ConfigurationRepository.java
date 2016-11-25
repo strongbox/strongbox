@@ -4,11 +4,15 @@ import org.carlspring.strongbox.services.ServerConfigurationService;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.annotation.PostConstruct;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Optional;
 
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.sun.mail.iap.ByteArray;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,9 +96,16 @@ public class ConfigurationRepository
         else
         {
             InputStream is = getClass().getClassLoader().getResourceAsStream("etc/conf/strongbox.xml");
+
             try
             {
-                configuration = parser.parse(is);
+                byte[] bytes = IOUtils.toByteArray(is);
+                ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+
+                System.out.println("Printing XML...");
+                System.out.println(new String(bytes));
+
+                configuration = parser.parse(bais);
             }
             catch (Exception e)
             {
