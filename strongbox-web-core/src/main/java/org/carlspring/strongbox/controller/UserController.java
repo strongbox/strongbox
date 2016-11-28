@@ -1,9 +1,5 @@
 package org.carlspring.strongbox.controller;
 
-import org.carlspring.strongbox.users.domain.User;
-import org.carlspring.strongbox.users.service.UserService;
-
-import javax.inject.Inject;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
@@ -220,6 +216,25 @@ public class UserController
                              .build();
     }
 
+    @ApiOperation(value = "Generate new security token for specified user.", position = 3)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The security token was generated."),
+                            @ApiResponse(code = 500, message = "An error occurred.") })
+    @PreAuthorize("hasAuthority('UPDATE_USER')")
+    @RequestMapping(value = "user/{name}/generate-security-token", method = RequestMethod.PUT)
+    public ResponseEntity generateSecurityToken(@ApiParam(value = "The name of the user") @PathVariable String name)
+            throws Exception    
+    {
+        User user = userService.findByUserName(name);
+        if (user == null || user.getId() == null)
+        {
+            return toError("The specified user does not exist!");
+        }
+
+        String result = userService.generateSecurityToken(user.getId());
+        
+        return ResponseEntity.ok(result);
+    }
+    
     // ----------------------------------------------------------------------------------------------------------------
     // Common-purpose methods
 
