@@ -220,7 +220,7 @@ public class UserController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The security token was generated."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('UPDATE_USER')")
-    @RequestMapping(value = "user/{name}/generate-security-token", method = RequestMethod.PUT)
+    @RequestMapping(value = "user/{name}/generate-security-token", method = RequestMethod.GET)
     public ResponseEntity generateSecurityToken(@ApiParam(value = "The name of the user") @PathVariable String name)
             throws Exception    
     {
