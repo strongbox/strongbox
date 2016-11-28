@@ -1,23 +1,32 @@
 package org.carlspring.strongbox.controller;
 
-import org.carlspring.strongbox.users.domain.User;
-import org.carlspring.strongbox.users.service.UserService;
-
-import javax.inject.Inject;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
-import io.swagger.annotations.*;
+import javax.inject.Inject;
+
+import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.service.UserService;
 import org.springframework.cache.CacheManager;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 @Controller
 @RequestMapping("/users")
@@ -114,7 +123,10 @@ public class UserController
             // TODO Due to internal error in spring-data-orientdb
             // com.orientechnologies.orient.client.remote.OStorageRemote cannot be cast to com.orientechnologies.orient.core.storage.impl.local.paginated.OLocalPaginatedStorage
             List<User> users = new LinkedList<>();
-            possibleUsers.get().forEach(user -> users.add(databaseTx.detach(user, true)));
+            possibleUsers.get().forEach((user) -> {
+                User u = databaseTx.detach(user, true);
+                users.add(u);
+            });
 
             return toResponse(users);
         }
@@ -177,6 +189,25 @@ public class UserController
         return ResponseEntity.ok().build();
     }
 
+    @ApiOperation(value = "Generate new security token for specified user.", position = 3)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The security token was generated."),
+                            @ApiResponse(code = 500, message = "An error occurred.") })
+    @PreAuthorize("hasAuthority('UPDATE_USER')")
+    @RequestMapping(value = "user/{name}/generate-security-token", method = RequestMethod.PUT)
+    public ResponseEntity generateSecurityToken(@ApiParam(value = "The name of the user") @PathVariable String name)
+            throws Exception    
+    {
+        User user = userService.findByUserName(name);
+        if (user == null || user.getId() == null)
+        {
+            return toError("The specified user does not exist!");
+        }
+
+        String result = userService.generateSecurityToken(user.getId());
+        
+        return ResponseEntity.ok(result);
+    }
+    
     // ----------------------------------------------------------------------------------------------------------------
     // Common-purpose methods
 

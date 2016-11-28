@@ -1,16 +1,23 @@
 package org.carlspring.strongbox.users.service.impl;
 
-import org.carlspring.strongbox.users.domain.User;
-import org.carlspring.strongbox.users.repository.UserRepository;
-import org.carlspring.strongbox.users.service.UserService;
-
+import java.security.Key;
 import java.util.List;
 import java.util.Optional;
 
+import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.repository.UserRepository;
+import org.carlspring.strongbox.users.service.UserService;
+import org.jose4j.jws.AlgorithmIdentifiers;
+import org.jose4j.jws.JsonWebSignature;
+import org.jose4j.jwt.JwtClaims;
+import org.jose4j.keys.HmacKey;
+import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,12 +35,20 @@ class UserServiceImpl
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
+    private Key key;
+    
     @Autowired
     UserRepository repository;
 
     @Autowired
     CacheManager cacheManager;
 
+    @Autowired
+    public void init(@Value("${strongbox.security.jwtSecret:secret}") String secret) throws Exception
+    {
+        key = new HmacKey(secret.getBytes("UTF-8"));
+    }
+    
     @Override
     @Transactional
     @Cacheable(value = "users", key = "#name", sync = true)
@@ -151,4 +166,26 @@ class UserServiceImpl
     {
         repository.deleteAll();
     }
+
+    @Override
+    public String generateSecurityToken(String id) throws JoseException
+    {
+        User user = repository.findOne(id);
+        
+        JwtClaims claims = new JwtClaims();
+        claims.setIssuer("Strongbox");
+        claims.setGeneratedJwtId();
+        claims.setSubject(user.getUsername());
+        claims.setClaim("security-token-key", user.getSecurityTokenKey());
+
+        JsonWebSignature jws = new JsonWebSignature();
+        jws.setPayload(claims.toJson());
+        jws.setKey(key);
+        jws.setDoKeyValidation(false);
+        jws.setAlgorithmHeaderValue(AlgorithmIdentifiers.HMAC_SHA256);
+        
+        return jws.getCompactSerialization();
+    }
+    
+    
 }
