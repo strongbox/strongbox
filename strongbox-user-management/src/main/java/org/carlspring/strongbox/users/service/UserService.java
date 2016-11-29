@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.users.service;
 
+import java.util.Date;
+
 import org.carlspring.strongbox.data.service.CrudService;
 import org.carlspring.strongbox.users.domain.User;
 import org.jose4j.lang.JoseException;
@@ -16,8 +18,29 @@ public interface UserService
 {
 
     @Transactional
-    User findByUserName(final String username);
+    User
+         findByUserName(final String username);
 
-    String generateSecurityToken(String id) throws JoseException;
+    /**
+     * Generates another one 'Security Token' for specific user.<br>
+     * Token will be based on 'username' with 'securityTokenKey' used as clam.
+     * 
+     * @param id
+     *            user ID
+     * @param expire
+     *            token expiration date
+     * @return encrypted token
+     * @throws JoseException
+     */
+    String
+           generateSecurityToken(String id,
+                                 Date expire) throws JoseException;
+
+    /**
+     * @param userName
+     * @param token
+     */
+    void verifySecurityToken(String userName,
+                             String token);
 
 }

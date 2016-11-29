@@ -22,14 +22,20 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.security.exceptions.SecurityTokenException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.users.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -56,6 +62,10 @@ public class NugetPackageController extends BaseArtifactController
     private static final Logger logger = LogManager.getLogger(NugetPackageController.class.getName());
 
     public final static String ROOT_CONTEXT = "/storages";
+
+    @Autowired
+    private UserService userService;
+    
 
     /**
      * This method is used to check storage availability.<br>
@@ -91,7 +101,8 @@ public class NugetPackageController extends BaseArtifactController
                 storageId,
                 repositoryId));
 
-        if (StringUtils.isEmpty(apiKey))
+        String userName = getUserName();
+        if (!verify(userName, apiKey))
         {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -265,6 +276,36 @@ public class NugetPackageController extends BaseArtifactController
         }
 
         return new URI("");
+    }
+
+    private
+            boolean verify(String userName,
+                           String apiKey)
+    {
+        if (StringUtils.isEmpty(userName) || StringUtils.isEmpty(apiKey))
+        {
+            return false;
+        }
+        
+        try
+        {
+            userService.verifySecurityToken(userName, apiKey);
+        }
+        catch (SecurityTokenException e)
+        {
+            return false;
+        }
+        
+        return true;
+    }
+
+    private
+            String getUserName()
+    {
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        Authentication authentication = securityContext == null ? null : securityContext.getAuthentication();
+        String userName = authentication == null ? null : authentication.getName();
+        return userName;
     }
 
 }

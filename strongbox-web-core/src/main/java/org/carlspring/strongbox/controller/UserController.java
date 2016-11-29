@@ -12,6 +12,8 @@ import org.carlspring.strongbox.users.service.UserService;
 import org.springframework.cache.CacheManager;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -117,6 +119,7 @@ public class UserController
     @ResponseBody
     ResponseEntity getUsers()
     {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Optional<List<User>> possibleUsers = userService.findAll();
         if (possibleUsers.isPresent())
         {
@@ -203,7 +206,7 @@ public class UserController
             return toError("The specified user does not exist!");
         }
 
-        String result = userService.generateSecurityToken(user.getId());
+        String result = userService.generateSecurityToken(user.getId(), null);
         
         return ResponseEntity.ok(result);
     }
