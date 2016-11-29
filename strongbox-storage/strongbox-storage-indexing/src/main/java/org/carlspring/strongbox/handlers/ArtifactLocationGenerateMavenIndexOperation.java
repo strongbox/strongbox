@@ -17,13 +17,10 @@ import java.util.List;
 import org.apache.maven.artifact.Artifact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * @author Kate Novik.
  */
-@Component("mavenIndexOperation")
 public class ArtifactLocationGenerateMavenIndexOperation
         extends AbstractArtifactLocationHandler
 {
@@ -32,11 +29,15 @@ public class ArtifactLocationGenerateMavenIndexOperation
 
     private String previousPath;
 
-    @Autowired
     private RepositoryIndexManager repositoryIndexManager;
 
     public ArtifactLocationGenerateMavenIndexOperation()
     {
+    }
+
+    public ArtifactLocationGenerateMavenIndexOperation(RepositoryIndexManager repositoryIndexManager)
+    {
+        this.repositoryIndexManager = repositoryIndexManager;
     }
 
     @Override
@@ -116,5 +117,15 @@ public class ArtifactLocationGenerateMavenIndexOperation
                 }
             }
         }
+    }
+
+    public RepositoryIndexManager getRepositoryIndexManager()
+    {
+        return repositoryIndexManager;
+    }
+
+    public void setRepositoryIndexManager(RepositoryIndexManager repositoryIndexManager)
+    {
+        this.repositoryIndexManager = repositoryIndexManager;
     }
 }

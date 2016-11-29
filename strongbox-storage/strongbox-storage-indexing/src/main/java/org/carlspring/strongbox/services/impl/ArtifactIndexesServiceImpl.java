@@ -1,12 +1,12 @@
 package org.carlspring.strongbox.services.impl;
 
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
-import org.carlspring.strongbox.artifact.locator.handlers.ArtifactDirectoryOperation;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.handlers.ArtifactLocationGenerateMavenIndexOperation;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import java.io.IOException;
@@ -14,7 +14,6 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 /**
@@ -31,8 +30,7 @@ public class ArtifactIndexesServiceImpl
     private ConfigurationManager configurationManager;
 
     @Autowired
-    @Qualifier("mavenIndexOperation")
-    private ArtifactDirectoryOperation mavenIndexOperation;
+    private RepositoryIndexManager repositoryIndexManager;
 
     @Override
     public void rebuildIndexes(String storageId,
@@ -43,7 +41,7 @@ public class ArtifactIndexesServiceImpl
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        ArtifactLocationGenerateMavenIndexOperation operation = (ArtifactLocationGenerateMavenIndexOperation) mavenIndexOperation;
+        ArtifactLocationGenerateMavenIndexOperation operation = new ArtifactLocationGenerateMavenIndexOperation(repositoryIndexManager);
 
         operation.setStorage(storage);
         operation.setRepository(repository);
