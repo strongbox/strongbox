@@ -4,8 +4,8 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 
+import org.carlspring.strongbox.cron.api.jobs.RebuildMavenMetadataCronJob;
 import org.carlspring.strongbox.cron.config.JobManager;
-import org.carlspring.strongbox.cron.api.jobs.RebuildMetadataCronJob;
 import org.carlspring.strongbox.cron.context.CronTaskTest;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.exceptions.CronTaskException;
@@ -43,7 +43,7 @@ import static org.junit.Assert.assertNull;
  */
 @CronTaskTest
 @RunWith(SpringJUnit4ClassRunner.class)
-public class RebuildMetadataCronJobTest
+public class RebuildMavenMetadataCronJobTest
         extends TestCaseWithArtifactGeneration
 {
 
@@ -150,7 +150,7 @@ public class RebuildMetadataCronJobTest
     {
         CronTaskConfiguration cronTaskConfiguration = new CronTaskConfiguration();
         cronTaskConfiguration.setName(name);
-        cronTaskConfiguration.addProperty("jobClass", RebuildMetadataCronJob.class.getName());
+        cronTaskConfiguration.addProperty("jobClass", RebuildMavenMetadataCronJob.class.getName());
         cronTaskConfiguration.addProperty("cronExpression", "0 0/10 * 1/1 * ? *");
         cronTaskConfiguration.addProperty("storageId", storageId);
         cronTaskConfiguration.addProperty("repositoryId", repositoryId);

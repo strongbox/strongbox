@@ -2,7 +2,7 @@ package org.carlspring.strongbox.services.impl;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
-import org.carlspring.strongbox.artifact.locator.handlers.ArtifactLocationGenerateMetadataOperation;
+import org.carlspring.strongbox.artifact.locator.handlers.ArtifactLocationGenerateMavenMetadataOperation;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
@@ -33,8 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 
 /**
  * @author stodorov
@@ -99,7 +97,7 @@ public class ArtifactMetadataServiceImpl
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        ArtifactLocationGenerateMetadataOperation operation = new ArtifactLocationGenerateMetadataOperation(mavenMetadataManager);
+        ArtifactLocationGenerateMavenMetadataOperation operation = new ArtifactLocationGenerateMavenMetadataOperation(mavenMetadataManager);
         operation.setStorage(storage);
         operation.setRepository(repository);
         operation.setBasePath(basePath);
@@ -146,7 +144,8 @@ public class ArtifactMetadataServiceImpl
     }
 
     @Override
-    public void addVersion(Metadata metadata, String version)
+    public void addVersion(Metadata metadata,
+                           String version)
     {
         if (!metadata.getVersioning().getVersions().contains(version))
         {
@@ -284,7 +283,7 @@ public class ArtifactMetadataServiceImpl
                                                                                             false);
 
         List<SnapshotVersion> snapshotVersions = snapshotMetadata.getVersioning().getSnapshotVersions();
-        for (Iterator<SnapshotVersion> iterator = snapshotVersions.iterator(); iterator.hasNext();)
+        for (Iterator<SnapshotVersion> iterator = snapshotVersions.iterator(); iterator.hasNext(); )
         {
             SnapshotVersion snapshotVersion = iterator.next();
             if (snapshotVersion.getVersion().equals(version) &&
@@ -294,9 +293,9 @@ public class ArtifactMetadataServiceImpl
 
                 logger.debug("Removed timestamped SNAPSHOT (" + version +
                              (classifier != null ? ":" + classifier :
-                             (snapshotVersion.getClassifier() != null && !snapshotVersion.getClassifier().equals("") ?
-                              ":" + snapshotVersion.getClassifier() + ":" : ":") +
-                             snapshotVersion.getExtension()) + ") from metadata.");
+                              (snapshotVersion.getClassifier() != null && !snapshotVersion.getClassifier().equals("") ?
+                               ":" + snapshotVersion.getClassifier() + ":" : ":") +
+                              snapshotVersion.getExtension()) + ") from metadata.");
             }
         }
 
@@ -328,11 +327,14 @@ public class ArtifactMetadataServiceImpl
 
         try
         {
-            File artifactFile = storageProvider.getFileImplementation(repoPath.getPath(), metadataPath).getCanonicalFile();
+            File artifactFile = storageProvider.getFileImplementation(repoPath.getPath(),
+                                                                      metadataPath).getCanonicalFile();
             if (!artifactFile.isFile())
             {
-                String version = artifactFile.getPath().substring(artifactFile.getPath().lastIndexOf(File.separatorChar) + 1);
-                java.nio.file.Path path = Paths.get(artifactFile.getPath().substring(0, artifactFile.getPath().lastIndexOf(File.separatorChar)));
+                String version = artifactFile.getPath().substring(
+                        artifactFile.getPath().lastIndexOf(File.separatorChar) + 1);
+                java.nio.file.Path path = Paths.get(
+                        artifactFile.getPath().substring(0, artifactFile.getPath().lastIndexOf(File.separatorChar)));
 
                 Metadata metadata = mavenMetadataManager.readMetadata(path);
                 if (metadata != null && metadata.getVersioning() != null

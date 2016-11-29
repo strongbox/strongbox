@@ -21,11 +21,11 @@ import java.util.Map;
 /**
  * @author Kate Novik
  */
-public class RebuildMetadataCronJob
+public class RebuildMavenMetadataCronJob
         extends JavaCronJob
 {
 
-    private final Logger logger = LoggerFactory.getLogger(RebuildMetadataCronJob.class);
+    private final Logger logger = LoggerFactory.getLogger(RebuildMavenMetadataCronJob.class);
 
     @Autowired
     private ArtifactMetadataService artifactMetadataService;
@@ -41,7 +41,7 @@ public class RebuildMetadataCronJob
     protected void executeInternal(JobExecutionContext jobExecutionContext)
             throws JobExecutionException
     {
-        logger.debug("Executed RebuildMetadataCronJob.");
+        logger.debug("Executed RebuildMavenMetadataCronJob.");
 
         CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap().get("config");
         try
