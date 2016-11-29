@@ -50,9 +50,14 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <systemPropertyVariables>
-                        <strongbox.home>${basedir}/target/strongbox</strongbox.home>
-                        <strongbox.vault>${basedir}/target/strongbox-vault</strongbox.vault>
-                        <strongbox.storage.booter.basedir>${basedir}/target/strongbox-vault/storages</strongbox.storage.booter.basedir>
+                        <strongbox.home>${project.build.directory}/strongbox</strongbox.home>
+                        <strongbox.vault>${project.build.directory}/strongbox-vault</strongbox.vault>
+                        <strongbox.storage.booter.basedir>${project.build.directory}/strongbox-vault/storages</strongbox.storage.booter.basedir>
+                        <repository.config.xml>${project.build.directory}/strongbox/etc/conf/strongbox.xml</repository.config.xml>
+                        <ehcache.disk.store.dir>${project.build.directory}/strongbox/cache</ehcache.disk.store.dir>
+                        <logging.dir>${project.build.directory}/strongbox/logs</logging.dir>
+                        <logging.config.file>${project.build.directory}/strongbox/etc/logback.xml</logging.config.file>
+                        <java.io.tmpdir>${project.build.directory}/strongbox-vault}/tmp</java.io.tmpdir>
                         <ehcache.disk.store.dir>${project.build.directory}/strongbox/cache</ehcache.disk.store.dir>
                     </systemPropertyVariables>
                 </configuration>

@@ -5,7 +5,6 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.aws.AwsConfiguration;
 import org.carlspring.strongbox.storage.repository.gcs.GoogleCloudConfiguration;
-import org.carlspring.strongbox.xml.CustomTagService;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.xml.bind.JAXBException;
@@ -16,11 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author carlspring
@@ -77,6 +72,20 @@ public class RepositoryTest
         Configuration unmarshalledConfiguration = parser.parse(new ByteArrayInputStream(serialized.getBytes()));
 
         assertNotNull(unmarshalledConfiguration.getStorage("storage0"));
+    }
+
+    @Test
+    public void testMarshallAndUnmarshallStrongboxConfiguration()
+            throws JAXBException, IOException
+    {
+        File file = new File(ConfigurationResourceResolver.getHomeDirectory() + "/etc/conf/strongbox.xml");
+
+        GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
+        Configuration configuration = parser.parse(file);
+
+        Storage storage = configuration.getStorage("storage0");
+
+        assertNotNull(storage);
     }
 
     private Repository createTestRepositoryWithCustomConfig()

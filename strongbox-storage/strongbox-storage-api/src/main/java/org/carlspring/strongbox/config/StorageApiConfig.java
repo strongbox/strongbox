@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.config;
 
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
 import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
@@ -45,6 +46,9 @@ public class StorageApiConfig
 
     @Autowired
     private ArtifactResolutionServiceImpl artifactResolutionService;
+
+    @Autowired
+    private ConfigurationManager configurationManager;
 
 
     @Bean(name = "checksumCacheManager")

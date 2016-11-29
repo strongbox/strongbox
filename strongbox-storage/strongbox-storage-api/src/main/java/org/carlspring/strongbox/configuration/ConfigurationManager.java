@@ -5,14 +5,18 @@ import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurati
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
+import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.annotation.PostConstruct;
 import javax.xml.bind.JAXBException;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,9 +41,12 @@ public class ConfigurationManager
     @Autowired
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
 
+    private GenericParser<Configuration> parser;
+
+
     public ConfigurationManager()
     {
-        super(Configuration.class);
+        // super(Configuration.class);
         logger.debug("Initializing configuration...");
     }
 
@@ -47,7 +54,9 @@ public class ConfigurationManager
     public synchronized void init()
             throws IOException, JAXBException
     {
-        super.init();
+        // super.init();
+
+        parser = new GenericParser<>(Configuration.class);
 
         setRepositoryStorageRelationships();
         setAllows();
@@ -204,6 +213,33 @@ public class ConfigurationManager
     {
         return configurationResourceResolver.getConfigurationResource("repository.config.xml",
                                                                       "etc/conf/strongbox.xml");
+    }
+
+    public Configuration loadConfigurationFromFileSystem()
+            throws IOException
+    {
+        logger.debug("Loading configuration from XML file...");
+
+        Configuration configuration = null;
+
+        InputStream is = getConfigurationResource().getInputStream();
+
+        try
+        {
+            byte[] bytes = IOUtils.toByteArray(is);
+            ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+
+            System.out.println("Printing XML...");
+            System.out.println(new String(bytes));
+
+            configuration = parser.parse(bais);
+        }
+        catch (Exception e)
+        {
+            logger.error(e.getMessage(), e);
+        }
+
+        return configuration;
     }
 
 }

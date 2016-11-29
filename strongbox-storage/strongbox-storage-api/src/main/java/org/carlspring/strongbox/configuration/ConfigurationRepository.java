@@ -1,18 +1,12 @@
 package org.carlspring.strongbox.configuration;
 
 import org.carlspring.strongbox.services.ServerConfigurationService;
-import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.annotation.PostConstruct;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.util.Arrays;
+import java.io.IOException;
 import java.util.Optional;
 
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
-import com.sun.mail.iap.ByteArray;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +29,9 @@ public class ConfigurationRepository
     @Autowired
     private OObjectDatabaseTx databaseTx;
 
+    @Autowired
+    private ConfigurationManager configurationManager;
+
     private String currentDatabaseId;
 
 
@@ -50,13 +47,15 @@ public class ConfigurationRepository
 
     @PostConstruct
     public synchronized void init()
+            throws IOException
     {
-        logger.info("ConfigurationRepository.init()");
+        logger.debug("ConfigurationRepository.init()");
+
         getDatabase().getEntityManager().registerEntityClass(BinaryConfiguration.class, true);
 
         if (!schemaExists() || getConfiguration() == null)
         {
-            createSettings("repository.config.xml");
+            createSettings();
         }
     }
 
@@ -66,7 +65,8 @@ public class ConfigurationRepository
         return db != null && db.getMetadata().getSchema().existsClass(BinaryConfiguration.class.getSimpleName());
     }
 
-    private synchronized void createSettings(String propertyKey)
+    private synchronized void createSettings()
+            throws IOException
     {
         // skip configuration initialization if config is already in place
         if (currentDatabaseId != null)
@@ -75,47 +75,12 @@ public class ConfigurationRepository
             return;
         }
 
-        logger.debug("Loading configuration from XML file...");
-
-        GenericParser<Configuration> parser = configurationCache.getParser();
-        String filename = System.getProperty(propertyKey);
-        Configuration configuration = null;
-
-        if (filename != null)
-        {
-            File file = new File(filename);
-            try
-            {
-                configuration = parser.parse(file);
-            }
-            catch (Exception e)
-            {
-                logger.error("Unable to parse configuration from file '" + file.getAbsolutePath() + "'!", e);
-            }
-        }
-        else
-        {
-            InputStream is = getClass().getClassLoader().getResourceAsStream("etc/conf/strongbox.xml");
-
-            try
-            {
-                byte[] bytes = IOUtils.toByteArray(is);
-                ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-
-                System.out.println("Printing XML...");
-                System.out.println(new String(bytes));
-
-                configuration = parser.parse(bais);
-            }
-            catch (Exception e)
-            {
-                logger.error("Unable to parse configuration from input stream.", e);
-            }
-        }
+        Configuration configuration = configurationManager.loadConfigurationFromFileSystem();
 
         // Create configuration in database and put it to cache.
         updateConfiguration(configuration);
     }
+
 
     public synchronized Configuration getConfiguration()
     {
@@ -165,6 +130,7 @@ public class ConfigurationRepository
         catch (Exception e)
         {
             logger.error("Unable to save configuration\n\n" + configuration, e);
+
             return Optional.empty();
         }
 
