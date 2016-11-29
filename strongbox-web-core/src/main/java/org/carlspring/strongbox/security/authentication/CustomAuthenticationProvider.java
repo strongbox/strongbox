@@ -50,12 +50,6 @@ public class CustomAuthenticationProvider
                                        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken)
             throws AuthenticationException
     {
-        if (SecurityContextHolder.getContext()
-                                 .getAuthentication() == null)
-        {
-            throw new RuntimeException("Authentication is null");
-        }
-
         return userDetailsService.loadUserByUsername(s);
     }
 
