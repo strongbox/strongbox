@@ -93,9 +93,7 @@ public class NugetPackageController extends BaseArtifactController
                                      @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
                                      HttpServletRequest request)
     {
-        logger.info(String.format("Nuget push request: storageId-[%s]; repositoryId-[%s]",
-                storageId,
-                repositoryId));
+        logger.info(String.format("Nuget push request: storageId-[%s]; repositoryId-[%s]", storageId, repositoryId));
 
         String userName = getUserName();
         if (!verify(userName, apiKey))
@@ -104,7 +102,7 @@ public class NugetPackageController extends BaseArtifactController
         }
 
         String contentType = request.getHeader("content-type");
-        
+
         URI resourceUri;
         try
         {
@@ -113,9 +111,8 @@ public class NugetPackageController extends BaseArtifactController
 
             if (packagePartInputStream == null)
             {
-                logger.error(
-                        String.format("Failed to extract Nuget package from request: storageId-[%s]; repositoryId-[%s]",
-                                storageId, repositoryId));
+                logger.error(String.format("Failed to extract Nuget package from request: storageId-[%s]; repositoryId-[%s]",
+                                           storageId, repositoryId));
                 return ResponseEntity.badRequest().build();
             }
 
@@ -124,16 +121,18 @@ public class NugetPackageController extends BaseArtifactController
         catch (Exception e)
         {
             logger.error(String.format("Failed to process Nuget push request: storageId-[%s]; repositoryId-[%s]",
-                    storageId, repositoryId), e);
+                                       storageId, repositoryId),
+                         e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
 
-        if (resourceUri == null){
-            //  Return 501 status in case of empty package recieved.
-            //  For some reason nuget.exe sends empty package first.
+        if (resourceUri == null)
+        {
+            // Return 501 status in case of empty package recieved.
+            // For some reason nuget.exe sends empty package first.
             return ResponseEntity.status(HttpURLConnection.HTTP_NOT_IMPLEMENTED).build();
         }
-        
+
         return ResponseEntity.created(resourceUri).build();
     }
 
@@ -156,13 +155,12 @@ public class NugetPackageController extends BaseArtifactController
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
         }
 
-        String path = String.format("%s/%s/%s.%s.nupkg", packageId, packageVersion,
-                packageId, packageVersion);
+        String path = String.format("%s/%s/%s.%s.nupkg", packageId, packageVersion, packageId, packageVersion);
 
         try
         {
             InputStream is = (ArtifactInputStream) getArtifactManagementService().resolve(storageId, repositoryId,
-                    path);
+                                                                                          path);
             if (is == null)
             {
                 return ResponseEntity.notFound().build();
@@ -173,9 +171,8 @@ public class NugetPackageController extends BaseArtifactController
                 HttpHeaders headers = new HttpHeaders();
                 headers.add("Content-Length", String.valueOf(nupkgFile.getSize()));
                 headers.add("Content-Disposition",
-                        String.format("attachment; filename=\"%s\"", nupkgFile.getFileName()));
-                return new ResponseEntity<Resource>(new InputStreamResource(nupkgFile.getStream()),
-                        headers,
+                            String.format("attachment; filename=\"%s\"", nupkgFile.getFileName()));
+                return new ResponseEntity<Resource>(new InputStreamResource(nupkgFile.getStream()), headers,
                         HttpStatus.OK);
 
             }
@@ -184,8 +181,9 @@ public class NugetPackageController extends BaseArtifactController
         catch (Exception e)
         {
             logger.error(String.format(
-                    "Failed to process Nuget get request: storageId-[%s]; repositoryId-[%s]; packageId-[%s]; version-[%s]",
-                    storageId, repositoryId, packageId, packageVersion), e);
+                                       "Failed to process Nuget get request: storageId-[%s]; repositoryId-[%s]; packageId-[%s]; version-[%s]",
+                                       storageId, repositoryId, packageId, packageVersion),
+                         e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
@@ -221,11 +219,10 @@ public class NugetPackageController extends BaseArtifactController
 
             byte[] boundary = boundaryString.getBytes();
             MultipartStream multipartStream = new MultipartStream(is, boundary);
-            
 
-            //boolean nextPart = multipartStream.skipPreamble();
+            // boolean nextPart = multipartStream.skipPreamble();
             boolean nextPart = true;
-            
+
             while (nextPart)
             {
                 try
@@ -240,7 +237,7 @@ public class NugetPackageController extends BaseArtifactController
                     {
                         continue;
                     }
-                    
+
                     multipartStream.readBodyData(packagePartOutputStream);
                     nextPart = multipartStream.readBoundary();
                 }
@@ -263,12 +260,13 @@ public class NugetPackageController extends BaseArtifactController
 
         try (TempNupkgFile nupkgFile = new TempNupkgFile(is))
         {
-            if (nupkgFile.getNuspecFile() == null){
+            if (nupkgFile.getNuspecFile() == null)
+            {
                 return null;
             }
-            
+
             String path = String.format("%s/%s/%s.%s.nupkg", nupkgFile.getId(), nupkgFile.getVersion(),
-                    nupkgFile.getId(), nupkgFile.getVersion());
+                                        nupkgFile.getId(), nupkgFile.getVersion());
             artifactManagementService.store(storageId, repositoryId, path, nupkgFile.getStream());
 
             File nuspecFile = File.createTempFile(nupkgFile.getId(), "nuspec");
@@ -279,12 +277,12 @@ public class NugetPackageController extends BaseArtifactController
             path = String.format("%s/%s/%s.nuspec", nupkgFile.getId(), nupkgFile.getVersion(), nupkgFile.getId());
             artifactManagementService.store(storageId, repositoryId, path, new FileInputStream(nuspecFile));
 
-            File hashFile = File.createTempFile(String.format("%s.%s", nupkgFile.getId(),
-                    nupkgFile.getVersion()), "nupkg.sha512");
+            File hashFile = File.createTempFile(String.format("%s.%s", nupkgFile.getId(), nupkgFile.getVersion()),
+                                                "nupkg.sha512");
             nupkgFile.getHash().saveTo(hashFile);
 
             path = String.format("%s/%s/%s.%s.nupkg.sha512", nupkgFile.getId(), nupkgFile.getVersion(),
-                    nupkgFile.getId(), nupkgFile.getVersion());
+                                 nupkgFile.getId(), nupkgFile.getVersion());
             artifactManagementService.store(storageId, repositoryId, path, new FileInputStream(hashFile));
         }
 

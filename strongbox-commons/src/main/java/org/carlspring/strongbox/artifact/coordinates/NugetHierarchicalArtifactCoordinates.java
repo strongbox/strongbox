@@ -24,7 +24,7 @@ public class NugetHierarchicalArtifactCoordinates extends NugetArtifactCoordinat
         String version = matcher.group(2);
         String packageArtifactName = matcher.group(3);
         String packageArtifactType = matcher.group(4);
-        
+
         if (!String.format("%s.%s", packageId, version).startsWith(packageArtifactName))
         {
             return;
