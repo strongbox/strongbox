@@ -18,8 +18,7 @@ public interface UserService
 {
 
     @Transactional
-    User
-         findByUserName(final String username);
+    User findByUserName(final String username);
 
     /**
      * Generates another one 'Security Token' for specific user.<br>
@@ -32,9 +31,9 @@ public interface UserService
      * @return encrypted token
      * @throws JoseException
      */
-    String
-           generateSecurityToken(String id,
-                                 Date expire) throws JoseException;
+    String generateSecurityToken(String id,
+                                 Date expire)
+                                              throws JoseException;
 
     /**
      * @param userName

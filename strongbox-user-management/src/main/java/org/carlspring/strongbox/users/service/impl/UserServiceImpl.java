@@ -179,7 +179,8 @@ class UserServiceImpl
      */
     @Override
     public String generateSecurityToken(String id,
-                                        Date expire) throws JoseException
+                                        Date expire)
+                                                     throws JoseException
     {
         User user = repository.findOne(id);
 
@@ -199,6 +200,6 @@ class UserServiceImpl
         claimMap.put("security-token-key", user.getSecurityTokenKey());
 
         tokenProvider.verifyToken(apiKey, user.getUsername(), claimMap);
-    }    
+    }
     
 }

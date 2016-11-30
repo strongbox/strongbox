@@ -37,14 +37,13 @@ public class SecurityConfig
     public SecurityConfig()
     {
         super();
-        
+
         anonymousAuthenticationFilter = new CustomAnonymousAuthenticationFilter("strongbox-unique-key", "anonymousUser",
                 AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
     }
 
     @PostConstruct
-    public
-           void init()
+    public void init()
     {
         authorizationConfigProvider.getConfig().ifPresent(
                 (config) -> {
@@ -53,59 +52,56 @@ public class SecurityConfig
     }
 
     @Bean
-    public
-           AnonymousAuthenticationFilter anonymousAuthenticationFilter()
+    public AnonymousAuthenticationFilter anonymousAuthenticationFilter()
     {
         return anonymousAuthenticationFilter;
     }
 
     @Override
-    protected
-              void configure(HttpSecurity http) throws Exception
+    protected void configure(HttpSecurity http)
+                                                throws Exception
     {
         http.sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
-                .and()
-                .authorizeRequests()
-                .antMatchers("/docs/**", "/assets/**")
-                .permitAll()
-                .and()
-                .anonymous()
-                .authenticationFilter(anonymousAuthenticationFilter)
-                .and()
-                .authorizeRequests()
-                .anyRequest()
-                .authenticated()
-                .and()
-                .exceptionHandling()
-                .authenticationEntryPoint(unauthorizedEntryPoint())
-                .and()
-                .httpBasic()
-                .and()
-                .csrf()
-                .disable()
-                .formLogin()
-                .and()
-                .logout()
-                .logoutUrl("/logout");
+            .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
+            .and()
+            .authorizeRequests()
+            .antMatchers("/docs/**", "/assets/**")
+            .permitAll()
+            .and()
+            .anonymous()
+            .authenticationFilter(anonymousAuthenticationFilter)
+            .and()
+            .authorizeRequests()
+            .anyRequest()
+            .authenticated()
+            .and()
+            .exceptionHandling()
+            .authenticationEntryPoint(unauthorizedEntryPoint())
+            .and()
+            .httpBasic()
+            .and()
+            .csrf()
+            .disable()
+            .formLogin()
+            .and()
+            .logout()
+            .logoutUrl("/logout");
     }
 
-    public
-           void configure(AuthenticationManagerBuilder auth) throws Exception
+    public void configure(AuthenticationManagerBuilder auth)
+                                                             throws Exception
     {
         auth.authenticationProvider(authenticationProvider);
     }
 
     @Bean
-    public
-           PasswordEncoder passwordEncoder()
+    public PasswordEncoder passwordEncoder()
     {
         return NoOpPasswordEncoder.getInstance();
     }
 
     @Bean(name = "unauthorizedEntryPoint")
-    AuthenticationEntryPoint
-                             unauthorizedEntryPoint()
+    AuthenticationEntryPoint unauthorizedEntryPoint()
     {
         UnauthorizedEntryPoint unauthorizedEntryPoint = new UnauthorizedEntryPoint();
         unauthorizedEntryPoint.setRealmName("Strongbox Realm");
