@@ -5,24 +5,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-<<<<<<< HEAD
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-=======
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.service.UserService;
->>>>>>> branch 'SB-671' of ssh://git@github.com/sbespalov/strongbox
 import org.springframework.cache.CacheManager;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,8 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-<<<<<<< HEAD
-=======
 
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
@@ -40,7 +27,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
->>>>>>> branch 'SB-671' of ssh://git@github.com/sbespalov/strongbox
 
 @Controller
 @RequestMapping("/users")
@@ -160,15 +146,8 @@ public class UserController
             // TODO Due to internal error in spring-data-orientdb
             // com.orientechnologies.orient.client.remote.OStorageRemote cannot be cast to com.orientechnologies.orient.core.storage.impl.local.paginated.OLocalPaginatedStorage
             List<User> users = new LinkedList<>();
-<<<<<<< HEAD
             possibleUsers.get()
                          .forEach(user -> users.add(databaseTx.detach(user, true)));
-=======
-            possibleUsers.get().forEach((user) -> {
-                User u = databaseTx.detach(user, true);
-                users.add(u);
-            });
->>>>>>> branch 'SB-671' of ssh://git@github.com/sbespalov/strongbox
 
             return toResponse(users);
         }

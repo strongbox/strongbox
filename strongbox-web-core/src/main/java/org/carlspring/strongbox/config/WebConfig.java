@@ -3,19 +3,11 @@ package org.carlspring.strongbox.config;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.carlspring.strongbox.StorageIndexingConfig;
 import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
 import org.carlspring.strongbox.mapper.CustomJaxb2RootElementHttpMessageConverter;
-<<<<<<< HEAD
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import java.util.List;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-=======
->>>>>>> branch 'SB-671' of ssh://git@github.com/sbespalov/strongbox
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.EnableCaching;
@@ -33,6 +25,8 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.controller",
