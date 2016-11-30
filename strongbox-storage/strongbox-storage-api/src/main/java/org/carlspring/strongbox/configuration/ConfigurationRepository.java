@@ -3,13 +3,13 @@ package org.carlspring.strongbox.configuration;
 import org.carlspring.strongbox.services.ServerConfigurationService;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Optional;
 
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,16 +20,16 @@ public class ConfigurationRepository
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationRepository.class);
 
-    @Autowired
+    @Inject
     ServerConfigurationService serverConfigurationService;
 
-    @Autowired
+    @Inject
     ConfigurationCache configurationCache;
 
-    @Autowired
+    @Inject
     private OObjectDatabaseTx databaseTx;
 
-    @Autowired
+    @Inject
     private ConfigurationManager configurationManager;
 
     private String currentDatabaseId;

@@ -3,11 +3,11 @@ package org.carlspring.strongbox.configuration;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
@@ -24,7 +24,7 @@ public class ConfigurationCache
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationRepository.class);
 
-    @Autowired
+    @Inject
     CacheManager cacheManager;
 
     private GenericParser<Configuration> parser;

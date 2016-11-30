@@ -8,6 +8,7 @@ import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -19,8 +20,6 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
@@ -28,35 +27,22 @@ import org.springframework.stereotype.Component;
  * @author mtodorov
  */
 @Component
-@Scope("singleton")
 public class ConfigurationManager
         extends AbstractConfigurationManager<Configuration>
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationManager.class);
 
-    @Autowired
-    private ConfigurationResourceResolver configurationResourceResolver;
-
-    @Autowired
+    @Inject
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
 
-    private GenericParser<Configuration> parser;
-
-
-    public ConfigurationManager()
-    {
-        // super(Configuration.class);
-        logger.debug("Initializing configuration...");
-    }
+    private final static GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
 
     @PostConstruct
-    public synchronized void init()
+    public void init()
             throws IOException, JAXBException
     {
-        // super.init();
-
-        parser = new GenericParser<>(Configuration.class);
+        logger.debug("Initializing configuration...");
 
         setRepositoryStorageRelationships();
         setAllows();
@@ -208,10 +194,10 @@ public class ConfigurationManager
     }
 
     @Override
-    public Resource getConfigurationResource()
+    public synchronized Resource getConfigurationResource()
             throws IOException
     {
-        return configurationResourceResolver.getConfigurationResource("repository.config.xml",
+        return ConfigurationResourceResolver.getConfigurationResource("repository.config.xml",
                                                                       "etc/conf/strongbox.xml");
     }
 
@@ -233,6 +219,8 @@ public class ConfigurationManager
             System.out.println(new String(bytes));
 
             configuration = parser.parse(bais);
+
+            bais.close();
         }
         catch (Exception e)
         {

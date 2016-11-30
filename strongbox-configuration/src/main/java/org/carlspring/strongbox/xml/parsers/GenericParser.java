@@ -9,7 +9,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import java.io.*;
-import java.lang.reflect.ParameterizedType;
 import java.net.URL;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -33,7 +32,7 @@ public class GenericParser<T>
 
     private Set<Class> classes = new LinkedHashSet<>();
 
-    private JAXBContext context;
+    private static JAXBContext context;
 
 
     static
@@ -204,7 +203,15 @@ public class GenericParser<T>
     {
         if (context == null)
         {
-            context = JAXBContext.newInstance(classes.toArray(new Class[classes.size()]));
+            try
+            {
+                context = JAXBContext.newInstance(classes.toArray(new Class[classes.size()]));
+            }
+            catch (Exception e)
+            {
+                logger.error("Unable to build JAXB context. ", e);
+                return null;
+            }
         }
 
         return context;

@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.resource;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Component;
 /**
  * @author mtodorov
  */
-@Component("configurationResourceResolver")
+@Component
 public class ConfigurationResourceResolver
 {
 
@@ -23,7 +24,13 @@ public class ConfigurationResourceResolver
     {
     }
 
-    public Resource getConfigurationResource(String propertyKey,
+    @PostConstruct
+    public void init()
+    {
+        logger.debug("Initialize ConfigurationResourceResolver...");
+    }
+
+    public static Resource getConfigurationResource(String propertyKey,
                                              String propertyDefaultValue)
             throws IOException
     {
@@ -33,15 +40,14 @@ public class ConfigurationResourceResolver
     }
 
     /**
-     *
-     * @param configurationPath     The configuration file's path. If null, either propertyKey,
-     *                              or propertyKeyDefaultValue must be specified.
-     * @param propertyKey           The system property key to use when trying to load the configuration.
-     * @param propertyDefaultValue  The default property key value.
+     * @param configurationPath    The configuration file's path. If null, either propertyKey,
+     *                             or propertyKeyDefaultValue must be specified.
+     * @param propertyKey          The system property key to use when trying to load the configuration.
+     * @param propertyDefaultValue The default property key value.
      * @return
      * @throws IOException
      */
-    public Resource getConfigurationResource(String configurationPath,
+    public static Resource getConfigurationResource(String configurationPath,
                                              String propertyKey,
                                              String propertyDefaultValue)
             throws IOException
