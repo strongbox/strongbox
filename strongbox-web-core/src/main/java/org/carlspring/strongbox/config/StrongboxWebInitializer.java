@@ -43,9 +43,9 @@ public class StrongboxWebInitializer extends AbstractDispatcherServletInitialize
                                                                throws ServletException
     {
         super.onStartup(servletContext);
-        
+
         registerFilter(servletContext, true, HeaderMappingFilter.class.getSimpleName(), new HeaderMappingFilter());
-        
+
         String filterName = "springSecurityFilterChain";
         DelegatingFilterProxy springSecurityFilterChain = new DelegatingFilterProxy(
                 filterName);
@@ -61,13 +61,13 @@ public class StrongboxWebInitializer extends AbstractDispatcherServletInitialize
         registration.setAsyncSupported(true);
         EnumSet<DispatcherType> dispatcherTypes = getSecurityDispatcherTypes();
         registration.addMappingForUrlPatterns(dispatcherTypes, !insertBeforeOtherFilters,
-                "/*");
+                                              "/*");
     }
 
     protected EnumSet<DispatcherType> getSecurityDispatcherTypes()
     {
         return EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR,
-                DispatcherType.ASYNC);
+                          DispatcherType.ASYNC);
     }
 
 }
