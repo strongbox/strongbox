@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.handlers;
 
-import org.carlspring.maven.commons.io.filters.PomFilenameFilter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.locator.handlers.AbstractArtifactLocationHandler;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
@@ -17,6 +16,7 @@ import java.util.List;
 import org.apache.maven.artifact.Artifact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.misc.JarFilter;
 
 /**
  * @author Kate Novik.
@@ -45,13 +45,16 @@ public class ArtifactLocationGenerateMavenIndexOperation
     {
         File f = path.toAbsolutePath().toFile();
 
-        String[] list = f.list(new PomFilenameFilter());
+        String[] list = f.list(new JarFilter());
         List<String> filePaths = list != null ? Arrays.asList(list) : new ArrayList<>();
 
         String parentPath = path.getParent().toAbsolutePath().toString();
 
         if (!filePaths.isEmpty())
         {
+            //absolute path to artifact
+            String resultPath = Paths.get(f.getPath(), filePaths.get(0)).toString();
+
             // Don't enter visited paths (i.e. version directories such as 1.2, 1.3, 1.4...)
             if (!getVisitedRootPaths().isEmpty() && getVisitedRootPaths().containsKey(parentPath))
             {
@@ -95,8 +98,8 @@ public class ArtifactLocationGenerateMavenIndexOperation
                     }
                 }
 
-                String artifactPath = parentPath.substring(getRepository().getBasedir().length() + 1,
-                                                           parentPath.length());
+                String artifactPath = resultPath.substring(getRepository().getBasedir().length() + 1,
+                                                           resultPath.length());
 
                 String repositoryId = getRepository().getId();
                 String storageId = getStorage().getId();
