@@ -34,6 +34,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
                  "org.carlspring.strongbox.security",
                  "org.carlspring.strongbox.authentication",
                  "org.carlspring.strongbox.user",
+                 "org.carlspring.strongbox.utils",
                  "org.carlspring.logging" })
 @Import({ CommonConfig.class,
           StrongboxSecurityConfig.class,
@@ -95,4 +96,7 @@ public class WebConfig
                   .setUseRegisteredSuffixPatternMatch(true)
                   .setPathMatcher(antPathMatcher);
     }
+    
+    
+    
 }

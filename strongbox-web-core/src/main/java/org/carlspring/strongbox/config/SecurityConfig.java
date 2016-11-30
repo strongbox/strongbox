@@ -19,6 +19,7 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 
 @Configuration
 @EnableWebSecurity
@@ -75,9 +76,6 @@ public class SecurityConfig
             .anyRequest()
             .authenticated()
             .and()
-            .exceptionHandling()
-            .authenticationEntryPoint(unauthorizedEntryPoint())
-            .and()
             .httpBasic()
             .and()
             .csrf()
@@ -98,15 +96,6 @@ public class SecurityConfig
     public PasswordEncoder passwordEncoder()
     {
         return NoOpPasswordEncoder.getInstance();
-    }
-
-    @Bean(name = "unauthorizedEntryPoint")
-    AuthenticationEntryPoint unauthorizedEntryPoint()
-    {
-        UnauthorizedEntryPoint unauthorizedEntryPoint = new UnauthorizedEntryPoint();
-        unauthorizedEntryPoint.setRealmName("Strongbox Realm");
-
-        return unauthorizedEntryPoint;
     }
 
 }
