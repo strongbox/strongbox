@@ -7,12 +7,15 @@ import javax.inject.Inject;
 import org.carlspring.strongbox.StorageIndexingConfig;
 import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
 import org.carlspring.strongbox.mapper.CustomJaxb2RootElementHttpMessageConverter;
+<<<<<<< HEAD
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+=======
+>>>>>>> branch 'SB-671' of ssh://git@github.com/sbespalov/strongbox
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.EnableCaching;
