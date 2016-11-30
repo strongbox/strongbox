@@ -136,7 +136,6 @@ public class UserController
     @ResponseBody
     ResponseEntity getUsers()
     {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Optional<List<User>> possibleUsers = userService.findAll();
         if (possibleUsers.isPresent())
         {
