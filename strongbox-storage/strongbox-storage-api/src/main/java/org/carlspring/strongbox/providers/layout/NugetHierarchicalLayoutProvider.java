@@ -42,32 +42,31 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
 
     @Override
     @PostConstruct
-    public
-           void register()
+    public void register()
     {
         layoutProviderRegistry.addProvider(ALIAS, this);
         logger.info("Registered layout provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
     }
 
     @Override
-    public
-           String getAlias()
+    public String getAlias()
     {
         return ALIAS;
     }
 
     @Override
-    public
-           NugetHierarchicalArtifactCoordinates getArtifactCoordinates(String path)
+    public NugetHierarchicalArtifactCoordinates getArtifactCoordinates(String path)
     {
         return new NugetHierarchicalArtifactCoordinates(path);
     }
 
     @Override
-    public
-           ArtifactInputStream getInputStream(String storageId,
+    public ArtifactInputStream getInputStream(String storageId,
                                               String repositoryId,
-                                              String path) throws IOException, NoSuchAlgorithmException, ArtifactTransportException
+                                              String path)
+                                                           throws IOException,
+                                                           NoSuchAlgorithmException,
+                                                           ArtifactTransportException
     {
         Storage storage = getConfiguration().getStorage(storageId);
 
@@ -95,10 +94,10 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
     }
 
     @Override
-    public
-           OutputStream getOutputStream(String storageId,
+    public OutputStream getOutputStream(String storageId,
                                         String repositoryId,
-                                        String path) throws IOException
+                                        String path)
+                                                     throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
@@ -111,114 +110,114 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
     }
 
     @Override
-    public
-           boolean containsArtifact(Repository repository,
-                                    ArtifactCoordinates coordinates) throws IOException
+    public boolean containsArtifact(Repository repository,
+                                    ArtifactCoordinates coordinates)
+                                                                     throws IOException
     {
         return false;
     }
 
     @Override
-    public
-           boolean contains(String storageId,
+    public boolean contains(String storageId,
                             String repositoryId,
-                            String path) throws IOException
+                            String path)
+                                         throws IOException
     {
         return false;
     }
 
     @Override
-    public
-           boolean containsPath(Repository repository,
-                                String path) throws IOException
+    public boolean containsPath(Repository repository,
+                                String path)
+                                             throws IOException
     {
         return false;
     }
 
     @Override
-    public
-           String getPathToArtifact(Repository repository,
-                                    ArtifactCoordinates coordinates) throws IOException
+    public String getPathToArtifact(Repository repository,
+                                    ArtifactCoordinates coordinates)
+                                                                     throws IOException
     {
         return null;
     }
 
     @Override
-    public
-           void copy(String srcStorageId,
+    public void copy(String srcStorageId,
                      String srcRepositoryId,
                      String destStorageId,
                      String destRepositoryId,
-                     String path) throws IOException
+                     String path)
+                                  throws IOException
     {
 
     }
 
     @Override
-    public
-           void move(String srcStorageId,
+    public void move(String srcStorageId,
                      String srcRepositoryId,
                      String destStorageId,
                      String destRepositoryId,
-                     String path) throws IOException
+                     String path)
+                                  throws IOException
     {
 
     }
 
     @Override
-    public
-           void delete(String storageId,
+    public void delete(String storageId,
                        String repositoryId,
                        String path,
-                       boolean force) throws IOException
+                       boolean force)
+                                      throws IOException
     {
 
     }
 
     @Override
-    public
-           void deleteMetadata(String storageId,
+    public void deleteMetadata(String storageId,
                                String repositoryId,
-                               String metadataPath) throws IOException
+                               String metadataPath)
+                                                    throws IOException
     {
 
     }
 
     @Override
-    public
-           void deleteTrash(String storageId,
-                            String repositoryId) throws IOException
+    public void deleteTrash(String storageId,
+                            String repositoryId)
+                                                 throws IOException
     {
 
     }
 
     @Override
-    public
-           void deleteTrash() throws IOException
+    public void deleteTrash()
+                              throws IOException
     {
 
     }
 
     @Override
-    public
-           void undelete(String storageId,
+    public void undelete(String storageId,
                          String repositoryId,
-                         String path) throws IOException
+                         String path)
+                                      throws IOException
     {
 
     }
 
     @Override
-    public
-           void undeleteTrash(String storageId,
-                              String repositoryId) throws IOException
+    public void undeleteTrash(String storageId,
+                              String repositoryId)
+                                                   throws IOException
     {
 
     }
 
     @Override
-    public
-           void undeleteTrash() throws IOException
+    public void undeleteTrash()
+                                throws IOException
     {
 
     }
