@@ -16,8 +16,6 @@ import org.jose4j.keys.HmacKey;
 import org.jose4j.lang.JoseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 /**
@@ -45,8 +43,8 @@ public class SecurityTokenProvider
      * @throws Exception
      */
     @Autowired
-    public
-           void init(@Value("${strongbox.security.jwtSecret:secret}") String secret) throws Exception
+    public void init(@Value("${strongbox.security.jwtSecret:secret}") String secret)
+                                                                                     throws Exception
     {
         key = new HmacKey(secret.getBytes("UTF-8"));
     }
@@ -63,10 +61,10 @@ public class SecurityTokenProvider
      * @return encrypted token string.
      * @throws JoseException
      */
-    public
-           String getToken(String subject,
+    public String getToken(String subject,
                            Map<String, String> claimMap,
-                           Date expire) throws JoseException
+                           Date expire)
+                                        throws JoseException
     {
         JwtClaims claims = new JwtClaims();
         claims.setIssuer("Strongbox");
@@ -90,16 +88,15 @@ public class SecurityTokenProvider
      * @param targetSubject
      * @param claimMap
      */
-    public
-           void verifyToken(String token,
+    public void verifyToken(String token,
                             String targetSubject,
                             Map<String, String> claimMap)
     {
         JwtConsumer jwtConsumer = new JwtConsumerBuilder()
-                .setRequireSubject()
-                .setVerificationKey(key)
-                .setRelaxVerificationKeyValidation()
-                .build();
+                                                          .setRequireSubject()
+                                                          .setVerificationKey(key)
+                                                          .setRelaxVerificationKeyValidation()
+                                                          .build();
 
         JwtClaims jwtClaims;
         String subject;
