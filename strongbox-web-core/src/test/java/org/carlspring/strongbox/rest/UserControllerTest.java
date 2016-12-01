@@ -130,6 +130,51 @@ public class UserControllerTest
 
         assertEquals(createdUser, updatedUser);
     }
+    
+    @Test
+    public void testGenerateSecurityToken()
+        throws Exception
+    {
+        User user = buildUser("test-update", "password-update");
+
+        //1. Create user
+        given().contentType("application/json")
+               .param("juser", user)
+               .when()
+               .post("/users/user")
+               .peek() // Use peek() to print the output
+               .then()
+               .statusCode(200) // check http status code
+               .extract()
+               .asString();
+
+        user = retrieveUserByName(user.getUsername());
+        assertNotNull("Created user should have id", user.getId());
+
+        //2. Provide `securityTokenKey`
+        user.setSecurityTokenKey("seecret");
+        String response = given().contentType("application/json")
+                                 .param("juser", user)
+                                 .when()
+                                 .put("/users/user")
+                                 .peek() // Use peek() to print the output
+                                 .then()
+                                 .statusCode(200) // check http status code
+                                 .extract()
+                                 .asString();
+        user = objectMapper.readValue(response, User.class);
+        assertNotNull(user.getSecurityTokenKey());
+
+        //3. Generate token
+        response = given().when()
+                          .get("/users/user/test-update/generate-security-token")
+                          .peek() // Use peek() to print the output
+                          .then()
+                          .statusCode(200) // check http status code
+                          .extract()
+                          .asString();
+        assertEquals(200, response.length());
+    }
 
     @Test
     public void testDeleteUser()
