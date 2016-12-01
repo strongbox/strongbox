@@ -5,19 +5,15 @@ import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurati
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
-import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Map;
 
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -36,12 +32,13 @@ public class ConfigurationManager
     @Inject
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
 
-    private final static GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
 
     @PostConstruct
-    public void init()
+    public synchronized void init()
             throws IOException, JAXBException
     {
+        super.init();
+
         logger.debug("Initializing configuration...");
 
         setRepositoryStorageRelationships();
@@ -199,35 +196,6 @@ public class ConfigurationManager
     {
         return ConfigurationResourceResolver.getConfigurationResource("repository.config.xml",
                                                                       "etc/conf/strongbox.xml");
-    }
-
-    public Configuration loadConfigurationFromFileSystem()
-            throws IOException
-    {
-        logger.debug("Loading configuration from XML file...");
-
-        Configuration configuration = null;
-
-        InputStream is = getConfigurationResource().getInputStream();
-
-        try
-        {
-            byte[] bytes = IOUtils.toByteArray(is);
-            ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-
-            System.out.println("Printing XML...");
-            System.out.println(new String(bytes));
-
-            configuration = parser.parse(bais);
-
-            bais.close();
-        }
-        catch (Exception e)
-        {
-            logger.error(e.getMessage(), e);
-        }
-
-        return configuration;
     }
 
 }

@@ -32,7 +32,7 @@ public class GenericParser<T>
 
     private Set<Class> classes = new LinkedHashSet<>();
 
-    private static JAXBContext context;
+    private JAXBContext context;
 
 
     static
@@ -54,6 +54,24 @@ public class GenericParser<T>
     public GenericParser()
     {
         this.classes.addAll(CustomTagService.getInstance().getImplementations());
+    }
+
+    public GenericParser(boolean useServiceLoader)
+    {
+        if (useServiceLoader)
+        {
+            this.classes.addAll(CustomTagService.getInstance().getImplementations());
+        }
+    }
+
+    public GenericParser(boolean useServiceLoader, Class... classes)
+    {
+        Collections.addAll(this.classes, classes);
+
+        if (useServiceLoader)
+        {
+            this.classes.addAll(CustomTagService.getInstance().getImplementations());
+        }
     }
 
     public GenericParser(Class... classes)

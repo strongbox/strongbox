@@ -50,10 +50,7 @@ public class UsersConfig
     
     @Autowired
     private CacheManager cacheManager;
-    
-    @Autowired
-    private ConfigurationResourceResolver configurationResourceResolver;
-    
+
     @Autowired
     private AuthorizationConfigProvider authorizationConfigProvider;
 
@@ -140,7 +137,7 @@ public class UsersConfig
     private Resource getUsersConfigurationResource()
             throws IOException
     {
-        return configurationResourceResolver.getConfigurationResource("users.config.xml",
+        return ConfigurationResourceResolver.getConfigurationResource("users.config.xml",
                                                                       "etc/conf/security-users.xml");
     }
 

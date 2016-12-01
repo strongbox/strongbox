@@ -41,9 +41,6 @@ public class AuthorizationConfigProvider
     private static final Logger logger = LoggerFactory.getLogger(AuthorizationConfigProvider.class);
 
     @Autowired
-    ConfigurationResourceResolver configurationResourceResolver;
-
-    @Autowired
     AuthorizationConfigService configService;
 
     private GenericParser<AuthorizationConfig> parser;
@@ -174,7 +171,7 @@ public class AuthorizationConfigProvider
     private Resource getConfigurationResource()
             throws IOException
     {
-        return configurationResourceResolver.getConfigurationResource("authorization.config.xml",
+        return ConfigurationResourceResolver.getConfigurationResource("authorization.config.xml",
                                                                       "etc/conf/security-authorization.xml");
     }
 
@@ -184,4 +181,5 @@ public class AuthorizationConfigProvider
 
         String name(Object o);
     }
+
 }

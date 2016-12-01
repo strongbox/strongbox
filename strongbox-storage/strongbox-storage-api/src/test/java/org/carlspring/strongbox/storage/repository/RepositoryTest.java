@@ -75,6 +75,34 @@ public class RepositoryTest
     }
 
     @Test
+    public void testMarshallAndUnmarshallSimpleConfigurationWithoutServiceLoader()
+            throws JAXBException
+    {
+        Storage storage = new Storage("storage0");
+
+        Repository repository = new Repository("test-repository");
+        repository.setStorage(storage);
+
+        storage.addOrUpdateRepository(repository);
+
+        Configuration configuration = new Configuration();
+        configuration.addStorage(storage);
+
+        GenericParser<Configuration> parser = new GenericParser<>(false, Configuration.class);
+
+        String serialized = parser.serialize(configuration);
+
+        System.out.println(serialized);
+
+        assertFalse(serialized.contains("<aws-configuration bucket=\"test-bucket\" key=\"test-key\"/>"));
+        assertFalse(serialized.contains("<google-cloud-configuration bucket=\"test-bucket\" key=\"test-key\"/>"));
+
+        Configuration unmarshalledConfiguration = parser.parse(new ByteArrayInputStream(serialized.getBytes()));
+
+        assertNotNull(unmarshalledConfiguration.getStorage("storage0"));
+    }
+
+    @Test
     public void testMarshallAndUnmarshallStrongboxConfiguration()
             throws JAXBException, IOException
     {

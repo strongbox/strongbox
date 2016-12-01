@@ -4,7 +4,6 @@ import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.configuration.ConfigurationRepository;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.HttpConnectionPool;
@@ -13,11 +12,6 @@ import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.RuleSet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -25,6 +19,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author mtodorov
@@ -43,8 +43,6 @@ public class ConfigurationManagementServiceImpl
     @Autowired
     ConfigurationRepository configurationRepository;
 
-    @Autowired
-    private ConfigurationResourceResolver configurationResourceResolver;
 
     @Override
     public void setConfiguration(Configuration configuration)
@@ -394,16 +392,6 @@ public class ConfigurationManagementServiceImpl
     public void setConfigurationManager(ConfigurationManager configurationManager)
     {
         this.configurationManager = configurationManager;
-    }
-
-    public ConfigurationResourceResolver getConfigurationResourceResolver()
-    {
-        return configurationResourceResolver;
-    }
-
-    public void setConfigurationResourceResolver(ConfigurationResourceResolver configurationResourceResolver)
-    {
-        this.configurationResourceResolver = configurationResourceResolver;
     }
 
 }

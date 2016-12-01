@@ -1,37 +1,21 @@
 package org.carlspring.strongbox.resource;
 
-import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Component;
 
 /**
  * @author mtodorov
  */
-@Component
 public class ConfigurationResourceResolver
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(ConfigurationResourceResolver.class);
-
-    public ConfigurationResourceResolver()
-    {
-    }
-
-    @PostConstruct
-    public void init()
-    {
-        logger.debug("Initialize ConfigurationResourceResolver...");
-    }
 
     public static Resource getConfigurationResource(String propertyKey,
-                                             String propertyDefaultValue)
+                                                    String propertyDefaultValue)
             throws IOException
     {
         final String configurationPath = ConfigurationResourceResolver.getVaultDirectory() + "/" + propertyDefaultValue;
@@ -48,8 +32,8 @@ public class ConfigurationResourceResolver
      * @throws IOException
      */
     public static Resource getConfigurationResource(String configurationPath,
-                                             String propertyKey,
-                                             String propertyDefaultValue)
+                                                    String propertyKey,
+                                                    String propertyDefaultValue)
             throws IOException
     {
         String filename;
