@@ -228,7 +228,7 @@ public class UserController
     @PreAuthorize("hasAuthority('UPDATE_USER')")
     @RequestMapping(value = "user/{name}/generate-security-token", method = RequestMethod.GET)
     public ResponseEntity generateSecurityToken(@ApiParam(value = "The name of the user") @PathVariable String name)
-            throws Exception    
+                                                                                                                     throws Exception
     {
         User user = userService.findByUserName(name);
         if (user == null || user.getId() == null)
@@ -237,7 +237,7 @@ public class UserController
         }
 
         String result = userService.generateSecurityToken(user.getId(), null);
-        
+
         return ResponseEntity.ok(result);
     }
     

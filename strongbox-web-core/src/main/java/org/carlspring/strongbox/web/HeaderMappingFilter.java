@@ -51,7 +51,6 @@ import edu.emory.mathcs.backport.java.util.Collections;
  * @author Sergey Bespalov
  *
  */
-// @WebFilter(filterName = "headerMappingFilter", urlPatterns = "/storages/*")
 public class HeaderMappingFilter implements Filter
 {
 
@@ -173,7 +172,8 @@ public class HeaderMappingFilter implements Filter
             {
                 return target.getHeaders(name);
             }
-            Enumeration<String> result = Collections.enumeration(Arrays.asList(new String[]{getHeader(name)}));;
+            Enumeration<String> result = Collections.enumeration(Arrays.asList(new String[] { getHeader(name) }));
+            ;
             return result;
         }
 

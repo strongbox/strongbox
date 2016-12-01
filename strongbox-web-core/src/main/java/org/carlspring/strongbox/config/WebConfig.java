@@ -72,7 +72,8 @@ public class WebConfig
         StringHttpMessageConverter stringConverter = new StringHttpMessageConverter();
         stringConverter.setWriteAcceptCharset(false);
 
-        converters.add(new ByteArrayHttpMessageConverter()); // if your argument is a byte[]
+        converters.add(new ByteArrayHttpMessageConverter()); // if your argument
+                                                             // is a byte[]
         converters.add(stringConverter);
         converters.add(new FormHttpMessageConverter());
         converters.add(jackson2Converter());
@@ -96,7 +97,5 @@ public class WebConfig
                   .setUseRegisteredSuffixPatternMatch(true)
                   .setPathMatcher(antPathMatcher);
     }
-    
-    
-    
+
 }
