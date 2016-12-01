@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.providers.layout;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
@@ -75,22 +74,10 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
         Repository repository = storage.getRepository(repositoryId);
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
 
-        final File repoPath = storageProvider.getFileImplementation(storage.getRepository(repositoryId).getBasedir());
-        final File artifactFile = storageProvider.getFileImplementation(repoPath.getPath(), path).getCanonicalFile();
-
-        logger.debug(" -> Checking for " + artifactFile.getCanonicalPath() + "...");
-
-        if (artifactFile.exists())
-        {
-            logger.debug("Resolved " + artifactFile.getCanonicalPath() + "!");
-
-            ArtifactInputStream ais = storageProvider.getInputStreamImplementation(artifactFile.getAbsolutePath());
-            ais.setLength(artifactFile.length());
-
-            return ais;
-        }
-
-        return null;
+        String storagePath = storage.getRepository(repositoryId).getBasedir() + '/' + path;
+        ArtifactInputStream ais = storageProvider.getInputStreamImplementation(storagePath);
+        
+        return ais;
     }
 
     @Override
@@ -101,7 +88,7 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
-
+        
         NugetHierarchicalArtifactCoordinates coordinates = new NugetHierarchicalArtifactCoordinates(path);
         ArtifactFile artifactFile = new ArtifactFile(repository, coordinates);
         artifactFile.createParents();
