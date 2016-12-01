@@ -72,8 +72,7 @@ public class WebConfig
         StringHttpMessageConverter stringConverter = new StringHttpMessageConverter();
         stringConverter.setWriteAcceptCharset(false);
 
-        converters.add(new ByteArrayHttpMessageConverter()); // if your argument
-                                                             // is a byte[]
+        converters.add(new ByteArrayHttpMessageConverter()); // if your argument is a byte[]
         converters.add(stringConverter);
         converters.add(new FormHttpMessageConverter());
         converters.add(jackson2Converter());

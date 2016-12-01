@@ -44,17 +44,17 @@ public class NugetHierarchicalArtifactCoordinates extends NugetArtifactCoordinat
         if (typeLocal.equals("nuspec"))
         {
             return String.format("%s/%s/%s.%s",
-                    idLocal,
-                    versionLocal,
-                    idLocal,
-                    typeLocal);
+                                 idLocal,
+                                 versionLocal,
+                                 idLocal,
+                                 typeLocal);
         }
         return String.format("%s/%s/%s.%s.%s",
-                idLocal,
-                versionLocal,
-                idLocal,
-                versionLocal,
-                typeLocal);
+                             idLocal,
+                             versionLocal,
+                             idLocal,
+                             versionLocal,
+                             typeLocal);
     }
 
 }

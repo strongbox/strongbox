@@ -64,9 +64,9 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
     public ArtifactInputStream getInputStream(String storageId,
                                               String repositoryId,
                                               String path)
-                                                           throws IOException,
-                                                           NoSuchAlgorithmException,
-                                                           ArtifactTransportException
+        throws IOException,
+        NoSuchAlgorithmException,
+        ArtifactTransportException
     {
         Storage storage = getConfiguration().getStorage(storageId);
 
@@ -97,7 +97,7 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
     public OutputStream getOutputStream(String storageId,
                                         String repositoryId,
                                         String path)
-                                                     throws IOException
+        throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
@@ -112,7 +112,7 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
     @Override
     public boolean containsArtifact(Repository repository,
                                     ArtifactCoordinates coordinates)
-                                                                     throws IOException
+        throws IOException
     {
         return false;
     }
@@ -121,7 +121,7 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
     public boolean contains(String storageId,
                             String repositoryId,
                             String path)
-                                         throws IOException
+        throws IOException
     {
         return false;
     }
@@ -129,7 +129,7 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
     @Override
     public boolean containsPath(Repository repository,
                                 String path)
-                                             throws IOException
+        throws IOException
     {
         return false;
     }
@@ -137,7 +137,7 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
     @Override
     public String getPathToArtifact(Repository repository,
                                     ArtifactCoordinates coordinates)
-                                                                     throws IOException
+        throws IOException
     {
         return null;
     }
@@ -148,7 +148,7 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
                      String destStorageId,
                      String destRepositoryId,
                      String path)
-                                  throws IOException
+        throws IOException
     {
 
     }
@@ -159,7 +159,7 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
                      String destStorageId,
                      String destRepositoryId,
                      String path)
-                                  throws IOException
+        throws IOException
     {
 
     }
@@ -169,7 +169,7 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
                        String repositoryId,
                        String path,
                        boolean force)
-                                      throws IOException
+        throws IOException
     {
 
     }
@@ -178,7 +178,7 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
     public void deleteMetadata(String storageId,
                                String repositoryId,
                                String metadataPath)
-                                                    throws IOException
+        throws IOException
     {
 
     }
@@ -186,14 +186,14 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
     @Override
     public void deleteTrash(String storageId,
                             String repositoryId)
-                                                 throws IOException
+        throws IOException
     {
 
     }
 
     @Override
     public void deleteTrash()
-                              throws IOException
+        throws IOException
     {
 
     }
@@ -202,7 +202,7 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
     public void undelete(String storageId,
                          String repositoryId,
                          String path)
-                                      throws IOException
+        throws IOException
     {
 
     }
@@ -210,14 +210,14 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
     @Override
     public void undeleteTrash(String storageId,
                               String repositoryId)
-                                                   throws IOException
+        throws IOException
     {
 
     }
 
     @Override
     public void undeleteTrash()
-                                throws IOException
+        throws IOException
     {
 
     }
