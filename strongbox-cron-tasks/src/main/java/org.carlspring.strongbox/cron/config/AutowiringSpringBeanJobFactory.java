@@ -20,7 +20,6 @@ public final class AutowiringSpringBeanJobFactory
 
     @Override
     public void setApplicationContext(final ApplicationContext context)
-            throws BeansException
     {
         beanFactory = context.getAutowireCapableBeanFactory();
 
