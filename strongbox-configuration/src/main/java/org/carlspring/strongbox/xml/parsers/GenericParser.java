@@ -2,7 +2,6 @@ package org.carlspring.strongbox.xml.parsers;
 
 import org.carlspring.strongbox.url.ClasspathURLStreamHandler;
 import org.carlspring.strongbox.url.ClasspathURLStreamHandlerFactory;
-import org.carlspring.strongbox.xml.CustomTagService;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -12,12 +11,14 @@ import java.io.*;
 import java.net.URL;
 import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.ServiceConfigurationError;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Random; 
+
 
 /**
  * @author mtodorov
@@ -52,57 +53,18 @@ public class GenericParser<T>
         }
     }
 
-    public GenericParser()
-    {
-        this(true, (Class[]) null);
-    }
-
-    public GenericParser(boolean useServiceLoader)
-    {
-        this(useServiceLoader, (Class[]) null);
-    }
-
     public GenericParser(Class... classes)
     {
-        this(true, classes);
-    }
-
-    public GenericParser(boolean useServiceLoader,
-                         Class... classes)
-    {
-        if (useServiceLoader)
-        {
-            addCustomImplementations();
-        }
-
-        if (classes != null)
-        {
-            Collections.addAll(this.classes, classes);
-        }
-    }
-
-    private void addCustomImplementations()
-    {
-        try
-        {
-            this.classes.addAll(CustomTagService.getInstance().getImplementations());
-
-            StringBuilder classNames = new StringBuilder();
-            classes.forEach(clazz -> classNames.append("\n\t").append(clazz.getName()));
-
-            logger.info("[addCustomImplementations] classes " + classNames);
-        }
-        catch (ServiceConfigurationError e)
-        {
-            logger.error("Unable to load custom service providers.", e);
-        }
+        System.out.println("testing jenkins sonar check.");
+    
+        Collections.addAll(this.classes, classes);
     }
 
     public T parse(File file)
             throws JAXBException, IOException
     {
         T object = null;
-
+        
         try (FileInputStream is = new FileInputStream(file))
         {
             object = parse(is);
@@ -239,19 +201,7 @@ public class GenericParser<T>
     {
         if (context == null)
         {
-            try
-            {
-                context = JAXBContext.newInstance(classes.toArray(new Class[classes.size()]));
-            }
-            catch (Throwable e)
-            {
-                if (e.getCause() != null)
-                {
-                    e = e.getCause();
-                }
-
-                throw new RuntimeException("Unable to build JAXB context. ", e);
-            }
+            context = JAXBContext.newInstance(classes.toArray(new Class[classes.size()]));
         }
 
         return context;
