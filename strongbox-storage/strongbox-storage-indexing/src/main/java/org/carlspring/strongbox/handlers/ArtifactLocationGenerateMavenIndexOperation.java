@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.handlers;
 
+import org.carlspring.maven.commons.io.filters.PomFilenameFilter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.locator.handlers.AbstractArtifactLocationHandler;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
@@ -45,78 +46,83 @@ public class ArtifactLocationGenerateMavenIndexOperation
     {
         File f = path.toAbsolutePath().toFile();
 
-        String[] list = f.list(new JarFilter());
-        List<String> filePaths = list != null ? Arrays.asList(list) : new ArrayList<>();
+        String[] list = f.list(new PomFilenameFilter());
 
-        String parentPath = path.getParent().toAbsolutePath().toString();
-
-        if (!filePaths.isEmpty())
+        if (list != null)
         {
-            //absolute path to artifact
-            String resultPath = Paths.get(f.getPath(), filePaths.get(0)).toString();
+            String[] listJar = f.list(new JarFilter());
+            List<String> filePaths = listJar != null ? Arrays.asList(listJar) : new ArrayList<>();
 
-            // Don't enter visited paths (i.e. version directories such as 1.2, 1.3, 1.4...)
-            if (!getVisitedRootPaths().isEmpty() && getVisitedRootPaths().containsKey(parentPath))
+            String parentPath = path.getParent().toAbsolutePath().toString();
+
+            if (!filePaths.isEmpty())
             {
-                List<File> visitedVersionPaths = getVisitedRootPaths().get(parentPath);
+                //absolute path to artifact
+                String resultPath = Paths.get(f.getPath(), filePaths.get(0)).toString();
 
-                if (visitedVersionPaths.contains(f))
+                // Don't enter visited paths (i.e. version directories such as 1.2, 1.3, 1.4...)
+                if (!getVisitedRootPaths().isEmpty() && getVisitedRootPaths().containsKey(parentPath))
                 {
-                    return;
-                }
-            }
+                    List<File> visitedVersionPaths = getVisitedRootPaths().get(parentPath);
 
-            if (logger.isDebugEnabled())
-            {
-                // We're using System.out.println() here for clarity and due to the length of the lines
-                System.out.println(parentPath);
-            }
-
-            // The current directory is out of the tree
-            if (previousPath != null && !parentPath.startsWith(previousPath))
-            {
-                getVisitedRootPaths().remove(previousPath);
-                previousPath = parentPath;
-            }
-
-            if (previousPath == null)
-            {
-                previousPath = parentPath;
-            }
-
-            List<File> versionDirectories = getVersionDirectories(Paths.get(parentPath));
-            if (versionDirectories != null)
-            {
-                getVisitedRootPaths().put(parentPath, versionDirectories);
-
-                if (logger.isDebugEnabled())
-                {
-                    for (File directory : versionDirectories)
+                    if (visitedVersionPaths.contains(f))
                     {
-                        // We're using System.out.println() here for clarity and due to the length of the lines
-                        System.out.println(" " + directory.getAbsolutePath());
+                        return;
                     }
                 }
 
-                String artifactPath = resultPath.substring(getRepository().getBasedir().length() + 1,
-                                                           resultPath.length());
-
-                String repositoryId = getRepository().getId();
-                String storageId = getStorage().getId();
-
-                RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(
-                        storageId.concat(":").concat(repositoryId));
-
-                File artifactFile = new File(repositoryId, artifactPath);
-                Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
-
-                try
+                if (logger.isDebugEnabled())
                 {
-                    indexer.addArtifactToIndex(repositoryId, artifactFile, artifact);
+                    // We're using System.out.println() here for clarity and due to the length of the lines
+                    System.out.println(parentPath);
                 }
-                catch (IOException e)
+
+                // The current directory is out of the tree
+                if (previousPath != null && !parentPath.startsWith(previousPath))
                 {
-                    logger.error("Failed to add artifact to index " + artifactPath, e);
+                    getVisitedRootPaths().remove(previousPath);
+                    previousPath = parentPath;
+                }
+
+                if (previousPath == null)
+                {
+                    previousPath = parentPath;
+                }
+
+                List<File> versionDirectories = getVersionDirectories(Paths.get(parentPath));
+                if (versionDirectories != null)
+                {
+                    getVisitedRootPaths().put(parentPath, versionDirectories);
+
+                    if (logger.isDebugEnabled())
+                    {
+                        for (File directory : versionDirectories)
+                        {
+                            // We're using System.out.println() here for clarity and due to the length of the lines
+                            System.out.println(" " + directory.getAbsolutePath());
+                        }
+                    }
+
+                    String artifactPath = resultPath.substring(getRepository().getBasedir().length() + 1,
+                                                               resultPath.length());
+
+                    String repositoryId = getRepository().getId();
+                    String storageId = getStorage().getId();
+
+                    RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(
+                            storageId.concat(":").concat(repositoryId));
+
+                    File artifactFile = new File(repositoryId, artifactPath);
+                    Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
+
+                    try
+                    {
+                        indexer.addArtifactToIndex(repositoryId, artifactFile, artifact);
+                    }
+                    catch (IOException e)
+                    {
+                        logger.error("Failed to add artifact to index " + artifactPath, e);
+                    }
                 }
             }
         }

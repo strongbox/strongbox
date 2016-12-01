@@ -4,8 +4,6 @@ import org.carlspring.strongbox.cron.api.jobs.RebuildMavenIndexesCronJob;
 import org.carlspring.strongbox.cron.config.JobManager;
 import org.carlspring.strongbox.cron.context.CronTaskTest;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
-import org.carlspring.strongbox.cron.exceptions.CronTaskException;
-import org.carlspring.strongbox.cron.exceptions.CronTaskNotFoundException;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
@@ -19,19 +17,14 @@ import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.io.File;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-import org.apache.lucene.queryparser.classic.ParseException;
+
 import org.apache.maven.artifact.Artifact;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.quartz.SchedulerException;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -91,7 +84,7 @@ public class RebuildMavenIndexesCronJobTest
 
     @Before
     public void setUp()
-            throws NoSuchAlgorithmException, XmlPullParserException, IOException, JAXBException
+            throws Exception
     {
         if (!initialized)
         {
@@ -144,8 +137,7 @@ public class RebuildMavenIndexesCronJobTest
                                         String storageId,
                                         String repositoryId,
                                         String basePath)
-            throws ClassNotFoundException, CronTaskException, InstantiationException, SchedulerException,
-                   IllegalAccessException
+            throws Exception
     {
         CronTaskConfiguration cronTaskConfiguration = new CronTaskConfiguration();
         cronTaskConfiguration.setName(name);
@@ -161,32 +153,22 @@ public class RebuildMavenIndexesCronJobTest
     }
 
     public void deleteRebuildCronJobConfig(String name)
-            throws SchedulerException, CronTaskNotFoundException, ClassNotFoundException
+            throws Exception
     {
         List<CronTaskConfiguration> confs = cronTaskConfigurationService.getConfiguration(name);
 
-        confs.forEach(cronTaskConfiguration ->
-                      {
-                          assertNotNull(cronTaskConfiguration);
-                          try
-                          {
-                              cronTaskConfigurationService.deleteConfiguration(cronTaskConfiguration);
-                          }
-                          catch (Exception e)
-                          {
-                              throw new RuntimeException(e);
-                          }
-                      });
+        for (CronTaskConfiguration cnf : confs)
+        {
+            assertNotNull(cnf);
+            cronTaskConfigurationService.deleteConfiguration(cnf);
+        }
 
         assertNull(cronTaskConfigurationService.findOne(name));
     }
 
     @Test
     public void testRebuildArtifactsIndexes()
-            throws NoSuchAlgorithmException, XmlPullParserException,
-                   IOException, ClassNotFoundException, SchedulerException,
-                   InstantiationException, CronTaskException, IllegalAccessException,
-                   CronTaskNotFoundException, InterruptedException, ParseException
+            throws Exception
     {
         String jobName = "RebuildIndex-1";
 
@@ -211,10 +193,7 @@ public class RebuildMavenIndexesCronJobTest
 
     @Test
     public void testRebuildIndexesInRepository()
-            throws NoSuchAlgorithmException, XmlPullParserException,
-                   IOException, ClassNotFoundException, SchedulerException,
-                   InstantiationException, CronTaskException, IllegalAccessException,
-                   CronTaskNotFoundException, InterruptedException, ParseException
+            throws Exception
     {
         String jobName = "RebuildIndex-2";
 
@@ -243,10 +222,7 @@ public class RebuildMavenIndexesCronJobTest
 
     @Test
     public void testRebuildIndexesInStorage()
-            throws NoSuchAlgorithmException, XmlPullParserException,
-                   IOException, ClassNotFoundException, SchedulerException,
-                   InstantiationException, CronTaskException, IllegalAccessException,
-                   CronTaskNotFoundException, InterruptedException, ParseException
+            throws Exception
     {
         String jobName = "RebuildIndex-3";
 
@@ -275,10 +251,7 @@ public class RebuildMavenIndexesCronJobTest
 
     @Test
     public void testRebuildIndexesInStorages()
-            throws NoSuchAlgorithmException, XmlPullParserException,
-                   IOException, ClassNotFoundException, SchedulerException,
-                   InstantiationException, CronTaskException, IllegalAccessException,
-                   CronTaskNotFoundException, InterruptedException, ParseException
+            throws Exception
     {
         String jobName = "RebuildIndex-4";
 

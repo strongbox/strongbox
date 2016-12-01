@@ -89,7 +89,7 @@ public class RebuildMavenMetadataCronJobTest
 
     @Before
     public void setUp()
-            throws NoSuchAlgorithmException, XmlPullParserException, IOException, JAXBException
+            throws Exception
     {
         if (!initialized)
         {
@@ -145,8 +145,7 @@ public class RebuildMavenMetadataCronJobTest
                                         String storageId,
                                         String repositoryId,
                                         String basePath)
-            throws ClassNotFoundException, CronTaskException, InstantiationException, SchedulerException,
-                   IllegalAccessException
+            throws Exception
     {
         CronTaskConfiguration cronTaskConfiguration = new CronTaskConfiguration();
         cronTaskConfiguration.setName(name);
@@ -162,32 +161,22 @@ public class RebuildMavenMetadataCronJobTest
     }
 
     public void deleteRebuildCronJobConfig(String name)
-            throws SchedulerException, CronTaskNotFoundException, ClassNotFoundException
+            throws Exception
     {
         List<CronTaskConfiguration> confs = cronTaskConfigurationService.getConfiguration(name);
 
-        confs.forEach(cronTaskConfiguration ->
-                      {
-                          assertNotNull(cronTaskConfiguration);
-                          try
-                          {
-                              cronTaskConfigurationService.deleteConfiguration(cronTaskConfiguration);
-                          }
-                          catch (Exception e)
-                          {
-                              throw new RuntimeException(e);
-                          }
-                      });
+        for (CronTaskConfiguration cnf : confs)
+        {
+            assertNotNull(cnf);
+            cronTaskConfigurationService.deleteConfiguration(cnf);
+        }
 
         assertNull(cronTaskConfigurationService.findOne(name));
     }
 
     @Test
     public void testRebuildArtifactsMetadata()
-            throws NoSuchAlgorithmException, XmlPullParserException,
-                   IOException, ClassNotFoundException, SchedulerException,
-                   InstantiationException, CronTaskException, IllegalAccessException,
-                   CronTaskNotFoundException, InterruptedException
+            throws Exception
     {
         String jobName = "Rebuild-1";
 
@@ -219,10 +208,7 @@ public class RebuildMavenMetadataCronJobTest
 
     @Test
     public void testRebuildMetadataInRepository()
-            throws NoSuchAlgorithmException, XmlPullParserException,
-                   IOException, ClassNotFoundException, SchedulerException,
-                   InstantiationException, CronTaskException, IllegalAccessException,
-                   CronTaskNotFoundException, InterruptedException
+            throws Exception
     {
         String jobName = "Rebuild-2";
 
@@ -262,10 +248,7 @@ public class RebuildMavenMetadataCronJobTest
 
     @Test
     public void testRebuildMetadataInStorage()
-            throws NoSuchAlgorithmException, XmlPullParserException,
-                   IOException, ClassNotFoundException, SchedulerException,
-                   InstantiationException, CronTaskException, IllegalAccessException,
-                   CronTaskNotFoundException, InterruptedException
+            throws Exception
     {
         String jobName = "Rebuild-3";
 
@@ -305,10 +288,7 @@ public class RebuildMavenMetadataCronJobTest
 
     @Test
     public void testRebuildMetadataInStorages()
-            throws NoSuchAlgorithmException, XmlPullParserException,
-                   IOException, ClassNotFoundException, SchedulerException,
-                   InstantiationException, CronTaskException, IllegalAccessException,
-                   CronTaskNotFoundException, InterruptedException
+            throws Exception
     {
         String jobName = "Rebuild-4";
 
