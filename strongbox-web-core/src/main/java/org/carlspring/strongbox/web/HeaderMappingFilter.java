@@ -62,7 +62,7 @@ public class HeaderMappingFilter implements Filter
 
     @Override
     public void init(FilterConfig filterConfig)
-                                                throws ServletException
+        throws ServletException
     {
         String format = "%s/*";
         userAgentMap.put(USER_AGENT_NUGET, String.format(format, USER_AGENT_NUGET));
@@ -73,8 +73,8 @@ public class HeaderMappingFilter implements Filter
     public void doFilter(ServletRequest request,
                          ServletResponse response,
                          FilterChain chain)
-                                            throws IOException,
-                                            ServletException
+        throws IOException,
+        ServletException
     {
         ServletRequest targetRequest = request instanceof HttpServletRequest
                 ? new ServletRequestDecorator((HttpServletRequest) request)
@@ -151,7 +151,7 @@ public class HeaderMappingFilter implements Filter
         }
 
         public void setCharacterEncoding(String env)
-                                                     throws UnsupportedEncodingException
+            throws UnsupportedEncodingException
         {
             target.setCharacterEncoding(env);
         }
@@ -183,7 +183,7 @@ public class HeaderMappingFilter implements Filter
         }
 
         public ServletInputStream getInputStream()
-                                                   throws IOException
+            throws IOException
         {
             return target.getInputStream();
         }
@@ -259,7 +259,7 @@ public class HeaderMappingFilter implements Filter
         }
 
         public BufferedReader getReader()
-                                          throws IOException
+            throws IOException
         {
             return target.getReader();
         }
@@ -386,7 +386,7 @@ public class HeaderMappingFilter implements Filter
         }
 
         public AsyncContext startAsync()
-                                         throws IllegalStateException
+            throws IllegalStateException
         {
             return target.startAsync();
         }
@@ -417,35 +417,35 @@ public class HeaderMappingFilter implements Filter
         }
 
         public boolean authenticate(HttpServletResponse response)
-                                                                  throws IOException,
-                                                                  ServletException
+            throws IOException,
+            ServletException
         {
             return target.authenticate(response);
         }
 
         public AsyncContext startAsync(ServletRequest servletRequest,
                                        ServletResponse servletResponse)
-                                                                        throws IllegalStateException
+            throws IllegalStateException
         {
             return target.startAsync(servletRequest, servletResponse);
         }
 
         public void login(String username,
                           String password)
-                                           throws ServletException
+            throws ServletException
         {
             target.login(username, password);
         }
 
         public void logout()
-                             throws ServletException
+            throws ServletException
         {
             target.logout();
         }
 
         public Collection<Part> getParts()
-                                           throws IOException,
-                                           ServletException
+            throws IOException,
+            ServletException
         {
             return target.getParts();
         }
@@ -461,8 +461,8 @@ public class HeaderMappingFilter implements Filter
         }
 
         public Part getPart(String name)
-                                         throws IOException,
-                                         ServletException
+            throws IOException,
+            ServletException
         {
             return target.getPart(name);
         }
@@ -478,8 +478,8 @@ public class HeaderMappingFilter implements Filter
         }
 
         public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass)
-                                                                               throws IOException,
-                                                                               ServletException
+            throws IOException,
+            ServletException
         {
             return target.upgrade(handlerClass);
         }

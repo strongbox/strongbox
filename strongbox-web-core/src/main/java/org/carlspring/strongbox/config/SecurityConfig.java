@@ -46,10 +46,10 @@ public class SecurityConfig
     @PostConstruct
     public void init()
     {
-        authorizationConfigProvider.getConfig().ifPresent(
-                (config) -> {
-                    anonymousAuthenticationFilter.getAuthorities().addAll(config.getAnonymousAuthorities());
-                });
+        authorizationConfigProvider.getConfig().ifPresent((config) -> {
+            anonymousAuthenticationFilter.getAuthorities()
+                                         .addAll(config.getAnonymousAuthorities());
+        });
     }
 
     @Bean
@@ -60,7 +60,7 @@ public class SecurityConfig
 
     @Override
     protected void configure(HttpSecurity http)
-                                                throws Exception
+        throws Exception
     {
         http.sessionManagement()
             .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
@@ -87,7 +87,7 @@ public class SecurityConfig
     }
 
     public void configure(AuthenticationManagerBuilder auth)
-                                                             throws Exception
+        throws Exception
     {
         auth.authenticationProvider(authenticationProvider);
     }

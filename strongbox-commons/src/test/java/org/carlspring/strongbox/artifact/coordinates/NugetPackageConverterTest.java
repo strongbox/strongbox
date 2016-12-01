@@ -9,7 +9,7 @@ public class NugetPackageConverterTest
 
     @Test
     public void testArtifactPathToCoordinatesConversion()
-                                                          throws Exception
+        throws Exception
     {
         String path = "Org.Carlspring.Strongbox.Examples.Nuget.Mono/1.0/Org.Carlspring.Strongbox.Examples.Nuget.Mono.1.0.nupkg";
         NugetHierarchicalArtifactCoordinates nac = new NugetHierarchicalArtifactCoordinates(path);

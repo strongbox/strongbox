@@ -202,10 +202,10 @@ public class NugetPackageController extends BaseArtifactController
 
     private FileInputStream extractPackageMultipartStream(String boundaryString,
                                                           ServletInputStream is)
-                                                                                 throws IOException,
-                                                                                 FileNotFoundException,
-                                                                                 FileUploadIOException,
-                                                                                 MalformedStreamException
+        throws IOException,
+        FileNotFoundException,
+        FileUploadIOException,
+        MalformedStreamException
     {
 
         if (StringUtils.isEmpty(boundaryString))
@@ -255,7 +255,7 @@ public class NugetPackageController extends BaseArtifactController
     private URI storePackage(String storageId,
                              String repositoryId,
                              InputStream is)
-                                             throws Exception
+        throws Exception
     {
 
         try (TempNupkgFile nupkgFile = new TempNupkgFile(is))

@@ -44,7 +44,7 @@ public class SecurityTokenProvider
      */
     @Autowired
     public void init(@Value("${strongbox.security.jwtSecret:secret}") String secret)
-                                                                                     throws Exception
+        throws Exception
     {
         key = new HmacKey(secret.getBytes("UTF-8"));
     }
@@ -64,7 +64,7 @@ public class SecurityTokenProvider
     public String getToken(String subject,
                            Map<String, String> claimMap,
                            Date expire)
-                                        throws JoseException
+        throws JoseException
     {
         JwtClaims claims = new JwtClaims();
         claims.setIssuer("Strongbox");
@@ -92,8 +92,7 @@ public class SecurityTokenProvider
                             String targetSubject,
                             Map<String, String> claimMap)
     {
-        JwtConsumer jwtConsumer = new JwtConsumerBuilder()
-                                                          .setRequireSubject()
+        JwtConsumer jwtConsumer = new JwtConsumerBuilder().setRequireSubject()
                                                           .setVerificationKey(key)
                                                           .setRelaxVerificationKeyValidation()
                                                           .build();
