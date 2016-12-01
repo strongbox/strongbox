@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.commons.lang.StringUtils;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.repository.UserRepository;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
@@ -184,6 +185,10 @@ class UserServiceImpl
     {
         User user = repository.findOne(id);
 
+        if (StringUtils.isEmpty(user.getSecurityTokenKey())){
+            return null;
+        }
+        
         Map<String, String> claimMap = new HashMap<>();
         claimMap.put("security-token-key", user.getSecurityTokenKey());
 
