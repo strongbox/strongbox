@@ -3,45 +3,42 @@ package org.carlspring.strongbox.cron.api.jobs;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.cron.config.JobManager;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
-import org.carlspring.strongbox.services.ArtifactMetadataService;
+import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import java.io.IOException;
+import java.util.Map;
+
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Map;
-
 /**
- * @author Kate Novik
+ * @author Kate Novik.
  */
-public class RebuildMetadataCronJob
+public class RebuildMavenIndexesCronJob
         extends JavaCronJob
 {
 
-    private final Logger logger = LoggerFactory.getLogger(RebuildMetadataCronJob.class);
-
-    @Autowired
-    private ArtifactMetadataService artifactMetadataService;
+    private final Logger logger = LoggerFactory.getLogger(RebuildMavenIndexesCronJob.class);
 
     @Autowired
     private ConfigurationManager configurationManager;
 
     @Autowired
-    private JobManager manager;
+    private ArtifactIndexesService artifactIndexesService;
 
+    @Autowired
+    private JobManager manager;
 
     @Override
     protected void executeInternal(JobExecutionContext jobExecutionContext)
             throws JobExecutionException
     {
-        logger.debug("Executed RebuildMetadataCronJob.");
+        logger.debug("Executed RebuildMavenIndexesCronJob.");
 
         CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap().get("config");
         try
@@ -55,19 +52,19 @@ public class RebuildMetadataCronJob
                 Map<String, Storage> storages = getStorages();
                 for (String storage : storages.keySet())
                 {
-                    rebuildRepositories(storage);
+                    rebuildRepositoriesIndexes(storage);
                 }
             }
             else if (repositoryId == null)
             {
-                rebuildRepositories(storageId);
+                rebuildRepositoriesIndexes(storageId);
             }
             else
             {
-                artifactMetadataService.rebuildMetadata(storageId, repositoryId, basePath);
+                artifactIndexesService.rebuildIndexes(storageId, repositoryId, basePath);
             }
         }
-        catch (IOException | XmlPullParserException | NoSuchAlgorithmException e)
+        catch (IOException e)
         {
             logger.error(e.getMessage(), e);
         }
@@ -76,21 +73,19 @@ public class RebuildMetadataCronJob
     }
 
     /**
-     * To rebuild artifact's metadata in repositories
+     * To rebuild indexes in repositories
      *
-     * @param storageId path of storage
-     * @throws NoSuchAlgorithmException
-     * @throws XmlPullParserException
+     * @param storageId String
      * @throws IOException
      */
-    private void rebuildRepositories(String storageId)
-            throws NoSuchAlgorithmException, XmlPullParserException, IOException
+    private void rebuildRepositoriesIndexes(String storageId)
+            throws IOException
     {
         Map<String, Repository> repositories = getRepositories(storageId);
 
         for (String repository : repositories.keySet())
         {
-            artifactMetadataService.rebuildMetadata(storageId, repository, null);
+            artifactIndexesService.rebuildIndexes(storageId, repository, null);
         }
     }
 
@@ -103,5 +98,4 @@ public class RebuildMetadataCronJob
     {
         return getStorages().get(storageId).getRepositories();
     }
-
 }

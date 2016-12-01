@@ -4,8 +4,8 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 
+import org.carlspring.strongbox.cron.api.jobs.RebuildMavenMetadataCronJob;
 import org.carlspring.strongbox.cron.config.JobManager;
-import org.carlspring.strongbox.cron.api.jobs.RebuildMetadataCronJob;
 import org.carlspring.strongbox.cron.context.CronTaskTest;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.exceptions.CronTaskException;
@@ -43,7 +43,7 @@ import static org.junit.Assert.assertNull;
  */
 @CronTaskTest
 @RunWith(SpringJUnit4ClassRunner.class)
-public class RebuildMetadataCronJobTest
+public class RebuildMavenMetadataCronJobTest
         extends TestCaseWithArtifactGeneration
 {
 
@@ -89,7 +89,7 @@ public class RebuildMetadataCronJobTest
 
     @Before
     public void setUp()
-            throws NoSuchAlgorithmException, XmlPullParserException, IOException, JAXBException
+            throws Exception
     {
         if (!initialized)
         {
@@ -145,12 +145,11 @@ public class RebuildMetadataCronJobTest
                                         String storageId,
                                         String repositoryId,
                                         String basePath)
-            throws ClassNotFoundException, CronTaskException, InstantiationException, SchedulerException,
-                   IllegalAccessException
+            throws Exception
     {
         CronTaskConfiguration cronTaskConfiguration = new CronTaskConfiguration();
         cronTaskConfiguration.setName(name);
-        cronTaskConfiguration.addProperty("jobClass", RebuildMetadataCronJob.class.getName());
+        cronTaskConfiguration.addProperty("jobClass", RebuildMavenMetadataCronJob.class.getName());
         cronTaskConfiguration.addProperty("cronExpression", "0 0/10 * 1/1 * ? *");
         cronTaskConfiguration.addProperty("storageId", storageId);
         cronTaskConfiguration.addProperty("repositoryId", repositoryId);
@@ -162,32 +161,22 @@ public class RebuildMetadataCronJobTest
     }
 
     public void deleteRebuildCronJobConfig(String name)
-            throws SchedulerException, CronTaskNotFoundException, ClassNotFoundException
+            throws Exception
     {
         List<CronTaskConfiguration> confs = cronTaskConfigurationService.getConfiguration(name);
 
-        confs.forEach(cronTaskConfiguration ->
-                      {
-                          assertNotNull(cronTaskConfiguration);
-                          try
-                          {
-                              cronTaskConfigurationService.deleteConfiguration(cronTaskConfiguration);
-                          }
-                          catch (Exception e)
-                          {
-                              throw new RuntimeException(e);
-                          }
-                      });
+        for (CronTaskConfiguration cnf : confs)
+        {
+            assertNotNull(cnf);
+            cronTaskConfigurationService.deleteConfiguration(cnf);
+        }
 
         assertNull(cronTaskConfigurationService.findOne(name));
     }
 
     @Test
     public void testRebuildArtifactsMetadata()
-            throws NoSuchAlgorithmException, XmlPullParserException,
-                   IOException, ClassNotFoundException, SchedulerException,
-                   InstantiationException, CronTaskException, IllegalAccessException,
-                   CronTaskNotFoundException, InterruptedException
+            throws Exception
     {
         String jobName = "Rebuild-1";
 
@@ -219,10 +208,7 @@ public class RebuildMetadataCronJobTest
 
     @Test
     public void testRebuildMetadataInRepository()
-            throws NoSuchAlgorithmException, XmlPullParserException,
-                   IOException, ClassNotFoundException, SchedulerException,
-                   InstantiationException, CronTaskException, IllegalAccessException,
-                   CronTaskNotFoundException, InterruptedException
+            throws Exception
     {
         String jobName = "Rebuild-2";
 
@@ -262,10 +248,7 @@ public class RebuildMetadataCronJobTest
 
     @Test
     public void testRebuildMetadataInStorage()
-            throws NoSuchAlgorithmException, XmlPullParserException,
-                   IOException, ClassNotFoundException, SchedulerException,
-                   InstantiationException, CronTaskException, IllegalAccessException,
-                   CronTaskNotFoundException, InterruptedException
+            throws Exception
     {
         String jobName = "Rebuild-3";
 
@@ -305,10 +288,7 @@ public class RebuildMetadataCronJobTest
 
     @Test
     public void testRebuildMetadataInStorages()
-            throws NoSuchAlgorithmException, XmlPullParserException,
-                   IOException, ClassNotFoundException, SchedulerException,
-                   InstantiationException, CronTaskException, IllegalAccessException,
-                   CronTaskNotFoundException, InterruptedException
+            throws Exception
     {
         String jobName = "Rebuild-4";
 
