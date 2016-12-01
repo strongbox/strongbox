@@ -238,7 +238,8 @@ public class UserController
 
         String result = userService.generateSecurityToken(user.getId(), null);
         
-        if (result == null){
+        if (result == null)
+        {
             return toError(String.format("Failed to generate SecurityToken, probably you should first set SecurityTokenKey for the user: user-[%s]",
                                          user.getUsername()));
         }

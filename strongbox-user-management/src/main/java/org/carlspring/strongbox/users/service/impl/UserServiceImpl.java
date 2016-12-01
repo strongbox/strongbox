@@ -185,7 +185,8 @@ class UserServiceImpl
     {
         User user = repository.findOne(id);
 
-        if (StringUtils.isEmpty(user.getSecurityTokenKey())){
+        if (StringUtils.isEmpty(user.getSecurityTokenKey()))
+        {
             return null;
         }
         
