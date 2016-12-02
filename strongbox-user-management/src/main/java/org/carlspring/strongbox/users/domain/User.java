@@ -1,9 +1,10 @@
 package org.carlspring.strongbox.users.domain;
 
-import org.carlspring.strongbox.data.domain.GenericEntity;
-
 import java.util.HashSet;
 import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
+import org.carlspring.strongbox.data.domain.GenericEntity;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
@@ -24,7 +25,8 @@ public class User
     private String salt;
 
     private Set<String> roles;
-
+    
+    private String securityTokenKey;
 
     public User()
     {
@@ -96,6 +98,16 @@ public class User
         this.roles = roles;
     }
 
+    public String getSecurityTokenKey()
+    {
+        return securityTokenKey;
+    }
+
+    public void setSecurityTokenKey(String securityTokenKey)
+    {
+        this.securityTokenKey = securityTokenKey;
+    }
+
     @Override
     public boolean equals(Object o)
     {
@@ -128,6 +140,7 @@ public class User
                           .add("enabled", isEnabled())
                           .add("salt", getSalt())
                           .add("roles", getRoles())
+                          .add("securityToken", StringUtils.isEmpty(getSecurityTokenKey()) ? "[EMPTY]" : "[SEECRET]")
                           .add("detachAll", detachAll)
                           .add("version", version)
                           .toString();

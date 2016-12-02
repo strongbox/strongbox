@@ -1,20 +1,15 @@
 package org.carlspring.strongbox.controller;
 
-import org.carlspring.strongbox.users.domain.User;
-import org.carlspring.strongbox.users.service.UserService;
-
-import javax.inject.Inject;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import javax.inject.Inject;
+
+import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.service.UserService;
+import org.jose4j.lang.JoseException;
 import org.springframework.cache.CacheManager;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,6 +20,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 @Controller
 @RequestMapping("/users")
@@ -220,6 +223,32 @@ public class UserController
                              .build();
     }
 
+    @ApiOperation(value = "Generate new security token for specified user.", position = 3)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The security token was generated."),
+                            @ApiResponse(code = 500, message = "An error occurred.") })
+    @PreAuthorize("hasAuthority('UPDATE_USER')")
+    @RequestMapping(value = "user/{name}/generate-security-token", method = RequestMethod.GET)
+    public ResponseEntity generateSecurityToken(@ApiParam(value = "The name of the user") @PathVariable String name)
+        throws JoseException
+
+    {
+        User user = userService.findByUserName(name);
+        if (user == null || user.getId() == null)
+        {
+            return toError("The specified user does not exist!");
+        }
+
+        String result = userService.generateSecurityToken(user.getId(), null);
+
+        if (result == null)
+        {
+            return toError(String.format("Failed to generate SecurityToken, probably you should first set SecurityTokenKey for the user: user-[%s]",
+                                         user.getUsername()));
+        }
+
+        return ResponseEntity.ok(result);
+    }
+    
     // ----------------------------------------------------------------------------------------------------------------
     // Common-purpose methods
 

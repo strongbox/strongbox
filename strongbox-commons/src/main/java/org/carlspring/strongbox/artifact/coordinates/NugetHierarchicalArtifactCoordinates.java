@@ -24,7 +24,7 @@ public class NugetHierarchicalArtifactCoordinates extends NugetArtifactCoordinat
         String version = matcher.group(2);
         String packageArtifactName = matcher.group(3);
         String packageArtifactType = matcher.group(4);
-        
+
         if (!String.format("%s.%s", packageId, version).startsWith(packageArtifactName))
         {
             return;
@@ -44,17 +44,17 @@ public class NugetHierarchicalArtifactCoordinates extends NugetArtifactCoordinat
         if (typeLocal.equals("nuspec"))
         {
             return String.format("%s/%s/%s.%s",
-                    idLocal,
-                    versionLocal,
-                    idLocal,
-                    typeLocal);
+                                 idLocal,
+                                 versionLocal,
+                                 idLocal,
+                                 typeLocal);
         }
         return String.format("%s/%s/%s.%s.%s",
-                idLocal,
-                versionLocal,
-                idLocal,
-                versionLocal,
-                typeLocal);
+                             idLocal,
+                             versionLocal,
+                             idLocal,
+                             versionLocal,
+                             typeLocal);
     }
 
 }

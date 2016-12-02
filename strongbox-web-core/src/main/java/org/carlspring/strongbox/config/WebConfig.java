@@ -1,14 +1,13 @@
 package org.carlspring.strongbox.config;
 
-import org.carlspring.strongbox.StorageIndexingConfig;
-import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
-import org.carlspring.strongbox.mapper.CustomJaxb2RootElementHttpMessageConverter;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.List;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.carlspring.strongbox.StorageIndexingConfig;
+import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
+import org.carlspring.strongbox.mapper.CustomJaxb2RootElementHttpMessageConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.EnableCaching;
@@ -16,15 +15,26 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.converter.*;
+import org.springframework.http.converter.ByteArrayHttpMessageConverter;
+import org.springframework.http.converter.FormHttpMessageConverter;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.ResourceHttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @Configuration
-@ComponentScan({ "org.carlspring.strongbox",
+@ComponentScan({ "org.carlspring.strongbox.controller",
+                 "org.carlspring.strongbox.mapper",
+                 "org.carlspring.strongbox.security",
+                 "org.carlspring.strongbox.authentication",
+                 "org.carlspring.strongbox.user",
+                 "org.carlspring.strongbox.utils",
                  "org.carlspring.logging" })
 @Import({ CommonConfig.class,
           StrongboxSecurityConfig.class,
@@ -86,4 +96,5 @@ public class WebConfig
                   .setUseRegisteredSuffixPatternMatch(true)
                   .setPathMatcher(antPathMatcher);
     }
+
 }

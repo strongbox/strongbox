@@ -12,6 +12,7 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactFile;
 import org.carlspring.strongbox.io.ArtifactFileOutputStream;
 import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.providers.storage.StorageProvider;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
@@ -61,19 +62,33 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
     @Override
     public ArtifactInputStream getInputStream(String storageId,
                                               String repositoryId,
-                                              String path) throws IOException, NoSuchAlgorithmException, ArtifactTransportException
+                                              String path)
+        throws IOException,
+        NoSuchAlgorithmException,
+        ArtifactTransportException
     {
-        return null;
+        Storage storage = getConfiguration().getStorage(storageId);
+
+        logger.debug("Checking in " + storage.getId() + ":" + repositoryId + "...");
+
+        Repository repository = storage.getRepository(repositoryId);
+        StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
+
+        String storagePath = storage.getRepository(repositoryId).getBasedir() + '/' + path;
+        ArtifactInputStream ais = storageProvider.getInputStreamImplementation(storagePath);
+        
+        return ais;
     }
 
     @Override
     public OutputStream getOutputStream(String storageId,
                                         String repositoryId,
-                                        String path) throws IOException
+                                        String path)
+        throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
-
+        
         NugetHierarchicalArtifactCoordinates coordinates = new NugetHierarchicalArtifactCoordinates(path);
         ArtifactFile artifactFile = new ArtifactFile(repository, coordinates);
         artifactFile.createParents();
@@ -83,7 +98,8 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
 
     @Override
     public boolean containsArtifact(Repository repository,
-                                    ArtifactCoordinates coordinates) throws IOException
+                                    ArtifactCoordinates coordinates)
+        throws IOException
     {
         return false;
     }
@@ -91,21 +107,24 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
     @Override
     public boolean contains(String storageId,
                             String repositoryId,
-                            String path) throws IOException
+                            String path)
+        throws IOException
     {
         return false;
     }
 
     @Override
     public boolean containsPath(Repository repository,
-                                String path) throws IOException
+                                String path)
+        throws IOException
     {
         return false;
     }
 
     @Override
     public String getPathToArtifact(Repository repository,
-                                    ArtifactCoordinates coordinates) throws IOException
+                                    ArtifactCoordinates coordinates)
+        throws IOException
     {
         return null;
     }
@@ -115,7 +134,8 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
                      String srcRepositoryId,
                      String destStorageId,
                      String destRepositoryId,
-                     String path) throws IOException
+                     String path)
+        throws IOException
     {
 
     }
@@ -125,7 +145,8 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
                      String srcRepositoryId,
                      String destStorageId,
                      String destRepositoryId,
-                     String path) throws IOException
+                     String path)
+        throws IOException
     {
 
     }
@@ -134,7 +155,8 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
     public void delete(String storageId,
                        String repositoryId,
                        String path,
-                       boolean force) throws IOException
+                       boolean force)
+        throws IOException
     {
 
     }
@@ -142,20 +164,23 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
     @Override
     public void deleteMetadata(String storageId,
                                String repositoryId,
-                               String metadataPath) throws IOException
+                               String metadataPath)
+        throws IOException
     {
 
     }
 
     @Override
     public void deleteTrash(String storageId,
-                            String repositoryId) throws IOException
+                            String repositoryId)
+        throws IOException
     {
 
     }
 
     @Override
-    public void deleteTrash() throws IOException
+    public void deleteTrash()
+        throws IOException
     {
 
     }
@@ -163,20 +188,23 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
     @Override
     public void undelete(String storageId,
                          String repositoryId,
-                         String path) throws IOException
+                         String path)
+        throws IOException
     {
 
     }
 
     @Override
     public void undeleteTrash(String storageId,
-                              String repositoryId) throws IOException
+                              String repositoryId)
+        throws IOException
     {
 
     }
 
     @Override
-    public void undeleteTrash() throws IOException
+    public void undeleteTrash()
+        throws IOException
     {
 
     }
