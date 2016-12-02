@@ -22,10 +22,8 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpUpgradeHandler;
@@ -40,11 +38,9 @@ import edu.emory.mathcs.backport.java.util.Collections;
 /**
  * This filter used to map HTTP header values from one to another.<br>
  * Mapping example:<br>
- * &emsp;'user-agent = NuGet Command Line/2.8.60717.93 (Unix
- * 4.4.0.45)'->'NuGet/*'<br>
+ * &emsp;'user-agent = NuGet Command Line/2.8.60717.93 (Unix 4.4.0.45)'->'NuGet/*'<br>
  * 
- * Such type of mapping is used in storage controllers to map requests according
- * 'user-agent' header type.
+ * Such type of mapping is used in storage controllers to map requests according 'user-agent' header type.
  * 
  * @see {@link ArtifactController} {@link NugetPackageController}
  * 
@@ -90,6 +86,7 @@ public class HeaderMappingFilter implements Filter
     private class ServletRequestDecorator implements HttpServletRequest
     {
 
+        private static final String HEADER_NAME_USER_AGENT = "user-agent";
         private HttpServletRequest target;
 
         public ServletRequestDecorator(HttpServletRequest request)
@@ -102,7 +99,7 @@ public class HeaderMappingFilter implements Filter
                                 String name)
         {
             String headerValue = target.getHeader(name);
-            if (!name.equals("user-agent"))
+            if (!HEADER_NAME_USER_AGENT.equals(name))
             {
                 return headerValue;
             }
@@ -168,12 +165,11 @@ public class HeaderMappingFilter implements Filter
 
         public Enumeration<String> getHeaders(String name)
         {
-            if (!name.equals("user-agent"))
+            if (!HEADER_NAME_USER_AGENT.equals(name))
             {
                 return target.getHeaders(name);
             }
             Enumeration<String> result = Collections.enumeration(Arrays.asList(new String[] { getHeader(name) }));
-            ;
             return result;
         }
 
@@ -386,7 +382,6 @@ public class HeaderMappingFilter implements Filter
         }
 
         public AsyncContext startAsync()
-            throws IllegalStateException
         {
             return target.startAsync();
         }
@@ -425,7 +420,6 @@ public class HeaderMappingFilter implements Filter
 
         public AsyncContext startAsync(ServletRequest servletRequest,
                                        ServletResponse servletResponse)
-            throws IllegalStateException
         {
             return target.startAsync(servletRequest, servletResponse);
         }

@@ -9,6 +9,7 @@ import javax.inject.Inject;
 
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.service.UserService;
+import org.jose4j.lang.JoseException;
 import org.springframework.cache.CacheManager;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -228,7 +229,8 @@ public class UserController
     @PreAuthorize("hasAuthority('UPDATE_USER')")
     @RequestMapping(value = "user/{name}/generate-security-token", method = RequestMethod.GET)
     public ResponseEntity generateSecurityToken(@ApiParam(value = "The name of the user") @PathVariable String name)
-                                                                                                                     throws Exception
+        throws JoseException
+
     {
         User user = userService.findByUserName(name);
         if (user == null || user.getId() == null)
@@ -237,7 +239,7 @@ public class UserController
         }
 
         String result = userService.generateSecurityToken(user.getId(), null);
-        
+
         if (result == null)
         {
             return toError(String.format("Failed to generate SecurityToken, probably you should first set SecurityTokenKey for the user: user-[%s]",

@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.users.security;
 
+import java.io.UnsupportedEncodingException;
 import java.security.Key;
 import java.util.Date;
 import java.util.Map;
@@ -20,8 +21,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Used to get and verify security tokens. <br>
- * This implementation based on JSON Web Token (JWT) which is RFC 7519 standard.
- * <br>
+ * This implementation based on JSON Web Token (JWT) which is RFC 7519 standard. <br>
  * 
  * 
  * @author Sergey Bespalov
@@ -29,6 +29,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class SecurityTokenProvider
 {
+    private static final String MESSAGE_INVALID_JWT = "Invalid JWT: value-[%s]";
     /**
      * Secret key which is used to encode and verify tokens.<br>
      * All previous tokens will be invalid, if it changed.
@@ -36,15 +37,15 @@ public class SecurityTokenProvider
     private Key key;
 
     /**
-     * Creates {@link Key} instance using Secret string from application
-     * configuration.
+     * Creates {@link Key} instance using Secret string from application configuration.
      * 
      * @param secret
+     * @throws UnsupportedEncodingException
      * @throws Exception
      */
     @Autowired
     public void init(@Value("${strongbox.security.jwtSecret:secret}") String secret)
-        throws Exception
+        throws UnsupportedEncodingException
     {
         key = new HmacKey(secret.getBytes("UTF-8"));
     }
@@ -106,12 +107,12 @@ public class SecurityTokenProvider
         }
         catch (InvalidJwtException | MalformedClaimException e)
         {
-            throw new SecurityTokenException(String.format("Invalid JWT: value-[%s]", token), e);
+            throw new SecurityTokenException(String.format(MESSAGE_INVALID_JWT, token), e);
         }
 
         if (!targetSubject.equals(subject))
         {
-            throw new SecurityTokenException(String.format("Invalid JWT: value-[%s]", token));
+            throw new SecurityTokenException(String.format(MESSAGE_INVALID_JWT, token));
         }
 
         boolean claimMatch = claimMap.entrySet().stream().allMatch((e) -> {
@@ -120,7 +121,7 @@ public class SecurityTokenProvider
 
         if (!claimMatch)
         {
-            throw new SecurityTokenException(String.format("Invalid JWT: value-[%s]", token));
+            throw new SecurityTokenException(String.format(MESSAGE_INVALID_JWT, token));
         }
     }
 

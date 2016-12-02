@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.users.service.impl;
 
-import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -12,12 +11,10 @@ import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.repository.UserRepository;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.carlspring.strongbox.users.service.UserService;
-import org.jose4j.keys.HmacKey;
 import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -36,8 +33,6 @@ class UserServiceImpl
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    private Key key;
-    
     @Autowired
     UserRepository repository;
 
@@ -46,12 +41,6 @@ class UserServiceImpl
 
     @Autowired
     SecurityTokenProvider tokenProvider;
-    
-    @Autowired
-    public void init(@Value("${strongbox.security.jwtSecret:secret}") String secret) throws Exception
-    {
-        key = new HmacKey(secret.getBytes("UTF-8"));
-    }
     
     @Override
     @Transactional

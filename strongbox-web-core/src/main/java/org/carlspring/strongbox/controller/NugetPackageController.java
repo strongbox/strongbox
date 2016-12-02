@@ -68,9 +68,8 @@ public class NugetPackageController extends BaseArtifactController
 
     /**
      * This method is used to check storage availability.<br>
-     * For example NuGet pings the root without credentials to determine if the
-     * repository is healthy. If this receives a 401 response then NuGet will
-     * prompt for authentication.
+     * For example NuGet pings the root without credentials to determine if the repository is healthy. If this receives
+     * a 401 response then NuGet will prompt for authentication.
      * 
      * @return
      */
@@ -217,39 +216,41 @@ public class NugetPackageController extends BaseArtifactController
         try (FileOutputStream packagePartOutputStream = new FileOutputStream(packagePartFile))
         {
 
-            byte[] boundary = boundaryString.getBytes();
-            MultipartStream multipartStream = new MultipartStream(is, boundary);
-
-            // boolean nextPart = multipartStream.skipPreamble();
-            boolean nextPart = true;
-
-            while (nextPart)
-            {
-                try
-                {
-                    String header = multipartStream.readHeaders();
-
-                    // Package Multipart Header should be like follows:
-                    // Content-Disposition: form-data; name="package";
-                    // filename="package"
-                    // Content-Type: application/octet-stream
-                    if (!header.contains("package"))
-                    {
-                        continue;
-                    }
-
-                    multipartStream.readBodyData(packagePartOutputStream);
-                    nextPart = multipartStream.readBoundary();
-                }
-                catch (MultipartStream.MalformedStreamException e)
-                {
-                    // Seems that this is normal for Nuget push request
-                }
-                break;
-            }
+            writePackagePart(boundaryString, is, packagePartOutputStream);
         }
 
         return new FileInputStream(packagePartFile);
+    }
+
+    private void writePackagePart(String boundaryString,
+                                  ServletInputStream is,
+                                  FileOutputStream packagePartOutputStream)
+        throws FileUploadIOException,
+        IOException
+    {
+        byte[] boundary = boundaryString.getBytes();
+        MultipartStream multipartStream = new MultipartStream(is, boundary);
+
+        try
+        {
+            String header = multipartStream.readHeaders();
+
+            // Package Multipart Header should be like follows:
+            // Content-Disposition: form-data; name="package";
+            // filename="package"
+            // Content-Type: application/octet-stream
+            if (!header.contains("package"))
+            {
+                logger.error("Invalid package multipart format");
+                return;
+            }
+
+            multipartStream.readBodyData(packagePartOutputStream);
+        }
+        catch (MultipartStream.MalformedStreamException e)
+        {
+            // Seems that this is normal for Nuget push request
+        }
     }
 
     private URI storePackage(String storageId,
@@ -303,6 +304,7 @@ public class NugetPackageController extends BaseArtifactController
         }
         catch (SecurityTokenException e)
         {
+            logger.info(String.format("Invalid security token: user-[%s]", userName), e);
             return false;
         }
 
@@ -313,8 +315,7 @@ public class NugetPackageController extends BaseArtifactController
     {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         Authentication authentication = securityContext == null ? null : securityContext.getAuthentication();
-        String userName = authentication == null ? null : authentication.getName();
-        return userName;
+        return authentication == null ? null : authentication.getName();
     }
 
 }

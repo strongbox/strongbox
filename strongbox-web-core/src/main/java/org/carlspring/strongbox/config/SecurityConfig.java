@@ -3,7 +3,6 @@ package org.carlspring.strongbox.config;
 import javax.annotation.PostConstruct;
 
 import org.carlspring.strongbox.security.authentication.CustomAnonymousAuthenticationFilter;
-import org.carlspring.strongbox.security.authentication.UnauthorizedEntryPoint;
 import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -17,9 +16,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
-import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 
 @Configuration
 @EnableWebSecurity
