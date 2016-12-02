@@ -83,34 +83,34 @@ public class CronTaskController
     public ResponseEntity deleteConfiguration(@RequestParam("name") String name)
     {
         final List<Exception> errors = new LinkedList<>();
-        cronTaskConfigurationService.getConfiguration(name).forEach(config ->
-                                                                    {
-                                                                        try
-            {
-                cronTaskConfigurationService.deleteConfiguration(config);
-                if (config.contain("jobClass"))
-                {
-                    Class c = Class.forName(config.getProperty("jobClass"));
-                    Object classInstance = c.newInstance();
+        cronTaskConfigurationService.getConfiguration(name)
+                                    .forEach(config -> {
+                                        try
+                                        {
+                                            cronTaskConfigurationService.deleteConfiguration(config);
+                                            if (config.contain("jobClass"))
+                                            {
+                                                Class c = Class.forName(config.getProperty("jobClass"));
+                                                Object classInstance = c.newInstance();
 
-                    logger.debug("> " + c.getSuperclass().getCanonicalName());
+                                                logger.debug("> " + c.getSuperclass().getCanonicalName());
 
-                    if (classInstance instanceof GroovyCronJob)
-                    {
-                        File file = new File(config.getProperty("script.path"));
-                        if (file.exists())
-                        {
-                            //noinspection ResultOfMethodCallIgnored
-                            file.delete();
-                        }
-                    }
-                }
-            }
-                                                                        catch (Exception e)
-                                                                        {
-                                                                            errors.add(e);
-                                                                        }
-                                                                    });
+                                                if (classInstance instanceof GroovyCronJob)
+                                                {
+                                                    File file = new File(config.getProperty("script.path"));
+                                                    if (file.exists())
+                                                    {
+                                                        //noinspection ResultOfMethodCallIgnored
+                                                        file.delete();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        catch (Exception e)
+                                        {
+                                            errors.add(e);
+                                        }
+                                    });
 
         if (!errors.isEmpty())
         {

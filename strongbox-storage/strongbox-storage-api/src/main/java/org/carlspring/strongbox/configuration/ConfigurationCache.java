@@ -3,12 +3,11 @@ package org.carlspring.strongbox.configuration;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.annotation.PostConstruct;
-import javax.xml.bind.JAXBException;
+import javax.inject.Inject;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
@@ -25,7 +24,7 @@ public class ConfigurationCache
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationRepository.class);
 
-    @Autowired
+    @Inject
     CacheManager cacheManager;
 
     private GenericParser<Configuration> parser;
@@ -35,15 +34,7 @@ public class ConfigurationCache
     @PostConstruct
     public synchronized void init()
     {
-        parser = new GenericParser<>();
-        try
-        {
-            parser.setContext(Configuration.class);
-        }
-        catch (JAXBException e)
-        {
-            logger.error("Unable to set JAXB context", e);
-        }
+        parser = new GenericParser<>(Configuration.class);
 
         configurationCache = cacheManager.getCache("configuration");
         if (configurationCache == null)

@@ -11,7 +11,6 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -27,9 +26,6 @@ public class AuthenticationManager
 
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationManager.class);
 
-    @Autowired
-    private ConfigurationResourceResolver configurationResourceResolver;
-
     private AuthenticationConfiguration configuration;
 
     private GenericParser<AuthenticationConfiguration> parser = new GenericParser<>(AuthenticationConfiguration.class);
@@ -39,7 +35,7 @@ public class AuthenticationManager
     public void load()
             throws IOException, JAXBException
     {
-        Resource resource = configurationResourceResolver.getConfigurationResource("security.authentication.xml",
+        Resource resource = ConfigurationResourceResolver.getConfigurationResource("security.authentication.xml",
                                                                                    "etc/conf/security-authentication.xml");
 
         logger.info("Loading Strongbox configuration from " + resource.toString() + "...");
@@ -51,7 +47,7 @@ public class AuthenticationManager
     public void store()
             throws IOException, JAXBException
     {
-        Resource resource = configurationResourceResolver.getConfigurationResource("security.authentication.xml",
+        Resource resource = ConfigurationResourceResolver.getConfigurationResource("security.authentication.xml",
                                                                                    "etc/conf/security-authentication.xml");
 
         parser.store(configuration, resource.getFile().getAbsoluteFile());
@@ -90,16 +86,6 @@ public class AuthenticationManager
     public AnonymousAccessConfiguration getAnonymousAccessConfiguration()
     {
         return configuration.getAnonymousAccessConfiguration();
-    }
-
-    public ConfigurationResourceResolver getConfigurationResourceResolver()
-    {
-        return configurationResourceResolver;
-    }
-
-    public void setConfigurationResourceResolver(ConfigurationResourceResolver configurationResourceResolver)
-    {
-        this.configurationResourceResolver = configurationResourceResolver;
     }
 
     public AuthenticationConfiguration getConfiguration()

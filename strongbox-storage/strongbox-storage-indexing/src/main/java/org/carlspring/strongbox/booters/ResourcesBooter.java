@@ -65,7 +65,7 @@ public class ResourcesBooter
     {
         final Resource[] resources = getResourcesExistingOnClasspathOnly(getConfigurationResourcesFromClasspath(resourcesBasedir));
 
-        final File configDir = new File(ConfigurationResourceResolver.getVaultDirectory() + "/" + resourcesBasedir);
+        final File configDir = new File(ConfigurationResourceResolver.getHomeDirectory() + "/" + resourcesBasedir);
         if (!configDir.exists())
         {
             //noinspection ResultOfMethodCallIgnored

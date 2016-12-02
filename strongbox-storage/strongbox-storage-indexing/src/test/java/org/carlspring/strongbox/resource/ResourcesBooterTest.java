@@ -29,7 +29,7 @@ public class ResourcesBooterTest extends TestCaseWithArtifactGenerationWithIndex
     public void testResourceBooting()
             throws Exception
     {
-        File file = new File(ConfigurationResourceResolver.getVaultDirectory() + "/etc/conf/strongbox.xml");
+        File file = new File(ConfigurationResourceResolver.getHomeDirectory() + "/etc/conf/strongbox.xml");
 
         assertTrue("Failed to copy configuration resource from classpath!", file.exists());
     }

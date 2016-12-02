@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.services;
 
 import org.carlspring.maven.commons.DetachedArtifact;
+import org.carlspring.strongbox.config.CommonConfig;
+import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
@@ -23,6 +25,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static junit.framework.Assert.assertEquals;
@@ -40,8 +43,10 @@ public class ArtifactMetadataServiceSnapshotsTest
         extends TestCaseWithArtifactGeneration
 {
 
+    @ComponentScan(basePackages = {"org.carlspring.strongbox"})
     @org.springframework.context.annotation.Configuration
-    @ComponentScan(basePackages = {"org.carlspring.strongbox", "org.carlspring.logging"})
+    @Import({ CommonConfig.class,
+              StorageApiConfig.class })
     public static class SpringConfig { }
 
     private static final File REPOSITORY_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/snapshots");

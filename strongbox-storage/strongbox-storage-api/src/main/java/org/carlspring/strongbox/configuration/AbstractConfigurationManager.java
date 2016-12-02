@@ -40,7 +40,9 @@ public abstract class AbstractConfigurationManager<T>
             throws IOException, JAXBException
     {
         this.configuration = configurationRepository.getConfiguration();
-        logger.info("Loading Strongbox configuration from orientdb ...");
+
+        logger.info("Loading Strongbox configuration from OrientDB...");
+
         if (configuration == null)
         {
             throw new BeanCreationException("Unable to load configuration from db");
@@ -63,7 +65,7 @@ public abstract class AbstractConfigurationManager<T>
         }
         catch (ClassCastException e)
         {
-            logger.error(configuration.getClass().getName() + "is not supported", e);
+            logger.error(configuration.getClass().getName() + " is not supported", e);
         }
         catch (Exception e)
         {

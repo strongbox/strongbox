@@ -3,28 +3,19 @@ package org.carlspring.strongbox.resource;
 import java.io.File;
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Component;
 
 /**
  * @author mtodorov
  */
-@Component("configurationResourceResolver")
 public class ConfigurationResourceResolver
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(ConfigurationResourceResolver.class);
 
-    public ConfigurationResourceResolver()
-    {
-    }
-
-    public Resource getConfigurationResource(String propertyKey,
-                                             String propertyDefaultValue)
+    public static Resource getConfigurationResource(String propertyKey,
+                                                    String propertyDefaultValue)
             throws IOException
     {
         final String configurationPath = ConfigurationResourceResolver.getVaultDirectory() + "/" + propertyDefaultValue;
@@ -33,17 +24,16 @@ public class ConfigurationResourceResolver
     }
 
     /**
-     *
-     * @param configurationPath     The configuration file's path. If null, either propertyKey,
-     *                              or propertyKeyDefaultValue must be specified.
-     * @param propertyKey           The system property key to use when trying to load the configuration.
-     * @param propertyDefaultValue  The default property key value.
+     * @param configurationPath    The configuration file's path. If null, either propertyKey,
+     *                             or propertyKeyDefaultValue must be specified.
+     * @param propertyKey          The system property key to use when trying to load the configuration.
+     * @param propertyDefaultValue The default property key value.
      * @return
      * @throws IOException
      */
-    public Resource getConfigurationResource(String configurationPath,
-                                             String propertyKey,
-                                             String propertyDefaultValue)
+    public static Resource getConfigurationResource(String configurationPath,
+                                                    String propertyKey,
+                                                    String propertyDefaultValue)
             throws IOException
     {
         String filename;
