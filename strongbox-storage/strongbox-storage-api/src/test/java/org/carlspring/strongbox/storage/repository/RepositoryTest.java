@@ -88,7 +88,9 @@ public class RepositoryTest
         Configuration configuration = new Configuration();
         configuration.addStorage(storage);
 
-        GenericParser<Configuration> parser = new GenericParser<>(false, Configuration.class);
+        GenericParser<Configuration> parser = new GenericParser<>(false,
+                                                                  Configuration.class,
+                                                                  CustomConfiguration.class);
 
         String serialized = parser.serialize(configuration);
 

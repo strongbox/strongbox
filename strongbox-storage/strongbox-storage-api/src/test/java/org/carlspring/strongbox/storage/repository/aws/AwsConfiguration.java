@@ -5,7 +5,6 @@ import org.carlspring.strongbox.xml.CustomTag;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 
 /**
  * @author carlspring

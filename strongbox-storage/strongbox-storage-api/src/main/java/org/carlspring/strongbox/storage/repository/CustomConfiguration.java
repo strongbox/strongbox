@@ -1,15 +1,18 @@
 package org.carlspring.strongbox.storage.repository;
 
+import org.carlspring.strongbox.xml.CustomTag;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import java.io.Serializable;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * @author carlspring
  */
-@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)
 public abstract class CustomConfiguration
-        implements Serializable
+        implements CustomTag
 {
 
 }

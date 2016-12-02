@@ -227,7 +227,7 @@ public class GenericParser<T>
             }
             catch (Exception e)
             {
-                logger.error("Unable to build JAXB context. ", e);
+                logger.error(e.getMessage(), e);
                 return null;
             }
         }
