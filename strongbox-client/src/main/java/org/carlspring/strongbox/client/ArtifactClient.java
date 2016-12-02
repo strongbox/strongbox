@@ -27,6 +27,10 @@ public class ArtifactClient
         implements Closeable
 {
 
+    private static final String HEADER_VALUE_MAVEN = "Maven/*";
+
+    private static final String HEADER_NAME_USER_AGENT = "user-agent";
+
     protected String username = "maven";
 
     protected String password = "password";
@@ -138,7 +142,7 @@ public class ArtifactClient
 
         Response response = resource.request(mediaType)
                                     .header("Content-Disposition", contentDisposition)
-                                    .header("user-agent", "Maven/*")
+                                    .header(HEADER_NAME_USER_AGENT, HEADER_VALUE_MAVEN)
                                     .put(Entity.entity(is, mediaType));
 
         handleFailures(response, "Failed to upload file!");
@@ -155,7 +159,7 @@ public class ArtifactClient
 
         WebTarget webResource = getClientInstance().target(url);
         setupAuthentication(webResource);
-        Response response = webResource.request(MediaType.TEXT_PLAIN).header("user-agent", "Maven/*").get();
+        Response response = webResource.request(MediaType.TEXT_PLAIN).header(HEADER_NAME_USER_AGENT, HEADER_VALUE_MAVEN).get();
 
         final InputStream is = response.readEntity(InputStream.class);
 
@@ -221,7 +225,7 @@ public class ArtifactClient
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
-        return resource.request(MediaType.TEXT_PLAIN).header("user-agent", "Maven/*").get();
+        return resource.request(MediaType.TEXT_PLAIN).header(HEADER_NAME_USER_AGENT, HEADER_VALUE_MAVEN).get();
     }
 
     public void deleteArtifact(Artifact artifact,
@@ -236,7 +240,7 @@ public class ArtifactClient
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
-        Response response = resource.request().header("user-agent", "Maven/*").delete();
+        Response response = resource.request().header(HEADER_NAME_USER_AGENT, HEADER_VALUE_MAVEN).delete();
 
         handleFailures(response, "Failed to delete artifact!");
     }
@@ -263,7 +267,7 @@ public class ArtifactClient
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
-        Response response = resource.request().header("user-agent", "Maven/*").delete();
+        Response response = resource.request().header(HEADER_NAME_USER_AGENT, HEADER_VALUE_MAVEN).delete();
 
         handleFailures(response, "Failed to delete artifact!");
     }
@@ -277,7 +281,7 @@ public class ArtifactClient
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
-        Response response = resource.request().header("user-agent", "Maven/*").delete();
+        Response response = resource.request().header(HEADER_NAME_USER_AGENT, HEADER_VALUE_MAVEN).delete();
 
         handleFailures(response, "Failed to delete the trash for " + storageId + ":" + repositoryId + "!");
     }
@@ -290,7 +294,7 @@ public class ArtifactClient
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
-        Response response = resource.request().header("user-agent", "Maven/*").delete();
+        Response response = resource.request().header(HEADER_NAME_USER_AGENT, HEADER_VALUE_MAVEN).delete();
 
         handleFailures(response, "Failed to delete trash for all repositories!");
     }
@@ -307,7 +311,7 @@ public class ArtifactClient
         setupAuthentication(resource);
 
         Response response = resource.request(MediaType.TEXT_PLAIN)
-                                    .header("user-agent", "Maven/*")
+                                    .header(HEADER_NAME_USER_AGENT, HEADER_VALUE_MAVEN)
                                     .post(Entity.entity("Undelete", MediaType.TEXT_PLAIN));
 
         handleFailures(response, "Failed to delete the trash for " + storageId + ":" + repositoryId + "!");
@@ -323,7 +327,7 @@ public class ArtifactClient
         setupAuthentication(resource);
 
         Response response = resource.request(MediaType.TEXT_PLAIN)
-                                    .header("user-agent", "Maven/*")
+                                    .header(HEADER_NAME_USER_AGENT, HEADER_VALUE_MAVEN)
                                     .post(Entity.entity("Undelete", MediaType.TEXT_PLAIN));
 
         handleFailures(response, "Failed to delete the trash for " + storageId + ":" + repositoryId + "!");
@@ -338,7 +342,7 @@ public class ArtifactClient
         setupAuthentication(resource);
 
         Response response = resource.request(MediaType.TEXT_PLAIN)
-                                    .header("user-agent", "Maven/*")
+                                    .header(HEADER_NAME_USER_AGENT, HEADER_VALUE_MAVEN)
                                     .post(Entity.entity("Undelete", MediaType.TEXT_PLAIN));
 
         handleFailures(response, "Failed to delete the trash!");
@@ -384,7 +388,7 @@ public class ArtifactClient
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
-        return resource.request(MediaType.TEXT_PLAIN).header("user-agent", "Maven/*").get();
+        return resource.request(MediaType.TEXT_PLAIN).header(HEADER_NAME_USER_AGENT, HEADER_VALUE_MAVEN).get();
     }
 
     public boolean pathExists(String path)
@@ -396,7 +400,7 @@ public class ArtifactClient
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
-        Response response = resource.request(MediaType.TEXT_PLAIN).header("user-agent", "Maven/*").get();
+        Response response = resource.request(MediaType.TEXT_PLAIN).header(HEADER_NAME_USER_AGENT, HEADER_VALUE_MAVEN).get();
         try
         {
             return response.getStatus() == HttpStatus.SC_OK;
