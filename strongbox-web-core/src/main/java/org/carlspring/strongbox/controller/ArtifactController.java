@@ -125,8 +125,7 @@ public class ArtifactController
                                          message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @RequestMapping(value = { "{storageId}/{repositoryId}/{path:.+}" },
-                    method = RequestMethod.GET,
-                    consumes = MediaType.TEXT_PLAIN_VALUE)
+                    method = RequestMethod.GET)
     public void download(@ApiParam(value = "The storageId",
                                    required = true)
                          @PathVariable String storageId,
@@ -499,7 +498,8 @@ public class ArtifactController
                                  @PathVariable String repositoryId,
                                  @ApiParam(value = "Whether to use force delete")
                                  @RequestParam(defaultValue = "false",
-                                               name = "force") boolean force,
+                                               name = "force", 
+                                               required = false) boolean force,
                                  @PathVariable String path)
             throws IOException, JAXBException
     {

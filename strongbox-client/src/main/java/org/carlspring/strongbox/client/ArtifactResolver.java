@@ -180,7 +180,7 @@ public class ArtifactResolver
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
-        return resource.request(MediaType.TEXT_PLAIN).get();
+        return resource.request(MediaType.TEXT_PLAIN).header("user-agent", "Maven/*").get();
     }
 
     public boolean pathExists(String path)
@@ -192,7 +192,7 @@ public class ArtifactResolver
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
-        Response response = resource.request(MediaType.TEXT_PLAIN).get();
+        Response response = resource.request(MediaType.TEXT_PLAIN).header("user-agent", "Maven/*").get();
         try
         {
             return response.getStatus() == HttpStatus.SC_OK;
