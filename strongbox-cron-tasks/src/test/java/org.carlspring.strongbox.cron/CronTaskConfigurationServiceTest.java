@@ -8,6 +8,8 @@ import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 
 import javax.inject.Inject;
 
+import java.util.List;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.quartz.SchedulerException;
@@ -25,12 +27,7 @@ public class CronTaskConfigurationServiceTest
 
     @Test
     public void testCronTaskConfiguration()
-            throws ClassNotFoundException,
-                   SchedulerException,
-                   CronTaskNotFoundException,
-                   CronTaskException,
-                   IllegalAccessException,
-                   InstantiationException
+            throws Exception
     {
         addConfig();
         updateConfig();
@@ -38,11 +35,7 @@ public class CronTaskConfigurationServiceTest
     }
 
     public void addConfig()
-            throws SchedulerException,
-                   ClassNotFoundException,
-                   CronTaskException,
-                   InstantiationException,
-                   IllegalAccessException
+            throws Exception
     {
         String name = "Cron-Task-1";
         CronTaskConfiguration cronTaskConfiguration = new CronTaskConfiguration();
@@ -57,11 +50,7 @@ public class CronTaskConfigurationServiceTest
     }
 
     public void updateConfig()
-            throws SchedulerException,
-                   ClassNotFoundException,
-                   CronTaskException,
-                   InstantiationException,
-                   IllegalAccessException
+            throws Exception
     {
         String name = "Cron-Task-1";
         CronTaskConfiguration cronTaskConfiguration = cronTaskConfigurationService.findOne(name);
@@ -74,23 +63,17 @@ public class CronTaskConfigurationServiceTest
     }
 
     public void deleteConfig()
-            throws SchedulerException, CronTaskNotFoundException, ClassNotFoundException
+            throws Exception
     {
         String name = "Cron-Task-1";
 
-        cronTaskConfigurationService.getConfiguration(name).forEach(cronTaskConfiguration ->
-                                                                    {
-                                                                        assertNotNull(cronTaskConfiguration);
-                                                                        try
-                                                                        {
-                                                                            cronTaskConfigurationService.deleteConfiguration(
-                                                                                    cronTaskConfiguration);
-                                                                        }
-                                                                        catch (Exception e)
-                                                                        {
-                                                                            throw new RuntimeException(e);
-                                                                        }
-                                                                    });
+        List<CronTaskConfiguration> confs = cronTaskConfigurationService.getConfiguration(name);
+
+        for (CronTaskConfiguration cnf : confs)
+        {
+            assertNotNull(cnf);
+            cronTaskConfigurationService.deleteConfiguration(cnf);
+        }
 
         assertNull(cronTaskConfigurationService.findOne(name));
     }

@@ -2,6 +2,9 @@ package org.carlspring.strongbox.services;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.config.ClientConfig;
+import org.carlspring.strongbox.config.CommonConfig;
+import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.resource.ResourceCloser;
@@ -19,6 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.*;
 
@@ -35,6 +39,13 @@ public class ArtifactManagementServiceImplTest
     private static final File REPOSITORY_BASEDIR = new File(STORAGE_BASEDIR, "/releases");
 
     private static final File INDEX_DIR = new File(REPOSITORY_BASEDIR, ".index");
+
+    @org.springframework.context.annotation.Configuration
+    @Import({
+                    CommonConfig.class,
+                    StorageApiConfig.class
+            })
+    public static class SpringConfig { }
 
     @Autowired
     private ArtifactManagementService artifactManagementService;

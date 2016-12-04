@@ -76,7 +76,8 @@ public class ByteRangeRequestHandler
                                                                                HttpServletResponse response)
             throws IOException
     {
-        if (bris.getCurrentByteRange().getOffset() >= bris.getLength())
+        if (bris.getCurrentByteRange()
+                .getOffset() >= bris.getLength())
         {
             return prepareResponseBuilderForPartialRequest(bris, response);
         }
@@ -114,7 +115,8 @@ public class ByteRangeRequestHandler
     {
         response.setHeader("Accept-Ranges", "bytes");
         response.setHeader("Content-Range",
-                           "bytes " + bris.getCurrentByteRange().getOffset() + "-" + (bris.getLength() - 1L) + "/" +
+                           "bytes " + bris.getCurrentByteRange()
+                                          .getOffset() + "-" + (bris.getLength() - 1L) + "/" +
                            bris.getLength());
 
         logger.debug("Content-Range HEADER ->>> " + response.getHeader("Content-Range"));

@@ -124,11 +124,19 @@ class SpringSecurityUser
     public String toString()
     {
         final StringBuilder sb = new StringBuilder("SpringSecurityUser{");
-        sb.append("\n\tusername='").append(username).append('\'');
-        sb.append(", \n\tpassword='").append(password).append('\'');
-        sb.append(", \n\tenabled=").append(enabled);
-        sb.append(", \n\tsalt='").append(salt).append('\'');
-        sb.append(", \n\tauthorities=").append(authorities);
+        sb.append("\n\tusername='")
+          .append(username)
+          .append('\'');
+        sb.append(", \n\tpassword='")
+          .append(password)
+          .append('\'');
+        sb.append(", \n\tenabled=")
+          .append(enabled);
+        sb.append(", \n\tsalt='")
+          .append(salt)
+          .append('\'');
+        sb.append(", \n\tauthorities=")
+          .append(authorities);
         sb.append('}');
         return sb.toString();
     }

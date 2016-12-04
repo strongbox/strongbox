@@ -23,22 +23,22 @@ import java.util.List;
 /**
  * @author mtodorov
  */
-public class ArtifactLocationGenerateMetadataOperation
+public class ArtifactLocationGenerateMavenMetadataOperation
         extends AbstractArtifactLocationHandler
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(ArtifactLocationGenerateMetadataOperation.class);
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactLocationGenerateMavenMetadataOperation.class);
 
     private MavenMetadataManager mavenMetadataManager;
 
     private String previousPath;
 
 
-    public ArtifactLocationGenerateMetadataOperation()
+    public ArtifactLocationGenerateMavenMetadataOperation()
     {
     }
 
-    public ArtifactLocationGenerateMetadataOperation(MavenMetadataManager mavenMetadataManager)
+    public ArtifactLocationGenerateMavenMetadataOperation(MavenMetadataManager mavenMetadataManager)
     {
         this.mavenMetadataManager = mavenMetadataManager;
     }

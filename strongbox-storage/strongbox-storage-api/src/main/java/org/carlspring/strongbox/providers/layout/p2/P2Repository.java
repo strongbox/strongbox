@@ -9,6 +9,8 @@ public class P2Repository
 
     private P2Artifacts artifacts;
 
+    private P2Mappings mappings;
+
     @XmlElement(name = "artifacts")
     public P2Artifacts getArtifacts()
     {
@@ -20,4 +22,14 @@ public class P2Repository
         this.artifacts = artifacts;
     }
 
+    @XmlElement(name = "mappings")
+    public P2Mappings getMappings()
+    {
+        return mappings;
+    }
+
+    public void setMappings(P2Mappings mappings)
+    {
+        this.mappings = mappings;
+    }
 }

@@ -10,7 +10,11 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -39,17 +43,23 @@ public class MetadataManagementController
     @Autowired
     private ArtifactMetadataService artifactMetadataService;
 
-    @ApiOperation(value = "Used to rebuild the metadata for a given path.", position = 0)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The metadata was successfully rebuilt!"),
-                            @ApiResponse(code = 500, message = "An error occurred.") })
+    @ApiOperation(value = "Used to rebuild the metadata for a given path.",
+                  position = 0)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "The metadata was successfully rebuilt!"),
+                            @ApiResponse(code = 500,
+                                         message = "An error occurred.") })
     @PreAuthorize("hasAuthority('MANAGEMENT_REBUILD_METADATA')")
-    @RequestMapping(value = "{storageId}/{repositoryId}/**",
+    @RequestMapping(value = "{storageId}/{repositoryId}/{path:.+}",
                     method = RequestMethod.POST,
                     produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity rebuild(@ApiParam(value = "The storageId", required = true)
+    public ResponseEntity rebuild(@ApiParam(value = "The storageId",
+                                            required = true)
                                   @PathVariable String storageId,
-                                  @ApiParam(value = "The repositoryId", required = true)
+                                  @ApiParam(value = "The repositoryId",
+                                            required = true)
                                   @PathVariable String repositoryId,
+                                  @PathVariable String path,
                                   HttpServletRequest request)
             throws IOException,
                    AuthenticationException,
@@ -58,7 +68,6 @@ public class MetadataManagementController
     {
         try
         {
-            String path = convertRequestToPath(ROOT_CONTEXT, request, storageId, repositoryId);
             artifactMetadataService.rebuildMetadata(storageId, repositoryId, path);
 
             return ResponseEntity.ok("The metadata was successfully rebuilt!");
@@ -66,27 +75,35 @@ public class MetadataManagementController
         catch (ArtifactStorageException e)
         {
             logger.error(e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(e.getMessage());
         }
     }
 
-    @ApiOperation(value = "Used to delete metadata entries for an artifact", position = 0)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully removed metadata entry."),
-                            @ApiResponse(code = 500, message = "An error occurred.") })
+    @ApiOperation(value = "Used to delete metadata entries for an artifact",
+                  position = 0)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "Successfully removed metadata entry."),
+                            @ApiResponse(code = 500,
+                                         message = "An error occurred.") })
     @PreAuthorize("hasAuthority('MANAGEMENT_DELETE_METADATA')")
-    @RequestMapping(value = "{storageId}/{repositoryId}/**",
+    @RequestMapping(value = "{storageId}/{repositoryId}/{path:.+}",
                     method = RequestMethod.DELETE,
                     produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity delete(@ApiParam(value = "The storageId", required = true)
+    public ResponseEntity delete(@ApiParam(value = "The storageId",
+                                           required = true)
                                  @PathVariable String storageId,
-                                 @ApiParam(value = "The repositoryId", required = true)
+                                 @ApiParam(value = "The repositoryId",
+                                           required = true)
                                  @PathVariable String repositoryId,
-                                 @ApiParam(value = "The version of the artifact.", required = true)
+                                 @ApiParam(value = "The version of the artifact.",
+                                           required = true)
                                  @RequestParam(name = "version") String version,
                                  @ApiParam(value = "The classifier of the artifact.")
                                  @RequestParam(name = "classifier") String classifier,
                                  @ApiParam(value = "The type of metadata (artifact/snapshot/plugin).")
                                  @RequestParam(name = "metadataType") String metadataType,
+                                 @PathVariable String path,
                                  HttpServletRequest request)
             throws IOException,
                    AuthenticationException,
@@ -97,7 +114,6 @@ public class MetadataManagementController
 
         try
         {
-            String path = convertRequestToPath(ROOT_CONTEXT, request, storageId, repositoryId);
             if (ArtifactUtils.isReleaseVersion(version))
             {
                 artifactMetadataService.removeVersion(storageId,
@@ -120,7 +136,8 @@ public class MetadataManagementController
         catch (ArtifactStorageException e)
         {
             logger.error(e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(e.getMessage());
         }
     }
 

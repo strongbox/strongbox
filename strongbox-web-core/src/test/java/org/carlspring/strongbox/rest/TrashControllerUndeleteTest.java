@@ -3,11 +3,9 @@ package org.carlspring.strongbox.rest;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.rest.context.IntegrationTest;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 
 import java.io.File;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.MediaType;

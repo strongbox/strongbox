@@ -2,6 +2,7 @@ package org.carlspring.strongbox.xml.parsers;
 
 import org.carlspring.strongbox.url.ClasspathURLStreamHandler;
 import org.carlspring.strongbox.url.ClasspathURLStreamHandlerFactory;
+import org.carlspring.strongbox.xml.CustomTagService;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -50,9 +51,33 @@ public class GenericParser<T>
         }
     }
 
+    public GenericParser()
+    {
+        this.classes.addAll(CustomTagService.getInstance().getImplementations());
+    }
+
+    public GenericParser(boolean useServiceLoader)
+    {
+        if (useServiceLoader)
+        {
+            this.classes.addAll(CustomTagService.getInstance().getImplementations());
+        }
+    }
+
+    public GenericParser(boolean useServiceLoader, Class... classes)
+    {
+        Collections.addAll(this.classes, classes);
+
+        if (useServiceLoader)
+        {
+            this.classes.addAll(CustomTagService.getInstance().getImplementations());
+        }
+    }
+
     public GenericParser(Class... classes)
     {
         Collections.addAll(this.classes, classes);
+        this.classes.addAll(CustomTagService.getInstance().getImplementations());
     }
 
     public T parse(File file)
@@ -196,7 +221,15 @@ public class GenericParser<T>
     {
         if (context == null)
         {
-            context = JAXBContext.newInstance(classes.toArray(new Class[classes.size()]));
+            try
+            {
+                context = JAXBContext.newInstance(classes.toArray(new Class[classes.size()]));
+            }
+            catch (Exception e)
+            {
+                logger.error(e.getMessage(), e);
+                return null;
+            }
         }
 
         return context;

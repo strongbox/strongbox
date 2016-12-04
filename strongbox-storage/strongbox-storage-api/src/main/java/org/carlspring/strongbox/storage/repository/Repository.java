@@ -7,7 +7,9 @@ import javax.persistence.Version;
 import javax.xml.bind.annotation.*;
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -90,6 +92,9 @@ public class Repository
 
     @XmlElement(name = "http-connection-pool")
     private HttpConnectionPool httpConnectionPool;
+
+    @XmlElementRef
+    private List<CustomConfiguration> customConfigurations = new ArrayList<>();
 
     @XmlElement(name = "repository")
     @XmlElementWrapper(name = "group")
@@ -376,6 +381,16 @@ public class Repository
     public void setVersion(Long version)
     {
         this.version = version;
+    }
+
+    public List<CustomConfiguration> getCustomConfigurations()
+    {
+        return customConfigurations;
+    }
+
+    public void setCustomConfigurations(List<CustomConfiguration> customConfigurations)
+    {
+        this.customConfigurations = customConfigurations;
     }
 
     public boolean isAllowsForceDeletion()

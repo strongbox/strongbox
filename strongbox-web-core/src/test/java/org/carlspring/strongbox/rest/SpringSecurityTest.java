@@ -55,14 +55,14 @@ public class SpringSecurityTest
             throws Exception
     {
 
-        String url = getContextBaseUrl() + "/storages/greet";
+        String url = getContextBaseUrl() + "/users/greet";
 
         given().contentType(ContentType.JSON)
+                .param("name", "Johan")
                .when()
                .get(url)
                .then()
                .statusCode(200)
-               .body(containsString("success"))
                .toString();
     }
 

@@ -51,6 +51,9 @@ public class MetadataManagementControllerTest
         removeDir(REPOSITORY_BASEDIR_SNAPSHOTS.getAbsolutePath() +
                   "/org/carlspring/strongbox/metadata/strongbox-metadata");
 
+        removeDir(REPOSITORY_BASEDIR_SNAPSHOTS.getAbsolutePath() +
+                  "/org/carlspring/strongbox/metadata/foo");
+
         // Generate releases
         generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
                          "org.carlspring.strongbox.metadata:strongbox-metadata",
@@ -91,7 +94,7 @@ public class MetadataManagementControllerTest
 
         client.rebuildMetadata("storage0", "snapshots", null);
 
-        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+        given().header("user-agent", "Maven/*").contentType(MediaType.TEXT_PLAIN_VALUE)
                .when()
                .get(url)
                .peek()

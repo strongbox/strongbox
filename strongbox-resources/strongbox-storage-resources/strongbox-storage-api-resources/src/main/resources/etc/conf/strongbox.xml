@@ -6,6 +6,11 @@
     <port>48080</port>
 
     <storages>
+        <storage id="nuget-common-storage">
+            <repositories>
+                <repository id="releases" policy="release" implementation="file-system" layout="Nuget Hierarchical" type="hosted" allows-force-deletion="true" checksum-headers-enabled="true" indexing-enabled="false"/>
+            </repositories>
+        </storage>
         <storage id="storage0">
             <repositories>
                 <!-- Secured repositories do not allow anonymous access -->

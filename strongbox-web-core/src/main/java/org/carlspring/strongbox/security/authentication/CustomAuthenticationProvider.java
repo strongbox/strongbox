@@ -36,8 +36,10 @@ public class CustomAuthenticationProvider
     {
         logger.info("Execute password check for " + userDetails.getUsername());
 
-        String password = usernamePasswordAuthenticationToken.getCredentials().toString();
-        if (!userDetails.getPassword().equals(password))
+        String password = usernamePasswordAuthenticationToken.getCredentials()
+                                                             .toString();
+        if (!userDetails.getPassword()
+                        .equals(password))
         {
             throw new BadCredentialsException("Invalid password");
         }
@@ -48,11 +50,6 @@ public class CustomAuthenticationProvider
                                        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken)
             throws AuthenticationException
     {
-        if (SecurityContextHolder.getContext().getAuthentication() == null)
-        {
-            throw new RuntimeException("Authentication is null");
-        }
-
         return userDetailsService.loadUserByUsername(s);
     }
 

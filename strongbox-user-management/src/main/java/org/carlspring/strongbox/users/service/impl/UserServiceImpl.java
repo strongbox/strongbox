@@ -1,12 +1,17 @@
 package org.carlspring.strongbox.users.service.impl;
 
-import org.carlspring.strongbox.users.domain.User;
-import org.carlspring.strongbox.users.repository.UserRepository;
-import org.carlspring.strongbox.users.service.UserService;
-
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+import org.apache.commons.lang.StringUtils;
+import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.repository.UserRepository;
+import org.carlspring.strongbox.users.security.SecurityTokenProvider;
+import org.carlspring.strongbox.users.service.UserService;
+import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +39,9 @@ class UserServiceImpl
     @Autowired
     CacheManager cacheManager;
 
+    @Autowired
+    SecurityTokenProvider tokenProvider;
+    
     @Override
     @Transactional
     @Cacheable(value = "users", key = "#name", sync = true)
@@ -151,4 +159,42 @@ class UserServiceImpl
     {
         repository.deleteAll();
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.carlspring.strongbox.users.service.UserService#generateSecurityToken(
+     * java.lang.String)
+     */
+    @Override
+    public String generateSecurityToken(String id,
+                                        Date expire)
+                                                     throws JoseException
+    {
+        User user = repository.findOne(id);
+
+        if (StringUtils.isEmpty(user.getSecurityTokenKey()))
+        {
+            return null;
+        }
+        
+        Map<String, String> claimMap = new HashMap<>();
+        claimMap.put("security-token-key", user.getSecurityTokenKey());
+
+        return tokenProvider.getToken(user.getUsername(), claimMap, expire);
+    }
+
+    @Override
+    public void verifySecurityToken(String userName,
+                                    String apiKey)
+    {
+        User user = repository.findByUsername(userName);
+
+        Map<String, String> claimMap = new HashMap<>();
+        claimMap.put("security-token-key", user.getSecurityTokenKey());
+
+        tokenProvider.verifyToken(apiKey, user.getUsername(), claimMap);
+    }
+    
 }

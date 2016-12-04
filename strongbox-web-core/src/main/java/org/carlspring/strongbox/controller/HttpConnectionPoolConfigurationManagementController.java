@@ -42,14 +42,18 @@ public class HttpConnectionPoolConfigurationManagementController
 
 
     @ApiOperation(value = "Update number of pool connections pool for proxy repository")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Number of pool connections for proxy repository was updated successfully."),
-                            @ApiResponse(code = 500, message = "An error occurred.") })
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "Number of pool connections for proxy repository was updated successfully."),
+                            @ApiResponse(code = 500,
+                                         message = "An error occurred.") })
     @RequestMapping(value = "{storageId}/{repositoryId}/{numberOfConnections}",
                     method = RequestMethod.PUT,
                     produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity setNumberOfConnectionsForProxyRepository(@PathVariable(value = "storageId") String storageId,
-                                                                   @PathVariable(value = "repositoryId") String repositoryId,
-                                                                   @PathVariable(value = "numberOfConnections") int numberOfConnections
+                                                                   @PathVariable(value = "repositoryId")
+                                                                           String repositoryId,
+                                                                   @PathVariable(value = "numberOfConnections")
+                                                                           int numberOfConnections
     )
             throws IOException, JAXBException
     {
@@ -57,31 +61,38 @@ public class HttpConnectionPoolConfigurationManagementController
         Storage storage = getConfiguration().getStorage(storageId);
         if (storage == null)
         {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The storage does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                 .body("The storage does not exist!");
         }
 
         Repository repository = storage.getRepository(repositoryId);
         if (storage.getRepository(repositoryId) == null)
         {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The repository does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                 .body("The repository does not exist!");
         }
 
-        if (storage.getRepository(repositoryId).getRemoteRepository() == null)
+        if (storage.getRepository(repositoryId)
+                   .getRemoteRepository() == null)
         {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    "Repository doesn't have remote repository!");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(
+                                         "Repository doesn't have remote repository!");
         }
 
         configurationManagementService.setProxyRepositoryMaxConnections(storageId, repositoryId, numberOfConnections);
         proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(
-                repository.getRemoteRepository().getUrl(), numberOfConnections);
+                repository.getRemoteRepository()
+                          .getUrl(), numberOfConnections);
 
         return ResponseEntity.ok("Number of pool connections for repository was updated successfully.");
     }
 
     @ApiOperation(value = "Get proxy repository pool stats")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Proxy repository pool stats where retrieved."),
-                            @ApiResponse(code = 500, message = "An error occurred.") })
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "Proxy repository pool stats where retrieved."),
+                            @ApiResponse(code = 500,
+                                         message = "An error occurred.") })
     @RequestMapping(value = "{storageId}/{repositoryId}",
                     method = RequestMethod.GET,
                     produces = MediaType.TEXT_PLAIN_VALUE)
@@ -91,23 +102,28 @@ public class HttpConnectionPoolConfigurationManagementController
         Storage storage = getConfiguration().getStorage(storageId);
         if (storage == null)
         {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The storage does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                 .body("The storage does not exist!");
         }
 
         Repository repository = storage.getRepository(repositoryId);
         if (repository == null)
         {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The repository does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                 .body("The repository does not exist!");
         }
 
-        if (storage.getRepository(repositoryId).getRemoteRepository() == null)
+        if (storage.getRepository(repositoryId)
+                   .getRemoteRepository() == null)
         {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    "Repository doesn't have remote repository!");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(
+                                         "Repository doesn't have remote repository!");
         }
 
         PoolStats poolStats = proxyRepositoryConnectionPoolConfigurationService
-                                      .getPoolStats(repository.getRemoteRepository().getUrl());
+                                      .getPoolStats(repository.getRemoteRepository()
+                                                              .getUrl());
 
         return ResponseEntity.ok(poolStats.toString());
     }
@@ -115,19 +131,23 @@ public class HttpConnectionPoolConfigurationManagementController
     @ApiOperation(value = "Update default number of connections for proxy repository")
     @ApiResponses(value = { @ApiResponse(code = 200,
                                          message = "Default number of connections for proxy repository was updated successfully."),
-                            @ApiResponse(code = 500, message = "An error occurred.") })
+                            @ApiResponse(code = 500,
+                                         message = "An error occurred.") })
     @RequestMapping(value = "default/{numberOfConnections}",
                     method = RequestMethod.PUT,
                     produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity setDefaultNumberOfConnectionsForProxyRepository(@PathVariable(value = "numberOfConnections") int numberOfConnections)
+    public ResponseEntity setDefaultNumberOfConnectionsForProxyRepository(@PathVariable(value = "numberOfConnections")
+                                                                                  int numberOfConnections)
     {
         proxyRepositoryConnectionPoolConfigurationService.setDefaultMaxPerRepository(numberOfConnections);
         return ResponseEntity.ok("Default number of connections for proxy repository was updated successfully.");
     }
 
     @ApiOperation(value = "Get default number of connections for proxy repository")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Default number of connections was retrieved."),
-                            @ApiResponse(code = 500, message = "An error occurred.") })
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "Default number of connections was retrieved."),
+                            @ApiResponse(code = 500,
+                                         message = "An error occurred.") })
     @RequestMapping(value = "default-number",
                     method = RequestMethod.GET,
                     produces = MediaType.TEXT_PLAIN_VALUE)
@@ -138,8 +158,10 @@ public class HttpConnectionPoolConfigurationManagementController
     }
 
     @ApiOperation(value = "Update max number of connections for proxy repository")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Max number of connections for proxy repository was updated successfully."),
-                            @ApiResponse(code = 500, message = "An error occurred.") })
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "Max number of connections for proxy repository was updated successfully."),
+                            @ApiResponse(code = 500,
+                                         message = "An error occurred.") })
     @RequestMapping(value = "max/{numberOfConnections}",
                     method = RequestMethod.PUT,
                     produces = MediaType.TEXT_PLAIN_VALUE)
@@ -151,13 +173,16 @@ public class HttpConnectionPoolConfigurationManagementController
     }
 
     @ApiOperation(value = "Get max number of connections for proxy repository")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Max number of connections for proxy repository was retrieved."),
-                            @ApiResponse(code = 500, message = "An error occurred.") })
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "Max number of connections for proxy repository was retrieved."),
+                            @ApiResponse(code = 500,
+                                         message = "An error occurred.") })
     @RequestMapping(method = RequestMethod.GET,
                     produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity getMaxNumberOfConnectionsForProxyRepository()
     {
-        int maxNumberOfConnections = proxyRepositoryConnectionPoolConfigurationService.getTotalStats().getMax();
+        int maxNumberOfConnections = proxyRepositoryConnectionPoolConfigurationService.getTotalStats()
+                                                                                      .getMax();
         return ResponseEntity.ok(Integer.toString(maxNumberOfConnections));
     }
 
