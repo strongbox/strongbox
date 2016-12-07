@@ -114,16 +114,19 @@ public class ArtifactLocationGenerateMavenIndexOperation
                         RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(
                                 storageId.concat(":").concat(repositoryId));
 
-                        File artifactFile = new File(repositoryId, artifactPath);
-                        Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
+                        if (indexer != null)
+                        {
+                            File artifactFile = new File(repositoryId, artifactPath);
+                            Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
 
-                        try
-                        {
-                            indexer.addArtifactToIndex(repositoryId, artifactFile, artifact);
-                        }
-                        catch (IOException e)
-                        {
-                            logger.error("Failed to add artifact to index " + artifactPath, e);
+                            try
+                            {
+                                indexer.addArtifactToIndex(repositoryId, artifactFile, artifact);
+                            }
+                            catch (IOException e)
+                            {
+                                logger.error("Failed to add artifact to index " + artifactPath, e);
+                            }
                         }
                     }
                 }
