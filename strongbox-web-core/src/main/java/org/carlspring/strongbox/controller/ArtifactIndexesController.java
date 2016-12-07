@@ -75,7 +75,7 @@ public class ArtifactIndexesController
         {
             artifactIndexesService.rebuildIndexes(storageId, repositoryId, path);
 
-            return ResponseEntity.ok("The Indexes was successfully rebuilt!");
+            return ResponseEntity.ok("The indexes were successfully re-built!");
         }
         catch (ArtifactStorageException e)
         {
@@ -111,7 +111,7 @@ public class ArtifactIndexesController
         {
             artifactIndexesService.rebuildIndexes(storageId);
 
-            return ResponseEntity.ok("The Indexes was successfully rebuilt!");
+            return ResponseEntity.ok("The indexes were successfully re-built!");
         }
         catch (ArtifactStorageException e)
         {
@@ -137,7 +137,7 @@ public class ArtifactIndexesController
         {
             artifactIndexesService.rebuildIndexes();
 
-            return ResponseEntity.ok("The Indexes was successfully rebuilt!");
+            return ResponseEntity.ok("The indexes were successfully re-built!");
         }
         catch (ArtifactStorageException e)
         {
