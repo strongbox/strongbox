@@ -67,31 +67,4 @@ public class RebuildMavenIndexesCronJob
 
         manager.addExecutedJob(config.getName(), true);
     }
-
-//    /**
-//     * To rebuild indexes in repositories
-//     *
-//     * @param storageId String
-//     * @throws IOException
-//     */
-//    private void rebuildRepositoriesIndexes(String storageId)
-//            throws IOException
-//    {
-//        Map<String, Repository> repositories = getRepositories(storageId);
-//
-//        for (String repository : repositories.keySet())
-//        {
-//            artifactIndexesService.rebuildIndexes(storageId, repository, null);
-//        }
-//    }
-//
-//    private Map<String, Storage> getStorages()
-//    {
-//        return configurationManager.getConfiguration().getStorages();
-//    }
-//
-//    private Map<String, Repository> getRepositories(String storageId)
-//    {
-//        return getStorages().get(storageId).getRepositories();
-//    }
 }
