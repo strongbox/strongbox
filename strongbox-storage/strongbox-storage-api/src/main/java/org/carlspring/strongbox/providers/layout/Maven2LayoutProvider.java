@@ -123,6 +123,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         {
             final File repoPath = storageProvider.getFileImplementation(storage.getRepository(repositoryId).getBasedir());
             artifactFile = new ArtifactFile(storageProvider.getFileImplementation(repoPath.getPath(), path).getCanonicalFile());
+            artifactFile.setRepository(repository);
         }
 
         artifactFile.createParents();

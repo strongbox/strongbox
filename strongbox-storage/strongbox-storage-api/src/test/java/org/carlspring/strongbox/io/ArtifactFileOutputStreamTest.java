@@ -89,9 +89,9 @@ public class ArtifactFileOutputStreamTest
 
         afos.close();
 
-        assertFalse("Should not have move temporary the artifact file to original location!",
+        assertFalse("Should not have moved temporary the artifact file to original location!",
                     afos.getArtifactFile().exists());
-        assertTrue("Should not have move temporary the artifact file to original location!",
+        assertTrue("Should not have moved temporary the artifact file to original location!",
                    afos.getArtifactFile().getTemporaryFile().exists());
     }
 

@@ -181,7 +181,7 @@ public class ArtifactController
 
             if (isRangedRequest(httpHeaders))
             {
-                logger.debug("Detecting range request....");
+                logger.debug("Detected range request....");
                 copyToResponse(handlePartialDownload(is, httpHeaders, response), response);
             }
             else

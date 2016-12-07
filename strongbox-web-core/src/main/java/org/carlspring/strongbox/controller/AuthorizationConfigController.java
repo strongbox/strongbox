@@ -157,19 +157,14 @@ public class AuthorizationConfigController
     // ----------------------------------------------------------------------------------------------------------------
     // Revoke role by name
 
-    @ApiOperation(value = "Deletes a role by name.",
-                  position = 3)
-    @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "The role was deleted."),
-                            @ApiResponse(code = 400,
-                                         message = "Bad request.")
+    @ApiOperation(value = "Deletes a role by name.", position = 3)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The role was deleted."),
+                            @ApiResponse(code = 400, message = "Bad request.")
     })
     @RequestMapping(value = "role/{name}",
                     method = RequestMethod.DELETE)
-    public ResponseEntity deleteRole(@ApiParam(value = "The name of the role",
-                                               required = true)
+    public ResponseEntity deleteRole(@ApiParam(value = "The name of the role", required = true)
                                      @PathVariable("name") String name)
-            throws Exception
     {
         return processConfig(config ->
                              {

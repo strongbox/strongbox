@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 
 /**
- * Implementation of {@link IArtifactClient} for rest-assured tests.
+ * Implementation of {@link BaseArtifactClient} for rest-assured tests.
  *
  * @author Alex Oreshkevich
  */

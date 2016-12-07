@@ -336,14 +336,12 @@ public class ArtifactManagementServiceImpl
         }
 
         final boolean matchesCachedChecksum = matchesChecksum(baos, artifactBasePath, algorithm);
-        if (matchesCachedChecksum)
-        {
-            checksumCacheManager.removeArtifactChecksum(artifactBasePath, algorithm);
-        }
-        else
+        if (!matchesCachedChecksum)
         {
             // TODO: Implement event triggering that handles checksums that don't match the uploaded file.
         }
+
+        checksumCacheManager.removeArtifactChecksum(artifactBasePath, algorithm);
     }
 
     private boolean matchesChecksum(ByteArrayOutputStream baos,

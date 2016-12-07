@@ -70,6 +70,7 @@ public class ArtifactFile
     public ArtifactFile(File file)
     {
         super(file.getAbsolutePath());
+        this.temporaryMode = true;
     }
 
     public ArtifactFile getTemporaryFile()
@@ -79,7 +80,7 @@ public class ArtifactFile
                                  (artifactCoordinates != null ? artifactCoordinates.toPath() : relativePath) +
                                  "." + temporaryTimestamp);
 
-        // logger.debug("Creating temporary file '" +tempFile.getAbsolutePath() + "'...");
+        // logger.debug("Creating temporary file '" + tempFile.getAbsolutePath() + "'...");
 
         return new ArtifactFile(tempFile);
     }
