@@ -27,7 +27,7 @@ public class P2ArtifactReader
      * @return P2ArtifactCoordinates if found otherwise null
      */
     public static P2ArtifactCoordinates getArtifact(String repositoryBaseDir,
-                                                    String bundle)
+                                                    String bundle) throws IOException
     {
         GenericParser<P2Repository> repositoryParser = new GenericParser<>(P2Repository.class);
         try
@@ -49,7 +49,7 @@ public class P2ArtifactReader
                 }
             }
         }
-        catch (JAXBException | IOException e)
+        catch (JAXBException e)
         {
             logger.error(e.getMessage(), e);
         }
