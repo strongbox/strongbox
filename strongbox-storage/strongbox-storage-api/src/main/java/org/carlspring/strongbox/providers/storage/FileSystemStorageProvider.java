@@ -3,6 +3,7 @@ package org.carlspring.strongbox.providers.storage;
 import org.carlspring.commons.http.range.ByteRange;
 import org.carlspring.commons.io.reloading.ReloadableInputStreamHandler;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 
 import javax.annotation.PostConstruct;
@@ -75,6 +76,24 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
             throws NoSuchAlgorithmException, FileNotFoundException
     {
         return new ArtifactInputStream(new FileInputStream(path));
+    }
+    
+    @Override
+    public ArtifactOutputStream getOutputStreamImplementation(String basePath,
+                                                              ArtifactCoordinates coordinates)
+        throws IOException
+    {
+        FileOutputStream os = new FileOutputStream(new File(basePath + coordinates.toPath()));
+        return new ArtifactOutputStream(os, coordinates);
+    }
+
+    @Override
+    public ArtifactOutputStream getOutputStreamImplementation(String basePath,
+                                                              String artifactPath)
+        throws IOException
+    {
+        FileOutputStream os = new FileOutputStream(new File(basePath + artifactPath));
+        return new ArtifactOutputStream(os, null);
     }
 
     @Override

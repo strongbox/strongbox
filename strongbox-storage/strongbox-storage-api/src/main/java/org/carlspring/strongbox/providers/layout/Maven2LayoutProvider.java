@@ -1,38 +1,36 @@
 package org.carlspring.strongbox.providers.layout;
 
+import static org.carlspring.commons.io.FileUtils.moveDirectory;
+import static org.carlspring.strongbox.util.FileUtils.deleteIfExists;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.carlspring.commons.io.filters.DirectoryFilter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
-import org.carlspring.strongbox.io.ArtifactFile;
-import org.carlspring.strongbox.io.ArtifactFileOutputStream;
 import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.storage.StorageProvider;
-import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.DirUtils;
-
-import javax.annotation.PostConstruct;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Paths;
-import java.security.NoSuchAlgorithmException;
-import java.util.Map;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import static org.carlspring.commons.io.FileUtils.moveDirectory;
-import static org.carlspring.strongbox.util.FileUtils.deleteIfExists;
 
 /**
  * @author carlspring
@@ -102,32 +100,29 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
     }
 
     @Override
-    public OutputStream getOutputStream(String storageId,
+    public ArtifactOutputStream getOutputStream(String storageId,
                                         String repositoryId,
                                         String path)
             throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
+        String storagePath = storage.getRepository(repositoryId).getBasedir();
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
-
-        ArtifactFile artifactFile;
+        
+        ArtifactOutputStream os;
         if (!ArtifactUtils.isMetadata(path) && !ArtifactUtils.isChecksum(path))
         {
             Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
             MavenArtifactCoordinates coordinates = new MavenArtifactCoordinates(artifact);
 
-            artifactFile = new ArtifactFile(repository, coordinates, true);
+            os = storageProvider.getOutputStreamImplementation(storagePath, coordinates);
         }
         else
         {
-            final File repoPath = storageProvider.getFileImplementation(storage.getRepository(repositoryId).getBasedir());
-            artifactFile = new ArtifactFile(storageProvider.getFileImplementation(repoPath.getPath(), path).getCanonicalFile());
+            os = storageProvider.getOutputStreamImplementation(storagePath, path);
         }
-
-        artifactFile.createParents();
-
-        return new ArtifactFileOutputStream(artifactFile);
+        return os;
     }
 
     @Override
