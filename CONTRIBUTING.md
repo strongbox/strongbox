@@ -32,3 +32,4 @@ To accept, please:
 | Kate Novik                   | redsoft.pro                              | Minsk, Republic of Belarus              | 2016-11-16 |
 | Bespalov Sergey              |                                          | Novosibirsk, Russia                     | 2016-11-02 |
 | Sergey Panov                 | gostroy@gmail.com                        | Kiev, Ukraine                           | 2016-11-02 |
+| Nenko Tabakov                | nenko.tabakov@gmail.com                  | Sofia, Bulgaria                         | 2016-11-07 |
