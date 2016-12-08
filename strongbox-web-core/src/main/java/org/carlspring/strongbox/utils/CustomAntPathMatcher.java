@@ -47,9 +47,9 @@ public class CustomAntPathMatcher
      */
     @Override
     public boolean doMatch(String pattern,
-                              String path,
-                              boolean fullMatch,
-                              Map<String, String> uriTemplateVariables)
+                           String path,
+                           boolean fullMatch,
+                           Map<String, String> uriTemplateVariables)
     {
         String pathVariableName = null;
 
@@ -68,7 +68,6 @@ public class CustomAntPathMatcher
 
         if (pathVariableName != null && defaultMatchResult)
         {
-
             if (uriTemplateVariables == null)
             {
                 uriTemplateVariables = new LinkedHashMap<>();
@@ -77,9 +76,9 @@ public class CustomAntPathMatcher
             uriTemplateVariables.put(pathVariableName, getPathVariableValue(pattern, path));
         }
 
-        logger.trace("[doMatch] pattern " + pattern + "\n\tpath " + path + "\n\tfullMatch "
-                     + fullMatch + "\n\turiTemplateVariables "
-                     + uriTemplateVariables + "\n\tdefaultMatchResult " + defaultMatchResult);
+        logger.trace("[doMatch] pattern " + pattern + "\n\tpath " + path + "\n\tfullMatch " +
+                     fullMatch + "\n\turiTemplateVariables " +
+                     uriTemplateVariables + "\n\tdefaultMatchResult " + defaultMatchResult);
 
         return defaultMatchResult;
     }
@@ -92,7 +91,6 @@ public class CustomAntPathMatcher
      */
     private String getPathVariableName(String pattern)
     {
-
         // get the rest of source path based on the path variables count and path prefix
         String[] patternDirs = pattern.split(pathSeparator);
         int subPathIndex = patternDirs.length;
@@ -110,7 +108,6 @@ public class CustomAntPathMatcher
     private String getPathVariableValue(String pattern,
                                         String path)
     {
-
         logger.trace("pattern " + pattern);
         logger.trace("path " + path);
 
@@ -134,12 +131,13 @@ public class CustomAntPathMatcher
 
         final int pathSeparatorLength = pathSeparator.length();
 
-        for (int i = 1; i < subPathIndex - 1; i++) {
+        for (int i = 1; i < subPathIndex - 1; i++)
+        {
             String subPath = pathDirs[i];
+            
             logger.trace("Append subPath length " + subPath.length() + " for subPath " + subPath);
 
             subPathLength += subPath.length();
-
             subPathLength += pathSeparatorLength;
         }
 
