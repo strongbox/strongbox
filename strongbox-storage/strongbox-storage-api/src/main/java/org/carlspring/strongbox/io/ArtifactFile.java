@@ -4,6 +4,8 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
@@ -163,4 +165,25 @@ public class ArtifactFile
         this.temporaryMode = temporaryMode;
     }
 
+    public FileOutputStream getOutputStream(boolean moveOnClose)
+        throws IOException
+    {
+        FileOutputStream os = new FileOutputStream(isTemporaryMode() ? getTemporaryFile() : this)
+        {
+
+            @Override
+            public void close()
+                throws IOException
+            {
+                if (ArtifactFile.this.isTemporaryMode() && moveOnClose)
+                {
+                    ArtifactFile.this.moveTempFileToOriginalDestination();
+                }
+                super.close();
+            }
+
+        };
+        return os;
+    }
+    
 }

@@ -1,5 +1,13 @@
 package org.carlspring.strongbox.io;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
@@ -10,27 +18,19 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.maven.artifact.Artifact;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author mtodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
-public class ArtifactFileOutputStreamTest
+public class ArtifactOutputStreamTest
         extends TestCaseWithArtifactGeneration
 {
 
@@ -56,7 +56,7 @@ public class ArtifactFileOutputStreamTest
         final ArtifactFile artifactFile = new ArtifactFile(repository, coordinates, true);
         artifactFile.createParents();
 
-        final ArtifactFileOutputStream afos = new ArtifactFileOutputStream(artifactFile);
+        final ArtifactOutputStream afos = new ArtifactOutputStream(artifactFile.getOutputStream(true), coordinates);
 
         ByteArrayInputStream bais = new ByteArrayInputStream("This is a test\n".getBytes());
         IOUtils.copy(bais, afos);
@@ -65,7 +65,7 @@ public class ArtifactFileOutputStreamTest
 
         afos.close();
 
-        assertTrue("Failed to the move temporary artifact file to original location!", afos.getArtifactFile().exists());
+        assertTrue("Failed to the move temporary artifact file to original location!", artifactFile.exists());
     }
 
     @Test
@@ -80,7 +80,7 @@ public class ArtifactFileOutputStreamTest
         final ArtifactFile artifactFile = new ArtifactFile(repository, coordinates, true);
         artifactFile.createParents();
 
-        final ArtifactFileOutputStream afos = new ArtifactFileOutputStream(artifactFile, false);
+        final ArtifactOutputStream afos = new ArtifactOutputStream(artifactFile.getOutputStream(false), coordinates);
 
         ByteArrayInputStream bais = new ByteArrayInputStream("This is a test\n".getBytes());
         IOUtils.copy(bais, afos);
@@ -90,9 +90,9 @@ public class ArtifactFileOutputStreamTest
         afos.close();
 
         assertFalse("Should not have move temporary the artifact file to original location!",
-                    afos.getArtifactFile().exists());
+                    artifactFile.exists());
         assertTrue("Should not have move temporary the artifact file to original location!",
-                   afos.getArtifactFile().getTemporaryFile().exists());
+                   artifactFile.getTemporaryFile().exists());
     }
 
     private Configuration getConfiguration()
