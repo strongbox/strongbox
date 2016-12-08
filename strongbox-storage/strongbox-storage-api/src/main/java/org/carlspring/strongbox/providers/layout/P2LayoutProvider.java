@@ -1,25 +1,22 @@
 package org.carlspring.strongbox.providers.layout;
 
+import java.io.File;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.P2ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.io.ArtifactFile;
-import org.carlspring.strongbox.io.ArtifactFileOutputStream;
 import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.layout.p2.P2ArtifactReader;
 import org.carlspring.strongbox.providers.storage.StorageProvider;
 import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.security.NoSuchAlgorithmException;
 
 public class P2LayoutProvider
         extends AbstractLayoutProvider<P2ArtifactCoordinates>
@@ -87,32 +84,27 @@ public class P2LayoutProvider
     }
 
     @Override
-    public OutputStream getOutputStream(String storageId,
-                                        String repositoryId,
-                                        String path)
-            throws IOException
+    public ArtifactOutputStream getOutputStream(String storageId,
+                                                String repositoryId,
+                                                String path)
+        throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
+        String storagePath = storage.getRepository(repositoryId).getBasedir();
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
 
-        final String repoPath = storageProvider.getFileImplementation(
-                storage.getRepository(repositoryId).getBasedir()).getPath();
-        ArtifactFile artifactFile = null;
+        ArtifactOutputStream os;
         if (!"content.xml".equals(path) && !"artifacts.xml".equals(path) && !"artifacts.jar".equals(path) &&
-            !"content.jar".equals(path))
+                !"content.jar".equals(path))
         {
-            P2ArtifactCoordinates artifact = P2ArtifactReader.getArtifact(repoPath, path);
-            artifactFile = new ArtifactFile(new File(repoPath, artifact.getFilename()));
-        }
-        else
+            P2ArtifactCoordinates artifactCoordinates = P2ArtifactReader.getArtifact(storagePath, path);
+            os = storageProvider.getOutputStreamImplementation(storagePath, artifactCoordinates);
+        } else
         {
-            artifactFile = new ArtifactFile(storageProvider.getFileImplementation(repoPath, path).getCanonicalFile());
+            os = storageProvider.getOutputStreamImplementation(storagePath, path);
         }
-
-        artifactFile.createParents();
-
-        return new ArtifactFileOutputStream(artifactFile);
+        return os;
     }
 
     @Override
