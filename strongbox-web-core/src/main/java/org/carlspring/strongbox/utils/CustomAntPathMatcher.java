@@ -46,7 +46,7 @@ public class CustomAntPathMatcher
      * @return {@code true} if the supplied {@code path} matched, {@code false} if it didn't
      */
     @Override
-    protected boolean doMatch(String pattern,
+    public boolean doMatch(String pattern,
                               String path,
                               boolean fullMatch,
                               Map<String, String> uriTemplateVariables)
@@ -111,6 +111,9 @@ public class CustomAntPathMatcher
                                         String path)
     {
 
+        logger.trace("pattern " + pattern);
+        logger.trace("path " + path);
+
         // get the rest of source path based on the path variables count and path prefix
         String[] pathDirs = path.split(pathSeparator);
         String[] patternDirs = pattern.split(pathSeparator);
@@ -118,24 +121,35 @@ public class CustomAntPathMatcher
         logger.trace("pathDirs " + pathDirs.length + " " + Arrays.deepToString(pathDirs));
         logger.trace("patternDirs " + patternDirs.length + " " + Arrays.deepToString(patternDirs));
 
+        int pathSubDirCount = pathDirs.length;
         int subPathIndex = patternDirs.length;
 
         // for cases like /metadata/{storageId}/{repositoryId}/**  and  /metadata/storage0/releases/
-        if (pathDirs.length + 1 == subPathIndex)
+        if (pathSubDirCount + 1 == subPathIndex)
         {
             return "";
         }
 
         int subPathLength = 0;
-        for (String subPath : pathDirs)
-        {
+
+        final int pathSeparatorLength = pathSeparator.length();
+
+        for (int i = 1; i < subPathIndex - 1; i++) {
+            String subPath = pathDirs[i];
+            logger.trace("Append subPath length " + subPath.length() + " for subPath " + subPath);
+
             subPathLength += subPath.length();
-            if (--subPathIndex == 0)
-            {
-                break;
-            }
+
+            subPathLength += pathSeparatorLength;
         }
 
-        return path.substring(subPathLength);
+        subPathLength += pathSeparatorLength; // include last path separator
+
+        String pathVarValue = path.substring(subPathLength);
+
+        logger.trace("subPathLength " + subPathLength);
+        logger.trace("pathVarValue " + pathVarValue);
+
+        return pathVarValue;
     }
 }
