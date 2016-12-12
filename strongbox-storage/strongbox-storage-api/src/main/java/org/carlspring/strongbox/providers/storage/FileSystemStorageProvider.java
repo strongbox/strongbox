@@ -8,6 +8,8 @@ import org.carlspring.strongbox.io.ArtifactInputStream;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
@@ -83,7 +85,9 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
                                                               ArtifactCoordinates coordinates)
         throws IOException
     {
-        FileOutputStream os = new FileOutputStream(new File(basePath + coordinates.toPath()));
+        File file = getArtifactFile(basePath, coordinates.toPath());
+        
+        FileOutputStream os = new FileOutputStream(file);
         return new ArtifactOutputStream(os, coordinates);
     }
 
@@ -92,8 +96,21 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
                                                               String artifactPath)
         throws IOException
     {
-        FileOutputStream os = new FileOutputStream(new File(basePath + artifactPath));
+        File file = getArtifactFile(basePath, artifactPath);
+        
+        FileOutputStream os = new FileOutputStream(file);
         return new ArtifactOutputStream(os, null);
+    }
+
+
+    private File getArtifactFile(String basePath,
+                                 String artifactPath)
+    {
+        Path path = Paths.get(basePath).resolve(artifactPath);
+        path.normalize().getParent().toFile().mkdirs();
+        
+        File file = path.toFile();
+        return file;
     }
 
     @Override
