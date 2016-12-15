@@ -200,7 +200,8 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
                             AccessMode... modes)
         throws IOException
     {
-        storageFileSystemProvider.checkAccess(path, modes);
+        Path targetPath = path instanceof RepositoryPath ? ((RepositoryPath)path).getTarget() : path;
+        storageFileSystemProvider.checkAccess(targetPath, modes);
     }
 
     public <V extends FileAttributeView> V getFileAttributeView(Path path,

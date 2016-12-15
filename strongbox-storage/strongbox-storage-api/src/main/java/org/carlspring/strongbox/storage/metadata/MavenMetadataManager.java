@@ -78,7 +78,7 @@ public class MavenMetadataManager
                 artifactBasePath = artifactPath.getParent().getParent();
             }
 
-            logger.debug("Getting metadata for " + artifactBasePath.toAbsolutePath());
+            logger.debug("Getting metadata for " + artifactBasePath);
 
             metadata = readMetadata(artifactBasePath);
         }

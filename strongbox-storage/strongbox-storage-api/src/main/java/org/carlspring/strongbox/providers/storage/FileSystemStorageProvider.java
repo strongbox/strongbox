@@ -164,7 +164,9 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
         throws IOException
     {
         Path path = Paths.get(basePath).resolve(artifactPath);
-        Files.createDirectories(path);
+        if (!Files.exists(path)){
+            Files.createDirectories(path);
+        }
         return path;
     }
 }
