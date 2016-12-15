@@ -1,17 +1,19 @@
 package org.carlspring.strongbox.providers.storage;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
+
 import org.carlspring.commons.http.range.ByteRange;
 import org.carlspring.commons.io.reloading.ReloadableInputStreamHandler;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.io.ArtifactInputStream;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.NoSuchAlgorithmException;
-import java.util.List;
+import org.carlspring.strongbox.io.ArtifactOutputStream;
+import org.carlspring.strongbox.io.ArtifactPath;
+import org.carlspring.strongbox.io.RepositoryPath;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 /**
  * @author carlspring
@@ -36,14 +38,6 @@ public interface StorageProvider
     ArtifactInputStream getInputStreamImplementation(InputStream is)
         throws NoSuchAlgorithmException;
 
-    ArtifactInputStream getInputStreamImplementation(String path)
-        throws NoSuchAlgorithmException,
-        FileNotFoundException;
-
-    ArtifactInputStream getInputStreamImplementation(File file)
-        throws NoSuchAlgorithmException,
-        FileNotFoundException;
-
     ArtifactInputStream getInputStreamImplementation(InputStream is,
                                                      String[] algorithms)
         throws NoSuchAlgorithmException;
@@ -52,19 +46,19 @@ public interface StorageProvider
                                                      InputStream is)
         throws NoSuchAlgorithmException;
 
-    File getFileImplementation(String path)
-        throws IOException;
-
-    File getFileImplementation(String parentPath,
-                               String path)
-        throws IOException;
-
-    ArtifactOutputStream getOutputStreamImplementation(String basePath,
-                                                       ArtifactCoordinates coordinates)
+    ArtifactInputStream getInputStreamImplementation(ArtifactPath artifactPath)
+            throws IOException, NoSuchAlgorithmException;
+    
+    ArtifactOutputStream getOutputStreamImplementation(ArtifactPath artifactPath)
         throws IOException;;
 
-    ArtifactOutputStream getOutputStreamImplementation(String basePath,
-                                                       String artifactPath)
-        throws IOException;;
+    OutputStream getOutputStreamImplementation(RepositoryPath repositoryPath, String path)
+        throws IOException;
+        
+    ArtifactPath resolve(Repository repository,
+                         ArtifactCoordinates coordinates)
+        throws IOException;
 
+    RepositoryPath resolve(Repository repository)
+        throws IOException;
 }
