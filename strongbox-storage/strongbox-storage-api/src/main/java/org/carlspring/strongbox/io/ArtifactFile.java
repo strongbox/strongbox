@@ -1,19 +1,22 @@
 package org.carlspring.strongbox.io;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.storage.repository.Repository;
-
 import java.io.File;
-import java.io.FileDescriptor;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * This implementation contains additional information about Artifact File itself, such as {@link Repository} and
+ * {@link ArtifactCoordinates}. <br>
+ * Note that this is only about "File System" (Unix or Windows) as common {@link File}.
+ * 
  * @author mtodorov
+ * 
  */
 public class ArtifactFile
         extends File
@@ -21,69 +24,46 @@ public class ArtifactFile
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactFile.class);
 
-    private Repository repository;
-
     private ArtifactCoordinates artifactCoordinates;
 
     private long temporaryTimestamp = System.nanoTime();
 
     private boolean temporaryMode;
 
-    /**
-     * This is to only be used internally in case the artifact coordinates have not been passed in.
-     */
-    private String relativePath;
+    private String baseDir;
 
-
-    public ArtifactFile(Repository repository,
+    public ArtifactFile(String baseDir,
                         ArtifactCoordinates artifactCoordinates)
     {
-        this(repository, artifactCoordinates, false);
+        this(baseDir, artifactCoordinates, false);
     }
 
-    public ArtifactFile(Repository repository,
-                        String path)
-    {
-        this(repository, path, false);
-    }
-
-    public ArtifactFile(Repository repository,
-                        String path,
-                        boolean temporaryMode)
-    {
-        this(new File(repository.getBasedir(), path));
-
-        this.repository = repository;
-        this.relativePath = path;
-        this.temporaryMode = temporaryMode;
-    }
-
-    public ArtifactFile(Repository repository,
+    public ArtifactFile(String baseDir,
                         ArtifactCoordinates artifactCoordinates,
                         boolean temporaryMode)
     {
-        super(repository.getBasedir(), artifactCoordinates.toPath());
+        this(baseDir + File.separator + artifactCoordinates.toPath(), baseDir, artifactCoordinates, temporaryMode);
+    }
 
-        this.repository = repository;
+    ArtifactFile(String absolutePath,
+                 String baseDir,
+                 ArtifactCoordinates artifactCoordinates,
+                 boolean temporaryMode)
+    {
+        super(absolutePath);
+
+        this.baseDir = baseDir;
         this.artifactCoordinates = artifactCoordinates;
         this.temporaryMode = temporaryMode;
     }
 
-    public ArtifactFile(File file)
-    {
-        super(file.getAbsolutePath());
-    }
-
     public ArtifactFile getTemporaryFile()
     {
-        File tempFile = new File(repository.getBasedir() +
-                                 "/.temp/" +
-                                 (artifactCoordinates != null ? artifactCoordinates.toPath() : relativePath) +
-                                 "." + temporaryTimestamp);
-
-        // logger.debug("Creating temporary file '" +tempFile.getAbsolutePath() + "'...");
-
-        return new ArtifactFile(tempFile);
+        String absolutePath = baseDir +
+                File.separator + ".temp" + File.separator +
+                artifactCoordinates.toPath() +
+                "." + temporaryTimestamp;
+        return new ArtifactFile(absolutePath, artifactCoordinates, false);
     }
 
     public void createParents()
@@ -92,26 +72,25 @@ public class ArtifactFile
         {
             if (!getTemporaryFile().getParentFile().exists())
             {
-                //noinspection ResultOfMethodCallIgnored
+                // noinspection ResultOfMethodCallIgnored
                 getTemporaryFile().getParentFile().mkdirs();
             }
-        }
-        else
+        } else
         {
             if (!getParentFile().exists())
             {
-                //noinspection ResultOfMethodCallIgnored
+                // noinspection ResultOfMethodCallIgnored
                 getParentFile().mkdirs();
             }
         }
     }
 
     public void moveTempFileToOriginalDestination()
-            throws IOException
+        throws IOException
     {
         if (!getParentFile().exists())
         {
-            //noinspection ResultOfMethodCallIgnored
+            // noinspection ResultOfMethodCallIgnored
             getParentFile().mkdirs();
         }
 
@@ -120,19 +99,10 @@ public class ArtifactFile
             FileUtils.forceDelete(this);
         }
 
-        // logger.debug("Moving temporary file '" + getTemporaryFile().getAbsolutePath() + "' to '" + this.getAbsolutePath() + "'...");
+        // logger.debug("Moving temporary file '" + getTemporaryFile().getAbsolutePath() + "' to '" +
+        // this.getAbsolutePath() + "'...");
 
         FileUtils.moveFile(getTemporaryFile(), this);
-    }
-
-    public Repository getRepository()
-    {
-        return repository;
-    }
-
-    public void setRepository(Repository repository)
-    {
-        this.repository = repository;
     }
 
     public ArtifactCoordinates getArtifactCoordinates()
@@ -185,5 +155,5 @@ public class ArtifactFile
         };
         return os;
     }
-    
+
 }

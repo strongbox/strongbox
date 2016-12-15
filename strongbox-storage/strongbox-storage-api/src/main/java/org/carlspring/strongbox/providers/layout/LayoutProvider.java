@@ -12,7 +12,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 /**
  * @author carlspring
  */
-public interface LayoutProvider<T>
+public interface LayoutProvider<T extends ArtifactCoordinates>
 {
 
     void register();
@@ -34,9 +34,6 @@ public interface LayoutProvider<T>
             throws IOException;
 
     boolean containsPath(Repository repository, String path)
-            throws IOException;
-
-    String getPathToArtifact(Repository repository, ArtifactCoordinates coordinates)
             throws IOException;
 
     void copy(String srcStorageId,

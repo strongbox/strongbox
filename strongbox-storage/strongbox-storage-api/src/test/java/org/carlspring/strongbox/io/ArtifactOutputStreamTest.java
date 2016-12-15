@@ -53,7 +53,7 @@ public class ArtifactOutputStreamTest
 
         final Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.foo:temp-file-test:1.2.3:jar");
         final ArtifactCoordinates coordinates = new MavenArtifactCoordinates(artifact);
-        final ArtifactFile artifactFile = new ArtifactFile(repository, coordinates, true);
+        final ArtifactFile artifactFile = new ArtifactFile(repository.getBasedir(), coordinates, true);
         artifactFile.createParents();
 
         final ArtifactOutputStream afos = new ArtifactOutputStream(artifactFile.getOutputStream(true), coordinates);
@@ -77,7 +77,7 @@ public class ArtifactOutputStreamTest
 
         final Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.foo:temp-file-test:1.2.4:jar");
         final ArtifactCoordinates coordinates = new MavenArtifactCoordinates(artifact);
-        final ArtifactFile artifactFile = new ArtifactFile(repository, coordinates, true);
+        final ArtifactFile artifactFile = new ArtifactFile(repository.getBasedir(), coordinates, true);
         artifactFile.createParents();
 
         final ArtifactOutputStream afos = new ArtifactOutputStream(artifactFile.getOutputStream(false), coordinates);

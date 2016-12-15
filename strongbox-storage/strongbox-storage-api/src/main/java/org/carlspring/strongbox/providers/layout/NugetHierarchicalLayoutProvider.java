@@ -1,17 +1,11 @@
 package org.carlspring.strongbox.providers.layout;
 
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 
 import javax.annotation.PostConstruct;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.NugetHierarchicalArtifactCoordinates;
-import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.io.ArtifactOutputStream;
-import org.carlspring.strongbox.providers.storage.StorageProvider;
-import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,43 +52,9 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
     }
 
     @Override
-    public ArtifactInputStream getInputStream(String storageId,
-                                              String repositoryId,
-                                              String path)
-        throws IOException,
-        NoSuchAlgorithmException,
-        ArtifactTransportException
+    protected boolean isMetaData(String path)
     {
-        logger.debug(String.format("Checking in: storageId-[%s]; repoId-[%s]", storageId, repositoryId));
-
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
-        StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
-
-        String storagePath = storage.getRepository(repositoryId).getBasedir() + '/' + path;
-        ArtifactInputStream ais = storageProvider.getInputStreamImplementation(storagePath);
-
-        return ais;
-    }
-
-    @Override
-    public ArtifactOutputStream getOutputStream(String storageId,
-                                                String repositoryId,
-                                                String path)
-        throws IOException
-    {
-        logger.debug(String.format("Checking out: storageId-[%s]; repoId-[%s]", storageId, repositoryId));
-
-        NugetHierarchicalArtifactCoordinates coordinates = new NugetHierarchicalArtifactCoordinates(path);
-
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
-        StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
-
-        String storagePath = storage.getRepository(repositoryId).getBasedir();
-        ArtifactOutputStream aos = storageProvider.getOutputStreamImplementation(storagePath, coordinates);
-
-        return aos;
+        return path.endsWith("nuspec")||path.endsWith("nupkg.sha512");
     }
 
     @Override
@@ -120,14 +80,6 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
         throws IOException
     {
         return false;
-    }
-
-    @Override
-    public String getPathToArtifact(Repository repository,
-                                    ArtifactCoordinates coordinates)
-        throws IOException
-    {
-        return null;
     }
 
     @Override
