@@ -6,6 +6,8 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.providers.storage.StorageProvider;
+import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.metadata.comparators.SnapshotVersionComparator;
 import org.carlspring.strongbox.storage.metadata.comparators.VersionComparator;
@@ -49,7 +51,8 @@ public class MavenMetadataManager
 
     @Autowired
     private LayoutProviderRegistry layoutProviderRegistry;
-
+    @Autowired
+    protected StorageProviderRegistry storageProviderRegistry;
 
     public MavenMetadataManager()
     {
@@ -62,12 +65,13 @@ public class MavenMetadataManager
     {
         Metadata metadata;
 
+        StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
         ArtifactCoordinates coordinates = (ArtifactCoordinates) layoutProvider.getArtifactCoordinates(ArtifactUtils.convertArtifactToPath(artifact));
-
+        
         if (layoutProvider.containsArtifact(repository, coordinates))
         {
-            Path artifactPath = Paths.get(layoutProvider.getPathToArtifact(repository, coordinates));
+            Path artifactPath = storageProvider.resolve(repository, coordinates);;
             Path artifactBasePath = artifactPath;
             if (artifact.getVersion() != null)
             {

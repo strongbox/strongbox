@@ -1,17 +1,10 @@
 package org.carlspring.strongbox.providers.layout;
 
-import java.io.File;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.P2ArtifactCoordinates;
-import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.layout.p2.P2ArtifactReader;
-import org.carlspring.strongbox.providers.storage.StorageProvider;
-import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
@@ -28,9 +21,6 @@ public class P2LayoutProvider
 
     @Autowired
     private LayoutProviderRegistry layoutProviderRegistry;
-
-    @Autowired
-    private StorageProviderRegistry storageProviderRegistry;
 
     @Override
     public void register()
@@ -52,59 +42,10 @@ public class P2LayoutProvider
         return P2ArtifactCoordinates.create(path);
     }
 
-    @Override
-    public ArtifactInputStream getInputStream(String storageId,
-                                              String repositoryId,
-                                              String path)
-            throws IOException, NoSuchAlgorithmException, ArtifactTransportException
+    protected boolean isMetaData(String path)
     {
-        Storage storage = getConfiguration().getStorage(storageId);
-
-        logger.debug("Checking in " + storage.getId() + ":" + repositoryId + "...");
-
-        Repository repository = storage.getRepository(repositoryId);
-        StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
-
-        final File repoPath = storageProvider.getFileImplementation(storage.getRepository(repositoryId).getBasedir());
-        final File artifactFile = storageProvider.getFileImplementation(repoPath.getPath(), path).getCanonicalFile();
-
-        logger.debug(" -> Checking for " + artifactFile.getCanonicalPath() + "...");
-
-        if (artifactFile.exists())
-        {
-            logger.debug("Resolved " + artifactFile.getCanonicalPath() + "!");
-
-            ArtifactInputStream ais = storageProvider.getInputStreamImplementation(artifactFile.getAbsolutePath());
-            ais.setLength(artifactFile.length());
-
-            return ais;
-        }
-
-        return null;
-    }
-
-    @Override
-    public ArtifactOutputStream getOutputStream(String storageId,
-                                                String repositoryId,
-                                                String path)
-        throws IOException
-    {
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
-        String storagePath = storage.getRepository(repositoryId).getBasedir();
-        StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
-
-        ArtifactOutputStream os;
-        if (!"content.xml".equals(path) && !"artifacts.xml".equals(path) && !"artifacts.jar".equals(path) &&
-                !"content.jar".equals(path))
-        {
-            P2ArtifactCoordinates artifactCoordinates = P2ArtifactReader.getArtifact(storagePath, path);
-            os = storageProvider.getOutputStreamImplementation(storagePath, artifactCoordinates);
-        } else
-        {
-            os = storageProvider.getOutputStreamImplementation(storagePath, path);
-        }
-        return os;
+        return !"content.xml".equals(path) && !"artifacts.xml".equals(path) && !"artifacts.jar".equals(path) &&
+                !"content.jar".equals(path);
     }
 
     @Override
@@ -139,14 +80,6 @@ public class P2LayoutProvider
             throws IOException
     {
         return containsArtifact(repository, P2ArtifactCoordinates.create(path));
-    }
-
-    @Override
-    public String getPathToArtifact(Repository repository,
-                                    ArtifactCoordinates coordinates)
-            throws IOException
-    {
-        return null;
     }
 
     @Override
