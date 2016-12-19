@@ -160,8 +160,8 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
     }
 
     protected ArtifactPath resolve(String storageId,
-                                 String repositoryId,
-                                 ArtifactCoordinates coordinates)
+                                   String repositoryId,
+                                   ArtifactCoordinates coordinates)
         throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
