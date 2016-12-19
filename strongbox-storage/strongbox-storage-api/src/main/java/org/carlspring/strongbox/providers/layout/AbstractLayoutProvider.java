@@ -118,7 +118,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         Repository repository = storage.getRepository(repositoryId);
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
         OutputStream os;
-        if (isMetaData(path))
+        if (isMetadata(path))
         {
             ArtifactPath artifactPath = resolve(repository, getArtifactCoordinates(path));
             os = storageProvider.getOutputStreamImplementation(artifactPath);
@@ -131,7 +131,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         return os instanceof ArtifactOutputStream ? (ArtifactOutputStream) os : new ArtifactOutputStream(os, null);
     }
     
-    protected abstract boolean isMetaData(String path);
+    protected abstract boolean isMetadata(String path);
     
     protected RepositoryPath resolve(Repository repository)
         throws IOException

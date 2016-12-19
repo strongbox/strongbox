@@ -42,7 +42,7 @@ public class P2LayoutProvider
         return P2ArtifactCoordinates.create(path);
     }
 
-    protected boolean isMetaData(String path)
+    protected boolean isMetadata(String path)
     {
         return !"content.xml".equals(path) && !"artifacts.xml".equals(path) && !"artifacts.jar".equals(path) &&
                 !"content.jar".equals(path);
