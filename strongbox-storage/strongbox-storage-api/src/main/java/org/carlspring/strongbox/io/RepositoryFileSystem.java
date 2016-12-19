@@ -56,6 +56,12 @@ public class RepositoryFileSystem extends FileSystemWrapper
         return getRootDirectory().resolve(".trash");
     }
 
+    public RepositoryPath getTempPath()
+    {
+        return getRootDirectory().resolve(".temp");
+    }
+
+    
     public Path getPath(String first,
                         String... more)
     {

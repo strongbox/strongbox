@@ -1,8 +1,11 @@
 package org.carlspring.strongbox.providers.layout;
 
 import java.io.IOException;
-import java.io.OutputStream;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
@@ -13,12 +16,9 @@ import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
-import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.io.ArtifactPath;
 import org.carlspring.strongbox.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.io.RepositoryPath;
-import org.carlspring.strongbox.providers.storage.StorageProvider;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
@@ -108,28 +108,54 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
                        boolean force)
             throws IOException
     {
-        ArtifactPath artifactPath = resolve(storageId, repositoryId, path);
-        Repository repository = artifactPath.getFileSystem().getRepository();
-        ArtifactCoordinates coordinates = artifactPath.getCoordinates();
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+        
+        RepositoryPath repositoryBasePath = resolve(repository);
+        RepositoryPath repositoryPath = repositoryBasePath.resolve(path);
 
-        logger.debug("Checking in " + storageId + ":" + repositoryId + "(" + coordinates + ")...");
-        if (!Files.exists(artifactPath))
+        logger.debug("Checking in " + storageId + ":" + repositoryId + "(" + path + ")...");
+        if (!Files.exists(repositoryPath))
         {
-            logger.warn(String.format("Path not found: path-[%s]", artifactPath));
+            logger.warn(String.format("Path not found: path-[%s]", repositoryPath));
             return;
         }
 
-        RepositoryFileSystemProvider provider = getProvider(artifactPath);
-        RepositoryPath md5Path = artifactPath.resolveSibling(artifactPath.getFileName() + ".md5");
-        RepositoryPath sha1Path = artifactPath.resolveSibling(artifactPath.getFileName() + ".sha1");
+        RepositoryFileSystemProvider provider = getProvider(repositoryPath);
+        if (!Files.isDirectory(repositoryPath)){
+            RepositoryPath md5Path = repositoryPath.resolveSibling(repositoryPath.getFileName() + ".md5");
+            RepositoryPath sha1Path = repositoryPath.resolveSibling(repositoryPath.getFileName() + ".sha1");
+            
+            Files.delete(repositoryPath);
+            Files.deleteIfExists(md5Path);
+            Files.deleteIfExists(sha1Path);
         
-        Files.delete(artifactPath);
-        Files.deleteIfExists(md5Path);
-        Files.deleteIfExists(sha1Path);
-        if (force && repository.allowsForceDeletion()){
-            provider.deleteTrash(artifactPath);
-            provider.deleteTrash(md5Path);
-            provider.deleteTrash(sha1Path);
+            if (force && repository.allowsForceDeletion()){
+                provider.deleteTrash(repositoryPath);
+                provider.deleteTrash(md5Path);
+                provider.deleteTrash(sha1Path);
+            }
+        } else {
+            Files.walkFileTree(repositoryPath, new SimpleFileVisitor<Path>()
+            {
+                @Override
+                public FileVisitResult visitFile(Path file,
+                                                 BasicFileAttributes attrs)
+                    throws IOException
+                {
+                    Files.delete(file);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir,
+                                                          IOException exc)
+                    throws IOException
+                {
+                    Files.delete(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
         }
         
         logger.debug("Removed /" + repositoryId + "/" + path);
