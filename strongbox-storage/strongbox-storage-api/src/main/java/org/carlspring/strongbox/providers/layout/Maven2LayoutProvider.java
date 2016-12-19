@@ -63,7 +63,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
     public MavenArtifactCoordinates getArtifactCoordinates(String path)
     {
         MavenArtifactCoordinates coordinates = null;
-        if (isMetaData(path))
+        if (isMetadata(path))
         {
             Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
             coordinates = new MavenArtifactCoordinates(artifact);
@@ -74,7 +74,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
     }
 
 
-    protected boolean isMetaData(String path)
+    protected boolean isMetadata(String path)
     {
         return !ArtifactUtils.isMetadata(path) && !ArtifactUtils.isChecksum(path);
     }
