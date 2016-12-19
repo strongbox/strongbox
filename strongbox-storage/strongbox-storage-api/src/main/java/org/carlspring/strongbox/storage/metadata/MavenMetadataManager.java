@@ -17,6 +17,7 @@ import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
@@ -101,12 +102,12 @@ public class MavenMetadataManager
     public Metadata readMetadata(Path artifactBasePath)
             throws IOException, XmlPullParserException
     {
-        File metadataFile = MetadataHelper.getMetadataFile(artifactBasePath);
+        Path metadataFile = MetadataHelper.getMetadataFile(artifactBasePath);
         Metadata metadata = null;
 
-        try (FileInputStream fis = new FileInputStream(metadataFile))
+        try (InputStream is = Files.newInputStream(metadataFile))
         {
-            metadata = readMetadata(fis);
+            metadata = readMetadata(is);
         }
 
         return metadata;

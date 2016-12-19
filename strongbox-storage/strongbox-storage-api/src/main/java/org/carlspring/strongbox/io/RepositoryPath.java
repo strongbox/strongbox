@@ -144,6 +144,7 @@ public class RepositoryPath implements Path
     public File toFile()
     {
         throw new UnsupportedOperationException();
+        //return target.toFile();
     }
 
     public WatchKey register(WatchService watcher,
@@ -176,4 +177,9 @@ public class RepositoryPath implements Path
         return new RepositoryPath(path, fileSystem);
     }
 
+    public String toString()
+    {
+        return target.toString();
+    }
+    
 }
