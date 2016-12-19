@@ -13,6 +13,7 @@ import java.nio.file.FileStore;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -103,7 +104,7 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
         RepositoryPath repositoryPath = (RepositoryPath) path;
         if (!Files.exists(repositoryPath.getTarget()))
         {
-            return;
+            throw new NoSuchFileException(getTargetPath(repositoryPath).toString());
         }
 
         Repository repository = repositoryPath.getFileSystem().getRepository();
