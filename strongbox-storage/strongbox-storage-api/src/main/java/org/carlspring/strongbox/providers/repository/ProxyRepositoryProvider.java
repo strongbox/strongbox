@@ -74,10 +74,6 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
 
         logger.debug("Checking in " + storage.getId() + ":" + repositoryId + "...");
         Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
-        StorageProvider storageProvider = getStorageProviderRegistry().getProvider(repository.getImplementation());
-        //Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
-        //ArtifactCoordinates coordinates = new MavenArtifactCoordinates(artifact);
-        //ArtifactPath artifactPath = storageProvider.resolve(repository, coordinates);
 
         RepositoryPath reposytoryPath = filesystemStorageProvider.resolve(repository);
         RepositoryPath artifactPath = reposytoryPath.resolve(path);
