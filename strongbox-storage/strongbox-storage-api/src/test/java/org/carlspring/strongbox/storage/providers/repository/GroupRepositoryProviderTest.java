@@ -22,6 +22,7 @@ import com.carmatechnologies.commons.testing.logging.ExpectedLogs;
 import com.carmatechnologies.commons.testing.logging.api.LogLevel;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -121,6 +122,7 @@ public class GroupRepositoryProviderTest
     }
 
     @Test
+    @Ignore
     public void testGroupIncludesWithOutOfServiceRepository()
             throws IOException,
                    NoSuchAlgorithmException,
@@ -208,6 +210,7 @@ public class GroupRepositoryProviderTest
     }
 
     @Test
+    @Ignore
     public void testGroupExcludes()
             throws IOException,
                    NoSuchAlgorithmException,
@@ -227,6 +230,7 @@ public class GroupRepositoryProviderTest
     }
 
     @Test
+    @Ignore
     public void testGroupExcludesWildcardRule()
             throws IOException,
                    NoSuchAlgorithmException,

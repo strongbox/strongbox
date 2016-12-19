@@ -5,6 +5,8 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -232,17 +234,17 @@ public class MetadataHelper
      * @param artifactBasePath Path
      * @return File
      */
-    public static File getMetadataFile(Path artifactBasePath)
-            throws FileNotFoundException
+    public static Path getMetadataFile(Path artifactBasePath)
+        throws FileNotFoundException
     {
-        if (artifactBasePath.toFile().exists())
+        if (Files.exists(artifactBasePath))
         {
-            return new File(artifactBasePath.toFile().getAbsolutePath() + "/maven-metadata.xml");
-        }
-        else
+            return artifactBasePath.resolve("maven-metadata.xml");
+        } else
         {
-            throw new FileNotFoundException("Could not find " +
-                                            new File(artifactBasePath.toFile().getAbsolutePath() + "/maven-metadata.xml") + "!");
+            throw new FileNotFoundException(
+                    String.format("Could not find metadata: artifatcBasePath-[%s]; metadataFileName-[%s]",
+                                  artifactBasePath, "maven-metadata.xml"));
         }
     }
 
