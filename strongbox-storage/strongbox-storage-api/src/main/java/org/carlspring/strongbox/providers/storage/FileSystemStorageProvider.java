@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.providers.storage;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -98,11 +99,32 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
     }
 
     @Override
+    public ArtifactInputStream getInputStreamImplementation(RepositoryPath repositoryPath,
+                                                            String path)
+        throws IOException, NoSuchAlgorithmException
+    {
+        
+        RepositoryPath artifactPath = repositoryPath.resolve(path);
+        if (!Files.exists(artifactPath) || Files.isDirectory(artifactPath)){
+            throw new FileNotFoundException(artifactPath.toString());
+        }        
+        InputStream is = Files.newInputStream(artifactPath);
+        ArtifactInputStream ais = new ArtifactInputStream(is);
+        ais.setLength(Files.size(artifactPath));
+        return ais;
+    }
+
+    @Override
     public ArtifactInputStream getInputStreamImplementation(ArtifactPath artifactPath)
         throws IOException,
         NoSuchAlgorithmException
     {
-        return new ArtifactInputStream(Files.newInputStream(artifactPath));
+        if (!Files.exists(artifactPath)){
+            throw new FileNotFoundException(artifactPath.toString());
+        }
+        ArtifactInputStream ais = new ArtifactInputStream(Files.newInputStream(artifactPath));
+        ais.setLength(Files.size(artifactPath));
+        return ais;
     }
 
     @Override
@@ -143,6 +165,14 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
         return new RepositoryPath(path, getRepositoryFileSystem(repository));
     }
 
+    @Override
+    public RepositoryPath resolve(Repository repository,
+                                  String path)
+        throws IOException
+    {
+        return resolve(repository).resolve(path);
+    }
+
     private RepositoryFileSystem getRepositoryFileSystem(Repository repository)
     {
         FileSystem storageFileSystem = new FileSystemWrapper(Paths.get(repository.getBasedir()).getFileSystem())
@@ -163,10 +193,11 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
                                  String artifactPath)
         throws IOException
     {
-        Path path = Paths.get(basePath).resolve(artifactPath);
-        if (!Files.exists(path))
+        Path base = Paths.get(basePath);
+        Path path = base.resolve(artifactPath);
+        if (!Files.exists(path.getParent()))
         {
-            Files.createDirectories(path);
+            Files.createDirectories(path.getParent());
         }
         return path;
     }

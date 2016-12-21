@@ -11,11 +11,13 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.DirectoryStream.Filter;
 import java.nio.file.FileStore;
 import java.nio.file.FileSystem;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
@@ -130,9 +132,18 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
         }
 
         RepositoryPath trashPath = getTrashPath(path);
-        if (Files.exists(trashPath.getTarget()))
+        if (!Files.exists(trashPath.getTarget()))
+        {
+            return;
+        }
+
+        if (!Files.isDirectory(trashPath.getTarget()))
         {
             Files.move(trashPath.getTarget(), path.getTarget(), StandardCopyOption.REPLACE_EXISTING);
+        } else
+        {
+            Files.walkFileTree(trashPath.getTarget(), new MoveDirVisitor(trashPath.getTarget(), path.getTarget(),
+                    StandardCopyOption.REPLACE_EXISTING));
         }
     }
 
@@ -142,7 +153,8 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
         RepositoryPath tempPath = getTempPath(path);
         if (Files.exists(tempPath.getTarget()))
         {
-            if (!Files.exists(getTargetPath(path).getParent())){
+            if (!Files.exists(getTargetPath(path).getParent()))
+            {
                 Files.createDirectories(getTargetPath(path).getParent());
             }
             Files.move(tempPath.getTarget(), path.getTarget(), StandardCopyOption.REPLACE_EXISTING);
@@ -159,14 +171,42 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
         }
 
         RepositoryPath trashPath = getTrashPath(path);
-        Files.deleteIfExists(trashPath.getTarget());
+        if (!Files.exists(trashPath.getTarget())){
+            return;
+        }
+        if (!Files.isDirectory(trashPath.getTarget())){
+            Files.delete(trashPath.getTarget());
+        } else {
+            Files.walkFileTree(trashPath.getTarget(), new SimpleFileVisitor<Path>()
+            {
+                @Override
+                public FileVisitResult visitFile(Path file,
+                                                 BasicFileAttributes attrs)
+                    throws IOException
+                {
+                    Files.delete(file);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir,
+                                                          IOException exc)
+                    throws IOException
+                {
+                    Files.delete(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });            
+        }
     }
 
-    public RepositoryPath getTempPath(RepositoryPath path) throws IOException
+    public RepositoryPath getTempPath(RepositoryPath path)
+        throws IOException
     {
         RepositoryPath tempPathBase = path.getFileSystem().getTempPath();
         RepositoryPath tempPath = rebase(path, tempPathBase);
-        if (!Files.exists(tempPath.getParent().getTarget())){
+        if (!Files.exists(tempPath.getParent().getTarget()))
+        {
             logger.debug(String.format("Creating: dir-[%s]", tempPath.getParent()));
             Files.createDirectories(tempPath.getParent().getTarget());
         }
@@ -174,9 +214,16 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
     }
 
     public RepositoryPath getTrashPath(RepositoryPath path)
+        throws IOException
     {
-        RepositoryPath trashPath = path.getFileSystem().getTrashPath();
-        return rebase(path, trashPath);
+        RepositoryPath trashBasePath = path.getFileSystem().getTrashPath();
+        RepositoryPath trashPath = rebase(path, trashBasePath);
+        if (!Files.exists(trashPath.getParent().getTarget()))
+        {
+            logger.debug(String.format("Creating: dir-[%s]", trashPath.getParent()));
+            Files.createDirectories(trashPath.getParent().getTarget());
+        }
+        return trashPath;
     }
 
     private static RepositoryPath rebase(RepositoryPath source,
@@ -191,7 +238,7 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
         // sbespalov: We try to convert path form source to target FileSystem
         // sbespalov: Need to check this on different Storage types.
         String sTargetPath = sourceRelative.replaceAll(sourceFileSystem.getSeparator(),
-                                                                             targetFileSystem.getSeparator());
+                                                       targetFileSystem.getSeparator());
         RepositoryPath target = targetBase.resolve(sTargetPath);
         return target;
     }
@@ -289,5 +336,43 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
     private Path getTargetPath(Path path)
     {
         return path instanceof RepositoryPath ? ((RepositoryPath) path).getTarget() : path;
+    }
+
+    public static class MoveDirVisitor extends SimpleFileVisitor<Path>
+    {
+        private final Path fromPath;
+        private final Path toPath;
+        private final CopyOption copyOption;
+
+        public MoveDirVisitor(Path fromPath,
+                              Path toPath,
+                              CopyOption copyOption)
+        {
+            this.fromPath = fromPath;
+            this.toPath = toPath;
+            this.copyOption = copyOption;
+        }
+
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir,
+                                                 BasicFileAttributes attrs)
+            throws IOException
+        {
+            Path targetPath = toPath.resolve(fromPath.relativize(dir));
+            if (!Files.exists(targetPath))
+            {
+                Files.createDirectory(targetPath);
+            }
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file,
+                                         BasicFileAttributes attrs)
+            throws IOException
+        {
+            Files.move(file, toPath.resolve(fromPath.relativize(file)), copyOption);
+            return FileVisitResult.CONTINUE;
+        }
     }
 }
