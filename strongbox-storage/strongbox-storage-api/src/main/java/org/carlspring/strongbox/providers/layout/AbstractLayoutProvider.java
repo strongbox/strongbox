@@ -183,8 +183,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         throws IOException
     {
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
-        ArtifactPath artifactPath = storageProvider.resolve(repository, coordinates);
-        return artifactPath;
+        return storageProvider.resolve(repository, coordinates);
     }
 
     protected ArtifactPath resolve(String storageId,
