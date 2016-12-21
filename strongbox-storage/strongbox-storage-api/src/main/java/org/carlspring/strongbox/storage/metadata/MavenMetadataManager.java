@@ -72,7 +72,7 @@ public class MavenMetadataManager
         
         if (layoutProvider.containsArtifact(repository, coordinates))
         {
-            Path artifactPath = storageProvider.resolve(repository, coordinates);;
+            Path artifactPath = storageProvider.resolve(repository, coordinates);
             Path artifactBasePath = artifactPath;
             if (artifact.getVersion() != null)
             {
