@@ -190,7 +190,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
      * Returns the artifact associated to artifactPath if repository type isn't GROUP or
      * returns the product of calling getInputStream recursively otherwise.
      *
-     * @param storageId    The storage id
+     * @param storageId    The storage databaseId
      * @param repositoryId The repository
      * @param artifactPath The path to the artifact
      * @return

@@ -138,14 +138,14 @@ public class Configuration
         this.routingRules = routingRules;
     }
 
-    public String getId()
+    public String getDatabaseId()
     {
-        return id;
+        return databaseId;
     }
 
-    public void setId(String id)
+    public void setDatabaseId(String databaseId)
     {
-        this.id = id;
+        this.databaseId = databaseId;
     }
 
     @Override

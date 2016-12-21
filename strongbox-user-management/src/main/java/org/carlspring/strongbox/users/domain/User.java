@@ -1,13 +1,13 @@
 package org.carlspring.strongbox.users.domain;
 
+import org.carlspring.strongbox.data.domain.GenericEntity;
+
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-import org.carlspring.strongbox.data.domain.GenericEntity;
-
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * An application user
@@ -40,7 +40,7 @@ public class User
                 String salt,
                 Set<String> roles)
     {
-        this.id = id;
+        this.databaseId = id;
         this.username = username;
         this.password = password;
         this.enabled = enabled;
@@ -123,7 +123,7 @@ public class User
         User user = (User) o;
 
         return enabled == user.enabled &&
-               Objects.equal(id, user.id) &&
+               Objects.equal(databaseId, user.databaseId) &&
                Objects.equal(username, user.username) &&
                Objects.equal(password, user.password) &&
                Objects.equal(salt, user.salt) &&
@@ -134,14 +134,14 @@ public class User
     @Override
     public int hashCode()
     {
-        return Objects.hashCode(id, username, password, enabled, salt, roles, detachAll);
+        return Objects.hashCode(databaseId, username, password, enabled, salt, roles, detachAll);
     }
 
     @Override
     public String toString()
     {
         return MoreObjects.toStringHelper(this)
-                          .add("id", getId())
+                          .add("databaseId", getDatabaseId())
                           .add("username", getUsername())
                           .add("password", getPassword())
                           .add("enabled", isEnabled())

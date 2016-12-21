@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.data.server;
 
 import org.carlspring.strongbox.config.DataServiceConfig;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 
 import javax.annotation.PostConstruct;
 import java.util.LinkedList;
@@ -9,11 +8,17 @@ import java.util.List;
 
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.OServerMain;
-import com.orientechnologies.orient.server.config.*;
+import com.orientechnologies.orient.server.config.OServerConfiguration;
+import com.orientechnologies.orient.server.config.OServerEntryConfiguration;
+import com.orientechnologies.orient.server.config.OServerNetworkConfiguration;
+import com.orientechnologies.orient.server.config.OServerNetworkListenerConfiguration;
+import com.orientechnologies.orient.server.config.OServerNetworkProtocolConfiguration;
+import com.orientechnologies.orient.server.config.OServerUserConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import static org.carlspring.strongbox.data.PropertyUtils.getVaultDirectory;
 
 /**
  * An embedded configuration of OrientDb server.
@@ -104,7 +109,7 @@ public class EmbeddedOrientDbServer
 
     private String getDatabasePath()
     {
-        return ConfigurationResourceResolver.getVaultDirectory() + "/db";
+        return getVaultDirectory() + "/db";
     }
 
     public void start()
@@ -141,5 +146,4 @@ public class EmbeddedOrientDbServer
             }
         }
     }
-
 }

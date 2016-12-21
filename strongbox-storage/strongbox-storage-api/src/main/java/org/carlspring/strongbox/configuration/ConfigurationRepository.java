@@ -137,7 +137,7 @@ public class ConfigurationRepository
         try
         {
             final String data = configurationCache.getParser().serialize(configuration);
-            final String configurationId = configuration.getId();
+            final String configurationId = configuration.getDatabaseId();
 
             // update existing configuration with new data (if possible)
             if (configurationId != null)
@@ -155,7 +155,7 @@ public class ConfigurationRepository
                 throw new NullPointerException("The currentDatabaseId is null.");
             }
 
-            configuration.setId(currentDatabaseId);
+            configuration.setDatabaseId(currentDatabaseId);
             configurationCache.save(configuration);
 
             logger.debug("Configuration updated under ID " + currentDatabaseId);

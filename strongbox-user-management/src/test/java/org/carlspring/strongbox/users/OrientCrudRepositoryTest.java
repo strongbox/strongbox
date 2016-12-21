@@ -51,7 +51,7 @@ public class OrientCrudRepositoryTest
         final User savedUser = databaseTx.detachAll(userService.save(user), true);
         assertNotNull(savedUser);
 
-        String id = savedUser.getId();
+        String id = savedUser.getDatabaseId();
         logger.debug("Saved user: " + savedUser);
 
         Optional<User> optional = userService.findOne(id);

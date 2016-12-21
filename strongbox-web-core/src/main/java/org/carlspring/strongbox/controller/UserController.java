@@ -175,15 +175,15 @@ public class UserController
     {
 
         User user = read(userJson, User.class);
-        String id = user.getId();
+        String id = user.getDatabaseId();
 
         if (id == null || !userService.findOne(id)
                                       .isPresent())
         {
-            return toError("Unable to update non-existing user with id " + id);
+            return toError("Unable to update non-existing user with databaseId " + id);
         }
 
-        logger.debug("Update user by id " + id);
+        logger.debug("Update user by databaseId " + id);
 
         // do save
         user = databaseTx.detach(userService.save(read(userJson, User.class)), true);
@@ -210,12 +210,12 @@ public class UserController
             throws Exception
     {
         User user = userService.findByUsername(name);
-        if (user == null || user.getId() == null)
+        if (user == null || user.getDatabaseId() == null)
         {
             return toError("The specified user does not exist!");
         }
 
-        userService.delete(user.getId());
+        userService.delete(user.getDatabaseId());
 
         return ResponseEntity.ok()
                              .build();
@@ -231,12 +231,12 @@ public class UserController
 
     {
         User user = userService.findByUsername(name);
-        if (user == null || user.getId() == null)
+        if (user == null || user.getDatabaseId() == null)
         {
             return toError("The specified user does not exist!");
         }
 
-        String result = userService.generateSecurityToken(user.getId(), null);
+        String result = userService.generateSecurityToken(user.getDatabaseId(), null);
 
         if (result == null)
         {

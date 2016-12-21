@@ -51,16 +51,16 @@ public class ConfigurationCache
             return null;
         }
 
-        if (configuration.getId() == null)
+        if (configuration.getDatabaseId() == null)
         {
-            throw new IllegalArgumentException("Unable to save configuration into cache: id is null");
+            throw new IllegalArgumentException("Unable to save configuration into cache: databaseId is null");
         }
 
         try
         {
             String value = parser.serialize(configuration);
-            configurationCache.evict(configuration.getId());
-            configurationCache.put(configuration.getId(), value);
+            configurationCache.evict(configuration.getDatabaseId());
+            configurationCache.put(configuration.getDatabaseId(), value);
         }
         catch (Exception e)
         {

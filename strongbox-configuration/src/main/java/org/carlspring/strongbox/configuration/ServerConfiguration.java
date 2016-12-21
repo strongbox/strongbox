@@ -21,7 +21,7 @@ public abstract class ServerConfiguration
 {
 
     @Id
-    protected String id;
+    protected String databaseId;
 
     /**
      * Added to avoid a runtime error whereby the detachAll property is checked for existence but not actually used.
@@ -37,13 +37,13 @@ public abstract class ServerConfiguration
     {
     }
 
-    public String getId()
+    public String getDatabaseId()
     {
-        return id;
+        return databaseId;
     }
 
-    public void setId(String id)
+    public void setDatabaseId(String databaseId)
     {
-        this.id = id;
+        this.databaseId = databaseId;
     }
 }

@@ -13,6 +13,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,7 @@ import static org.junit.Assert.assertTrue;
 @Transactional
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { StorageApiConfig.class })
+@Rollback(false)
 public class ArtifactEntryServiceTest
 {
 
@@ -52,13 +54,15 @@ public class ArtifactEntryServiceTest
                                                                                "jar");
 
         ArtifactEntry artifactEntry = new ArtifactEntry();
-        //  artifactEntry.setArtifactCoordinates(artifactCoordinates);
+        artifactEntry.setArtifactCoordinates(artifactCoordinates);
         artifactEntry.setRepositoryId("release");
         artifactEntry.setStorageId("storage0");
 
         artifactEntry = databaseTx.detachAll(artifactEntryService.save(artifactEntry), true);
 
         logger.info("Saved entity " + artifactEntry);
+
+        assertTrue(artifactEntryService.count() > 0);
 
         ArtifactEntry savedEntry = databaseTx.detachAll(artifactEntryService.findAll()
                                                                             .orElseThrow(
@@ -67,7 +71,7 @@ public class ArtifactEntryServiceTest
 
         logger.info("Detached entity " + savedEntry);
 
-        assertTrue(artifactEntryService.count() > 0);
+
         assertEquals("storage0", savedEntry.getStorageId());
         assertEquals("release", savedEntry.getRepositoryId());
     }
