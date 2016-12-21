@@ -1,11 +1,7 @@
 package org.carlspring.strongbox.storage.metadata;
 
-import org.carlspring.maven.commons.DetachedArtifact;
-import org.carlspring.maven.commons.util.ArtifactUtils;
-
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
@@ -18,6 +14,8 @@ import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Snapshot;
 import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.artifact.repository.metadata.Versioning;
+import org.carlspring.maven.commons.DetachedArtifact;
+import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.springframework.util.StringUtils;
 
 /**

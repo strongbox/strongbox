@@ -239,8 +239,7 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
         // sbespalov: Need to check this on different Storage types.
         String sTargetPath = sourceRelative.replaceAll(sourceFileSystem.getSeparator(),
                                                        targetFileSystem.getSeparator());
-        RepositoryPath target = targetBase.resolve(sTargetPath);
-        return target;
+        return targetBase.resolve(sTargetPath);
     }
 
     @Override

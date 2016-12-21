@@ -152,7 +152,7 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
         throws IOException
     {
         Path targetPath = getArtifactPath(repository.getBasedir(), coordinates.toPath());
-        // Override FileSystem root to Repository base directory;
+        // Override FileSystem root to Repository base directory
         return new ArtifactPath(coordinates, targetPath,
                 getRepositoryFileSystem(repository));
     }
@@ -185,8 +185,7 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
             }
 
         };
-        RepositoryFileSystem repoFileSystem = new RepositoryFileSystem(repository, storageFileSystem);
-        return repoFileSystem;
+        return new RepositoryFileSystem(repository, storageFileSystem);
     }
 
     private Path getArtifactPath(String basePath,
