@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.providers.layout;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -91,20 +92,17 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         Repository repository = storage.getRepository(repositoryId);
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
 
-        ArtifactCoordinates artifactCoordinates = getArtifactCoordinates(path);
-        ArtifactPath artifactPath = storageProvider.resolve(repository, artifactCoordinates);
-
-        logger.debug(" -> Checking for " + artifactPath.toString() + "...");
-
-        if (!Files.exists(artifactPath)){
-            return null;
+        ArtifactInputStream ais;
+        if (isArtifact(repository, path, true))
+        {
+            ArtifactPath artifactPath = resolve(repository, getArtifactCoordinates(path));
+            ais = storageProvider.getInputStreamImplementation(artifactPath);
+        } else
+        {
+            RepositoryPath repositoryPath = resolve(repository);
+            ais = storageProvider.getInputStreamImplementation(repositoryPath, path);
         }
-        
-        logger.debug("Resolved " + artifactPath.toString() + "!");
-
-        ArtifactInputStream ais = storageProvider.getInputStreamImplementation(artifactPath);
-        ais.setLength(Files.size(artifactPath));
-
+        logger.debug("Resolved " + path + "!");
         return ais;
     }
 
@@ -118,7 +116,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         Repository repository = storage.getRepository(repositoryId);
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
         OutputStream os;
-        if (isMetadata(path))
+        if (isArtifact(repository, path, false))
         {
             ArtifactPath artifactPath = resolve(repository, getArtifactCoordinates(path));
             os = storageProvider.getOutputStreamImplementation(artifactPath);
@@ -133,15 +131,45 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
     
     protected abstract boolean isMetadata(String path);
     
+    protected boolean isTrash(String path){
+        return path.contains(".trash");
+    }
+    
+    protected boolean isTemp(String path){
+        return path.contains(".temp");
+    }
+
+    protected boolean isIntex(String path){
+        return path.contains(".index");
+    }
+    
+    protected boolean isArtifact(Repository repository, String path, boolean strict) throws IOException{
+        RepositoryPath artifactPath = resolve(repository, path);
+        boolean exists = Files.exists(artifactPath);
+        if (!exists && strict){
+            throw new FileNotFoundException(artifactPath.toString());
+        }
+        if (exists && Files.isDirectory(artifactPath)){
+            throw new FileNotFoundException(String.format("This is directory: path-[%s]", artifactPath.toString()));
+        }
+        return !isMetadata(path) && !isTemp(path) && !isTrash(path) && !isIntex(path);
+    }
+    
     protected RepositoryPath resolve(Repository repository)
         throws IOException
     {
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
-
-        RepositoryPath path = storageProvider.resolve(repository);
-        return path;
+        return storageProvider.resolve(repository);
     }
 
+    protected RepositoryPath resolve(Repository repository,
+                                     String path)
+        throws IOException
+    {
+        StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
+        return storageProvider.resolve(repository, path);
+    }
+    
     protected ArtifactPath resolve(String storageId,
                                  String repositoryId,
                                  String path)
