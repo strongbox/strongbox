@@ -108,6 +108,8 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
                 }
                 catch (FileNotFoundException e)
                 {
+                    logger.debug(String.format("Artifact not found in repository, continue group artifact search: repo-[%s]; path-[%s].",
+                                               r.getId(), artifactPath));
                     continue;
                 }
                 if (is != null)
