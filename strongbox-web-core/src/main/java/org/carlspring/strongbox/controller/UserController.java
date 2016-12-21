@@ -1,14 +1,20 @@
 package org.carlspring.strongbox.controller;
 
+import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.service.UserService;
+
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
-import org.carlspring.strongbox.users.domain.User;
-import org.carlspring.strongbox.users.service.UserService;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.jose4j.lang.JoseException;
 import org.springframework.cache.CacheManager;
 import org.springframework.http.ResponseEntity;
@@ -20,14 +26,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 
 @Controller
 @RequestMapping("/users")
@@ -232,7 +230,7 @@ public class UserController
         throws JoseException
 
     {
-        User user = userService.findByUserName(name);
+        User user = userService.findByUsername(name);
         if (user == null || user.getId() == null)
         {
             return toError("The specified user does not exist!");

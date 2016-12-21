@@ -1,16 +1,14 @@
 package org.carlspring.strongbox.domain;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.domain.GenericEntity;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author carlspring
  */
-public class ArtifactEntry extends GenericEntity
+public class ArtifactEntry
+        extends GenericEntity
         implements Serializable
 {
 
@@ -18,7 +16,7 @@ public class ArtifactEntry extends GenericEntity
 
     private String repositoryId;
 
-    private ArtifactCoordinates artifactCoordinates;
+//    private ArtifactCoordinates artifactCoordinates;
 
     /*
     private ArtifactMetadata artifactMetadata;
@@ -59,7 +57,7 @@ public class ArtifactEntry extends GenericEntity
         this.repositoryId = repositoryId;
     }
 
-    public ArtifactCoordinates getArtifactCoordinates()
+  /*  public ArtifactCoordinates getArtifactCoordinates()
     {
         return artifactCoordinates;
     }
@@ -67,5 +65,15 @@ public class ArtifactEntry extends GenericEntity
     public void setArtifactCoordinates(ArtifactCoordinates artifactCoordinates)
     {
         this.artifactCoordinates = artifactCoordinates;
+    }
+    */
+
+    @Override
+    public String toString()
+    {
+        return "ArtifactEntry{" +
+               "storageId='" + storageId + '\'' +
+               ", repositoryId='" + repositoryId + '\'' +
+               '}';
     }
 }

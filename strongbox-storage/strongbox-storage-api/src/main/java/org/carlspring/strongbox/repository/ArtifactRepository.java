@@ -15,8 +15,6 @@ public interface ArtifactRepository
         extends OrientRepository<ArtifactEntry>
 {
 
-    // select * from User where username = 'admin'
-    ArtifactEntry findByCoordinates(String coordinates);
-
+    //ArtifactEntry findByCoordinates(String coordinates);
 }
 

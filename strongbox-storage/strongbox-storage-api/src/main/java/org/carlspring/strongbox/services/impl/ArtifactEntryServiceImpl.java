@@ -41,7 +41,8 @@ class ArtifactEntryServiceImpl
     {
         try
         {
-            return repository.findByCoordinates(coordinates);
+            throw new UnsupportedOperationException("findByCoordinates() is not supported");
+            //return repository.findByCoordinates(coordinates);
         }
         catch (Exception e)
         {

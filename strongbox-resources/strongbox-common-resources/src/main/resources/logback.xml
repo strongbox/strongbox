@@ -38,10 +38,6 @@
         <level value="ERROR"/>
     </logger>
 
-    <logger name="org.springframework.web">
-        <level value="ERROR"/>
-    </logger>
-
     <logger name="org.apache">
         <level value="ERROR"/>
     </logger>
