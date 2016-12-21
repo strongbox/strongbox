@@ -44,8 +44,8 @@ public class P2LayoutProvider
 
     protected boolean isMetadata(String path)
     {
-        return !"content.xml".equals(path) && !"artifacts.xml".equals(path) && !"artifacts.jar".equals(path) &&
-                !"content.jar".equals(path);
+        return "content.xml".equals(path) || "artifacts.xml".equals(path) || "artifacts.jar".equals(path) ||
+                "content.jar".equals(path);
     }
 
     @Override

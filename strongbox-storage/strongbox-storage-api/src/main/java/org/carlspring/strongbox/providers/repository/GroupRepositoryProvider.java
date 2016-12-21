@@ -11,6 +11,8 @@ import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.RuleSet;
 
 import javax.annotation.PostConstruct;
+
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
@@ -99,7 +101,15 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
                 !repositoryRejects(r.getId(), artifactPath, denyRules) &&
                 !repositoryRejects(r.getId(), artifactPath, wildcardDenyRules))
             {
-                final ArtifactInputStream is = resolveArtifact(sId, r.getId(), artifactPath);
+                ArtifactInputStream is;
+                try
+                {
+                    is = resolveArtifact(sId, r.getId(), artifactPath);
+                }
+                catch (FileNotFoundException e)
+                {
+                    continue;
+                }
                 if (is != null)
                 {
                     return is;

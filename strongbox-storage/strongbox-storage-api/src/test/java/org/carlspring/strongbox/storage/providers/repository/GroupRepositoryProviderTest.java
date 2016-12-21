@@ -122,7 +122,6 @@ public class GroupRepositoryProviderTest
     }
 
     @Test
-    @Ignore
     public void testGroupIncludesWithOutOfServiceRepository()
             throws IOException,
                    NoSuchAlgorithmException,
@@ -210,7 +209,6 @@ public class GroupRepositoryProviderTest
     }
 
     @Test
-    @Ignore
     public void testGroupExcludes()
             throws IOException,
                    NoSuchAlgorithmException,
@@ -230,7 +228,6 @@ public class GroupRepositoryProviderTest
     }
 
     @Test
-    @Ignore
     public void testGroupExcludesWildcardRule()
             throws IOException,
                    NoSuchAlgorithmException,
