@@ -2,6 +2,9 @@ package org.carlspring.strongbox.services;
 
 import java.io.IOException;
 
+import org.codehaus.plexus.PlexusContainerException;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
+
 /**
  * @author Kate Novik.
  */
@@ -34,5 +37,15 @@ public interface ArtifactIndexesService
      */
     void rebuildIndexes()
             throws IOException;
+
+    /**
+     * Download remote repository index
+     *
+     * @param storageId    String
+     * @param repositoryId String
+     */
+    void downloadRemoteIndex(String storageId,
+                             String repositoryId)
+            throws PlexusContainerException, ComponentLookupException, IOException;
 
 }
