@@ -1,11 +1,14 @@
 package org.carlspring.strongbox.io;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.io.Files;
 
 /**
  * This implementation defines an ArtifactFile path with {@link ArtifactCoordinates}. <br>
@@ -34,20 +37,32 @@ public class ArtifactPath extends RepositoryPath
 
     public ArtifactFile toFile()
     {
-        File file;
+        ArtifactCoordinates coordinatesLocal = getCoordinates();
+        File source;
         try
         {
-            file = getTarget().toFile();
+            source = getTarget().toFile();
         }
         catch (UnsupportedOperationException e)
         {
             logger.warn(String.format("toFile() unsupported: coordinates-[%s]; pathTarget-[%s]",
-                                      coordinates,
+                                      coordinatesLocal,
                                       getTarget().getClass().getName()),
                         e);
             throw e;
         }
-        return new ArtifactFile(file.getAbsolutePath(), getRoot().toString(), getCoordinates(), false);
+        ArtifactFile target = new ArtifactFile(getRoot().toString(), coordinatesLocal);
+        try
+        {
+            Files.move(source, target);
+        }
+        catch (IOException e)
+        {
+            logger.error(String.format("Failed to get File representation of ArtifactPath: coordinates-[%s]",
+                                       coordinatesLocal));
+            return null;
+        }
+        return target;
     }
 
 }
