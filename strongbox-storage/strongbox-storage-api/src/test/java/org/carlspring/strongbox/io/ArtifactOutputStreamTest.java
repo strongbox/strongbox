@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.artifact.Artifact;
@@ -15,6 +16,7 @@ import org.carlspring.strongbox.config.CommonConfig;
 import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.providers.storage.FileSystemStorageProvider;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
@@ -53,19 +55,19 @@ public class ArtifactOutputStreamTest
 
         final Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.foo:temp-file-test:1.2.3:jar");
         final ArtifactCoordinates coordinates = new MavenArtifactCoordinates(artifact);
-        final ArtifactFile artifactFile = new ArtifactFile(repository.getBasedir(), coordinates, true);
-        artifactFile.createParents();
+        ArtifactPath artifactPath = new ArtifactPath(coordinates,
+                FileSystemStorageProvider.getArtifactPath(repository.getBasedir(), coordinates.toPath()),
+                FileSystemStorageProvider.getRepositoryFileSystem(repository));
+        RepositoryFileSystemProvider provider = (RepositoryFileSystemProvider) artifactPath.getFileSystem().provider();
+        RepositoryPath artifactPathTemp = provider.getTempPath(artifactPath);
 
-        final ArtifactOutputStream afos = new ArtifactOutputStream(artifactFile.getOutputStream(true), coordinates);
-
+        final ArtifactOutputStream afos = new ArtifactOutputStream(Files.newOutputStream(artifactPathTemp), coordinates);
         ByteArrayInputStream bais = new ByteArrayInputStream("This is a test\n".getBytes());
         IOUtils.copy(bais, afos);
-
-        assertTrue("Failed to create temporary artifact file!", artifactFile.getTemporaryFile().exists());
-
+        assertTrue("Failed to create temporary artifact file!", Files.exists(artifactPathTemp));
         afos.close();
-
-        assertTrue("Failed to the move temporary artifact file to original location!", artifactFile.exists());
+        provider.restoreFromTemp(artifactPath);
+        assertTrue("Failed to the move temporary artifact file to original location!", Files.exists(artifactPath));
     }
 
     @Test
@@ -77,22 +79,21 @@ public class ArtifactOutputStreamTest
 
         final Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.foo:temp-file-test:1.2.4:jar");
         final ArtifactCoordinates coordinates = new MavenArtifactCoordinates(artifact);
-        final ArtifactFile artifactFile = new ArtifactFile(repository.getBasedir(), coordinates, true);
-        artifactFile.createParents();
+        ArtifactPath artifactPath = new ArtifactPath(coordinates,
+                FileSystemStorageProvider.getArtifactPath(repository.getBasedir(), coordinates.toPath()),
+                FileSystemStorageProvider.getRepositoryFileSystem(repository));
+        RepositoryFileSystemProvider provider = (RepositoryFileSystemProvider) artifactPath.getFileSystem().provider();
+        RepositoryPath artifactPathTemp = provider.getTempPath(artifactPath);
 
-        final ArtifactOutputStream afos = new ArtifactOutputStream(artifactFile.getOutputStream(false), coordinates);
-
+        final ArtifactOutputStream afos = new ArtifactOutputStream(Files.newOutputStream(artifactPathTemp), coordinates);
         ByteArrayInputStream bais = new ByteArrayInputStream("This is a test\n".getBytes());
         IOUtils.copy(bais, afos);
-
-        assertTrue("Failed to create temporary artifact file!", artifactFile.getTemporaryFile().exists());
-
+        assertTrue("Failed to create temporary artifact file!", Files.exists(artifactPathTemp));
         afos.close();
-
         assertFalse("Should not have move temporary the artifact file to original location!",
-                    artifactFile.exists());
+                    Files.exists(artifactPath));
         assertTrue("Should not have move temporary the artifact file to original location!",
-                   artifactFile.getTemporaryFile().exists());
+                   Files.exists(artifactPathTemp));
     }
 
     private Configuration getConfiguration()

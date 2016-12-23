@@ -48,7 +48,8 @@ public class RepositoryFileSystem extends FileSystemWrapper
         Path root = Paths.get(repository.getBasedir());
         FileSystem rootFileSystem = root.getFileSystem();
         return new RepositoryPath(root,
-                                  new RepositoryFileSystem(repository, rootFileSystem, rootFileSystem.provider()));
+                new RepositoryFileSystem(repository, rootFileSystem,
+                        new RepositoryFileSystemProvider(rootFileSystem.provider())));
     }
 
     public RepositoryPath getTrashPath()
