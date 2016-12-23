@@ -3,8 +3,13 @@ package org.carlspring.strongbox.providers.layout;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.Configuration;
@@ -37,7 +42,6 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
 
     @Autowired
     private ConfigurationManager configurationManager;
-
 
     public LayoutProviderRegistry getLayoutProviderRegistry()
     {
@@ -83,7 +87,8 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
     public ArtifactInputStream getInputStream(String storageId,
                                               String repositoryId,
                                               String path)
-            throws IOException, NoSuchAlgorithmException
+        throws IOException,
+        NoSuchAlgorithmException
     {
         Storage storage = getConfiguration().getStorage(storageId);
 
@@ -128,39 +133,49 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
 
         return os instanceof ArtifactOutputStream ? (ArtifactOutputStream) os : new ArtifactOutputStream(os, null);
     }
-    
+
     protected abstract boolean isMetadata(String path);
-    
+
     protected abstract boolean isChecksum(String path);
-    
-    protected boolean isTrash(String path){
+
+    protected boolean isTrash(String path)
+    {
         return path.contains(".trash");
     }
-    
-    protected boolean isTemp(String path){
+
+    protected boolean isTemp(String path)
+    {
         return path.contains(".temp");
     }
 
-    protected boolean isIntex(String path){
+    protected boolean isIntex(String path)
+    {
         return path.contains(".index");
     }
-    
-    protected boolean isArtifact(Repository repository, String path, boolean strict) throws IOException{
+
+    protected boolean isArtifact(Repository repository,
+                                 String path,
+                                 boolean strict)
+        throws IOException
+    {
         RepositoryPath artifactPath = resolve(repository, path);
         boolean exists = Files.exists(artifactPath);
-        if (!exists && strict){
+        if (!exists && strict)
+        {
             throw new FileNotFoundException(artifactPath.toString());
         }
-        if (exists && Files.isDirectory(artifactPath)){
+        if (exists && Files.isDirectory(artifactPath))
+        {
             throw new FileNotFoundException(String.format("This is directory: path-[%s]", artifactPath.toString()));
         }
         return !isMetadata(path) && !isChecksum(path) && !isServiceFolder(path);
     }
-    
-    protected boolean isServiceFolder(String path){
+
+    protected boolean isServiceFolder(String path)
+    {
         return isTemp(path) || isTrash(path) || isIntex(path);
     }
-    
+
     protected RepositoryPath resolve(Repository repository)
         throws IOException
     {
@@ -175,10 +190,10 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
         return storageProvider.resolve(repository, path);
     }
-    
+
     protected ArtifactPath resolve(String storageId,
-                                 String repositoryId,
-                                 String path)
+                                   String repositoryId,
+                                   String path)
         throws IOException
     {
         return resolve(storageId, repositoryId, getArtifactCoordinates(path));
@@ -207,4 +222,188 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         return (RepositoryFileSystemProvider) artifactPath.getFileSystem().provider();
     }
 
+    @Override
+    public void copy(String srcStorageId,
+                     String srcRepositoryId,
+                     String destStorageId,
+                     String destRepositoryId,
+                     String path)
+        throws IOException
+    {
+        // TODO: Implement
+    }
+
+    @Override
+    public void move(String srcStorageId,
+                     String srcRepositoryId,
+                     String destStorageId,
+                     String destRepositoryId,
+                     String path)
+        throws IOException
+    {
+        // TODO: Implement
+    }
+
+    @Override
+    public void delete(String storageId,
+                       String repositoryId,
+                       String path,
+                       boolean force)
+        throws IOException
+    {
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+
+        RepositoryPath repositoryBasePath = resolve(repository);
+        RepositoryPath repositoryPath = repositoryBasePath.resolve(path);
+
+        logger.debug("Checking in " + storageId + ":" + repositoryId + "(" + path + ")...");
+        if (!Files.exists(repositoryPath))
+        {
+            logger.warn(String.format("Path not found: path-[%s]", repositoryPath));
+            return;
+        }
+
+        if (!Files.isDirectory(repositoryPath))
+        {
+            doDeletePath(repositoryPath, force);
+        } else
+        {
+            Files.walkFileTree(repositoryPath, new SimpleFileVisitor<Path>()
+            {
+                @Override
+                public FileVisitResult visitFile(Path file,
+                                                 BasicFileAttributes attrs)
+                    throws IOException
+                {
+                    doDeletePath((RepositoryPath) file, force);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir,
+                                                          IOException exc)
+                    throws IOException
+                {
+                    Files.delete(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        }
+
+        logger.debug("Removed /" + repositoryId + "/" + path);
+    }
+
+    protected abstract void doDeletePath(RepositoryPath repositoryPath, boolean force) throws IOException;
+    
+    @Override
+    public void deleteTrash(String storageId,
+                            String repositoryId)
+        throws IOException
+    {
+        logger.debug("Emptying trash for repositoryId " + repositoryId + "...");
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+        RepositoryPath path = resolve(repository);
+        RepositoryFileSystemProvider provider = (RepositoryFileSystemProvider) path.getFileSystem().provider();
+
+        provider.deleteTrash(path);
+    }
+
+    @Override
+    public void deleteTrash()
+        throws IOException
+    {
+        for (Map.Entry entry : getConfiguration().getStorages().entrySet())
+        {
+            Storage storage = (Storage) entry.getValue();
+
+            final Map<String, Repository> repositories = storage.getRepositories();
+            for (Repository repository : repositories.values())
+            {
+                if (!repository.allowsDeletion())
+                {
+                    logger.warn("Repository " + repository.getId() + " does not support removal of trash.");
+                }
+                deleteTrash(storage.getId(), repository.getId());
+            }
+        }
+    }
+
+    @Override
+    public void undelete(String storageId,
+                         String repositoryId,
+                         String path)
+        throws IOException
+    {
+        logger.debug(String.format("Attempting to restore: storageId-[%s]; repoId-[%s]; path-[%s]; ", storageId,
+                                   repositoryId, path));
+        ArtifactPath artifactPath = resolve(storageId, repositoryId, path);
+
+        RepositoryFileSystemProvider provider = getProvider(artifactPath);
+        provider.restoreTrash(artifactPath);
+    }
+
+    @Override
+    public void undeleteTrash(String storageId,
+                              String repositoryId)
+        throws IOException
+    {
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+
+        logger.debug("Restoring all artifacts from the trash of " + storageId + ":" + repository.getId() + "...");
+        if (!repository.isTrashEnabled())
+        {
+            logger.warn("Repository " + repository.getId() + " does not support removal of trash.");
+        }
+
+        RepositoryPath path = resolve(repository);
+        getProvider(path).restoreTrash(path);
+    }
+
+    @Override
+    public void undeleteTrash()
+        throws IOException
+    {
+        for (Map.Entry entry : getConfiguration().getStorages().entrySet())
+        {
+            Storage storage = (Storage) entry.getValue();
+
+            final Map<String, Repository> repositories = storage.getRepositories();
+            for (Repository repository : repositories.values())
+            {
+                undeleteTrash(storage.getId(), repository.getId());
+            }
+        }
+    }
+
+    @Override
+    public boolean contains(String storageId,
+                            String repositoryId,
+                            String path)
+        throws IOException
+    {
+        ArtifactPath artifactPath = resolve(storageId, repositoryId, path);
+        return Files.exists(artifactPath);
+    }
+
+    @Override
+    public boolean containsArtifact(Repository repository,
+                                    ArtifactCoordinates coordinates)
+        throws IOException
+    {
+        ArtifactPath artifactPath = resolve(repository, coordinates);
+        return Files.exists(artifactPath);
+    }
+
+    @Override
+    public boolean containsPath(Repository repository,
+                                String path)
+        throws IOException
+    {
+        RepositoryPath repositoryPath = resolve(repository);
+
+        return Files.exists(repositoryPath.resolve(path));
+    }
 }
