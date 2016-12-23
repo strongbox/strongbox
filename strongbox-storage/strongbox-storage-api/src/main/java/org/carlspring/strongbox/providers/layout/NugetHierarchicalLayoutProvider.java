@@ -1,11 +1,13 @@
 package org.carlspring.strongbox.providers.layout;
 
 import java.io.IOException;
+import java.nio.file.Files;
 
 import javax.annotation.PostConstruct;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.NugetHierarchicalArtifactCoordinates;
+import org.carlspring.strongbox.io.RepositoryFileSystemProvider;
+import org.carlspring.strongbox.io.RepositoryPath;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,68 +58,11 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
     {
         return path.endsWith("nuspec");
     }
-    
+
     @Override
     protected boolean isChecksum(String path)
     {
         return path.endsWith("nupkg.sha512");
-    }
-
-    @Override
-    public boolean containsArtifact(Repository repository,
-                                    ArtifactCoordinates coordinates)
-        throws IOException
-    {
-        return false;
-    }
-
-    @Override
-    public boolean contains(String storageId,
-                            String repositoryId,
-                            String path)
-        throws IOException
-    {
-        return false;
-    }
-
-    @Override
-    public boolean containsPath(Repository repository,
-                                String path)
-        throws IOException
-    {
-        return false;
-    }
-
-    @Override
-    public void copy(String srcStorageId,
-                     String srcRepositoryId,
-                     String destStorageId,
-                     String destRepositoryId,
-                     String path)
-        throws IOException
-    {
-
-    }
-
-    @Override
-    public void move(String srcStorageId,
-                     String srcRepositoryId,
-                     String destStorageId,
-                     String destRepositoryId,
-                     String path)
-        throws IOException
-    {
-
-    }
-
-    @Override
-    public void delete(String storageId,
-                       String repositoryId,
-                       String path,
-                       boolean force)
-        throws IOException
-    {
-
     }
 
     @Override
@@ -130,42 +75,22 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
     }
 
     @Override
-    public void deleteTrash(String storageId,
-                            String repositoryId)
+    protected void doDeletePath(RepositoryPath repositoryPath,
+                                boolean force)
         throws IOException
     {
-
-    }
-
-    @Override
-    public void deleteTrash()
-        throws IOException
-    {
-
-    }
-
-    @Override
-    public void undelete(String storageId,
-                         String repositoryId,
-                         String path)
-        throws IOException
-    {
-
-    }
-
-    @Override
-    public void undeleteTrash(String storageId,
-                              String repositoryId)
-        throws IOException
-    {
-
-    }
-
-    @Override
-    public void undeleteTrash()
-        throws IOException
-    {
-
+        RepositoryPath sha512Path = repositoryPath.resolveSibling(repositoryPath.getFileName() + ".sha512");
+        
+        Files.delete(repositoryPath);
+        Files.deleteIfExists(sha512Path);
+        
+        Repository repository = repositoryPath.getFileSystem().getRepository();
+        RepositoryFileSystemProvider provider = getProvider(repositoryPath);
+        if (force && repository.allowsForceDeletion())
+        {
+            provider.deleteTrash(repositoryPath);
+            provider.deleteTrash(sha512Path);
+        }
     }
 
 }
