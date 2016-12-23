@@ -171,12 +171,15 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
         }
 
         RepositoryPath trashPath = getTrashPath(path);
-        if (!Files.exists(trashPath.getTarget())){
+        if (!Files.exists(trashPath.getTarget()))
+        {
             return;
         }
-        if (!Files.isDirectory(trashPath.getTarget())){
+        if (!Files.isDirectory(trashPath.getTarget()))
+        {
             Files.delete(trashPath.getTarget());
-        } else {
+        } else
+        {
             Files.walkFileTree(trashPath.getTarget(), new SimpleFileVisitor<Path>()
             {
                 @Override
@@ -196,7 +199,7 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
                     Files.delete(dir);
                     return FileVisitResult.CONTINUE;
                 }
-            });            
+            });
         }
     }
 
@@ -235,8 +238,11 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
         String sourceRelative = source.getRoot()
                                       .relativize(source.getTarget())
                                       .toString();
-        // sbespalov: We try to convert path form source to target FileSystem
-        // sbespalov: Need to check this on different Storage types.
+        // XXX[SBESPALOV]: We try to convert path form source to target FileSystem and need to check this on different
+        // Storage types.
+        // Note that this is only draft implementation, and probably in the future we will need something like separate
+        // `FileSystemPathConverter` to convert Paths from one FileSystem to another. Such `FileSystemPathConverter` can
+        // be provided by the `ReposytoryFileSystem` instance.
         String sTargetPath = sourceRelative.replaceAll(sourceFileSystem.getSeparator(),
                                                        targetFileSystem.getSeparator());
         return targetBase.resolve(sTargetPath);
