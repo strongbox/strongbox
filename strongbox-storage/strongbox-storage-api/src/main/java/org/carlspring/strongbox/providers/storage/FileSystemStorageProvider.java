@@ -173,7 +173,7 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
         return resolve(repository).resolve(path);
     }
 
-    private RepositoryFileSystem getRepositoryFileSystem(Repository repository)
+    public static RepositoryFileSystem getRepositoryFileSystem(Repository repository)
     {
         FileSystem storageFileSystem = new FileSystemWrapper(Paths.get(repository.getBasedir()).getFileSystem())
         {
@@ -188,7 +188,7 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
         return new RepositoryFileSystem(repository, storageFileSystem);
     }
 
-    private Path getArtifactPath(String basePath,
+    public static Path getArtifactPath(String basePath,
                                  String artifactPath)
         throws IOException
     {
