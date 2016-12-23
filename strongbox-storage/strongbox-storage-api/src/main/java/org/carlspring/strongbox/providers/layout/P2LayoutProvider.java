@@ -49,6 +49,12 @@ public class P2LayoutProvider
     }
 
     @Override
+    protected boolean isChecksum(String path)
+    {
+        return false;
+    }
+
+    @Override
     public boolean containsArtifact(Repository repository,
                                     ArtifactCoordinates coordinates)
             throws IOException

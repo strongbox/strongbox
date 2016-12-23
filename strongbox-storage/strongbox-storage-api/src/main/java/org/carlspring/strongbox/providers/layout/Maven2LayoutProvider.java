@@ -76,7 +76,13 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
 
     protected boolean isMetadata(String path)
     {
-        return ArtifactUtils.isMetadata(path) || ArtifactUtils.isChecksum(path);
+        return ArtifactUtils.isMetadata(path);
+    }
+
+    @Override
+    protected boolean isChecksum(String path)
+    {
+        return ArtifactUtils.isChecksum(path);
     }
 
     @Override
