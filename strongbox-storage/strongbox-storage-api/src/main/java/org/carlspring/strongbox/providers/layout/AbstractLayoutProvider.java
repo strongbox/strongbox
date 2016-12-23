@@ -131,6 +131,8 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
     
     protected abstract boolean isMetadata(String path);
     
+    protected abstract boolean isChecksum(String path);
+    
     protected boolean isTrash(String path){
         return path.contains(".trash");
     }
@@ -152,7 +154,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         if (exists && Files.isDirectory(artifactPath)){
             throw new FileNotFoundException(String.format("This is directory: path-[%s]", artifactPath.toString()));
         }
-        return !isMetadata(path) && !isTemp(path) && !isTrash(path) && !isIntex(path);
+        return !isMetadata(path) && !isChecksum(path) && !isTemp(path) && !isTrash(path) && !isIntex(path);
     }
     
     protected RepositoryPath resolve(Repository repository)
