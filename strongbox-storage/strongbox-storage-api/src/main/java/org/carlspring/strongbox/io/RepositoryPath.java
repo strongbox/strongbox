@@ -13,7 +13,7 @@ import java.util.Iterator;
 
 /**
  * This implementation wraps target {@link Path} implementation, which can be an "CloudPath" or common
- * "FileSystemPath".<br>
+ * "FileSystemPath".
  * 
  * @author Sergey Bespalov
  */
