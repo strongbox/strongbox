@@ -11,6 +11,12 @@ import java.nio.file.spi.FileSystemProvider;
 import java.util.ArrayList;
 import java.util.Set;
 
+/**
+ * Base class for {@link FileSystem} wrapper implementations.
+ * 
+ * @author Sergey Bespalov
+ *
+ */
 public abstract class FileSystemWrapper extends FileSystem
 {
 
