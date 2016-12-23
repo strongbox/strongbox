@@ -9,7 +9,8 @@ import java.nio.file.spi.FileSystemProvider;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 /**
- * 
+ * {@link RepositoryFileSystem} is a wrapper under concrete Storage {@link FileSystem}. <br>
+ * The {@link RepositoryFileSystem} root is the {@link Repository}'s base directory.
  * 
  * @author Sergey Bespalov
  */
@@ -62,7 +63,6 @@ public class RepositoryFileSystem extends FileSystemWrapper
         return getRootDirectory().resolve(".temp");
     }
 
-    
     public Path getPath(String first,
                         String... more)
     {
