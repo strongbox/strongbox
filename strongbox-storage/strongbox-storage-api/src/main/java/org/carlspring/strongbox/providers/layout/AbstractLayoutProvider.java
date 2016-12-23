@@ -154,7 +154,11 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         if (exists && Files.isDirectory(artifactPath)){
             throw new FileNotFoundException(String.format("This is directory: path-[%s]", artifactPath.toString()));
         }
-        return !isMetadata(path) && !isChecksum(path) && !isTemp(path) && !isTrash(path) && !isIntex(path);
+        return !isMetadata(path) && !isChecksum(path) && !isServiceFolder(path);
+    }
+    
+    protected boolean isServiceFolder(String path){
+        return isTemp(path) || isTrash(path) || isIntex(path);
     }
     
     protected RepositoryPath resolve(Repository repository)
