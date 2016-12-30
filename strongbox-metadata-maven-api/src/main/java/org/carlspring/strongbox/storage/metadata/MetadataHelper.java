@@ -24,6 +24,7 @@ import org.springframework.util.StringUtils;
 public class MetadataHelper
 {
 
+    private static final String MAVEN_METADATA_XML = "maven-metadata.xml";
     private static SimpleDateFormat LAST_UPDATED_FIELD_FORMATTER;
 
 
@@ -237,13 +238,13 @@ public class MetadataHelper
     {
         if (Files.exists(artifactBasePath))
         {
-            return artifactBasePath.resolve("maven-metadata.xml");
+            return artifactBasePath.resolve(MAVEN_METADATA_XML);
         }
         else
         {
             throw new FileNotFoundException(
                     String.format("Could not find metadata: artifatcBasePath-[%s]; metadataFileName-[%s]",
-                                  artifactBasePath, "maven-metadata.xml"));
+                                  artifactBasePath, MAVEN_METADATA_XML));
         }
     }
 
