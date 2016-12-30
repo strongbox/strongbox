@@ -140,7 +140,8 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
         if (!Files.isDirectory(trashPath.getTarget()))
         {
             Files.move(trashPath.getTarget(), path.getTarget(), StandardCopyOption.REPLACE_EXISTING);
-        } else
+        }
+        else
         {
             Files.walkFileTree(trashPath.getTarget(), new MoveDirVisitor(trashPath.getTarget(), path.getTarget(),
                     StandardCopyOption.REPLACE_EXISTING));
@@ -178,7 +179,8 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
         if (!Files.isDirectory(trashPath.getTarget()))
         {
             Files.delete(trashPath.getTarget());
-        } else
+        }
+        else
         {
             Files.walkFileTree(trashPath.getTarget(), new SimpleFileVisitor<Path>()
             {

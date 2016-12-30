@@ -67,7 +67,9 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         {
             Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
             coordinates = new MavenArtifactCoordinates(artifact);
-        } else {
+        }
+        else
+        {
             coordinates = new MavenArtifactCoordinates(path);
         }
         return coordinates;
@@ -112,11 +114,11 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
                        String repositoryId,
                        String path,
                        boolean force)
-            throws IOException
+        throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
-        
+
         RepositoryPath repositoryBasePath = resolve(repository);
         RepositoryPath repositoryPath = repositoryBasePath.resolve(path);
 
@@ -128,20 +130,24 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         }
 
         RepositoryFileSystemProvider provider = getProvider(repositoryPath);
-        if (!Files.isDirectory(repositoryPath)){
+        if (!Files.isDirectory(repositoryPath))
+        {
             RepositoryPath md5Path = repositoryPath.resolveSibling(repositoryPath.getFileName() + ".md5");
             RepositoryPath sha1Path = repositoryPath.resolveSibling(repositoryPath.getFileName() + ".sha1");
-            
+
             Files.delete(repositoryPath);
             Files.deleteIfExists(md5Path);
             Files.deleteIfExists(sha1Path);
-        
-            if (force && repository.allowsForceDeletion()){
+
+            if (force && repository.allowsForceDeletion())
+            {
                 provider.deleteTrash(repositoryPath);
                 provider.deleteTrash(md5Path);
                 provider.deleteTrash(sha1Path);
             }
-        } else {
+        }
+        else
+        {
             Files.walkFileTree(repositoryPath, new SimpleFileVisitor<Path>()
             {
                 @Override

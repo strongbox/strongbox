@@ -97,7 +97,8 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         {
             ArtifactPath artifactPath = resolve(repository, getArtifactCoordinates(path));
             ais = storageProvider.getInputStreamImplementation(artifactPath);
-        } else
+        }
+        else
         {
             RepositoryPath repositoryPath = resolve(repository);
             ais = storageProvider.getInputStreamImplementation(repositoryPath, path);
@@ -120,7 +121,8 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         {
             ArtifactPath artifactPath = resolve(repository, getArtifactCoordinates(path));
             os = storageProvider.getOutputStreamImplementation(artifactPath);
-        } else
+        }
+        else
         {
             RepositoryPath repositoryPath = resolve(repository);
             os = storageProvider.getOutputStreamImplementation(repositoryPath, path);
