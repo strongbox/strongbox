@@ -238,7 +238,8 @@ public class MetadataHelper
         if (Files.exists(artifactBasePath))
         {
             return artifactBasePath.resolve("maven-metadata.xml");
-        } else
+        }
+        else
         {
             throw new FileNotFoundException(
                     String.format("Could not find metadata: artifatcBasePath-[%s]; metadataFileName-[%s]",
