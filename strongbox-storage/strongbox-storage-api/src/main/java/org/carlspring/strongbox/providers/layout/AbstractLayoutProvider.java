@@ -143,7 +143,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         return path.contains(".temp");
     }
 
-    protected boolean isIntex(String path){
+    protected boolean isIndex(String path){
         return path.contains(".index");
     }
     
@@ -160,7 +160,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
     }
     
     protected boolean isServiceFolder(String path){
-        return isTemp(path) || isTrash(path) || isIntex(path);
+        return isTemp(path) || isTrash(path) || isIndex(path);
     }
     
     protected RepositoryPath resolve(Repository repository)
