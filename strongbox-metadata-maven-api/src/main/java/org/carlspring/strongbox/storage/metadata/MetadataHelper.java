@@ -274,12 +274,12 @@ public class MetadataHelper
         switch (metadataType)
         {
             case PLUGIN_GROUP_LEVEL:
-                return new File(artifactBasePath.getParent().toFile().getAbsolutePath() + "/maven-metadata.xml");
+                return new File(artifactBasePath.getParent().toFile().getAbsolutePath() + "/" + MAVEN_METADATA_XML);
             case SNAPSHOT_VERSION_LEVEL:
-                return new File(artifactBasePath.toFile().getAbsolutePath() + "/" + version + "/maven-metadata.xml");
+                return new File(artifactBasePath.toFile().getAbsolutePath() + "/" + version + "/" + MAVEN_METADATA_XML);
             case ARTIFACT_ROOT_LEVEL:
             default:
-                return new File(artifactBasePath.toFile().getAbsolutePath() + "/maven-metadata.xml");
+                return new File(artifactBasePath.toFile().getAbsolutePath() + "/" + MAVEN_METADATA_XML);
         }
     }
 
