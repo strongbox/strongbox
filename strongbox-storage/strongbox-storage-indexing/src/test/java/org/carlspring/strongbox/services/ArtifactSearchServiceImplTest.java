@@ -2,8 +2,6 @@ package org.carlspring.strongbox.services;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 
@@ -13,7 +11,6 @@ import java.security.NoSuchAlgorithmException;
 
 import org.apache.maven.artifact.Artifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author mtodorov
@@ -36,10 +34,11 @@ public class ArtifactSearchServiceImplTest
     private static final File INDEX_DIR = new File(REPOSITORY_BASEDIR, ".index");
 
     @Autowired
-    private RepositoryIndexManager repositoryIndexManager;
+    private ArtifactSearchService artifactSearchService;
 
     @Autowired
-    private ArtifactSearchService artifactSearchService;
+    private RepositoryManagementService repositoryManagementService;
+
 
     @Before
     public void init()
@@ -57,17 +56,14 @@ public class ArtifactSearchServiceImplTest
         generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), artifact1);
         generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), artifact2);
         generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), artifact3);
-
     }
 
     @Test
     public void testContains() throws Exception
     {
-        final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndex("storage0:releases");
+        final int x = repositoryManagementService.reIndex("storage0", "releases", "org/carlspring/strongbox/strongbox-utils");
 
-        final int x = repositoryIndexer.index(new File("org/carlspring/strongbox/strongbox-utils"));
-
-        Assert.assertTrue("Incorrect number of artifacts found!", x >= 3);
+        assertTrue("Incorrect number of artifacts found!", x >= 3);
 
         SearchRequest request = new SearchRequest("storage0",
                                                   "releases",
