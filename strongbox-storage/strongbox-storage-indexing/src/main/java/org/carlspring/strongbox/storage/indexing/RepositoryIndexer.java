@@ -268,15 +268,6 @@ public class RepositoryIndexer
         return baseUrl + "storages/" + storageId + "/" + repositoryId + "/" + pathToArtifactFile;
     }
 
-    public int index(final File startingPath)
-    {
-        final ScanningResult scan = getScanner().scan(new ScanningRequest(indexingContext,
-                                                                          new ReindexArtifactScanningListener(),
-                                                                          startingPath == null ? "." :
-                                                                          startingPath.getPath()));
-        return scan.getTotalFiles();
-    }
-
     public void addArtifactToIndex(String repositoryId,
                                    File artifactFile,
                                    Artifact artifact)
@@ -332,61 +323,6 @@ public class RepositoryIndexer
             return null;
         }
         return classifier;
-    }
-
-
-    private class ReindexArtifactScanningListener
-            implements ArtifactScanningListener
-    {
-
-        int totalFiles;
-        private IndexingContext context;
-
-        @Override
-        public void scanningStarted(final IndexingContext context)
-        {
-            this.context = context;
-        }
-
-        @Override
-        public void scanningFinished(final IndexingContext context,
-                                     final ScanningResult result)
-        {
-            result.setTotalFiles(totalFiles);
-            logger.debug("Scanning finished; total files: {}; has exception: {}",
-                         result.getTotalFiles(),
-                         result.hasExceptions());
-        }
-
-        @Override
-        public void artifactError(final ArtifactContext ac,
-                                  final Exception ex)
-        {
-            logger.error("artifact error", ex);
-        }
-
-        @Override
-        public void artifactDiscovered(final ArtifactContext ac)
-        {
-            try
-            {
-                logger.debug("Adding artifact: {}; ctx id: {}; idx dir: {}",
-                             new String[]{ ac.getGav().getGroupId() + ":" +
-                                           ac.getGav().getArtifactId() + ":" +
-                                           ac.getGav().getVersion() + ":" +
-                                           ac.getGav().getClassifier() + ":" +
-                                           ac.getGav().getExtension(),
-                                           context.getId(),
-                                           context.getIndexDirectory().toString() });
-
-                getIndexer().addArtifactsToIndex(asList(ac), context);
-                totalFiles++;
-            }
-            catch (IOException ex)
-            {
-                logger.error("Artifact index error", ex);
-            }
-        }
     }
 
     public IndexerConfiguration getIndexerConfiguration()

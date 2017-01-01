@@ -12,8 +12,6 @@ import java.io.IOException;
 import org.apache.maven.artifact.Artifact;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertFalse;
@@ -26,7 +24,6 @@ import static org.junit.Assert.assertTrue;
 public class RepositoryManagementServiceImplTest
         extends TestCaseWithArtifactGenerationWithIndexing
 {
-    private static final Logger logger = LoggerFactory.getLogger(RepositoryManagementServiceImplTest.class);
 
     private static final String REPOSITORY_ID = "releases";
 
@@ -36,6 +33,7 @@ public class RepositoryManagementServiceImplTest
 
     @Autowired
     private ArtifactSearchService artifactSearchService;
+
 
     @Test
     public void testCreateRepository()
@@ -109,7 +107,7 @@ public class RepositoryManagementServiceImplTest
 
         assertFalse(artifactSearchService.contains(request));
 
-        getRepositoryManagementService().mergeRepositoryIndex("storage0", repositoryId2, "storage0", repositoryId1);
+        getRepositoryManagementService().mergeIndexes("storage0", repositoryId2, "storage0", repositoryId1);
 
         request = new SearchRequest("storage0",
                                     repositoryId1,

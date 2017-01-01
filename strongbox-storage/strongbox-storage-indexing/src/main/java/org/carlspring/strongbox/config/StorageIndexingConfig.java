@@ -1,6 +1,5 @@
-package org.carlspring.strongbox;
+package org.carlspring.strongbox.config;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -22,6 +21,9 @@ import org.apache.maven.index.creator.AbstractIndexCreator;
 import org.apache.maven.index.creator.JarFileContentsIndexCreator;
 import org.apache.maven.index.creator.MavenPluginArtifactInfoIndexCreator;
 import org.apache.maven.index.creator.MinimalArtifactInfoIndexCreator;
+import org.apache.maven.index.incremental.DefaultIncrementalHandler;
+import org.apache.maven.index.packer.DefaultIndexPacker;
+import org.apache.maven.index.packer.IndexPacker;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -47,6 +49,12 @@ public class StorageIndexingConfig
     Scanner scanner()
     {
         return new DefaultScanner(artifactContextProducer());
+    }
+
+    @Bean(name = "indexPacker")
+    IndexPacker indexPacker()
+    {
+        return new DefaultIndexPacker(new DefaultIncrementalHandler());
     }
 
     @Bean(name = "searchEngine")
