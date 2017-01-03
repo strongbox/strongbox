@@ -52,7 +52,6 @@ public class Configuration
     @XmlElement(name = "routing-rules")
     private RoutingRules routingRules;
 
-
     public Configuration()
     {
     }
@@ -136,16 +135,6 @@ public class Configuration
     public void setRoutingRules(RoutingRules routingRules)
     {
         this.routingRules = routingRules;
-    }
-
-    public String getDatabaseId()
-    {
-        return databaseId;
-    }
-
-    public void setDatabaseId(String databaseId)
-    {
-        this.databaseId = databaseId;
     }
 
     @Override

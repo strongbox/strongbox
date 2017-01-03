@@ -183,7 +183,7 @@ public class Storage
     public String toString()
     {
         final StringBuilder sb = new StringBuilder("Storage{");
-        sb.append("\n\t\tdatabaseId='")
+        sb.append("\n\t\tid='")
           .append(id)
           .append('\'');
         sb.append(", \n\t\tbasedir='").append(basedir).append('\'');

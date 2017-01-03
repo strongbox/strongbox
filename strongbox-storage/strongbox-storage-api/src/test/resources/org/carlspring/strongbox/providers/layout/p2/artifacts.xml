@@ -6,27 +6,26 @@
     <property name='p2.compressed' value='false'/>
   </properties>
   <mappings size='5'>
-      <rule filter='(&amp; (classifier=osgi.bundle) (format=packed))'
-            output='${repoUrl}/plugins/${databaseId}_${version}.jar.pack.gz'/>
-      <rule filter='(&amp; (classifier=osgi.bundle))' output='${repoUrl}/plugins/${databaseId}_${version}.jar'/>
-      <rule filter='(&amp; (classifier=binary))' output='${repoUrl}/binary/${databaseId}_${version}'/>
-      <rule filter='(&amp; (classifier=org.eclipse.update.feature) (format=packed))'
-            output='${repoUrl}/features/${databaseId}_${version}.jar.pack.gz'/>
-      <rule filter='(&amp; (classifier=org.eclipse.update.feature))'
-            output='${repoUrl}/features/${databaseId}_${version}.jar'/>
+    <rule filter='(&amp; (classifier=osgi.bundle) (format=packed))'
+          output='${repoUrl}/plugins/${id}_${version}.jar.pack.gz'/>
+    <rule filter='(&amp; (classifier=osgi.bundle))' output='${repoUrl}/plugins/${id}_${version}.jar'/>
+    <rule filter='(&amp; (classifier=binary))' output='${repoUrl}/binary/${id}_${version}'/>
+    <rule filter='(&amp; (classifier=org.eclipse.update.feature) (format=packed))'
+          output='${repoUrl}/features/${id}_${version}.jar.pack.gz'/>
+    <rule filter='(&amp; (classifier=org.eclipse.update.feature))' output='${repoUrl}/features/${id}_${version}.jar'/>
   </mappings>
   <artifacts size='3'>
-      <artifact classifier='osgi.bundle' databaseId='com.carlspring.bundle' version='1.0.1'>
+    <artifact classifier='osgi.bundle' id='com.carlspring.bundle' version='1.0.1'>
       <properties size='1'>
         <property name='download.size' value='1'/>
       </properties>
     </artifact>
-      <artifact classifier='org.eclipse.update.feature' databaseId='com.carlspring.feature' version='1.0.1'>
+    <artifact classifier='org.eclipse.update.feature' id='com.carlspring.feature' version='1.0.1'>
       <properties size='1'>
         <property name='download.size' value='1'/>
       </properties>
     </artifact>
-      <artifact classifier='binary' databaseId='com.carlspring.binary' version='1.0.1'>
+    <artifact classifier='binary' id='com.carlspring.binary' version='1.0.1'>
       <properties size='1'>
         <property name='download.size' value='1'/>
       </properties>

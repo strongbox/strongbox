@@ -77,7 +77,7 @@ public class P2ArtifactReaderTest
         Assert.assertNotNull(properties);
 
         Map<String, String> expectedProperties = new HashMap<>();
-        expectedProperties.put("databaseId", ID);
+        expectedProperties.put("id", ID);
         expectedProperties.put("version", VERSION);
         expectedProperties.put("classifier", CLASSIFIER);
         expectedProperties.put("download.size", "1");

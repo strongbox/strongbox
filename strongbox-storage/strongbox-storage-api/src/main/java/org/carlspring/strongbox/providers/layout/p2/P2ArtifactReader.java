@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Finds a {@link P2ArtifactCoordinates} from the provided repository base directory and artifact path.
- * The artifact path consists of {databaseId}/{version}/{classifier}. E.g. bundle-name/1.0.0/osgi.bundle
+ * The artifact path consists of {id}/{version}/{classifier}. E.g. bundle-name/1.0.0/osgi.bundle
  */
 public class P2ArtifactReader
 {
@@ -23,7 +23,7 @@ public class P2ArtifactReader
      * Finds a {@link P2ArtifactCoordinates} from the provided repository base directory and artifact path.
      *
      * @param repositoryBaseDir The folder containing the repository
-     * @param bundle            The artifact path in the format of {databaseId}/{version}/{classifier}. E.g. bundle-name/1.0.0/osgi.bundle
+     * @param bundle            The artifact path in the format of {id}/{version}/{classifier}. E.g. bundle-name/1.0.0/osgi.bundle
      * @return P2ArtifactCoordinates if found otherwise null
      */
     public static P2ArtifactCoordinates getArtifact(String repositoryBaseDir,
@@ -62,7 +62,7 @@ public class P2ArtifactReader
                                       String baseDir)
     {
         foundArtifact.addProperty("repoUrl", baseDir);
-        foundArtifact.addProperty("databaseId", p2Artifact.getId());
+        foundArtifact.addProperty("id", p2Artifact.getId());
         foundArtifact.addProperty("version", p2Artifact.getVersion());
         foundArtifact.addProperty("classifier", p2Artifact.getClassifier());
         P2Properties properties = p2Artifact.getProperties();

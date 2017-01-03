@@ -53,7 +53,7 @@ public class ConfigurationCache
 
         if (configuration.getDatabaseId() == null)
         {
-            throw new IllegalArgumentException("Unable to save configuration into cache: databaseId is null");
+            throw new IllegalArgumentException("Unable to save configuration into cache: id is null");
         }
 
         try

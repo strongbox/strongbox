@@ -5,6 +5,8 @@ import org.carlspring.strongbox.data.domain.GenericEntity;
 
 import java.io.Serializable;
 
+import com.google.common.base.MoreObjects;
+
 /**
  * @author carlspring
  */
@@ -71,10 +73,11 @@ public class ArtifactEntry
     @Override
     public String toString()
     {
-        return "ArtifactEntry{" +
-               "storageId='" + storageId + '\'' +
-               ", repositoryId='" + repositoryId + '\'' +
-               ", artifactCoordinates=" + artifactCoordinates +
-               '}';
+        return MoreObjects.toStringHelper(this)
+                          .add("databaseId", databaseId)
+                          .add("storageId", storageId)
+                          .add("repositoryId", repositoryId)
+                          .add("artifactCoordinates", artifactCoordinates)
+                          .toString();
     }
 }

@@ -11,12 +11,12 @@ import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import java.util.LinkedHashSet;
 import java.util.List;
 
 import com.orientechnologies.orient.core.entity.OEntityManager;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -39,25 +39,25 @@ import org.springframework.transaction.annotation.Transactional;
 public class StorageApiConfig
 {
 
-    @Autowired
+    @Inject
     private List<VersionValidator> versionValidators;
 
-    @Autowired
+    @Inject
     private StorageProviderRegistry storageProviderRegistry;
 
-    @Autowired
+    @Inject
     private RepositoryProviderRegistry repositoryProviderRegistry;
 
-    @Autowired
+    @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
-    @Autowired
+    @Inject
     private ArtifactResolutionServiceImpl artifactResolutionService;
 
-    @Autowired
+    @Inject
     private ConfigurationManager configurationManager;
 
-    @Autowired
+    @Inject
     private OObjectDatabaseTx databaseTx;
 
     @PostConstruct
@@ -70,6 +70,10 @@ public class StorageApiConfig
         // register all domain entities
         entityManager.registerEntityClasses(ArtifactEntry.class.getPackage()
                                                                .getName());
+
+        // unable to replace with more generic one (ArtifactCoordinates) because of
+        // internal OrientDB exception: MavenArtifactCoordinates will not be serializable because
+        // it was not registered using registerEntityClass()
         entityManager.registerEntityClass(MavenArtifactCoordinates.class);
     }
 
