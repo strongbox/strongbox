@@ -73,11 +73,13 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
         Storage storage = getConfiguration().getStorage(storageId);
 
         logger.debug("Checking in " + storage.getId() + ":" + repositoryId + "...");
+        
         Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
 
         RepositoryPath reposytoryPath = filesystemStorageProvider.resolve(repository);
         RepositoryPath artifactPath = reposytoryPath.resolve(path);
         RepositoryFileSystemProvider fileSystemProvider = (RepositoryFileSystemProvider)artifactPath.getFileSystem().provider();
+        
         logger.debug(" -> Checking for " + artifactPath + "...");
         
         if (Files.exists(artifactPath))
@@ -93,6 +95,7 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
         else
         {
             logger.debug("The artifact was not found in the local cache.");
+            
             RepositoryPath tempArtifact = fileSystemProvider.getTempPath(artifactPath);
             
             RemoteRepository remoteRepository = repository.getRemoteRepository();
