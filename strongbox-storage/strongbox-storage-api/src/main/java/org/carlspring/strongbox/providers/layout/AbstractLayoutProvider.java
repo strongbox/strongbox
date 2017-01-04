@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> implements LayoutProvider<T>
 {
+    
     private static final Logger logger = LoggerFactory.getLogger(AbstractLayoutProvider.class);
 
     @Autowired
@@ -103,7 +104,9 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
             RepositoryPath repositoryPath = resolve(repository);
             ais = storageProvider.getInputStreamImplementation(repositoryPath, path);
         }
+        
         logger.debug("Resolved " + path + "!");
+        
         return ais;
     }
 
@@ -116,6 +119,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
+        
         OutputStream os;
         if (isArtifact(repository, path, false))
         {
@@ -135,31 +139,40 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
     
     protected abstract boolean isChecksum(String path);
     
-    protected boolean isTrash(String path){
+    protected boolean isTrash(String path)
+    {
         return path.contains(".trash");
     }
     
-    protected boolean isTemp(String path){
+    protected boolean isTemp(String path)
+    {
         return path.contains(".temp");
     }
 
-    protected boolean isIndex(String path){
+    protected boolean isIndex(String path)
+    {
         return path.contains(".index");
     }
     
-    protected boolean isArtifact(Repository repository, String path, boolean strict) throws IOException{
+    protected boolean isArtifact(Repository repository, String path, boolean strict)
+           throws IOException
+    {
         RepositoryPath artifactPath = resolve(repository, path);
         boolean exists = Files.exists(artifactPath);
-        if (!exists && strict){
+        if (!exists && strict)
+        {
             throw new FileNotFoundException(artifactPath.toString());
         }
-        if (exists && Files.isDirectory(artifactPath)){
-            throw new FileNotFoundException(String.format("This is directory: path-[%s]", artifactPath.toString()));
+        if (exists && Files.isDirectory(artifactPath))
+        {
+            throw new FileNotFoundException(String.format("The artifact path is a directory: path-[%s]", artifactPath.toString()));
         }
+        
         return !isMetadata(path) && !isChecksum(path) && !isServiceFolder(path);
     }
     
-    protected boolean isServiceFolder(String path){
+    protected boolean isServiceFolder(String path)
+    {
         return isTemp(path) || isTrash(path) || isIndex(path);
     }
     
@@ -167,6 +180,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         throws IOException
     {
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
+        
         return storageProvider.resolve(repository);
     }
 
@@ -175,12 +189,13 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         throws IOException
     {
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
+        
         return storageProvider.resolve(repository, path);
     }
     
     protected ArtifactPath resolve(String storageId,
-                                 String repositoryId,
-                                 String path)
+                                   String repositoryId,
+                                   String path)
         throws IOException
     {
         return resolve(storageId, repositoryId, getArtifactCoordinates(path));
@@ -191,6 +206,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         throws IOException
     {
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
+        
         return storageProvider.resolve(repository, coordinates);
     }
 
@@ -201,6 +217,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
+        
         return resolve(repository, coordinates);
     }
 
