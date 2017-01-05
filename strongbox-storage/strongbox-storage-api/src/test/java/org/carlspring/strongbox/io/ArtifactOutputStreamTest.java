@@ -37,10 +37,10 @@ public class ArtifactOutputStreamTest
 {
 
     @org.springframework.context.annotation.Configuration
-    @Import({
-            StorageApiConfig.class,
-            CommonConfig.class
-    })
+    @Import({ StorageApiConfig.class,
+              CommonConfig.class
+              })
+    
     public static class SpringConfig { }
 
     @Autowired
@@ -56,17 +56,20 @@ public class ArtifactOutputStreamTest
         final Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.foo:temp-file-test:1.2.3:jar");
         final ArtifactCoordinates coordinates = new MavenArtifactCoordinates(artifact);
         ArtifactPath artifactPath = new ArtifactPath(coordinates,
-                FileSystemStorageProvider.getArtifactPath(repository.getBasedir(), coordinates.toPath()),
-                FileSystemStorageProvider.getRepositoryFileSystem(repository));
+                                                     FileSystemStorageProvider.getArtifactPath(repository.getBasedir(), coordinates.toPath()),
+                                                     FileSystemStorageProvider.getRepositoryFileSystem(repository));
         RepositoryFileSystemProvider provider = (RepositoryFileSystemProvider) artifactPath.getFileSystem().provider();
         RepositoryPath artifactPathTemp = provider.getTempPath(artifactPath);
 
         final ArtifactOutputStream afos = new ArtifactOutputStream(Files.newOutputStream(artifactPathTemp), coordinates);
         ByteArrayInputStream bais = new ByteArrayInputStream("This is a test\n".getBytes());
         IOUtils.copy(bais, afos);
+        
         assertTrue("Failed to create temporary artifact file!", Files.exists(artifactPathTemp));
+        
         afos.close();
         provider.restoreFromTemp(artifactPath);
+        
         assertTrue("Failed to the move temporary artifact file to original location!", Files.exists(artifactPath));
     }
 
@@ -79,21 +82,24 @@ public class ArtifactOutputStreamTest
 
         final Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.foo:temp-file-test:1.2.4:jar");
         final ArtifactCoordinates coordinates = new MavenArtifactCoordinates(artifact);
+        
         ArtifactPath artifactPath = new ArtifactPath(coordinates,
-                FileSystemStorageProvider.getArtifactPath(repository.getBasedir(), coordinates.toPath()),
-                FileSystemStorageProvider.getRepositoryFileSystem(repository));
+                                                     FileSystemStorageProvider.getArtifactPath(repository.getBasedir(), coordinates.toPath()),
+                                                     FileSystemStorageProvider.getRepositoryFileSystem(repository));
+                                                     
         RepositoryFileSystemProvider provider = (RepositoryFileSystemProvider) artifactPath.getFileSystem().provider();
         RepositoryPath artifactPathTemp = provider.getTempPath(artifactPath);
 
         final ArtifactOutputStream afos = new ArtifactOutputStream(Files.newOutputStream(artifactPathTemp), coordinates);
         ByteArrayInputStream bais = new ByteArrayInputStream("This is a test\n".getBytes());
         IOUtils.copy(bais, afos);
+        
         assertTrue("Failed to create temporary artifact file!", Files.exists(artifactPathTemp));
+        
         afos.close();
-        assertFalse("Should not have move temporary the artifact file to original location!",
-                    Files.exists(artifactPath));
-        assertTrue("Should not have move temporary the artifact file to original location!",
-                   Files.exists(artifactPathTemp));
+        
+        assertFalse("Should not have move temporary the artifact file to original location!", Files.exists(artifactPath));
+        assertTrue("Should not have move temporary the artifact file to original location!", Files.exists(artifactPathTemp));
     }
 
     private Configuration getConfiguration()
