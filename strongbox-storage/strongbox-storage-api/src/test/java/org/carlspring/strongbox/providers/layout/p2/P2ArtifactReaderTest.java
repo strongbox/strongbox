@@ -3,6 +3,8 @@ package org.carlspring.strongbox.providers.layout.p2;
 import org.carlspring.strongbox.artifact.coordinates.P2ArtifactCoordinates;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +22,7 @@ public class P2ArtifactReaderTest
 
     @Test
     public void testGetArtifact()
-            throws URISyntaxException
+            throws URISyntaxException, IOException
     {
         P2ArtifactCoordinates foundArtifact = getArtifact();
 
@@ -29,26 +31,26 @@ public class P2ArtifactReaderTest
         Assert.assertEquals(VERSION, foundArtifact.getVersion());
     }
 
-    @Test
-    public void testNullPath()
+    @Test(expected = FileNotFoundException.class)
+    public void testNullPath() throws IOException
     {
         Assert.assertNull(P2ArtifactReader.getArtifact(".", null));
     }
 
-    @Test
-    public void testNullBaseDir()
+    @Test(expected = FileNotFoundException.class)
+    public void testNullBaseDir() throws IOException
     {
         Assert.assertNull(P2ArtifactReader.getArtifact(null, ""));
     }
 
-    @Test
-    public void testNullParameters()
+    @Test(expected = FileNotFoundException.class)
+    public void testNullParameters() throws IOException
     {
         Assert.assertNull(P2ArtifactReader.getArtifact(null, null));
     }
 
-    @Test
-    public void testInvalidPath()
+    @Test(expected = FileNotFoundException.class)
+    public void testInvalidPath() throws IOException
     {
         Assert.assertNull(P2ArtifactReader.getArtifact(".", "some/invalid@path"));
         Assert.assertNull(P2ArtifactReader.getArtifact(".", "somePath"));
@@ -56,21 +58,21 @@ public class P2ArtifactReaderTest
         Assert.assertNull(P2ArtifactReader.getArtifact(".", "osgi.bundle/missingName/1.0.1"));
     }
 
-    @Test
-    public void testInvalidBaseDir()
+    @Test(expected = FileNotFoundException.class)
+    public void testInvalidBaseDir() throws IOException
     {
         Assert.assertNull(P2ArtifactReader.getArtifact("inavlidRoot!", "somePath"));
     }
 
-    @Test
-    public void testEmpryParameters()
+    @Test(expected = FileNotFoundException.class)
+    public void testEmpryParameters()throws IOException
     {
         Assert.assertNull(P2ArtifactReader.getArtifact("", ""));
     }
 
     @Test
     public void testArtifactProperties()
-            throws URISyntaxException
+            throws URISyntaxException, IOException
     {
         P2ArtifactCoordinates foundArtifact = getArtifact();
         Map<String, String> properties = foundArtifact.getProperties();
@@ -91,7 +93,7 @@ public class P2ArtifactReaderTest
 
     @Test
     public void testMapping()
-            throws URISyntaxException
+            throws URISyntaxException, IOException
     {
         final String repoDir = getRepoDir();
         P2ArtifactCoordinates foundArtifact = getArtifact(repoDir);
@@ -100,7 +102,7 @@ public class P2ArtifactReaderTest
     }
 
     private P2ArtifactCoordinates getArtifact()
-            throws URISyntaxException
+            throws URISyntaxException, IOException
     {
         return getArtifact(getRepoDir());
     }
@@ -111,7 +113,7 @@ public class P2ArtifactReaderTest
         return new File(getClass().getResource("artifacts.xml").toURI()).getParent();
     }
 
-    private P2ArtifactCoordinates getArtifact(String repoDir)
+    private P2ArtifactCoordinates getArtifact(String repoDir) throws IOException
     {
         return P2ArtifactReader.getArtifact(repoDir, PATH);
     }

@@ -1,14 +1,10 @@
 package org.carlspring.strongbox.cron.api.jobs;
 
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.cron.config.JobManager;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
 
 import java.io.IOException;
-import java.util.Map;
 
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -24,9 +20,6 @@ public class RebuildMavenIndexesCronJob
 {
 
     private final Logger logger = LoggerFactory.getLogger(RebuildMavenIndexesCronJob.class);
-
-    @Autowired
-    private ConfigurationManager configurationManager;
 
     @Autowired
     private ArtifactIndexesService artifactIndexesService;
@@ -49,15 +42,11 @@ public class RebuildMavenIndexesCronJob
 
             if (storageId == null)
             {
-                Map<String, Storage> storages = getStorages();
-                for (String storage : storages.keySet())
-                {
-                    rebuildRepositoriesIndexes(storage);
-                }
+                artifactIndexesService.rebuildIndexes();
             }
             else if (repositoryId == null)
             {
-                rebuildRepositoriesIndexes(storageId);
+                artifactIndexesService.rebuildIndexes(storageId);
             }
             else
             {
@@ -70,32 +59,5 @@ public class RebuildMavenIndexesCronJob
         }
 
         manager.addExecutedJob(config.getName(), true);
-    }
-
-    /**
-     * To rebuild indexes in repositories
-     *
-     * @param storageId String
-     * @throws IOException
-     */
-    private void rebuildRepositoriesIndexes(String storageId)
-            throws IOException
-    {
-        Map<String, Repository> repositories = getRepositories(storageId);
-
-        for (String repository : repositories.keySet())
-        {
-            artifactIndexesService.rebuildIndexes(storageId, repository, null);
-        }
-    }
-
-    private Map<String, Storage> getStorages()
-    {
-        return configurationManager.getConfiguration().getStorages();
-    }
-
-    private Map<String, Repository> getRepositories(String storageId)
-    {
-        return getStorages().get(storageId).getRepositories();
     }
 }

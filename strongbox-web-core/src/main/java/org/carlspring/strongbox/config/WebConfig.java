@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.config;
 
-import org.carlspring.strongbox.StorageIndexingConfig;
 import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
 import org.carlspring.strongbox.mapper.CustomJaxb2RootElementHttpMessageConverter;
 import org.carlspring.strongbox.utils.CustomAntPathMatcher;
