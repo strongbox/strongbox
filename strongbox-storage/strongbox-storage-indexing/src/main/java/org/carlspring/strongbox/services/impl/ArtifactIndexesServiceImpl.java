@@ -5,6 +5,7 @@ import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.handlers.ArtifactLocationGenerateMavenIndexOperation;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
+import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -33,6 +34,10 @@ public class ArtifactIndexesServiceImpl
     @Autowired
     private RepositoryIndexManager repositoryIndexManager;
 
+    @Autowired
+    private RepositoryManagementService repositoryManagementService;
+
+
     @Override
     public void rebuildIndexes(String storageId,
                                String repositoryId,
@@ -52,6 +57,10 @@ public class ArtifactIndexesServiceImpl
         locator.setOperation(operation);
         locator.locateArtifactDirectories();
 
+        if (artifactPath == null)
+        {
+            repositoryManagementService.pack(storageId, repositoryId);
+        }
     }
 
     @Override
@@ -64,7 +73,6 @@ public class ArtifactIndexesServiceImpl
         {
             rebuildIndexes(storageId, repository, null);
         }
-
     }
 
     @Override
@@ -76,7 +84,6 @@ public class ArtifactIndexesServiceImpl
         {
             rebuildIndexes(storageId);
         }
-
     }
 
     private Configuration getConfiguration()
@@ -91,7 +98,7 @@ public class ArtifactIndexesServiceImpl
 
     private Map<String, Repository> getRepositories(String storageId)
     {
-        return getStorages().get(storageId)
-                            .getRepositories();
+        return getStorages().get(storageId).getRepositories();
     }
+
 }
