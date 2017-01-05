@@ -27,24 +27,22 @@ public interface StorageProvider
 
     ArtifactInputStream getInputStreamImplementation(ReloadableInputStreamHandler handler,
                                                      List<ByteRange> byteRanges)
-        throws IOException,
-        NoSuchAlgorithmException;
+            throws IOException, NoSuchAlgorithmException;
 
     ArtifactInputStream getInputStreamImplementation(ReloadableInputStreamHandler handler,
                                                      ByteRange byteRange)
-        throws IOException,
-        NoSuchAlgorithmException;
+            throws IOException, NoSuchAlgorithmException;
 
     ArtifactInputStream getInputStreamImplementation(InputStream is)
-        throws NoSuchAlgorithmException;
+            throws NoSuchAlgorithmException;
 
     ArtifactInputStream getInputStreamImplementation(InputStream is,
                                                      String[] algorithms)
-        throws NoSuchAlgorithmException;
+            throws NoSuchAlgorithmException;
 
     ArtifactInputStream getInputStreamImplementation(ArtifactCoordinates coordinates,
                                                      InputStream is)
-        throws NoSuchAlgorithmException;
+            throws NoSuchAlgorithmException;
 
     ArtifactInputStream getInputStreamImplementation(ArtifactPath artifactPath)
             throws IOException, NoSuchAlgorithmException;
@@ -54,17 +52,17 @@ public interface StorageProvider
     
     
     ArtifactOutputStream getOutputStreamImplementation(ArtifactPath artifactPath)
-        throws IOException;
+            throws IOException;
 
     OutputStream getOutputStreamImplementation(RepositoryPath repositoryPath, String path)
-        throws IOException;
+            throws IOException;
         
     ArtifactPath resolve(Repository repository,
                          ArtifactCoordinates coordinates)
-        throws IOException;
+            throws IOException;
 
     RepositoryPath resolve(Repository repository)
-        throws IOException;
+            throws IOException;
     
     RepositoryPath resolve(Repository repository, String path)
             throws IOException;
