@@ -63,6 +63,8 @@ public class RepositoryIndexerTest
 
         final int x = repositoryManagementService.reIndex("storage0", "releases", "org/carlspring/strongbox/strongbox-commons");
 
+        repositoryManagementService.pack("storage0", "releases");
+
         assertTrue("Failed to pack index!", new File(REPOSITORY_BASEDIR.getAbsolutePath(), ".index/nexus-maven-repository-index.gz").exists());
         assertTrue("Failed to pack index!", new File(REPOSITORY_BASEDIR.getAbsolutePath(), ".index/nexus-maven-repository-index-packer.properties").exists());
 

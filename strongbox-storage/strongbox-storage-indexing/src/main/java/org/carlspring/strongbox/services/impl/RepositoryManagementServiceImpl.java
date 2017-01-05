@@ -104,8 +104,6 @@ public class RepositoryManagementServiceImpl
 
         IndexingContext context = repositoryIndexer.getIndexingContext();
 
-        pack(storageId, repositoryId);
-
         ScanningRequest scanningRequest = new ScanningRequest(context,
                                                               new ReindexArtifactScanningListener(repositoryIndexer.getIndexer()),
                                                               startingPath.getPath());

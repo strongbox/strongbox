@@ -27,13 +27,12 @@ public class TestCaseWithArtifactGenerationWithIndexing
 {
 
     @Configuration
-    @Import({
-            StorageIndexingConfig.class,
-            StorageApiConfig.class,
-            CommonConfig.class,
-            ClientConfig.class,
-            DataServiceConfig.class
-    })
+    @Import({ StorageIndexingConfig.class,
+              StorageApiConfig.class,
+              CommonConfig.class,
+              ClientConfig.class,
+              DataServiceConfig.class
+            })
     public static class SpringConfig { }
 
     @Autowired
@@ -51,7 +50,7 @@ public class TestCaseWithArtifactGenerationWithIndexing
     {
         File artifactFile = new File(repositoryBasedir, artifactPath);
 
-        Artifact artifact = ArtifactUtils.getArtifactFromGAV("org.carlspring.strongbox:strongbox-utils:6.2.2:jar");
+        Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
 
         RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storageId + ":" + repositoryId);
 
