@@ -9,7 +9,6 @@ import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexerFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
 
@@ -17,6 +16,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
+import org.apache.maven.index.packer.DefaultIndexPacker;
+import org.apache.maven.index.packer.IndexPacker;
+import org.apache.maven.index.packer.IndexPackingRequest;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.slf4j.Logger;
@@ -33,6 +35,8 @@ public class ArtifactIndexesServiceImpl
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactIndexesServiceImpl.class);
+
+    private IndexDownloader downloader;
 
     @Autowired
     private ConfigurationManager configurationManager;
@@ -81,25 +85,15 @@ public class ArtifactIndexesServiceImpl
         Repository repository = storage.getRepository(repositoryId);
         String repositoryBasedir = repository.getBasedir();
 
-        RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(
-                storageId.concat(":")
-                         .concat(repositoryId));
-
-        logger.debug("Indexer in downloadRemoteIndex = " + indexer);
-
-        if (indexer != null)
-        {
-            IndexDownloader downloader = new IndexDownloader();
-            downloader.setIndexingContextId(indexer.getIndexingContext()
-                                                   .getId());
-            downloader.setRepositoryId(repositoryId);
-            downloader.setRepositoryURL(repository.getRemoteRepository()
-                                                  .getUrl());
-            downloader.setIndexLocalCacheDir(repositoryBasedir);
-            downloader.setIndexDir(indexer.getIndexDir()
-                                          .toString());
-            downloader.download();
-        }
+        downloader = new IndexDownloader();
+        downloader.setIndexingContextId(repositoryId + "/ctx");
+        downloader.setRepositoryId(repositoryId);
+        downloader.setRepositoryURL(repository.getRemoteRepository()
+                                              .getUrl());
+        downloader.setIndexLocalCacheDir(repositoryBasedir);
+        downloader.setIndexDir(new File(repositoryBasedir, ".index")
+                                       .toString());
+        downloader.download();
     }
 
     @Override
@@ -130,6 +124,11 @@ public class ArtifactIndexesServiceImpl
         return configurationManager.getConfiguration();
     }
 
+    public IndexDownloader getIndexDownloader()
+    {
+        return downloader;
+    }
+
     private Map<String, Storage> getStorages()
     {
         return getConfiguration().getStorages();
@@ -139,5 +138,4 @@ public class ArtifactIndexesServiceImpl
     {
         return getStorages().get(storageId).getRepositories();
     }
-
 }

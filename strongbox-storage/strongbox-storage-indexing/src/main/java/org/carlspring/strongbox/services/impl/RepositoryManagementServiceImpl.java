@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.services.impl;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.lucene.store.FSDirectory;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.services.RepositoryManagementService;
@@ -14,14 +16,15 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.store.FSDirectory;
 import org.apache.maven.index.ScanningRequest;
 import org.apache.maven.index.ScanningResult;
 import org.apache.maven.index.context.IndexingContext;
 import org.apache.maven.index.packer.IndexPacker;
 import org.apache.maven.index.packer.IndexPackingRequest;
+
+import org.codehaus.plexus.PlexusContainerException;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +71,29 @@ public class RepositoryManagementServiceImpl
                                                                                                repositoryId,
                                                                                                repositoryBasedir,
                                                                                                indexDir);
+
+        repositoryIndexManager.addRepositoryIndex(storageId + ":" + repositoryId, repositoryIndexer);
+    }
+
+    @Override
+    public void createRemoteRepository(String storageId,
+                                       String repositoryId,
+                                       String remoteUrl)
+            throws IOException, PlexusContainerException, ComponentLookupException
+    {
+        Storage storage = getConfiguration().getStorage(storageId);
+
+        final String storageBasedirPath = storage.getBasedir();
+        final File repositoryBasedir = new File(storageBasedirPath, repositoryId).getAbsoluteFile();
+
+        createRepositoryStructure(storageBasedirPath, repositoryId);
+
+        final File indexDir = new File(repositoryBasedir, ".index");
+
+        RepositoryIndexer repositoryIndexer = repositoryIndexerFactory.createProxyRepositoryIndexer(storageId,
+                                                                                                    repositoryId,
+                                                                                                    repositoryBasedir,
+                                                                                                    indexDir);
 
         repositoryIndexManager.addRepositoryIndex(storageId + ":" + repositoryId, repositoryIndexer);
     }

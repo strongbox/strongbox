@@ -1,5 +1,8 @@
 package org.carlspring.strongbox.services;
 
+
+import org.carlspring.maven.artifact.downloader.IndexDownloader;
+
 import java.io.IOException;
 
 import org.codehaus.plexus.PlexusContainerException;
@@ -47,5 +50,12 @@ public interface ArtifactIndexesService
     void downloadRemoteIndex(String storageId,
                              String repositoryId)
             throws PlexusContainerException, ComponentLookupException, IOException;
+
+    /**
+     * Get IndexDownloader
+     *
+     * @return IndexDownloader
+     */
+    IndexDownloader getIndexDownloader();
 
 }
