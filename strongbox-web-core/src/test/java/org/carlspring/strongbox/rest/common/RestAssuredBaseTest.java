@@ -206,4 +206,11 @@ public abstract class RestAssuredBaseTest
                                                            numberOfBuilds);
     }
 
+    public void createArtifact(String basedir,
+                               Artifact artifact)
+            throws NoSuchAlgorithmException, XmlPullParserException, IOException
+    {
+        generator.generateArtifact(basedir, artifact);
+    }
+
 }

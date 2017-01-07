@@ -1,9 +1,9 @@
-package org.carlspring.strongbox.cron;
+package org.carlspring.strongbox.rest;
 
-import org.carlspring.strongbox.cron.context.CronTaskTest;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import org.carlspring.strongbox.rest.context.CronTaskTest;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;

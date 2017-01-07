@@ -1,6 +1,5 @@
-package org.carlspring.strongbox.cron.controller;
+package org.carlspring.strongbox.controller;
 
-import org.carlspring.strongbox.controller.BaseController;
 import org.carlspring.strongbox.cron.api.jobs.GroovyCronJob;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.exceptions.CronTaskException;
@@ -49,9 +48,12 @@ public class CronTaskController
     @Inject
     OObjectDatabaseTx databaseTx;
 
-    @ApiOperation(value = "Used to save the configuration", position = 0)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The configuration was saved successfully."),
-                            @ApiResponse(code = 400, message = "An error occurred.") })
+    @ApiOperation(value = "Used to save the configuration",
+                  position = 0)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "The configuration was saved successfully."),
+                            @ApiResponse(code = 400,
+                                         message = "An error occurred.") })
     @RequestMapping(
             value = "/cron",
             method = RequestMethod.PUT,
@@ -67,64 +69,80 @@ public class CronTaskController
 
             cronTaskConfigurationService.saveConfiguration(cronTaskConfiguration);
 
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok()
+                                 .build();
         }
         catch (Exception e)
         {
             logger.error(e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body(e.getMessage());
         }
     }
 
-    @ApiOperation(value = "Used to delete the configuration", position = 1)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The configuration was deleted successfully."),
-                            @ApiResponse(code = 400, message = "An error occurred.") })
-    @RequestMapping(value = "/cron", method = RequestMethod.DELETE)
+    @ApiOperation(value = "Used to delete the configuration",
+                  position = 1)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "The configuration was deleted successfully."),
+                            @ApiResponse(code = 400,
+                                         message = "An error occurred.") })
+    @RequestMapping(value = "/cron",
+                    method = RequestMethod.DELETE)
     public ResponseEntity deleteConfiguration(@RequestParam("name") String name)
     {
         final List<Exception> errors = new LinkedList<>();
         cronTaskConfigurationService.getConfiguration(name)
-                                    .forEach(config -> {
-                                        try
-                                        {
-                                            cronTaskConfigurationService.deleteConfiguration(config);
-                                            if (config.contain("jobClass"))
-                                            {
-                                                Class c = Class.forName(config.getProperty("jobClass"));
-                                                Object classInstance = c.newInstance();
+                                    .forEach(config ->
+                                             {
+                                                 try
+                                                 {
+                                                     cronTaskConfigurationService.deleteConfiguration(config);
+                                                     if (config.contain("jobClass"))
+                                                     {
+                                                         Class c = Class.forName(config.getProperty("jobClass"));
+                                                         Object classInstance = c.newInstance();
 
-                                                logger.debug("> " + c.getSuperclass().getCanonicalName());
+                                                         logger.debug("> " + c.getSuperclass()
+                                                                              .getCanonicalName());
 
-                                                if (classInstance instanceof GroovyCronJob)
-                                                {
-                                                    File file = new File(config.getProperty("script.path"));
-                                                    if (file.exists())
-                                                    {
-                                                        //noinspection ResultOfMethodCallIgnored
-                                                        file.delete();
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        catch (Exception e)
-                                        {
-                                            errors.add(e);
-                                        }
-                                    });
+                                                         if (classInstance instanceof GroovyCronJob)
+                                                         {
+                                                             File file = new File(config.getProperty("script.path"));
+                                                             if (file.exists())
+                                                             {
+                                                                 //noinspection ResultOfMethodCallIgnored
+                                                                 file.delete();
+                                                             }
+                                                         }
+                                                     }
+                                                 }
+                                                 catch (Exception e)
+                                                 {
+                                                     errors.add(e);
+                                                 }
+                                             });
 
         if (!errors.isEmpty())
         {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors.get(0).getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body(errors.get(0)
+                                             .getMessage());
         }
 
-        return ResponseEntity.ok().body("Configuration " + name + " removed");
+        return ResponseEntity.ok()
+                             .body("Configuration " + name + " removed");
     }
 
-    @ApiOperation(value = "Used to get the configuration on given cron task name", position = 2)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The configuration retrieved successfully."),
-                            @ApiResponse(code = 400, message = "An error occurred.") })
-    @RequestMapping(value = "/cron", method = RequestMethod.GET, produces = { MediaType.APPLICATION_JSON,
-                                                                              MediaType.APPLICATION_XML })
+    @ApiOperation(value = "Used to get the configuration on given cron task name",
+                  position = 2)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "The configuration retrieved successfully."),
+                            @ApiResponse(code = 400,
+                                         message = "An error occurred.") })
+    @RequestMapping(value = "/cron",
+                    method = RequestMethod.GET,
+                    produces = { MediaType.APPLICATION_JSON,
+                                 MediaType.APPLICATION_XML })
     public ResponseEntity getConfiguration(@RequestParam("name") String name)
     {
         CronTaskConfiguration config = cronTaskConfigurationService.findOne(name);
@@ -145,15 +163,21 @@ public class CronTaskController
         catch (Exception e)
         {
             logger.error("Unable to serialize config", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(e.getMessage());
         }
     }
 
-    @ApiOperation(value = "Used to get list of all the configurations", position = 3)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The all configurations retrieved successfully."),
-                            @ApiResponse(code = 400, message = "An error occurred.") })
-    @RequestMapping(value = "/", method = RequestMethod.GET, produces = { MediaType.APPLICATION_JSON,
-                                                                          MediaType.APPLICATION_XML })
+    @ApiOperation(value = "Used to get list of all the configurations",
+                  position = 3)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "The all configurations retrieved successfully."),
+                            @ApiResponse(code = 400,
+                                         message = "An error occurred.") })
+    @RequestMapping(value = "/",
+                    method = RequestMethod.GET,
+                    produces = { MediaType.APPLICATION_JSON,
+                                 MediaType.APPLICATION_XML })
     public ResponseEntity getConfigurations()
     {
         List<CronTaskConfiguration> configList = cronTaskConfigurationService.getConfigurations();
@@ -166,10 +190,14 @@ public class CronTaskController
         return ResponseEntity.ok(configList);
     }
 
-    @ApiOperation(value = "Used to upload groovy script for groovy cron task", position = 4)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The groovy script uploaded successfully."),
-                            @ApiResponse(code = 400, message = "An error occurred.") })
-    @RequestMapping(value = "/cron/groovy", method = RequestMethod.PUT)
+    @ApiOperation(value = "Used to upload groovy script for groovy cron task",
+                  position = 4)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "The groovy script uploaded successfully."),
+                            @ApiResponse(code = 400,
+                                         message = "An error occurred.") })
+    @RequestMapping(value = "/cron/groovy",
+                    method = RequestMethod.PUT)
     public ResponseEntity uploadGroovyScript(@RequestParam("cronName") String cronName,
                                              HttpServletRequest request)
     {
@@ -203,17 +231,24 @@ public class CronTaskController
         catch (Exception e)
         {
             logger.error(e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body(e.getMessage());
         }
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok()
+                             .build();
     }
 
-    @ApiOperation(value = "Used to get all groovy scripts names", position = 5)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The groovy scripts named retrieved successfully."),
-                            @ApiResponse(code = 400, message = "An error occurred.") })
-    @RequestMapping(value = "/groovy/names", method = RequestMethod.GET, produces = { MediaType.APPLICATION_JSON,
-                                                                                      MediaType.APPLICATION_XML })
+    @ApiOperation(value = "Used to get all groovy scripts names",
+                  position = 5)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "The groovy scripts named retrieved successfully."),
+                            @ApiResponse(code = 400,
+                                         message = "An error occurred.") })
+    @RequestMapping(value = "/groovy/names",
+                    method = RequestMethod.GET,
+                    produces = { MediaType.APPLICATION_JSON,
+                                 MediaType.APPLICATION_XML })
     public ResponseEntity getGroovyScriptsName()
     {
         GroovyScriptNames groovyScriptNames = cronTaskConfigurationService.getGroovyScriptsName();

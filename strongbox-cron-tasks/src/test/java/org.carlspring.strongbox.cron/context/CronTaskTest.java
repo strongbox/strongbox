@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.cron.context;
 
-import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
 
 import java.lang.annotation.ElementType;
@@ -20,8 +19,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@ContextConfiguration(classes = { CronTasksConfig.class,
-                                  WebConfig.class })
+@ContextConfiguration(classes = { CronTasksConfig.class })
 @WebAppConfiguration
 @WithUserDetails(value = "admin")
 @IfProfileValue(name = "spring.profiles.active", values = { "quartz-integration-test" })
