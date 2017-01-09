@@ -64,6 +64,7 @@ public class ArtifactPath extends RepositoryPath
                                        coordinatesLocal));
             return null;
         }
+        
         return target;
     }
 
@@ -72,7 +73,9 @@ public class ArtifactPath extends RepositoryPath
         throws IOException
     {
         return new ArtifactPath(coordinates,
-                FileSystemStorageProvider.getArtifactPath(repository.getBasedir(), coordinates.toPath()),
-                RepositoryFileSystem.getRepositoryFileSystem(repository));
-    }
+                                FileSystemStorageProvider.getArtifactPath(repository.getBasedir(),
+                                                                          coordinates.toPath()),
+                                RepositoryFileSystem.getRepositoryFileSystem(repository));
+    } 
+    
 }
