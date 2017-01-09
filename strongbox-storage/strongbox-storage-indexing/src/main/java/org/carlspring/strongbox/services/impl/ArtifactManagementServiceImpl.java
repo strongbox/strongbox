@@ -77,7 +77,7 @@ public class ArtifactManagementServiceImpl
                       String repositoryId,
                       String path,
                       InputStream is)
-            throws IOException, ProviderImplementationException
+            throws IOException, ProviderImplementationException, NoSuchAlgorithmException
     {
         performRepositoryAcceptanceValidation(storageId, repositoryId, path);
 

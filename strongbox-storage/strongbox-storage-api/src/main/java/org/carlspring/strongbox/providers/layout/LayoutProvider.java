@@ -25,7 +25,7 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
             throws IOException, NoSuchAlgorithmException, ArtifactTransportException;
 
     ArtifactOutputStream getOutputStream(String storageId, String repositoryId, String path)
-            throws IOException;
+            throws IOException, NoSuchAlgorithmException;
 
     boolean containsArtifact(Repository repository, ArtifactCoordinates coordinates)
             throws IOException;

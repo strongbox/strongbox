@@ -116,7 +116,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
     public ArtifactOutputStream getOutputStream(String storageId,
                                                 String repositoryId,
                                                 String path)
-        throws IOException
+        throws IOException, NoSuchAlgorithmException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);

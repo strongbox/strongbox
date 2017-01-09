@@ -84,7 +84,7 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
 
     @Override
     public ArtifactOutputStream getOutputStreamImplementation(ArtifactPath artifactPath)
-        throws IOException
+        throws IOException, NoSuchAlgorithmException
     {
         OutputStream os = Files.newOutputStream(artifactPath);
         return new ArtifactOutputStream(os, artifactPath.getCoordinates());
