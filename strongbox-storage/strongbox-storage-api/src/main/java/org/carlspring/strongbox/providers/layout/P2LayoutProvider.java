@@ -1,12 +1,9 @@
 package org.carlspring.strongbox.providers.layout;
 
 import java.io.IOException;
-import java.nio.file.Files;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.P2ArtifactCoordinates;
-import org.carlspring.strongbox.io.RepositoryFileSystemProvider;
-import org.carlspring.strongbox.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.p2.P2ArtifactReader;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -64,21 +61,6 @@ public class P2LayoutProvider
         throws IOException
     {
         
-    }
-    
-    @Override
-    protected void doDeletePath(RepositoryPath repositoryPath,
-                                boolean force)
-        throws IOException
-    {
-        Files.delete(repositoryPath);
-
-        Repository repository = repositoryPath.getFileSystem().getRepository();
-        RepositoryFileSystemProvider provider = getProvider(repositoryPath);
-        if (force && repository.allowsForceDeletion())
-        {
-            provider.deleteTrash(repositoryPath);
-        }
     }
     
     @Override

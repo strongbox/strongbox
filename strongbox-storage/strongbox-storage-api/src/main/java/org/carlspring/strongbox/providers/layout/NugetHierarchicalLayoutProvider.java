@@ -1,14 +1,11 @@
 package org.carlspring.strongbox.providers.layout;
 
 import java.io.IOException;
-import java.nio.file.Files;
 
 import javax.annotation.PostConstruct;
 
 import org.carlspring.strongbox.artifact.coordinates.NugetHierarchicalArtifactCoordinates;
-import org.carlspring.strongbox.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.io.RepositoryPath;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -70,20 +67,15 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
 
     @Override
     protected void doDeletePath(RepositoryPath repositoryPath,
-                                boolean force)
+                                boolean force,
+                                boolean deleteChecksum)
         throws IOException
     {
         RepositoryPath sha512Path = repositoryPath.resolveSibling(repositoryPath.getFileName() + ".sha512");
-        
-        Files.delete(repositoryPath);
-        Files.deleteIfExists(sha512Path);
-        
-        Repository repository = repositoryPath.getFileSystem().getRepository();
-        RepositoryFileSystemProvider provider = getProvider(repositoryPath);
-        if (force && repository.allowsForceDeletion())
+        super.doDeletePath(repositoryPath, force, deleteChecksum);
+        if (deleteChecksum)
         {
-            provider.deleteTrash(repositoryPath);
-            provider.deleteTrash(sha512Path);
+            super.doDeletePath(sha512Path, force, deleteChecksum);
         }
     }
 

@@ -4,7 +4,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,12 +15,11 @@ import javax.annotation.PostConstruct;
 import org.carlspring.commons.http.range.ByteRange;
 import org.carlspring.commons.io.reloading.ReloadableInputStreamHandler;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.io.RepositoryFileSystem;
-import org.carlspring.strongbox.io.RepositoryPath;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.io.ArtifactPath;
-import org.carlspring.strongbox.io.FileSystemWrapper;
+import org.carlspring.strongbox.io.RepositoryFileSystem;
+import org.carlspring.strongbox.io.RepositoryPath;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -158,7 +156,7 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
         Path targetPath = getArtifactPath(repository.getBasedir(), coordinates.toPath());
         
         // Override FileSystem root to Repository base directory
-        return new ArtifactPath(coordinates, targetPath, getRepositoryFileSystem(repository));
+        return new ArtifactPath(coordinates, targetPath, RepositoryFileSystem.getRepositoryFileSystem(repository));
     }
 
     @Override
@@ -167,7 +165,7 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
     {
         Path path = Paths.get(repository.getBasedir());
         
-        return new RepositoryPath(path, getRepositoryFileSystem(repository));
+        return new RepositoryPath(path, RepositoryFileSystem.getRepositoryFileSystem(repository));
     }
 
     @Override
@@ -176,21 +174,6 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
         throws IOException
     {
         return resolve(repository).resolve(path);
-    }
-
-    public static RepositoryFileSystem getRepositoryFileSystem(Repository repository)
-    {
-        FileSystem storageFileSystem = new FileSystemWrapper(Paths.get(repository.getBasedir()).getFileSystem())
-        {
-
-            @Override
-            public Path getRootDirectory()
-            {
-                return Paths.get(repository.getBasedir());
-            }
-
-        };
-        return new RepositoryFileSystem(repository, storageFileSystem);
     }
 
     public static Path getArtifactPath(String basePath, String artifactPath)

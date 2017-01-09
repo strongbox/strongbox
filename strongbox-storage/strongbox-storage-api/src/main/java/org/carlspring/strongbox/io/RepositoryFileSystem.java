@@ -74,4 +74,19 @@ public class RepositoryFileSystem extends FileSystemWrapper
         throw new UnsupportedOperationException();
     }
 
+    public static RepositoryFileSystem getRepositoryFileSystem(Repository repository)
+    {
+        FileSystem storageFileSystem = new FileSystemWrapper(Paths.get(repository.getBasedir()).getFileSystem())
+        {
+
+            @Override
+            public Path getRootDirectory()
+            {
+                return Paths.get(repository.getBasedir());
+            }
+
+        };
+        return new RepositoryFileSystem(repository, storageFileSystem);
+    }
+    
 }

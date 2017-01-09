@@ -10,7 +10,6 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
-import org.carlspring.strongbox.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.io.RepositoryPath;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
@@ -74,25 +73,21 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         return ArtifactUtils.isMetadata(path);
     }
 
-    protected void doDeletePath(RepositoryPath repositoryPath, boolean force) throws IOException
+    @Override
+    protected void doDeletePath(RepositoryPath repositoryPath,
+                                boolean force,
+                                boolean deleteChecksum)
+        throws IOException
     {
         RepositoryPath md5Path = repositoryPath.resolveSibling(repositoryPath.getFileName() + ".md5");
         RepositoryPath sha1Path = repositoryPath.resolveSibling(repositoryPath.getFileName() + ".sha1");
-
-        Files.delete(repositoryPath);
-        Files.deleteIfExists(md5Path);
-        Files.deleteIfExists(sha1Path);
-        
-        Repository repository = repositoryPath.getFileSystem().getRepository();
-        RepositoryFileSystemProvider provider = getProvider(repositoryPath);
-        if (force && repository.allowsForceDeletion())
+        super.doDeletePath(repositoryPath, force, deleteChecksum);
+        if (deleteChecksum)
         {
-            provider.deleteTrash(repositoryPath);
-            provider.deleteTrash(md5Path);
-            provider.deleteTrash(sha1Path);
+            super.doDeletePath(md5Path, force, deleteChecksum);
+            super.doDeletePath(sha1Path, force, deleteChecksum);
         }
     }
-    
     
     @Override
     public void deleteMetadata(String storageId,

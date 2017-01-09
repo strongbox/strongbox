@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.providers.storage.FileSystemStorageProvider;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,4 +67,12 @@ public class ArtifactPath extends RepositoryPath
         return target;
     }
 
+    public static ArtifactPath getArtifactPath(Repository repository,
+                                               ArtifactCoordinates coordinates)
+        throws IOException
+    {
+        return new ArtifactPath(coordinates,
+                FileSystemStorageProvider.getArtifactPath(repository.getBasedir(), coordinates.toPath()),
+                RepositoryFileSystem.getRepositoryFileSystem(repository));
+    }
 }

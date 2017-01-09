@@ -23,8 +23,10 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.FileAttributeView;
 import java.nio.file.spi.FileSystemProvider;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
@@ -84,7 +86,63 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
                                                     Filter<? super Path> filter)
         throws IOException
     {
-        return storageFileSystemProvider.newDirectoryStream(getTargetPath(dir), filter);
+        DirectoryStream<Path> ds = storageFileSystemProvider.newDirectoryStream(getTargetPath(dir), filter);
+        if (!(dir instanceof RepositoryPath))
+        {
+            return ds;
+        }
+        RepositoryPath repositoryDir = (RepositoryPath) dir;
+        return new DirectoryStream<Path>()
+        {
+
+            @Override
+            public void close()
+                throws IOException
+            {
+                ds.close();
+            }
+
+            @Override
+            public Iterator<Path> iterator()
+            {
+                return createRepositoryDsIterator(repositoryDir.getFileSystem(), ds.iterator());
+            }
+
+        };
+    }
+
+    protected Iterator<Path> createRepositoryDsIterator(RepositoryFileSystem rfs,
+                                                        Iterator<Path> iterator)
+    {
+
+        return new Iterator<Path>()
+        {
+
+            @Override
+            public boolean hasNext()
+            {
+                return iterator.hasNext();
+            }
+
+            @Override
+            public Path next()
+            {
+                return new RepositoryPath(iterator.next(), rfs);
+            }
+
+            @Override
+            public void remove()
+            {
+                iterator.remove();
+            }
+
+            @Override
+            public void forEachRemaining(Consumer<? super Path> action)
+            {
+                iterator.forEachRemaining(action);
+            }
+
+        };
     }
 
     public void createDirectory(Path dir,
@@ -145,8 +203,8 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
         {
             Files.walkFileTree(trashPath.getTarget(),
                                new MoveDirVisitor(trashPath.getTarget(),
-                                                  path.getTarget(),
-                                                  StandardCopyOption.REPLACE_EXISTING));
+                                       path.getTarget(),
+                                       StandardCopyOption.REPLACE_EXISTING));
         }
     }
 
@@ -160,7 +218,7 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
             {
                 Files.createDirectories(getTargetPath(path).getParent());
             }
-            
+
             Files.move(tempPath.getTarget(), path.getTarget(), StandardCopyOption.REPLACE_EXISTING);
         }
     }
@@ -216,10 +274,10 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
         if (!Files.exists(tempPath.getParent().getTarget()))
         {
             logger.debug(String.format("Creating: dir-[%s]", tempPath.getParent()));
-            
+
             Files.createDirectories(tempPath.getParent().getTarget());
         }
-        
+
         return tempPath;
     }
 
@@ -233,7 +291,7 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
             logger.debug(String.format("Creating: dir-[%s]", trashPath.getParent()));
             Files.createDirectories(trashPath.getParent().getTarget());
         }
-        
+
         return trashPath;
     }
 
@@ -246,7 +304,7 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
         String sourceRelative = source.getRoot()
                                       .relativize(source.getTarget())
                                       .toString();
-                                      
+
         // XXX[SBESPALOV]: We try to convert path form source to target FileSystem and need to check this on different
         // Storage types.
         // Note that this is only draft implementation, and probably in the future we will need something like separate
@@ -254,7 +312,7 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
         // be provided by the `ReposytoryFileSystem` instance.
         String sTargetPath = sourceRelative.replaceAll(sourceFileSystem.getSeparator(),
                                                        targetFileSystem.getSeparator());
-        
+
         return targetBase.resolve(sTargetPath);
     }
 
@@ -378,7 +436,7 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
             {
                 Files.createDirectory(targetPath);
             }
-            
+
             return FileVisitResult.CONTINUE;
         }
 
@@ -391,5 +449,5 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
             return FileVisitResult.CONTINUE;
         }
     }
-    
+
 }

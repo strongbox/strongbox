@@ -280,7 +280,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
 
         if (!Files.isDirectory(repositoryPath))
         {
-            doDeletePath(repositoryPath, force);
+            doDeletePath(repositoryPath, force, true);
         } else
         {
             Files.walkFileTree(repositoryPath, new SimpleFileVisitor<Path>()
@@ -290,7 +290,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
                                                  BasicFileAttributes attrs)
                     throws IOException
                 {
-                    doDeletePath((RepositoryPath) file, force);
+                    doDeletePath((RepositoryPath) file, force, false);
                     return FileVisitResult.CONTINUE;
                 }
 
@@ -308,7 +308,21 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         logger.debug("Removed /" + repositoryId + "/" + path);
     }
 
-    protected abstract void doDeletePath(RepositoryPath repositoryPath, boolean force) throws IOException;
+    protected void doDeletePath(RepositoryPath repositoryPath,
+                                boolean force,
+                                boolean deleteChecksum)
+        throws IOException
+    {
+        Files.delete(repositoryPath);
+
+        Repository repository = repositoryPath.getFileSystem().getRepository();
+        RepositoryFileSystemProvider provider = getProvider(repositoryPath);
+        if (force && repository.allowsForceDeletion())
+        {
+            provider.deleteTrash(repositoryPath);
+        }
+    }
+
     
     @Override
     public void deleteTrash(String storageId,
