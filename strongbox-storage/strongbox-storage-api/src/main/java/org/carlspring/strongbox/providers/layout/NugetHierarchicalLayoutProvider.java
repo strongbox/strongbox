@@ -60,12 +60,6 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
     }
 
     @Override
-    protected boolean isChecksum(String path)
-    {
-        return path.endsWith("nupkg.sha512");
-    }
-
-    @Override
     public void deleteMetadata(String storageId,
                                String repositoryId,
                                String metadataPath)

@@ -72,12 +72,6 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         return ArtifactUtils.isMetadata(path);
     }
 
-    @Override
-    protected boolean isChecksum(String path)
-    {
-        return ArtifactUtils.isChecksum(path);
-    }
-
     protected void doDeletePath(RepositoryPath repositoryPath, boolean force) throws IOException
     {
         RepositoryPath md5Path = repositoryPath.resolveSibling(repositoryPath.getFileName() + ".md5");
