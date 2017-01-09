@@ -26,6 +26,7 @@ public interface ArtifactResolutionService
                                  String repositoryId,
                                  String artifactPath)
             throws IOException,
-                   ProviderImplementationException;
+            ProviderImplementationException,
+            NoSuchAlgorithmException;
 
 }

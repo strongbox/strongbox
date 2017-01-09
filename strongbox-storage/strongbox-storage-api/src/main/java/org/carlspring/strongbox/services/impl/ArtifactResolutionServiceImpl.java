@@ -65,8 +65,9 @@ public class ArtifactResolutionServiceImpl
     public OutputStream getOutputStream(String storageId,
                                         String repositoryId,
                                         String artifactPath)
-            throws IOException,
-                   ProviderImplementationException
+        throws IOException,
+        ProviderImplementationException,
+        NoSuchAlgorithmException
     {
         artifactOperationsValidator.validate(storageId, repositoryId, artifactPath);
 
