@@ -23,6 +23,7 @@ import org.carlspring.strongbox.providers.storage.StorageProvider;
 import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.util.ArtifactFileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -136,7 +137,10 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
 
     protected abstract boolean isMetadata(String path);
 
-    protected abstract boolean isChecksum(String path);
+    protected boolean isChecksum(String path)
+    {
+        return ArtifactFileUtils.isChecksum(path);
+    }
 
     protected boolean isTrash(String path)
     {
