@@ -10,6 +10,8 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.rest.context.CronTaskTest;
 import org.carlspring.strongbox.rest.context.IntegrationTest;
+import org.carlspring.strongbox.services.ArtifactIndexesService;
+import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
@@ -41,7 +43,6 @@ import static org.junit.Assert.assertTrue;
  * @author Kate Novik.
  */
 @CronTaskTest
-@IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
 public class DownloadRemoteIndexCronJobTest
         extends RestAssuredBaseTest
@@ -77,6 +78,9 @@ public class DownloadRemoteIndexCronJobTest
     private RepositoryManagementService repositoryManagementService;
 
     @Inject
+    private ArtifactIndexesService artifactIndexesService;
+
+    @Inject
     private StorageBooter storageBooter;
 
     @Inject
@@ -87,7 +91,7 @@ public class DownloadRemoteIndexCronJobTest
             throws Exception
     {
 //        super.init();
-        setContextBaseUrl(getContextBaseUrl() + "/storages/storage0/releases/");
+        //setContextBaseUrl(getContextBaseUrl() + "/storages/storage0/releases/");
 
         if (!initialized)
         {
@@ -111,7 +115,7 @@ public class DownloadRemoteIndexCronJobTest
             createArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), artifact3);
 
 
-            repositoryManagementService.reIndex("storage0", "releases", null);
+            artifactIndexesService.rebuildIndexes("storage0", "releases", null);
 
             repository1 = new Repository("carlspring");
             repository1.setPolicy(RepositoryPolicyEnum.MIXED.getPolicy());
@@ -119,7 +123,7 @@ public class DownloadRemoteIndexCronJobTest
 
             RemoteRepository remoteRepository = new RemoteRepository();
             remoteRepository.setDownloadRemoteIndexes(true);
-            remoteRepository.setUrl(getContextBaseUrl());
+            remoteRepository.setUrl(getContextBaseUrl() + "/storages/storage0/releases/");
             remoteRepository.setAutoBlocking(true);
             remoteRepository.setChecksumValidation(true);
             repository1.setRemoteRepository(remoteRepository);
@@ -128,7 +132,8 @@ public class DownloadRemoteIndexCronJobTest
             repository1.setStorage(storage);
             storage.addOrUpdateRepository(repository1);
 
-            repositoryManagementService.createRemoteRepository("storage0", "carlspring", getContextBaseUrl());
+            repositoryManagementService.createRemoteRepository("storage0", "carlspring",
+                                                               getContextBaseUrl() + "/storages/storage0/releases/");
 
             initialized = true;
         }

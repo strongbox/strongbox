@@ -20,8 +20,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@ContextConfiguration(classes = { CronTasksConfig.class,
-                                  WebConfig.class })
+@ContextConfiguration(classes = WebConfig.class)
 @WebAppConfiguration
 @WithUserDetails(value = "admin")
 @Rollback
