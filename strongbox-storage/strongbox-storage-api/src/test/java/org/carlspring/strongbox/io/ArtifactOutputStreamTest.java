@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.artifact.Artifact;
@@ -48,7 +49,7 @@ public class ArtifactOutputStreamTest
 
     @Test
     public void testCreateWithTemporaryLocation()
-            throws IOException
+            throws IOException, NoSuchAlgorithmException
     {
         final Storage storage = getConfiguration().getStorage("storage0");
         final Repository repository = storage.getRepository("releases");
@@ -72,7 +73,7 @@ public class ArtifactOutputStreamTest
 
     @Test
     public void testCreateWithTemporaryLocationNoMoveOnClose()
-            throws IOException
+            throws IOException, NoSuchAlgorithmException
     {
         final Storage storage = getConfiguration().getStorage("storage0");
         final Repository repository = storage.getRepository("releases");

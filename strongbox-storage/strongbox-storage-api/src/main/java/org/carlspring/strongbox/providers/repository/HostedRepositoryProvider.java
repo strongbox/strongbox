@@ -58,7 +58,7 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
     public OutputStream getOutputStream(String storageId,
                                         String repositoryId,
                                         String path)
-            throws IOException
+            throws IOException, NoSuchAlgorithmException
     {
         Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
 

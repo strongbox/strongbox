@@ -54,7 +54,7 @@ public interface StorageProvider
     
     
     ArtifactOutputStream getOutputStreamImplementation(ArtifactPath artifactPath)
-        throws IOException;
+        throws IOException, NoSuchAlgorithmException;
 
     OutputStream getOutputStreamImplementation(RepositoryPath repositoryPath, String path)
         throws IOException;
