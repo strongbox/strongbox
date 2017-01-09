@@ -60,7 +60,9 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         {
             Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
             coordinates = new MavenArtifactCoordinates(artifact);
-        } else {
+        }
+        else
+        {
             coordinates = new MavenArtifactCoordinates(path);
         }
         return coordinates;

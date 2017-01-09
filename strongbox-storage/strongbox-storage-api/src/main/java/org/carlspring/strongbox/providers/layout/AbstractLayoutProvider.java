@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> implements LayoutProvider<T>
 {
+    
     private static final Logger logger = LoggerFactory.getLogger(AbstractLayoutProvider.class);
 
     @Autowired
@@ -103,12 +104,15 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         {
             ArtifactPath artifactPath = resolve(repository, getArtifactCoordinates(path));
             ais = storageProvider.getInputStreamImplementation(artifactPath);
-        } else
+        }
+        else
         {
             RepositoryPath repositoryPath = resolve(repository);
             ais = storageProvider.getInputStreamImplementation(repositoryPath, path);
         }
+        
         logger.debug("Resolved " + path + "!");
+        
         return ais;
     }
 
@@ -121,12 +125,14 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
+        
         OutputStream os;
         if (isArtifact(repository, path, false))
         {
             ArtifactPath artifactPath = resolve(repository, getArtifactCoordinates(path));
             os = storageProvider.getOutputStreamImplementation(artifactPath);
-        } else
+        }
+        else
         {
             RepositoryPath repositoryPath = resolve(repository);
             os = storageProvider.getOutputStreamImplementation(repositoryPath, path);
@@ -152,11 +158,10 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         return path.contains(".temp");
     }
 
-    protected boolean isIntex(String path)
+    protected boolean isIndex(String path)
     {
         return path.contains(".index");
     }
-
     protected boolean isArtifact(Repository repository,
                                  String path,
                                  boolean strict)
@@ -170,20 +175,22 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         }
         if (exists && Files.isDirectory(artifactPath))
         {
-            throw new FileNotFoundException(String.format("This is directory: path-[%s]", artifactPath.toString()));
+            throw new FileNotFoundException(String.format("The artifact path is a directory: path-[%s]", artifactPath.toString()));
         }
+        
         return !isMetadata(path) && !isChecksum(path) && !isServiceFolder(path);
     }
-
+    
     protected boolean isServiceFolder(String path)
     {
-        return isTemp(path) || isTrash(path) || isIntex(path);
+        return isTemp(path) || isTrash(path) || isIndex(path);
     }
 
     protected RepositoryPath resolve(Repository repository)
         throws IOException
     {
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
+        
         return storageProvider.resolve(repository);
     }
 
@@ -192,6 +199,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         throws IOException
     {
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
+        
         return storageProvider.resolve(repository, path);
     }
 
@@ -208,6 +216,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         throws IOException
     {
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
+        
         return storageProvider.resolve(repository, coordinates);
     }
 
@@ -218,6 +227,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
+        
         return resolve(repository, coordinates);
     }
 
