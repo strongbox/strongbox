@@ -36,7 +36,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
                                   UsersConfig.class,
                                   StrongboxSecurityConfig.class })
 @WebAppConfiguration
-@WithUserDetails(value = "admin")
+//@WithUserDetails(value = "admin")
 @IfProfileValue(name = "spring.profiles.active", values = { "quartz-integration-test" })
 public @interface CronTaskTest
 {

@@ -9,9 +9,7 @@ import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.rest.context.CronTaskTest;
-import org.carlspring.strongbox.rest.context.IntegrationTest;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
-import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
@@ -90,8 +88,6 @@ public class DownloadRemoteIndexCronJobTest
     public void setUp()
             throws Exception
     {
-//        super.init();
-        //setContextBaseUrl(getContextBaseUrl() + "/storages/storage0/releases/");
 
         if (!initialized)
         {

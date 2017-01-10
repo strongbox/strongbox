@@ -30,14 +30,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @ContextConfiguration(classes = { CronTasksConfig.class,
-                                  StorageIndexingConfig.class,
-                                  StorageApiConfig.class,
-                                  CommonConfig.class,
-                                  ClientConfig.class,
-                                  DataServiceConfig.class,
-                                  UsersConfig.class,
-
-                                  StrongboxSecurityConfig.class })
+                                  WebConfig.class })
 @WebAppConfiguration
 @WithUserDetails(value = "admin")
 @IfProfileValue(name = "spring.profiles.active",
