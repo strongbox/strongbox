@@ -1,6 +1,14 @@
 package org.carlspring.strongbox.rest.context;
 
+import org.carlspring.strongbox.config.ClientConfig;
+import org.carlspring.strongbox.config.CommonConfig;
+import org.carlspring.strongbox.config.DataServiceConfig;
+import org.carlspring.strongbox.config.SecurityConfig;
+import org.carlspring.strongbox.config.StorageApiConfig;
+import org.carlspring.strongbox.config.StorageIndexingConfig;
+import org.carlspring.strongbox.config.UsersConfig;
 import org.carlspring.strongbox.config.WebConfig;
+import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
 
 import java.lang.annotation.ElementType;
@@ -22,7 +30,14 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @ContextConfiguration(classes = { CronTasksConfig.class,
-                                  WebConfig.class })
+                                  StorageIndexingConfig.class,
+                                  StorageApiConfig.class,
+                                  CommonConfig.class,
+                                  ClientConfig.class,
+                                  DataServiceConfig.class,
+                                  UsersConfig.class,
+
+                                  StrongboxSecurityConfig.class })
 @WebAppConfiguration
 @WithUserDetails(value = "admin")
 @IfProfileValue(name = "spring.profiles.active",

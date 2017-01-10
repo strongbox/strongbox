@@ -9,16 +9,12 @@ import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexerFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-import org.apache.maven.index.packer.DefaultIndexPacker;
-import org.apache.maven.index.packer.IndexPacker;
-import org.apache.maven.index.packer.IndexPackingRequest;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.slf4j.Logger;
@@ -43,9 +39,6 @@ public class ArtifactIndexesServiceImpl
 
     @Autowired
     private RepositoryIndexManager repositoryIndexManager;
-
-    @Autowired
-    private RepositoryIndexerFactory repositoryIndexerFactory;
 
     @Autowired
     private RepositoryManagementService repositoryManagementService;
