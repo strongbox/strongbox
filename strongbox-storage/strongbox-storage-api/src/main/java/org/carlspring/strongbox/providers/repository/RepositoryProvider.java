@@ -25,6 +25,6 @@ public interface RepositoryProvider
                    ProviderImplementationException;
 
     OutputStream getOutputStream(String storageId, String repositoryId, String path)
-            throws IOException;
+            throws IOException, NoSuchAlgorithmException;
 
 }
