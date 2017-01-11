@@ -136,6 +136,7 @@ public class ArtifactGeneratorTest
             ResourceCloser.close(dis, null);
         }
 
+
         return MessageDigestUtils.convertToHexadecimalString(md);
     }
 

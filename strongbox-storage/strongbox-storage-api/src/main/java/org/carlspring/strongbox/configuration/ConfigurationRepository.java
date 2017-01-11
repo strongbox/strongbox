@@ -1,18 +1,17 @@
 package org.carlspring.strongbox.configuration;
 
+import org.carlspring.commons.io.resource.ResourceCloser;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ServerConfigurationService;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -98,18 +97,17 @@ public class ConfigurationRepository
 
         try
         {
-            byte[] bytes = IOUtils.toByteArray(is);
-            ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-
             GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
 
-            configuration = parser.parse(bais);
-
-            bais.close();
+            configuration = parser.parse(is);
         }
         catch (Exception e)
         {
             logger.error(e.getMessage(), e);
+        }
+        finally
+        {
+            ResourceCloser.close(is, logger);
         }
 
         return configuration;

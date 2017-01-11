@@ -72,9 +72,9 @@ public class HeaderMappingFilter implements Filter
         throws IOException,
         ServletException
     {
-        ServletRequest targetRequest = request instanceof HttpServletRequest
-                ? new ServletRequestDecorator((HttpServletRequest) request)
-                : request;
+        ServletRequest targetRequest = request instanceof HttpServletRequest ?
+                                       new ServletRequestDecorator((HttpServletRequest) request) : request;
+
         chain.doFilter(targetRequest, response);
     }
 
@@ -95,8 +95,7 @@ public class HeaderMappingFilter implements Filter
         }
 
         @Override
-        public String getHeader(
-                                String name)
+        public String getHeader(String name)
         {
             String headerValue = target.getHeader(name);
             if (!HEADER_NAME_USER_AGENT.equals(name))
@@ -106,15 +105,12 @@ public class HeaderMappingFilter implements Filter
 
             Optional<String> targetUserAgent = userAgentMap.keySet()
                                                            .stream()
-                                                           .filter((k) -> {
-                                                               return headerValue.toUpperCase()
-                                                                                 .contains(k.toUpperCase());
-                                                           })
+                                                           .filter((k) -> headerValue.toUpperCase()
+                                                                                     .contains(k.toUpperCase()))
                                                            .findFirst();
 
-            return targetUserAgent.map((k) -> {
-                return userAgentMap.get(k);
-            }).orElse(String.format("%s/*", USER_AGENT_UNKNOWN));
+            return targetUserAgent.map((k) -> userAgentMap.get(k))
+                                  .orElse(String.format("%s/*", USER_AGENT_UNKNOWN));
         }
 
         public Object getAttribute(String name)
