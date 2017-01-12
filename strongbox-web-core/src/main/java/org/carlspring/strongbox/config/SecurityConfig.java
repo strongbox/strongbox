@@ -63,7 +63,7 @@ public class SecurityConfig
             .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
             .and()
             .authorizeRequests()
-            .antMatchers("/docs/**", "/assets/**")
+            .antMatchers("/docs/**", "/assets/**", "/**/**/**/.index/**")
             .permitAll()
             .and()
             .anonymous()
