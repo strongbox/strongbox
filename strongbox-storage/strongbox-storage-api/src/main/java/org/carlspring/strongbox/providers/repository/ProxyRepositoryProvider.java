@@ -2,7 +2,6 @@ package org.carlspring.strongbox.providers.repository;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 
@@ -13,6 +12,7 @@ import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.strongbox.client.ArtifactResolver;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.io.RepositoryPath;
 import org.carlspring.strongbox.providers.storage.StorageProvider;
@@ -149,7 +149,7 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
     }
 
     @Override
-    public OutputStream getOutputStream(String storageId,
+    public ArtifactOutputStream getOutputStream(String storageId,
                                         String repositoryId,
                                         String artifactPath)
             throws IOException
@@ -157,8 +157,7 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
         // It should not be possible to write artifacts to a proxy repository.
         // A proxy repository should only serve artifacts that already exist
         // in the cache, or the remote host.
-
-        return null;
+        throw new UnsupportedOperationException();
     }
 
 }

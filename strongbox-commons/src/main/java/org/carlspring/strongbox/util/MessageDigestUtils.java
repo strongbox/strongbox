@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.util;
 
-import org.carlspring.strongbox.resource.ResourceCloser;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;

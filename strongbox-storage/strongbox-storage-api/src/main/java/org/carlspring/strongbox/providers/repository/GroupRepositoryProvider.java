@@ -12,6 +12,7 @@ import javax.annotation.PostConstruct;
 
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.storage.Storage;
@@ -256,7 +257,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     }
 
     @Override
-    public OutputStream getOutputStream(String storageId,
+    public ArtifactOutputStream getOutputStream(String storageId,
                                         String repositoryId,
                                         String artifactPath)
             throws IOException
@@ -265,7 +266,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         // A group repository should only serve artifacts that already exist
         // in the repositories within the group.
 
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     public RoutingRules getRoutingRules()

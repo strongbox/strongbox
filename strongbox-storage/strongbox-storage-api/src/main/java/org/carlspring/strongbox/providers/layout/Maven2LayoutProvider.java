@@ -122,4 +122,5 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
             // We won't do anything in this case because it doesn't have an impact to the deletion
         }
     }
+
 }

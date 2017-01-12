@@ -16,7 +16,6 @@ import org.carlspring.commons.http.range.ByteRange;
 import org.carlspring.commons.io.reloading.ReloadableInputStreamHandler;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.io.ArtifactPath;
 import org.carlspring.strongbox.io.RepositoryFileSystem;
 import org.carlspring.strongbox.io.RepositoryPath;
@@ -79,12 +78,10 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
     }
 
     @Override
-    public ArtifactOutputStream getOutputStreamImplementation(ArtifactPath artifactPath)
+    public OutputStream getOutputStreamImplementation(ArtifactPath artifactPath)
         throws IOException, NoSuchAlgorithmException
     {
-        OutputStream os = Files.newOutputStream(artifactPath);
-        
-        return new ArtifactOutputStream(os, artifactPath.getCoordinates());
+        return Files.newOutputStream(artifactPath);
     }
 
     @Override

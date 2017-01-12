@@ -10,7 +10,11 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
@@ -127,9 +131,11 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
         
         OutputStream os;
+        T artifactCoordinates = null;
         if (isArtifact(repository, path, false))
         {
-            ArtifactPath artifactPath = resolve(repository, getArtifactCoordinates(path));
+            artifactCoordinates = getArtifactCoordinates(path);
+            ArtifactPath artifactPath = resolve(repository, artifactCoordinates);
             os = storageProvider.getOutputStreamImplementation(artifactPath);
         }
         else
@@ -138,7 +144,30 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
             os = storageProvider.getOutputStreamImplementation(repositoryPath, path);
         }
 
-        return os instanceof ArtifactOutputStream ? (ArtifactOutputStream) os : new ArtifactOutputStream(os, null);
+        return decorateStream(os, artifactCoordinates);
+    }
+
+    protected ArtifactOutputStream decorateStream(OutputStream os,
+                                                  T artifactCoordinates)
+        throws NoSuchAlgorithmException
+    {
+        ArtifactOutputStream result = new ArtifactOutputStream(os, artifactCoordinates);
+        getDigetsAlgorithmSet().stream().forEach(e -> {
+            try
+            {
+                result.addAlgorithm(e);
+            }
+            catch (NoSuchAlgorithmException t)
+            {
+                logger.error(String.format("Digest algorithm not supported: alg-[%s]", e), t);
+            }
+        });
+        return result;
+    }
+    
+    public Set<String> getDigetsAlgorithmSet()
+    {
+        return Stream.of(MessageDigestAlgorithms.MD5, MessageDigestAlgorithms.SHA_1).collect(Collectors.toSet());
     }
 
     protected abstract boolean isMetadata(String path);

@@ -25,10 +25,11 @@ public interface StorageProvider
 
     void register();
 
+    //TODO: probably we don't need an ArtofactInputStream here, just InputStream (here and below)
     ArtifactInputStream getInputStreamImplementation(ReloadableInputStreamHandler handler,
                                                      List<ByteRange> byteRanges)
             throws IOException, NoSuchAlgorithmException;
-
+    
     ArtifactInputStream getInputStreamImplementation(ReloadableInputStreamHandler handler,
                                                      ByteRange byteRange)
             throws IOException, NoSuchAlgorithmException;
@@ -51,7 +52,7 @@ public interface StorageProvider
             throws IOException, NoSuchAlgorithmException;
     
     
-    ArtifactOutputStream getOutputStreamImplementation(ArtifactPath artifactPath)
+    OutputStream getOutputStreamImplementation(ArtifactPath artifactPath)
         throws IOException, NoSuchAlgorithmException;
 
     OutputStream getOutputStreamImplementation(RepositoryPath repositoryPath, String path)

@@ -1,10 +1,18 @@
 package org.carlspring.strongbox.providers.layout;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.carlspring.strongbox.artifact.coordinates.NugetHierarchicalArtifactCoordinates;
+import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.io.RepositoryPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,4 +87,24 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
         }
     }
 
+    @Override
+    protected ArtifactOutputStream decorateStream(OutputStream os, NugetHierarchicalArtifactCoordinates c)
+        throws NoSuchAlgorithmException
+    {
+        ArtifactOutputStream result = super.decorateStream(os, c);
+        result.setDigestStringifier(this::toBase64);
+        return result;
+    }
+
+    private String toBase64(byte[] digest){
+        byte[] encoded = Base64.getEncoder().encode(digest);
+        return new String(encoded);
+    }
+    
+    @Override
+    public Set<String> getDigetsAlgorithmSet()
+    {
+        return Stream.of(MessageDigestAlgorithms.SHA_512).collect(Collectors.toSet());
+    }
+    
 }
