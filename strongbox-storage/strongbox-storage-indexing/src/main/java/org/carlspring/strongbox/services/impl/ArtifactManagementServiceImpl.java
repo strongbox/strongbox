@@ -1,5 +1,20 @@
 package org.carlspring.strongbox.services.impl;
 
+import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Set;
+
+import org.apache.commons.codec.digest.MessageDigestAlgorithms;
+import org.apache.commons.io.FileUtils;
+import org.apache.maven.artifact.Artifact;
 import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
@@ -26,19 +41,10 @@ import org.carlspring.strongbox.storage.validation.version.VersionValidationExce
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
 import org.carlspring.strongbox.util.ArtifactFileUtils;
 import org.carlspring.strongbox.util.MessageDigestUtils;
-
-import java.io.*;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Set;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.maven.artifact.Artifact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
 /**
  * @author mtodorov
@@ -81,11 +87,13 @@ public class ArtifactManagementServiceImpl
     {
         performRepositoryAcceptanceValidation(storageId, repositoryId, path);
 
-        boolean fileIsChecksum = ArtifactUtils.isChecksum(path);
+        boolean fileIsChecksum = ArtifactFileUtils.isChecksum(path);
         MultipleDigestInputStream mdis;
         try
         {
-            mdis = new MultipleDigestInputStream(is);
+            mdis = new MultipleDigestInputStream(is,
+                    new String[] { MessageDigestAlgorithms.MD5, MessageDigestAlgorithms.SHA_1,
+                                   MessageDigestAlgorithms.SHA_512 });
         }
         catch (NoSuchAlgorithmException e)
         {
@@ -97,6 +105,9 @@ public class ArtifactManagementServiceImpl
         ByteArrayOutputStream baos = null;
         if (fileIsChecksum)
         {
+            //TODO: Checksum validation logic must be refactored following way:
+            //TODO: 1. Algorithms must not be hardcoded here and should be provided by `LayoutProvider` implementation;
+            //TODO: 2. CahceManager logic must be bound to some kind of 'context' to provide transactional ability of checksum validation;
             baos = new ByteArrayOutputStream();
         }
 
@@ -329,6 +340,10 @@ public class ArtifactManagementServiceImpl
         {
             algorithm = EncryptionAlgorithmsEnum.SHA1.getAlgorithm();
         }
+        else if (checksumExtension.equals("sha512"))
+        {
+            algorithm = MessageDigestAlgorithms.SHA_512;
+        }
         else
         {
             // TODO: Should we be doing something about this case?
@@ -368,14 +383,18 @@ public class ArtifactManagementServiceImpl
     private void addChecksumsToCacheManager(MultipleDigestInputStream mdis,
                                             String artifactPath)
     {
-        MessageDigest md5Digest = mdis.getMessageDigest(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
-        MessageDigest sha1Digest = mdis.getMessageDigest(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
+        MessageDigest md5Digest = mdis.getMessageDigest(MessageDigestAlgorithms.MD5);
+        MessageDigest sha1Digest = mdis.getMessageDigest(MessageDigestAlgorithms.SHA_1);
+        MessageDigest sha512Digest = mdis.getMessageDigest(MessageDigestAlgorithms.SHA_512);
 
         String md5 = MessageDigestUtils.convertToHexadecimalString(md5Digest);
         String sha1 = MessageDigestUtils.convertToHexadecimalString(sha1Digest);
+        //String sha512 = MessageDigestUtils.convertToHexadecimalString(sha512Digest);
+        String sha512 = new String(sha512Digest.digest(), StandardCharsets.UTF_8);
 
-        checksumCacheManager.addArtifactChecksum(artifactPath, EncryptionAlgorithmsEnum.MD5.getAlgorithm(), md5);
-        checksumCacheManager.addArtifactChecksum(artifactPath, EncryptionAlgorithmsEnum.SHA1.getAlgorithm(), sha1);
+        checksumCacheManager.addArtifactChecksum(artifactPath, MessageDigestAlgorithms.MD5, md5);
+        checksumCacheManager.addArtifactChecksum(artifactPath, MessageDigestAlgorithms.SHA_1, sha1);
+        checksumCacheManager.addArtifactChecksum(artifactPath, MessageDigestAlgorithms.SHA_512, sha512);
     }
 
     // TODO: This should have restricted access.
@@ -503,4 +522,8 @@ public class ArtifactManagementServiceImpl
         return configurationManager.getConfiguration();
     }
 
+    
+    public static void main(String args[]){
+        System.out.println(MessageDigestUtils.convertToHexadecimalString(org.apache.commons.codec.binary.Base64.decodeBase64("ZJSe40EazoaGIMAzuq36Q5S9uEtwvSX5tYdMlrnM9Xo8Tk47v60QO2I0UEyasu2nDRgdjV632luzR6AjSMeQsw==")));
+    }
 }

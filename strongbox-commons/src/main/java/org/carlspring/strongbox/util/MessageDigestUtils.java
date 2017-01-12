@@ -30,6 +30,12 @@ public class MessageDigestUtils
     public static String convertToHexadecimalString(MessageDigest md)
     {
         byte[] hash = md.digest();
+        return convertToHexadecimalString(hash);
+    }
+
+
+    public static String convertToHexadecimalString(byte[] hash)
+    {
         StringBuilder sb = new StringBuilder(2 * hash.length);
         for (byte b : hash)
         {
