@@ -148,7 +148,7 @@ public class DownloadRemoteIndexCronJobTest
         CronTaskConfiguration cronTaskConfiguration = new CronTaskConfiguration();
         cronTaskConfiguration.setName(name);
         cronTaskConfiguration.addProperty("jobClass", DownloadRemoteIndexCronJob.class.getName());
-        cronTaskConfiguration.addProperty("cronExpression", "0 0/15 * 1/1 * ? *");
+        cronTaskConfiguration.addProperty("cronExpression", "0 0/2 * 1/1 * ? *");
         cronTaskConfiguration.addProperty("storageId", storageId);
         cronTaskConfiguration.addProperty("repositoryId", repositoryId);
 

@@ -1,14 +1,6 @@
 package org.carlspring.strongbox.rest.context;
 
-import org.carlspring.strongbox.config.ClientConfig;
-import org.carlspring.strongbox.config.CommonConfig;
-import org.carlspring.strongbox.config.DataServiceConfig;
-import org.carlspring.strongbox.config.SecurityConfig;
-import org.carlspring.strongbox.config.StorageApiConfig;
-import org.carlspring.strongbox.config.StorageIndexingConfig;
-import org.carlspring.strongbox.config.UsersConfig;
 import org.carlspring.strongbox.config.WebConfig;
-import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
 
 import java.lang.annotation.ElementType;
