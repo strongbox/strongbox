@@ -19,7 +19,7 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 /**
@@ -88,15 +88,18 @@ public class SpringSecurityTest
     @WithAnonymousUser
     public void testRequestForIndexData() throws Exception {
 
-        final String url = getContextBaseUrl() + "/storages/storage0/releases/.index/this-file-doesn't-exists";
+        // http://localhost:48080/storages/storage0/releases/.index/nexus-maven-repository-index.properties
+        final String url =
+                getContextBaseUrl() + "/storages/storage0/releases/.index/nexus-maven-repository-index.properties";
+        logger.info("Calling URL " + url);
 
-        RestAssuredMockMvc.given()
-                          .contentType(MediaType.TEXT_PLAIN_VALUE)
-                          .when()
-                          .get(url)
-                          .peek() // Use peek() to print the output
-                          .then()
-                          .statusCode(NOT_FOUND.value());
+        given().header("user-agent", "Maven/*")
+               .contentType(MediaType.TEXT_PLAIN_VALUE)
+               .when()
+               .get(url)
+               .peek() // Use peek() to print the output
+               .then()
+               .statusCode(OK.value());
     }
 
     private void clearAuthenticationContext(){

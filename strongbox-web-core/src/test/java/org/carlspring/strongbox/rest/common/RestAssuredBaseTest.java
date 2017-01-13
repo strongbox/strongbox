@@ -92,6 +92,8 @@ public abstract class RestAssuredBaseTest
     @Before
     public void init()
     {
+        logger.info("Initialize and start web application server...");
+
         RestAssuredMockMvc.webAppContextSetup(context);
 
         // security settings for tests

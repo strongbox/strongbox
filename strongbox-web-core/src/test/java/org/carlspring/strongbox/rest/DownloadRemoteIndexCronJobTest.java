@@ -27,15 +27,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import com.jayway.restassured.http.ContentType;
 import org.apache.maven.artifact.Artifact;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.junit.Assert.*;
 
 /**
  * @author Kate Novik.
@@ -54,8 +53,6 @@ public class DownloadRemoteIndexCronJobTest
     private final String repositoryId = "carlspring";
 
     private Repository repository1;
-
-    private static boolean initialized;
 
     @Inject
     private CronTaskConfigurationService cronTaskConfigurationService;
@@ -84,55 +81,59 @@ public class DownloadRemoteIndexCronJobTest
     @Inject
     private JobManager jobManager;
 
-    @Before
-    public void setUp()
+    public void prepareTest()
             throws Exception
     {
-
-        if (!initialized)
+        // Initialize indexes (for IDE launches)
+        if (repositoryIndexManager.getIndexes()
+                                  .isEmpty())
         {
-            // Initialize indexes (for IDE launches)
-            if (repositoryIndexManager.getIndexes()
-                                      .isEmpty())
-            {
-                storageBooter.reInitializeRepositoryIndex("storage0", "releases");
+            storageBooter.reInitializeRepositoryIndex("storage0", "releases");
 
-            }
-
-            Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(
-                    "org.carlspring.strongbox:strongbox-commons:1.0:jar");
-            Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC(
-                    "org.carlspring.strongbox:strongbox-commons:1.1:jar");
-            Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC(
-                    "org.carlspring.strongbox:strongbox-commons:1.2:jar");
-
-            createArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), artifact1);
-            createArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), artifact2);
-            createArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), artifact3);
-
-
-            artifactIndexesService.rebuildIndexes("storage0", "releases", null);
-
-            repository1 = new Repository("carlspring");
-            repository1.setPolicy(RepositoryPolicyEnum.MIXED.getPolicy());
-            repository1.setType(RepositoryTypeEnum.PROXY.getType());
-
-            RemoteRepository remoteRepository = new RemoteRepository();
-            remoteRepository.setDownloadRemoteIndexes(true);
-            remoteRepository.setUrl(getContextBaseUrl() + "/storages/storage0/releases/");
-            remoteRepository.setAutoBlocking(true);
-            remoteRepository.setChecksumValidation(true);
-            repository1.setRemoteRepository(remoteRepository);
-
-            Storage storage = configurationManagementService.getStorage("storage0");
-            repository1.setStorage(storage);
-            storage.addOrUpdateRepository(repository1);
-
-            repositoryManagementService.createRemoteRepository("storage0", "carlspring",
-                                                               getContextBaseUrl() + "/storages/storage0/releases/");
-
-            initialized = true;
         }
+
+        Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC(
+                "org.carlspring.strongbox:strongbox-commons:1.0:jar");
+        Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC(
+                "org.carlspring.strongbox:strongbox-commons:1.1:jar");
+        Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC(
+                "org.carlspring.strongbox:strongbox-commons:1.2:jar");
+
+        createArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), artifact1);
+        createArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), artifact2);
+        createArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), artifact3);
+
+
+        artifactIndexesService.rebuildIndexes("storage0", "releases", null);
+
+        repository1 = new Repository("carlspring");
+        repository1.setPolicy(RepositoryPolicyEnum.MIXED.getPolicy());
+        repository1.setType(RepositoryTypeEnum.PROXY.getType());
+
+        RemoteRepository remoteRepository = new RemoteRepository();
+        remoteRepository.setDownloadRemoteIndexes(true);
+        remoteRepository.setUrl(getContextBaseUrl() + "/storages/storage0/releases/");
+        remoteRepository.setAutoBlocking(true);
+        remoteRepository.setChecksumValidation(true);
+        repository1.setRemoteRepository(remoteRepository);
+
+        Storage storage = configurationManagementService.getStorage("storage0");
+        repository1.setStorage(storage);
+        storage.addOrUpdateRepository(repository1);
+
+        // test get request BEFORE initialize of remote repository
+        String url = getContextBaseUrl() + "/storages/storage0/releases/.index/nexus-maven-repository-index.properties";
+
+        given().header("user-agent", "Maven/*")
+               .contentType(ContentType.TEXT)
+               .when()
+               .get(url)
+               .peek()
+               .then()
+               .toString();
+
+        repositoryManagementService.createRemoteRepository("storage0", "carlspring",
+                                                           getContextBaseUrl() + "/storages/storage0/releases/");
     }
 
     @After
@@ -140,6 +141,7 @@ public class DownloadRemoteIndexCronJobTest
             throws IOException
     {
         repositoryManagementService.removeRepository(storageId, repositoryId);
+        super.shutdown();
     }
 
     public void addRebuildCronJobConfig(String name)
@@ -180,6 +182,8 @@ public class DownloadRemoteIndexCronJobTest
     public void testDownloadRemoteRepositoryIndex()
             throws Exception
     {
+
+        prepareTest();
 
         System.out.println("Index === " + repositoryIndexManager.getRepositoryIndex(storageId.concat(":")
                                                                                              .concat(repositoryId)));
