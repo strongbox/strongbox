@@ -293,15 +293,13 @@ public class ArtifactManagementServiceImpl
         logger.debug("Received checksum: " + new String(checksum));
 
         String artifactBasePath = artifactPath.substring(0, artifactPath.lastIndexOf('.'));
-        String algorithm = null;
-
         final String checksumExtension = artifactPath.substring(artifactPath.lastIndexOf('.') + 1,
                                                                 artifactPath.length());
         if (!matchesChecksum(checksum, artifactBasePath, checksumExtension))
         {
             // TODO: Implement event triggering that handles checksums that don't match the uploaded file.
         }
-        checksumCacheManager.removeArtifactChecksum(artifactBasePath, algorithm);
+        checksumCacheManager.removeArtifactChecksum(artifactBasePath);
     }
 
     private boolean matchesChecksum(byte[] pChecksum,
