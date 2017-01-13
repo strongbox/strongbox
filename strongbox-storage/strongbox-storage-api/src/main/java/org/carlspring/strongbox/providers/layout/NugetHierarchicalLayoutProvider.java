@@ -88,23 +88,26 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
     }
 
     @Override
-    protected ArtifactOutputStream decorateStream(OutputStream os, NugetHierarchicalArtifactCoordinates c)
+    protected ArtifactOutputStream decorateStream(String path,
+                                                  OutputStream os,
+                                                  NugetHierarchicalArtifactCoordinates c)
         throws NoSuchAlgorithmException
     {
-        ArtifactOutputStream result = super.decorateStream(os, c);
+        ArtifactOutputStream result = super.decorateStream(path, os, c);
         result.setDigestStringifier(this::toBase64);
         return result;
     }
 
-    private String toBase64(byte[] digest){
+    private String toBase64(byte[] digest)
+    {
         byte[] encoded = Base64.getEncoder().encode(digest);
         return new String(encoded);
     }
-    
+
     @Override
     public Set<String> getDigetsAlgorithmSet()
     {
         return Stream.of(MessageDigestAlgorithms.SHA_512).collect(Collectors.toSet());
     }
-    
+
 }

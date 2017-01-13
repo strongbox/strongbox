@@ -22,11 +22,9 @@ import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.services.VersionValidatorService;
-import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.checksum.ArtifactChecksum;
@@ -83,64 +81,44 @@ public class ArtifactManagementServiceImpl
                       InputStream is)
             throws IOException, ProviderImplementationException, NoSuchAlgorithmException
     {
+        String artifactPath = storageId + "/" + repositoryId + "/" + path;
         performRepositoryAcceptanceValidation(storageId, repositoryId, path);
-
-        boolean fileIsChecksum = ArtifactFileUtils.isChecksum(path);
-
-        // If this is not a checksum file, store the file.
-        // If this is a checksum file, keep the hash in a String.
-        ByteArrayOutputStream baos = null;
-        if (fileIsChecksum)
+        
+        
+        try(ArtifactOutputStream os = artifactResolutionService.getOutputStream(storageId, repositoryId, path))
         {
-            //TODO: Checksum validation logic must be refactored following way:
-            //TODO: - CahceManager logic must be bound to some kind of 'context' to provide transactional ability of checksum validation;
-            baos = new ByteArrayOutputStream();
-        }
-
-        ArtifactOutputStream os = null;
-        try
-        {
-            os = artifactResolutionService.getOutputStream(storageId, repositoryId, path);
+            //If we have no Digests then we have a Checksum to store.
+            if (os.getDigests().isEmpty())
+            {
+                os.setCacheOutputStream(new ByteArrayOutputStream());
+            }
 
             int readLength;
             byte[] bytes = new byte[4096];
-
             while ((readLength = is.read(bytes, 0, bytes.length)) != -1)
             {
-                if (fileIsChecksum)
-                {
-                    // Buffer the checksum for later validation
-                    baos.write(bytes, 0, readLength);
-                    baos.flush();
-                }
-
                 // Write the artifact
                 os.write(bytes, 0, readLength);
                 os.flush();
             }
 
-            final String artifactPath = storageId + "/" + repositoryId + "/" + path;
-            if (!fileIsChecksum && os != null)
+            byte[] checksum = os.getCacheOutputStream() != null ? ((ByteArrayOutputStream) os.getCacheOutputStream()).toByteArray() : null;
+            if (checksum == null)
             {
                 addChecksumsToCacheManager(os.getDigestMap(), artifactPath);
                 addArtifactToIndex(storageId, repositoryId, path);
             }
             else
             {
-                validateUploadedChecksumAgainstCache(baos, artifactPath);
+                
+                validateUploadedChecksumAgainstCache(checksum,
+                                                     artifactPath);
+
             }
-        }
-        catch (ArtifactResolutionException e)
-        {
-            throw new ArtifactStorageException(e);
         }
         catch (IOException e)
         {
-            throw new ArtifactStorageException(e.getMessage(), e);
-        }
-        finally
-        {
-            ResourceCloser.close(os, logger);
+            throw new ArtifactStorageException(e);
         }
     }
 
@@ -308,17 +286,16 @@ public class ArtifactManagementServiceImpl
         }
     }
 
-    private void validateUploadedChecksumAgainstCache(ByteArrayOutputStream baos,
+    private void validateUploadedChecksumAgainstCache(byte[] checksum,
                                                       String artifactPath)
     {
-        logger.debug("Received checksum: " + baos.toString());
+        logger.debug("Received checksum: " + new String(checksum));
 
         String artifactBasePath = artifactPath.substring(0, artifactPath.lastIndexOf('.'));
         String algorithm = null;
 
         final String checksumExtension = artifactPath.substring(artifactPath.lastIndexOf('.') + 1,
                                                                 artifactPath.length());
-        byte[] checksum = baos.toByteArray();
         if (!matchesChecksum(checksum, artifactBasePath, checksumExtension))
         {
             // TODO: Implement event triggering that handles checksums that don't match the uploaded file.
@@ -337,8 +314,7 @@ public class ArtifactManagementServiceImpl
                                                                 .entrySet()
                                                                 .stream()
                                                                 .collect(Collectors.groupingBy(e -> e.getValue()
-                                                                                                     .equals(new String(
-                                                                                                             pChecksum)),
+                                                                                                     .equals(checksum),
                                                                                                Collectors.mapping(e -> e.getKey(),
                                                                                                                   Collectors.toSet())));
 

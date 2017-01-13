@@ -37,7 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> implements LayoutProvider<T>
 {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(AbstractLayoutProvider.class);
 
     @Autowired
@@ -114,9 +114,9 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
             RepositoryPath repositoryPath = resolve(repository);
             ais = storageProvider.getInputStreamImplementation(repositoryPath, path);
         }
-        
+
         logger.debug("Resolved " + path + "!");
-        
+
         return ais;
     }
 
@@ -124,12 +124,13 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
     public ArtifactOutputStream getOutputStream(String storageId,
                                                 String repositoryId,
                                                 String path)
-        throws IOException, NoSuchAlgorithmException
+        throws IOException,
+        NoSuchAlgorithmException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
-        
+
         OutputStream os;
         T artifactCoordinates = null;
         if (isArtifact(repository, path, false))
@@ -144,27 +145,32 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
             os = storageProvider.getOutputStreamImplementation(repositoryPath, path);
         }
 
-        return decorateStream(os, artifactCoordinates);
+        return decorateStream(path, os, artifactCoordinates);
     }
 
-    protected ArtifactOutputStream decorateStream(OutputStream os,
+    protected ArtifactOutputStream decorateStream(String path,
+                                                  OutputStream os,
                                                   T artifactCoordinates)
         throws NoSuchAlgorithmException
     {
         ArtifactOutputStream result = new ArtifactOutputStream(os, artifactCoordinates);
-        getDigetsAlgorithmSet().stream().forEach(e -> {
-            try
-            {
-                result.addAlgorithm(e);
-            }
-            catch (NoSuchAlgorithmException t)
-            {
-                logger.error(String.format("Digest algorithm not supported: alg-[%s]", e), t);
-            }
-        });
+        // Add digest algorithm only if it is not a Checksum (we don't need a Checksum of Checksum).
+        if (!ArtifactFileUtils.isChecksum(path))
+        {
+            getDigetsAlgorithmSet().stream().forEach(e -> {
+                try
+                {
+                    result.addAlgorithm(e);
+                }
+                catch (NoSuchAlgorithmException t)
+                {
+                    logger.error(String.format("Digest algorithm not supported: alg-[%s]", e), t);
+                }
+            });
+        }
         return result;
     }
-    
+
     public Set<String> getDigetsAlgorithmSet()
     {
         return Stream.of(MessageDigestAlgorithms.MD5, MessageDigestAlgorithms.SHA_1).collect(Collectors.toSet());
@@ -191,6 +197,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
     {
         return path.contains(".index");
     }
+
     protected boolean isArtifact(Repository repository,
                                  String path,
                                  boolean strict)
@@ -204,12 +211,13 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         }
         if (exists && Files.isDirectory(artifactPath))
         {
-            throw new FileNotFoundException(String.format("The artifact path is a directory: path-[%s]", artifactPath.toString()));
+            throw new FileNotFoundException(
+                    String.format("The artifact path is a directory: path-[%s]", artifactPath.toString()));
         }
-        
+
         return !isMetadata(path) && !isChecksum(path) && !isServiceFolder(path);
     }
-    
+
     protected boolean isServiceFolder(String path)
     {
         return isTemp(path) || isTrash(path) || isIndex(path);
@@ -219,7 +227,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         throws IOException
     {
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
-        
+
         return storageProvider.resolve(repository);
     }
 
@@ -228,7 +236,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         throws IOException
     {
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
-        
+
         return storageProvider.resolve(repository, path);
     }
 
@@ -245,7 +253,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         throws IOException
     {
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
-        
+
         return storageProvider.resolve(repository, coordinates);
     }
 
@@ -256,7 +264,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
-        
+
         return resolve(repository, coordinates);
     }
 
@@ -310,7 +318,8 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         if (!Files.isDirectory(repositoryPath))
         {
             doDeletePath(repositoryPath, force, true);
-        } else
+        }
+        else
         {
             Files.walkFileTree(repositoryPath, new SimpleFileVisitor<Path>()
             {
@@ -352,7 +361,6 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         }
     }
 
-    
     @Override
     public void deleteTrash(String storageId,
                             String repositoryId)
