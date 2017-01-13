@@ -294,7 +294,7 @@ public class ArtifactManagementServiceImpl
         logger.debug("Received checksum: " + new String(checksum));
 
         String artifactBasePath = artifactPath.substring(0, artifactPath.lastIndexOf('.'));
-        final String checksumExtension = artifactPath.substring(artifactPath.lastIndexOf('.') + 1,
+        String checksumExtension = artifactPath.substring(artifactPath.lastIndexOf('.') + 1,
                                                                 artifactPath.length());
         if (!matchesChecksum(checksum, artifactBasePath, checksumExtension))
         {

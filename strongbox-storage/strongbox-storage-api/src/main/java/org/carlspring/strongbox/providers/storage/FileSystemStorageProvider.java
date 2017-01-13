@@ -8,14 +8,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
 
 import javax.annotation.PostConstruct;
 
-import org.carlspring.commons.http.range.ByteRange;
-import org.carlspring.commons.io.reloading.ReloadableInputStreamHandler;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactPath;
 import org.carlspring.strongbox.io.RepositoryFileSystem;
 import org.carlspring.strongbox.io.RepositoryPath;
@@ -55,29 +51,6 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
     }
 
     @Override
-    public ArtifactInputStream getInputStreamImplementation(ReloadableInputStreamHandler handler,
-                                                            List<ByteRange> byteRanges)
-        throws IOException, NoSuchAlgorithmException
-    {
-        return new ArtifactInputStream(handler, byteRanges);
-    }
-
-    @Override
-    public ArtifactInputStream getInputStreamImplementation(ReloadableInputStreamHandler handler,
-                                                            ByteRange byteRange)
-        throws IOException, NoSuchAlgorithmException
-    {
-        return new ArtifactInputStream(handler, byteRange);
-    }
-
-    @Override
-    public ArtifactInputStream getInputStreamImplementation(InputStream is)
-        throws NoSuchAlgorithmException
-    {
-        return new ArtifactInputStream(is);
-    }
-
-    @Override
     public OutputStream getOutputStreamImplementation(ArtifactPath artifactPath)
         throws IOException, NoSuchAlgorithmException
     {
@@ -93,7 +66,7 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
     }
 
     @Override
-    public ArtifactInputStream getInputStreamImplementation(RepositoryPath repositoryPath,
+    public InputStream getInputStreamImplementation(RepositoryPath repositoryPath,
                                                             String path)
         throws IOException, NoSuchAlgorithmException
     {
@@ -103,15 +76,11 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
             throw new FileNotFoundException(artifactPath.toString());
         }
         
-        InputStream is = Files.newInputStream(artifactPath);
-        ArtifactInputStream ais = new ArtifactInputStream(is);
-        ais.setLength(Files.size(artifactPath));
-        
-        return ais;
+        return Files.newInputStream(artifactPath);
     }
 
     @Override
-    public ArtifactInputStream getInputStreamImplementation(ArtifactPath artifactPath)
+    public InputStream getInputStreamImplementation(ArtifactPath artifactPath)
         throws IOException,
         NoSuchAlgorithmException
     {
@@ -120,29 +89,7 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
             throw new FileNotFoundException(artifactPath.toString());
         }
         
-        ArtifactInputStream ais = new ArtifactInputStream(Files.newInputStream(artifactPath));
-        ais.setLength(Files.size(artifactPath));
-        
-        return ais;
-    }
-
-    @Override
-    public ArtifactInputStream getInputStreamImplementation(InputStream is,
-                                                            String[] algorithms)
-        throws NoSuchAlgorithmException
-    {
-        return new ArtifactInputStream(is, algorithms);
-    }
-
-    @Override
-    public ArtifactInputStream getInputStreamImplementation(ArtifactCoordinates coordinates,
-                                                            InputStream is)
-        throws NoSuchAlgorithmException
-    {
-        ArtifactInputStream ais = new ArtifactInputStream(is);
-        ais.setArtifactCoordinates(coordinates);
-
-        return ais;
+        return Files.newInputStream(artifactPath);
     }
 
     @Override

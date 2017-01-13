@@ -2,6 +2,7 @@ package org.carlspring.strongbox.providers.layout;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -28,6 +29,7 @@ import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.ArtifactFileUtils;
+import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,21 +105,23 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         Repository repository = storage.getRepository(repositoryId);
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
 
-        ArtifactInputStream ais;
+        InputStream is;
+        T artifactCoordinates = null;
         if (isArtifact(repository, path, true))
         {
-            ArtifactPath artifactPath = resolve(repository, getArtifactCoordinates(path));
-            ais = storageProvider.getInputStreamImplementation(artifactPath);
+            artifactCoordinates = getArtifactCoordinates(path);
+            ArtifactPath artifactPath = resolve(repository, artifactCoordinates);
+            is = storageProvider.getInputStreamImplementation(artifactPath);
         }
         else
         {
             RepositoryPath repositoryPath = resolve(repository);
-            ais = storageProvider.getInputStreamImplementation(repositoryPath, path);
+            is = storageProvider.getInputStreamImplementation(repositoryPath, path);
         }
 
         logger.debug("Resolved " + path + "!");
 
-        return ais;
+        return decorateStream(storageId, repositoryId, path, is, artifactCoordinates);
     }
 
     @Override
@@ -171,6 +175,48 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         return result;
     }
 
+    protected ArtifactInputStream decorateStream(String storageId,
+                                                 String repositoryId,
+                                                 String path,
+                                                 InputStream is,
+                                                 T artifactCoordinates)
+        throws NoSuchAlgorithmException
+    {
+        ArtifactInputStream result = new ArtifactInputStream(artifactCoordinates, is);
+        // Add digest algorithm only if it is not a Checksum (we don't need a Checksum of Checksum).
+        if (!ArtifactFileUtils.isChecksum(path))
+        {
+            getDigetsAlgorithmSet().stream().forEach(a -> {
+                String checksum = getChecksum(storageId, repositoryId, path, a);
+                if (checksum == null)
+                {
+                    return;
+                }
+                result.getHexDigests().put(a, checksum);
+            });
+        }
+        return result;
+    }
+
+    private String getChecksum(String storageId,
+                               String repositoryId,
+                               String path,
+                               String digestAlgorithm)
+    {
+        String checksumPath = path.concat(".").concat(digestAlgorithm.toLowerCase().replaceAll("-", ""));
+        try
+        {
+            return MessageDigestUtils.readChecksumFile(getInputStream(storageId,
+                                                                      repositoryId,
+                                                                      checksumPath));
+        }
+        catch (Exception e)
+        {
+            logger.error(String.format("Failed to read checksum: alg-[%s]; path-[%s];", digestAlgorithm, checksumPath), e);
+            return null;
+        }
+    }
+    
     public Set<String> getDigetsAlgorithmSet()
     {
         return Stream.of(MessageDigestAlgorithms.MD5, MessageDigestAlgorithms.SHA_1).collect(Collectors.toSet());

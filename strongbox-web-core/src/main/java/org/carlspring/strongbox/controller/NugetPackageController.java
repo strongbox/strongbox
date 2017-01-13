@@ -179,8 +179,7 @@ public class NugetPackageController extends BaseArtifactController
         }
         catch (Exception e)
         {
-            logger.error(String.format(
-                                       "Failed to process Nuget get request: storageId-[%s]; repositoryId-[%s]; packageId-[%s]; version-[%s]",
+            logger.error(String.format("Failed to process Nuget get request: storageId-[%s]; repositoryId-[%s]; packageId-[%s]; version-[%s]",
                                        storageId, repositoryId, packageId, packageVersion),
                          e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
