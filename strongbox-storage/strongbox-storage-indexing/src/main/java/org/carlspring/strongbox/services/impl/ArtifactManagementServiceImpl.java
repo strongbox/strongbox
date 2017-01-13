@@ -102,15 +102,16 @@ public class ArtifactManagementServiceImpl
                 os.flush();
             }
 
-            byte[] checksum = os.getCacheOutputStream() != null ? ((ByteArrayOutputStream) os.getCacheOutputStream()).toByteArray() : null;
-            if (checksum == null)
+            if (!os.getDigestMap().isEmpty())
             {
+                // Store artifact Digests in cache if we have them.
                 addChecksumsToCacheManager(os.getDigestMap(), artifactPath);
                 addArtifactToIndex(storageId, repositoryId, path);
             }
             else
             {
-                
+                // Validate checksum with Artifact Digest cache.
+                byte[] checksum = ((ByteArrayOutputStream) os.getCacheOutputStream()).toByteArray();
                 validateUploadedChecksumAgainstCache(checksum,
                                                      artifactPath);
 
