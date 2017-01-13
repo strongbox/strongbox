@@ -289,6 +289,7 @@ public class ArtifactManagementServiceImpl
 
     private void validateUploadedChecksumAgainstCache(byte[] checksum,
                                                       String artifactPath)
+        throws ArtifactStorageException
     {
         logger.debug("Received checksum: " + new String(checksum));
 
@@ -297,7 +298,9 @@ public class ArtifactManagementServiceImpl
                                                                 artifactPath.length());
         if (!matchesChecksum(checksum, artifactBasePath, checksumExtension))
         {
-            // TODO: Implement event triggering that handles checksums that don't match the uploaded file.
+            logger.error(String.format("Artifact checksum is invalid: path-[%s]; ext-[%s]; checksum-[%s]", artifactPath,
+                                       checksumExtension,
+                                       new String(checksum)));
         }
         checksumCacheManager.removeArtifactChecksum(artifactBasePath);
     }
