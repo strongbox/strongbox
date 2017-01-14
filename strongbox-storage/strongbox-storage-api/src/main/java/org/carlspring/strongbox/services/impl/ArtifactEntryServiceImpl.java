@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.services.impl;
 
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.repository.ArtifactRepository;
 import org.carlspring.strongbox.services.ArtifactEntryService;
@@ -11,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,23 +36,22 @@ class ArtifactEntryServiceImpl
     CacheManager cacheManager;
 
     @Override
-    @Transactional
-    @Cacheable(value = "artifacts", key = "#coordinates", sync = true)
-    public synchronized ArtifactEntry findByCoordinates(String coordinates)
+    // @Cacheable(value = "artifacts", key = "#coordinates", sync = true)
+    public List<ArtifactEntry> findByCoordinates(ArtifactCoordinates coordinates)
     {
-        try
+        // if search query is null or empty delegate to #findAll
+        if (coordinates == null || coordinates.getCoordinates()
+                                              .keySet()
+                                              .isEmpty())
         {
-            throw new UnsupportedOperationException("findByCoordinates() is not supported");
-            //return repository.findByCoordinates(coordinates);
+            throw new UnsupportedOperationException();
+            //return findAll().orElse(new LinkedList<>());
         }
-        catch (Exception e)
-        {
-            logger.warn("Internal spring-data-orientdb exception: " + e.getLocalizedMessage());
-            logger.trace("Exception details: ", e);
 
-            return null;
-        }
+
+        return repository.findByArtifactCoordinates(((MavenArtifactCoordinates) coordinates).getGroupId());
     }
+
 
     @Override
     @Transactional
@@ -152,5 +152,4 @@ class ArtifactEntryServiceImpl
     {
         repository.deleteAll();
     }
-
 }

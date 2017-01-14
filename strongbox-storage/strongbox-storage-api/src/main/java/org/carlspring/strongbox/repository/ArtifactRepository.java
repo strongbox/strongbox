@@ -3,6 +3,9 @@ package org.carlspring.strongbox.repository;
 import org.carlspring.strongbox.data.repository.OrientRepository;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 
+import java.util.List;
+
+import org.springframework.data.orient.commons.repository.annotation.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -15,6 +18,8 @@ public interface ArtifactRepository
         extends OrientRepository<ArtifactEntry>
 {
 
-    //ArtifactEntry findByCoordinates(String coordinates);
+    @Query("select * from ArtifactEntry where artifactCoordinates.groupId = ?")
+        // "select * from ArtifactEntry where artifactCoordinates.groupId = 'org.carlspring.strongbox'"
+    List<ArtifactEntry> findByArtifactCoordinates(String groupId);
 }
 

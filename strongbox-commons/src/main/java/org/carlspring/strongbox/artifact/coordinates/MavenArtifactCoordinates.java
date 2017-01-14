@@ -12,9 +12,9 @@ import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 public class MavenArtifactCoordinates extends AbstractArtifactCoordinates
 {
 
-    private static final String GROUPID = "groupId";
+    private static final String GROUP_ID = "groupId";
 
-    private static final String ARTIFACTID = "artifactId";
+    private static final String ARTIFACT_ID = "artifactId";
 
     private static final String VERSION = "version";
 
@@ -35,7 +35,7 @@ public class MavenArtifactCoordinates extends AbstractArtifactCoordinates
 
     public MavenArtifactCoordinates()
     {
-        defineCoordinates(GROUPID, ARTIFACTID, VERSION, CLASSIFIER, EXTENSION);
+        defineCoordinates(GROUP_ID, ARTIFACT_ID, VERSION, CLASSIFIER, EXTENSION);
     }
 
     public MavenArtifactCoordinates(String path)
@@ -124,7 +124,7 @@ public class MavenArtifactCoordinates extends AbstractArtifactCoordinates
     public void setGroupId(String groupId)
     {
         this.groupId = groupId;
-        setCoordinate(GROUPID, this.groupId);
+        setCoordinate(GROUP_ID, this.groupId);
     }
 
     public String getArtifactId()
@@ -135,7 +135,7 @@ public class MavenArtifactCoordinates extends AbstractArtifactCoordinates
     public void setArtifactId(String artifactId)
     {
         this.artifactId = artifactId;
-        setCoordinate(ARTIFACTID, this.artifactId);
+        setCoordinate(ARTIFACT_ID, this.artifactId);
     }
 
     @Override
