@@ -4,8 +4,10 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 
+import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 
@@ -32,14 +34,17 @@ public class RepositoryManagementServiceImplTest
     private static final File REPOSITORY_BASEDIR = new File(STORAGES_BASEDIR + "/storage0/" + REPOSITORY_ID);
 
     @Autowired
+    private ConfigurationManagementService configurationManagementService;
+
+    @Autowired
     private ArtifactSearchService artifactSearchService;
 
 
     @Test
     public void testCreateRepository()
-            throws IOException
+            throws IOException, JAXBException
     {
-        getRepositoryManagementService().createRepository("storage0", "test-releases1");
+        createTestRepository("storage0", "test-releases1");
 
         assertTrue("Failed to create repository '" + REPOSITORY_ID + "'!", REPOSITORY_BASEDIR.exists());
     }
@@ -51,10 +56,10 @@ public class RepositoryManagementServiceImplTest
         String storageId = "storage0";
         String repositoryId = "foo-snapshots";
 
+        createTestRepository(storageId, repositoryId);
+
         File basedir = new File(STORAGES_BASEDIR + "/" + storageId);
         File repositoryDir = new File(basedir, repositoryId);
-
-        getRepositoryManagementService().createRepository(storageId, repositoryId);
 
         assertTrue("Failed to create the repository \"" + repositoryDir.getAbsolutePath() + "\"!", repositoryDir.exists());
 
@@ -71,6 +76,9 @@ public class RepositoryManagementServiceImplTest
     {
         String repositoryId1 = "test-releases-merge-1";
         String repositoryId2 = "test-releases-merge-2";
+
+        createTestRepository("storage0", "test-releases-merge-1");
+        createTestRepository("storage0", "test-releases-merge-2");
 
         getRepositoryManagementService().createRepository("storage0", repositoryId1);
         getRepositoryManagementService().createRepository("storage0", repositoryId2);
@@ -114,6 +122,17 @@ public class RepositoryManagementServiceImplTest
                                     "+g:org.carlspring.strongbox +a:strongbox-utils +v:6.2.2-SNAPSHOT +p:jar");
 
         assertTrue("Failed to merge!", artifactSearchService.contains(request));
+    }
+
+    private void createTestRepository(String storageId,
+                                      String repositoryId)
+            throws IOException, JAXBException
+    {
+        Repository repository = new Repository(repositoryId);
+        repository.setStorage(configurationManagementService.getConfiguration().getStorage(storageId));
+
+        configurationManagementService.addOrUpdateRepository(storageId, repository);
+        getRepositoryManagementService().createRepository(storageId, repositoryId);
     }
 
 }

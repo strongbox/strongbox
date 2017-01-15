@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.services;
 
+import org.carlspring.strongbox.client.ArtifactTransportException;
+
 import java.io.IOException;
 
 /**
@@ -20,6 +22,10 @@ public interface ArtifactIndexesService
                         String repositoryId,
                         String artifactPath)
             throws IOException;
+
+    void downloadRemoteIndex(String storageId,
+                             String repositoryId)
+            throws ArtifactTransportException;
 
     /**
      * Rebuild indexes for all artifacts in storage

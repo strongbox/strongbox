@@ -9,6 +9,7 @@ import org.carlspring.strongbox.storage.indexing.ReindexArtifactScanningListener
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexerFactory;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -24,7 +25,6 @@ import org.apache.maven.index.packer.IndexPacker;
 import org.apache.maven.index.packer.IndexPackingRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -37,13 +37,13 @@ public class RepositoryManagementServiceImpl
 
     private static final Logger logger = LoggerFactory.getLogger(RepositoryManagementServiceImpl.class);
 
-    @Autowired
+    @Inject
     private RepositoryIndexManager repositoryIndexManager;
 
-    @Autowired
+    @Inject
     private RepositoryIndexerFactory repositoryIndexerFactory;
 
-    @Autowired
+    @Inject
     private ConfigurationManager configurationManager;
 
     @Inject
@@ -56,20 +56,37 @@ public class RepositoryManagementServiceImpl
             throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
 
         final String storageBasedirPath = storage.getBasedir();
         final File repositoryBasedir = new File(storageBasedirPath, repositoryId).getAbsoluteFile();
 
         createRepositoryStructure(storageBasedirPath, repositoryId);
 
-        final File indexDir = new File(repositoryBasedir, ".index");
+        if (repository.isIndexingEnabled())
+        {
+            File indexDir;
+            if (repository.isProxyRepository())
+            {
+                indexDir = new File(repositoryBasedir, ".index/remote");
+                if (!indexDir.exists())
+                {
+                    //noinspection ResultOfMethodCallIgnored
+                    indexDir.mkdirs();
+                }
+            }
+            else
+            {
+                indexDir = new File(repositoryBasedir, ".index");
+            }
 
-        RepositoryIndexer repositoryIndexer = repositoryIndexerFactory.createRepositoryIndexer(storageId,
-                                                                                               repositoryId,
-                                                                                               repositoryBasedir,
-                                                                                               indexDir);
+            RepositoryIndexer repositoryIndexer = repositoryIndexerFactory.createRepositoryIndexer(storageId,
+                                                                                                   repositoryId,
+                                                                                                   repositoryBasedir,
+                                                                                                   indexDir);
 
-        repositoryIndexManager.addRepositoryIndex(storageId + ":" + repositoryId, repositoryIndexer);
+            repositoryIndexManager.addRepositoryIndex(storageId + ":" + repositoryId, repositoryIndexer);
+        }
     }
 
     private void createRepositoryStructure(String storageBasedirPath,

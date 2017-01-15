@@ -61,7 +61,7 @@ public class Repository
     private boolean trashEnabled;
 
     @XmlAttribute(name = "indexing-enabled")
-    private boolean indexingEnabled;
+    private boolean indexingEnabled = true;
 
     @XmlAttribute(name = "allows-force-deletion")
     private boolean allowsForceDeletion;
