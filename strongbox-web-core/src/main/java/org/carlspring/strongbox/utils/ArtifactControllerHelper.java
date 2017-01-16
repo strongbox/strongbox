@@ -133,4 +133,13 @@ public class ArtifactControllerHelper
 
     }
 
+    public static void setHeadersForChecksums(ArtifactInputStream ais,
+                                              HttpHeaders headers)
+    {
+        ais.getHexDigests().forEach((k,
+                                     v) -> headers.add(String.format("Checksum-%s",
+                                                                     k.toUpperCase().replaceAll("-", "")),
+                                                       v));
+
+    }
 }
