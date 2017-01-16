@@ -16,19 +16,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 
-public class ByteRangeRequestHandler
+public class ArtifactControllerHelper
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(ByteRangeRequestHandler.class);
-
-    public ByteRangeRequestHandler()
-    {
-    }
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactControllerHelper.class);
 
     public static void handlePartialDownload(ArtifactInputStream is,
-                                                             HttpHeaders headers,
-                                                             HttpServletResponse response)
-            throws IOException
+                                             HttpHeaders headers,
+                                             HttpServletResponse response)
+        throws IOException
     {
         ByteRangeHeaderParser parser = new ByteRangeHeaderParser(headers.getFirst("Range"));
         List<ByteRange> ranges = parser.getRanges();
@@ -123,8 +119,18 @@ public class ByteRangeRequestHandler
         {
             String contentRange = headers.getFirst("Range") != null ? headers.getFirst("Range") : null;
             return contentRange != null && !contentRange.equals("0/*") && !contentRange.equals("0-") &&
-                   !contentRange.equals("0");
+                    !contentRange.equals("0");
         }
+    }
+
+    public static void setHeadersForChecksums(ArtifactInputStream ais,
+                                              HttpServletResponse response)
+    {
+        ais.getHexDigests().forEach((k,
+                                     v) -> response.setHeader(String.format("Checksum-%s",
+                                                                            k.toUpperCase().replaceAll("-", "")),
+                                                              v));
+
     }
 
 }

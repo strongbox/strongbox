@@ -95,7 +95,7 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
         return getInputStream(artifactPath);
     }
 
-    private SbByteRangeInputStream getInputStream(RepositoryPath artifactPath)
+    private InputStream getInputStream(RepositoryPath artifactPath)
         throws IOException,
         NoSuchAlgorithmException
     {
