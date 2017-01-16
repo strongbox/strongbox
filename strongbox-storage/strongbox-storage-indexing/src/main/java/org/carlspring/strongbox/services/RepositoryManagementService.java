@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.services;
 
+import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 
-import java.io.File;
 import java.io.IOException;
 
 /**
@@ -31,5 +31,9 @@ public interface RepositoryManagementService
     void removeRepository(String storageId,
                           String repositoryId)
             throws IOException;
+
+    void downloadRemoteIndex(String storageId,
+                             String repositoryId)
+            throws ArtifactTransportException;
 
 }

@@ -1,15 +1,20 @@
 package org.carlspring.strongbox.services.impl;
 
+import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
+import org.carlspring.strongbox.storage.RepositoryInitializationException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.ReindexArtifactScanningListener;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexerFactory;
+import org.carlspring.strongbox.storage.indexing.downloader.IndexDownloadRequest;
+import org.carlspring.strongbox.storage.indexing.downloader.IndexDownloader;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -23,6 +28,7 @@ import org.apache.maven.index.ScanningResult;
 import org.apache.maven.index.context.IndexingContext;
 import org.apache.maven.index.packer.IndexPacker;
 import org.apache.maven.index.packer.IndexPackingRequest;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -36,6 +42,9 @@ public class RepositoryManagementServiceImpl
 {
 
     private static final Logger logger = LoggerFactory.getLogger(RepositoryManagementServiceImpl.class);
+
+    @Inject
+    private IndexDownloader downloader;
 
     @Inject
     private RepositoryIndexManager repositoryIndexManager;
@@ -69,15 +78,19 @@ public class RepositoryManagementServiceImpl
             if (repository.isProxyRepository())
             {
                 indexDir = new File(repositoryBasedir, ".index/remote");
-                if (!indexDir.exists())
-                {
-                    //noinspection ResultOfMethodCallIgnored
-                    indexDir.mkdirs();
-                }
+
+                // TODO: Further implement the part about locally cached artifacts under the .index/local directory.
+                // TODO: We'll need two separate indexes for this.
             }
             else
             {
-                indexDir = new File(repositoryBasedir, ".index");
+                indexDir = new File(repositoryBasedir, ".index/local");
+            }
+
+            if (!indexDir.exists())
+            {
+                //noinspection ResultOfMethodCallIgnored
+                indexDir.mkdirs();
             }
 
             RepositoryIndexer repositoryIndexer = repositoryIndexerFactory.createRepositoryIndexer(storageId,
@@ -86,6 +99,63 @@ public class RepositoryManagementServiceImpl
                                                                                                    indexDir);
 
             repositoryIndexManager.addRepositoryIndex(storageId + ":" + repositoryId, repositoryIndexer);
+
+            downloadRemoteIndexIfRepositoryIsProxy(storageId, repositoryId);
+
+
+        }
+    }
+
+    @Override
+    public void downloadRemoteIndex(String storageId,
+                                    String repositoryId)
+            throws ArtifactTransportException
+    {
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+        String repositoryBasedir = repository.getBasedir();
+
+        File remoteIndexDirectory = new File(repositoryBasedir, ".index/remote");
+
+        RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storageId + ":" + repositoryId);
+
+        IndexDownloadRequest request = new IndexDownloadRequest();
+        request.setIndexingContextId(repositoryId + "/ctx");
+        request.setRepositoryId(repositoryId);
+        request.setRemoteRepositoryURL(repository.getRemoteRepository().getUrl());
+        request.setIndexLocalCacheDir(repositoryBasedir);
+        request.setIndexDir(remoteIndexDirectory.toString());
+        request.setIndexer(indexer.getIndexer());
+
+        try
+        {
+            downloader.download(request);
+        }
+        catch (IOException | ComponentLookupException e)
+        {
+            throw new ArtifactTransportException("Failed to retrieve remote index for " +
+                                                 storageId + ":" + repositoryId + "!");
+        }
+    }
+
+    private void downloadRemoteIndexIfRepositoryIsProxy(String storageId,
+                                                        String repositoryId)
+            throws RepositoryInitializationException
+    {
+        Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
+
+        if (RepositoryTypeEnum.PROXY.getType().equals(repository.getType()))
+        {
+            try
+            {
+                downloadRemoteIndex(storageId, repositoryId);
+            }
+            catch (ArtifactTransportException e)
+            {
+                logger.error(e.getMessage(), e);
+
+                throw new RepositoryInitializationException(e.getMessage(), e);
+            }
         }
     }
 

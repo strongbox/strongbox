@@ -1,12 +1,9 @@
 package org.carlspring.strongbox.storage.indexing;
 
-import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.storage.RepositoryInitializationException;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -52,7 +49,7 @@ public class RepositoryIndexerFactory
                                                      File indexDir)
             throws RepositoryInitializationException
     {
-        downloadRemoteIndexIfRepositoryIsProxy(storageId, repositoryId);
+        //downloadRemoteIndexIfRepositoryIsProxy(storageId, repositoryId);
 
         IndexingContext indexingContext;
         try
@@ -77,27 +74,6 @@ public class RepositoryIndexerFactory
         repositoryIndexer.setConfiguration(configuration);
 
         return repositoryIndexer;
-    }
-
-    private void downloadRemoteIndexIfRepositoryIsProxy(String storageId,
-                                                        String repositoryId)
-            throws RepositoryInitializationException
-    {
-        Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
-
-        if (RepositoryTypeEnum.PROXY.getType().equals(repository.getType()))
-        {
-            try
-            {
-                artifactIndexesService.downloadRemoteIndex(storageId, repositoryId);
-            }
-            catch (ArtifactTransportException e)
-            {
-                logger.error(e.getMessage(), e);
-
-                throw new RepositoryInitializationException(e.getMessage(), e);
-            }
-        }
     }
 
     private IndexingContext createIndexingContext(String repositoryId,
