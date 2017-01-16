@@ -10,8 +10,6 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.io.Files;
-
 /**
  * This implementation defines an ArtifactFile path with {@link ArtifactCoordinates}. <br>
  * Against {@link RepositoryPath} it can be only a File (not a directory).
@@ -53,19 +51,7 @@ public class ArtifactPath extends RepositoryPath
                         e);
             throw e;
         }
-        ArtifactFile target = new ArtifactFile(getRoot().toString(), coordinatesLocal);
-        try
-        {
-            Files.move(source, target);
-        }
-        catch (IOException e)
-        {
-            logger.error(String.format("Failed to get File representation of ArtifactPath: coordinates-[%s]",
-                                       coordinatesLocal));
-            return null;
-        }
-        
-        return target;
+        return new ArtifactFile(getRoot().toString(), coordinatesLocal);
     }
 
     public static ArtifactPath getArtifactPath(Repository repository,

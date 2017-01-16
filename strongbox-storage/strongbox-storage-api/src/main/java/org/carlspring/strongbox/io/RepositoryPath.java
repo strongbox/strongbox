@@ -143,7 +143,7 @@ public class RepositoryPath implements Path
 
     public File toFile()
     {
-        throw new UnsupportedOperationException();
+        return getTarget().toFile();
     }
 
     public WatchKey register(WatchService watcher,

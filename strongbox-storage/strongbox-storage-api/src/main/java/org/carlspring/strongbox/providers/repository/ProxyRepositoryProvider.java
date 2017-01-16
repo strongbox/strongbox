@@ -87,10 +87,7 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
             logger.debug("The artifact was found in the local cache.");
             logger.debug("Resolved " + artifactPath + "!");
 
-            ArtifactInputStream ais = new ArtifactInputStream(null, Files.newInputStream(artifactPath));
-            ais.setLength(Files.size(artifactPath));
-
-            return ais;
+            return new ArtifactInputStream(null, Files.newInputStream(artifactPath));
         }
         else
         {
@@ -136,15 +133,10 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
             
             // TODO: Add a policy for validating the checksums of downloaded artifacts
             // TODO: Validate the local checksum against the remote's checksums
-
             fileSystemProvider.restoreFromTemp(artifactPath);
 
             // 1 b) If it exists on the remote, serve the downloaded artifact
-
-            ArtifactInputStream ais = new ArtifactInputStream(null, Files.newInputStream(artifactPath));
-            ais.setLength(total);
-
-            return ais;
+            return new ArtifactInputStream(null, Files.newInputStream(artifactPath));
         }
     }
 

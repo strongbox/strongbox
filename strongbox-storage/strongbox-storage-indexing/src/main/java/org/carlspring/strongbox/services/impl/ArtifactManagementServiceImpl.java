@@ -311,6 +311,10 @@ public class ArtifactManagementServiceImpl
     {
         String checksum = new String(pChecksum);
         ArtifactChecksum artifactChecksum = checksumCacheManager.getArtifactChecksum(artifactBasePath);
+        
+        if (artifactChecksum == null){
+            return false;
+        }
 
         Map<Boolean, Set<String>> matchingMap = artifactChecksum.getChecksums()
                                                                 .entrySet()
@@ -326,7 +330,7 @@ public class ArtifactManagementServiceImpl
                                    artifactBasePath, checksumExtension, matched, unmatched,
                                    new String(checksum)));
 
-        return matched == null || matched.isEmpty();
+        return matched != null && !matched.isEmpty();
     }
 
     private void addChecksumsToCacheManager(Map<String, String> digestMap,

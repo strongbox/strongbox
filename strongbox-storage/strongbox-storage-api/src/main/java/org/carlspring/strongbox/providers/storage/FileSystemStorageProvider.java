@@ -11,10 +11,12 @@ import java.security.NoSuchAlgorithmException;
 
 import javax.annotation.PostConstruct;
 
+import org.carlspring.commons.io.reloading.FSReloadableInputStreamHandler;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.io.ArtifactPath;
 import org.carlspring.strongbox.io.RepositoryFileSystem;
 import org.carlspring.strongbox.io.RepositoryPath;
+import org.carlspring.strongbox.io.SbByteRangeInputStream;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +54,8 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
 
     @Override
     public OutputStream getOutputStreamImplementation(ArtifactPath artifactPath)
-        throws IOException, NoSuchAlgorithmException
+        throws IOException,
+        NoSuchAlgorithmException
     {
         return Files.newOutputStream(artifactPath);
     }
@@ -67,16 +70,16 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
 
     @Override
     public InputStream getInputStreamImplementation(RepositoryPath repositoryPath,
-                                                            String path)
-        throws IOException, NoSuchAlgorithmException
+                                                    String path)
+        throws IOException,
+        NoSuchAlgorithmException
     {
         RepositoryPath artifactPath = repositoryPath.resolve(path);
         if (!Files.exists(artifactPath) || Files.isDirectory(artifactPath))
         {
             throw new FileNotFoundException(artifactPath.toString());
         }
-        
-        return Files.newInputStream(artifactPath);
+        return getInputStream(artifactPath);
     }
 
     @Override
@@ -88,8 +91,18 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
         {
             throw new FileNotFoundException(artifactPath.toString());
         }
-        
-        return Files.newInputStream(artifactPath);
+
+        return getInputStream(artifactPath);
+    }
+
+    private SbByteRangeInputStream getInputStream(RepositoryPath artifactPath)
+        throws IOException,
+        NoSuchAlgorithmException
+    {
+        SbByteRangeInputStream bris = new SbByteRangeInputStream(Files.newInputStream(artifactPath));
+        bris.setReloadableInputStreamHandler(new FSReloadableInputStreamHandler(artifactPath.toFile()));
+        bris.setLength(Files.size(artifactPath));
+        return bris;
     }
 
     @Override
@@ -98,7 +111,7 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
         throws IOException
     {
         Path targetPath = getArtifactPath(repository.getBasedir(), coordinates.toPath());
-        
+
         // Override FileSystem root to Repository base directory
         return new ArtifactPath(coordinates, targetPath, RepositoryFileSystem.getRepositoryFileSystem(repository));
     }
@@ -108,7 +121,7 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
         throws IOException
     {
         Path path = Paths.get(repository.getBasedir());
-        
+
         return new RepositoryPath(path, RepositoryFileSystem.getRepositoryFileSystem(repository));
     }
 
@@ -120,7 +133,8 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
         return resolve(repository).resolve(path);
     }
 
-    public static Path getArtifactPath(String basePath, String artifactPath)
+    public static Path getArtifactPath(String basePath,
+                                       String artifactPath)
         throws IOException
     {
         Path base = Paths.get(basePath);
@@ -129,7 +143,7 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
         {
             Files.createDirectories(path.getParent());
         }
-        
+
         return path;
     }
 }
