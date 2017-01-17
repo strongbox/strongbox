@@ -105,7 +105,7 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
     }
 
     @Override
-    public Set<String> getDigetsAlgorithmSet()
+    public Set<String> getDigestAlgorithmSet()
     {
         return Stream.of(MessageDigestAlgorithms.SHA_512).collect(Collectors.toSet());
     }
