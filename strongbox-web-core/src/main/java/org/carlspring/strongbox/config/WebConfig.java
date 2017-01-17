@@ -91,12 +91,12 @@ public class WebConfig
         return converter;
     }
 
-    @Bean
-    public IndexDownloader indexDownloader()
-            throws PlexusContainerException, ComponentLookupException
-    {
-        return new IndexDownloader();
-    }
+//    @Bean
+//    public IndexDownloader indexDownloader()
+//            throws PlexusContainerException, ComponentLookupException
+//    {
+//        return new IndexDownloader();
+//    }
 
     @Override
     public void configurePathMatch(PathMatchConfigurer configurer)

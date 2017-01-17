@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.config;
 
+import org.carlspring.maven.artifact.downloader.IndexDownloader;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -24,6 +26,8 @@ import org.apache.maven.index.creator.MinimalArtifactInfoIndexCreator;
 import org.apache.maven.index.incremental.DefaultIncrementalHandler;
 import org.apache.maven.index.packer.DefaultIndexPacker;
 import org.apache.maven.index.packer.IndexPacker;
+import org.codehaus.plexus.PlexusContainerException;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -114,6 +118,13 @@ public class StorageIndexingConfig
         indexers.put("maven-plugin", mavenPluginArtifactInfoIndexCreator());
 
         return indexers;
+    }
+
+    @Bean
+    public IndexDownloader indexDownloader()
+            throws PlexusContainerException, ComponentLookupException
+    {
+        return new IndexDownloader();
     }
 
 }
