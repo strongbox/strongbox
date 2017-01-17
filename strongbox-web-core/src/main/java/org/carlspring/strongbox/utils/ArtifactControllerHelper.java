@@ -19,6 +19,7 @@ import org.springframework.http.HttpHeaders;
 public class ArtifactControllerHelper
 {
 
+    public static final String HEADER_NAME_RANGE = "Range";
     private static final Logger logger = LoggerFactory.getLogger(ArtifactControllerHelper.class);
 
     public static void handlePartialDownload(ArtifactInputStream is,
@@ -26,7 +27,7 @@ public class ArtifactControllerHelper
                                              HttpServletResponse response)
         throws IOException
     {
-        ByteRangeHeaderParser parser = new ByteRangeHeaderParser(headers.getFirst("Range"));
+        ByteRangeHeaderParser parser = new ByteRangeHeaderParser(headers.getFirst(HEADER_NAME_RANGE));
         List<ByteRange> ranges = parser.getRanges();
         if (ranges.size() == 1)
         {
@@ -117,9 +118,9 @@ public class ArtifactControllerHelper
         }
         else
         {
-            String contentRange = headers.getFirst("Range") != null ? headers.getFirst("Range") : null;
-            return contentRange != null && !contentRange.equals("0/*") && !contentRange.equals("0-") &&
-                    !contentRange.equals("0");
+            String contentRange = headers.getFirst(HEADER_NAME_RANGE) != null ? headers.getFirst(HEADER_NAME_RANGE) : null;
+            return contentRange != null && !"0/*".equals(contentRange) && !"0-".equals(contentRange) &&
+                    !"0".equals(contentRange);
         }
     }
 

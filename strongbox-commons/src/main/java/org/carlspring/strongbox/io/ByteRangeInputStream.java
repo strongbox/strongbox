@@ -40,7 +40,7 @@ public class ByteRangeInputStream extends AbstractByteRangeInputStream
     public void reposition(long skipBytes)
         throws IOException
     {
-
+        //Do noting here
     }
 
     @Override

@@ -9,7 +9,10 @@ import java.util.stream.Collectors;
 
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.providers.repository.GroupRepositoryProvider;
 import org.carlspring.strongbox.util.MessageDigestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This OutputStream wraps a source stream from different Storage types (File System, AWS, JDBC, etc.).
@@ -20,6 +23,9 @@ import org.carlspring.strongbox.util.MessageDigestUtils;
 public class ArtifactOutputStream
         extends MultipleDigestOutputStream
 {
+    
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactOutputStream.class);
+    
     private Function<byte[], String> digestStringifier = MessageDigestUtils::convertToHexadecimalString;
     private ArtifactCoordinates coordinates;
     /**
@@ -116,12 +122,16 @@ public class ArtifactOutputStream
         }
         catch (IOException t)
         {
+            logger.error(String.format("Failed to operate with additional artifact stream: coordinates-[%s]",
+                                       coordinates),
+                         t);
             try
             {
                 cacheOutputStream.close();
             }
             catch (IOException e)
             {
+                //Do noting here
             }
             cacheOutputStream = null;
         }

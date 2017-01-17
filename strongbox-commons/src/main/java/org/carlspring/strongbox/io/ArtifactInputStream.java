@@ -43,7 +43,7 @@ public class ArtifactInputStream extends FilterInputStream
         return artifactCoordinates;
     }
 
-    public void addAlgorithm(String algorithm)
+    public final void addAlgorithm(String algorithm)
         throws NoSuchAlgorithmException
     {
         MessageDigest digest = MessageDigest.getInstance(algorithm);
