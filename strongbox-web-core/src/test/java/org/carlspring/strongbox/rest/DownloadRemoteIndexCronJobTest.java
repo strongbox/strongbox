@@ -8,6 +8,7 @@ import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import org.carlspring.strongbox.rest.common.RestAssuredIndexDownloader;
 import org.carlspring.strongbox.rest.context.CronTaskTest;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.services.ArtifactSearchService;
@@ -29,6 +30,8 @@ import java.util.List;
 
 import com.jayway.restassured.http.ContentType;
 import org.apache.maven.artifact.Artifact;
+import org.codehaus.plexus.PlexusContainerException;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,7 +45,7 @@ import static org.junit.Assert.*;
 @CronTaskTest
 @RunWith(SpringJUnit4ClassRunner.class)
 public class DownloadRemoteIndexCronJobTest
-        extends RestAssuredBaseTest
+        extends RestAssuredIndexDownloader
 {
 
     private static final File REPOSITORY_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
@@ -81,9 +84,15 @@ public class DownloadRemoteIndexCronJobTest
     @Inject
     private JobManager jobManager;
 
+    public DownloadRemoteIndexCronJobTest()
+            throws PlexusContainerException, ComponentLookupException
+    {
+    }
+
     public void prepareTest()
             throws Exception
     {
+        super.init();
         // Initialize indexes (for IDE launches)
         if (repositoryIndexManager.getIndexes()
                                   .isEmpty())
@@ -173,11 +182,6 @@ public class DownloadRemoteIndexCronJobTest
         assertNull(cronTaskConfigurationService.findOne(name));
     }
 
-    /**
-     * Note: This test requires access to the Internet.
-     *
-     * @throws Exception
-     */
     @Test
     public void testDownloadRemoteRepositoryIndex()
             throws Exception

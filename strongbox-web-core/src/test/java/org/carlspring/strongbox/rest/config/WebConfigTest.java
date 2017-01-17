@@ -1,9 +1,16 @@
-package org.carlspring.strongbox.config;
+package org.carlspring.strongbox.rest.config;
 
 import org.carlspring.maven.artifact.downloader.IndexDownloader;
+import org.carlspring.strongbox.config.ClientConfig;
+import org.carlspring.strongbox.config.CommonConfig;
+import org.carlspring.strongbox.config.SecurityConfig;
+import org.carlspring.strongbox.config.StorageApiConfig;
+import org.carlspring.strongbox.config.StorageIndexingConfig;
+import org.carlspring.strongbox.config.UsersConfig;
 import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
 import org.carlspring.strongbox.mapper.CustomJaxb2RootElementHttpMessageConverter;
+import org.carlspring.strongbox.rest.common.RestAssuredIndexDownloader;
 import org.carlspring.strongbox.utils.CustomAntPathMatcher;
 
 import javax.inject.Inject;
@@ -30,6 +37,9 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
+/**
+ * @author Kate Novik.
+ */
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.controller",
                  "org.carlspring.strongbox.mapper",
@@ -48,11 +58,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
           CronTasksConfig.class })
 @EnableCaching
 @EnableWebMvc
-public class WebConfig
+public class WebConfigTest
         extends WebMvcConfigurerAdapter
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(WebConfig.class);
+    private static final Logger logger = LoggerFactory.getLogger(WebConfigTest.class);
 
     @Inject
     CustomJaxb2RootElementHttpMessageConverter jaxb2RootElementHttpMessageConverter;
@@ -64,9 +74,9 @@ public class WebConfig
     @Inject
     ObjectMapper objectMapper;
 
-    public WebConfig()
+    public WebConfigTest()
     {
-        logger.debug("Initialized web configuration.");
+        logger.debug("Initialized web configuration for tests.");
     }
 
     @Override
@@ -95,7 +105,7 @@ public class WebConfig
     public IndexDownloader indexDownloader()
             throws PlexusContainerException, ComponentLookupException
     {
-        return new IndexDownloader();
+        return new RestAssuredIndexDownloader();
     }
 
     @Override

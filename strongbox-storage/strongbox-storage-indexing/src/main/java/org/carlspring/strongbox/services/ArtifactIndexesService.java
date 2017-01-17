@@ -51,11 +51,4 @@ public interface ArtifactIndexesService
                              String repositoryId)
             throws PlexusContainerException, ComponentLookupException, IOException;
 
-    /**
-     * Get IndexDownloader
-     *
-     * @return IndexDownloader
-     */
-    IndexDownloader getIndexDownloader();
-
 }

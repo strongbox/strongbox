@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.storage.indexing;
 
+import org.carlspring.maven.artifact.downloader.IndexDownloader;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
@@ -32,6 +33,9 @@ public class RepositoryIndexerFactory
 
     @Inject
     private ArtifactIndexesService artifactIndexesService;
+
+    @Inject
+    private IndexDownloader indexDownloader;
 
     private Configuration configuration;
 
@@ -88,17 +92,17 @@ public class RepositoryIndexerFactory
                                                           File indexDir)
             throws IOException, PlexusContainerException, ComponentLookupException
     {
+        logger.debug("Create RepositoryIndexer for proxy repository.");
         RepositoryIndexer repositoryIndexer = new RepositoryIndexer();
         repositoryIndexer.setStorageId(storageId);
         repositoryIndexer.setRepositoryId(repositoryId);
         repositoryIndexer.setRepositoryBasedir(repositoryBasedir);
         repositoryIndexer.setIndexDir(indexDir);
 
+        logger.debug("Download remote Index for proxy repository.");
         artifactIndexesService.downloadRemoteIndex(storageId, repositoryId);
-        IndexingContext context = artifactIndexesService.getIndexDownloader()
-                                                        .getIndexingContext();
-        Indexer indexer = artifactIndexesService.getIndexDownloader()
-                                                .getIndexer();
+        IndexingContext context = indexDownloader.getIndexingContext();
+        Indexer indexer = indexDownloader.getIndexer();
 
         repositoryIndexer.setIndexingContext(context);
         repositoryIndexer.setIndexer(indexer);
@@ -108,29 +112,9 @@ public class RepositoryIndexerFactory
         return repositoryIndexer;
     }
 
-    public IndexerConfiguration getIndexerConfiguration()
-    {
-        return indexerConfiguration;
-    }
-
-    public void setIndexerConfiguration(IndexerConfiguration indexerConfiguration)
-    {
-        this.indexerConfiguration = indexerConfiguration;
-    }
-
     public Indexer getIndexer()
     {
         return indexerConfiguration.getIndexer();
-    }
-
-    public Scanner getScanner()
-    {
-        return indexerConfiguration.getScanner();
-    }
-
-    public Map<String, IndexCreator> getIndexers()
-    {
-        return indexerConfiguration.getIndexers();
     }
 
     public Configuration getConfiguration()

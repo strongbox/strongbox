@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.rest.context;
 
-import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
+import org.carlspring.strongbox.rest.config.WebConfigTest;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -22,7 +22,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @ContextConfiguration(classes = { CronTasksConfig.class,
-                                  WebConfig.class })
+                                  WebConfigTest.class })
 @WebAppConfiguration
 @WithUserDetails(value = "admin")
 @IfProfileValue(name = "spring.profiles.active",

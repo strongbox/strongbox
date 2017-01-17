@@ -11,6 +11,7 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -32,8 +33,6 @@ public class ArtifactIndexesServiceImpl
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactIndexesServiceImpl.class);
 
-    private IndexDownloader downloader;
-
     @Autowired
     private ConfigurationManager configurationManager;
 
@@ -42,6 +41,9 @@ public class ArtifactIndexesServiceImpl
 
     @Autowired
     private RepositoryManagementService repositoryManagementService;
+
+    @Inject
+    private IndexDownloader indexDownloader;
 
     @Override
     public void rebuildIndexes(String storageId,
@@ -78,15 +80,14 @@ public class ArtifactIndexesServiceImpl
         Repository repository = storage.getRepository(repositoryId);
         String repositoryBasedir = repository.getBasedir();
 
-        downloader = new IndexDownloader();
-        downloader.setIndexingContextId(repositoryId + "/ctx");
-        downloader.setRepositoryId(repositoryId);
-        downloader.setRepositoryURL(repository.getRemoteRepository()
-                                              .getUrl());
-        downloader.setIndexLocalCacheDir(repositoryBasedir);
-        downloader.setIndexDir(new File(repositoryBasedir, ".index")
+        indexDownloader.setIndexingContextId(repositoryId + "/ctx");
+        indexDownloader.setRepositoryId(repositoryId);
+        indexDownloader.setRepositoryURL(repository.getRemoteRepository()
+                                                   .getUrl());
+        indexDownloader.setIndexLocalCacheDir(repositoryBasedir);
+        indexDownloader.setIndexDir(new File(repositoryBasedir, ".index")
                                        .toString());
-        downloader.download();
+        indexDownloader.download();
     }
 
     @Override
@@ -115,11 +116,6 @@ public class ArtifactIndexesServiceImpl
     private Configuration getConfiguration()
     {
         return configurationManager.getConfiguration();
-    }
-
-    public IndexDownloader getIndexDownloader()
-    {
-        return downloader;
     }
 
     private Map<String, Storage> getStorages()
