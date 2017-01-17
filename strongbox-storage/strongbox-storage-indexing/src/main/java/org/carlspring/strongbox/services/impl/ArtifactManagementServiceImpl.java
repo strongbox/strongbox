@@ -36,7 +36,6 @@ import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsVa
 import org.carlspring.strongbox.storage.validation.version.VersionValidationException;
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
 import org.carlspring.strongbox.util.ArtifactFileUtils;
-import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -295,7 +294,7 @@ public class ArtifactManagementServiceImpl
 
         String artifactBasePath = artifactPath.substring(0, artifactPath.lastIndexOf('.'));
         String checksumExtension = artifactPath.substring(artifactPath.lastIndexOf('.') + 1,
-                                                                artifactPath.length());
+                                                          artifactPath.length());
         if (!matchesChecksum(checksum, artifactBasePath, checksumExtension))
         {
             logger.error(String.format("Artifact checksum is invalid: path-[%s]; ext-[%s]; checksum-[%s]", artifactPath,
@@ -466,8 +465,4 @@ public class ArtifactManagementServiceImpl
         return configurationManager.getConfiguration();
     }
 
-    
-    public static void main(String args[]){
-        System.out.println(MessageDigestUtils.convertToHexadecimalString(org.apache.commons.codec.binary.Base64.decodeBase64("ZJSe40EazoaGIMAzuq36Q5S9uEtwvSX5tYdMlrnM9Xo8Tk47v60QO2I0UEyasu2nDRgdjV632luzR6AjSMeQsw==")));
-    }
 }

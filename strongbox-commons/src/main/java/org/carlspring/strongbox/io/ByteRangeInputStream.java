@@ -9,18 +9,18 @@ import org.carlspring.commons.http.range.ByteRange;
 import org.carlspring.commons.io.AbstractByteRangeInputStream;
 import org.carlspring.commons.io.reloading.ReloadableInputStreamHandler;
 
-public class SbByteRangeInputStream extends AbstractByteRangeInputStream
+public class ByteRangeInputStream extends AbstractByteRangeInputStream
 {
 
     private long length;
 
-    public SbByteRangeInputStream(InputStream is)
+    public ByteRangeInputStream(InputStream is)
         throws NoSuchAlgorithmException
     {
         super(is);
     }
 
-    public SbByteRangeInputStream(ReloadableInputStreamHandler handler,
+    public ByteRangeInputStream(ReloadableInputStreamHandler handler,
                                   ByteRange byteRange)
         throws IOException,
         NoSuchAlgorithmException
@@ -28,7 +28,7 @@ public class SbByteRangeInputStream extends AbstractByteRangeInputStream
         super(handler, byteRange);
     }
 
-    public SbByteRangeInputStream(ReloadableInputStreamHandler handler,
+    public ByteRangeInputStream(ReloadableInputStreamHandler handler,
                                   List<ByteRange> byteRanges)
         throws IOException,
         NoSuchAlgorithmException

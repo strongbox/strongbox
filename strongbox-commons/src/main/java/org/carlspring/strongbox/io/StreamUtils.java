@@ -12,11 +12,11 @@ public class StreamUtils
         throws IOException
     {
         InputStream target = is.getTarget();
-        if (!(target instanceof SbByteRangeInputStream))
+        if (!(target instanceof ByteRangeInputStream))
         {
             return -1L;
         }
-        SbByteRangeInputStream bris = (SbByteRangeInputStream) target;
+        ByteRangeInputStream bris = (ByteRangeInputStream) target;
         return bris.getLength();
     }
 
@@ -25,11 +25,11 @@ public class StreamUtils
         throws IOException
     {
         InputStream target = is.getTarget();
-        if (!(target instanceof SbByteRangeInputStream))
+        if (!(target instanceof ByteRangeInputStream))
         {
             return;
         }
-        SbByteRangeInputStream bris = (SbByteRangeInputStream) target;
+        ByteRangeInputStream bris = (ByteRangeInputStream) target;
         bris.setCurrentByteRange(byteRange);
         bris.skip(byteRange.getOffset());
     }

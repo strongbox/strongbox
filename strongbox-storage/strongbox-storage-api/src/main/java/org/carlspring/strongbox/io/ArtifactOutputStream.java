@@ -26,7 +26,7 @@ public class ArtifactOutputStream
      * Used to cache Artifact contents if needed.
      */
     private OutputStream cacheOutputStream;
-    private Function<OutputStreamFunction, ?> cahceOutputStreamTemplate = this::doWithOutputStream;
+    private Function<OutputStreamFunction, ?> cacheOutputStreamTemplate = this::doWithOutputStream;
 
     public ArtifactOutputStream(OutputStream source,
                                 ArtifactCoordinates coordinates)
@@ -36,9 +36,9 @@ public class ArtifactOutputStream
         this.coordinates = coordinates;
     }
 
-    public void setCahceOutputStreamTemplate(Function<OutputStreamFunction, ?> chahceOutputStreamTemplate)
+    public void setCacheOutputStreamTemplate(Function<OutputStreamFunction, ?> chahceOutputStreamTemplate)
     {
-        this.cahceOutputStreamTemplate = chahceOutputStreamTemplate;
+        this.cacheOutputStreamTemplate = chahceOutputStreamTemplate;
     }
 
     public ArtifactCoordinates getCoordinates()
@@ -85,7 +85,7 @@ public class ArtifactOutputStream
         throws IOException
     {
         super.write(b);
-        cahceOutputStreamTemplate.apply(o -> o.write(b));
+        cacheOutputStreamTemplate.apply(o -> o.write(b));
     }
 
     @Override
@@ -93,7 +93,7 @@ public class ArtifactOutputStream
         throws IOException
     {
         super.close();
-        cahceOutputStreamTemplate.apply(o -> o.close());
+        cacheOutputStreamTemplate.apply(o -> o.close());
     }
 
     @Override
@@ -101,7 +101,7 @@ public class ArtifactOutputStream
         throws IOException
     {
         super.flush();
-        cahceOutputStreamTemplate.apply(o -> o.flush());
+        cacheOutputStreamTemplate.apply(o -> o.flush());
     }
 
     private Object doWithOutputStream(OutputStreamFunction f)

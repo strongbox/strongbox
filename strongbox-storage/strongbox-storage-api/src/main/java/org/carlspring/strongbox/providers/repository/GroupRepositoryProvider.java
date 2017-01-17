@@ -4,7 +4,6 @@ import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.g
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
@@ -258,9 +257,9 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
     @Override
     public ArtifactOutputStream getOutputStream(String storageId,
-                                        String repositoryId,
-                                        String artifactPath)
-            throws IOException
+                                                String repositoryId,
+                                                String artifactPath)
+        throws IOException
     {
         // It should not be possible to write artifacts to a group repository.
         // A group repository should only serve artifacts that already exist

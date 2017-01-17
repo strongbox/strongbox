@@ -161,7 +161,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         // Add digest algorithm only if it is not a Checksum (we don't need a Checksum of Checksum).
         if (!ArtifactFileUtils.isChecksum(path))
         {
-            getDigetsAlgorithmSet().stream().forEach(e -> {
+            getDigestAlgorithmSet().stream().forEach(e -> {
                 try
                 {
                     result.addAlgorithm(e);
@@ -186,7 +186,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         // Add digest algorithm only if it is not a Checksum (we don't need a Checksum of Checksum).
         if (!ArtifactFileUtils.isChecksum(path))
         {
-            getDigetsAlgorithmSet().stream().forEach(a -> {
+            getDigestAlgorithmSet().stream().forEach(a -> {
                 String checksum = getChecksum(storageId, repositoryId, path, a);
                 if (checksum == null)
                 {
@@ -217,7 +217,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         }
     }
     
-    public Set<String> getDigetsAlgorithmSet()
+    public Set<String> getDigestAlgorithmSet()
     {
         return Stream.of(MessageDigestAlgorithms.MD5, MessageDigestAlgorithms.SHA_1).collect(Collectors.toSet());
     }

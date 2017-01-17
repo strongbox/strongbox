@@ -142,9 +142,9 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
 
     @Override
     public ArtifactOutputStream getOutputStream(String storageId,
-                                        String repositoryId,
-                                        String artifactPath)
-            throws IOException
+                                                String repositoryId,
+                                                String artifactPath)
+        throws IOException
     {
         // It should not be possible to write artifacts to a proxy repository.
         // A proxy repository should only serve artifacts that already exist

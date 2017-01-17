@@ -16,7 +16,7 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.io.ArtifactPath;
 import org.carlspring.strongbox.io.RepositoryFileSystem;
 import org.carlspring.strongbox.io.RepositoryPath;
-import org.carlspring.strongbox.io.SbByteRangeInputStream;
+import org.carlspring.strongbox.io.ByteRangeInputStream;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,7 +99,7 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
         throws IOException,
         NoSuchAlgorithmException
     {
-        SbByteRangeInputStream bris = new SbByteRangeInputStream(Files.newInputStream(artifactPath));
+        ByteRangeInputStream bris = new ByteRangeInputStream(Files.newInputStream(artifactPath));
         bris.setReloadableInputStreamHandler(new FSReloadableInputStreamHandler(artifactPath.toFile()));
         bris.setLength(Files.size(artifactPath));
         return bris;
