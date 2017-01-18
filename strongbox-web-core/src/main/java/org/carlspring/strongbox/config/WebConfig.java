@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.config;
 
-import org.carlspring.maven.artifact.downloader.IndexDownloader;
 import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
+import org.carlspring.strongbox.downloader.IndexDownloader;
 import org.carlspring.strongbox.mapper.CustomJaxb2RootElementHttpMessageConverter;
 import org.carlspring.strongbox.utils.CustomAntPathMatcher;
 
@@ -11,8 +11,6 @@ import javax.inject.Named;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.codehaus.plexus.PlexusContainerException;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.EnableCaching;
@@ -91,12 +89,11 @@ public class WebConfig
         return converter;
     }
 
-//    @Bean
-//    public IndexDownloader indexDownloader()
-//            throws PlexusContainerException, ComponentLookupException
-//    {
-//        return new IndexDownloader();
-//    }
+    @Bean
+    public IndexDownloader indexDownloader()
+    {
+        return new IndexDownloader();
+    }
 
     @Override
     public void configurePathMatch(PathMatchConfigurer configurer)

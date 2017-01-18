@@ -1,8 +1,10 @@
 package org.carlspring.strongbox.cron.api.jobs;
 
+import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.cron.config.JobManager;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
+import org.carlspring.strongbox.services.RepositoryManagementService;
 
 import java.io.IOException;
 
@@ -24,7 +26,7 @@ public class DownloadRemoteIndexCronJob
     private final Logger logger = LoggerFactory.getLogger(DownloadRemoteIndexCronJob.class);
 
     @Autowired
-    private ArtifactIndexesService artifactIndexesService;
+    private RepositoryManagementService repositoryManagementService;
 
     @Autowired
     private JobManager manager;
@@ -42,10 +44,10 @@ public class DownloadRemoteIndexCronJob
             String storageId = config.getProperty("storageId");
             String repositoryId = config.getProperty("repositoryId");
 
-            artifactIndexesService.downloadRemoteIndex(storageId, repositoryId);
+            repositoryManagementService.downloadRemoteIndex(storageId, repositoryId);
 
         }
-        catch (IOException | ComponentLookupException | PlexusContainerException e)
+        catch (ArtifactTransportException e)
         {
             logger.error(e.getMessage(), e);
         }
