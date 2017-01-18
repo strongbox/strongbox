@@ -55,7 +55,7 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
     @Override
     public OutputStream getOutputStreamImplementation(ArtifactPath artifactPath)
         throws IOException,
-        NoSuchAlgorithmException
+               NoSuchAlgorithmException
     {
         return Files.newOutputStream(artifactPath);
     }
@@ -72,20 +72,21 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
     public InputStream getInputStreamImplementation(RepositoryPath repositoryPath,
                                                     String path)
         throws IOException,
-        NoSuchAlgorithmException
+               NoSuchAlgorithmException
     {
         RepositoryPath artifactPath = repositoryPath.resolve(path);
         if (!Files.exists(artifactPath) || Files.isDirectory(artifactPath))
         {
             throw new FileNotFoundException(artifactPath.toString());
         }
+        
         return getInputStream(artifactPath);
     }
 
     @Override
     public InputStream getInputStreamImplementation(ArtifactPath artifactPath)
         throws IOException,
-        NoSuchAlgorithmException
+               NoSuchAlgorithmException
     {
         if (!Files.exists(artifactPath))
         {
@@ -97,11 +98,12 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
 
     private InputStream getInputStream(RepositoryPath artifactPath)
         throws IOException,
-        NoSuchAlgorithmException
+               NoSuchAlgorithmException
     {
         ByteRangeInputStream bris = new ByteRangeInputStream(Files.newInputStream(artifactPath));
         bris.setReloadableInputStreamHandler(new FSReloadableInputStreamHandler(artifactPath.toFile()));
         bris.setLength(Files.size(artifactPath));
+        
         return bris;
     }
 
@@ -146,4 +148,5 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
 
         return path;
     }
+    
 }
