@@ -57,8 +57,8 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
 
     @Override
     public ArtifactOutputStream getOutputStream(String storageId,
-                                        String repositoryId,
-                                        String path)
+                                                String repositoryId,
+                                                String path)
             throws IOException, NoSuchAlgorithmException
     {
         Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
