@@ -64,11 +64,11 @@ public class ArtifactResolutionServiceImpl
 
     @Override
     public ArtifactOutputStream getOutputStream(String storageId,
-                                        String repositoryId,
-                                        String artifactPath)
+                                                String repositoryId,
+                                                String artifactPath)
         throws IOException,
-        ProviderImplementationException,
-        NoSuchAlgorithmException
+               ProviderImplementationException,
+               NoSuchAlgorithmException
     {
         artifactOperationsValidator.validate(storageId, repositoryId, artifactPath);
 
