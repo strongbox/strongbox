@@ -34,12 +34,11 @@ public class IndexDownloader
     @Inject
     private IndexUpdater indexUpdater;
 
-    private ResourceFetcher indexResourceFetcher = new IndexResourceFetcher();
+    @Inject
+    private ResourceFetcher indexResourceFetcher;
 
 
     public IndexDownloader()
-            throws PlexusContainerException,
-                   ComponentLookupException
     {
     }
 

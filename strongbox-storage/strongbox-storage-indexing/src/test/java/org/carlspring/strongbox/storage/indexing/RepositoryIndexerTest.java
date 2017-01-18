@@ -1,8 +1,14 @@
 package org.carlspring.strongbox.storage.indexing;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.client.ArtifactOperationException;
+import org.carlspring.strongbox.config.ClientConfig;
+import org.carlspring.strongbox.config.CommonConfig;
+import org.carlspring.strongbox.config.IndexResourceFetcherWithRestAssuredConfig;
+import org.carlspring.strongbox.config.StorageApiConfig;
+import org.carlspring.strongbox.config.StorageIndexingConfig;
+import org.carlspring.strongbox.config.UsersConfig;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 
@@ -20,13 +26,23 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+@ContextConfiguration(classes = { CommonConfig.class,
+                                  // StrongboxSecurityConfig.class,
+                                  StorageIndexingConfig.class,
+                                  StorageApiConfig.class,
+                                  UsersConfig.class,
+                                  // SecurityConfig.class,
+                                  ClientConfig.class,
+                                  IndexResourceFetcherWithRestAssuredConfig.class,
+                                  StorageIndexingConfig.class })
 @RunWith(SpringJUnit4ClassRunner.class)
 public class RepositoryIndexerTest
-        extends TestCaseWithArtifactGenerationWithIndexing
+        extends RestAssuredBaseTest
 {
 
     private static final File REPOSITORY_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/releases");
@@ -36,13 +52,12 @@ public class RepositoryIndexerTest
     @Autowired
     private RepositoryManagementService repositoryManagementService;
 
+    TestCaseWithArtifactGenerationWithIndexing testCase = new TestCaseWithArtifactGenerationWithIndexing();
+
 
     @Before
-    public void init()
-            throws NoSuchAlgorithmException,
-            XmlPullParserException,
-            IOException,
-            ArtifactOperationException
+    public void setUp()
+            throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
         //noinspection ResultOfMethodCallIgnored
         INDEX_DIR.mkdirs();
@@ -51,15 +66,15 @@ public class RepositoryIndexerTest
         Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-commons:1.1:jar");
         Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-commons:1.2:jar");
 
-        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), artifact1);
-        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), artifact2);
-        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), artifact3);
+        testCase.generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), artifact1);
+        testCase.generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), artifact2);
+        testCase.generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), artifact3);
     }
 
     @Test
     public void testIndex() throws Exception
     {
-        final RepositoryIndexer repositoryIndexer = getRepositoryIndexManager().getRepositoryIndex("storage0:releases");
+        final RepositoryIndexer repositoryIndexer = testCase.getRepositoryIndexManager().getRepositoryIndex("storage0:releases");
 
         final int x = repositoryManagementService.reIndex("storage0", "releases", "org/carlspring/strongbox/strongbox-commons");
 

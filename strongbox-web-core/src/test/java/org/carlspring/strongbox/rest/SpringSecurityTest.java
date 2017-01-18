@@ -18,7 +18,6 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.hamcrest.Matchers.containsString;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 /**
@@ -58,7 +57,7 @@ public class SpringSecurityTest
         String url = getContextBaseUrl() + "/users/greet";
 
         given().contentType(ContentType.JSON)
-                .param("name", "Johan")
+               .param("name", "Johan")
                .when()
                .get(url)
                .then()

@@ -36,19 +36,19 @@ public class StrongboxWebInitializer extends AbstractDispatcherServletInitialize
     {
         XmlWebApplicationContext result = new XmlWebApplicationContext();
         result.setConfigLocation("classpath:applicationContext.xml");
+
         return result;
     }
 
     public final void onStartup(ServletContext servletContext)
-                                                               throws ServletException
+            throws ServletException
     {
         super.onStartup(servletContext);
 
         registerFilter(servletContext, true, HeaderMappingFilter.class.getSimpleName(), new HeaderMappingFilter());
 
         String filterName = "springSecurityFilterChain";
-        DelegatingFilterProxy springSecurityFilterChain = new DelegatingFilterProxy(
-                filterName);
+        DelegatingFilterProxy springSecurityFilterChain = new DelegatingFilterProxy(filterName);
         registerFilter(servletContext, false, filterName, springSecurityFilterChain);
     }
 
@@ -57,17 +57,16 @@ public class StrongboxWebInitializer extends AbstractDispatcherServletInitialize
                                       String filterName,
                                       Filter filter)
     {
+        EnumSet<DispatcherType> dispatcherTypes = getSecurityDispatcherTypes();
+
         Dynamic registration = servletContext.addFilter(filterName, filter);
         registration.setAsyncSupported(true);
-        EnumSet<DispatcherType> dispatcherTypes = getSecurityDispatcherTypes();
-        registration.addMappingForUrlPatterns(dispatcherTypes, !insertBeforeOtherFilters,
-                                              "/*");
+        registration.addMappingForUrlPatterns(dispatcherTypes, !insertBeforeOtherFilters, "/*");
     }
 
     protected EnumSet<DispatcherType> getSecurityDispatcherTypes()
     {
-        return EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR,
-                          DispatcherType.ASYNC);
+        return EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR, DispatcherType.ASYNC);
     }
 
 }

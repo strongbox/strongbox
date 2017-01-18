@@ -12,6 +12,7 @@ import java.util.Collection;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
+import junit.framework.TestCase;
 import org.apache.maven.artifact.Artifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.After;
@@ -24,8 +25,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.web.context.WebApplicationContext;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static junit.framework.TestCase.assertTrue;
-import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
 
 /**
  * General settings for the testing subsystem.
@@ -91,6 +90,7 @@ public abstract class RestAssuredBaseTest
 
     @Before
     public void init()
+            throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
         RestAssuredMockMvc.webAppContextSetup(context);
 
@@ -167,12 +167,12 @@ public abstract class RestAssuredBaseTest
                       .contentType(MediaType.TEXT_PLAIN_VALUE)
                       .when()
                       .get(url)
-                      .getStatusCode() == OK;
+                      .getStatusCode() == RestAssuredArtifactClient.OK;
     }
 
     protected void assertPathExists(String url)
     {
-        assertTrue("Path " + url + " doesn't exists.", pathExists(url));
+        TestCase.assertTrue("Path " + url + " doesn't exists.", pathExists(url));
     }
 
     protected ArtifactDeployer buildArtifactDeployer(File file)
