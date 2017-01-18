@@ -21,7 +21,7 @@ public class ByteRangeInputStream extends AbstractByteRangeInputStream
     }
 
     public ByteRangeInputStream(ReloadableInputStreamHandler handler,
-                                  ByteRange byteRange)
+                                ByteRange byteRange)
         throws IOException,
         NoSuchAlgorithmException
     {
@@ -29,7 +29,7 @@ public class ByteRangeInputStream extends AbstractByteRangeInputStream
     }
 
     public ByteRangeInputStream(ReloadableInputStreamHandler handler,
-                                  List<ByteRange> byteRanges)
+                                List<ByteRange> byteRanges)
         throws IOException,
         NoSuchAlgorithmException
     {
