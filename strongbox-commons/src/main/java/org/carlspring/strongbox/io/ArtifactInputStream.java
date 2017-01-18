@@ -139,7 +139,9 @@ public class ArtifactInputStream extends FilterInputStream
         return len;
     }
 
-    InputStream getTarget(){
+    InputStream getTarget()
+    {
         return in;
     }
+    
 }
