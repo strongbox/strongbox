@@ -129,7 +129,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
                                                 String repositoryId,
                                                 String path)
         throws IOException,
-        NoSuchAlgorithmException
+               NoSuchAlgorithmException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
@@ -257,8 +257,8 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         }
         if (exists && Files.isDirectory(artifactPath))
         {
-            throw new FileNotFoundException(
-                    String.format("The artifact path is a directory: path-[%s]", artifactPath.toString()));
+            throw new FileNotFoundException(String.format("The artifact path is a directory: path-[%s]",
+                                                          artifactPath.toString()));
         }
 
         return !isMetadata(path) && !isChecksum(path) && !isServiceFolder(path);
@@ -447,8 +447,11 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
                          String path)
         throws IOException
     {
-        logger.debug(String.format("Attempting to restore: storageId-[%s]; repoId-[%s]; path-[%s]; ", storageId,
-                                   repositoryId, path));
+        logger.debug(String.format("Attempting to restore: storageId-[%s]; repoId-[%s]; path-[%s]; ",
+                                   storageId,
+                                   repositoryId,
+                                   path));
+        
         ArtifactPath artifactPath = resolve(storageId, repositoryId, path);
 
         RepositoryFileSystemProvider provider = getProvider(artifactPath);
@@ -464,6 +467,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates> impl
         Repository repository = storage.getRepository(repositoryId);
 
         logger.debug("Restoring all artifacts from the trash of " + storageId + ":" + repository.getId() + "...");
+        
         if (!repository.isTrashEnabled())
         {
             logger.warn("Repository " + repository.getId() + " does not support removal of trash.");
