@@ -1,26 +1,29 @@
 package org.carlspring.strongbox.rest.client;
 
-import org.carlspring.strongbox.client.ArtifactOperationException;
-import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.client.BaseArtifactClient;
-import org.carlspring.strongbox.controller.ArtifactController;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 
-import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-import com.google.common.io.ByteStreams;
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
-import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
-import com.jayway.restassured.response.ExtractableResponse;
-import com.jayway.restassured.response.Headers;
+import javax.xml.bind.JAXBException;
+
+import org.carlspring.strongbox.client.ArtifactOperationException;
+import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.client.BaseArtifactClient;
+import org.carlspring.strongbox.controller.ArtifactController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
+import com.google.common.io.ByteStreams;
+
+import io.restassured.http.ContentType;
+import io.restassured.http.Headers;
+import io.restassured.module.mockmvc.response.MockMvcResponse;
+import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
+import io.restassured.response.ExtractableResponse;
 
 /**
  * Implementation of {@link BaseArtifactClient} for rest-assured tests.
@@ -176,7 +179,7 @@ public class RestAssuredArtifactClient
 
         MockMvcResponse response = o.when().get(url);
         Headers allHeaders = response.getHeaders();
-
+        
         InputStream is = response.asInputStream();
 
         logger.debug("HTTP GET " + url);
