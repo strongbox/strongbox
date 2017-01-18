@@ -1,21 +1,18 @@
 package org.carlspring.strongbox.storage.indexing;
 
-import org.carlspring.maven.artifact.downloader.IndexDownloader;
+import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.services.ArtifactIndexesService;
+import org.carlspring.strongbox.services.RepositoryManagementService;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
 
 import org.apache.maven.index.Indexer;
-import org.apache.maven.index.Scanner;
-import org.apache.maven.index.context.IndexCreator;
 import org.apache.maven.index.context.IndexingContext;
-import org.codehaus.plexus.PlexusContainerException;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -32,10 +29,7 @@ public class RepositoryIndexerFactory
     private IndexerConfiguration indexerConfiguration;
 
     @Inject
-    private ArtifactIndexesService artifactIndexesService;
-
-    @Inject
-    private IndexDownloader indexDownloader;
+    private RepositoryManagementService repositoryManagementService;
 
     private Configuration configuration;
 
@@ -52,14 +46,25 @@ public class RepositoryIndexerFactory
                                                      String repositoryId,
                                                      File repositoryBasedir,
                                                      File indexDir)
-            throws IOException
+            throws IOException, ArtifactTransportException
     {
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+
         RepositoryIndexer repositoryIndexer = new RepositoryIndexer();
         repositoryIndexer.setStorageId(storageId);
         repositoryIndexer.setRepositoryId(repositoryId);
         repositoryIndexer.setRepositoryBasedir(repositoryBasedir);
         repositoryIndexer.setIndexDir(indexDir);
-        repositoryIndexer.setIndexingContext(createIndexingContext(repositoryId, repositoryBasedir, indexDir));
+        if (repository.isProxyRepository())
+        {
+            repositoryIndexer.setIndexingContext(
+                    repositoryManagementService.getRemoteRepositoryIndexingContext(storageId, repositoryId));
+        }
+        else
+        {
+            repositoryIndexer.setIndexingContext(createIndexingContext(repositoryId, repositoryBasedir, indexDir));
+        }
         repositoryIndexer.setIndexer(indexerConfiguration.getIndexer());
         repositoryIndexer.setScanner(indexerConfiguration.getScanner());
         repositoryIndexer.setConfiguration(configuration);
@@ -84,32 +89,6 @@ public class RepositoryIndexerFactory
                                                         // performed, or, if we want to "stomp" over existing index
                                                         // (unsafe to do!).
                                                   indexerConfiguration.getIndexersAsList());
-    }
-
-    public RepositoryIndexer createProxyRepositoryIndexer(String storageId,
-                                                          String repositoryId,
-                                                          File repositoryBasedir,
-                                                          File indexDir)
-            throws IOException, PlexusContainerException, ComponentLookupException
-    {
-        logger.debug("Create RepositoryIndexer for proxy repository.");
-        RepositoryIndexer repositoryIndexer = new RepositoryIndexer();
-        repositoryIndexer.setStorageId(storageId);
-        repositoryIndexer.setRepositoryId(repositoryId);
-        repositoryIndexer.setRepositoryBasedir(repositoryBasedir);
-        repositoryIndexer.setIndexDir(indexDir);
-
-        logger.debug("Download remote Index for proxy repository.");
-        artifactIndexesService.downloadRemoteIndex(storageId, repositoryId);
-        IndexingContext context = indexDownloader.getIndexingContext();
-        Indexer indexer = indexDownloader.getIndexer();
-
-        repositoryIndexer.setIndexingContext(context);
-        repositoryIndexer.setIndexer(indexer);
-        repositoryIndexer.setScanner(indexerConfiguration.getScanner());
-        repositoryIndexer.setConfiguration(configuration);
-
-        return repositoryIndexer;
     }
 
     public Indexer getIndexer()

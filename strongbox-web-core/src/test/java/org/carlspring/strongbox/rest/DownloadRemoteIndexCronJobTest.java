@@ -141,8 +141,7 @@ public class DownloadRemoteIndexCronJobTest
                .then()
                .toString();
 
-        repositoryManagementService.createRemoteRepository("storage0", "carlspring",
-                                                           getContextBaseUrl() + "/storages/storage0/releases/");
+        repositoryManagementService.createRepository("storage0", "carlspring");
     }
 
     @After

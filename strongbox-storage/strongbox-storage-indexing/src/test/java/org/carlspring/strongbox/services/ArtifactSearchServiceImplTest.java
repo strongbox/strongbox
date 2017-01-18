@@ -1,10 +1,13 @@
 package org.carlspring.strongbox.services;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.booters.StorageBooter;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -36,13 +39,25 @@ public class ArtifactSearchServiceImplTest
     @Autowired
     private RepositoryManagementService repositoryManagementService;
 
+    @Inject
+    private StorageBooter storageBooter;
+
+    @Inject
+    private RepositoryIndexManager repositoryIndexManager;
+
 
     @Before
     public void init()
-            throws NoSuchAlgorithmException,
-                   XmlPullParserException,
-                   IOException
+            throws Exception
     {
+        // Initialize indexes (for IDE launches)
+        if (repositoryIndexManager.getIndexes()
+                                  .isEmpty())
+        {
+            storageBooter.reInitializeRepositoryIndex("storage0", "releases");
+
+        }
+
         //noinspection ResultOfMethodCallIgnored
         INDEX_DIR.mkdirs();
 
