@@ -57,8 +57,6 @@ public class RepositoryIndexerTest
         generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), artifact1);
         generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), artifact2);
         generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), artifact3);
-
-        repositoryManagementService.pack("storage0", "proxied-releases");
     }
 
     @Test
