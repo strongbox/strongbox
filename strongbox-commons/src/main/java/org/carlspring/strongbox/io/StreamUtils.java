@@ -8,6 +8,10 @@ import org.carlspring.commons.http.range.ByteRange;
 public class StreamUtils
 {
 
+    private StreamUtils(){
+        
+    }
+    
     public static long getLength(ArtifactInputStream is)
         throws IOException
     {

@@ -22,6 +22,11 @@ public class ArtifactControllerHelper
     public static final String HEADER_NAME_RANGE = "Range";
     private static final Logger logger = LoggerFactory.getLogger(ArtifactControllerHelper.class);
 
+    private ArtifactControllerHelper()
+    {
+
+    }
+    
     public static void handlePartialDownload(ArtifactInputStream is,
                                              HttpHeaders headers,
                                              HttpServletResponse response)
