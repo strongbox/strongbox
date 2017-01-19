@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.storage.indexing.downloader.IndexDownloader;
-import org.carlspring.strongbox.storage.indexing.downloader.RestAssuredIndexResourceFetcher;
+import org.carlspring.strongbox.storage.indexing.downloader.MockedIndexResourceFetcher;
 
 import org.apache.maven.index.updater.ResourceFetcher;
 import org.springframework.context.annotation.Bean;
@@ -14,13 +14,13 @@ import org.springframework.context.annotation.Configuration;
                  "org.carlspring.strongbox.services",
                  "org.carlspring.strongbox.storage",
                  "org.carlspring.strongbox.util" })
-public class IndexResourceFetcherWithRestAssuredConfig
+public class MockedIndexResourceFetcherConfig
 {
 
     @Bean(name = "indexResourceFetcher")
     ResourceFetcher indexResourceFetcher()
     {
-        return new RestAssuredIndexResourceFetcher();
+        return new MockedIndexResourceFetcher();
     }
 
     @Bean(name = "indexDownloader")

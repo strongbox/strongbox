@@ -54,7 +54,7 @@ public class RepositoryIndexerFactory
         IndexingContext indexingContext;
         try
         {
-            indexingContext = createIndexingContext(repositoryId, repositoryBasedir, indexDir);
+            indexingContext = createIndexingContext(storageId, repositoryId, repositoryBasedir, indexDir);
         }
         catch (IOException e)
         {
@@ -76,12 +76,13 @@ public class RepositoryIndexerFactory
         return repositoryIndexer;
     }
 
-    private IndexingContext createIndexingContext(String repositoryId,
+    private IndexingContext createIndexingContext(String storageId,
+                                                  String repositoryId,
                                                   File repositoryBasedir,
                                                   File indexDir)
             throws IOException
     {
-        return getIndexer().createIndexingContext(repositoryId + "/ctx",
+        return getIndexer().createIndexingContext(storageId + ":" + repositoryId,
                                                   repositoryId,
                                                   repositoryBasedir,
                                                   indexDir,

@@ -120,7 +120,7 @@ public class RepositoryManagementServiceImpl
         RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storageId + ":" + repositoryId);
 
         IndexDownloadRequest request = new IndexDownloadRequest();
-        request.setIndexingContextId(repositoryId + "/ctx");
+        request.setIndexingContextId(storageId + ":" + repositoryId);
         request.setRepositoryId(repositoryId);
         request.setRemoteRepositoryURL(repository.getRemoteRepository().getUrl());
         request.setIndexLocalCacheDir(repositoryBasedir);
