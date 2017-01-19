@@ -33,7 +33,22 @@ public interface UserService
      */
     String generateSecurityToken(String id,
                                  Date expire)
-                                              throws JoseException;
+        throws JoseException;
+
+    /**
+     * Generates 'Authentication Token' for specific user.<br>
+     * This token can be used for JWT Authentication.
+     * 
+     * @param id
+     *            user ID
+     * @param expire
+     *            token expiration date
+     * @return encrypted token
+     * @throws JoseException
+     */
+    String generateAuthenticationToken(String id,
+                                       Date expire)
+        throws JoseException;
 
     /**
      * @param userName

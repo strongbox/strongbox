@@ -58,7 +58,7 @@ public class SpringSecurityTest
         String url = getContextBaseUrl() + "/users/greet";
 
         given().contentType(ContentType.JSON)
-                .param("name", "Johan")
+               .param("name", "Johan")
                .when()
                .get(url)
                .then()

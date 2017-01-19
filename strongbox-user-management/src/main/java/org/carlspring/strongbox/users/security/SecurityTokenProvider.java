@@ -84,6 +84,41 @@ public class SecurityTokenProvider
         return jws.getCompactSerialization();
     }
 
+    public String getSubject(String token)
+    {
+
+        JwtClaims jwtClaims = getClimes(token);
+        String subject;
+        try
+        {
+            subject = jwtClaims.getSubject();
+        }
+        catch (MalformedClaimException e)
+        {
+            throw new SecurityTokenException(String.format(MESSAGE_INVALID_JWT, token), e);
+        }
+        return subject;
+    }
+
+    private JwtClaims getClimes(String token)
+    {
+        JwtConsumer jwtConsumer = new JwtConsumerBuilder().setRequireSubject()
+                                                          .setVerificationKey(key)
+                                                          .setRelaxVerificationKeyValidation()
+                                                          .build();
+
+        JwtClaims jwtClaims;
+        try
+        {
+            jwtClaims = jwtConsumer.processToClaims(token);
+        }
+        catch (InvalidJwtException e)
+        {
+            throw new SecurityTokenException(String.format(MESSAGE_INVALID_JWT, token), e);
+        }
+        return jwtClaims;
+    }
+
     /**
      * @param token
      * @param targetSubject
@@ -93,19 +128,13 @@ public class SecurityTokenProvider
                             String targetSubject,
                             Map<String, String> claimMap)
     {
-        JwtConsumer jwtConsumer = new JwtConsumerBuilder().setRequireSubject()
-                                                          .setVerificationKey(key)
-                                                          .setRelaxVerificationKeyValidation()
-                                                          .build();
-
-        JwtClaims jwtClaims;
+        JwtClaims jwtClaims = getClimes(token);
         String subject;
         try
         {
-            jwtClaims = jwtConsumer.processToClaims(token);
             subject = jwtClaims.getSubject();
         }
-        catch (InvalidJwtException | MalformedClaimException e)
+        catch (MalformedClaimException e)
         {
             throw new SecurityTokenException(String.format(MESSAGE_INVALID_JWT, token), e);
         }

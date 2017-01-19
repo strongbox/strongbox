@@ -186,6 +186,19 @@ class UserServiceImpl
     }
 
     @Override
+    public String generateAuthenticationToken(String id,
+                                              Date expire)
+        throws JoseException
+    {
+        User user = repository.findOne(id);
+
+        Map<String, String> claimMap = new HashMap<>();
+        claimMap.put("credentials", user.getPassword());
+
+        return tokenProvider.getToken(user.getUsername(), claimMap, expire);
+    }
+
+    @Override
     public void verifySecurityToken(String userName,
                                     String apiKey)
     {
