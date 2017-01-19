@@ -52,7 +52,6 @@ public class ArtifactControllerTest
     private static final String TEST_RESOURCES = "target/test-resources";
 
     private static File GENERATOR_BASEDIR;
-
     private static File REPOSITORY_BASEDIR_RELEASES;
 
 
