@@ -35,7 +35,6 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
     @Autowired
     private MavenMetadataManager mavenMetadataManager;
 
-
     @PostConstruct
     @Override
     public void register()
@@ -67,7 +66,6 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         return coordinates;
     }
 
-
     protected boolean isMetadata(String path)
     {
         return ArtifactUtils.isMetadata(path);
@@ -88,7 +86,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
             super.doDeletePath(sha1Path, force, deleteChecksum);
         }
     }
-    
+
     @Override
     public void deleteMetadata(String storageId,
                                String repositoryId,
@@ -122,4 +120,5 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
             // We won't do anything in this case because it doesn't have an impact to the deletion
         }
     }
+
 }

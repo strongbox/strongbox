@@ -1,22 +1,33 @@
 package org.carlspring.strongbox.services.impl;
 
-import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
-import org.carlspring.commons.io.MultipleDigestInputStream;
+import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.services.VersionValidatorService;
-import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.checksum.ArtifactChecksum;
 import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
@@ -25,20 +36,10 @@ import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsVa
 import org.carlspring.strongbox.storage.validation.version.VersionValidationException;
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
 import org.carlspring.strongbox.util.ArtifactFileUtils;
-import org.carlspring.strongbox.util.MessageDigestUtils;
-
-import java.io.*;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Set;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.maven.artifact.Artifact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
 /**
  * @author mtodorov
@@ -79,71 +80,45 @@ public class ArtifactManagementServiceImpl
                       InputStream is)
             throws IOException, ProviderImplementationException, NoSuchAlgorithmException
     {
+        String artifactPath = storageId + "/" + repositoryId + "/" + path;
         performRepositoryAcceptanceValidation(storageId, repositoryId, path);
-
-        boolean fileIsChecksum = ArtifactUtils.isChecksum(path);
-        MultipleDigestInputStream mdis;
-        try
+        
+        
+        try(ArtifactOutputStream os = artifactResolutionService.getOutputStream(storageId, repositoryId, path))
         {
-            mdis = new MultipleDigestInputStream(is);
-        }
-        catch (NoSuchAlgorithmException e)
-        {
-            throw new ArtifactStorageException(e.getMessage(), e);
-        }
-
-        // If this is not a checksum file, store the file.
-        // If this is a checksum file, keep the hash in a String.
-        ByteArrayOutputStream baos = null;
-        if (fileIsChecksum)
-        {
-            baos = new ByteArrayOutputStream();
-        }
-
-        OutputStream os = null;
-        try
-        {
-            os = artifactResolutionService.getOutputStream(storageId, repositoryId, path);
+            //If we have no Digests then we have a Checksum to store.
+            if (os.getDigests().isEmpty())
+            {
+                os.setCacheOutputStream(new ByteArrayOutputStream());
+            }
 
             int readLength;
             byte[] bytes = new byte[4096];
-
-            while ((readLength = mdis.read(bytes, 0, bytes.length)) != -1)
+            while ((readLength = is.read(bytes, 0, bytes.length)) != -1)
             {
-                if (fileIsChecksum)
-                {
-                    // Buffer the checksum for later validation
-                    baos.write(bytes, 0, readLength);
-                    baos.flush();
-                }
-
                 // Write the artifact
                 os.write(bytes, 0, readLength);
                 os.flush();
             }
 
-            final String artifactPath = storageId + "/" + repositoryId + "/" + path;
-            if (!fileIsChecksum && os != null)
+            if (!os.getDigestMap().isEmpty())
             {
-                addChecksumsToCacheManager(mdis, artifactPath);
+                // Store artifact Digests in cache if we have them.
+                addChecksumsToCacheManager(os.getDigestMap(), artifactPath);
                 addArtifactToIndex(storageId, repositoryId, path);
             }
             else
             {
-                validateUploadedChecksumAgainstCache(baos, artifactPath);
+                // Validate checksum with Artifact Digest cache.
+                byte[] checksum = ((ByteArrayOutputStream) os.getCacheOutputStream()).toByteArray();
+                validateUploadedChecksumAgainstCache(checksum,
+                                                     artifactPath);
+
             }
-        }
-        catch (ArtifactResolutionException e)
-        {
-            throw new ArtifactStorageException(e);
         }
         catch (IOException e)
         {
-            throw new ArtifactStorageException(e.getMessage(), e);
-        }
-        finally
-        {
-            ResourceCloser.close(os, logger);
+            throw new ArtifactStorageException(e);
         }
     }
 
@@ -311,71 +286,58 @@ public class ArtifactManagementServiceImpl
         }
     }
 
-    private void validateUploadedChecksumAgainstCache(ByteArrayOutputStream baos,
+    private void validateUploadedChecksumAgainstCache(byte[] checksum,
                                                       String artifactPath)
+        throws ArtifactStorageException
     {
-        logger.debug("Received checksum: " + baos.toString());
+        logger.debug("Received checksum: " + new String(checksum));
 
         String artifactBasePath = artifactPath.substring(0, artifactPath.lastIndexOf('.'));
-        String algorithm = null;
-
-        final String checksumExtension = artifactPath.substring(artifactPath.lastIndexOf('.') + 1,
-                                                                artifactPath.length());
-        if (checksumExtension.equalsIgnoreCase(EncryptionAlgorithmsEnum.MD5.getAlgorithm()))
+        String checksumExtension = artifactPath.substring(artifactPath.lastIndexOf('.') + 1,
+                                                          artifactPath.length());
+        if (!matchesChecksum(checksum, artifactBasePath, checksumExtension))
         {
-            algorithm = EncryptionAlgorithmsEnum.MD5.getAlgorithm();
+            logger.error(String.format("Artifact checksum is invalid: path-[%s]; ext-[%s]; checksum-[%s]", artifactPath,
+                                       checksumExtension,
+                                       new String(checksum)));
         }
-        else if (checksumExtension.equals("sha1"))
-        {
-            algorithm = EncryptionAlgorithmsEnum.SHA1.getAlgorithm();
-        }
-        else
-        {
-            // TODO: Should we be doing something about this case?
-            logger.warn("Unsupported checksum type: " + checksumExtension);
-        }
-
-        final boolean matchesCachedChecksum = matchesChecksum(baos, artifactBasePath, algorithm);
-        if (matchesCachedChecksum)
-        {
-            checksumCacheManager.removeArtifactChecksum(artifactBasePath, algorithm);
-        }
-        else
-        {
-            // TODO: Implement event triggering that handles checksums that don't match the uploaded file.
-        }
+        checksumCacheManager.removeArtifactChecksum(artifactBasePath);
     }
 
-    private boolean matchesChecksum(ByteArrayOutputStream baos,
+    private boolean matchesChecksum(byte[] pChecksum,
                                     String artifactBasePath,
-                                    String algorithm)
+                                    String checksumExtension)
     {
-        String checksum = baos.toString();
-        String cachedChecksum = checksumCacheManager.getArtifactChecksum(artifactBasePath, algorithm);
-
-        if (cachedChecksum.equals(checksum))
-        {
-            logger.debug("The received " + algorithm + " checksum matches cached one! " + checksum);
-            return true;
-        }
-        else
-        {
-            logger.debug("The received " + algorithm + " does not match cached one! " + checksum + "/" + cachedChecksum);
+        String checksum = new String(pChecksum);
+        ArtifactChecksum artifactChecksum = checksumCacheManager.getArtifactChecksum(artifactBasePath);
+        
+        if (artifactChecksum == null){
             return false;
         }
+
+        Map<Boolean, Set<String>> matchingMap = artifactChecksum.getChecksums()
+                                                                .entrySet()
+                                                                .stream()
+                                                                .collect(Collectors.groupingBy(e -> e.getValue()
+                                                                                                     .equals(checksum),
+                                                                                               Collectors.mapping(e -> e.getKey(),
+                                                                                                                  Collectors.toSet())));
+
+        Set<String> matched = matchingMap.get(Boolean.TRUE);
+        Set<String> unmatched = matchingMap.get(Boolean.FALSE);
+        logger.debug(String.format("Artifact checksum matchings: artifact-[%s]; ext-[%s]; matched-[%s]; unmatched-[%s]; checksum-[%s]",
+                                   artifactBasePath, checksumExtension, matched, unmatched,
+                                   new String(checksum)));
+
+        return matched != null && !matched.isEmpty();
     }
 
-    private void addChecksumsToCacheManager(MultipleDigestInputStream mdis,
+    private void addChecksumsToCacheManager(Map<String, String> digestMap,
                                             String artifactPath)
     {
-        MessageDigest md5Digest = mdis.getMessageDigest(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
-        MessageDigest sha1Digest = mdis.getMessageDigest(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
-
-        String md5 = MessageDigestUtils.convertToHexadecimalString(md5Digest);
-        String sha1 = MessageDigestUtils.convertToHexadecimalString(sha1Digest);
-
-        checksumCacheManager.addArtifactChecksum(artifactPath, EncryptionAlgorithmsEnum.MD5.getAlgorithm(), md5);
-        checksumCacheManager.addArtifactChecksum(artifactPath, EncryptionAlgorithmsEnum.SHA1.getAlgorithm(), sha1);
+        digestMap.entrySet()
+                 .stream()
+                 .forEach(e -> checksumCacheManager.addArtifactChecksum(artifactPath, e.getKey(), e.getValue()));
     }
 
     // TODO: This should have restricted access.

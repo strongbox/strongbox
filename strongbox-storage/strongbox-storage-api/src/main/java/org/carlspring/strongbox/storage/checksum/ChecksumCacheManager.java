@@ -75,7 +75,7 @@ public class ChecksumCacheManager
             return null;
         }
 
-        final ArtifactChecksum artifactChecksum = cachedChecksums.get(artifactBasePath);
+        final ArtifactChecksum artifactChecksum = getArtifactChecksum(artifactBasePath);
         final String checksum = artifactChecksum.getChecksum(algorithm);
         if (checksum != null)
         {
@@ -83,6 +83,11 @@ public class ChecksumCacheManager
         }
 
         return checksum;
+    }
+
+    public ArtifactChecksum getArtifactChecksum(String artifactBasePath)
+    {
+        return cachedChecksums.get(artifactBasePath);
     }
 
     public boolean validateChecksum(String artifactPath,
@@ -100,7 +105,7 @@ public class ChecksumCacheManager
 
         if (cachedChecksums.containsKey(artifactBasePath))
         {
-            final ArtifactChecksum artifactChecksum = cachedChecksums.get(artifactBasePath);
+            final ArtifactChecksum artifactChecksum = getArtifactChecksum(artifactBasePath);
             artifactChecksum.addChecksum(algorithm, checksum);
         }
         else
@@ -116,7 +121,7 @@ public class ChecksumCacheManager
                                                     String algorithm)
     {
         logger.debug("Removing " + algorithm + " checksum for artifact '" + artifactBasePath + "' from cache.");
-        cachedChecksums.get(artifactBasePath).removeChecksum(algorithm);
+        getArtifactChecksum(artifactBasePath).removeChecksum(algorithm);
     }
 
     public synchronized void removeArtifactChecksum(String artifactBasePath)
