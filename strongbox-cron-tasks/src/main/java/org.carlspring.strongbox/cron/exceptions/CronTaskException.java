@@ -9,6 +9,7 @@ public class CronTaskException
 
     public CronTaskException()
     {
+        super();
     }
 
     public CronTaskException(String msg)

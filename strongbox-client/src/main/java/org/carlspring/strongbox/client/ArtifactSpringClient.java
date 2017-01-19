@@ -6,13 +6,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -139,17 +142,7 @@ public class ArtifactSpringClient
         headers.setContentType(mediaType);
         headers.add("Content-Disposition", contentDisposition);
 
-        byte[] bytes;
-        try
-        {
-            bytes = IOUtils.toByteArray(is);
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException("Parse error on put method, class ArtifactSpringClient...", e);
-        }
-
-        HttpEntity<byte[]> entity = new HttpEntity<>(bytes, headers);
+        HttpEntity<InputStream> entity = new HttpEntity<>(is, headers);
         path = "/" + path;
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();

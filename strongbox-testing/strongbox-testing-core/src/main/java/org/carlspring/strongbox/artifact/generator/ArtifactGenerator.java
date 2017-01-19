@@ -35,6 +35,8 @@ public class ArtifactGenerator
 
     private String basedir;
 
+    private long size = 0;
+
 
     public ArtifactGenerator()
     {
@@ -123,7 +125,7 @@ public class ArtifactGenerator
 
             createMavenPropertiesFile(artifact, zos);
             addMavenPomFile(artifact, zos);
-            createRandomSizeFile(zos);
+            createRandomContentFile(zos);
         }
         finally
         {
@@ -223,16 +225,25 @@ public class ArtifactGenerator
         }
 
         bais.close();
+        zos.flush();
         zos.closeEntry();
     }
 
-    private void createRandomSizeFile(ZipOutputStream zos)
+    private void createRandomContentFile(ZipOutputStream zos)
             throws IOException
     {
         ZipEntry ze = new ZipEntry("random-size-file");
         zos.putNextEntry(ze);
 
-        RandomInputStream ris = new RandomInputStream(true, 1000000);
+        RandomInputStream ris;
+        if (size == 0)
+        {
+            ris = new RandomInputStream(true, 1000000);
+        }
+        else
+        {
+            ris = new RandomInputStream(size);
+        }
 
         byte[] buffer = new byte[4096];
         int len;
@@ -242,6 +253,7 @@ public class ArtifactGenerator
         }
 
         ris.close();
+        zos.flush();
         zos.closeEntry();
     }
 
@@ -300,6 +312,16 @@ public class ArtifactGenerator
     public void setBasedir(String basedir)
     {
         this.basedir = basedir;
+    }
+
+    public long getSize()
+    {
+        return size;
+    }
+
+    public void setSize(long size)
+    {
+        this.size = size;
     }
 
 }

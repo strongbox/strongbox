@@ -304,7 +304,6 @@
     </build>
 
     <dependencies>
-
         <!-- Strongbox dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -370,6 +369,7 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.carlspring.maven</groupId>
             <artifactId>maven-commons</artifactId>
@@ -433,7 +433,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.jayway.restassured</groupId>
+            <groupId>io.rest-assured</groupId>
             <artifactId>spring-mock-mvc</artifactId>
             <scope>test</scope>
         </dependency>

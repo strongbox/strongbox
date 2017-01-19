@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.artifact.generator;
 
+import org.carlspring.commons.io.resource.ResourceCloser;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
@@ -7,11 +8,13 @@ import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import org.apache.maven.artifact.Artifact;
-import org.junit.Ignore;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -19,7 +22,6 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author mtodorov
  */
-@Ignore
 public class ArtifactGeneratorTest
         extends TestCaseWithArtifactGeneration
 {
@@ -84,17 +86,56 @@ public class ArtifactGeneratorTest
         assertEquals(expectedPomSHA1, pomSHA1);
     }
 
+    @Test
+    public void testGenerationOfArtifactWithDefinedSize()
+            throws NoSuchAlgorithmException, XmlPullParserException, IOException
+    {
+        int artifactSize = 1000000;
+
+        Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.testing:test-foo:1.2.4:jar");
+        File artifactFile = new File(BASEDIR + "/" + ArtifactUtils.convertArtifactToPath(artifact));
+        artifact.setFile(artifactFile);
+
+        ArtifactGenerator generator = new ArtifactGenerator(BASEDIR);
+        generator.setSize(artifactSize);
+        generator.generate(artifact);
+
+        File artifactJarFile = new File(BASEDIR, "org/carlspring/strongbox/testing/test-foo/1.2.4/test-foo-1.2.4.jar");
+        File artifactJarFileMD5 = new File(BASEDIR, "org/carlspring/strongbox/testing/test-foo/1.2.4/test-foo-1.2.4.jar.md5");
+        File artifactJarFileSHA1 = new File(BASEDIR, "org/carlspring/strongbox/testing/test-foo/1.2.4/test-foo-1.2.4.jar.sha1");
+
+        File artifactPomFile = new File(BASEDIR, "org/carlspring/strongbox/testing/test-foo/1.2.4/test-foo-1.2.4.pom");
+        File artifactPomFileMD5 = new File(BASEDIR, "org/carlspring/strongbox/testing/test-foo/1.2.4/test-foo-1.2.4.pom.md5");
+        File artifactPomFileSHA1 = new File(BASEDIR, "org/carlspring/strongbox/testing/test-foo/1.2.4/test-foo-1.2.4.pom.sha1");
+
+        assertTrue("Failed to generate JAR file!", artifactJarFile.exists());
+        // No other quick and reasonable way to know the pre-calculated size of the created jar,
+        // hence we're assuming it's at least as much as the defined size.
+        // The bytes on top of this are things like the MANIFEST.MF and so on.
+        assertTrue("Failed to generate JAR file with defined size!", artifactJarFile.length() >= artifactSize);
+        assertTrue("Failed to generate JAR MD5 file!", artifactJarFileMD5.exists());
+        assertTrue("Failed to generate JAR SHA1 file!", artifactJarFileSHA1.exists());
+
+        assertTrue("Failed to generate POM file!", artifactPomFile.exists());
+        assertTrue("Failed to generate POM MD5 file!", artifactPomFileMD5.exists());
+        assertTrue("Failed to generate POM SHA1 file!", artifactPomFileSHA1.exists());
+    }
+
     private String calculateChecksum(File file, String type) throws Exception
     {
         byte[] buffer = new byte[4096];
         MessageDigest md = MessageDigest.getInstance(type);
 
         DigestInputStream dis = new DigestInputStream(new FileInputStream(file), md);
-        try {
-            while(dis.read(buffer) != -1);
-        }finally{
-            dis.close();
+        try
+        {
+            while (dis.read(buffer) != -1);
         }
+        finally
+        {
+            ResourceCloser.close(dis, null);
+        }
+
 
         return MessageDigestUtils.convertToHexadecimalString(md);
     }

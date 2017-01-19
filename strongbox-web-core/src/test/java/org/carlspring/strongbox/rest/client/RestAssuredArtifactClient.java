@@ -1,31 +1,32 @@
 package org.carlspring.strongbox.rest.client;
 
-import org.carlspring.strongbox.client.ArtifactOperationException;
-import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.client.BaseArtifactClient;
-import org.carlspring.strongbox.client.IArtifactClient;
-import org.carlspring.strongbox.controller.ArtifactController;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 
-import javax.xml.bind.JAXBException;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-import com.google.common.io.ByteStreams;
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
-import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
-import com.jayway.restassured.response.ExtractableResponse;
-import com.jayway.restassured.response.Headers;
+import javax.xml.bind.JAXBException;
+
+import org.carlspring.strongbox.client.ArtifactOperationException;
+import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.client.BaseArtifactClient;
+import org.carlspring.strongbox.controller.ArtifactController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
+import com.google.common.io.ByteStreams;
+
+import io.restassured.http.ContentType;
+import io.restassured.http.Headers;
+import io.restassured.module.mockmvc.response.MockMvcResponse;
+import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
+import io.restassured.response.ExtractableResponse;
 
 /**
- * Implementation of {@link IArtifactClient} for rest-assured tests.
+ * Implementation of {@link BaseArtifactClient} for rest-assured tests.
  *
  * @author Alex Oreshkevich
  */
@@ -146,35 +147,27 @@ public class RestAssuredArtifactClient
     }
 
     public InputStream getResource(String url,
-                                   int offset,
-                                   boolean validate)
-    {
-        byte[] bytes = getArtifactAsByteArray(url, offset, validate);
-        if (bytes == null)
-        {
-            return null;
-        }
-        else
-        {
-            return new ByteArrayInputStream(bytes);
-        }
-    }
-
-    public InputStream getResource(String url,
                                    int offset)
     {
         return getResource(url, offset, VALIDATE_RESOURCE_ON_GET);
+    }
+
+    public InputStream getResource(String url,
+                                   int offset,
+                                   boolean validate)
+    {
+        return getArtifactAsInputStream(url, offset, validate);
     }
 
     /**
      * Converts response output to byte array to properly use it later as a stream.
      * RestAssured-specific case for working with file uploading when multipart specification is not used.
      */
-    public byte[] getArtifactAsByteArray(String url,
-                                         int offset,
-                                         boolean validate)
+    public InputStream getArtifactAsInputStream(String url,
+                                                int offset,
+                                                boolean validate)
     {
-        MockMvcRequestSpecification o = givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE);
+        MockMvcRequestSpecification o = givenLocal().contentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
         int statusCode = OK;
         if (offset != -1)
         {
@@ -182,10 +175,12 @@ public class RestAssuredArtifactClient
             statusCode = PARTIAL_CONTENT;
         }
 
-        logger.debug("[getArtifactAsByteArray] URL " + url);
+        logger.debug("[getArtifactAsInputStream] URL " + url);
 
         MockMvcResponse response = o.when().get(url);
         Headers allHeaders = response.getHeaders();
+        
+        InputStream is = response.asInputStream();
 
         logger.debug("HTTP GET " + url);
         logger.debug("Response headers:");
@@ -199,13 +194,14 @@ public class RestAssuredArtifactClient
 
         if (response.getStatusCode() == OK || response.getStatusCode() == PARTIAL_CONTENT)
         {
-            byte[] result = response.getMockHttpServletResponse().getContentAsByteArray();
-            logger.debug("Received " + result.length + " bytes.");
-            return result;
+            // byte[] result = response.getMockHttpServletResponse().getContentAsByteArray();
+            // logger.debug("Received " + result.length + " bytes.");
+
+            return is;
         }
         else
         {
-            logger.warn("[getArtifactAsByteArray] response " + response.getStatusCode());
+            logger.warn("[getArtifactAsInputStream] response " + response.getStatusCode());
             return null;
         }
     }
@@ -217,14 +213,14 @@ public class RestAssuredArtifactClient
                      String destRepositoryId)
     {
         givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
-               .params("srcStorageId", srcStorageId,
-                       "srcRepositoryId", srcRepositoryId,
-                       "destStorageId", destStorageId,
-                       "destRepositoryId", destRepositoryId)
-               .when()
-               .post(getContextBaseUrl() + ArtifactController.ROOT_CONTEXT + "/copy/" + path)
-               .then()
-               .statusCode(OK);
+                    .params("srcStorageId", srcStorageId,
+                            "srcRepositoryId", srcRepositoryId,
+                            "destStorageId", destStorageId,
+                            "destRepositoryId", destRepositoryId)
+                    .when()
+                    .post(getContextBaseUrl() + ArtifactController.ROOT_CONTEXT + "/copy/" + path)
+                    .then()
+                    .statusCode(OK);
     }
 
     public void delete(String storageId,
@@ -245,12 +241,12 @@ public class RestAssuredArtifactClient
                      storageId + "/" + repositoryId + "/" + path;
 
         givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
-               .param("force", force)
-               .when()
-               .delete(url)
-               .peek()
-               .then()
-               .statusCode(OK);
+                    .param("force", force)
+                    .when()
+                    .delete(url)
+                    .peek()
+                    .then()
+                    .statusCode(OK);
     }
 
     public ExtractableResponse getResourceWithResponse(String path,
@@ -263,11 +259,11 @@ public class RestAssuredArtifactClient
         }
 
         return (ExtractableResponse) givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
-                                            .when()
-                                            .get(url)
-                                            .peek()
-                                            .then()
-                                            .extract();
+                                                 .when()
+                                                 .get(url)
+                                                 .peek()
+                                                 .then()
+                                                 .extract();
     }
 
     public void rebuildMetadata(String storageId,
@@ -279,11 +275,11 @@ public class RestAssuredArtifactClient
                      (basePath != null ? basePath : "");
 
         givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
-               .when()
-               .post(url)
-               .peek()
-               .then()
-               .statusCode(OK);
+                    .when()
+                    .post(url)
+                    .peek()
+                    .then()
+                    .statusCode(OK);
     }
 
     public void rebuildIndexes(String storageId,
@@ -340,14 +336,14 @@ public class RestAssuredArtifactClient
                      (artifactPath != null ? artifactPath : "");
 
         givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
-               .params("version", version,
-                       "classifier", classifier,
-                       "metadataType", metadataType)
-               .when()
-               .delete(url)
-               .peek()
-               .then()
-               .statusCode(OK);
+                    .params("version", version,
+                            "classifier", classifier,
+                            "metadataType", metadataType)
+                    .when()
+                    .delete(url)
+                    .peek()
+                    .then()
+                    .statusCode(OK);
     }
 
     public String search(String query,
@@ -376,15 +372,15 @@ public class RestAssuredArtifactClient
         query = URLEncoder.encode(query, "UTF-8");
 
         return givenLocal().params("repositoryId", repositoryId, "q", query)
-                      .header("accept", mediaType)
-                      .when()
-                      .get(url)
-                      .then()
-                      .statusCode(OK)
-                      .extract()
-                      .response()
-                      .getBody()
-                      .asString();
+                           .header("accept", mediaType)
+                           .when()
+                           .get(url)
+                           .then()
+                           .statusCode(OK)
+                           .extract()
+                           .response()
+                           .getBody()
+                           .asString();
     }
 
 }
