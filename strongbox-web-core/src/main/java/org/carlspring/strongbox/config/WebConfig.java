@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
+import org.carlspring.strongbox.cron.config.CronTasksConfig;
+import org.carlspring.strongbox.downloader.IndexDownloader;
 import org.carlspring.strongbox.mapper.CustomJaxb2RootElementHttpMessageConverter;
 import org.carlspring.strongbox.utils.CustomAntPathMatcher;
 
@@ -40,7 +42,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
           StorageApiConfig.class,
           UsersConfig.class,
           SecurityConfig.class,
-          ClientConfig.class })
+          ClientConfig.class,
+          CronTasksConfig.class })
 @EnableCaching
 @EnableWebMvc
 public class WebConfig
@@ -84,6 +87,12 @@ public class WebConfig
         MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
         converter.setObjectMapper(objectMapper);
         return converter;
+    }
+
+    @Bean
+    public IndexDownloader indexDownloader()
+    {
+        return new IndexDownloader();
     }
 
     @Override

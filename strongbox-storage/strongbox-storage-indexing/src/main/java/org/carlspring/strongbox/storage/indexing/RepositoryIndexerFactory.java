@@ -1,16 +1,17 @@
 package org.carlspring.strongbox.storage.indexing;
 
+import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.services.RepositoryManagementService;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
 
 import org.apache.maven.index.Indexer;
-import org.apache.maven.index.Scanner;
-import org.apache.maven.index.context.IndexCreator;
 import org.apache.maven.index.context.IndexingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,9 @@ public class RepositoryIndexerFactory
 
     private IndexerConfiguration indexerConfiguration;
 
+    @Inject
+    private RepositoryManagementService repositoryManagementService;
+
     private Configuration configuration;
 
 
@@ -42,14 +46,25 @@ public class RepositoryIndexerFactory
                                                      String repositoryId,
                                                      File repositoryBasedir,
                                                      File indexDir)
-            throws IOException
+            throws IOException, ArtifactTransportException
     {
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+
         RepositoryIndexer repositoryIndexer = new RepositoryIndexer();
         repositoryIndexer.setStorageId(storageId);
         repositoryIndexer.setRepositoryId(repositoryId);
         repositoryIndexer.setRepositoryBasedir(repositoryBasedir);
         repositoryIndexer.setIndexDir(indexDir);
-        repositoryIndexer.setIndexingContext(createIndexingContext(repositoryId, repositoryBasedir, indexDir));
+        if (repository.isProxyRepository())
+        {
+            repositoryIndexer.setIndexingContext(
+                    repositoryManagementService.getRemoteRepositoryIndexingContext(storageId, repositoryId));
+        }
+        else
+        {
+            repositoryIndexer.setIndexingContext(createIndexingContext(repositoryId, repositoryBasedir, indexDir));
+        }
         repositoryIndexer.setIndexer(indexerConfiguration.getIndexer());
         repositoryIndexer.setScanner(indexerConfiguration.getScanner());
         repositoryIndexer.setConfiguration(configuration);
@@ -76,29 +91,9 @@ public class RepositoryIndexerFactory
                                                   indexerConfiguration.getIndexersAsList());
     }
 
-    public IndexerConfiguration getIndexerConfiguration()
-    {
-        return indexerConfiguration;
-    }
-
-    public void setIndexerConfiguration(IndexerConfiguration indexerConfiguration)
-    {
-        this.indexerConfiguration = indexerConfiguration;
-    }
-
     public Indexer getIndexer()
     {
         return indexerConfiguration.getIndexer();
-    }
-
-    public Scanner getScanner()
-    {
-        return indexerConfiguration.getScanner();
-    }
-
-    public Map<String, IndexCreator> getIndexers()
-    {
-        return indexerConfiguration.getIndexers();
     }
 
     public Configuration getConfiguration()

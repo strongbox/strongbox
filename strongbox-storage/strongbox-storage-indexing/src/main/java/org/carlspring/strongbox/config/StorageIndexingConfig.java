@@ -24,17 +24,20 @@ import org.apache.maven.index.creator.MinimalArtifactInfoIndexCreator;
 import org.apache.maven.index.incremental.DefaultIncrementalHandler;
 import org.apache.maven.index.packer.DefaultIndexPacker;
 import org.apache.maven.index.packer.IndexPacker;
+import org.apache.maven.index.updater.DefaultIndexUpdater;
+import org.apache.maven.index.updater.IndexUpdater;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ComponentScan({
-        "org.carlspring.strongbox.booters",
-        "org.carlspring.strongbox.configuration",
-        "org.carlspring.strongbox.services",
-        "org.carlspring.strongbox.storage",
-        "org.carlspring.strongbox.util"
+                       "org.carlspring.strongbox.booters",
+                       "org.carlspring.strongbox.configuration",
+                       "org.carlspring.strongbox.services",
+                       "org.carlspring.strongbox.storage",
+                       "org.carlspring.strongbox.util",
+                       "org.carlspring.strongbox.downloader"
 })
 public class StorageIndexingConfig
 {
@@ -55,6 +58,12 @@ public class StorageIndexingConfig
     IndexPacker indexPacker()
     {
         return new DefaultIndexPacker(new DefaultIncrementalHandler());
+    }
+
+    @Bean(name = "indexUpdater")
+    IndexUpdater indexUpdater()
+    {
+        return new DefaultIndexUpdater(new DefaultIncrementalHandler(), null);
     }
 
     @Bean(name = "searchEngine")
@@ -115,5 +124,4 @@ public class StorageIndexingConfig
 
         return indexers;
     }
-
 }

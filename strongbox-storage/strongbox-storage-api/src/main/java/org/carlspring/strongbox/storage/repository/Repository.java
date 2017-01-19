@@ -61,7 +61,7 @@ public class Repository
     private boolean trashEnabled;
 
     @XmlAttribute(name = "indexing-enabled")
-    private boolean indexingEnabled;
+    private boolean indexingEnabled = true;
 
     @XmlAttribute(name = "allows-force-deletion")
     private boolean allowsForceDeletion;
@@ -445,22 +445,26 @@ public class Repository
 
     public boolean isHostedRepository()
     {
-        return getType().equals(RepositoryTypeEnum.HOSTED.getType());
+        return RepositoryTypeEnum.HOSTED.getType()
+                                        .equals(getType());
     }
 
     public boolean isProxyRepository()
     {
-        return getType().equals(RepositoryTypeEnum.PROXY.getType());
+        return RepositoryTypeEnum.PROXY.getType()
+                                       .equals(getType());
     }
 
     public boolean isGroupRepository()
     {
-        return getType().equals(RepositoryTypeEnum.GROUP.getType());
+        return RepositoryTypeEnum.GROUP.getType()
+                                       .equals(getType());
     }
 
     public boolean isVirtualRepository()
     {
-        return getType().equals(RepositoryTypeEnum.VIRTUAL.getType());
+        return RepositoryTypeEnum.VIRTUAL.getType()
+                                         .equals(getType());
     }
 
 }

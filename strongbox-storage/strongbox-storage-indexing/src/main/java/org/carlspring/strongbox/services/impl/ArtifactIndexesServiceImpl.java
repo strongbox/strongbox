@@ -1,8 +1,11 @@
 package org.carlspring.strongbox.services.impl;
 
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
+import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.downloader.IndexDownloadRequest;
+import org.carlspring.strongbox.downloader.IndexDownloader;
 import org.carlspring.strongbox.handlers.ArtifactLocationGenerateMavenIndexOperation;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
@@ -10,12 +13,13 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 
+import javax.inject.Inject;
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -28,15 +32,14 @@ public class ArtifactIndexesServiceImpl
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactIndexesServiceImpl.class);
 
-    @Autowired
+    @Inject
     private ConfigurationManager configurationManager;
 
-    @Autowired
+    @Inject
     private RepositoryIndexManager repositoryIndexManager;
 
-    @Autowired
+    @Inject
     private RepositoryManagementService repositoryManagementService;
-
 
     @Override
     public void rebuildIndexes(String storageId,
@@ -100,5 +103,4 @@ public class ArtifactIndexesServiceImpl
     {
         return getStorages().get(storageId).getRepositories();
     }
-
 }

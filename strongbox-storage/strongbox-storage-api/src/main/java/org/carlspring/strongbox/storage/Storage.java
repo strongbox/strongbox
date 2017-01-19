@@ -119,9 +119,9 @@ public class Storage
         repositories.put(repository.getId(), repository);
     }
 
-    public Repository getRepository(String repository)
+    public Repository getRepository(String repositoryId)
     {
-        return repositories.get(repository);
+        return repositories.get(repositoryId);
     }
 
     public void removeRepository(String repositoryId)

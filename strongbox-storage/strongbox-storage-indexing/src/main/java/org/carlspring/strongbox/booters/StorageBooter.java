@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.booters;
 
+import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
@@ -56,7 +57,7 @@ public class StorageBooter
     public void initialize()
             throws IOException,
                    PlexusContainerException,
-                   ComponentLookupException
+                   ComponentLookupException, ArtifactTransportException
     {
         if (!lockExists())
         {
@@ -185,7 +186,7 @@ public class StorageBooter
     private void initializeRepositories(Storage storageId)
             throws IOException,
                    PlexusContainerException,
-                   ComponentLookupException
+                   ComponentLookupException, ArtifactTransportException
     {
         for (Repository repository : storageId.getRepositories().values())
         {
@@ -198,7 +199,7 @@ public class StorageBooter
                                       String repositoryId)
             throws IOException,
                    PlexusContainerException,
-                   ComponentLookupException
+                   ComponentLookupException, ArtifactTransportException
     {
         final File repositoryBasedir = new File(storage.getBasedir(), repositoryId);
 
@@ -217,7 +218,7 @@ public class StorageBooter
                                            String repositoryId)
             throws PlexusContainerException,
                    ComponentLookupException,
-                   IOException
+                   IOException, ArtifactTransportException
     {
         final File repositoryBasedir = new File(storage.getBasedir(), repositoryId);
         final File indexDir = new File(repositoryBasedir, ".index");
@@ -232,7 +233,7 @@ public class StorageBooter
 
     public void reInitializeRepositoryIndex(String storageId,
                                             String repositoryId)
-            throws PlexusContainerException, ComponentLookupException, IOException
+            throws PlexusContainerException, ComponentLookupException, IOException, ArtifactTransportException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         if (storage != null)

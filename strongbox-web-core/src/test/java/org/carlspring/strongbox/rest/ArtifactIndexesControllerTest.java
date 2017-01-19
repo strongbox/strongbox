@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.rest;
 
+import org.carlspring.strongbox.booters.StorageBooter;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.rest.context.IntegrationTest;
@@ -7,6 +8,7 @@ import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -50,6 +52,12 @@ public class ArtifactIndexesControllerTest
     @Inject
     private ArtifactSearchService artifactSearchService;
 
+    @Inject
+    private StorageBooter storageBooter;
+
+    @Inject
+    private RepositoryIndexManager repositoryIndexManager;
+
     private static boolean initialized;
 
     @Before
@@ -59,6 +67,22 @@ public class ArtifactIndexesControllerTest
         if (!initialized)
         {
             super.init();
+
+            // Initialize indexes (for IDE launches)
+            if (repositoryIndexManager.getIndexes()
+                                      .isEmpty())
+            {
+                for (Storage storage : configurationManagementService.getConfiguration()
+                                                                     .getStorages()
+                                                                     .values())
+                {
+                    for (Repository repository : storage.getRepositories()
+                                                        .values())
+                    {
+                        storageBooter.reInitializeRepositoryIndex(storage.getId(), repository.getId());
+                    }
+                }
+            }
 
             // to remove previous generated artifacts if they are present
             removeDir(REPOSITORY_BASEDIR_1.getAbsolutePath() + "/org/carlspring/strongbox/indexes");

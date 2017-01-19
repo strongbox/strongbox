@@ -14,11 +14,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.hamcrest.Matchers.containsString;
+import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 /**
@@ -69,9 +70,7 @@ public class SpringSecurityTest
     @Test
     public void testUnauthorizedRequest()
     {
-        // clear default anonymous authorization context and disable it's population
-        ((CustomAnonymousAuthenticationFilter) anonymousAuthenticationFilter).setEnableContextAutoCreation(false);
-        SecurityContextHolder.getContext().setAuthentication(null);
+        clearAuthenticationContext();
 
         RestAssuredMockMvc.given()
                           .contentType(MediaType.TEXT_PLAIN_VALUE)
@@ -83,4 +82,30 @@ public class SpringSecurityTest
                           .statusCode(UNAUTHORIZED.value());
     }
 
+    // checks that paths like http://localhost:48080/storages/storage0/releases/.index/** are accessible
+    // server should respond with either 404 or 200 for such kind of requests
+    @Test
+    @WithAnonymousUser
+    public void testRequestForIndexData() throws Exception {
+
+        // http://localhost:48080/storages/storage0/releases/.index/nexus-maven-repository-index.properties
+        final String url =
+                getContextBaseUrl() + "/storages/storage0/releases/.index/nexus-maven-repository-index.properties";
+        logger.info("Calling URL " + url);
+
+        given().header("user-agent", "Maven/*")
+               .contentType(MediaType.TEXT_PLAIN_VALUE)
+               .when()
+               .get(url)
+               .peek() // Use peek() to print the output
+               .then()
+               .statusCode(OK.value());
+    }
+
+    private void clearAuthenticationContext(){
+
+        // clear default anonymous authorization context and disable it's population
+        ((CustomAnonymousAuthenticationFilter) anonymousAuthenticationFilter).setEnableContextAutoCreation(false);
+        SecurityContextHolder.getContext().setAuthentication(null);
+    }
 }

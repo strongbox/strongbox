@@ -92,6 +92,8 @@ public abstract class RestAssuredBaseTest
     @Before
     public void init()
     {
+        logger.info("Initialize and start web application server...");
+
         RestAssuredMockMvc.webAppContextSetup(context);
 
         // security settings for tests
@@ -204,6 +206,13 @@ public abstract class RestAssuredBaseTest
                                                            packaging,
                                                            classifiers,
                                                            numberOfBuilds);
+    }
+
+    public void createArtifact(String basedir,
+                               Artifact artifact)
+            throws NoSuchAlgorithmException, XmlPullParserException, IOException
+    {
+        generator.generateArtifact(basedir, artifact);
     }
 
 }

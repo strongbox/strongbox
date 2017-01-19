@@ -244,9 +244,22 @@
         </dependency>
 
         <dependency>
+            <groupId>org.carlspring.maven</groupId>
+            <artifactId>artifact-downloader</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.sisu</groupId>
+            <artifactId>org.eclipse.sisu.plexus</artifactId>
+            <version>0.3.2</version>
+        </dependency>
+
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
+
     </dependencies>
 
 </project>

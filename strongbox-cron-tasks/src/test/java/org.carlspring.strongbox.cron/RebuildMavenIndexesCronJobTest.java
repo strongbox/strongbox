@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.cron;
 
+import org.carlspring.strongbox.booters.StorageBooter;
 import org.carlspring.strongbox.cron.api.jobs.RebuildMavenIndexesCronJob;
 import org.carlspring.strongbox.cron.config.JobManager;
 import org.carlspring.strongbox.cron.context.CronTaskTest;
@@ -11,6 +12,7 @@ import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -55,6 +57,12 @@ public class RebuildMavenIndexesCronJobTest
     private ArtifactSearchService artifactSearchService;
 
     @Inject
+    private StorageBooter storageBooter;
+
+    @Inject
+    private RepositoryIndexManager repositoryIndexManager;
+
+    @Inject
     private JobManager jobManager;
 
     private static final File REPOSITORY_BASEDIR_1 = new File(ConfigurationResourceResolver.getVaultDirectory() +
@@ -65,10 +73,6 @@ public class RebuildMavenIndexesCronJobTest
 
     private static final File REPOSITORY_BASEDIR_3 = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                               "/storages/storage1/releases");
-
-    private static final String[] CLASSIFIERS = { "javadoc",
-                                                  "sources",
-                                                  "source-release" };
 
     private static final String ARTIFACT_BASE_PATH_STRONGBOX_INDEXES = "org/carlspring/strongbox/indexes/strongbox-test-one";
 
@@ -88,6 +92,22 @@ public class RebuildMavenIndexesCronJobTest
     {
         if (!initialized)
         {
+            // Initialize indexes (for IDE launches)
+            if (repositoryIndexManager.getIndexes()
+                                      .isEmpty())
+            {
+                for (Storage storage : configurationManagementService.getConfiguration()
+                                                                     .getStorages()
+                                                                     .values())
+                {
+                    for (Repository repository : storage.getRepositories()
+                                                        .values())
+                    {
+                        storageBooter.reInitializeRepositoryIndex(storage.getId(), repository.getId());
+                    }
+                }
+            }
+
             Repository repository1 = new Repository("releases-one");
             repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
             Storage storage = configurationManagementService.getStorage("storage0");
@@ -142,7 +162,7 @@ public class RebuildMavenIndexesCronJobTest
         CronTaskConfiguration cronTaskConfiguration = new CronTaskConfiguration();
         cronTaskConfiguration.setName(name);
         cronTaskConfiguration.addProperty("jobClass", RebuildMavenIndexesCronJob.class.getName());
-        cronTaskConfiguration.addProperty("cronExpression", "0 0/10 * 1/1 * ? *");
+        cronTaskConfiguration.addProperty("cronExpression", "0 0/1 * 1/1 * ? *");
         cronTaskConfiguration.addProperty("storageId", storageId);
         cronTaskConfiguration.addProperty("repositoryId", repositoryId);
         cronTaskConfiguration.addProperty("basePath", basePath);

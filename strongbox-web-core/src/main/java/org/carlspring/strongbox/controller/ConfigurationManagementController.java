@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.controller;
 
+import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.security.exceptions.AuthenticationException;
@@ -475,7 +476,7 @@ public class ConfigurationManagementController
 
             return ResponseEntity.ok("The repository was updated successfully.");
         }
-        catch (IOException | JAXBException e)
+        catch (IOException | JAXBException | ArtifactTransportException e)
         {
             logger.error(e.getMessage(), e);
 

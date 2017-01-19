@@ -139,7 +139,7 @@ public class ArtifactController
     )
             throws Exception
     {
-        logger.debug(" repository = " + repositoryId + "\n\tpath = " + path);
+        logger.info("[download] repository = " + repositoryId + "\n\tpath = " + path);
 
         Storage storage = configurationManager.getConfiguration()
                                               .getStorage(storageId);
