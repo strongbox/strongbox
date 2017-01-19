@@ -77,8 +77,8 @@ public class SecurityConfig
     }
 
     /**
-     * This configuration specifies JWTAuthentication rules. Such authentication triggered after
-     * {@link BasicSecurityConfig} and validates requests using JWT token.
+     * This configuration specifies JWTAuthentication and Anonymous access rules. It triggered after
+     * {@link BasicSecurityConfig} and authenticate unauthorized requests if needed.
      * 
      * @author Sergey Bespalov
      *
