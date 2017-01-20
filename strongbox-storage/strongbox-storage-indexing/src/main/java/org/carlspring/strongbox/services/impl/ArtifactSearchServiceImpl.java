@@ -59,8 +59,8 @@ public class ArtifactSearchServiceImpl
                 {
                     if (storage.containsRepository(repositoryId))
                     {
-                        final String storageAndRepositoryId = storage.getId() + ":" + repositoryId;
-                        final Set<SearchResult> sr = repositoryIndexManager.getRepositoryIndexer(storageAndRepositoryId)
+                        final String contextId = storage.getId() + ":" + repositoryId + ":local";
+                        final Set<SearchResult> sr = repositoryIndexManager.getRepositoryIndexer(contextId)
                                                                            .search(searchRequest.getQuery());
 
                         if (sr != null && !sr.isEmpty())
@@ -76,8 +76,8 @@ public class ArtifactSearchServiceImpl
             }
             else
             {
-                String storageAndRepositoryId = searchRequest.getStorageId() + ":" + searchRequest.getRepositoryId();
-                final Set<SearchResult> sr = repositoryIndexManager.getRepositoryIndexer(storageAndRepositoryId)
+                String contextId = searchRequest.getStorageId() + ":" + searchRequest.getRepositoryId() + ":local";
+                final Set<SearchResult> sr = repositoryIndexManager.getRepositoryIndexer(contextId)
                                                                    .search(searchRequest.getQuery());
 
                 if (!sr.isEmpty())
@@ -98,11 +98,11 @@ public class ArtifactSearchServiceImpl
                 {
                     logger.debug("Repository: {}", r.getId());
 
-                    final RepositoryIndexer repositoryIndex = repositoryIndexManager.getRepositoryIndexer(storage.getId() + ":" + r.getId());
-                    if (repositoryIndex != null)
+                    String contextId = storage.getId() + ":" + r.getId() + ":local";
+                    final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer(contextId);
+                    if (repositoryIndexer != null)
                     {
-                        final Set<SearchResult> sr = repositoryIndexManager.getRepositoryIndexer(storage.getId() + ":" + r.getId())
-                                                                           .search(searchRequest.getQuery());
+                        final Set<SearchResult> sr = repositoryIndexer.search(searchRequest.getQuery());
 
                         if (sr != null && !sr.isEmpty())
                         {

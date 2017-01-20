@@ -9,11 +9,8 @@ import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexi
 
 import javax.inject.Inject;
 import java.io.File;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 
 import org.apache.maven.artifact.Artifact;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,14 +47,6 @@ public class ArtifactSearchServiceImplTest
     public void init()
             throws Exception
     {
-        // Initialize indexes (for IDE launches)
-        if (repositoryIndexManager.getIndexes()
-                                  .isEmpty())
-        {
-            storageBooter.reInitializeRepositoryIndex("storage0", "releases");
-
-        }
-
         //noinspection ResultOfMethodCallIgnored
         INDEX_DIR.mkdirs();
 
