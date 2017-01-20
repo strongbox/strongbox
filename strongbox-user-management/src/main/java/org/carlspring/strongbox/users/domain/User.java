@@ -40,7 +40,7 @@ public class User
                 String salt,
                 Set<String> roles)
     {
-        this.databaseId = id;
+        this.objectId = id;
         this.username = username;
         this.password = password;
         this.enabled = enabled;
@@ -123,7 +123,7 @@ public class User
         User user = (User) o;
 
         return enabled == user.enabled &&
-               Objects.equal(databaseId, user.databaseId) &&
+               Objects.equal(objectId, user.objectId) &&
                Objects.equal(username, user.username) &&
                Objects.equal(password, user.password) &&
                Objects.equal(salt, user.salt) &&
@@ -134,14 +134,14 @@ public class User
     @Override
     public int hashCode()
     {
-        return Objects.hashCode(databaseId, username, password, enabled, salt, roles, detachAll);
+        return Objects.hashCode(objectId, username, password, enabled, salt, roles, detachAll);
     }
 
     @Override
     public String toString()
     {
         return MoreObjects.toStringHelper(this)
-                          .add("databaseId", getDatabaseId())
+                          .add("objectId", getObjectId())
                           .add("username", getUsername())
                           .add("password", getPassword())
                           .add("enabled", isEnabled())

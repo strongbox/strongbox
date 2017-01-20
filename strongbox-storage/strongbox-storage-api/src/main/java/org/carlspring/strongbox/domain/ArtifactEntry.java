@@ -19,6 +19,7 @@ public class ArtifactEntry
 
     private String repositoryId;
 
+    // if you have to rename this field please update ArtifactEntryServiceImpl.findByCoordinates() implementation
     private ArtifactCoordinates artifactCoordinates;
 
     /*
@@ -74,7 +75,7 @@ public class ArtifactEntry
     public String toString()
     {
         return MoreObjects.toStringHelper(this)
-                          .add("databaseId", databaseId)
+                          .add("objectId", objectId)
                           .add("storageId", storageId)
                           .add("repositoryId", repositoryId)
                           .add("artifactCoordinates", artifactCoordinates)

@@ -185,6 +185,7 @@ public class MavenArtifactCoordinates extends AbstractArtifactCoordinates
         setCoordinate(EXTENSION, this.extension);
     }
 
+
     @Override
     public String toString()
     {

@@ -20,7 +20,7 @@ public abstract class GenericEntity
 {
 
     @Id
-    protected String databaseId;
+    protected String objectId;
 
     /**
      * Added to avoid a runtime error whereby the detachAll property is checked for existence but not actually used.
@@ -36,13 +36,13 @@ public abstract class GenericEntity
     {
     }
 
-    public final String getDatabaseId()
+    public final String getObjectId()
     {
-        return databaseId;
+        return objectId;
     }
 
-    public final void setDatabaseId(String databaseId)
+    public final void setObjectId(String objectId)
     {
-        this.databaseId = databaseId;
+        this.objectId = objectId;
     }
 }

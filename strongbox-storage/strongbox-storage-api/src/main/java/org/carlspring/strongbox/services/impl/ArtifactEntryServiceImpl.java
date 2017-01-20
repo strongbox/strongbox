@@ -1,17 +1,20 @@
 package org.carlspring.strongbox.services.impl;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.repository.ArtifactRepository;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 
+import javax.inject.Inject;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,14 +32,20 @@ class ArtifactEntryServiceImpl
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactEntryService.class);
 
-    @Autowired
+    // will help us avoid to have hardcoded name of this class
+    private static final String ARTIFACT_ENTRY_CLASS_NAME = ArtifactEntry.class.getSimpleName();
+
+    @Inject
     ArtifactRepository repository;
 
-    @Autowired
+    @Inject
     CacheManager cacheManager;
 
+    @Inject
+    OObjectDatabaseTx databaseTx;
+
     @Override
-    // @Cacheable(value = "artifacts", key = "#coordinates", sync = true)
+    @SuppressWarnings("unchecked")
     public List<ArtifactEntry> findByCoordinates(ArtifactCoordinates coordinates)
     {
         // if search query is null or empty delegate to #findAll
@@ -44,14 +53,55 @@ class ArtifactEntryServiceImpl
                                               .keySet()
                                               .isEmpty())
         {
-            throw new UnsupportedOperationException();
-            //return findAll().orElse(new LinkedList<>());
+            return findAll().orElse(Collections.EMPTY_LIST);
         }
 
+        // prepare custom query based on all non-null coordinates
+        // that were joined by logical AND
 
-        return repository.findByArtifactCoordinates(((MavenArtifactCoordinates) coordinates).getGroupId());
+        String nativeQuery = buildQueryFrom(coordinates);
+        OSQLSynchQuery<ArtifactEntry> query = new OSQLSynchQuery<>(nativeQuery);
+        logger.info("[findByCoordinates] SQL -> \n\t" + nativeQuery);
+
+        // return attached result as a proxy
+        databaseTx.activateOnCurrentThread();
+        return databaseTx.query(query);
     }
 
+    private String buildQueryFrom(ArtifactCoordinates coordinates)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("select * from ")
+          .append(ARTIFACT_ENTRY_CLASS_NAME);
+
+        Map<String, String> map = coordinates.getCoordinates();
+
+        if (map == null || map.isEmpty())
+        {
+            return sb.toString();
+        }
+
+        sb.append(" where ");
+
+        // process only coordinates with non-null values
+        // don't forget to 'wrap' values into ''
+        map.entrySet()
+           .stream()
+           .filter(entry -> entry.getValue() != null)
+           .forEach(entry -> sb.append("artifactCoordinates.")
+                               .append(entry.getKey())
+                               .append(" = '")
+                               .append(entry.getValue())
+                               .append("' and "));
+
+        // remove last 'and' statement (that don't relates to any coordinate)
+        String query = sb.toString();
+        query = query.substring(0, query.length() - 5);
+
+        // now query should looks like
+        // select * from ArtifactEntry where artifactCoordinates.groupId = ? and ....
+        return query + ";";
+    }
 
     @Override
     @Transactional
