@@ -45,6 +45,7 @@ class UserServiceImpl
     
     @Override
     @Transactional
+    //XXX: Cache don't work properly with ORientDB entity proxies
     //@Cacheable(value = "users", key = "#name", sync = true)
     public synchronized User findByUserName(String name)
     {
