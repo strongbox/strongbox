@@ -9,10 +9,12 @@ import java.io.InputStream;
 import org.apache.maven.index.updater.ResourceFetcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * @author carlspring
  */
+@Component("indexResourceFetcher")
 public class IndexResourceFetcher
         extends ArtifactClient
         implements ResourceFetcher

@@ -5,7 +5,10 @@ import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.rest.context.IntegrationTest;
 
 import java.io.File;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.MediaType;
@@ -39,6 +42,7 @@ public class TrashControllerUndeleteTest
 
     @Override
     public void init()
+            throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
         super.init();
 

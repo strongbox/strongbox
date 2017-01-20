@@ -1,12 +1,14 @@
 package org.carlspring.strongbox.storage.indexing;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.booters.StorageBooter;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.config.MockedIndexResourceFetcherConfig;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -39,14 +41,25 @@ public class RepositoryIndexerTest
     @Autowired
     private RepositoryManagementService repositoryManagementService;
 
+    @Inject
+    private StorageBooter storageBooter;
+
+    @Inject
+    private RepositoryIndexManager repositoryIndexManager;
+
 
     @Before
     public void init()
-            throws NoSuchAlgorithmException,
-            XmlPullParserException,
-            IOException,
-            ArtifactOperationException
+            throws Exception
     {
+        // Initialize indexes (for IDE launches)
+        if (repositoryIndexManager.getIndexes()
+                                  .isEmpty())
+        {
+            storageBooter.reInitializeRepositoryIndex("storage0", "releases");
+
+        }
+
         //noinspection ResultOfMethodCallIgnored
         INDEX_DIR.mkdirs();
 
@@ -69,7 +82,8 @@ public class RepositoryIndexerTest
         repositoryManagementService.pack("storage0", "releases");
 
         assertTrue("Failed to pack index!", new File(REPOSITORY_BASEDIR.getAbsolutePath(), ".index/nexus-maven-repository-index.gz").exists());
-        assertTrue("Failed to pack index!", new File(REPOSITORY_BASEDIR.getAbsolutePath(), ".index/nexus-maven-repository-index-packer.properties").exists());
+        assertTrue("Failed to pack index!", new File(REPOSITORY_BASEDIR.getAbsolutePath(),
+                                                     ".index/nexus-maven-repository-index.properties").exists());
 
         assertEquals("6 artifacts expected!",
                      6,  // one is jar another pom, both would be added into the same Lucene document

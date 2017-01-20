@@ -220,7 +220,7 @@ public class StorageBooter
                    IOException
     {
         final File repositoryBasedir = new File(storage.getBasedir(), repositoryId);
-        final File indexDir = new File(repositoryBasedir, ".index");
+        final File indexDir = new File(repositoryBasedir, ".index/local");
 
         RepositoryIndexer repositoryIndexer = repositoryIndexerFactory.createRepositoryIndexer(storage.getId(),
                                                                                                repositoryId,
