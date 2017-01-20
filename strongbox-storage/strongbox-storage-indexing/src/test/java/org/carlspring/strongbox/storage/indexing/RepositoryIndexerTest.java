@@ -2,6 +2,7 @@ package org.carlspring.strongbox.storage.indexing;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactOperationException;
+import org.carlspring.strongbox.config.MockedIndexResourceFetcherConfig;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
@@ -20,10 +21,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+@ContextConfiguration(classes = MockedIndexResourceFetcherConfig.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 public class RepositoryIndexerTest
         extends TestCaseWithArtifactGenerationWithIndexing
@@ -59,14 +62,14 @@ public class RepositoryIndexerTest
     @Test
     public void testIndex() throws Exception
     {
-        final RepositoryIndexer repositoryIndexer = getRepositoryIndexManager().getRepositoryIndexer("storage0:releases");
+        final RepositoryIndexer repositoryIndexer = getRepositoryIndexManager().getRepositoryIndexer("storage0:releases:local");
 
         final int x = repositoryManagementService.reIndex("storage0", "releases", "org/carlspring/strongbox/strongbox-commons");
 
         repositoryManagementService.pack("storage0", "releases");
 
-        assertTrue("Failed to pack index!", new File(REPOSITORY_BASEDIR.getAbsolutePath(), ".index/nexus-maven-repository-index.gz").exists());
-        assertTrue("Failed to pack index!", new File(REPOSITORY_BASEDIR.getAbsolutePath(), ".index/nexus-maven-repository-index-packer.properties").exists());
+        assertTrue("Failed to pack index!", new File(REPOSITORY_BASEDIR.getAbsolutePath(), ".index/local/nexus-maven-repository-index.gz").exists());
+        assertTrue("Failed to pack index!", new File(REPOSITORY_BASEDIR.getAbsolutePath(), ".index/local/nexus-maven-repository-index-packer.properties").exists());
 
         assertEquals("6 artifacts expected!",
                      6,  // one is jar another pom, both would be added into the same Lucene document
