@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 /**
  * @author carlspring
  */
-@Component
+@Component("indexDownloader")
 public class IndexDownloader
 {
 

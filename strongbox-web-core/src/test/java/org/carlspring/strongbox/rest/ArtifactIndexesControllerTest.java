@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.rest;
 
+import org.carlspring.strongbox.booters.StorageBooter;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.rest.context.IntegrationTest;
@@ -7,6 +8,7 @@ import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -50,6 +52,12 @@ public class ArtifactIndexesControllerTest
     @Inject
     private ArtifactSearchService artifactSearchService;
 
+    @Inject
+    private StorageBooter storageBooter;
+
+    @Inject
+    private RepositoryIndexManager repositoryIndexManager;
+
     private static boolean initialized;
 
     @Before
@@ -59,6 +67,22 @@ public class ArtifactIndexesControllerTest
         if (!initialized)
         {
             super.init();
+
+//            // Initialize indexes (for IDE launches)
+//            if (repositoryIndexManager.getIndexes()
+//                                      .isEmpty())
+//            {
+//                for (Storage storage : configurationManagementService.getConfiguration()
+//                                                                     .getStorages()
+//                                                                     .values())
+//                {
+//                    for (Repository repository : storage.getRepositories()
+//                                                        .values())
+//                    {
+//                        storageBooter.reInitializeRepositoryIndex(storage.getId(), repository.getId());
+//                    }
+//                }
+//            }
 
             // to remove previous generated artifacts if they are present
             removeDir(REPOSITORY_BASEDIR_1.getAbsolutePath() + "/org/carlspring/strongbox/indexes");
@@ -70,8 +94,8 @@ public class ArtifactIndexesControllerTest
             repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
             Storage storage = configurationManagementService.getStorage("storage0");
             repository1.setStorage(storage);
-            repositoryManagementService.createRepository("storage0", "releases-one");
             storage.addOrUpdateRepository(repository1);
+            repositoryManagementService.createRepository("storage0", "releases-one");
 
             //Create released artifact
             String ga1 = "org.carlspring.strongbox.indexes:strongbox-test-one::jar";
@@ -84,8 +108,8 @@ public class ArtifactIndexesControllerTest
             Repository repository2 = new Repository("releases-two");
             repository2.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
             repository2.setStorage(storage);
-            repositoryManagementService.createRepository("storage0", "releases-two");
             storage.addOrUpdateRepository(repository2);
+            repositoryManagementService.createRepository("storage0", "releases-two");
 
             //Create released artifact
             generateArtifact(REPOSITORY_BASEDIR_2.getAbsolutePath(), ga1, "1.0");
@@ -96,8 +120,8 @@ public class ArtifactIndexesControllerTest
             repository3.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
             repository3.setStorage(newStorage);
             configurationManagementService.addOrUpdateStorage(newStorage);
-            repositoryManagementService.createRepository("storage1", "releases");
             newStorage.addOrUpdateRepository(repository3);
+            repositoryManagementService.createRepository("storage1", "releases");
 
             //Create released artifact
             generateArtifact(REPOSITORY_BASEDIR_3.getAbsolutePath(), ga1, "1.0");
@@ -110,10 +134,6 @@ public class ArtifactIndexesControllerTest
     public void testRebuildArtifactsIndexes()
             throws Exception
     {
-
-        //Create released artifact
-//        String ga1 = "org.carlspring.strongbox.indexes:strongbox-test-one::jar";
-//        generateArtifact(REPOSITORY_BASEDIR_1.getAbsolutePath(), ga1, "1.0");
         client.rebuildIndexes("storage0", "releases-one", ARTIFACT_BASE_PATH_STRONGBOX_INDEXES);
 
 

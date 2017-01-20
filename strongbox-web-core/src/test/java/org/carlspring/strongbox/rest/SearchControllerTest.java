@@ -11,8 +11,11 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 
 import org.apache.maven.artifact.Artifact;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.MediaType;
@@ -43,6 +46,7 @@ public class SearchControllerTest
 
     @Override
     public void init()
+            throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
         super.init();
 
