@@ -52,7 +52,7 @@ public class TestCaseWithArtifactGenerationWithIndexing
 
         Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
 
-        RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storageId + ":" + repositoryId);
+        RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(storageId + ":" + repositoryId);
 
         indexer.addArtifactToIndex(repositoryId, artifactFile, artifact);
     }

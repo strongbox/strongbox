@@ -4,7 +4,9 @@ import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.RepositoryManagementService;
+import org.carlspring.strongbox.storage.RepositoryInitializationException;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexerFactory;
@@ -209,25 +211,44 @@ public class StorageBooter
         Repository repository = storage.getRepository(repositoryId);
         if (repository.isIndexingEnabled())
         {
-            initializeRepositoryIndex(storage, repositoryId);
+            initializeRepositoryIndexes(storage, repositoryId);
         }
     }
 
-    private void initializeRepositoryIndex(Storage storage,
-                                           String repositoryId)
+    private void initializeRepositoryIndexes(Storage storage,
+                                             String repositoryId)
             throws PlexusContainerException,
                    ComponentLookupException,
                    IOException
     {
         final File repositoryBasedir = new File(storage.getBasedir(), repositoryId);
-        final File indexDir = new File(repositoryBasedir, ".index");
+
+        if (storage.getRepository(repositoryId).isIndexingEnabled())
+        {
+            initializeRepositoryIndex(storage, repositoryId, IndexTypeEnum.LOCAL.getType(), repositoryBasedir);
+
+            if (storage.getRepository(repositoryId).isProxyRepository())
+            {
+                initializeRepositoryIndex(storage, repositoryId, IndexTypeEnum.REMOTE.getType(), repositoryBasedir);
+            }
+        }
+    }
+
+    private void initializeRepositoryIndex(Storage storage,
+                                           String repositoryId,
+                                           String indexType,
+                                           File repositoryBasedir)
+            throws RepositoryInitializationException
+    {
+        final File indexDir = new File(repositoryBasedir, ".index/" + indexType);
 
         RepositoryIndexer repositoryIndexer = repositoryIndexerFactory.createRepositoryIndexer(storage.getId(),
                                                                                                repositoryId,
+                                                                                               indexType,
                                                                                                repositoryBasedir,
                                                                                                indexDir);
 
-        repositoryIndexManager.addRepositoryIndex(storage.getId() + ":" + repositoryId, repositoryIndexer);
+        repositoryIndexManager.addRepositoryIndexer(storage.getId() + ":" + repositoryId + ":" + indexType, repositoryIndexer);
     }
 
     public void reInitializeRepositoryIndex(String storageId,
@@ -237,7 +258,7 @@ public class StorageBooter
         Storage storage = getConfiguration().getStorage(storageId);
         if (storage != null)
         {
-            initializeRepositoryIndex(storage, repositoryId);
+            initializeRepositoryIndexes(storage, repositoryId);
         }
     }
 

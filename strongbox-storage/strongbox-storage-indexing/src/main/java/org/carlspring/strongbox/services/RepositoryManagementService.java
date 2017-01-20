@@ -2,6 +2,7 @@ package org.carlspring.strongbox.services;
 
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
+import org.carlspring.strongbox.storage.RepositoryInitializationException;
 
 import java.io.IOException;
 
@@ -34,6 +35,6 @@ public interface RepositoryManagementService
 
     void downloadRemoteIndex(String storageId,
                              String repositoryId)
-            throws ArtifactTransportException;
+            throws ArtifactTransportException, RepositoryInitializationException;
 
 }

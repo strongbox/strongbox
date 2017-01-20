@@ -1,19 +1,17 @@
 package org.carlspring.strongbox.storage.indexing.downloader;
 
 import org.carlspring.strongbox.storage.indexing.IndexerConfiguration;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
-import org.apache.maven.index.Indexer;
 import org.apache.maven.index.context.IndexingContext;
 import org.apache.maven.index.updater.IndexUpdateRequest;
 import org.apache.maven.index.updater.IndexUpdateResult;
 import org.apache.maven.index.updater.IndexUpdater;
 import org.apache.maven.index.updater.ResourceFetcher;
-import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +35,9 @@ public class IndexDownloader
     @Inject
     private ResourceFetcher indexResourceFetcher;
 
+    @Inject
+    private RepositoryIndexManager repositoryIndexManager;
+
 
     public IndexDownloader()
     {
@@ -45,22 +46,11 @@ public class IndexDownloader
     public void download(IndexDownloadRequest request)
             throws IOException, ComponentLookupException
     {
-        // Files where local cache is (if any) and Lucene Index should be located
-        File localCache = new File(request.getIndexLocalCacheDir());
-        File indexDir = new File(request.getIndexDir());
+        IndexingContext indexingContext = repositoryIndexManager.getRepositoryIndexer(request.getStorageId() + ":" +
+                                                                                      request.getRepositoryId() + ":" +
+                                                                                      "remote")
+                                                                .getIndexingContext();
 
-        Indexer indexer = request.getIndexer();
-
-        // Create context for repository index
-        IndexingContext indexingContext = indexer.createIndexingContext(request.getIndexingContextId(),
-                                                                        request.getRepositoryId(),
-                                                                        localCache,
-                                                                        indexDir,
-                                                                        request.getRemoteRepositoryURL(),
-                                                                        null,
-                                                                        true,
-                                                                        true,
-                                                                        indexerConfiguration.getIndexersAsList());
 
         // Update the index (an incremental update will be performed,
         // if this is not the first run and the files are not deleted.

@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.storage.indexing.downloader;
 
+import java.io.File;
+
 import org.apache.maven.index.Indexer;
 
 /**
@@ -13,7 +15,7 @@ public class IndexDownloadRequest
 
     private String indexingContextId;
 
-    private String indexLocalCacheDir;
+    private File indexLocalCacheDir;
 
     private String indexDir;
 
@@ -48,12 +50,12 @@ public class IndexDownloadRequest
         this.indexingContextId = indexingContextId;
     }
 
-    public String getIndexLocalCacheDir()
+    public File getIndexLocalCacheDir()
     {
         return indexLocalCacheDir;
     }
 
-    public void setIndexLocalCacheDir(String indexLocalCacheDir)
+    public void setIndexLocalCacheDir(File indexLocalCacheDir)
     {
         this.indexLocalCacheDir = indexLocalCacheDir;
     }

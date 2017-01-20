@@ -14,7 +14,7 @@
         <storage id="storage0">
             <repositories>
                 <!-- Secured repositories do not allow anonymous access -->
-                <repository id="releases" policy="release" implementation="file-system" layout="Maven 2" type="hosted" allows-force-deletion="true" checksum-headers-enabled="true"/>
+                <repository id="releases" policy="release" implementation="file-system" layout="Maven 2" type="hosted" allows-force-deletion="true" checksum-headers-enabled="true" indexing-enabled="true"/>
                 <repository id="releases-test-nested" policy="release" implementation="file-system" layout="Maven 2" type="hosted" allows-force-deletion="true" checksum-headers-enabled="true"/>
                 <repository id="releases-with-redeployment" policy="release" implementation="file-system" layout="Maven 2" type="hosted" allows-redeployment="true" indexing-enabled="false"/>
                 <repository id="releases-with-trash" policy="release" implementation="file-system" layout="Maven 2" type="hosted" trash-enabled="true" allows-redeployment="true"/>

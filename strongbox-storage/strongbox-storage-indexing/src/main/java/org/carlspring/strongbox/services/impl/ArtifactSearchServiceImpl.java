@@ -60,7 +60,7 @@ public class ArtifactSearchServiceImpl
                     if (storage.containsRepository(repositoryId))
                     {
                         final String storageAndRepositoryId = storage.getId() + ":" + repositoryId;
-                        final Set<SearchResult> sr = repositoryIndexManager.getRepositoryIndex(storageAndRepositoryId)
+                        final Set<SearchResult> sr = repositoryIndexManager.getRepositoryIndexer(storageAndRepositoryId)
                                                                            .search(searchRequest.getQuery());
 
                         if (sr != null && !sr.isEmpty())
@@ -77,7 +77,7 @@ public class ArtifactSearchServiceImpl
             else
             {
                 String storageAndRepositoryId = searchRequest.getStorageId() + ":" + searchRequest.getRepositoryId();
-                final Set<SearchResult> sr = repositoryIndexManager.getRepositoryIndex(storageAndRepositoryId)
+                final Set<SearchResult> sr = repositoryIndexManager.getRepositoryIndexer(storageAndRepositoryId)
                                                                    .search(searchRequest.getQuery());
 
                 if (!sr.isEmpty())
@@ -98,10 +98,10 @@ public class ArtifactSearchServiceImpl
                 {
                     logger.debug("Repository: {}", r.getId());
 
-                    final RepositoryIndexer repositoryIndex = repositoryIndexManager.getRepositoryIndex(storage.getId() + ":" + r.getId());
+                    final RepositoryIndexer repositoryIndex = repositoryIndexManager.getRepositoryIndexer(storage.getId() + ":" + r.getId());
                     if (repositoryIndex != null)
                     {
-                        final Set<SearchResult> sr = repositoryIndexManager.getRepositoryIndex(storage.getId() + ":" + r.getId())
+                        final Set<SearchResult> sr = repositoryIndexManager.getRepositoryIndexer(storage.getId() + ":" + r.getId())
                                                                            .search(searchRequest.getQuery());
 
                         if (sr != null && !sr.isEmpty())

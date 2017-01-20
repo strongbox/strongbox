@@ -152,7 +152,7 @@ public class ArtifactManagementServiceImpl
     {
         if (ArtifactFileUtils.isArtifactFile(path))
         {
-            final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storageId + ":" + repositoryId);
+            final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(storageId + ":" + repositoryId);
             if (indexer != null)
             {
                 final Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
@@ -248,7 +248,7 @@ public class ArtifactManagementServiceImpl
             LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
             layoutProvider.delete(storageId, repositoryId, artifactPath, force);
 
-            final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storageId + ":" + repositoryId);
+            final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(storageId + ":" + repositoryId);
             if (indexer != null)
             {
                 String extension = artifactPath.substring(artifactPath.lastIndexOf('.') + 1, artifactPath.length());
@@ -435,7 +435,7 @@ public class ArtifactManagementServiceImpl
 
             /*
             // TODO: This will need further fixing:
-            final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storageId + ":" + repositoryId);
+            final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(storageId + ":" + repositoryId);
             if (indexer != null)
             {
                 final Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);

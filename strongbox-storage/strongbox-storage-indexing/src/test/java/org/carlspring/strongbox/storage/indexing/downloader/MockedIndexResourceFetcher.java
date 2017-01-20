@@ -50,7 +50,7 @@ public class MockedIndexResourceFetcher
     {
         logger.debug("Requesting index from " + name + "...");
 
-        File indexBaseDir = new File("target/strongbox-vault/storages/" + storageId + "/" + repositoryId + "/.index");
+        File indexBaseDir = new File("target/strongbox-vault/storages/" + storageId + "/" + repositoryId + "/.index/local");
         File indexResourceFile = new File(indexBaseDir, name);
 
         logger.debug("indexResourceFile: " + indexResourceFile.getAbsolutePath());

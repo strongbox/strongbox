@@ -111,7 +111,7 @@ public class ArtifactLocationGenerateMavenIndexOperation
                         String repositoryId = getRepository().getId();
                         String storageId = getStorage().getId();
 
-                        RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(
+                        RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(
                                 storageId.concat(":").concat(repositoryId));
 
                         if (indexer != null)

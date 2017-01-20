@@ -97,8 +97,8 @@ public class RepositoryManagementServiceImplTest
         generateArtifact(repo1.getAbsolutePath(), gavtc, new String[] { "6.2.2" });
         generateArtifact(repo2.getAbsolutePath(), gavtc, new String[] { "6.2.2-SNAPSHOT" });
 
-        RepositoryIndexer indexer1 = getRepositoryIndexManager().getRepositoryIndex("storage0:test-releases-merge-1");
-        RepositoryIndexer indexer2 = getRepositoryIndexManager().getRepositoryIndex("storage0:test-releases-merge-2");
+        RepositoryIndexer indexer1 = getRepositoryIndexManager().getRepositoryIndexer("storage0:test-releases-merge-1");
+        RepositoryIndexer indexer2 = getRepositoryIndexManager().getRepositoryIndexer("storage0:test-releases-merge-2");
 
         indexer1.addArtifactToIndex(repositoryId1, artifactFile1, artifact1);
         indexer2.addArtifactToIndex(repositoryId2, artifactFile2, artifact2);

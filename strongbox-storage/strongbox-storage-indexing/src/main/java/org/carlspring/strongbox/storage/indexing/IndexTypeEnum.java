@@ -1,24 +1,20 @@
-package org.carlspring.strongbox.storage.repository;
+package org.carlspring.strongbox.storage.indexing;
 
 /**
  * @author mtodorov
  */
-public enum RepositoryTypeEnum
+public enum IndexTypeEnum
 {
 
-    HOSTED("hosted"),
+    LOCAL("local"),
 
-    PROXY("proxy"),
-
-    GROUP("group"),
-
-    VIRTUAL("virtual"); // Unsupported
+    REMOTE("remote");
 
 
     private String type;
 
 
-    RepositoryTypeEnum(String type)
+    IndexTypeEnum(String type)
     {
         this.type = type;
     }

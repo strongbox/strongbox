@@ -7,6 +7,7 @@ import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.RepositoryInitializationException;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.ReindexArtifactScanningListener;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
@@ -74,58 +75,73 @@ public class RepositoryManagementServiceImpl
 
         if (repository.isIndexingEnabled())
         {
-            File indexDir;
             if (repository.isProxyRepository())
             {
-                indexDir = new File(repositoryBasedir, ".index/remote");
-
-                // TODO: Further implement the part about locally cached artifacts under the .index/local directory.
-                // TODO: We'll need two separate indexes for this.
-            }
-            else
-            {
-                indexDir = new File(repositoryBasedir, ".index/local");
+                // Create a remote index
+                createRepositoryIndexer(storageId, repositoryId, IndexTypeEnum.REMOTE.getType(), repositoryBasedir);
             }
 
-            if (!indexDir.exists())
-            {
-                //noinspection ResultOfMethodCallIgnored
-                indexDir.mkdirs();
-            }
-
-            RepositoryIndexer repositoryIndexer = repositoryIndexerFactory.createRepositoryIndexer(storageId,
-                                                                                                   repositoryId,
-                                                                                                   repositoryBasedir,
-                                                                                                   indexDir);
-
-            repositoryIndexManager.addRepositoryIndex(storageId + ":" + repositoryId, repositoryIndexer);
-
-            downloadRemoteIndexIfRepositoryIsProxy(storageId, repositoryId);
-
-
+            // Create a local index
+            createRepositoryIndexer(storageId, repositoryId, IndexTypeEnum.LOCAL.getType(), repositoryBasedir);
         }
+    }
+
+    private RepositoryIndexer createRepositoryIndexer(String storageId,
+                                                      String repositoryId,
+                                                      String indexType,
+                                                      File repositoryBasedir)
+            throws RepositoryInitializationException
+    {
+        File repositoryIndexDir = new File(repositoryBasedir, ".index/" + indexType);
+        if (!repositoryIndexDir.exists())
+        {
+            //noinspection ResultOfMethodCallIgnored
+            repositoryIndexDir.mkdirs();
+        }
+
+        String contextId = storageId + ":" + repositoryId + ":" + indexType;
+
+        RepositoryIndexer repositoryIndexer = repositoryIndexerFactory.createRepositoryIndexer(contextId,
+                                                                                               repositoryId,
+                                                                                               indexType,
+                                                                                               repositoryBasedir,
+                                                                                               repositoryIndexDir);
+
+        repositoryIndexManager.addRepositoryIndexer(contextId, repositoryIndexer);
+
+        return repositoryIndexer;
     }
 
     @Override
     public void downloadRemoteIndex(String storageId,
                                     String repositoryId)
-            throws ArtifactTransportException
+            throws ArtifactTransportException, RepositoryInitializationException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
-        String repositoryBasedir = repository.getBasedir();
+        File repositoryBasedir = new File(repository.getBasedir());
 
         File remoteIndexDirectory = new File(repositoryBasedir, ".index/remote");
+        if (!remoteIndexDirectory.exists())
+        {
+            //noinspection ResultOfMethodCallIgnored
+            remoteIndexDirectory.mkdirs();
+        }
 
-        RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storageId + ":" + repositoryId);
+        // Create a remote index
+        RepositoryIndexer repositoryIndexer = createRepositoryIndexer(storageId,
+                                                                      repositoryId,
+                                                                      IndexTypeEnum.REMOTE.getType(),
+                                                                      repositoryBasedir);
+
 
         IndexDownloadRequest request = new IndexDownloadRequest();
-        request.setIndexingContextId(storageId + ":" + repositoryId);
+        request.setIndexingContextId(storageId + ":" + repositoryId + ":remote");
         request.setRepositoryId(repositoryId);
         request.setRemoteRepositoryURL(repository.getRemoteRepository().getUrl());
         request.setIndexLocalCacheDir(repositoryBasedir);
         request.setIndexDir(remoteIndexDirectory.toString());
-        request.setIndexer(indexer.getIndexer());
+        request.setIndexer(repositoryIndexer.getIndexer());
 
         try
         {
@@ -185,7 +201,7 @@ public class RepositoryManagementServiceImpl
     {
         logger.info("Re-indexing " + storageId + ":" + repositoryId + (path != null ? ":" + path : "") + "...");
 
-        RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndex(storageId + ":" + repositoryId);
+        RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer(storageId + ":" + repositoryId + ":local");
 
         File startingPath = path != null ? new File(path) : new File(".");
 
@@ -209,14 +225,14 @@ public class RepositoryManagementServiceImpl
     {
         try
         {
-            final RepositoryIndexer sourceIndex = repositoryIndexManager.getRepositoryIndex(sourceStorage + ":" +
-                                                                                            sourceRepositoryId);
+            final RepositoryIndexer sourceIndex = repositoryIndexManager.getRepositoryIndexer(sourceStorage + ":" +
+                                                                                              sourceRepositoryId);
             if (sourceIndex == null)
             {
                 throw new ArtifactStorageException("Source repository not found!");
             }
 
-            final RepositoryIndexer targetIndex = repositoryIndexManager.getRepositoryIndex(targetStorage + ":" + targetRepositoryId);
+            final RepositoryIndexer targetIndex = repositoryIndexManager.getRepositoryIndexer(targetStorage + ":" + targetRepositoryId);
             if (targetIndex == null)
             {
                 throw new ArtifactStorageException("Target repository not found!");
@@ -235,20 +251,21 @@ public class RepositoryManagementServiceImpl
                      String repositoryId)
             throws IOException
     {
-        logger.info("Packing index for " + storageId + ":" + repositoryId + "...");
+        logger.info("Packing index for " + storageId + ":" + repositoryId + ":local...");
 
-        final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storageId + ":" + repositoryId);
+        final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(storageId + ":" + repositoryId + ":local");
 
         IndexingContext context = indexer.getIndexingContext();
         final IndexSearcher indexSearcher = context.acquireIndexSearcher();
         try
         {
-            IndexPackingRequest request = new IndexPackingRequest(context, indexSearcher.getIndexReader(),
-                                                                  new File(indexer.getRepositoryBasedir() + "/.index"));
+            IndexPackingRequest request = new IndexPackingRequest(context,
+                                                                  indexSearcher.getIndexReader(),
+                                                                  new File(indexer.getRepositoryBasedir() + "/.index/local"));
             request.setUseTargetProperties(true);
             indexPacker.packIndex(request);
 
-            logger.info("Index for " + storageId + ":" + repositoryId + " was packed successfully.");
+            logger.info("Index for " + storageId + ":" + repositoryId + ":local was packed successfully.");
         }
         finally
         {

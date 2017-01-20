@@ -17,12 +17,13 @@ public class RepositoryIndexManager
 {
 
     /**
-     * K: storage/Id:repositoryId
+     * K: storageId:repositoryId:type[local|remote]
      * V: index
      */
     private static final Logger logger = LoggerFactory.getLogger(RepositoryIndexManager.class);
 
     private Map<String, RepositoryIndexer> indexes = new LinkedHashMap<>();
+
 
     public RepositoryIndexManager()
     {
@@ -31,7 +32,6 @@ public class RepositoryIndexManager
     @PreDestroy
     private void close()
     {
-
         for (String storageAndRepository : indexes.keySet())
         {
             try
@@ -66,14 +66,16 @@ public class RepositoryIndexManager
     public void closeIndexer(String storageAndRepository)
             throws IOException
     {
-
         final RepositoryIndexer repositoryIndexer = indexes.get(storageAndRepository);
 
         System.out.println("Indexes size:" + indexes.size());
 
-        if (repositoryIndexer != null) {
+        if (repositoryIndexer != null)
+        {
             logger.debug("Closing indexer for " + repositoryIndexer.getStorageId() + ":" + repositoryIndexer.getRepositoryId() + "...");
+
             repositoryIndexer.close();
+
             logger.debug("Closed indexer for " + repositoryIndexer.getStorageId() + ":" + repositoryIndexer.getRepositoryId() + ".");
         }
 
@@ -90,12 +92,12 @@ public class RepositoryIndexManager
         this.indexes = indexes;
     }
 
-    public RepositoryIndexer getRepositoryIndex(String storageAndRepositoryId)
+    public RepositoryIndexer getRepositoryIndexer(String storageAndRepositoryId)
     {
         return indexes.get(storageAndRepositoryId);
     }
 
-    public RepositoryIndexer addRepositoryIndex(String repositoryId, RepositoryIndexer value)
+    public RepositoryIndexer addRepositoryIndexer(String repositoryId, RepositoryIndexer value)
     {
         return indexes.put(repositoryId, value);
     }

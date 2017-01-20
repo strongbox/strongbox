@@ -45,16 +45,15 @@ public class RepositoryIndexerFactory
 
     public RepositoryIndexer createRepositoryIndexer(String storageId,
                                                      String repositoryId,
+                                                     String indexType,
                                                      File repositoryBasedir,
                                                      File indexDir)
             throws RepositoryInitializationException
     {
-        //downloadRemoteIndexIfRepositoryIsProxy(storageId, repositoryId);
-
         IndexingContext indexingContext;
         try
         {
-            indexingContext = createIndexingContext(storageId, repositoryId, repositoryBasedir, indexDir);
+            indexingContext = createIndexingContext(storageId, repositoryId, indexType, repositoryBasedir, indexDir);
         }
         catch (IOException e)
         {
@@ -78,11 +77,12 @@ public class RepositoryIndexerFactory
 
     private IndexingContext createIndexingContext(String storageId,
                                                   String repositoryId,
+                                                  String indexType,
                                                   File repositoryBasedir,
                                                   File indexDir)
             throws IOException
     {
-        return getIndexer().createIndexingContext(storageId + ":" + repositoryId,
+        return getIndexer().createIndexingContext(storageId + ":" + repositoryId + ":" + indexType,
                                                   repositoryId,
                                                   repositoryBasedir,
                                                   indexDir,
