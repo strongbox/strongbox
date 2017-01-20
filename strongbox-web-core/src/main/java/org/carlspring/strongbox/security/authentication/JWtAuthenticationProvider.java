@@ -41,7 +41,7 @@ public class JWtAuthenticationProvider implements AuthenticationProvider
         catch (SecurityTokenException e)
         {
             Throwable cause = e.getCause();
-            if (cause != null && cause instanceof SecurityTokenException)
+            if (cause instanceof SecurityTokenException)
             {
                 throw new JwtAuthenticationException(String.format("Invalid JWT: value-[%s]", token), e);
             }
