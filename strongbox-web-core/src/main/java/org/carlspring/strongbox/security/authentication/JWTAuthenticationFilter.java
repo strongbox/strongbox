@@ -36,15 +36,18 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter
         String tokenHeader = request.getHeader("Authorization");
 
         Pattern pattern = Pattern.compile("Bearer (.*)");
-        Matcher matcher;
-        if (tokenHeader == null || !(matcher = pattern.matcher(tokenHeader)).matches())
+        if (tokenHeader == null){
+            filterChain.doFilter(request, response);
+            return;            
+        }
+        Matcher matcher = pattern.matcher(tokenHeader);
+        if (!matcher.matches())
         {
             filterChain.doFilter(request, response);
             return;
         }
 
         String token = matcher.group(1);
-
         try
         {
             JWTAuthentication tokenAuthentication = new JWTAuthentication(token);
