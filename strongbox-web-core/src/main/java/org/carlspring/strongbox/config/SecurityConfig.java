@@ -35,7 +35,6 @@ public class SecurityConfig
     public void configureGlobal(AuthenticationManagerBuilder auth,
                                 @Qualifier("userDetailsAuthenticationProvider") AuthenticationProvider userDetailsAuthenticationProvider,
                                 @Qualifier("jwtAuthenticationProvider") AuthenticationProvider jwtAuthenticationProvider)
-        throws Exception
     {
         auth.authenticationProvider(userDetailsAuthenticationProvider)
             .authenticationProvider(jwtAuthenticationProvider)
