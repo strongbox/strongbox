@@ -45,7 +45,7 @@ public class SecurityConfig
 
     /**
      * This configuration specifies BasicAuthentication rules. Such authentication triggered first and only for concrete
-     * set of URL patterns. All the other URL authentication configured in {@link JwtSecurityConfig}
+     * set of URL patterns. All the other authentication configured in {@link JwtSecurityConfig}
      * 
      * @author Sergey Bespalov
      *
@@ -130,13 +130,13 @@ public class SecurityConfig
                 .anyRequest()
                 .authenticated()
                 .and()
-                .anonymous()
-                .authenticationFilter(anonymousAuthenticationFilter)
-                .and()
                 .addFilterAfter(jwtFilter, BasicAuthenticationFilter.class)
                 .logout()
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                 .logoutSuccessUrl("/")
+                .and()
+                .anonymous()
+                .authenticationFilter(anonymousAuthenticationFilter)
                 .and()
                 .exceptionHandling()
                 .authenticationEntryPoint(new Http401AuthenticationEntryPoint("Bearer"))

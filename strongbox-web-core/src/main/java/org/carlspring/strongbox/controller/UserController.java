@@ -112,7 +112,8 @@ public class UserController
                                      required = true)
                            @PathVariable String name)
     {
-        return toResponse(userService.findByUserName(name));
+        User user = databaseTx.detach(userService.findByUserName(name), true);
+        return toResponse(user);
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -202,7 +203,7 @@ public class UserController
     ResponseEntity delete(@ApiParam(value = "The name of the user") @PathVariable String name)
             throws Exception
     {
-        User user = userService.findByUserName(name);
+        User user = databaseTx.detach(userService.findByUserName(name), true);
         if (user == null || user.getId() == null)
         {
             return toError("The specified user does not exist!");
@@ -224,7 +225,7 @@ public class UserController
 
     {
         // XXX: WTF??? Without this we have a 'User' proxy with empty 'id'
-        User user = databaseTx.detach(userService.findByUserName(userName));
+        User user = databaseTx.detach(userService.findByUserName(userName), true);
         if (user == null || user.getId() == null)
         {
             return toError("The specified user does not exist!");
@@ -252,7 +253,7 @@ public class UserController
     {
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         // XXX: WTF??? Without this we have a 'User' proxy with empty 'id'
-        User user = databaseTx.detach(userService.findByUserName(userName));
+        User user = databaseTx.detach(userService.findByUserName(userName), true);
         if (user == null || user.getId() == null)
         {
             return toError("The specified user does not exist!");
