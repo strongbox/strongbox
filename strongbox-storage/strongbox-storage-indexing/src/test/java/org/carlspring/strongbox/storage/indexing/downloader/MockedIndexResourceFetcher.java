@@ -1,5 +1,11 @@
 package org.carlspring.strongbox.storage.indexing.downloader;
 
+import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.storage.repository.RemoteRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
+
+import javax.inject.Inject;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -23,6 +29,9 @@ public class MockedIndexResourceFetcher
     private String storageId;
 
     private String repositoryId;
+
+    @Inject
+    private ConfigurationManager configurationManager;
 
 
     @Override
@@ -52,12 +61,28 @@ public class MockedIndexResourceFetcher
     {
         logger.debug("Requesting index from " + name + "...");
 
-        File indexBaseDir = new File("target/strongbox-vault/storages/" + storageId + "/" + repositoryId + "/.index/local");
+        Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
+        RemoteRepository remoteRepository = repository.getRemoteRepository();
+
+        String remoteUrl = remoteRepository.getUrl().substring(0, remoteRepository.getUrl().length() -
+                                                                  (remoteRepository.getUrl().endsWith("/") ? 1 : 0));
+
+        String subPath = remoteUrl.substring(remoteUrl.indexOf("/storages/") + 10, remoteUrl.length());
+
+        String remoteStorageId = subPath.substring(0, subPath.indexOf('/'));
+        String remoteRepositoryId = subPath.substring(subPath.lastIndexOf('/') + 1, subPath.length());
+
+        File indexBaseDir = new File("target/strongbox-vault/storages/" + remoteStorageId + "/" + remoteRepositoryId + "/.index/local");
         File indexResourceFile = new File(indexBaseDir, name);
 
         logger.debug("indexResourceFile: " + indexResourceFile.getAbsolutePath());
 
         return new FileInputStream(indexResourceFile);
+    }
+
+    public Configuration getConfiguration()
+    {
+        return configurationManager.getConfiguration();
     }
 
 }

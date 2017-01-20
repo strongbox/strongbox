@@ -80,8 +80,8 @@ public class Maven2ProxyRepositoryTest
         Repository repository = new Repository(repositoryId);
         repository.setRemoteRepository(remoteRepository);
         repository.setIndexingEnabled(true);
-
         repository.setStorage(configurationManagementService.getStorage(storageId));
+
         configurationManagementService.addOrUpdateRepository(storageId, repository);
 
         final File repositoryBaseDir = new File(repository.getBasedir());
@@ -90,16 +90,12 @@ public class Maven2ProxyRepositoryTest
             repositoryManagementService.createRepository(storageId, repository.getId());
         }
 
+        // Create the repository
         repositoryManagementService.createRepository(storageId, repositoryId);
-
+        // Re-index it, so that the generated artifacts could be added to the index
         repositoryManagementService.reIndex("storage0", "releases", "org/carlspring");
+        // Pack the index, so that it could be downloaded by the proxy repository
         repositoryManagementService.pack(storageId, "releases");
-
-        File indexPropertiesFile = new File(REPOSITORY_BASEDIR, ".index/local/nexus-maven-repository-index.properties");
-        while (!indexPropertiesFile.exists())
-        {
-            Thread.sleep(500L);
-        }
     }
 
     @Test

@@ -13,6 +13,7 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexerFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
@@ -48,6 +49,8 @@ public class StorageBooter
 
     @Autowired
     private ConfigurationManager configurationManager;
+
+    private File lockFile = new File(ConfigurationResourceResolver.getVaultDirectory(), "storage-booter.lock");
 
 
     public StorageBooter()
@@ -89,6 +92,15 @@ public class StorageBooter
         }
     }
 
+    @PreDestroy
+    public void removeLock()
+    {
+        //noinspection ResultOfMethodCallIgnored
+        lockFile.delete();
+
+        logger.debug("Removed lock file '" + lockFile.getAbsolutePath() + "'.");
+    }
+
     public void createTempDir()
     {
         File tempDir = new File(ConfigurationResourceResolver.getVaultDirectory(), "tmp");
@@ -115,7 +127,6 @@ public class StorageBooter
     private void createLockFile()
             throws IOException
     {
-        final File lockFile = new File(ConfigurationResourceResolver.getVaultDirectory(), "storage-booter.lock");
         //noinspection ResultOfMethodCallIgnored
         lockFile.getParentFile().mkdirs();
         //noinspection ResultOfMethodCallIgnored

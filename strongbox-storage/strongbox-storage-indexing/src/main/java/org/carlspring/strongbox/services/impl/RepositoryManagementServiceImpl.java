@@ -15,7 +15,6 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexerFactory;
 import org.carlspring.strongbox.storage.indexing.downloader.IndexDownloadRequest;
 import org.carlspring.strongbox.storage.indexing.downloader.IndexDownloader;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -137,6 +136,7 @@ public class RepositoryManagementServiceImpl
 
         IndexDownloadRequest request = new IndexDownloadRequest();
         request.setIndexingContextId(storageId + ":" + repositoryId + ":remote");
+        request.setStorageId(storageId);
         request.setRepositoryId(repositoryId);
         request.setRemoteRepositoryURL(repository.getRemoteRepository().getUrl());
         request.setIndexLocalCacheDir(repositoryBasedir);
@@ -151,27 +151,6 @@ public class RepositoryManagementServiceImpl
         {
             throw new ArtifactTransportException("Failed to retrieve remote index for " +
                                                  storageId + ":" + repositoryId + "!");
-        }
-    }
-
-    private void downloadRemoteIndexIfRepositoryIsProxy(String storageId,
-                                                        String repositoryId)
-            throws RepositoryInitializationException
-    {
-        Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
-
-        if (RepositoryTypeEnum.PROXY.getType().equals(repository.getType()))
-        {
-            try
-            {
-                downloadRemoteIndex(storageId, repositoryId);
-            }
-            catch (ArtifactTransportException e)
-            {
-                logger.error(e.getMessage(), e);
-
-                throw new RepositoryInitializationException(e.getMessage(), e);
-            }
         }
     }
 
