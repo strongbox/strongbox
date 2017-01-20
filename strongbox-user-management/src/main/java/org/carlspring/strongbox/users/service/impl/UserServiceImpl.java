@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import org.apache.commons.lang.StringUtils;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.repository.UserRepository;
