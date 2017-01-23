@@ -26,7 +26,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-@ContextConfiguration(classes = MockedIndexResourceFetcherConfig.class)
+//@ContextConfiguration(classes = MockedIndexResourceFetcherConfig.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 public class RepositoryIndexerTest
         extends TestCaseWithArtifactGenerationWithIndexing
