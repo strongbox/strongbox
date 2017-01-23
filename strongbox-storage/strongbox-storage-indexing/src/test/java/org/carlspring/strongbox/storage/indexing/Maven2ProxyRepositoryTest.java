@@ -91,7 +91,7 @@ public class Maven2ProxyRepositoryTest
         }
 
         // Create the repository
-        repositoryManagementService.createRepository(storageId, repositoryId);
+//        repositoryManagementService.createRepository(storageId, repositoryId);
         // Re-index it, so that the generated artifacts could be added to the index
         repositoryManagementService.reIndex("storage0", "releases", "org/carlspring");
         // Pack the index, so that it could be downloaded by the proxy repository

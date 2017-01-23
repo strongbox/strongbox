@@ -205,13 +205,15 @@ public class RepositoryManagementServiceImpl
         try
         {
             final RepositoryIndexer sourceIndex = repositoryIndexManager.getRepositoryIndexer(sourceStorage + ":" +
-                                                                                              sourceRepositoryId);
+                                                                                              sourceRepositoryId +
+                                                                                              ":local");
             if (sourceIndex == null)
             {
                 throw new ArtifactStorageException("Source repository not found!");
             }
 
-            final RepositoryIndexer targetIndex = repositoryIndexManager.getRepositoryIndexer(targetStorage + ":" + targetRepositoryId);
+            final RepositoryIndexer targetIndex = repositoryIndexManager.getRepositoryIndexer(
+                    targetStorage + ":" + targetRepositoryId + ":local");
             if (targetIndex == null)
             {
                 throw new ArtifactStorageException("Target repository not found!");
