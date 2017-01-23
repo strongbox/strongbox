@@ -9,7 +9,10 @@ import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
- * Base class for all entity classes in OrientDB.
+ * Base class for all entities that have to be stored in OrientDB.
+ * <p>
+ * <b>Implementation notice</b>: don't declare variables with the same names as it's in this class ({@link #objectId},
+ * {@link #detachAll} etc.) It will hide that variables and change behaviour of persistence subsystem to unpredictable.
  *
  * @author Alex Oreshkevich
  */

@@ -21,7 +21,8 @@ public interface ArtifactEntryService
     /**
      * Returns list of artifacts that matches search query defined as {@link ArtifactCoordinates} fields.
      * By default all fields are optional and combined using logical AND operator.
-     * If all coordinates aren't present this query will delegate request to {@link #findAll()}.
+     * If all coordinates aren't present this query will delegate request to {@link #findAll()}
+     * (because in that case every ArtifactEntry will match the query).
      *
      * @param coordinates search query defined as a set of coordinates (id ,version, groupID etc.)
      * @return list of artifacts or empty list if nothing was found

@@ -46,6 +46,7 @@ class ArtifactEntryServiceImpl
 
     @Override
     @SuppressWarnings("unchecked")
+    // don't try to use second level cache here until you make all coordinates properly serializable
     public List<ArtifactEntry> findByCoordinates(ArtifactCoordinates coordinates)
     {
         // if search query is null or empty delegate to #findAll
