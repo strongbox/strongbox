@@ -23,7 +23,7 @@ public class ArtifactFileUtils
 
     public static boolean isChecksum(String path)
     {
-        return path.endsWith(".md5") || path.endsWith(".sha1");
+        return path.endsWith(".md5") || path.endsWith(".sha1") || path.endsWith(".sha512");
     }
 
 }

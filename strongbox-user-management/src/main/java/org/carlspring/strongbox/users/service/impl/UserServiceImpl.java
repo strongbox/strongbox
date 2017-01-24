@@ -45,7 +45,7 @@ class UserServiceImpl
     @Override
     @Transactional
     @Cacheable(value = "users", key = "#name", sync = true)
-    public synchronized User findByUsername(String name)
+    public synchronized User findByUserName(String name)
     {
         try
         {
@@ -181,6 +181,19 @@ class UserServiceImpl
         
         Map<String, String> claimMap = new HashMap<>();
         claimMap.put("security-token-key", user.getSecurityTokenKey());
+
+        return tokenProvider.getToken(user.getUsername(), claimMap, expire);
+    }
+
+    @Override
+    public String generateAuthenticationToken(String id,
+                                              Date expire)
+        throws JoseException
+    {
+        User user = repository.findOne(id);
+
+        Map<String, String> claimMap = new HashMap<>();
+        claimMap.put("credentials", user.getPassword());
 
         return tokenProvider.getToken(user.getUsername(), claimMap, expire);
     }

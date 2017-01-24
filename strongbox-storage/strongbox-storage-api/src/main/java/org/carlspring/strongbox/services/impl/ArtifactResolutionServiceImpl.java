@@ -3,6 +3,7 @@ package org.carlspring.strongbox.services.impl;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
@@ -62,11 +63,12 @@ public class ArtifactResolutionServiceImpl
     }
 
     @Override
-    public OutputStream getOutputStream(String storageId,
-                                        String repositoryId,
-                                        String artifactPath)
-            throws IOException,
-                   ProviderImplementationException
+    public ArtifactOutputStream getOutputStream(String storageId,
+                                                String repositoryId,
+                                                String artifactPath)
+        throws IOException,
+               ProviderImplementationException,
+               NoSuchAlgorithmException
     {
         artifactOperationsValidator.validate(storageId, repositoryId, artifactPath);
 
@@ -74,7 +76,7 @@ public class ArtifactResolutionServiceImpl
 
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        OutputStream os = repositoryProvider.getOutputStream(storageId, repositoryId, artifactPath);
+        ArtifactOutputStream os = repositoryProvider.getOutputStream(storageId, repositoryId, artifactPath);
         if (os == null)
         {
             throw new ArtifactStorageException("Artifact " + artifactPath + " cannot be stored.");

@@ -6,6 +6,8 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.providers.storage.StorageProvider;
+import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.metadata.comparators.SnapshotVersionComparator;
 import org.carlspring.strongbox.storage.metadata.comparators.VersionComparator;
@@ -15,6 +17,7 @@ import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
@@ -49,7 +52,8 @@ public class MavenMetadataManager
 
     @Autowired
     private LayoutProviderRegistry layoutProviderRegistry;
-
+    @Autowired
+    protected StorageProviderRegistry storageProviderRegistry;
 
     public MavenMetadataManager()
     {
@@ -62,19 +66,20 @@ public class MavenMetadataManager
     {
         Metadata metadata;
 
+        StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
         ArtifactCoordinates coordinates = (ArtifactCoordinates) layoutProvider.getArtifactCoordinates(ArtifactUtils.convertArtifactToPath(artifact));
-
+        
         if (layoutProvider.containsArtifact(repository, coordinates))
         {
-            Path artifactPath = Paths.get(layoutProvider.getPathToArtifact(repository, coordinates));
+            Path artifactPath = storageProvider.resolve(repository, coordinates);
             Path artifactBasePath = artifactPath;
             if (artifact.getVersion() != null)
             {
                 artifactBasePath = artifactPath.getParent().getParent();
             }
 
-            logger.debug("Getting metadata for " + artifactBasePath.toAbsolutePath());
+            logger.debug("Getting metadata for " + artifactBasePath);
 
             metadata = readMetadata(artifactBasePath);
         }
@@ -97,12 +102,12 @@ public class MavenMetadataManager
     public Metadata readMetadata(Path artifactBasePath)
             throws IOException, XmlPullParserException
     {
-        File metadataFile = MetadataHelper.getMetadataFile(artifactBasePath);
+        Path metadataFile = MetadataHelper.getMetadataFile(artifactBasePath);
         Metadata metadata = null;
 
-        try (FileInputStream fis = new FileInputStream(metadataFile))
+        try (InputStream is = Files.newInputStream(metadataFile))
         {
-            metadata = readMetadata(fis);
+            metadata = readMetadata(is);
         }
 
         return metadata;

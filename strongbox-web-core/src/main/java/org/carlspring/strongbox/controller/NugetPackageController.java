@@ -26,6 +26,7 @@ import org.carlspring.strongbox.security.exceptions.SecurityTokenException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.users.service.UserService;
+import org.carlspring.strongbox.utils.ArtifactControllerHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -158,8 +159,9 @@ public class NugetPackageController extends BaseArtifactController
 
         try
         {
-            InputStream is = (ArtifactInputStream) getArtifactManagementService().resolve(storageId, repositoryId,
-                                                                                          path);
+            ArtifactInputStream is = (ArtifactInputStream) getArtifactManagementService().resolve(storageId,
+                                                                                                  repositoryId,
+                                                                                                  path);
             if (is == null)
             {
                 return ResponseEntity.notFound().build();
@@ -171,6 +173,7 @@ public class NugetPackageController extends BaseArtifactController
                 headers.add("Content-Length", String.valueOf(nupkgFile.getSize()));
                 headers.add("Content-Disposition",
                             String.format("attachment; filename=\"%s\"", nupkgFile.getFileName()));
+                ArtifactControllerHelper.setHeadersForChecksums(is, headers);
                 return new ResponseEntity<Resource>(new InputStreamResource(nupkgFile.getStream()), headers,
                         HttpStatus.OK);
 
@@ -179,8 +182,7 @@ public class NugetPackageController extends BaseArtifactController
         }
         catch (Exception e)
         {
-            logger.error(String.format(
-                                       "Failed to process Nuget get request: storageId-[%s]; repositoryId-[%s]; packageId-[%s]; version-[%s]",
+            logger.error(String.format("Failed to process Nuget get request: storageId-[%s]; repositoryId-[%s]; packageId-[%s]; version-[%s]",
                                        storageId, repositoryId, packageId, packageVersion),
                          e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

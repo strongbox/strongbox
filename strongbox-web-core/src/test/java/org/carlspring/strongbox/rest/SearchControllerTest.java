@@ -5,6 +5,7 @@ import org.carlspring.strongbox.booters.StorageBooter;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.rest.context.IntegrationTest;
+import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 
@@ -35,6 +36,9 @@ public class SearchControllerTest
 
     @Inject
     RepositoryIndexManager repositoryIndexManager;
+
+    @Inject
+    RepositoryManagementService repositoryManagementService;
 
 
     @Override
@@ -67,17 +71,16 @@ public class SearchControllerTest
             artifactDeployer.generateAndDeployArtifact(artifact2, classifiers, "storage0", "releases", "jar");
             artifactDeployer.generateAndDeployArtifact(artifact3, classifiers, "storage0", "releases", "jar");
 
-            // initialize indexes (for IDE launches)
+            // Initialize indexes (for IDE launches)
             if (repositoryIndexManager.getIndexes().isEmpty())
             {
                 storageBooter.reInitializeRepositoryIndex("storage0", "releases");
 
-                final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndex(
-                        "storage0:releases");
+                final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndex("storage0:releases");
 
                 assertNotNull(repositoryIndexer);
 
-                repositoryIndexer.index(new File("org/carlspring/strongbox/searches"));
+                repositoryManagementService.reIndex("storage0", "releases", "org/carlspring/strongbox/searches");
             }
         }
         catch (Exception e)

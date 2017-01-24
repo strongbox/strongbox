@@ -1,10 +1,8 @@
 package org.carlspring.strongbox.storage.metadata;
 
-import org.carlspring.maven.commons.DetachedArtifact;
-import org.carlspring.maven.commons.util.ArtifactUtils;
-
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -16,6 +14,8 @@ import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Snapshot;
 import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.artifact.repository.metadata.Versioning;
+import org.carlspring.maven.commons.DetachedArtifact;
+import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -24,6 +24,7 @@ import org.springframework.util.StringUtils;
 public class MetadataHelper
 {
 
+    private static final String MAVEN_METADATA_XML = "maven-metadata.xml";
     private static SimpleDateFormat LAST_UPDATED_FIELD_FORMATTER;
 
 
@@ -232,17 +233,18 @@ public class MetadataHelper
      * @param artifactBasePath Path
      * @return File
      */
-    public static File getMetadataFile(Path artifactBasePath)
-            throws FileNotFoundException
+    public static Path getMetadataFile(Path artifactBasePath)
+        throws FileNotFoundException
     {
-        if (artifactBasePath.toFile().exists())
+        if (Files.exists(artifactBasePath))
         {
-            return new File(artifactBasePath.toFile().getAbsolutePath() + "/maven-metadata.xml");
+            return artifactBasePath.resolve(MAVEN_METADATA_XML);
         }
         else
         {
-            throw new FileNotFoundException("Could not find " +
-                                            new File(artifactBasePath.toFile().getAbsolutePath() + "/maven-metadata.xml") + "!");
+            throw new FileNotFoundException(
+                    String.format("Could not find metadata: artifatcBasePath-[%s]; metadataFileName-[%s]",
+                                  artifactBasePath, MAVEN_METADATA_XML));
         }
     }
 
@@ -272,12 +274,12 @@ public class MetadataHelper
         switch (metadataType)
         {
             case PLUGIN_GROUP_LEVEL:
-                return new File(artifactBasePath.getParent().toFile().getAbsolutePath() + "/maven-metadata.xml");
+                return new File(artifactBasePath.getParent().toFile().getAbsolutePath() + "/" + MAVEN_METADATA_XML);
             case SNAPSHOT_VERSION_LEVEL:
-                return new File(artifactBasePath.toFile().getAbsolutePath() + "/" + version + "/maven-metadata.xml");
+                return new File(artifactBasePath.toFile().getAbsolutePath() + "/" + version + "/" + MAVEN_METADATA_XML);
             case ARTIFACT_ROOT_LEVEL:
             default:
-                return new File(artifactBasePath.toFile().getAbsolutePath() + "/maven-metadata.xml");
+                return new File(artifactBasePath.toFile().getAbsolutePath() + "/" + MAVEN_METADATA_XML);
         }
     }
 

@@ -1,25 +1,15 @@
 package org.carlspring.strongbox.providers.layout;
 
+import java.io.IOException;
+
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.P2ArtifactCoordinates;
-import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.io.ArtifactFile;
-import org.carlspring.strongbox.io.ArtifactFileOutputStream;
-import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.providers.layout.p2.P2ArtifactReader;
-import org.carlspring.strongbox.providers.storage.StorageProvider;
-import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.security.NoSuchAlgorithmException;
 
 public class P2LayoutProvider
         extends AbstractLayoutProvider<P2ArtifactCoordinates>
@@ -31,9 +21,6 @@ public class P2LayoutProvider
 
     @Autowired
     private LayoutProviderRegistry layoutProviderRegistry;
-
-    @Autowired
-    private StorageProviderRegistry storageProviderRegistry;
 
     @Override
     public void register()
@@ -55,66 +42,27 @@ public class P2LayoutProvider
         return P2ArtifactCoordinates.create(path);
     }
 
-    @Override
-    public ArtifactInputStream getInputStream(String storageId,
-                                              String repositoryId,
-                                              String path)
-            throws IOException, NoSuchAlgorithmException, ArtifactTransportException
+    protected boolean isMetadata(String path)
     {
-        Storage storage = getConfiguration().getStorage(storageId);
-
-        logger.debug("Checking in " + storage.getId() + ":" + repositoryId + "...");
-
-        Repository repository = storage.getRepository(repositoryId);
-        StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
-
-        final File repoPath = storageProvider.getFileImplementation(storage.getRepository(repositoryId).getBasedir());
-        final File artifactFile = storageProvider.getFileImplementation(repoPath.getPath(), path).getCanonicalFile();
-
-        logger.debug(" -> Checking for " + artifactFile.getCanonicalPath() + "...");
-
-        if (artifactFile.exists())
-        {
-            logger.debug("Resolved " + artifactFile.getCanonicalPath() + "!");
-
-            ArtifactInputStream ais = storageProvider.getInputStreamImplementation(artifactFile.getAbsolutePath());
-            ais.setLength(artifactFile.length());
-
-            return ais;
-        }
-
-        return null;
+        return "content.xml".equals(path) || "artifacts.xml".equals(path) || "artifacts.jar".equals(path) ||
+                "content.jar".equals(path);
     }
 
     @Override
-    public OutputStream getOutputStream(String storageId,
-                                        String repositoryId,
-                                        String path)
-            throws IOException
+    protected boolean isChecksum(String path)
     {
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
-        StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
-
-        final String repoPath = storageProvider.getFileImplementation(
-                storage.getRepository(repositoryId).getBasedir()).getPath();
-        ArtifactFile artifactFile = null;
-        if (!"content.xml".equals(path) && !"artifacts.xml".equals(path) && !"artifacts.jar".equals(path) &&
-            !"content.jar".equals(path))
-        {
-            P2ArtifactCoordinates artifact = P2ArtifactReader.getArtifact(repoPath, path);
-            artifactFile = new ArtifactFile(new File(repoPath, artifact.getFilename()));
-        }
-        else
-        {
-            artifactFile = new ArtifactFile(storageProvider.getFileImplementation(repoPath, path).getCanonicalFile());
-        }
-
-        artifactFile.createParents();
-
-        return new ArtifactFileOutputStream(artifactFile);
+        return false;
     }
 
+    @Override
+    public void deleteMetadata(String storageId,
+                               String repositoryId,
+                               String metadataPath)
+        throws IOException
+    {
+        
+    }
+    
     @Override
     public boolean containsArtifact(Repository repository,
                                     ArtifactCoordinates coordinates)
@@ -149,92 +97,4 @@ public class P2LayoutProvider
         return containsArtifact(repository, P2ArtifactCoordinates.create(path));
     }
 
-    @Override
-    public String getPathToArtifact(Repository repository,
-                                    ArtifactCoordinates coordinates)
-            throws IOException
-    {
-        return null;
-    }
-
-    @Override
-    public void copy(String srcStorageId,
-                     String srcRepositoryId,
-                     String destStorageId,
-                     String destRepositoryId,
-                     String path)
-            throws IOException
-    {
-
-
-    }
-
-    @Override
-    public void move(String srcStorageId,
-                     String srcRepositoryId,
-                     String destStorageId,
-                     String destRepositoryId,
-                     String path)
-            throws IOException
-    {
-
-    }
-
-    @Override
-    public void delete(String storageId,
-                       String repositoryId,
-                       String path,
-                       boolean force)
-            throws IOException
-    {
-
-    }
-
-    @Override
-    public void deleteMetadata(String storageId,
-                               String repositoryId,
-                               String metadataPath)
-            throws IOException
-    {
-
-    }
-
-    @Override
-    public void deleteTrash(String storageId,
-                            String repositoryId)
-            throws IOException
-    {
-
-    }
-
-    @Override
-    public void deleteTrash()
-            throws IOException
-    {
-
-    }
-
-    @Override
-    public void undelete(String storageId,
-                         String repositoryId,
-                         String path)
-            throws IOException
-    {
-
-    }
-
-    @Override
-    public void undeleteTrash(String storageId,
-                              String repositoryId)
-            throws IOException
-    {
-
-    }
-
-    @Override
-    public void undeleteTrash()
-            throws IOException
-    {
-
-    }
 }

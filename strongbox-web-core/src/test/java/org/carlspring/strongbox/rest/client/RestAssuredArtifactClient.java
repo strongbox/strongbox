@@ -286,6 +286,48 @@ public class RestAssuredArtifactClient
                .statusCode(OK);
     }
 
+    public void rebuildIndexes(String storageId,
+                               String repositoryId,
+                               String basePath)
+            throws IOException
+    {
+        String url = getContextBaseUrl() + "/index/" + storageId + "/" + repositoryId + "/" +
+                     (basePath != null ? basePath : "");
+
+        givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
+                    .when()
+                    .post(url)
+                    .peek()
+                    .then()
+                    .statusCode(OK);
+    }
+
+    public void rebuildIndexes(String storageId)
+            throws IOException
+    {
+        String url = getContextBaseUrl() + "/index/" + storageId;
+
+        givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
+                    .when()
+                    .post(url)
+                    .peek()
+                    .then()
+                    .statusCode(OK);
+    }
+
+    public void rebuildIndexes()
+            throws IOException
+    {
+        String url = getContextBaseUrl() + "/index";
+
+        givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
+                    .when()
+                    .post(url)
+                    .peek()
+                    .then()
+                    .statusCode(OK);
+    }
+
     public void removeVersionFromMetadata(String storageId,
                                           String repositoryId,
                                           String artifactPath,

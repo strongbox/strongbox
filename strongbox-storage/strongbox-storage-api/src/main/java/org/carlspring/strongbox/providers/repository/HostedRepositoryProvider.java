@@ -2,6 +2,7 @@ package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.annotation.PostConstruct;
@@ -55,10 +56,10 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
     }
 
     @Override
-    public OutputStream getOutputStream(String storageId,
-                                        String repositoryId,
-                                        String path)
-            throws IOException
+    public ArtifactOutputStream getOutputStream(String storageId,
+                                                String repositoryId,
+                                                String path)
+            throws IOException, NoSuchAlgorithmException
     {
         Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
 

@@ -1,13 +1,14 @@
 package org.carlspring.strongbox.config;
 
-import java.util.List;
+import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
+import org.carlspring.strongbox.mapper.CustomJaxb2RootElementHttpMessageConverter;
+import org.carlspring.strongbox.utils.CustomAntPathMatcher;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.List;
 
-import org.carlspring.strongbox.StorageIndexingConfig;
-import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
-import org.carlspring.strongbox.mapper.CustomJaxb2RootElementHttpMessageConverter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.EnableCaching;
@@ -21,12 +22,9 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.ResourceHttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.controller",
@@ -56,7 +54,7 @@ public class WebConfig
 
     @Inject
     @Named("customAntPathMatcher")
-    AntPathMatcher antPathMatcher;
+    CustomAntPathMatcher antPathMatcher;
 
     @Inject
     ObjectMapper objectMapper;

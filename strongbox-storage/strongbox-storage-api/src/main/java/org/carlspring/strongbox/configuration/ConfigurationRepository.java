@@ -1,23 +1,24 @@
 package org.carlspring.strongbox.configuration;
 
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.services.ServerConfigurationService;
-import org.carlspring.strongbox.xml.parsers.GenericParser;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
 import org.apache.commons.io.IOUtils;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.services.ServerConfigurationService;
+import org.carlspring.strongbox.xml.parsers.GenericParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 @Component("configurationRepository")
 @Transactional
@@ -114,7 +115,7 @@ public class ConfigurationRepository
 
         return configuration;
     }
-
+    
     public synchronized Configuration getConfiguration()
     {
         Optional<Configuration> optionalConfig = configurationCache.getConfiguration(currentDatabaseId);

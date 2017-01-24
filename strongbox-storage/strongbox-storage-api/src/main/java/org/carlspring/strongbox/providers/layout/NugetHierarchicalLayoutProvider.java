@@ -3,18 +3,17 @@ package org.carlspring.strongbox.providers.layout;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.carlspring.strongbox.artifact.coordinates.NugetHierarchicalArtifactCoordinates;
-import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.io.ArtifactFile;
-import org.carlspring.strongbox.io.ArtifactFileOutputStream;
-import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.providers.storage.StorageProvider;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.io.ArtifactOutputStream;
+import org.carlspring.strongbox.io.RepositoryPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -60,105 +59,9 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
     }
 
     @Override
-    public ArtifactInputStream getInputStream(String storageId,
-                                              String repositoryId,
-                                              String path)
-        throws IOException,
-        NoSuchAlgorithmException,
-        ArtifactTransportException
+    protected boolean isMetadata(String path)
     {
-        Storage storage = getConfiguration().getStorage(storageId);
-
-        logger.debug("Checking in " + storage.getId() + ":" + repositoryId + "...");
-
-        Repository repository = storage.getRepository(repositoryId);
-        StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
-
-        String storagePath = storage.getRepository(repositoryId).getBasedir() + '/' + path;
-        ArtifactInputStream ais = storageProvider.getInputStreamImplementation(storagePath);
-        
-        return ais;
-    }
-
-    @Override
-    public OutputStream getOutputStream(String storageId,
-                                        String repositoryId,
-                                        String path)
-        throws IOException
-    {
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
-        
-        NugetHierarchicalArtifactCoordinates coordinates = new NugetHierarchicalArtifactCoordinates(path);
-        ArtifactFile artifactFile = new ArtifactFile(repository, coordinates);
-        artifactFile.createParents();
-
-        return new ArtifactFileOutputStream(artifactFile);
-    }
-
-    @Override
-    public boolean containsArtifact(Repository repository,
-                                    ArtifactCoordinates coordinates)
-        throws IOException
-    {
-        return false;
-    }
-
-    @Override
-    public boolean contains(String storageId,
-                            String repositoryId,
-                            String path)
-        throws IOException
-    {
-        return false;
-    }
-
-    @Override
-    public boolean containsPath(Repository repository,
-                                String path)
-        throws IOException
-    {
-        return false;
-    }
-
-    @Override
-    public String getPathToArtifact(Repository repository,
-                                    ArtifactCoordinates coordinates)
-        throws IOException
-    {
-        return null;
-    }
-
-    @Override
-    public void copy(String srcStorageId,
-                     String srcRepositoryId,
-                     String destStorageId,
-                     String destRepositoryId,
-                     String path)
-        throws IOException
-    {
-
-    }
-
-    @Override
-    public void move(String srcStorageId,
-                     String srcRepositoryId,
-                     String destStorageId,
-                     String destRepositoryId,
-                     String path)
-        throws IOException
-    {
-
-    }
-
-    @Override
-    public void delete(String storageId,
-                       String repositoryId,
-                       String path,
-                       boolean force)
-        throws IOException
-    {
-
+        return path.endsWith("nuspec");
     }
 
     @Override
@@ -171,42 +74,40 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
     }
 
     @Override
-    public void deleteTrash(String storageId,
-                            String repositoryId)
+    protected void doDeletePath(RepositoryPath repositoryPath,
+                                boolean force,
+                                boolean deleteChecksum)
         throws IOException
     {
-
+        RepositoryPath sha512Path = repositoryPath.resolveSibling(repositoryPath.getFileName() + ".sha512");
+        super.doDeletePath(repositoryPath, force, deleteChecksum);
+        if (deleteChecksum)
+        {
+            super.doDeletePath(sha512Path, force, deleteChecksum);
+        }
     }
 
     @Override
-    public void deleteTrash()
-        throws IOException
+    protected ArtifactOutputStream decorateStream(String path,
+                                                  OutputStream os,
+                                                  NugetHierarchicalArtifactCoordinates c)
+        throws NoSuchAlgorithmException
     {
+        ArtifactOutputStream result = super.decorateStream(path, os, c);
+        result.setDigestStringifier(this::toBase64);
+        return result;
+    }
 
+    private String toBase64(byte[] digest)
+    {
+        byte[] encoded = Base64.getEncoder().encode(digest);
+        return new String(encoded);
     }
 
     @Override
-    public void undelete(String storageId,
-                         String repositoryId,
-                         String path)
-        throws IOException
+    public Set<String> getDigestAlgorithmSet()
     {
-
-    }
-
-    @Override
-    public void undeleteTrash(String storageId,
-                              String repositoryId)
-        throws IOException
-    {
-
-    }
-
-    @Override
-    public void undeleteTrash()
-        throws IOException
-    {
-
+        return Stream.of(MessageDigestAlgorithms.SHA_512).collect(Collectors.toSet());
     }
 
 }

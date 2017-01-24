@@ -1,15 +1,23 @@
 package org.carlspring.strongbox.providers.storage;
 
-import org.carlspring.commons.http.range.ByteRange;
-import org.carlspring.commons.io.reloading.ReloadableInputStreamHandler;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.io.ArtifactInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.NoSuchAlgorithmException;
 
 import javax.annotation.PostConstruct;
-import java.io.*;
-import java.security.NoSuchAlgorithmException;
-import java.util.List;
 
+import org.carlspring.commons.io.reloading.FSReloadableInputStreamHandler;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.io.ArtifactPath;
+import org.carlspring.strongbox.io.RepositoryFileSystem;
+import org.carlspring.strongbox.io.RepositoryPath;
+import org.carlspring.strongbox.io.ByteRangeInputStream;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,13 +37,11 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
     @Autowired
     private StorageProviderRegistry storageProviderRegistry;
 
-
     @Override
     public String getAlias()
     {
         return ALIAS;
     }
-
 
     @PostConstruct
     @Override
@@ -47,75 +53,100 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
     }
 
     @Override
-    public ArtifactInputStream getInputStreamImplementation(ReloadableInputStreamHandler handler,
-                                                            List<ByteRange> byteRanges)
-            throws IOException,
-                   NoSuchAlgorithmException
+    public OutputStream getOutputStreamImplementation(ArtifactPath artifactPath)
+        throws IOException,
+               NoSuchAlgorithmException
     {
-        return new ArtifactInputStream(handler, byteRanges);
+        return Files.newOutputStream(artifactPath);
     }
 
     @Override
-    public ArtifactInputStream getInputStreamImplementation(ReloadableInputStreamHandler handler,
-                                                            ByteRange byteRange)
-            throws IOException, NoSuchAlgorithmException
+    public OutputStream getOutputStreamImplementation(RepositoryPath repositoryPath,
+                                                      String path)
+        throws IOException
     {
-        return new ArtifactInputStream(handler, byteRange);
+        return Files.newOutputStream(repositoryPath.resolve(path));
     }
 
     @Override
-    public ArtifactInputStream getInputStreamImplementation(InputStream is)
-            throws NoSuchAlgorithmException
+    public InputStream getInputStreamImplementation(RepositoryPath repositoryPath,
+                                                    String path)
+        throws IOException,
+               NoSuchAlgorithmException
     {
-        return new ArtifactInputStream(is);
+        RepositoryPath artifactPath = repositoryPath.resolve(path);
+        if (!Files.exists(artifactPath) || Files.isDirectory(artifactPath))
+        {
+            throw new FileNotFoundException(artifactPath.toString());
+        }
+        
+        return getInputStream(artifactPath);
     }
 
     @Override
-    public ArtifactInputStream getInputStreamImplementation(String path)
-            throws NoSuchAlgorithmException, FileNotFoundException
+    public InputStream getInputStreamImplementation(ArtifactPath artifactPath)
+        throws IOException,
+               NoSuchAlgorithmException
     {
-        return new ArtifactInputStream(new FileInputStream(path));
+        if (!Files.exists(artifactPath))
+        {
+            throw new FileNotFoundException(artifactPath.toString());
+        }
+
+        return getInputStream(artifactPath);
+    }
+
+    private InputStream getInputStream(RepositoryPath artifactPath)
+        throws IOException,
+               NoSuchAlgorithmException
+    {
+        ByteRangeInputStream bris = new ByteRangeInputStream(Files.newInputStream(artifactPath));
+        bris.setReloadableInputStreamHandler(new FSReloadableInputStreamHandler(artifactPath.toFile()));
+        bris.setLength(Files.size(artifactPath));
+        
+        return bris;
     }
 
     @Override
-    public ArtifactInputStream getInputStreamImplementation(File file)
-            throws NoSuchAlgorithmException, FileNotFoundException
+    public ArtifactPath resolve(Repository repository,
+                                ArtifactCoordinates coordinates)
+        throws IOException
     {
-        return new ArtifactInputStream(new FileInputStream(file));
+        Path targetPath = getArtifactPath(repository.getBasedir(), coordinates.toPath());
+
+        // Override FileSystem root to Repository base directory
+        return new ArtifactPath(coordinates, targetPath, RepositoryFileSystem.getRepositoryFileSystem(repository));
     }
 
     @Override
-    public ArtifactInputStream getInputStreamImplementation(InputStream is,
-                                                            String[] algorithms)
-            throws NoSuchAlgorithmException
+    public RepositoryPath resolve(Repository repository)
+        throws IOException
     {
-        return new ArtifactInputStream(is, algorithms);
+        Path path = Paths.get(repository.getBasedir());
+
+        return new RepositoryPath(path, RepositoryFileSystem.getRepositoryFileSystem(repository));
     }
 
     @Override
-    public ArtifactInputStream getInputStreamImplementation(ArtifactCoordinates coordinates,
-                                                            InputStream is)
-            throws NoSuchAlgorithmException
+    public RepositoryPath resolve(Repository repository,
+                                  String path)
+        throws IOException
     {
-        ArtifactInputStream ais = new ArtifactInputStream(is);
-        ais.setArtifactCoordinates(coordinates);
-
-        return ais;
+        return resolve(repository).resolve(path);
     }
 
-    @Override
-    public File getFileImplementation(String path)
-            throws IOException
+    public static Path getArtifactPath(String basePath,
+                                       String artifactPath)
+        throws IOException
     {
-        return new File(path);
-    }
+        Path base = Paths.get(basePath);
+        Path path = base.resolve(artifactPath);
+        if (!Files.exists(path.getParent()))
+        {
+            Files.createDirectories(path.getParent());
+        }
 
-    @Override
-    public File getFileImplementation(String parentPath,
-                                      String path)
-            throws IOException
-    {
-        return new File(parentPath, path);
+        return path;
     }
-
+    
 }

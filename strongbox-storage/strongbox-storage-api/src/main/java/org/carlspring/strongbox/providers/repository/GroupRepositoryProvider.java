@@ -1,7 +1,17 @@
 package org.carlspring.strongbox.providers.repository;
 
+import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.storage.Storage;
@@ -9,17 +19,9 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.RuleSet;
-
-import javax.annotation.PostConstruct;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.security.NoSuchAlgorithmException;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
 /**
  * @author carlspring
@@ -99,7 +101,15 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
                 !repositoryRejects(r.getId(), artifactPath, denyRules) &&
                 !repositoryRejects(r.getId(), artifactPath, wildcardDenyRules))
             {
-                final ArtifactInputStream is = resolveArtifact(sId, r.getId(), artifactPath);
+                ArtifactInputStream is;
+                try
+                {
+                    is = resolveArtifact(sId, r.getId(), artifactPath);
+                }
+                catch (FileNotFoundException e)
+                {
+                    continue;
+                }
                 if (is != null)
                 {
                     return is;
@@ -246,16 +256,16 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     }
 
     @Override
-    public OutputStream getOutputStream(String storageId,
-                                        String repositoryId,
-                                        String artifactPath)
-            throws IOException
+    public ArtifactOutputStream getOutputStream(String storageId,
+                                                String repositoryId,
+                                                String artifactPath)
+        throws IOException
     {
         // It should not be possible to write artifacts to a group repository.
         // A group repository should only serve artifacts that already exist
         // in the repositories within the group.
 
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     public RoutingRules getRoutingRules()
