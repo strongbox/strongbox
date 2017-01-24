@@ -207,7 +207,7 @@ public class ArtifactManagementServiceImpl
             !ArtifactUtils.isMetadata(path) && !ArtifactUtils.isChecksum(path))
         {
             LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-            ArtifactCoordinates coordinates = (ArtifactCoordinates) layoutProvider.getArtifactCoordinates(path);
+            ArtifactCoordinates coordinates = layoutProvider.getArtifactCoordinates(path);
 
             try
             {

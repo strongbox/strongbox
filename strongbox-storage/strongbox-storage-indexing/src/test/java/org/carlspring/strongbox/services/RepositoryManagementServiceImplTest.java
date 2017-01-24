@@ -63,7 +63,7 @@ public class RepositoryManagementServiceImplTest
 
         assertTrue("Failed to create the repository \"" + repositoryDir.getAbsolutePath() + "\"!", repositoryDir.exists());
 
-        getRepositoryIndexManager().closeIndexer(storageId + ":" + repositoryId);
+        getRepositoryIndexManager().closeIndexer(storageId + ":" + repositoryId + ":local");
 
         getRepositoryManagementService().removeRepository("storage0", repositoryId);
 

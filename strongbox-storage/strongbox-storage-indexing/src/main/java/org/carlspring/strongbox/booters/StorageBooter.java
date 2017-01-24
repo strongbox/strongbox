@@ -262,17 +262,6 @@ public class StorageBooter
         repositoryIndexManager.addRepositoryIndexer(storage.getId() + ":" + repositoryId + ":" + indexType, repositoryIndexer);
     }
 
-    public void reInitializeRepositoryIndex(String storageId,
-                                            String repositoryId)
-            throws PlexusContainerException, ComponentLookupException, IOException
-    {
-        Storage storage = getConfiguration().getStorage(storageId);
-        if (storage != null)
-        {
-            initializeRepositoryIndexes(storage, repositoryId);
-        }
-    }
-
     public RepositoryManagementService getRepositoryManagementService()
     {
         return repositoryManagementService;

@@ -1,6 +1,12 @@
 package org.carlspring.strongbox.storage.indexing;
 
+import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
+
 import javax.annotation.PreDestroy;
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -24,6 +30,9 @@ public class RepositoryIndexManager
 
     private Map<String, RepositoryIndexer> indexes = new LinkedHashMap<>();
 
+    @Inject
+    private ConfigurationManager configurationManager;
+
 
     public RepositoryIndexManager()
     {
@@ -32,11 +41,11 @@ public class RepositoryIndexManager
     @PreDestroy
     private void close()
     {
-        for (String storageAndRepository : indexes.keySet())
+        for (String contextId : indexes.keySet())
         {
             try
             {
-                closeIndexer(storageAndRepository);
+                closeIndexer(contextId);
             }
             catch (IOException e)
             {
@@ -47,13 +56,13 @@ public class RepositoryIndexManager
 
     public void closeIndexersForStorage(String storageId)
     {
-        for (String storageAndRepository : indexes.keySet())
+        for (String contextId : indexes.keySet())
         {
-            if (storageAndRepository.substring(0, storageAndRepository.indexOf(':')).equals(storageId))
+            if (contextId.substring(0, contextId.indexOf(':')).equals(storageId))
             {
                 try
                 {
-                    closeIndexer(storageAndRepository);
+                    closeIndexer(contextId);
                 }
                 catch (IOException e)
                 {
@@ -63,23 +72,37 @@ public class RepositoryIndexManager
         }
     }
 
-    public void closeIndexer(String storageAndRepository)
+    public void closeIndexersForRepository(String storageId, String repositoryId)
             throws IOException
     {
-        final RepositoryIndexer repositoryIndexer = indexes.get(storageAndRepository);
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+
+        if (repository.isProxyRepository())
+        {
+            closeIndexer(storageId + ":" + repositoryId + ":remote");
+        }
+
+        closeIndexer(storageId + ":" + repositoryId + ":local");
+    }
+
+    public void closeIndexer(String contextId)
+            throws IOException
+    {
+        final RepositoryIndexer repositoryIndexer = indexes.get(contextId);
 
         System.out.println("Indexes size:" + indexes.size());
 
         if (repositoryIndexer != null)
         {
-            logger.debug("Closing indexer for " + repositoryIndexer.getStorageId() + ":" + repositoryIndexer.getRepositoryId() + "...");
+            logger.debug("Closing indexer for " + contextId + "...");
 
             repositoryIndexer.close();
 
-            logger.debug("Closed indexer for " + repositoryIndexer.getStorageId() + ":" + repositoryIndexer.getRepositoryId() + ".");
+            logger.debug("Closed indexer for " + contextId + ".");
         }
 
-        indexes.remove(storageAndRepository);
+        indexes.remove(contextId);
     }
 
     public Map<String, RepositoryIndexer> getIndexes()
@@ -105,6 +128,11 @@ public class RepositoryIndexManager
     public RepositoryIndexer removeRepositoryIndex(String repositoryId)
     {
         return indexes.remove(repositoryId);
+    }
+
+    public Configuration getConfiguration()
+    {
+        return configurationManager.getConfiguration();
     }
 
 }
