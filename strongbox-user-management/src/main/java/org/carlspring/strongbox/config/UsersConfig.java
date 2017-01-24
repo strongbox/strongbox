@@ -101,9 +101,8 @@ public class UsersConfig
         {
             internalUser = userService.save(internalUser);
             internalUser = getDatabaseTx().detach(internalUser, true);
+            cacheManager.getCache("users").put(internalUser.getUsername(), internalUser);
         }
-
-        cacheManager.getCache("users").put(internalUser.getUsername(), internalUser);
     }
 
     @Transactional
