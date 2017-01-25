@@ -1,20 +1,18 @@
-package org.carlspring.strongbox.storage.providers.layout;
+package org.carlspring.strongbox.providers.layout;
 
 import org.carlspring.strongbox.config.CommonConfig;
 import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
-import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,19 +28,14 @@ import static org.junit.Assert.assertTrue;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 public class Maven2MetadataProviderTest
-        extends TestCaseWithArtifactGeneration
+        extends TestCaseWithArtifactGenerationWithIndexing
 {
 
     @org.springframework.context.annotation.Configuration
-    @Import({
-            StorageApiConfig.class,
-            CommonConfig.class
-    })
+    @Import({ StorageApiConfig.class, CommonConfig.class })
     public static class SpringConfig { }
 
-    private static final File STORAGE_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0");
-
-    private static final File REPOSITORY_BASEDIR_RELEASES = new File(STORAGE_BASEDIR, "releases");
+    public static final String REPOSITORYID = "maven-metadata-provider-test-releases";
 
     @Autowired
     private LayoutProviderRegistry layoutProviderRegistry;
@@ -50,30 +43,40 @@ public class Maven2MetadataProviderTest
     @Autowired
     private ConfigurationManager configurationManager;
 
-    private static boolean INITIALIZED;
-
 
     @Before
-    public void setUp()
+    public void init()
             throws Exception
     {
-        if (!INITIALIZED)
-        {
-            generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                             "com.artifacts.to.delete.releases:delete-foo",
-                             new String[] { "1.2.1", // testDeleteArtifact()
-                                            "1.2.2"  // testDeleteArtifactDirectory()
-                                          });
+        super.init();
 
-            INITIALIZED = true;
-        }
+        Repository repository = new Repository(REPOSITORYID);
+        repository.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
+        repository.setAllowsForceDeletion(true);
+
+        createTestRepositoryWithArtifacts(repository,
+                                          "com.artifacts.to.delete.releases:delete-foo",
+                                          "1.2.1", // testDeleteArtifact()
+                                          "1.2.2"  // testDeleteArtifactDirectory()
+                                          );
+    }
+
+    @Override
+    public Map<String, String> getRepositoriesToClean()
+    {
+        Map<String, String> repositories = new LinkedHashMap<>();
+        repositories.put(STORAGE0, REPOSITORYID);
+
+        return repositories;
     }
 
     @Test
     public void testDeleteArtifact()
             throws IOException, NoSuchAlgorithmException
     {
-        Repository repository = configurationManager.getConfiguration().getStorage("storage0").getRepository("releases");
+        Repository repository = configurationManager.getConfiguration()
+                                                    .getStorage(STORAGE0)
+                                                    .getRepository(REPOSITORYID);
 
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
 
@@ -82,7 +85,7 @@ public class Maven2MetadataProviderTest
 
         assertTrue("Failed to locate artifact file " + artifactFile.getAbsolutePath(), artifactFile.exists());
 
-        layoutProvider.delete("storage0", "releases", path, false);
+        layoutProvider.delete(STORAGE0, REPOSITORYID, path, false);
 
         assertFalse("Failed to delete artifact file " + artifactFile.getAbsolutePath(), artifactFile.exists());
     }
@@ -91,7 +94,9 @@ public class Maven2MetadataProviderTest
     public void testDeleteArtifactDirectory()
             throws IOException, NoSuchAlgorithmException
     {
-        Repository repository = configurationManager.getConfiguration().getStorage("storage0").getRepository("releases");
+        Repository repository = configurationManager.getConfiguration()
+                                                    .getStorage(STORAGE0)
+                                                    .getRepository(REPOSITORYID);
 
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
 
@@ -100,7 +105,7 @@ public class Maven2MetadataProviderTest
 
         assertTrue("Failed to locate artifact file " + artifactFile.getAbsolutePath(), artifactFile.exists());
 
-        layoutProvider.delete("storage0", "releases", path, false);
+        layoutProvider.delete(STORAGE0, REPOSITORYID, path, false);
 
         assertFalse("Failed to delete artifact file " + artifactFile.getAbsolutePath(), artifactFile.exists());
     }

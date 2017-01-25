@@ -251,6 +251,15 @@
         </dependency>
 
         <dependency>
+            <groupId>com.carmatechnologies.commons</groupId>
+            <artifactId>commons-testing</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.carmatechnologies.commons</groupId>
+            <artifactId>commons-testing-logback</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.maven.indexer</groupId>
             <artifactId>indexer-core</artifactId>
         </dependency>

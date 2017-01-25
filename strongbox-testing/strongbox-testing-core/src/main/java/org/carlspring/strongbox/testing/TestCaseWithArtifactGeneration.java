@@ -25,6 +25,9 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 public class TestCaseWithArtifactGeneration
 {
 
+    public static final String STORAGE0 = "storage0";
+
+
     public Artifact generateArtifact(String basedir, String gavtc)
             throws IOException,
                    XmlPullParserException,

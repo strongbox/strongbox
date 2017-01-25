@@ -1,40 +1,32 @@
 package org.carlspring.strongbox.storage.indexing;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.client.ArtifactOperationException;
-import org.carlspring.strongbox.config.MockedIndexResourceFetcherConfig;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 
 import java.io.File;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.index.ArtifactInfo;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-//@ContextConfiguration(classes = MockedIndexResourceFetcherConfig.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 public class RepositoryIndexerTest
         extends TestCaseWithArtifactGenerationWithIndexing
 {
 
-    private static final File REPOSITORY_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/releases");
-
-    private static final File INDEX_DIR = new File(REPOSITORY_BASEDIR, ".index");
+    private static final File REPOSITORY_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                            "/storages/storage0/repository-indexer-test-releases");
 
     @Autowired
     private RepositoryManagementService repositoryManagementService;
@@ -42,36 +34,39 @@ public class RepositoryIndexerTest
 
     @Before
     public void init()
-            throws NoSuchAlgorithmException,
-                   XmlPullParserException,
-                   IOException,
-                   ArtifactOperationException
+            throws Exception
     {
-        //noinspection ResultOfMethodCallIgnored
-        INDEX_DIR.mkdirs();
+        createTestRepositoryWithArtifacts(STORAGE0,
+                                          "repository-indexer-test-releases",
+                                          "org.carlspring.strongbox:strongbox-commons",
+                                          "1.0", "1.1", "1.2");
+    }
 
-        Artifact artifact1 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-commons:1.0:jar");
-        Artifact artifact2 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-commons:1.1:jar");
-        Artifact artifact3 = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox:strongbox-commons:1.2:jar");
+    @Override
+    public Map<String, String> getRepositoriesToClean()
+    {
+        Map<String, String> repositories = new LinkedHashMap<>();
+        repositories.put(STORAGE0, "repository-indexer-test-releases");
 
-        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), artifact1);
-        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), artifact2);
-        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), artifact3);
+        return repositories;
     }
 
     @Test
     public void testIndex() throws Exception
     {
-        final RepositoryIndexer repositoryIndexer = getRepositoryIndexManager().getRepositoryIndexer("storage0:releases:local");
+        final RepositoryIndexer repositoryIndexer = getRepositoryIndexManager().getRepositoryIndexer("storage0:repository-indexer-test-releases:local");
 
-        final int x = repositoryManagementService.reIndex("storage0", "releases", "org/carlspring/strongbox/strongbox-commons");
+        final int x = repositoryManagementService.reIndex(STORAGE0,
+                                                          "repository-indexer-test-releases",
+                                                          "org/carlspring/strongbox/strongbox-commons");
 
-        repositoryManagementService.pack("storage0", "releases");
+        repositoryManagementService.pack(STORAGE0, "repository-indexer-test-releases");
 
         assertTrue("Failed to pack index!", new File(REPOSITORY_BASEDIR.getAbsolutePath(), ".index/local/nexus-maven-repository-index.gz").exists());
         assertTrue("Failed to pack index!", new File(REPOSITORY_BASEDIR.getAbsolutePath(), ".index/local/nexus-maven-repository-index-packer.properties").exists());
 
         assertEquals("6 artifacts expected!",
+
                      6,  // one is jar another pom, both would be added into the same Lucene document
                      x);
 

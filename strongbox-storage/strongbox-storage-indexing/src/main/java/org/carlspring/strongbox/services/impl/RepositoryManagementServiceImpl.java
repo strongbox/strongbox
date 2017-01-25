@@ -178,7 +178,7 @@ public class RepositoryManagementServiceImpl
                        String path)
             throws IOException
     {
-        logger.info("Re-indexing " + storageId + ":" + repositoryId + (path != null ? ":" + path : "") + "...");
+        logger.info("Re-indexing " + storageId + ":" + repositoryId + ":local" + (path != null ? ":" + path : "") + "...");
 
         RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer(storageId + ":" + repositoryId + ":local");
 

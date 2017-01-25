@@ -62,8 +62,7 @@ public class SearchControllerTest
         try
         {
             File strongboxBaseDir = new File(ConfigurationResourceResolver.getVaultDirectory() + "/tmp");
-            String[] classifiers = new String[]{ "javadoc",
-                                                 "tests" };
+            String[] classifiers = new String[]{ "javadoc", "tests" };
 
             Artifact artifact1 = getArtifactFromGAVTC("org.carlspring.strongbox.searches:test-project:1.0.11.3");
             Artifact artifact2 = getArtifactFromGAVTC("org.carlspring.strongbox.searches:test-project:1.0.11.3.1");
@@ -75,17 +74,11 @@ public class SearchControllerTest
             artifactDeployer.generateAndDeployArtifact(artifact2, classifiers, "storage0", "releases", "jar");
             artifactDeployer.generateAndDeployArtifact(artifact3, classifiers, "storage0", "releases", "jar");
 
-            // Initialize indexes (for IDE launches)
-            if (repositoryIndexManager.getIndexes().isEmpty())
-            {
-                storageBooter.reInitializeRepositoryIndex("storage0", "releases");
+            final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer("storage0:releases:local");
 
-                final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer("storage0:releases");
+            assertNotNull(repositoryIndexer);
 
-                assertNotNull(repositoryIndexer);
-
-                repositoryManagementService.reIndex("storage0", "releases", "org/carlspring/strongbox/searches");
-            }
+            repositoryManagementService.reIndex("storage0", "releases", "org/carlspring/strongbox/searches");
         }
         catch (Exception e)
         {

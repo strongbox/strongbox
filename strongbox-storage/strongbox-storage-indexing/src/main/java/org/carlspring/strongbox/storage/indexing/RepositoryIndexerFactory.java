@@ -62,7 +62,7 @@ public class RepositoryIndexerFactory
             throw new RepositoryInitializationException(e.getMessage(), e);
         }
 
-        RepositoryIndexer repositoryIndexer = new RepositoryIndexer();
+        RepositoryIndexer repositoryIndexer = new RepositoryIndexer(storageId + ":" + repositoryId + ":" + indexType);
         repositoryIndexer.setStorageId(storageId);
         repositoryIndexer.setRepositoryId(repositoryId);
         repositoryIndexer.setRepositoryBasedir(repositoryBasedir);

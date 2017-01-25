@@ -4,6 +4,8 @@ import org.carlspring.strongbox.booters.ResourcesBooter;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 
 import java.io.File;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,8 +21,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ResourcesBooterTest extends TestCaseWithArtifactGenerationWithIndexing
 {
-    private static final Logger logger = LoggerFactory.getLogger(ResourcesBooterTest.class);
-    
+
     // This field is indeed used. It's execute() method is being invoked with a @PostConstruct.
     @Autowired
     private ResourcesBooter resourcesBooter;
@@ -32,6 +33,12 @@ public class ResourcesBooterTest extends TestCaseWithArtifactGenerationWithIndex
         File file = new File(ConfigurationResourceResolver.getHomeDirectory() + "/etc/conf/strongbox.xml");
 
         assertTrue("Failed to copy configuration resource from classpath!", file.exists());
+    }
+
+    @Override
+    public Map<String, String> getRepositoriesToClean()
+    {
+        return new LinkedHashMap<>();
     }
 
 }

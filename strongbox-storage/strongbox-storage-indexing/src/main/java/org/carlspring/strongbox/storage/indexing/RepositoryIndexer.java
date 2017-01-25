@@ -61,9 +61,12 @@ public class RepositoryIndexer
 
     private Configuration configuration;
 
+    private String contextId;
 
-    public RepositoryIndexer()
+
+    public RepositoryIndexer(String contextId)
     {
+        this.contextId = contextId;
     }
 
     public void close()
@@ -423,6 +426,16 @@ public class RepositoryIndexer
     public void setConfiguration(Configuration configuration)
     {
         this.configuration = configuration;
+    }
+
+    public String getContextId()
+    {
+        return contextId;
+    }
+
+    public void setContextId(String contextId)
+    {
+        this.contextId = contextId;
     }
 
 }

@@ -1,28 +1,29 @@
-package org.carlspring.strongbox.storage.providers.repository;
+package org.carlspring.strongbox.providers.repository;
 
-import org.carlspring.strongbox.config.CommonConfig;
 import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.config.CommonConfig;
 import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.providers.repository.GroupRepositoryProvider;
-import org.carlspring.strongbox.providers.repository.RepositoryProvider;
-import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 
+import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import com.carmatechnologies.commons.testing.logging.ExpectedLogs;
 import com.carmatechnologies.commons.testing.logging.api.LogLevel;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,8 +40,9 @@ import static org.junit.Assert.assertNull;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 public class GroupRepositoryProviderTest
-        extends TestCaseWithArtifactGeneration
+        extends TestCaseWithArtifactGenerationWithIndexing
 {
+
 
     @org.springframework.context.annotation.Configuration
     @Import({
@@ -73,9 +75,11 @@ public class GroupRepositoryProviderTest
 
 
     @Before
-    public void setUp()
+    public void init()
             throws Exception
     {
+        super.init();
+
         if (!INITIALIZED)
         {
             generateArtifact(REPOSITORY_BASEDIR_RELEASES_WITH_TRASH.getAbsolutePath(), "com.artifacts.in.releases.with.trash:foo:1.2.3");
@@ -87,6 +91,15 @@ public class GroupRepositoryProviderTest
  
             INITIALIZED = true;
         }
+    }
+
+    @Override
+    public Map<String, String> getRepositoriesToClean()
+    {
+        Map<String, String> repositories = new LinkedHashMap<>();
+        repositories.put(STORAGE0, "");
+
+        return repositories;
     }
 
     @After
@@ -112,7 +125,7 @@ public class GroupRepositoryProviderTest
         Repository repository = configurationManager.getRepository("storage0:group-releases");
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        InputStream is = repositoryProvider.getInputStream("storage0",
+        InputStream is = repositoryProvider.getInputStream(STORAGE0,
                                                            "group-releases",
                                                            "com/artifacts/in/releases/with/trash/foo/1.2.3/foo-1.2.3.jar");
 
@@ -130,13 +143,13 @@ public class GroupRepositoryProviderTest
     {
         System.out.println("# Testing group includes with out of service repository...");
 
-        configurationManager.getConfiguration().getStorage("storage0")
+        configurationManager.getConfiguration().getStorage(STORAGE0)
                             .getRepository("releases").putOutOfService();
 
         Repository repository = configurationManager.getRepository("storage0:group-releases");
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        InputStream is = repositoryProvider.getInputStream("storage0",
+        InputStream is = repositoryProvider.getInputStream(STORAGE0,
                                                            "group-releases",
                                                            "com/artifacts/in/releases/foo/1.2.4/foo-1.2.4.jar");
 
@@ -157,7 +170,7 @@ public class GroupRepositoryProviderTest
         Repository repository = configurationManager.getRepository("storage0:group-releases");
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        InputStream is = repositoryProvider.getInputStream("storage0",
+        InputStream is = repositoryProvider.getInputStream(STORAGE0,
                                                            "group-releases",
                                                            "com/artifacts/in/releases/foo/1.2.4/foo-1.2.4.jar");
 
@@ -178,7 +191,7 @@ public class GroupRepositoryProviderTest
         Repository repository = configurationManager.getRepository("storage0:group-releases-nested");
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        InputStream is = repositoryProvider.getInputStream("storage0",
+        InputStream is = repositoryProvider.getInputStream(STORAGE0,
                                                            "group-releases-nested",
                                                            "com/artifacts/in/releases/foo/1.2.4/foo-1.2.4.jar");
 
@@ -199,7 +212,7 @@ public class GroupRepositoryProviderTest
         Repository repository = configurationManager.getRepository("storage0:group-releases-nested-deep-1");
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        InputStream is = repositoryProvider.getInputStream("storage0",
+        InputStream is = repositoryProvider.getInputStream(STORAGE0,
                                                            "group-releases-nested-deep-1",
                                                            "org/carlspring/metadata/by/juan/juancho/1.2.64/juancho-1.2.64.jar");
 
@@ -220,7 +233,7 @@ public class GroupRepositoryProviderTest
         Repository repository = configurationManager.getRepository("storage0:group-releases");
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        InputStream is = repositoryProvider.getInputStream("storage0",
+        InputStream is = repositoryProvider.getInputStream(STORAGE0,
                                                            "group-releases",
                                                            "com/artifacts/denied/in/memory/foo/1.2.5/foo-1.2.5.jar");
 
@@ -239,7 +252,7 @@ public class GroupRepositoryProviderTest
         Repository repository = configurationManager.getRepository("storage0:group-releases");
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        InputStream is = repositoryProvider.getInputStream("storage0",
+        InputStream is = repositoryProvider.getInputStream(STORAGE0,
                                                            "group-releases",
                                                            "com/artifacts/denied/by/wildcard/foo/1.2.6/foo-1.2.6.jar");
 
