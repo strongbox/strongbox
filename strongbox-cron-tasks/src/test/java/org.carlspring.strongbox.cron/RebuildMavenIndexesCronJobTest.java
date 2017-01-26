@@ -90,10 +90,11 @@ public class RebuildMavenIndexesCronJobTest
         {
             Repository repository1 = new Repository("releases-one");
             repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
+            repository1.setIndexingEnabled(true);
             Storage storage = configurationManagementService.getStorage("storage0");
             repository1.setStorage(storage);
-            repositoryManagementService.createRepository("storage0", "releases-one");
             storage.addOrUpdateRepository(repository1);
+            repositoryManagementService.createRepository("storage0", "releases-one");
 
             //Create released artifact
             String ga1 = "org.carlspring.strongbox.indexes:strongbox-test-one";
@@ -105,9 +106,10 @@ public class RebuildMavenIndexesCronJobTest
 
             Repository repository2 = new Repository("releases-two");
             repository2.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
+            repository2.setIndexingEnabled(true);
             repository2.setStorage(storage);
-            repositoryManagementService.createRepository("storage0", "releases-two");
             storage.addOrUpdateRepository(repository2);
+            repositoryManagementService.createRepository("storage0", "releases-two");
 
             //Create released artifact
             artifact3 = generateArtifact(REPOSITORY_BASEDIR_2.getAbsolutePath(), ga1 + ":1.0:jar");
@@ -116,10 +118,11 @@ public class RebuildMavenIndexesCronJobTest
             Storage newStorage = new Storage("storage1");
             Repository repository3 = new Repository("releases");
             repository3.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
+            repository3.setIndexingEnabled(true);
             repository3.setStorage(newStorage);
             configurationManagementService.addOrUpdateStorage(newStorage);
-            repositoryManagementService.createRepository("storage1", "releases");
             newStorage.addOrUpdateRepository(repository3);
+            repositoryManagementService.createRepository("storage1", "releases");
 
             //Create released artifact
             artifact4 = generateArtifact(REPOSITORY_BASEDIR_3.getAbsolutePath(), ga1 + ":1.0:jar");
@@ -142,7 +145,7 @@ public class RebuildMavenIndexesCronJobTest
         CronTaskConfiguration cronTaskConfiguration = new CronTaskConfiguration();
         cronTaskConfiguration.setName(name);
         cronTaskConfiguration.addProperty("jobClass", RebuildMavenIndexesCronJob.class.getName());
-        cronTaskConfiguration.addProperty("cronExpression", "0 0/10 * 1/1 * ? *");
+        cronTaskConfiguration.addProperty("cronExpression", "0 0/1 * 1/1 * ? *");
         cronTaskConfiguration.addProperty("storageId", storageId);
         cronTaskConfiguration.addProperty("repositoryId", repositoryId);
         cronTaskConfiguration.addProperty("basePath", basePath);
