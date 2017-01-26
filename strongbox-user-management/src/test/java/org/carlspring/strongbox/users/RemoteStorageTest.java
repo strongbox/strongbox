@@ -43,7 +43,7 @@ public class RemoteStorageTest
             User oldUser = userService.findByUserName(user.getUsername());
             if (oldUser != null)
             {
-                userService.delete(oldUser.getId());
+                userService.delete(oldUser.getObjectId());
             }
         }
         catch (IndexOutOfBoundsException e)
@@ -53,7 +53,8 @@ public class RemoteStorageTest
 
         User user1 = databaseTx.detachAll(userService.save(user), true);
 
-        User storedUser = userService.findOne(user1.getId()).get();
+        User storedUser = userService.findOne(user1.getObjectId())
+                                     .get();
         assertNotNull(storedUser);
 
         logger.debug("Found user {}", storedUser);

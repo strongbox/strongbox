@@ -1,5 +1,11 @@
 package org.carlspring.strongbox.users.service.impl;
 
+import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.repository.UserRepository;
+import org.carlspring.strongbox.users.security.SecurityTokenProvider;
+import org.carlspring.strongbox.users.service.UserService;
+
+import javax.inject.Inject;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -7,15 +13,11 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.lang.StringUtils;
-import org.carlspring.strongbox.users.domain.User;
-import org.carlspring.strongbox.users.repository.UserRepository;
-import org.carlspring.strongbox.users.security.SecurityTokenProvider;
-import org.carlspring.strongbox.users.service.UserService;
 import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,19 +34,18 @@ class UserServiceImpl
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    @Autowired
+    @Inject
     UserRepository repository;
 
-    @Autowired
+    @Inject
     CacheManager cacheManager;
 
-    @Autowired
+    @Inject
     SecurityTokenProvider tokenProvider;
     
     @Override
     @Transactional
-    //XXX: Cache don't work properly with ORientDB entity proxies
-    //@Cacheable(value = "users", key = "#name", sync = true)
+    @Cacheable(value = "users", key = "#name", sync = true)
     public synchronized User findByUserName(String name)
     {
         try
@@ -188,7 +189,7 @@ class UserServiceImpl
     @Override
     public String generateAuthenticationToken(String id,
                                               Date expire)
-        throws JoseException
+            throws JoseException
     {
         User user = repository.findOne(id);
 

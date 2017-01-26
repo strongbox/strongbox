@@ -13,11 +13,11 @@ import java.util.Set;
 
 /**
  * Base class for {@link FileSystem} wrapper implementations.
- * 
- * @author Sergey Bespalov
  *
+ * @author Sergey Bespalov
  */
-public abstract class FileSystemWrapper extends FileSystem
+public abstract class FileSystemWrapper
+        extends FileSystem
 {
 
     private FileSystem target;
@@ -38,7 +38,7 @@ public abstract class FileSystemWrapper extends FileSystem
     }
 
     public void close()
-        throws IOException
+            throws IOException
     {
         target.close();
     }
@@ -94,7 +94,7 @@ public abstract class FileSystemWrapper extends FileSystem
     }
 
     public WatchService newWatchService()
-        throws IOException
+            throws IOException
     {
         return target.newWatchService();
     }

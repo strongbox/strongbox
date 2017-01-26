@@ -32,25 +32,29 @@ public class P2ArtifactReaderTest
     }
 
     @Test(expected = FileNotFoundException.class)
-    public void testNullPath() throws IOException
+    public void testNullPath()
+            throws IOException
     {
         Assert.assertNull(P2ArtifactReader.getArtifact(".", null));
     }
 
     @Test(expected = FileNotFoundException.class)
-    public void testNullBaseDir() throws IOException
+    public void testNullBaseDir()
+            throws IOException
     {
         Assert.assertNull(P2ArtifactReader.getArtifact(null, ""));
     }
 
     @Test(expected = FileNotFoundException.class)
-    public void testNullParameters() throws IOException
+    public void testNullParameters()
+            throws IOException
     {
         Assert.assertNull(P2ArtifactReader.getArtifact(null, null));
     }
 
     @Test(expected = FileNotFoundException.class)
-    public void testInvalidPath() throws IOException
+    public void testInvalidPath()
+            throws IOException
     {
         Assert.assertNull(P2ArtifactReader.getArtifact(".", "some/invalid@path"));
         Assert.assertNull(P2ArtifactReader.getArtifact(".", "somePath"));
@@ -59,13 +63,15 @@ public class P2ArtifactReaderTest
     }
 
     @Test(expected = FileNotFoundException.class)
-    public void testInvalidBaseDir() throws IOException
+    public void testInvalidBaseDir()
+            throws IOException
     {
         Assert.assertNull(P2ArtifactReader.getArtifact("inavlidRoot!", "somePath"));
     }
 
     @Test(expected = FileNotFoundException.class)
-    public void testEmpryParameters()throws IOException
+    public void testEmpryParameters()
+            throws IOException
     {
         Assert.assertNull(P2ArtifactReader.getArtifact("", ""));
     }
@@ -113,7 +119,8 @@ public class P2ArtifactReaderTest
         return new File(getClass().getResource("artifacts.xml").toURI()).getParent();
     }
 
-    private P2ArtifactCoordinates getArtifact(String repoDir) throws IOException
+    private P2ArtifactCoordinates getArtifact(String repoDir)
+            throws IOException
     {
         return P2ArtifactReader.getArtifact(repoDir, PATH);
     }

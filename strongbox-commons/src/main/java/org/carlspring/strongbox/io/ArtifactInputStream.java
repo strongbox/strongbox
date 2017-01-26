@@ -1,5 +1,9 @@
 package org.carlspring.strongbox.io;
 
+import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
+import org.carlspring.commons.util.MessageDigestUtils;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,14 +13,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
-import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
-import org.carlspring.commons.util.MessageDigestUtils;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 
 /**
  * @author mtodorov
  */
-public class ArtifactInputStream extends FilterInputStream
+public class ArtifactInputStream
+        extends FilterInputStream
 {
 
     public static final String[] DEFAULT_ALGORITHMS = { EncryptionAlgorithmsEnum.MD5.getAlgorithm(),
@@ -30,7 +32,7 @@ public class ArtifactInputStream extends FilterInputStream
 
     public ArtifactInputStream(ArtifactCoordinates coordinates,
                                InputStream is)
-        throws NoSuchAlgorithmException
+            throws NoSuchAlgorithmException
     {
         super(is);
         this.artifactCoordinates = coordinates;
@@ -44,7 +46,7 @@ public class ArtifactInputStream extends FilterInputStream
     }
 
     public final void addAlgorithm(String algorithm)
-        throws NoSuchAlgorithmException
+            throws NoSuchAlgorithmException
     {
         MessageDigest digest = MessageDigest.getInstance(algorithm);
 
@@ -90,7 +92,7 @@ public class ArtifactInputStream extends FilterInputStream
 
     @Override
     public int read()
-        throws IOException
+            throws IOException
     {
         int ch = in.read();
         if (ch != -1)
@@ -109,7 +111,7 @@ public class ArtifactInputStream extends FilterInputStream
     public int read(byte[] bytes,
                     int off,
                     int len)
-        throws IOException
+            throws IOException
     {
         int numberOfBytesRead = in.read(bytes, off, len);
         if (numberOfBytesRead != -1)
@@ -126,7 +128,7 @@ public class ArtifactInputStream extends FilterInputStream
 
     @Override
     public int read(byte[] bytes)
-        throws IOException
+            throws IOException
     {
         int len = in.read(bytes);
 

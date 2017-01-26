@@ -1,12 +1,13 @@
 package org.carlspring.strongbox.config;
 
-import javax.annotation.PostConstruct;
-
 import org.carlspring.strongbox.security.authentication.CustomAnonymousAuthenticationFilter;
 import org.carlspring.strongbox.security.authentication.Http401AuthenticationEntryPoint;
 import org.carlspring.strongbox.security.authentication.JWTAuthenticationFilter;
 import org.carlspring.strongbox.security.authentication.JWtAuthenticationProvider;
 import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
+
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -33,8 +34,10 @@ public class SecurityConfig
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth,
-                                @Qualifier("userDetailsAuthenticationProvider") AuthenticationProvider userDetailsAuthenticationProvider,
-                                @Qualifier("jwtAuthenticationProvider") AuthenticationProvider jwtAuthenticationProvider)
+                                @Qualifier("userDetailsAuthenticationProvider")
+                                        AuthenticationProvider userDetailsAuthenticationProvider,
+                                @Qualifier("jwtAuthenticationProvider")
+                                        AuthenticationProvider jwtAuthenticationProvider)
     {
         auth.authenticationProvider(userDetailsAuthenticationProvider)
             .authenticationProvider(jwtAuthenticationProvider)
@@ -45,18 +48,18 @@ public class SecurityConfig
     /**
      * This configuration specifies BasicAuthentication rules. Such authentication triggered first and only for concrete
      * set of URL patterns. All the other authentication configured in {@link JwtSecurityConfig}
-     * 
-     * @author Sergey Bespalov
      *
+     * @author Sergey Bespalov
      */
     @Configuration
     @Order(1)
-    public static class BasicSecurityConfig extends WebSecurityConfigurerAdapter
+    public static class BasicSecurityConfig
+            extends WebSecurityConfigurerAdapter
     {
 
         @Override
         protected void configure(HttpSecurity http)
-            throws Exception
+                throws Exception
         {
             http.sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -78,13 +81,14 @@ public class SecurityConfig
     /**
      * This configuration specifies JWTAuthentication and Anonymous access rules. It triggered after
      * {@link BasicSecurityConfig} and authenticate unauthorized requests if needed.
-     * 
+     *
      * @author Sergey Bespalov
      *
      */
     @Configuration
     @Order(2)
-    public static class JwtSecurityConfig extends WebSecurityConfigurerAdapter
+    public static class JwtSecurityConfig
+            extends WebSecurityConfigurerAdapter
     {
 
         @Autowired
@@ -94,17 +98,20 @@ public class SecurityConfig
         public JwtSecurityConfig()
         {
             anonymousAuthenticationFilter = new CustomAnonymousAuthenticationFilter("strongbox-unique-key",
-                    "anonymousUser",
-                    AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
+                                                                                    "anonymousUser",
+                                                                                    AuthorityUtils.createAuthorityList(
+                                                                                            "ROLE_ANONYMOUS"));
         }
 
         @PostConstruct
         public void init()
         {
-            authorizationConfigProvider.getConfig().ifPresent((config) -> {
-                anonymousAuthenticationFilter.getAuthorities()
-                                             .addAll(config.getAnonymousAuthorities());
-            });
+            authorizationConfigProvider.getConfig()
+                                       .ifPresent((config) ->
+                                                  {
+                                                      anonymousAuthenticationFilter.getAuthorities()
+                                                                                   .addAll(config.getAnonymousAuthorities());
+                                                  });
         }
 
         @Bean
@@ -115,7 +122,7 @@ public class SecurityConfig
 
         @Override
         protected void configure(HttpSecurity http)
-            throws Exception
+                throws Exception
         {
 
             JWTAuthenticationFilter jwtFilter = new JWTAuthenticationFilter(authenticationManager());

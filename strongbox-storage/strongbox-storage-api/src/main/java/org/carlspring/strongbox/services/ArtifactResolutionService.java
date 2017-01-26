@@ -1,12 +1,12 @@
 package org.carlspring.strongbox.services;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.NoSuchAlgorithmException;
-
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * @author mtodorov
@@ -23,8 +23,8 @@ public interface ArtifactResolutionService
                    ProviderImplementationException;
 
     ArtifactOutputStream getOutputStream(String storageId,
-                                 String repositoryId,
-                                 String artifactPath)
+                                         String repositoryId,
+                                         String artifactPath)
             throws IOException,
                    ProviderImplementationException,
                    NoSuchAlgorithmException;

@@ -1,13 +1,13 @@
 package org.carlspring.strongbox.providers.layout;
 
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.storage.repository.Repository;
+
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * @author carlspring
@@ -24,7 +24,9 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
     ArtifactInputStream getInputStream(String storageId, String repositoryId, String path)
             throws IOException, NoSuchAlgorithmException, ArtifactTransportException;
 
-    ArtifactOutputStream getOutputStream(String storageId, String repositoryId, String path)
+    ArtifactOutputStream getOutputStream(String storageId,
+                                         String repositoryId,
+                                         String path)
             throws IOException, NoSuchAlgorithmException;
 
     boolean containsArtifact(Repository repository, ArtifactCoordinates coordinates)

@@ -106,9 +106,9 @@ public class UserControllerTest
                .extract()
                .asString();
 
-        // retrieve newly created user and store the id
+        // retrieve newly created user and store the objectId
         User createdUser = retrieveUserByName(test.getUsername());
-        assertNotNull("Created user should have id", createdUser.getId());
+        assertNotNull("Created user should have objectId", createdUser.getObjectId());
 
         // update some property for user
         createdUser.setEnabled(true);
@@ -149,7 +149,7 @@ public class UserControllerTest
                .asString();
 
         user = retrieveUserByName(user.getUsername());
-        assertNotNull("Created user should have id", user.getId());
+        assertNotNull("Created user should have objectId", user.getObjectId());
 
         //2. Provide `securityTokenKey`
         user.setSecurityTokenKey("seecret");

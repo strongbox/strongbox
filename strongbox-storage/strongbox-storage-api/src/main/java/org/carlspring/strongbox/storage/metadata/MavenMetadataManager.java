@@ -16,7 +16,13 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -69,7 +75,7 @@ public class MavenMetadataManager
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
         ArtifactCoordinates coordinates = (ArtifactCoordinates) layoutProvider.getArtifactCoordinates(ArtifactUtils.convertArtifactToPath(artifact));
-        
+
         if (layoutProvider.containsArtifact(repository, coordinates))
         {
             Path artifactPath = storageProvider.resolve(repository, coordinates);

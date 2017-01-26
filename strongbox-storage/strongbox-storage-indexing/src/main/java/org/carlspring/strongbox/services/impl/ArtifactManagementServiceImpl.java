@@ -1,18 +1,5 @@
 package org.carlspring.strongbox.services.impl;
 
-import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.NoSuchAlgorithmException;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
@@ -36,10 +23,23 @@ import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsVa
 import org.carlspring.strongbox.storage.validation.version.VersionValidationException;
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
 import org.carlspring.strongbox.util.ArtifactFileUtils;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.maven.artifact.Artifact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
 /**
  * @author mtodorov
@@ -82,12 +82,13 @@ public class ArtifactManagementServiceImpl
     {
         String artifactPath = storageId + "/" + repositoryId + "/" + path;
         performRepositoryAcceptanceValidation(storageId, repositoryId, path);
-        
-        
-        try(ArtifactOutputStream os = artifactResolutionService.getOutputStream(storageId, repositoryId, path))
+
+
+        try (ArtifactOutputStream os = artifactResolutionService.getOutputStream(storageId, repositoryId, path))
         {
             //If we have no Digests then we have a Checksum to store.
-            if (os.getDigests().isEmpty())
+            if (os.getDigests()
+                  .isEmpty())
             {
                 os.setCacheOutputStream(new ByteArrayOutputStream());
             }
@@ -101,7 +102,8 @@ public class ArtifactManagementServiceImpl
                 os.flush();
             }
 
-            if (!os.getDigestMap().isEmpty())
+            if (!os.getDigestMap()
+                   .isEmpty())
             {
                 // Store artifact Digests in cache if we have them.
                 addChecksumsToCacheManager(os.getDigestMap(), artifactPath);
@@ -288,7 +290,7 @@ public class ArtifactManagementServiceImpl
 
     private void validateUploadedChecksumAgainstCache(byte[] checksum,
                                                       String artifactPath)
-        throws ArtifactStorageException
+            throws ArtifactStorageException
     {
         logger.debug("Received checksum: " + new String(checksum));
 
@@ -310,8 +312,9 @@ public class ArtifactManagementServiceImpl
     {
         String checksum = new String(pChecksum);
         ArtifactChecksum artifactChecksum = checksumCacheManager.getArtifactChecksum(artifactBasePath);
-        
-        if (artifactChecksum == null){
+
+        if (artifactChecksum == null)
+        {
             return false;
         }
 
@@ -320,14 +323,16 @@ public class ArtifactManagementServiceImpl
                                                                 .stream()
                                                                 .collect(Collectors.groupingBy(e -> e.getValue()
                                                                                                      .equals(checksum),
-                                                                                               Collectors.mapping(e -> e.getKey(),
-                                                                                                                  Collectors.toSet())));
+                                                                                               Collectors.mapping(
+                                                                                                       e -> e.getKey(),
+                                                                                                       Collectors.toSet())));
 
         Set<String> matched = matchingMap.get(Boolean.TRUE);
         Set<String> unmatched = matchingMap.get(Boolean.FALSE);
-        logger.debug(String.format("Artifact checksum matchings: artifact-[%s]; ext-[%s]; matched-[%s]; unmatched-[%s]; checksum-[%s]",
-                                   artifactBasePath, checksumExtension, matched, unmatched,
-                                   new String(checksum)));
+        logger.debug(String.format(
+                "Artifact checksum matchings: artifact-[%s]; ext-[%s]; matched-[%s]; unmatched-[%s]; checksum-[%s]",
+                artifactBasePath, checksumExtension, matched, unmatched,
+                new String(checksum)));
 
         return matched != null && !matched.isEmpty();
     }

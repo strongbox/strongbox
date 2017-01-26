@@ -1,19 +1,20 @@
 package org.carlspring.strongbox.io;
 
+import org.carlspring.commons.http.range.ByteRange;
+
 import java.io.IOException;
 import java.io.InputStream;
-
-import org.carlspring.commons.http.range.ByteRange;
 
 public class StreamUtils
 {
 
-    private StreamUtils(){
-        
+    private StreamUtils()
+    {
+
     }
-    
+
     public static long getLength(ArtifactInputStream is)
-        throws IOException
+            throws IOException
     {
         InputStream target = is.getTarget();
         if (!(target instanceof ByteRangeInputStream))
@@ -26,7 +27,7 @@ public class StreamUtils
 
     public static void setCurrentByteRange(ArtifactInputStream is,
                                            ByteRange byteRange)
-        throws IOException
+            throws IOException
     {
         InputStream target = is.getTarget();
         if (!(target instanceof ByteRangeInputStream))

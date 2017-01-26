@@ -1,13 +1,5 @@
 package org.carlspring.strongbox.providers.layout;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.security.NoSuchAlgorithmException;
-
-import javax.annotation.PostConstruct;
-
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.io.RepositoryPath;
@@ -15,6 +7,14 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
+
+import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.security.NoSuchAlgorithmException;
+
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +75,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
     protected void doDeletePath(RepositoryPath repositoryPath,
                                 boolean force,
                                 boolean deleteChecksum)
-        throws IOException
+            throws IOException
     {
         RepositoryPath md5Path = repositoryPath.resolveSibling(repositoryPath.getFileName() + ".md5");
         RepositoryPath sha1Path = repositoryPath.resolveSibling(repositoryPath.getFileName() + ".sha1");
@@ -91,7 +91,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
     public void deleteMetadata(String storageId,
                                String repositoryId,
                                String metadataPath)
-        throws IOException
+            throws IOException
     {
         // TODO: Further untangle the relationships of this so that the code below can be uncommented:
 
@@ -105,13 +105,16 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
 
         try
         {
-            String version = repositoryPath.getFileName().toString();
+            String version = repositoryPath.getFileName()
+                                           .toString();
             java.nio.file.Path path = repositoryPath.getParent();
             Metadata metadata = mavenMetadataManager.readMetadata(path);
             if (metadata != null && metadata.getVersioning() != null
                     && metadata.getVersioning().getVersions().contains(version))
             {
-                metadata.getVersioning().getVersions().remove(version);
+                metadata.getVersioning()
+                        .getVersions()
+                        .remove(version);
                 mavenMetadataManager.storeMetadata(path, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
             }
         }

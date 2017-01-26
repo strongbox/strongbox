@@ -134,7 +134,7 @@ public class CustomAntPathMatcher
         for (int i = 1; i < subPathIndex - 1; i++)
         {
             String subPath = pathDirs[i];
-            
+
             logger.trace("Append subPath length " + subPath.length() + " for subPath " + subPath);
 
             subPathLength += subPath.length();

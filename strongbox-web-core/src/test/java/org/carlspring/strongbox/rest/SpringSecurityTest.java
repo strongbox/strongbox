@@ -1,13 +1,13 @@
 package org.carlspring.strongbox.rest;
 
-import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.security.authentication.CustomAnonymousAuthenticationFilter;
+
+import javax.inject.Inject;
+
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,9 +21,8 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
+import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 /**
  * @author Alex Oreshkevich

@@ -1,5 +1,10 @@
 package org.carlspring.strongbox.providers.layout;
 
+import org.carlspring.strongbox.artifact.coordinates.NugetHierarchicalArtifactCoordinates;
+import org.carlspring.strongbox.io.ArtifactOutputStream;
+import org.carlspring.strongbox.io.RepositoryPath;
+
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
@@ -8,12 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
-import org.carlspring.strongbox.artifact.coordinates.NugetHierarchicalArtifactCoordinates;
-import org.carlspring.strongbox.io.ArtifactOutputStream;
-import org.carlspring.strongbox.io.RepositoryPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -91,7 +91,7 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
     protected ArtifactOutputStream decorateStream(String path,
                                                   OutputStream os,
                                                   NugetHierarchicalArtifactCoordinates c)
-        throws NoSuchAlgorithmException
+            throws NoSuchAlgorithmException
     {
         ArtifactOutputStream result = super.decorateStream(path, os, c);
         result.setDigestStringifier(this::toBase64);
@@ -100,14 +100,16 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
 
     private String toBase64(byte[] digest)
     {
-        byte[] encoded = Base64.getEncoder().encode(digest);
+        byte[] encoded = Base64.getEncoder()
+                               .encode(digest);
         return new String(encoded);
     }
 
     @Override
     public Set<String> getDigestAlgorithmSet()
     {
-        return Stream.of(MessageDigestAlgorithms.SHA_512).collect(Collectors.toSet());
+        return Stream.of(MessageDigestAlgorithms.SHA_512)
+                     .collect(Collectors.toSet());
     }
 
 }

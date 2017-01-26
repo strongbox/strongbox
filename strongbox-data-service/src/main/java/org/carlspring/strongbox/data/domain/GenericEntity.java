@@ -1,16 +1,18 @@
 package org.carlspring.strongbox.data.domain;
 
-import java.io.Serializable;
-
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
+import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
- * Base class for all entity classes in OrientDB.
+ * Base class for all entities that have to be stored in OrientDB.
+ * <p>
+ * <b>Implementation notice</b>: don't declare variables with the same names as it's in this class ({@link #objectId},
+ * {@link #detachAll} etc.) It will hide that variables and change behaviour of persistence subsystem to unpredictable.
  *
  * @author Alex Oreshkevich
  */
@@ -21,7 +23,7 @@ public abstract class GenericEntity
 {
 
     @Id
-    protected String id;
+    protected String objectId;
 
     /**
      * Added to avoid a runtime error whereby the detachAll property is checked for existence but not actually used.
@@ -37,14 +39,14 @@ public abstract class GenericEntity
     {
     }
 
-    public final String getId()
+    public final String getObjectId()
     {
-        return id;
+        return objectId;
     }
 
-    public final void setId(String id)
+    public final void setObjectId(String objectId)
     {
-        this.id = id;
+        this.objectId = objectId;
     }
 
 }

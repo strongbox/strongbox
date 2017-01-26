@@ -1,18 +1,5 @@
 package org.carlspring.strongbox.services.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.NoSuchAlgorithmException;
-import java.util.Iterator;
-import java.util.List;
-
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
-import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.artifact.locator.handlers.ArtifactLocationGenerateMavenMetadataOperation;
@@ -28,6 +15,20 @@ import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.NoSuchAlgorithmException;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
+import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -330,13 +331,18 @@ public class ArtifactMetadataServiceImpl
         
         try
         {
-            String version = repositoryPath.getFileName().toString();
+            String version = repositoryPath.getFileName()
+                                           .toString();
             java.nio.file.Path path = repositoryPath.getParent();
             Metadata metadata = mavenMetadataManager.readMetadata(path);
             if (metadata != null && metadata.getVersioning() != null
-                && metadata.getVersioning().getVersions().contains(version))
+                && metadata.getVersioning()
+                           .getVersions()
+                           .contains(version))
             {
-                metadata.getVersioning().getVersions().remove(version);
+                metadata.getVersioning()
+                        .getVersions()
+                        .remove(version);
                 mavenMetadataManager.storeMetadata(path, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
             }
         }

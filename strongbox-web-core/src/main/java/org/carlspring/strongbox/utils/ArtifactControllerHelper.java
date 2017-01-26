@@ -1,20 +1,19 @@
 package org.carlspring.strongbox.utils;
 
-import static org.springframework.http.HttpStatus.PARTIAL_CONTENT;
-import static org.springframework.http.HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE;
-
-import java.io.IOException;
-import java.util.List;
-
-import javax.servlet.http.HttpServletResponse;
-
 import org.carlspring.commons.http.range.ByteRange;
 import org.carlspring.commons.http.range.ByteRangeHeaderParser;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.StreamUtils;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
+import static org.springframework.http.HttpStatus.PARTIAL_CONTENT;
+import static org.springframework.http.HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE;
 
 public class ArtifactControllerHelper
 {
@@ -26,11 +25,11 @@ public class ArtifactControllerHelper
     {
 
     }
-    
+
     public static void handlePartialDownload(ArtifactInputStream is,
                                              HttpHeaders headers,
                                              HttpServletResponse response)
-        throws IOException
+            throws IOException
     {
         ByteRangeHeaderParser parser = new ByteRangeHeaderParser(headers.getFirst(HEADER_NAME_RANGE));
         List<ByteRange> ranges = parser.getRanges();
@@ -49,7 +48,7 @@ public class ArtifactControllerHelper
     public static void handlePartialDownloadWithSingleRange(ArtifactInputStream is,
                                                             ByteRange byteRange,
                                                             HttpServletResponse response)
-        throws IOException
+            throws IOException
     {
 
         long length = StreamUtils.getLength(is);
@@ -75,7 +74,7 @@ public class ArtifactControllerHelper
     public static void handlePartialDownloadWithMultipleRanges(ArtifactInputStream is,
                                                                List<ByteRange> byteRanges,
                                                                HttpServletResponse response)
-        throws IOException
+            throws IOException
     {
         // XXX: this is not implemented yet
         response.setStatus(REQUESTED_RANGE_NOT_SATISFIABLE.value());
@@ -123,29 +122,34 @@ public class ArtifactControllerHelper
         }
         else
         {
-            String contentRange = headers.getFirst(HEADER_NAME_RANGE) != null ? headers.getFirst(HEADER_NAME_RANGE) : null;
+            String contentRange =
+                    headers.getFirst(HEADER_NAME_RANGE) != null ? headers.getFirst(HEADER_NAME_RANGE) : null;
             return contentRange != null && !"0/*".equals(contentRange) && !"0-".equals(contentRange) &&
-                    !"0".equals(contentRange);
+                   !"0".equals(contentRange);
         }
     }
 
     public static void setHeadersForChecksums(ArtifactInputStream ais,
                                               HttpServletResponse response)
     {
-        ais.getHexDigests().forEach((k,
-                                     v) -> response.setHeader(String.format("Checksum-%s",
-                                                                            k.toUpperCase().replaceAll("-", "")),
-                                                              v));
+        ais.getHexDigests()
+           .forEach((k,
+                     v) -> response.setHeader(String.format("Checksum-%s",
+                                                            k.toUpperCase()
+                                                             .replaceAll("-", "")),
+                                              v));
 
     }
 
     public static void setHeadersForChecksums(ArtifactInputStream ais,
                                               HttpHeaders headers)
     {
-        ais.getHexDigests().forEach((k,
-                                     v) -> headers.add(String.format("Checksum-%s",
-                                                                     k.toUpperCase().replaceAll("-", "")),
-                                                       v));
+        ais.getHexDigests()
+           .forEach((k,
+                     v) -> headers.add(String.format("Checksum-%s",
+                                                     k.toUpperCase()
+                                                      .replaceAll("-", "")),
+                                       v));
 
     }
 }

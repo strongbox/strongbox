@@ -1,44 +1,45 @@
 package org.carlspring.strongbox.io;
 
+import org.carlspring.commons.http.range.ByteRange;
+import org.carlspring.commons.io.AbstractByteRangeInputStream;
+import org.carlspring.commons.io.reloading.ReloadableInputStreamHandler;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-import org.carlspring.commons.http.range.ByteRange;
-import org.carlspring.commons.io.AbstractByteRangeInputStream;
-import org.carlspring.commons.io.reloading.ReloadableInputStreamHandler;
-
-public class ByteRangeInputStream extends AbstractByteRangeInputStream
+public class ByteRangeInputStream
+        extends AbstractByteRangeInputStream
 {
 
     private long length;
 
     public ByteRangeInputStream(InputStream is)
-        throws NoSuchAlgorithmException
+            throws NoSuchAlgorithmException
     {
         super(is);
     }
 
     public ByteRangeInputStream(ReloadableInputStreamHandler handler,
                                 ByteRange byteRange)
-        throws IOException,
-        NoSuchAlgorithmException
+            throws IOException,
+                   NoSuchAlgorithmException
     {
         super(handler, byteRange);
     }
 
     public ByteRangeInputStream(ReloadableInputStreamHandler handler,
                                 List<ByteRange> byteRanges)
-        throws IOException,
-        NoSuchAlgorithmException
+            throws IOException,
+                   NoSuchAlgorithmException
     {
         super(handler, byteRanges);
     }
 
     @Override
     public void reposition(long skipBytes)
-        throws IOException
+            throws IOException
     {
         //Do noting here
     }
@@ -58,7 +59,7 @@ public class ByteRangeInputStream extends AbstractByteRangeInputStream
     public int read(byte[] bytes,
                     int off,
                     int len)
-        throws IOException
+            throws IOException
     {
         if (hasReachedLimit())
         {
@@ -76,7 +77,7 @@ public class ByteRangeInputStream extends AbstractByteRangeInputStream
 
     @Override
     public int read(byte[] bytes)
-        throws IOException
+            throws IOException
     {
         if (hasReachedLimit())
         {

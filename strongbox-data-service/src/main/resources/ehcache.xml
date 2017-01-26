@@ -6,6 +6,16 @@
 
     <diskStore path="ehcache.disk.store.dir"/>
 
+    <cache name="artifacts"
+           maxEntriesLocalHeap="1000"
+           maxEntriesLocalDisk="10000"
+           eternal="false"
+           diskSpoolBufferSizeMB="20"
+           memoryStoreEvictionPolicy="LFU"
+           transactionalMode="off">
+        <persistence strategy="localTempSwap"/>
+    </cache>
+
     <cache name="users"
            maxEntriesLocalHeap="1000"
            maxEntriesLocalDisk="10000"

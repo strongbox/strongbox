@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.io;
 
+import org.carlspring.strongbox.storage.repository.Repository;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -28,7 +30,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,12 +37,13 @@ import org.slf4j.LoggerFactory;
  * This is a proxy implementation which wraps target {@link FileSystemProvider}. <br>
  * Note that almost all {@link Path} operations in this implementation must delegate method invocations into
  * {@link Files} utility class with {@link RepositoryPath}'s target as parameters.
- * 
- * @author Sergey Bespalov
  *
+ * @author Sergey Bespalov
  */
-public class RepositoryFileSystemProvider extends FileSystemProvider
+public class RepositoryFileSystemProvider
+        extends FileSystemProvider
 {
+
     private static final Logger logger = LoggerFactory.getLogger(RepositoryFileSystemProvider.class);
 
     private FileSystemProvider storageFileSystemProvider;
@@ -59,7 +61,7 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
 
     public FileSystem newFileSystem(URI uri,
                                     Map<String, ?> env)
-        throws IOException
+            throws IOException
     {
         throw new UnsupportedOperationException();
     }
@@ -77,14 +79,14 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
     public SeekableByteChannel newByteChannel(Path path,
                                               Set<? extends OpenOption> options,
                                               FileAttribute<?>... attrs)
-        throws IOException
+            throws IOException
     {
         return storageFileSystemProvider.newByteChannel(getTargetPath(path), options, attrs);
     }
 
     public DirectoryStream<Path> newDirectoryStream(Path dir,
                                                     Filter<? super Path> filter)
-        throws IOException
+            throws IOException
     {
         DirectoryStream<Path> ds = storageFileSystemProvider.newDirectoryStream(getTargetPath(dir), filter);
         if (!(dir instanceof RepositoryPath))
@@ -97,7 +99,7 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
 
             @Override
             public void close()
-                throws IOException
+                    throws IOException
             {
                 ds.close();
             }
@@ -147,13 +149,13 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
 
     public void createDirectory(Path dir,
                                 FileAttribute<?>... attrs)
-        throws IOException
+            throws IOException
     {
         storageFileSystemProvider.createDirectory(getTargetPath(dir), attrs);
     }
 
     public void delete(Path path)
-        throws IOException
+            throws IOException
     {
         if (!(path instanceof RepositoryPath))
         {
@@ -167,7 +169,8 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
             throw new NoSuchFileException(getTargetPath(repositoryPath).toString());
         }
 
-        Repository repository = repositoryPath.getFileSystem().getRepository();
+        Repository repository = repositoryPath.getFileSystem()
+                                              .getRepository();
         if (!repository.isTrashEnabled())
         {
             Files.deleteIfExists(repositoryPath.getTarget());
@@ -181,9 +184,10 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
     }
 
     public void restoreTrash(RepositoryPath path)
-        throws IOException
+            throws IOException
     {
-        Repository repository = path.getFileSystem().getRepository();
+        Repository repository = path.getFileSystem()
+                                    .getRepository();
         if (!repository.isTrashEnabled())
         {
             return;
@@ -203,13 +207,13 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
         {
             Files.walkFileTree(trashPath.getTarget(),
                                new MoveDirVisitor(trashPath.getTarget(),
-                                       path.getTarget(),
-                                       StandardCopyOption.REPLACE_EXISTING));
+                                                  path.getTarget(),
+                                                  StandardCopyOption.REPLACE_EXISTING));
         }
     }
 
     public void restoreFromTemp(RepositoryPath path)
-        throws IOException
+            throws IOException
     {
         RepositoryPath tempPath = getTempPath(path);
         if (Files.exists(tempPath.getTarget()))
@@ -224,9 +228,10 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
     }
 
     public void deleteTrash(RepositoryPath path)
-        throws IOException
+            throws IOException
     {
-        Repository repository = path.getFileSystem().getRepository();
+        Repository repository = path.getFileSystem()
+                                    .getRepository();
         if (!repository.isTrashEnabled())
         {
             return;
@@ -248,7 +253,7 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
                 @Override
                 public FileVisitResult visitFile(Path file,
                                                  BasicFileAttributes attrs)
-                    throws IOException
+                        throws IOException
                 {
                     Files.delete(file);
                     return FileVisitResult.CONTINUE;
@@ -257,7 +262,7 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
                 @Override
                 public FileVisitResult postVisitDirectory(Path dir,
                                                           IOException exc)
-                    throws IOException
+                        throws IOException
                 {
                     Files.delete(dir);
                     return FileVisitResult.CONTINUE;
@@ -267,29 +272,35 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
     }
 
     public RepositoryPath getTempPath(RepositoryPath path)
-        throws IOException
+            throws IOException
     {
-        RepositoryPath tempPathBase = path.getFileSystem().getTempPath();
+        RepositoryPath tempPathBase = path.getFileSystem()
+                                          .getTempPath();
         RepositoryPath tempPath = rebase(path, tempPathBase);
-        if (!Files.exists(tempPath.getParent().getTarget()))
+        if (!Files.exists(tempPath.getParent()
+                                  .getTarget()))
         {
             logger.debug(String.format("Creating: dir-[%s]", tempPath.getParent()));
 
-            Files.createDirectories(tempPath.getParent().getTarget());
+            Files.createDirectories(tempPath.getParent()
+                                            .getTarget());
         }
 
         return tempPath;
     }
 
     public RepositoryPath getTrashPath(RepositoryPath path)
-        throws IOException
+            throws IOException
     {
-        RepositoryPath trashBasePath = path.getFileSystem().getTrashPath();
+        RepositoryPath trashBasePath = path.getFileSystem()
+                                           .getTrashPath();
         RepositoryPath trashPath = rebase(path, trashBasePath);
-        if (!Files.exists(trashPath.getParent().getTarget()))
+        if (!Files.exists(trashPath.getParent()
+                                   .getTarget()))
         {
             logger.debug(String.format("Creating: dir-[%s]", trashPath.getParent()));
-            Files.createDirectories(trashPath.getParent().getTarget());
+            Files.createDirectories(trashPath.getParent()
+                                             .getTarget());
         }
 
         return trashPath;
@@ -298,8 +309,10 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
     private static RepositoryPath rebase(RepositoryPath source,
                                          RepositoryPath targetBase)
     {
-        FileSystem sourceFileSystem = source.getTarget().getFileSystem();
-        FileSystem targetFileSystem = targetBase.getTarget().getFileSystem();
+        FileSystem sourceFileSystem = source.getTarget()
+                                            .getFileSystem();
+        FileSystem targetFileSystem = targetBase.getTarget()
+                                                .getFileSystem();
 
         String sourceRelative = source.getRoot()
                                       .relativize(source.getTarget())
@@ -319,7 +332,7 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
     @Override
     public InputStream newInputStream(Path path,
                                       OpenOption... options)
-        throws IOException
+            throws IOException
     {
         return super.newInputStream(getTargetPath(path), options);
     }
@@ -327,7 +340,7 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
     @Override
     public OutputStream newOutputStream(Path path,
                                         OpenOption... options)
-        throws IOException
+            throws IOException
     {
         return super.newOutputStream(getTargetPath(path), options);
     }
@@ -335,7 +348,7 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
     public void copy(Path source,
                      Path target,
                      CopyOption... options)
-        throws IOException
+            throws IOException
     {
         storageFileSystemProvider.copy(getTargetPath(source), getTargetPath(target), options);
     }
@@ -343,33 +356,33 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
     public void move(Path source,
                      Path target,
                      CopyOption... options)
-        throws IOException
+            throws IOException
     {
         storageFileSystemProvider.move(getTargetPath(source), getTargetPath(target), options);
     }
 
     public boolean isSameFile(Path path,
                               Path path2)
-        throws IOException
+            throws IOException
     {
         return storageFileSystemProvider.isSameFile(getTargetPath(path), getTargetPath(path2));
     }
 
     public boolean isHidden(Path path)
-        throws IOException
+            throws IOException
     {
         return storageFileSystemProvider.isHidden(getTargetPath(path));
     }
 
     public FileStore getFileStore(Path path)
-        throws IOException
+            throws IOException
     {
         return storageFileSystemProvider.getFileStore(getTargetPath(path));
     }
 
     public void checkAccess(Path path,
                             AccessMode... modes)
-        throws IOException
+            throws IOException
     {
         storageFileSystemProvider.checkAccess(getTargetPath(path), modes);
     }
@@ -384,7 +397,7 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
     public <A extends BasicFileAttributes> A readAttributes(Path path,
                                                             Class<A> type,
                                                             LinkOption... options)
-        throws IOException
+            throws IOException
     {
         return storageFileSystemProvider.readAttributes(getTargetPath(path), type, options);
     }
@@ -392,7 +405,7 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
     public Map<String, Object> readAttributes(Path path,
                                               String attributes,
                                               LinkOption... options)
-        throws IOException
+            throws IOException
     {
         return storageFileSystemProvider.readAttributes(getTargetPath(path), attributes, options);
     }
@@ -401,7 +414,7 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
                              String attribute,
                              Object value,
                              LinkOption... options)
-        throws IOException
+            throws IOException
     {
         storageFileSystemProvider.setAttribute(getTargetPath(path), attribute, value, options);
     }
@@ -411,8 +424,10 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
         return path instanceof RepositoryPath ? ((RepositoryPath) path).getTarget() : path;
     }
 
-    public static class MoveDirVisitor extends SimpleFileVisitor<Path>
+    public static class MoveDirVisitor
+            extends SimpleFileVisitor<Path>
     {
+
         private final Path fromPath;
         private final Path toPath;
         private final CopyOption copyOption;
@@ -429,7 +444,7 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
         @Override
         public FileVisitResult preVisitDirectory(Path dir,
                                                  BasicFileAttributes attrs)
-            throws IOException
+                throws IOException
         {
             Path targetPath = toPath.resolve(fromPath.relativize(dir));
             if (!Files.exists(targetPath))
@@ -443,7 +458,7 @@ public class RepositoryFileSystemProvider extends FileSystemProvider
         @Override
         public FileVisitResult visitFile(Path file,
                                          BasicFileAttributes attrs)
-            throws IOException
+                throws IOException
         {
             Files.move(file, toPath.resolve(fromPath.relativize(file)), copyOption);
             return FileVisitResult.CONTINUE;

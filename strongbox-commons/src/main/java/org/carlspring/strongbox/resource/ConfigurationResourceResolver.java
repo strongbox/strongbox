@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.resource;
 
+import org.carlspring.strongbox.data.PropertyUtils;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -47,7 +49,8 @@ public class ConfigurationResourceResolver
 
         if (configurationPath != null)
         {
-            if (configurationPath.toLowerCase().startsWith("classpath"))
+            if (configurationPath.toLowerCase()
+                                 .startsWith("classpath"))
             {
                 // Load the resource from the classpath
                 resource = new ClassPathResource(configurationPath);
@@ -86,32 +89,12 @@ public class ConfigurationResourceResolver
 
     public static String getHomeDirectory()
     {
-        final String basedir = System.getenv("STRONGBOX_HOME") != null ?
-                               System.getenv("STRONGBOX_HOME") :
-                               System.getProperty("strongbox.home");
-        if (basedir != null)
-        {
-            return new File(basedir).getAbsolutePath();
-        }
-        else
-        {
-            return new File(".").getAbsolutePath();
-        }
+        return PropertyUtils.getHomeDirectory();
     }
 
     public static String getVaultDirectory()
     {
-        final String basedir = System.getenv("STRONGBOX_VAULT") != null ?
-                               System.getenv("STRONGBOX_VAULT") :
-                               System.getProperty("strongbox.vault");
-        if (basedir != null)
-        {
-            return new File(basedir).getAbsolutePath();
-        }
-        else
-        {
-            return new File(".").getAbsolutePath();
-        }
+        return PropertyUtils.getVaultDirectory();
     }
 
 }

@@ -1,11 +1,13 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
+import java.io.Serializable;
 import java.util.Map;
 
 /**
  * @author carlspring
  */
 public interface ArtifactCoordinates
+        extends Serializable
 {
 
     String getId();
