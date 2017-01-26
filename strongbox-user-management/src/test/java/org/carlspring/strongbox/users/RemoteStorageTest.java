@@ -40,7 +40,7 @@ public class RemoteStorageTest
         // if such user already exists, drop it
         try
         {
-            User oldUser = userService.findByUsername(user.getUsername());
+            User oldUser = userService.findByUserName(user.getUsername());
             if (oldUser != null)
             {
                 userService.delete(oldUser.getObjectId());

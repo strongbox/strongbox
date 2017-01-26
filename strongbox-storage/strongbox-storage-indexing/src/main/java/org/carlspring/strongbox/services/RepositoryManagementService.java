@@ -2,7 +2,6 @@ package org.carlspring.strongbox.services;
 
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 
-import java.io.File;
 import java.io.IOException;
 
 /**
@@ -25,7 +24,8 @@ public interface RepositoryManagementService
                       String targetRepositoryId)
             throws ArtifactStorageException;
 
-    void pack(String storageId, String repositoryId)
+    void pack(String storageId,
+              String repositoryId)
             throws IOException;
 
     void removeRepository(String storageId,

@@ -13,12 +13,12 @@ import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * @author mtodorov
@@ -66,9 +66,9 @@ public class ArtifactResolutionServiceImpl
     public ArtifactOutputStream getOutputStream(String storageId,
                                                 String repositoryId,
                                                 String artifactPath)
-        throws IOException,
-               ProviderImplementationException,
-               NoSuchAlgorithmException
+            throws IOException,
+                   ProviderImplementationException,
+                   NoSuchAlgorithmException
     {
         artifactOperationsValidator.validate(storageId, repositoryId, artifactPath);
 

@@ -58,7 +58,8 @@ public class ArtifactSearchServiceImplTest
     @Test
     public void testContains() throws Exception
     {
-        final int x = repositoryManagementService.reIndex("storage0", "releases", "org/carlspring/strongbox/strongbox-utils");
+        final int x = repositoryManagementService.reIndex("storage0", "releases",
+                                                          "org/carlspring/strongbox/strongbox-utils");
 
         assertTrue("Incorrect number of artifacts found!", x >= 3);
 

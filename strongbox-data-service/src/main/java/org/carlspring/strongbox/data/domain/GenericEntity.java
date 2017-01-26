@@ -1,11 +1,10 @@
 package org.carlspring.strongbox.data.domain;
 
-import java.io.Serializable;
-
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
+import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

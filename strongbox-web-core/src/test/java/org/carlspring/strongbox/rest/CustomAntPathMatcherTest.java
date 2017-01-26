@@ -59,7 +59,8 @@ public class CustomAntPathMatcherTest
     public void testPathMatchingForComplexPath()
     {
         final String artifactPath = "org/test/mock/spring/23-123f--,,342&*#$/~276409~!$#%^&*(-=/3/2/1/3.jar";
-        final String pattern = "/storages/{storageId}/{repositoryId}/{path:" + CustomAntPathMatcher.TWO_STARS_ANALOGUE + "}";
+        final String pattern =
+                "/storages/{storageId}/{repositoryId}/{path:" + CustomAntPathMatcher.TWO_STARS_ANALOGUE + "}";
         final String path = "/storages/storage0/repositoryId/" + artifactPath;
 
         doTest(artifactPath, path, pattern);

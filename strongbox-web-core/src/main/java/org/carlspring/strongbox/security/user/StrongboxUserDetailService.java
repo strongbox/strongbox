@@ -98,7 +98,7 @@ public class StrongboxUserDetailService
             throw new IllegalArgumentException("Username cannot be null.");
         }
 
-        User user = userService.findByUsername(name);
+        User user = userService.findByUserName(name);
         if (user == null)
         {
             logger.error("[authenticate] ERROR Cannot find user with that name " + name);

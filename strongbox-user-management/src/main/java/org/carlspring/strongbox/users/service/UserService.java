@@ -1,9 +1,10 @@
 package org.carlspring.strongbox.users.service;
 
-import java.util.Date;
-
 import org.carlspring.strongbox.data.service.CrudService;
 import org.carlspring.strongbox.users.domain.User;
+
+import java.util.Date;
+
 import org.jose4j.lang.JoseException;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +19,7 @@ public interface UserService
 {
 
     @Transactional
-    User findByUsername(final String username);
+    User findByUserName(final String username);
 
     /**
      * Generates another one 'Security Token' for specific user.<br>
@@ -33,22 +34,20 @@ public interface UserService
      */
     String generateSecurityToken(String id,
                                  Date expire)
-        throws JoseException;
+            throws JoseException;
 
     /**
      * Generates 'Authentication Token' for specific user.<br>
      * This token can be used for JWT Authentication.
-     * 
-     * @param id
-     *            user ID
-     * @param expire
-     *            token expiration date
+     *
+     * @param id     user ID
+     * @param expire token expiration date
      * @return encrypted token
      * @throws JoseException
      */
     String generateAuthenticationToken(String id,
                                        Date expire)
-        throws JoseException;
+            throws JoseException;
 
     /**
      * @param userName

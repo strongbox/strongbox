@@ -1,10 +1,11 @@
 package org.carlspring.strongbox.security.authentication;
 
+import org.carlspring.strongbox.security.exceptions.SecurityTokenException;
+import org.carlspring.strongbox.users.security.SecurityTokenProvider;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import org.carlspring.strongbox.security.exceptions.SecurityTokenException;
-import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -13,7 +14,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
-public class JWtAuthenticationProvider implements AuthenticationProvider
+public class JWtAuthenticationProvider
+        implements AuthenticationProvider
 {
 
     @Autowired
@@ -23,7 +25,7 @@ public class JWtAuthenticationProvider implements AuthenticationProvider
 
     @Override
     public Authentication authenticate(Authentication authentication)
-        throws AuthenticationException
+            throws AuthenticationException
     {
 
         JWTAuthentication jwtAuthentication = (JWTAuthentication) authentication;
@@ -48,7 +50,9 @@ public class JWtAuthenticationProvider implements AuthenticationProvider
             else
             {
                 throw new BadCredentialsException(
-                        String.format(String.format("Credentials don't match: user-[%s] ", userName)), e);
+                                                         String.format(
+                                                                 String.format("Credentials don't match: user-[%s] ",
+                                                                               userName)), e);
             }
         }
         return authentication;
@@ -60,7 +64,8 @@ public class JWtAuthenticationProvider implements AuthenticationProvider
         return JWTAuthentication.class.isAssignableFrom(authentication);
     }
 
-    public static class JwtAuthenticationException extends AuthenticationException
+    public static class JwtAuthenticationException
+            extends AuthenticationException
     {
 
         public JwtAuthenticationException(String msg,

@@ -1,11 +1,12 @@
 package org.carlspring.strongbox.users.security;
 
+import org.carlspring.strongbox.security.exceptions.SecurityTokenException;
+
 import java.io.UnsupportedEncodingException;
 import java.security.Key;
 import java.util.Date;
 import java.util.Map;
 
-import org.carlspring.strongbox.security.exceptions.SecurityTokenException;
 import org.jose4j.jws.AlgorithmIdentifiers;
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;

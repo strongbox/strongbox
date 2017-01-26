@@ -6,7 +6,8 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-public class JWTAuthentication extends AbstractAuthenticationToken
+public class JWTAuthentication
+        extends AbstractAuthenticationToken
 {
 
     private String token;
@@ -15,7 +16,7 @@ public class JWTAuthentication extends AbstractAuthenticationToken
 
     public JWTAuthentication(String token)
     {
-        super(Arrays.asList(new GrantedAuthority[] {}));
+        super(Arrays.asList(new GrantedAuthority[]{}));
         this.token = token;
     }
 

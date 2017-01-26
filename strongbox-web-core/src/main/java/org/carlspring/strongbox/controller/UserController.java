@@ -28,14 +28,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-
 @Controller
 @RequestMapping("/users")
 @Api(value = "/users")
@@ -56,13 +48,21 @@ public class UserController
     // ----------------------------------------------------------------------------------------------------------------
     // This method exists for testing purpose
 
-    @ApiOperation(value = "Used to retrieve an request param", position = 1)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
-                            @ApiResponse(code = 400, message = "An error occurred.") })
+    @ApiOperation(value = "Used to retrieve an request param",
+                  position = 1)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = ""),
+                            @ApiResponse(code = 400,
+                                         message = "An error occurred.") })
     @PreAuthorize("authenticated")
-    @RequestMapping(value = "/{anyString}", method = RequestMethod.GET) // maps to /greet or any other string
-    public @ResponseBody ResponseEntity greet(@PathVariable String anyString,
-                                              @ApiParam(value = "The param name", required = true) @RequestParam(value = "name", required = false) String param)
+    @RequestMapping(value = "/{anyString}",
+                    method = RequestMethod.GET) // maps to /greet or any other string
+    public
+    @ResponseBody
+    ResponseEntity greet(@PathVariable String anyString,
+                         @ApiParam(value = "The param name",
+                                   required = true) @RequestParam(value = "name",
+                                                                  required = false) String param)
     {
         logger.debug("UserController -> Say hello to " + param + ". Path variable " + anyString);
         return toResponse("hello, " + param);
@@ -225,7 +225,8 @@ public class UserController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The security token was generated."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('UPDATE_USER')")
-    @RequestMapping(value = "user/{userName}/generate-security-token", method = RequestMethod.GET)
+    @RequestMapping(value = "user/{userName}/generate-security-token",
+                    method = RequestMethod.GET)
     public ResponseEntity generateSecurityToken(@ApiParam(value = "The name of the user") @PathVariable String userName)
         throws JoseException
 
@@ -247,23 +248,29 @@ public class UserController
         return ResponseEntity.ok(result);
     }
 
-    @ApiOperation(value = "Generate authentication token.", position = 3)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The aouthentication token was generated."),
-                            @ApiResponse(code = 500, message = "An error occurred.") })
+    @ApiOperation(value = "Generate authentication token.",
+                  position = 3)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "The aouthentication token was generated."),
+                            @ApiResponse(code = 500,
+                                         message = "An error occurred.") })
     @PreAuthorize("authenticated")
-    @RequestMapping(value = "user/authenticate", method = RequestMethod.GET)
+    @RequestMapping(value = "user/authenticate",
+                    method = RequestMethod.GET)
     public ResponseEntity authenticate()
-        throws JoseException
+            throws JoseException
 
     {
-        String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+        String userName = SecurityContextHolder.getContext()
+                                               .getAuthentication()
+                                               .getName();
         User user = databaseTx.detach(userService.findByUserName(userName), true);
-        if (user == null || user.getId() == null)
+        if (user == null || user.getObjectId() == null)
         {
             return toError("The specified user does not exist!");
         }
 
-        String result = userService.generateAuthenticationToken(user.getId(), null);
+        String result = userService.generateAuthenticationToken(user.getObjectId(), null);
         return ResponseEntity.ok(result);
     }
     

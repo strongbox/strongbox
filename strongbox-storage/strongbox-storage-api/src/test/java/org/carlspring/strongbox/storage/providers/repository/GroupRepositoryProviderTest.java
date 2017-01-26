@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.storage.providers.repository;
 
-import org.carlspring.strongbox.config.CommonConfig;
 import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.config.CommonConfig;
 import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
@@ -22,7 +22,6 @@ import com.carmatechnologies.commons.testing.logging.ExpectedLogs;
 import com.carmatechnologies.commons.testing.logging.api.LogLevel;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;

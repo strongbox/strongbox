@@ -7,7 +7,6 @@ import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
 
 import org.slf4j.Logger;

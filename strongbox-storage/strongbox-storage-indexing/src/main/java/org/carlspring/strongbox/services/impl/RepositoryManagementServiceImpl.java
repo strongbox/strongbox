@@ -108,7 +108,8 @@ public class RepositoryManagementServiceImpl
                                                               new ReindexArtifactScanningListener(repositoryIndexer.getIndexer()),
                                                               startingPath.getPath());
 
-        ScanningResult scan = repositoryIndexer.getScanner().scan(scanningRequest);
+        ScanningResult scan = repositoryIndexer.getScanner()
+                                               .scan(scanningRequest);
 
         return scan.getTotalFiles();
     }

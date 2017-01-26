@@ -22,21 +22,6 @@ public class ArtifactEntry
     // if you have to rename this field please update ArtifactEntryServiceImpl.findByCoordinates() implementation
     private ArtifactCoordinates artifactCoordinates;
 
-    /*
-    private ArtifactMetadata artifactMetadata;
-
-    private List<ArtifactDependency> artifactDependencies = new ArrayList<>();
-
-    private List<String> authors = new ArrayList<>();
-
-    private String projectUrl;
-
-    private String vcsUrl;
-
-    private List<String> artifactFilePaths;
-    */
-
-
     public ArtifactEntry()
     {
     }

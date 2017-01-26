@@ -1,12 +1,13 @@
 package org.carlspring.strongbox.providers.layout;
 
-import java.io.IOException;
-
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.P2ArtifactCoordinates;
 import org.carlspring.strongbox.providers.layout.p2.P2ArtifactReader;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+
+import java.io.IOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,7 @@ public class P2LayoutProvider
     protected boolean isMetadata(String path)
     {
         return "content.xml".equals(path) || "artifacts.xml".equals(path) || "artifacts.jar".equals(path) ||
-                "content.jar".equals(path);
+               "content.jar".equals(path);
     }
 
     @Override
@@ -58,11 +59,11 @@ public class P2LayoutProvider
     public void deleteMetadata(String storageId,
                                String repositoryId,
                                String metadataPath)
-        throws IOException
+            throws IOException
     {
-        
+
     }
-    
+
     @Override
     public boolean containsArtifact(Repository repository,
                                     ArtifactCoordinates coordinates)

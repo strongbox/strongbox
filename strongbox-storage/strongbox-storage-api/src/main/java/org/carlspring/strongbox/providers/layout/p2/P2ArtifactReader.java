@@ -27,7 +27,8 @@ public class P2ArtifactReader
      * @return P2ArtifactCoordinates if found otherwise null
      */
     public static P2ArtifactCoordinates getArtifact(String repositoryBaseDir,
-                                                    String bundle) throws IOException
+                                                    String bundle)
+            throws IOException
     {
         GenericParser<P2Repository> repositoryParser = new GenericParser<>(P2Repository.class);
         try

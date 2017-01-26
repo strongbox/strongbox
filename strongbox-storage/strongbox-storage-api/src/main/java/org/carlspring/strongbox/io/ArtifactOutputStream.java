@@ -1,5 +1,9 @@
 package org.carlspring.strongbox.io;
 
+import org.carlspring.commons.io.MultipleDigestOutputStream;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.util.MessageDigestUtils;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
@@ -7,25 +11,20 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.carlspring.commons.io.MultipleDigestOutputStream;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.providers.repository.GroupRepositoryProvider;
-import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * This OutputStream wraps a source stream from different Storage types (File System, AWS, JDBC, etc.).
- * 
- * @author Sergey Bespalov
  *
+ * @author Sergey Bespalov
  */
 public class ArtifactOutputStream
         extends MultipleDigestOutputStream
 {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(ArtifactOutputStream.class);
-    
+
     private Function<byte[], String> digestStringifier = MessageDigestUtils::convertToHexadecimalString;
     private ArtifactCoordinates coordinates;
     /**
@@ -36,9 +35,9 @@ public class ArtifactOutputStream
 
     public ArtifactOutputStream(OutputStream source,
                                 ArtifactCoordinates coordinates)
-        throws NoSuchAlgorithmException
+            throws NoSuchAlgorithmException
     {
-        super(source, new String[] {});
+        super(source, new String[]{});
         this.coordinates = coordinates;
     }
 
@@ -77,7 +76,8 @@ public class ArtifactOutputStream
         return getDigests().entrySet()
                            .stream()
                            .collect(Collectors.toMap(Map.Entry::getKey,
-                                                     e -> stringifyDigest(digestStringifier, e.getValue().digest())));
+                                                     e -> stringifyDigest(digestStringifier, e.getValue()
+                                                                                              .digest())));
     }
 
     protected String stringifyDigest(Function<byte[], String> digestStringifier,
@@ -85,10 +85,10 @@ public class ArtifactOutputStream
     {
         return digestStringifier.apply(d);
     }
-    
+
     @Override
     public void write(byte[] b)
-        throws IOException
+            throws IOException
     {
         super.write(b);
         cacheOutputStreamTemplate.apply(o -> o.write(b));
@@ -96,7 +96,7 @@ public class ArtifactOutputStream
 
     @Override
     public void close()
-        throws IOException
+            throws IOException
     {
         super.close();
         cacheOutputStreamTemplate.apply(o -> o.close());
@@ -104,7 +104,7 @@ public class ArtifactOutputStream
 
     @Override
     public void flush()
-        throws IOException
+            throws IOException
     {
         super.flush();
         cacheOutputStreamTemplate.apply(o -> o.flush());
@@ -141,7 +141,8 @@ public class ArtifactOutputStream
     @FunctionalInterface
     public interface OutputStreamFunction
     {
+
         void apply(OutputStream t)
-            throws IOException;
+                throws IOException;
     }
 }

@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.io;
 
-import java.io.File;
-
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+
+import java.io.File;
 
 /**
  * This implementation contains additional information about Artifact File itself, such as {@link Repository} and

@@ -61,12 +61,15 @@ public class RepositoryIndexerTest
     {
         final RepositoryIndexer repositoryIndexer = getRepositoryIndexManager().getRepositoryIndex("storage0:releases");
 
-        final int x = repositoryManagementService.reIndex("storage0", "releases", "org/carlspring/strongbox/strongbox-commons");
+        final int x = repositoryManagementService.reIndex("storage0", "releases",
+                                                          "org/carlspring/strongbox/strongbox-commons");
 
         repositoryManagementService.pack("storage0", "releases");
 
-        assertTrue("Failed to pack index!", new File(REPOSITORY_BASEDIR.getAbsolutePath(), ".index/nexus-maven-repository-index.gz").exists());
-        assertTrue("Failed to pack index!", new File(REPOSITORY_BASEDIR.getAbsolutePath(), ".index/nexus-maven-repository-index-packer.properties").exists());
+        assertTrue("Failed to pack index!",
+                   new File(REPOSITORY_BASEDIR.getAbsolutePath(), ".index/nexus-maven-repository-index.gz").exists());
+        assertTrue("Failed to pack index!", new File(REPOSITORY_BASEDIR.getAbsolutePath(),
+                                                     ".index/nexus-maven-repository-index-packer.properties").exists());
 
         assertEquals("6 artifacts expected!",
                      6,  // one is jar another pom, both would be added into the same Lucene document
