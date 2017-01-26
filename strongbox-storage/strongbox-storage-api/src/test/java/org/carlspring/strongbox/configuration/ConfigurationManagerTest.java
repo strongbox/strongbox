@@ -113,7 +113,6 @@ public class ConfigurationManagerTest
                    configuration.getStorages().get("storage0").getRepositories().get("snapshots").isSecured());
 
         assertTrue(configuration.getStorages().get("storage0").getRepositories().get("releases").allowsDirectoryBrowsing());
-        assertFalse(configuration.getStorages().get("storage0").getRepositories().get("releases-without-browsing").allowsDirectoryBrowsing());
     }
 
     @Test
