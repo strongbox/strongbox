@@ -38,7 +38,7 @@ public interface UserService
      * This token can be used for JWT Authentication.
      *
      * @param id     user ID
-     * @param expireSeconds token expiration in seconds
+     * @param expireSeconds token expiration in seconds (endless if empty)
      * @return encrypted token
      * @throws JoseException
      */
