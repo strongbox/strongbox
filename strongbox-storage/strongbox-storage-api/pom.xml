@@ -274,17 +274,25 @@
         </dependency>
 
         <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.carmatechnologies.commons</groupId>
+            <artifactId>commons-testing</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.carmatechnologies.commons</groupId>
+            <artifactId>commons-testing-logback</artifactId>
+        </dependency>
+        <dependency>
             <groupId>ru.aristar.nuget</groupId>
             <artifactId>jnuget-core</artifactId>
         </dependency>
+
         <dependency>
             <groupId>ru.aristar.nuget</groupId>
             <artifactId>jnuget-server</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
         </dependency>
 
         <dependency>
