@@ -129,16 +129,12 @@ public class ArtifactOperationsValidator
 
         Repository repository = getConfiguration().getStorage(storageId)
                                                   .getRepository(repositoryId);
-        long artifactsMaxSize = repository.getArtifactsMaxSize();
+        long artifactMaxSize = repository.getArtifactMaxSize();
 
-        if (artifactsMaxSize > 0)
-        {
-            if (uploadedFile.getSize() > artifactsMaxSize)
+        if (artifactMaxSize > 0 && uploadedFile.getSize() > artifactMaxSize)
             {
-                throw new ArtifactResolutionException("Uploaded artifact is large for repository " + repositoryId +
-                                                      ".");
+                throw new ArtifactResolutionException("The size of the artifact exceeds the maximum size accepted by this repository (${size}/${artifactMaxSize}).");
             }
-        }
     }
 
     public Configuration getConfiguration()
