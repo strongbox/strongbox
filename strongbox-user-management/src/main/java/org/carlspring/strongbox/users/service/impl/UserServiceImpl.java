@@ -1,5 +1,11 @@
 package org.carlspring.strongbox.users.service.impl;
 
+import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.repository.UserRepository;
+import org.carlspring.strongbox.users.security.SecurityTokenProvider;
+import org.carlspring.strongbox.users.service.UserService;
+
+import javax.inject.Inject;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -7,14 +13,9 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.lang.StringUtils;
-import org.carlspring.strongbox.users.domain.User;
-import org.carlspring.strongbox.users.repository.UserRepository;
-import org.carlspring.strongbox.users.security.SecurityTokenProvider;
-import org.carlspring.strongbox.users.service.UserService;
 import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -33,13 +34,13 @@ class UserServiceImpl
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    @Autowired
+    @Inject
     UserRepository repository;
 
-    @Autowired
+    @Inject
     CacheManager cacheManager;
 
-    @Autowired
+    @Inject
     SecurityTokenProvider tokenProvider;
     
     @Override
@@ -181,6 +182,19 @@ class UserServiceImpl
         
         Map<String, String> claimMap = new HashMap<>();
         claimMap.put("security-token-key", user.getSecurityTokenKey());
+
+        return tokenProvider.getToken(user.getUsername(), claimMap, expire);
+    }
+
+    @Override
+    public String generateAuthenticationToken(String id,
+                                              Date expire)
+            throws JoseException
+    {
+        User user = repository.findOne(id);
+
+        Map<String, String> claimMap = new HashMap<>();
+        claimMap.put("credentials", user.getPassword());
 
         return tokenProvider.getToken(user.getUsername(), claimMap, expire);
     }

@@ -1,12 +1,16 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
+import org.carlspring.strongbox.data.domain.GenericEntity;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
  * @author carlspring
  */
-public abstract class AbstractArtifactCoordinates implements ArtifactCoordinates
+public abstract class AbstractArtifactCoordinates
+        extends GenericEntity
+        implements ArtifactCoordinates
 {
 
     private Map<String, String> coordinates = new LinkedHashMap<>();
@@ -50,7 +54,8 @@ public abstract class AbstractArtifactCoordinates implements ArtifactCoordinates
         return coordinates.get(coordinate);
     }
 
-    public String setCoordinate(String coordinate, String value)
+    public String setCoordinate(String coordinate,
+                                String value)
     {
         return coordinates.put(coordinate, value);
     }
@@ -71,5 +76,5 @@ public abstract class AbstractArtifactCoordinates implements ArtifactCoordinates
         return toPath();
     }
 
-    
+
 }

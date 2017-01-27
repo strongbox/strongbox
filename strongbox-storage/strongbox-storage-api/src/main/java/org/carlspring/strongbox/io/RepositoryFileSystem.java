@@ -1,21 +1,23 @@
 package org.carlspring.strongbox.io;
 
+import org.carlspring.strongbox.storage.repository.Repository;
+
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.nio.file.spi.FileSystemProvider;
 
-import org.carlspring.strongbox.storage.repository.Repository;
-
 /**
  * {@link RepositoryFileSystem} is a wrapper under concrete Storage {@link FileSystem}. <br>
  * The {@link RepositoryFileSystem} root is the {@link Repository}'s base directory.
- * 
+ *
  * @author Sergey Bespalov
  */
-public class RepositoryFileSystem extends FileSystemWrapper
+public class RepositoryFileSystem
+        extends FileSystemWrapper
 {
+
     private Repository repository;
     private FileSystemProvider fileSystemProvider;
 
@@ -50,7 +52,7 @@ public class RepositoryFileSystem extends FileSystemWrapper
         FileSystem rootFileSystem = root.getFileSystem();
         return new RepositoryPath(root,
                                   new RepositoryFileSystem(repository, rootFileSystem,
-                                  new RepositoryFileSystemProvider(rootFileSystem.provider())));
+                                                           new RepositoryFileSystemProvider(rootFileSystem.provider())));
     }
 
     public RepositoryPath getTrashPath()
@@ -76,7 +78,8 @@ public class RepositoryFileSystem extends FileSystemWrapper
 
     public static RepositoryFileSystem getRepositoryFileSystem(Repository repository)
     {
-        FileSystem storageFileSystem = new FileSystemWrapper(Paths.get(repository.getBasedir()).getFileSystem())
+        FileSystem storageFileSystem = new FileSystemWrapper(Paths.get(repository.getBasedir())
+                                                                  .getFileSystem())
         {
 
             @Override
@@ -88,5 +91,5 @@ public class RepositoryFileSystem extends FileSystemWrapper
         };
         return new RepositoryFileSystem(repository, storageFileSystem);
     }
-    
+
 }

@@ -3,14 +3,13 @@ package org.carlspring.strongbox.controller;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.util.MessageDigestUtils;
+import org.carlspring.strongbox.utils.ArtifactControllerHelper;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -18,7 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
@@ -49,8 +47,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import static org.carlspring.strongbox.utils.ByteRangeRequestHandler.handlePartialDownload;
-import static org.carlspring.strongbox.utils.ByteRangeRequestHandler.isRangedRequest;
+import static org.carlspring.strongbox.utils.ArtifactControllerHelper.handlePartialDownload;
+import static org.carlspring.strongbox.utils.ArtifactControllerHelper.isRangedRequest;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -182,12 +180,9 @@ public class ArtifactController
             if (isRangedRequest(httpHeaders))
             {
                 logger.debug("Detecting range request....");
-                copyToResponse(handlePartialDownload(is, httpHeaders, response), response);
+                handlePartialDownload(is, httpHeaders, response);
             }
-            else
-            {
-                copyToResponse(is, response);
-            }
+            copyToResponse(is, response);
         }
         catch (ArtifactResolutionException | ArtifactTransportException e)
         {
@@ -201,7 +196,7 @@ public class ArtifactController
 
         response.setHeader("Accept-Ranges", "bytes");
 
-        setHeadersForChecksums(storageId, repositoryId, path, response);
+        ArtifactControllerHelper.setHeadersForChecksums(is, response);
 
         logger.debug("Download succeeded.");
     }
@@ -221,56 +216,6 @@ public class ArtifactController
         else
         {
             response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
-        }
-    }
-
-    private void setHeadersForChecksums(String storageId,
-                                        String repositoryId,
-                                        String path,
-                                        HttpServletResponse response)
-            throws IOException,
-                   JAXBException,
-                   NoSuchAlgorithmException,
-                   ProviderImplementationException
-    {
-        Storage storage = configurationManager.getConfiguration()
-                                              .getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
-        if (!repository.isChecksumHeadersEnabled())
-        {
-            return;
-        }
-
-        InputStream isMd5;
-        //noinspection EmptyCatchBlock
-        try
-        {
-            isMd5 = getArtifactManagementService().resolve(storageId, repositoryId, path + ".md5");
-            if (isMd5 != null)
-            {
-                response.setHeader("Checksum-MD5", MessageDigestUtils.readChecksumFile(isMd5));
-            }
-        }
-        catch (IOException | ArtifactTransportException e)
-        {
-            // This can occur if there is no checksum
-            logger.warn("There is no MD5 checksum for " + storageId + "/" + repositoryId + "/" + path);
-        }
-
-        InputStream isSha1;
-        //noinspection EmptyCatchBlock
-        try
-        {
-            isSha1 = getArtifactManagementService().resolve(storageId, repositoryId, path + ".sha1");
-            if (isSha1 != null)
-            {
-                response.setHeader("Checksum-SHA1", MessageDigestUtils.readChecksumFile(isSha1));
-            }
-        }
-        catch (IOException | ArtifactTransportException e)
-        {
-            // This can occur if there is no checksum
-            logger.warn("There is no SHA1 checksum for " + storageId + "/" + repositoryId + "/" + path);
         }
     }
 

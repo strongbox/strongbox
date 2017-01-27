@@ -61,11 +61,16 @@ public class ReindexArtifactScanningListener
         try
         {
             logger.debug("Adding artifact: {}; ctx id: {}; idx dir: {}",
-                         new String[]{ ac.getGav().getGroupId() + ":" +
-                                       ac.getGav().getArtifactId() + ":" +
-                                       ac.getGav().getVersion() + ":" +
-                                       ac.getGav().getClassifier() + ":" +
-                                       ac.getGav().getExtension(),
+                         new String[]{ ac.getGav()
+                                         .getGroupId() + ":" +
+                                       ac.getGav()
+                                         .getArtifactId() + ":" +
+                                       ac.getGav()
+                                         .getVersion() + ":" +
+                                       ac.getGav()
+                                         .getClassifier() + ":" +
+                                       ac.getGav()
+                                         .getExtension(),
                                        context.getId(),
                                        context.getIndexDirectory().toString() });
 

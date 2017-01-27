@@ -14,11 +14,13 @@ import java.util.Iterator;
 /**
  * This implementation wraps target {@link Path} implementation, which can be an "CloudPath" or common
  * "FileSystemPath".
- * 
+ *
  * @author Sergey Bespalov
  */
-public class RepositoryPath implements Path
+public class RepositoryPath
+        implements Path
 {
+
     private Path target;
     private RepositoryFileSystem fileSystem;
 
@@ -46,7 +48,9 @@ public class RepositoryPath implements Path
 
     public RepositoryPath getRoot()
     {
-        return (RepositoryPath) fileSystem.getRootDirectories().iterator().next();
+        return (RepositoryPath) fileSystem.getRootDirectories()
+                                          .iterator()
+                                          .next();
     }
 
     public Path getFileName()
@@ -136,27 +140,27 @@ public class RepositoryPath implements Path
     }
 
     public Path toRealPath(LinkOption... options)
-        throws IOException
+            throws IOException
     {
         throw new UnsupportedOperationException();
     }
 
     public File toFile()
     {
-        throw new UnsupportedOperationException();
+        return getTarget().toFile();
     }
 
     public WatchKey register(WatchService watcher,
                              Kind<?>[] events,
                              Modifier... modifiers)
-        throws IOException
+            throws IOException
     {
         return getTarget().register(watcher, events, modifiers);
     }
 
     public WatchKey register(WatchService watcher,
                              Kind<?>... events)
-        throws IOException
+            throws IOException
     {
         return getTarget().register(watcher, events);
     }
@@ -180,5 +184,5 @@ public class RepositoryPath implements Path
     {
         return target.toString();
     }
-    
+
 }

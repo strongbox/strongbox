@@ -97,7 +97,8 @@ public class ArtifactIndexesServiceImpl
 
     private Map<String, Repository> getRepositories(String storageId)
     {
-        return getStorages().get(storageId).getRepositories();
+        return getStorages().get(storageId)
+                            .getRepositories();
     }
 
 }

@@ -51,7 +51,7 @@ public class ConfigurationCache
             return null;
         }
 
-        if (configuration.getId() == null)
+        if (configuration.getObjectId() == null)
         {
             throw new IllegalArgumentException("Unable to save configuration into cache: id is null");
         }
@@ -59,8 +59,8 @@ public class ConfigurationCache
         try
         {
             String value = parser.serialize(configuration);
-            configurationCache.evict(configuration.getId());
-            configurationCache.put(configuration.getId(), value);
+            configurationCache.evict(configuration.getObjectId());
+            configurationCache.put(configuration.getObjectId(), value);
         }
         catch (Exception e)
         {

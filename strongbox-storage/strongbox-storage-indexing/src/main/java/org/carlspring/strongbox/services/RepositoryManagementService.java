@@ -26,7 +26,8 @@ public interface RepositoryManagementService
                       String targetRepositoryId)
             throws ArtifactStorageException;
 
-    void pack(String storageId, String repositoryId)
+    void pack(String storageId,
+              String repositoryId)
             throws IOException;
 
     void removeRepository(String storageId,

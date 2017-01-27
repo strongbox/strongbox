@@ -1,11 +1,10 @@
 package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.security.encryption.EncryptionAlgorithms;
 import org.carlspring.strongbox.security.Credentials;
 import org.carlspring.strongbox.security.Users;
+import org.carlspring.strongbox.security.encryption.EncryptionAlgorithms;
 import org.carlspring.strongbox.users.domain.User;
-import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
@@ -50,10 +49,6 @@ public class UsersConfig
     
     @Autowired
     private CacheManager cacheManager;
-
-    @Autowired
-    private AuthorizationConfigProvider authorizationConfigProvider;
-
 
     private synchronized OObjectDatabaseTx getDatabaseTx()
     {
@@ -101,9 +96,9 @@ public class UsersConfig
         {
             internalUser = userService.save(internalUser);
             internalUser = getDatabaseTx().detach(internalUser, true);
+            cacheManager.getCache("users")
+                        .put(internalUser.getUsername(), internalUser);
         }
-
-        cacheManager.getCache("users").put(internalUser.getUsername(), internalUser);
     }
 
     @Transactional

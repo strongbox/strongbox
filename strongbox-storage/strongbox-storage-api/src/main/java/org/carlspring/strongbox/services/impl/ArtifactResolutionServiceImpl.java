@@ -3,6 +3,7 @@ package org.carlspring.strongbox.services.impl;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
@@ -12,12 +13,12 @@ import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * @author mtodorov
@@ -62,12 +63,12 @@ public class ArtifactResolutionServiceImpl
     }
 
     @Override
-    public OutputStream getOutputStream(String storageId,
-                                        String repositoryId,
-                                        String artifactPath)
-        throws IOException,
-        ProviderImplementationException,
-        NoSuchAlgorithmException
+    public ArtifactOutputStream getOutputStream(String storageId,
+                                                String repositoryId,
+                                                String artifactPath)
+            throws IOException,
+                   ProviderImplementationException,
+                   NoSuchAlgorithmException
     {
         artifactOperationsValidator.validate(storageId, repositoryId, artifactPath);
 
@@ -75,7 +76,7 @@ public class ArtifactResolutionServiceImpl
 
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        OutputStream os = repositoryProvider.getOutputStream(storageId, repositoryId, artifactPath);
+        ArtifactOutputStream os = repositoryProvider.getOutputStream(storageId, repositoryId, artifactPath);
         if (os == null)
         {
             throw new ArtifactStorageException("Artifact " + artifactPath + " cannot be stored.");

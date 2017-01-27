@@ -1,13 +1,14 @@
 package org.carlspring.strongbox.rest;
 
+import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.rest.context.IntegrationTest;
 import org.carlspring.strongbox.security.authentication.CustomAnonymousAuthenticationFilter;
 
 import javax.inject.Inject;
 
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
@@ -16,14 +17,20 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 /**
  * @author Alex Oreshkevich
  */
-@IntegrationTest
+//@IntegrationTest
+@ContextConfiguration(classes = WebConfig.class)
+@WebAppConfiguration
+@Rollback
 @RunWith(SpringJUnit4ClassRunner.class)
 public class SpringSecurityTest
         extends RestAssuredBaseTest
@@ -33,6 +40,7 @@ public class SpringSecurityTest
     AnonymousAuthenticationFilter anonymousAuthenticationFilter;
 
     @Test
+    @Ignore
     public void testThatAnonymousUserHasFullAccessAccordingToAuthorities()
     {
         anonymousAuthenticationFilter.getAuthorities().add(new SimpleGrantedAuthority("VIEW_USER"));
@@ -80,6 +88,43 @@ public class SpringSecurityTest
                           .peek() // Use peek() to print the output
                           .then()
                           .statusCode(UNAUTHORIZED.value());
+    }
+
+    @Test
+    public void testJWTAuth()
+    {
+        String url = getContextBaseUrl() + "/users/user/authenticate";
+
+        String basicAuth = "Basic YWRtaW46cGFzc3dvcmQ=";
+        logger.info(String.format("Get JWT Token with Basic Authentication: user-[%s]; auth-[%s]", "admin",
+                                  basicAuth));
+        String token = given().contentType(ContentType.JSON)
+                              .header("Authorization", basicAuth)
+                              .when()
+                              .get(url)
+                              .then()
+                              .statusCode(200)
+                              .extract()
+                              .asString();
+
+        logger.info(String.format("Gereet with Basic Authentication: user-[%s]; auth-[%s]", "admin",
+                                  basicAuth));
+        url = getContextBaseUrl() + "/users/greet";
+        given().contentType(ContentType.JSON)
+               .header("Authorization", basicAuth)
+               .when()
+               .get(url)
+               .then()
+               .statusCode(401);
+
+        logger.info(String.format("Gereet with JWT Authentication: user-[%s]; token-[%s]", "admin",
+                                  token));
+        given().contentType(ContentType.JSON)
+               .header("Authorization", String.format("Bearer %s", token))
+               .when()
+               .get(url)
+               .then()
+               .statusCode(200);
     }
 
 }

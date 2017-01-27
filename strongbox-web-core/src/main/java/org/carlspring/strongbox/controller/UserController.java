@@ -1,18 +1,25 @@
 package org.carlspring.strongbox.controller;
 
+import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.service.UserService;
+
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
-import org.carlspring.strongbox.users.domain.User;
-import org.carlspring.strongbox.users.service.UserService;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.jose4j.lang.JoseException;
 import org.springframework.cache.CacheManager;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,14 +27,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 
 @Controller
 @RequestMapping("/users")
@@ -57,19 +56,17 @@ public class UserController
                                          message = "An error occurred.") })
     @PreAuthorize("authenticated")
     @RequestMapping(value = "/{anyString}",
-                    method = RequestMethod.GET)  // maps to /greet or any other string
+                    method = RequestMethod.GET) // maps to /greet or any other string
     public
     @ResponseBody
     ResponseEntity greet(@PathVariable String anyString,
                          @ApiParam(value = "The param name",
-                                   required = true)
-                         @RequestParam(value = "name",
-                                       required = false) String param)
+                                   required = true) @RequestParam(value = "name",
+                                                                  required = false) String param)
     {
         logger.debug("UserController -> Say hello to " + param + ". Path variable " + anyString);
         return toResponse("hello, " + param);
     }
-
 
     // ----------------------------------------------------------------------------------------------------------------
     // Create user
@@ -121,7 +118,8 @@ public class UserController
                                      required = true)
                            @PathVariable String name)
     {
-        return toResponse(userService.findByUserName(name));
+        User user = databaseTx.detach(userService.findByUserName(name), true);
+        return toResponse(user);
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -177,15 +175,15 @@ public class UserController
     {
 
         User user = read(userJson, User.class);
-        String id = user.getId();
+        String id = user.getObjectId();
 
         if (id == null || !userService.findOne(id)
                                       .isPresent())
         {
-            return toError("Unable to update non-existing user with id " + id);
+            return toError("Unable to update non-existing user with objectId " + id);
         }
 
-        logger.debug("Update user by id " + id);
+        logger.debug("Update user by objectId " + id);
 
         // do save
         user = databaseTx.detach(userService.save(read(userJson, User.class)), true);
@@ -211,13 +209,13 @@ public class UserController
     ResponseEntity delete(@ApiParam(value = "The name of the user") @PathVariable String name)
             throws Exception
     {
-        User user = userService.findByUserName(name);
-        if (user == null || user.getId() == null)
+        User user = databaseTx.detach(userService.findByUserName(name), true);
+        if (user == null || user.getObjectId() == null)
         {
             return toError("The specified user does not exist!");
         }
 
-        userService.delete(user.getId());
+        userService.delete(user.getObjectId());
 
         return ResponseEntity.ok()
                              .build();
@@ -227,18 +225,19 @@ public class UserController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The security token was generated."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('UPDATE_USER')")
-    @RequestMapping(value = "user/{name}/generate-security-token", method = RequestMethod.GET)
-    public ResponseEntity generateSecurityToken(@ApiParam(value = "The name of the user") @PathVariable String name)
+    @RequestMapping(value = "user/{userName}/generate-security-token",
+                    method = RequestMethod.GET)
+    public ResponseEntity generateSecurityToken(@ApiParam(value = "The name of the user") @PathVariable String userName)
         throws JoseException
 
     {
-        User user = userService.findByUserName(name);
-        if (user == null || user.getId() == null)
+        User user = databaseTx.detach(userService.findByUserName(userName), true);
+        if (user == null || user.getObjectId() == null)
         {
             return toError("The specified user does not exist!");
         }
 
-        String result = userService.generateSecurityToken(user.getId(), null);
+        String result = userService.generateSecurityToken(user.getObjectId(), null);
 
         if (result == null)
         {
@@ -246,6 +245,32 @@ public class UserController
                                          user.getUsername()));
         }
 
+        return ResponseEntity.ok(result);
+    }
+
+    @ApiOperation(value = "Generate authentication token.",
+                  position = 3)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "The aouthentication token was generated."),
+                            @ApiResponse(code = 500,
+                                         message = "An error occurred.") })
+    @PreAuthorize("authenticated")
+    @RequestMapping(value = "user/authenticate",
+                    method = RequestMethod.GET)
+    public ResponseEntity authenticate()
+            throws JoseException
+
+    {
+        String userName = SecurityContextHolder.getContext()
+                                               .getAuthentication()
+                                               .getName();
+        User user = databaseTx.detach(userService.findByUserName(userName), true);
+        if (user == null || user.getObjectId() == null)
+        {
+            return toError("The specified user does not exist!");
+        }
+
+        String result = userService.generateAuthenticationToken(user.getObjectId(), null);
         return ResponseEntity.ok(result);
     }
     
