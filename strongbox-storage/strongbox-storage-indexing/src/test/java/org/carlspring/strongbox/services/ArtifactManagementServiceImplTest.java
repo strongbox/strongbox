@@ -110,6 +110,7 @@ public class ArtifactManagementServiceImplTest
         // Used by:
         // - testForceDelete()
         // - testArtifactResolutionFromGroup()
+        // - testDeploymentRedeploymentAndDeletionAgainstGroupRepository()
         createTestRepositoryWithArtifacts(STORAGE0,
                                           "amsi-releases",
                                           "org.carlspring.strongbox:strongbox-utils",
@@ -120,9 +121,15 @@ public class ArtifactManagementServiceImplTest
         Repository repositoryGroup = new Repository("amsi-releases-group");
         repositoryGroup.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
         repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
+        repositoryGroup.setAllowsRedeployment(false);
+        repositoryGroup.setAllowsDelete(false);
+        repositoryGroup.setAllowsForceDeletion(false);
         repositoryGroup.addRepositoryToGroup("amsi-releases");
 
-        createRepository(repositoryGroup);
+        createTestRepositoryWithArtifacts(repositoryGroup,
+                                          "org.carlspring.strongbox:strongbox-utils",
+                                          "8.2" // Used by testDeploymentRedeploymentAndDeletionAgainstGroupRepository()
+                                          );
 
         // Used by testForceDelete()
         Repository repositoryWithTrash = new Repository("amsi-releases-with-trash");
@@ -247,103 +254,103 @@ public class ArtifactManagementServiceImplTest
         }
     }
 
-//    @Test
-//    public void testDeploymentRedeploymentAndDeletionAgainstGroupRepository()
-//            throws NoSuchAlgorithmException,
-//                   XmlPullParserException,
-//                   IOException, ProviderImplementationException
-//    {
-//        InputStream is = null;
-//
-//        String repositoryId = "group-releases";
-//        String gavtc = "org.carlspring.strongbox:strongbox-utils:8.3:jar";
-//
-//        Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
-//
-//        //noinspection EmptyCatchBlock
-//        try
-//        {
-//            File repositoryDir = new File(STORAGE_BASEDIR, repositoryId);
-//            is = generateArtifactInputStream(repositoryDir.getAbsolutePath(), repositoryId, gavtc, true);
-//
-//            artifactManagementService.store(STORAGE0,
-//                                            repositoryId,
-//                                            ArtifactUtils.convertArtifactToPath(artifact),
-//                                            is);
-//
-//            fail("Failed to deny artifact operation for repository with disallowed deployments.");
-//        }
-//        catch (ArtifactStorageException e)
-//        {
-//            // This is the expected correct behavior
-//        }
-//        finally
-//        {
-//            ResourceCloser.close(is, null);
-//        }
-//
-//        //noinspection EmptyCatchBlock
-//        try
-//        {
-//            // Generate the artifact on the file-system anyway so that we could achieve
-//            // the state of having it there before attempting a re-deployment
-//            generateArtifact(new File(STORAGE_BASEDIR, repositoryId).getAbsolutePath(), gavtc);
-//            artifactManagementService.store(STORAGE0,
-//                                            repositoryId,
-//                                            ArtifactUtils.convertArtifactToPath(artifact),
-//                                            is);
-//
-//            fail("Failed to deny artifact operation for repository with disallowed re-deployments.");
-//        }
-//        catch (ArtifactStorageException e)
-//        {
-//            // This is the expected correct behavior
-//        }
-//        finally
-//        {
-//            ResourceCloser.close(is, null);
-//        }
-//
-//        // Delete: Case 1: No forcing
-//        //noinspection EmptyCatchBlock
-//        try
-//        {
-//            artifactManagementService.delete(STORAGE0,
-//                                             repositoryId,
-//                                             ArtifactUtils.convertArtifactToPath(artifact),
-//                                             false);
-//
-//            fail("Failed to deny artifact operation for repository with disallowed deletions (non-forced test).");
-//        }
-//        catch (ArtifactStorageException e)
-//        {
-//            // This is the expected correct behavior
-//        }
-//        finally
-//        {
-//            ResourceCloser.close(is, null);
-//        }
-//
-//        // Delete: Case 2: Force delete
-//        //noinspection EmptyCatchBlock
-//        try
-//        {
-//            artifactManagementService.delete(STORAGE0,
-//                                             repositoryId,
-//                                             ArtifactUtils.convertArtifactToPath(artifact),
-//                                             true);
-//
-//            fail("Failed to deny artifact operation for repository with disallowed deletions (forced test).");
-//        }
-//        catch (ArtifactStorageException e)
-//        {
-//            // This is the expected correct behavior
-//        }
-//        finally
-//        {
-//            ResourceCloser.close(is, null);
-//        }
-//    }
+    @Test
+    public void testDeploymentRedeploymentAndDeletionAgainstGroupRepository()
+            throws NoSuchAlgorithmException,
+                   XmlPullParserException,
+                   IOException, ProviderImplementationException
+    {
+        InputStream is = null;
+
+        String repositoryId = "amsi-releases-group";
+        String gavtc = "org.carlspring.strongbox:strongbox-utils:8.3:jar";
+
+        Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
+
+        //noinspection EmptyCatchBlock
+        try
+        {
+            File repositoryDir = new File(STORAGE_BASEDIR, repositoryId);
+            is = generateArtifactInputStream(repositoryDir.getAbsolutePath(), repositoryId, gavtc, true);
+
+            artifactManagementService.store(STORAGE0,
+                                            repositoryId,
+                                            ArtifactUtils.convertArtifactToPath(artifact),
+                                            is);
+
+            fail("Failed to deny artifact operation for repository with disallowed deployments.");
+        }
+        catch (ArtifactStorageException e)
+        {
+            // This is the expected correct behavior
+        }
+        finally
+        {
+            ResourceCloser.close(is, null);
+        }
+
+        //noinspection EmptyCatchBlock
+        try
+        {
+            // Generate the artifact on the file-system anyway so that we could achieve
+            // the state of having it there before attempting a re-deployment
+            generateArtifact(new File(STORAGE_BASEDIR, repositoryId).getAbsolutePath(), gavtc);
+            artifactManagementService.store(STORAGE0,
+                                            repositoryId,
+                                            ArtifactUtils.convertArtifactToPath(artifact),
+                                            is);
+
+            fail("Failed to deny artifact operation for repository with disallowed re-deployments.");
+        }
+        catch (ArtifactStorageException e)
+        {
+            // This is the expected correct behavior
+        }
+        finally
+        {
+            ResourceCloser.close(is, null);
+        }
+
+        // Delete: Case 1: No forcing
+        //noinspection EmptyCatchBlock
+        try
+        {
+            artifactManagementService.delete(STORAGE0,
+                                             repositoryId,
+                                             ArtifactUtils.convertArtifactToPath(artifact),
+                                             false);
+
+            fail("Failed to deny artifact operation for repository with disallowed deletions (non-forced test).");
+        }
+        catch (ArtifactStorageException e)
+        {
+            // This is the expected correct behavior
+        }
+        finally
+        {
+            ResourceCloser.close(is, null);
+        }
+
+        // Delete: Case 2: Force delete
+        //noinspection EmptyCatchBlock
+        try
+        {
+            artifactManagementService.delete(STORAGE0,
+                                             repositoryId,
+                                             ArtifactUtils.convertArtifactToPath(artifact),
+                                             true);
+
+            fail("Failed to deny artifact operation for repository with disallowed deletions (forced test).");
+        }
+        catch (ArtifactStorageException e)
+        {
+            // This is the expected correct behavior
+        }
+        finally
+        {
+            ResourceCloser.close(is, null);
+        }
+    }
 
     @Test
     public void testArtifactResolutionFromGroup()
