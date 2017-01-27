@@ -56,7 +56,7 @@ public class ArtifactIndexesServiceImpl
         locator.setOperation(operation);
         locator.locateArtifactDirectories();
 
-        if (artifactPath == null)
+        if (artifactPath == null && repository.isIndexingEnabled())
         {
             repositoryManagementService.pack(storageId, repositoryId);
         }

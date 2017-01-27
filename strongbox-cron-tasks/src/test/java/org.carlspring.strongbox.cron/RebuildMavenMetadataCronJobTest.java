@@ -126,8 +126,8 @@ public class RebuildMavenMetadataCronJobTest
             repository.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
             repository.setStorage(storage);
             configurationManagementService.addOrUpdateStorage(storage);
-            repositoryManagementService.createRepository("storage1", "releases");
             storage.addOrUpdateRepository(repository);
+            repositoryManagementService.createRepository("storage1", "releases");
 
             //Create released artifact
             artifact4 = generateArtifact(REPOSITORY_BASEDIR_3.getAbsolutePath(), ga + ":1.0:jar");
@@ -150,7 +150,7 @@ public class RebuildMavenMetadataCronJobTest
         CronTaskConfiguration cronTaskConfiguration = new CronTaskConfiguration();
         cronTaskConfiguration.setName(name);
         cronTaskConfiguration.addProperty("jobClass", RebuildMavenMetadataCronJob.class.getName());
-        cronTaskConfiguration.addProperty("cronExpression", "0 0/10 * 1/1 * ? *");
+        cronTaskConfiguration.addProperty("cronExpression", "0 0/1 * 1/1 * ? *");
         cronTaskConfiguration.addProperty("storageId", storageId);
         cronTaskConfiguration.addProperty("repositoryId", repositoryId);
         cronTaskConfiguration.addProperty("basePath", basePath);
