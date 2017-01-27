@@ -27,13 +27,10 @@ public interface UserService
      * 
      * @param id
      *            user ID
-     * @param expire
-     *            token expiration date
      * @return encrypted token
      * @throws JoseException
      */
-    String generateSecurityToken(String id,
-                                 Date expire)
+    String generateSecurityToken(String id)
             throws JoseException;
 
     /**
@@ -41,12 +38,12 @@ public interface UserService
      * This token can be used for JWT Authentication.
      *
      * @param id     user ID
-     * @param expire token expiration date
+     * @param expireSeconds token expiration in seconds
      * @return encrypted token
      * @throws JoseException
      */
     String generateAuthenticationToken(String id,
-                                       Date expire)
+                                       Integer expireSeconds)
             throws JoseException;
 
     /**

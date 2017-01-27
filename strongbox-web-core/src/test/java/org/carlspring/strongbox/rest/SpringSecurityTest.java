@@ -127,4 +127,42 @@ public class SpringSecurityTest
                .statusCode(200);
     }
 
+    @Test
+    public void testJWTExpire()
+        throws InterruptedException
+    {
+        String url = getContextBaseUrl() + "/users/user/authenticate";
+
+        String basicAuth = "Basic YWRtaW46cGFzc3dvcmQ=";
+        logger.info(String.format("Get JWT Token with Basic Authentication: user-[%s]; auth-[%s]", "admin",
+                                  basicAuth));
+        String token = given().contentType(ContentType.JSON)
+                              .header("Authorization", basicAuth)
+                              .when()
+                              .get(url + String.format("?expireSeconds=%s", 1))
+                              .then()
+                              .statusCode(200)
+                              .extract()
+                              .asString();
+
+        logger.info(String.format("Gereet with JWT Authentication: user-[%s]; token-[%s]", "admin",
+                                  token));
+        url = getContextBaseUrl() + "/users/greet";
+        given().contentType(ContentType.JSON)
+               .header("Authorization", String.format("Bearer %s", token))
+               .when()
+               .get(url)
+               .then()
+               .statusCode(200);
+
+        Thread.sleep(3000);
+        logger.info(String.format("Check JWT Authentication expired: user-[%s]; token-[%s]", "admin",
+                                  token));
+        given().contentType(ContentType.JSON)
+               .header("Authorization", String.format("Bearer %s", token))
+               .when()
+               .get(url)
+               .then()
+               .statusCode(401);
+    }
 }

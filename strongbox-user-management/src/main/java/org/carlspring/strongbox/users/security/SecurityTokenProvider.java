@@ -4,16 +4,17 @@ import org.carlspring.strongbox.security.exceptions.SecurityTokenException;
 
 import java.io.UnsupportedEncodingException;
 import java.security.Key;
-import java.util.Date;
 import java.util.Map;
 
 import org.jose4j.jws.AlgorithmIdentifiers;
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.jwt.MalformedClaimException;
+import org.jose4j.jwt.NumericDate;
 import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.jwt.consumer.JwtConsumer;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
+import org.jose4j.jwt.consumer.NumericDateValidator;
 import org.jose4j.keys.HmacKey;
 import org.jose4j.lang.JoseException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,14 +59,13 @@ public class SecurityTokenProvider
      *            a Subject which is used as token base.
      * @param claimMap
      *            an additional Claims which will also present in token.
-     * @param expire
-     *            token exparation date.
+     * @param expireSeconds
      * @return encrypted token string.
      * @throws JoseException
      */
     public String getToken(String subject,
                            Map<String, String> claimMap,
-                           Date expire)
+                           Integer expireSeconds)
         throws JoseException
     {
         JwtClaims claims = new JwtClaims();
@@ -75,6 +75,11 @@ public class SecurityTokenProvider
         claimMap.entrySet().stream().forEach((e) -> {
             claims.setClaim(e.getKey(), e.getValue());
         });
+
+        if (expireSeconds != null)
+        {
+            claims.setExpirationTime(NumericDate.fromMilliseconds(System.currentTimeMillis() + expireSeconds * 1000));
+        }
 
         JsonWebSignature jws = new JsonWebSignature();
         jws.setPayload(claims.toJson());

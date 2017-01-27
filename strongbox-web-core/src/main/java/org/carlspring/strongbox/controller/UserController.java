@@ -237,7 +237,7 @@ public class UserController
             return toError("The specified user does not exist!");
         }
 
-        String result = userService.generateSecurityToken(user.getObjectId(), null);
+        String result = userService.generateSecurityToken(user.getObjectId());
 
         if (result == null)
         {
@@ -248,19 +248,16 @@ public class UserController
         return ResponseEntity.ok(result);
     }
 
-    @ApiOperation(value = "Generate authentication token.",
-                  position = 3)
-    @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "The aouthentication token was generated."),
-                            @ApiResponse(code = 500,
-                                         message = "An error occurred.") })
+    @ApiOperation(value = "Generate authentication token.", position = 3)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The aouthentication token was generated."),
+                            @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("authenticated")
-    @RequestMapping(value = "user/authenticate",
-                    method = RequestMethod.GET)
-    public ResponseEntity authenticate()
-            throws JoseException
+    @RequestMapping(value = "user/authenticate", method = RequestMethod.GET)
+    public ResponseEntity authenticate(@RequestParam(name = "expireSeconds", required = false) Integer expireSeconds)
+        throws JoseException
 
     {
+        // We use Security Context from BasicAuth here
         String userName = SecurityContextHolder.getContext()
                                                .getAuthentication()
                                                .getName();
@@ -270,7 +267,7 @@ public class UserController
             return toError("The specified user does not exist!");
         }
 
-        String result = userService.generateAuthenticationToken(user.getObjectId(), null);
+        String result = userService.generateAuthenticationToken(user.getObjectId(), expireSeconds);
         return ResponseEntity.ok(result);
     }
     
