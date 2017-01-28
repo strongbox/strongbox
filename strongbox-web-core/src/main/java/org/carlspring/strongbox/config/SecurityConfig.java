@@ -33,6 +33,12 @@ public class SecurityConfig
         extends WebSecurityConfigurerAdapter
 {
 
+    /**
+     * This Configuration enables @PreAuthorize annotations
+     * 
+     * @author Sergey Bespalov
+     *
+     */
     @Configuration
     @EnableGlobalMethodSecurity(prePostEnabled=true)
     public static class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
