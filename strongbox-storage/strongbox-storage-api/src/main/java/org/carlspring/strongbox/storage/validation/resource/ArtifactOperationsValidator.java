@@ -133,7 +133,7 @@ public class ArtifactOperationsValidator
 
         if (artifactMaxSize > 0 && uploadedFile.getSize() > artifactMaxSize)
         {
-            throw new ArtifactResolutionException("The size of the artifact exceeds the maximum size accepted by "+
+            throw new ArtifactResolutionException("The size of the artifact exceeds the maximum size accepted by " +
                                                   "this repository (" + uploadedFile.getSize() + "/" +
                                                   artifactMaxSize + ").");
         }
