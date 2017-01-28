@@ -20,4 +20,14 @@
             <role>admin</role>
         </roles>
     </user>
+    <user>
+        <username>user</username>
+        <credentials>
+            <password>password</password>
+            <encryption-algorithm>plain</encryption-algorithm>
+        </credentials>
+        <roles>
+            <role>USER_ROLE</role>
+        </roles>
+    </user>    
 </users>

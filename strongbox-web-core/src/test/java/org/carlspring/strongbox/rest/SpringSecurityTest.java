@@ -3,6 +3,7 @@ package org.carlspring.strongbox.rest;
 import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.security.authentication.CustomAnonymousAuthenticationFilter;
+import org.carlspring.strongbox.users.domain.User;
 
 import javax.inject.Inject;
 
@@ -164,5 +165,29 @@ public class SpringSecurityTest
                .get(url)
                .then()
                .statusCode(401);
+    }
+    
+    @Test
+    @WithUserDetails("user")
+    public void testAuthorities()
+    {
+        String userName = "user";
+        given().contentType("application/json")
+               .when()
+               .get("/users/user/" + userName)
+               .peek()
+               .then()
+               .statusCode(200);
+
+        User user = new User();
+        user.setUsername(userName);
+        given().contentType("application/json")
+               .param("juser", user)
+               .when()
+               .put("/users/user")
+               .peek()
+               .then()
+               .statusCode(403);
+
     }
 }

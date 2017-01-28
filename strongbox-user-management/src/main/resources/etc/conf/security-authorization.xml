@@ -2,6 +2,13 @@
 <authorization-configuration>
     <roles>
         <role>
+            <name>USER_ROLE</name>
+            <description>Common user role</description>
+            <privileges>
+                <privilege>VIEW_USER</privilege>
+            </privileges>
+        </role>
+        <role>
             <name>CUSTOM_ROLE</name>
             <description>Deployment role</description>
             <privileges>
