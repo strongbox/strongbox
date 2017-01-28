@@ -40,17 +40,16 @@ public class SecurityConfig
      *
      */
     @Configuration
-    @EnableGlobalMethodSecurity(prePostEnabled=true)
-    public static class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
-        
+    @EnableGlobalMethodSecurity(prePostEnabled = true)
+    public static class MethodSecurityConfig extends GlobalMethodSecurityConfiguration
+    {
+
     }
-    
+
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth,
-                                @Qualifier("userDetailsAuthenticationProvider")
-                                        AuthenticationProvider userDetailsAuthenticationProvider,
-                                @Qualifier("jwtAuthenticationProvider")
-                                        AuthenticationProvider jwtAuthenticationProvider)
+                                @Qualifier("userDetailsAuthenticationProvider") AuthenticationProvider userDetailsAuthenticationProvider,
+                                @Qualifier("jwtAuthenticationProvider") AuthenticationProvider jwtAuthenticationProvider)
     {
         auth.authenticationProvider(userDetailsAuthenticationProvider)
             .authenticationProvider(jwtAuthenticationProvider)
