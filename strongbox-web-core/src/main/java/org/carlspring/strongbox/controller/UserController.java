@@ -249,7 +249,7 @@ public class UserController
     }
 
     @ApiOperation(value = "Generate authentication token.", position = 3)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The aouthentication token was generated."),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The authentication token was generated."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("authenticated")
     @RequestMapping(value = "user/authenticate", method = RequestMethod.GET)
