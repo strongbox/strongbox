@@ -57,6 +57,9 @@ public class Repository
     @XmlAttribute
     private String status = RepositoryStatusEnum.IN_SERVICE.getStatus();
 
+    @XmlAttribute(name = "artifact-max-size")
+    private long artifactMaxSize;
+
     @XmlAttribute(name = "trash-enabled")
     private boolean trashEnabled;
 
@@ -461,6 +464,16 @@ public class Repository
     public boolean isVirtualRepository()
     {
         return getType().equals(RepositoryTypeEnum.VIRTUAL.getType());
+    }
+
+    public long getArtifactMaxSize()
+    {
+        return artifactMaxSize;
+    }
+
+    public void setArtifactMaxSize(long artifactMaxSize)
+    {
+        this.artifactMaxSize = artifactMaxSize;
     }
 
 }

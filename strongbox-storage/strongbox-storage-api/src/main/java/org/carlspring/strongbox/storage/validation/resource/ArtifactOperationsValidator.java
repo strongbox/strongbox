@@ -14,6 +14,7 @@ import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
 /**
@@ -58,7 +59,8 @@ public class ArtifactOperationsValidator
         }
     }
 
-    public void checkRepositoryExists(String storageId, String repositoryId)
+    public void checkRepositoryExists(String storageId,
+                                      String repositoryId)
             throws ArtifactResolutionException
     {
         if (repositoryId == null)
@@ -66,7 +68,8 @@ public class ArtifactOperationsValidator
             throw new ArtifactResolutionException("No repository specified.");
         }
 
-        if (getConfiguration().getStorage(storageId).getRepository(repositoryId) == null)
+        if (getConfiguration().getStorage(storageId)
+                              .getRepository(repositoryId) == null)
         {
             throw new ArtifactResolutionException("Repository " + repositoryId + " does not exist.");
         }
@@ -86,18 +89,21 @@ public class ArtifactOperationsValidator
     {
         if (!repository.allowsDeployment())
         {
-            throw new ArtifactStorageException("Deployment of artifacts to " + repository.getType() + " repository is not allowed!");
+            throw new ArtifactStorageException("Deployment of artifacts to " + repository.getType() +
+                                               " repository is not allowed!");
         }
     }
 
-    public void checkAllowsRedeployment(Repository repository, ArtifactCoordinates coordinates)
+    public void checkAllowsRedeployment(Repository repository,
+                                        ArtifactCoordinates coordinates)
             throws IOException,
                    ProviderImplementationException
     {
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
         if (layoutProvider.containsArtifact(repository, coordinates) && !repository.allowsDeployment())
         {
-            throw new ArtifactStorageException("Re-deployment of artifacts to " + repository.getType() + " repository is not allowed!");
+            throw new ArtifactStorageException("Re-deployment of artifacts to " + repository.getType() +
+                                               " repository is not allowed!");
         }
     }
 
@@ -106,7 +112,30 @@ public class ArtifactOperationsValidator
     {
         if (!repository.allowsDeletion())
         {
-            throw new ArtifactStorageException("Deleting artifacts from " + repository.getType() + " repository is not allowed!");
+            throw new ArtifactStorageException("Deleting artifacts from " + repository.getType() +
+                                               " repository is not allowed!");
+        }
+    }
+
+    public void checkArtifactSize(String storageId,
+                                  String repositoryId,
+                                  MultipartFile uploadedFile)
+            throws ArtifactResolutionException
+    {
+        if (uploadedFile.isEmpty() || uploadedFile.getSize() == 0)
+        {
+            throw new ArtifactResolutionException("Uploaded file is empty.");
+        }
+
+        Repository repository = getConfiguration().getStorage(storageId)
+                                                  .getRepository(repositoryId);
+        long artifactMaxSize = repository.getArtifactMaxSize();
+
+        if (artifactMaxSize > 0 && uploadedFile.getSize() > artifactMaxSize)
+        {
+            throw new ArtifactResolutionException("The size of the artifact exceeds the maximum size accepted by " +
+                                                  "this repository (" + uploadedFile.getSize() + "/" +
+                                                  artifactMaxSize + ").");
         }
     }
 
