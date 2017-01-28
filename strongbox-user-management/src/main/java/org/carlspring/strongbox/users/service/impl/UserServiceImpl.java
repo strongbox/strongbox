@@ -169,9 +169,8 @@ class UserServiceImpl
      * java.lang.String)
      */
     @Override
-    public String generateSecurityToken(String id,
-                                        Date expire)
-                                                     throws JoseException
+    public String generateSecurityToken(String id)
+        throws JoseException
     {
         User user = repository.findOne(id);
 
@@ -179,16 +178,16 @@ class UserServiceImpl
         {
             return null;
         }
-        
+
         Map<String, String> claimMap = new HashMap<>();
         claimMap.put("security-token-key", user.getSecurityTokenKey());
 
-        return tokenProvider.getToken(user.getUsername(), claimMap, expire);
+        return tokenProvider.getToken(user.getUsername(), claimMap, null);
     }
 
     @Override
     public String generateAuthenticationToken(String id,
-                                              Date expire)
+                                              Integer expireMinutes)
             throws JoseException
     {
         User user = repository.findOne(id);
@@ -196,7 +195,7 @@ class UserServiceImpl
         Map<String, String> claimMap = new HashMap<>();
         claimMap.put("credentials", user.getPassword());
 
-        return tokenProvider.getToken(user.getUsername(), claimMap, expire);
+        return tokenProvider.getToken(user.getUsername(), claimMap, expireMinutes);
     }
 
     @Override

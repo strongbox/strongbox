@@ -3,6 +3,7 @@ package org.carlspring.strongbox.rest;
 import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.security.authentication.CustomAnonymousAuthenticationFilter;
+import org.carlspring.strongbox.users.domain.User;
 
 import javax.inject.Inject;
 
@@ -127,4 +128,66 @@ public class SpringSecurityTest
                .statusCode(200);
     }
 
+    @Test
+    public void testJWTExpire()
+        throws InterruptedException
+    {
+        String url = getContextBaseUrl() + "/users/user/authenticate";
+
+        String basicAuth = "Basic YWRtaW46cGFzc3dvcmQ=";
+        logger.info(String.format("Get JWT Token with Basic Authentication: user-[%s]; auth-[%s]", "admin",
+                                  basicAuth));
+        String token = given().contentType(ContentType.JSON)
+                              .header("Authorization", basicAuth)
+                              .when()
+                              .get(url + String.format("?expireSeconds=%s", 1))
+                              .then()
+                              .statusCode(200)
+                              .extract()
+                              .asString();
+
+        logger.info(String.format("Gereet with JWT Authentication: user-[%s]; token-[%s]", "admin",
+                                  token));
+        url = getContextBaseUrl() + "/users/greet";
+        given().contentType(ContentType.JSON)
+               .header("Authorization", String.format("Bearer %s", token))
+               .when()
+               .get(url)
+               .then()
+               .statusCode(200);
+
+        Thread.sleep(3000);
+        logger.info(String.format("Check JWT Authentication expired: user-[%s]; token-[%s]", "admin",
+                                  token));
+        given().contentType(ContentType.JSON)
+               .header("Authorization", String.format("Bearer %s", token))
+               .when()
+               .get(url)
+               .then()
+               .statusCode(401);
+    }
+    
+    @Test
+    @WithUserDetails("user")
+    public void testAuthorities()
+    {
+        String userName = "user";
+        given().contentType("application/json")
+               .when()
+               .get("/users/user/" + userName)
+               .peek()
+               .then()
+               .statusCode(200);
+
+        User user = new User();
+        user.setUsername(userName);
+        given().contentType("application/json")
+               .param("juser", user)
+               .when()
+               .put("/users/user")
+               .peek()
+               .then()
+               .statusCode(403);
+
+    }
 }
