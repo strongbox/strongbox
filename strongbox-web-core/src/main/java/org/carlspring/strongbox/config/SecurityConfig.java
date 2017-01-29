@@ -77,7 +77,7 @@ public class SecurityConfig
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .requestMatchers()
-                .antMatchers("/users/user/authenticate", "/storages")
+                .antMatchers("/users/user/authenticate", "/storages/**/*")
                 .and()
                 .authorizeRequests()
                 .anyRequest()
