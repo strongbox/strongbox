@@ -13,9 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 @UserServiceTestContext
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -39,39 +37,41 @@ public class OrientCrudRepositoryTest
     }
 
     @Test
-    @Transactional
-    public synchronized void testCreateAndDeleteUserOperations()
+    public void testCreateAndDeleteUserOperations()
             throws Exception
     {
 
-        final User user = new User();
+        User user = new User();
         user.setEnabled(true);
         user.setUsername(testUserName);
         user.setPassword("test-pwd");
-        final User savedUser = databaseTx.detachAll(userService.save(user), true);
-        assertNotNull(savedUser);
+        assertNull(user.getObjectId());
 
-        String id = savedUser.getObjectId();
-        logger.debug("Saved user: " + savedUser);
+        final User storedUser = userService.save(user);
+        assertNotNull(storedUser);
+        String id = storedUser.getObjectId();
+        assertNotNull(id);
+
+        logger.debug("Saved user: " + storedUser);
 
         Optional<User> optional = userService.findOne(id);
-        optional.ifPresent(storedUser -> {
-            logger.debug("Found stored user\n\t" + storedUser + "\n");
-            assertEquals(user.getUsername(), storedUser.getUsername());
-            assertEquals(user.getPassword(), storedUser.getPassword());
-            assertEquals(user.isEnabled(), storedUser.isEnabled());
+        optional.ifPresent(foundEntity ->
+                           {
+                               logger.debug("Found stored user\n\t" + foundEntity + "\n");
+                               assertEquals(storedUser.getObjectId(), foundEntity.getObjectId());
+                               assertEquals(storedUser.getUsername(), foundEntity.getUsername());
+                               assertEquals(storedUser.getPassword(), foundEntity.getPassword());
+                               assertEquals(storedUser.isEnabled(), foundEntity.isEnabled());
         });
         optional.orElseThrow(
                 () -> new NullPointerException("Unable to locate user " + testUserName + ". Save operation fails..."));
     }
 
     @Test
-    @Transactional
-    public synchronized void displayUsers()
+    public void displayUsers()
     {
-        userService.findAll().ifPresent(strongboxUsers -> {
-            strongboxUsers.forEach(user -> logger.debug(user.toString()));
-        });
+        userService.findAll()
+                   .ifPresent(strongboxUsers -> strongboxUsers.forEach(user -> logger.debug(user.toString())));
     }
 
 }

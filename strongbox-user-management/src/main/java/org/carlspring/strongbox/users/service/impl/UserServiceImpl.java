@@ -6,12 +6,12 @@ import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.carlspring.strongbox.users.service.UserService;
 
 import javax.inject.Inject;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.apache.commons.lang.StringUtils;
 import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
@@ -42,7 +42,10 @@ class UserServiceImpl
 
     @Inject
     SecurityTokenProvider tokenProvider;
-    
+
+    @Inject
+    OObjectDatabaseTx databaseTx;
+
     @Override
     @Transactional
     @Cacheable(value = "users", key = "#name", sync = true)
@@ -50,7 +53,7 @@ class UserServiceImpl
     {
         try
         {
-            return repository.findByUsername(name);
+            return databaseTx.detachAll(repository.findByUsername(name), true);
         }
         catch (Exception e)
         {

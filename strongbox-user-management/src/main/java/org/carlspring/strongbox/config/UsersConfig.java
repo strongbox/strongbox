@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.config;
 
+import org.carlspring.strongbox.data.service.NoProxyOrientRepositoryFactoryBean;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.security.Credentials;
 import org.carlspring.strongbox.security.Users;
@@ -31,22 +32,23 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.users" })
-@EnableOrientRepositories(basePackages = "org.carlspring.strongbox.users.repository")
+@EnableOrientRepositories(basePackages = "org.carlspring.strongbox.users.repository",
+                          repositoryFactoryBeanClass = NoProxyOrientRepositoryFactoryBean.class)
 @Import({ DataServiceConfig.class,
           CommonConfig.class })
 public class UsersConfig
 {
 
     private static final Logger logger = LoggerFactory.getLogger(UsersConfig.class);
-    
+
     private final static GenericParser<Users> parser = new GenericParser<>(Users.class);
-    
+
     @Autowired
     private OObjectDatabaseTx databaseTx;
-    
+
     @Autowired
     private UserService userService;
-    
+
     @Autowired
     private CacheManager cacheManager;
 
@@ -63,7 +65,9 @@ public class UsersConfig
         logger.debug("Loading users...");
 
         // register all domain entities
-        getDatabaseTx().getEntityManager().registerEntityClasses(User.class.getPackage().getName());
+        getDatabaseTx().getEntityManager()
+                       .registerEntityClasses(User.class.getPackage()
+                                                        .getName());
 
         loadUsersFromConfigFile();
     }
@@ -75,8 +79,11 @@ public class UsersConfig
         {
             // save loaded users to the database if schema do not exists
             boolean needToSaveInDb = userService.count() == 0;
-            parser.parse(getUsersConfigurationResource().getURL()).getUsers().stream().forEach(
-                    user -> obtainUser(user, needToSaveInDb));
+            parser.parse(getUsersConfigurationResource().getURL())
+                  .getUsers()
+                  .stream()
+                  .forEach(
+                          user -> obtainUser(user, needToSaveInDb));
         }
         catch (Exception e)
         {
