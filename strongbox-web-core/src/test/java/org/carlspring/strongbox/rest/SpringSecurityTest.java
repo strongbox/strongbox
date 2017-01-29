@@ -140,7 +140,7 @@ public class SpringSecurityTest
         String token = given().contentType(ContentType.JSON)
                               .header("Authorization", basicAuth)
                               .when()
-                              .get(url + String.format("?expireSeconds=%s", 1))
+                              .get(url + String.format("?expireSeconds=%s", 3))
                               .then()
                               .statusCode(200)
                               .extract()
@@ -156,7 +156,7 @@ public class SpringSecurityTest
                .then()
                .statusCode(200);
 
-        Thread.sleep(3000);
+        Thread.sleep(3500);
         logger.info(String.format("Check JWT Authentication expired: user-[%s]; token-[%s]", "admin",
                                   token));
         given().contentType(ContentType.JSON)
