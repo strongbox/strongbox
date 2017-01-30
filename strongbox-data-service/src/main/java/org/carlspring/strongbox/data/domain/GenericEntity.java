@@ -22,7 +22,12 @@ public abstract class GenericEntity
         implements Serializable
 {
 
+    // objectId may differ's because of internal OrientDB layout
+    // at the first time it will be something like #-1:-2
+    // and then this object will be placed in some cluster in async way
+    // and it will have different objectId
     @Id
+    @JsonIgnore
     protected String objectId;
 
     /**

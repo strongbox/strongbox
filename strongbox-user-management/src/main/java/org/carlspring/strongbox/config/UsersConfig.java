@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanInstantiationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -49,25 +48,18 @@ public class UsersConfig
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private CacheManager cacheManager;
-
-    private synchronized OObjectDatabaseTx getDatabaseTx()
-    {
-        databaseTx.activateOnCurrentThread();
-        return databaseTx;
-    }
-
     @PostConstruct
-    @Transactional
     public synchronized void init()
     {
         logger.debug("Loading users...");
 
         // register all domain entities
-        getDatabaseTx().getEntityManager()
-                       .registerEntityClasses(User.class.getPackage()
-                                                        .getName());
+        databaseTx.activateOnCurrentThread();
+        databaseTx.getEntityManager()
+                  .registerEntityClasses(User.class.getPackage()
+                                                   .getName());
+
+        userService.deleteAll();
 
         loadUsersFromConfigFile();
     }
@@ -81,9 +73,7 @@ public class UsersConfig
             boolean needToSaveInDb = userService.count() == 0;
             parser.parse(getUsersConfigurationResource().getURL())
                   .getUsers()
-                  .stream()
-                  .forEach(
-                          user -> obtainUser(user, needToSaveInDb));
+                  .forEach(user -> obtainUser(user, needToSaveInDb));
         }
         catch (Exception e)
         {
@@ -97,14 +87,11 @@ public class UsersConfig
                                          boolean needToSaveInDb)
     {
         User internalUser = toInternalUser(user);
-        logger.debug("Saving new user from config file:\n\t" + user);
 
         if (needToSaveInDb)
         {
             internalUser = userService.save(internalUser);
-            internalUser = getDatabaseTx().detach(internalUser, true);
-            cacheManager.getCache("users")
-                        .put(internalUser.getUsername(), internalUser);
+            logger.debug("Saving new user from config file:\n\t" + internalUser);
         }
     }
 

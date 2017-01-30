@@ -5,6 +5,7 @@ import org.carlspring.strongbox.data.domain.GenericEntity;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import org.apache.commons.lang.StringUtils;
@@ -12,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 /**
  * An application user
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class User
         extends GenericEntity
 {
@@ -25,7 +27,7 @@ public class User
     private String salt;
 
     private Set<String> roles;
-    
+
     private String securityTokenKey;
 
     public User()

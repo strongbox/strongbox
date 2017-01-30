@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -39,8 +38,6 @@ public class AuthorizationConfigController
         extends BaseArtifactController
 {
 
-    private final GenericParser<AuthorizationConfig> configGenericParser = new GenericParser<>(AuthorizationConfig.class);
-
     @Inject
     AuthorizationConfigProvider configProvider;
 
@@ -48,15 +45,12 @@ public class AuthorizationConfigController
     UserService userService;
 
     @Inject
-    OObjectDatabaseTx databaseTx;
-
-    @Inject
     CacheManager cacheManager;
 
     @Inject
     AnonymousAuthenticationFilter anonymousAuthenticationFilter;
 
-    private volatile AuthorizationConfig config;
+    private AuthorizationConfig config;
 
     private synchronized ResponseEntity processConfig(Consumer<AuthorizationConfig> consumer)
     {
@@ -67,14 +61,13 @@ public class AuthorizationConfigController
     private synchronized ResponseEntity processConfig(Consumer<AuthorizationConfig> consumer,
                                                       CustomSuccessResponseBuilder customSuccessResponseBuilder)
     {
-        databaseTx.activateOnCurrentThread();
         Optional<AuthorizationConfig> configOptional = configProvider.getConfig();
 
         if (configOptional.isPresent())
         {
             try
             {
-                config = databaseTx.detachAll(configOptional.get(), true);
+                config = configOptional.get();
 
                 if (consumer != null)
                 {
@@ -113,7 +106,7 @@ public class AuthorizationConfigController
         GenericParser<Role> parser = new GenericParser<>(Role.class);
         Role role = parser.deserialize(serializedJson);
 
-        logger.debug("Trying to add new role from JSON\n" + serializedJson);
+        logger.info("Trying to add new role from JSON\n" + serializedJson);
         logger.debug(role.toString());
         return processConfig(config ->
                              {
@@ -124,8 +117,8 @@ public class AuthorizationConfigController
 
                                  if (result)
                                  {
-                                     logger.debug("Successfully added new role " + role.getName());
                                      configProvider.updateConfig(config);
+                                     logger.info("Successfully added new role " + role.getName());
                                  }
                                  else
                                  {
@@ -259,12 +252,8 @@ public class AuthorizationConfigController
 
     private synchronized List<User> getAllUsers()
     {
-        final List<User> users = new LinkedList<>();
-        databaseTx.activateOnCurrentThread();
-        userService.findAll()
-                   .ifPresent(
-                           usersList -> usersList.forEach(user -> users.add(databaseTx.detach(user, true))));
-        return users;
+        return userService.findAll()
+                          .orElse(new LinkedList<>());
     }
 
     private interface CustomSuccessResponseBuilder

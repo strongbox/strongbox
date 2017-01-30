@@ -48,7 +48,7 @@ public class AuthorizationConfigProvider
     @Autowired
     private OObjectDatabaseTx databaseTx;
 
-    private volatile AuthorizationConfig config;
+    private AuthorizationConfig config;
 
     private static void throwIfNotEmpty(Sets.SetView<String> intersectionView,
                                         String message)
@@ -88,7 +88,7 @@ public class AuthorizationConfigProvider
             {
                 // get first of the available configs into work
                 configService.findAll().ifPresent(
-                        authorizationConfigs -> config = databaseTx.detachAll(authorizationConfigs.get(0), true));
+                        authorizationConfigs -> config = authorizationConfigs.get(0));
 
                 // process the case when for some reason we have more than one config
                 if (configCount > 1)
@@ -114,9 +114,25 @@ public class AuthorizationConfigProvider
             // if we found in XML file privilege or role that already defined as build-in
             // (based on role/privilege name) we will throw runtime exception
             validateConfig(config);
+        }
 
-            // save AuthorizationConfig to the db
-            config = databaseTx.detachAll(configService.save(config), true);
+        config.setObjectId(null);
+    }
+
+    @Transactional
+    public synchronized void saveConfig()
+    {
+
+        configService.deleteAll();
+        config.setObjectId(null);
+
+        try
+        {
+            configService.save(config);
+        }
+        catch (Exception e)
+        {
+            logger.error("Unable to save configuration: ", e);
         }
     }
 
@@ -154,18 +170,23 @@ public class AuthorizationConfigProvider
         return Sets.intersection(collect(first, firstNameFunction), collect(second, secondNameFunction));
     }
 
-    public Optional<AuthorizationConfig> getConfig()
+    public synchronized Optional<AuthorizationConfig> getConfig()
     {
         logger.debug("Get config -> " + config);
         return Optional.ofNullable(config);
     }
 
-    @Transactional
-    public void updateConfig(AuthorizationConfig config)
+    public synchronized void updateConfig(AuthorizationConfig config)
     {
         validateConfig(config);
-        this.config = configService.save(config);
+
+        // this is enough because we will execute actual saving before this bean died
+        // see method annotated with @PreDestroy
+        this.config = config;
+
         logger.debug("Update config -> " + this.config);
+
+        saveConfig();
     }
 
     private Resource getConfigurationResource()
