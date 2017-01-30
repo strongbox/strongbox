@@ -52,14 +52,14 @@ public class AuthorizationConfigController
 
     private AuthorizationConfig config;
 
-    private synchronized ResponseEntity processConfig(Consumer<AuthorizationConfig> consumer)
+    private ResponseEntity processConfig(Consumer<AuthorizationConfig> consumer)
     {
         return processConfig(consumer, config -> ResponseEntity.ok()
                                                                .build());
     }
 
-    private synchronized ResponseEntity processConfig(Consumer<AuthorizationConfig> consumer,
-                                                      CustomSuccessResponseBuilder customSuccessResponseBuilder)
+    private ResponseEntity processConfig(Consumer<AuthorizationConfig> consumer,
+                                         CustomSuccessResponseBuilder customSuccessResponseBuilder)
     {
         Optional<AuthorizationConfig> configOptional = configProvider.getConfig();
 
@@ -99,7 +99,7 @@ public class AuthorizationConfigController
     @RequestMapping(value = "role",
                     method = RequestMethod.POST,
                     consumes = MediaType.TEXT_PLAIN_VALUE)
-    public synchronized ResponseEntity addRole(@RequestBody String serializedJson)
+    public ResponseEntity addRole(@RequestBody String serializedJson)
             throws JAXBException
     {
 
@@ -139,7 +139,7 @@ public class AuthorizationConfigController
                     method = RequestMethod.GET,
                     produces = { MediaType.APPLICATION_XML_VALUE,
                                  MediaType.APPLICATION_JSON_VALUE })
-    public synchronized ResponseEntity getAuthorizationConfig()
+    public ResponseEntity getAuthorizationConfig()
             throws JAXBException
     {
         logger.debug("Trying to receive authorization config as XML / JSON file...");
@@ -194,7 +194,7 @@ public class AuthorizationConfigController
                                                                        .remove(name.toUpperCase()))
                                                                {
                                                                    // evict such kind of users from cache
-                                                                   cacheManager.getCache("users")
+                                                                   cacheManager.getCache(UserService.USERS_CACHE)
                                                                                .evict(user);
                                                                }
                                                            });
@@ -209,7 +209,7 @@ public class AuthorizationConfigController
     @RequestMapping(value = "anonymous/privileges",
                     method = RequestMethod.POST,
                     consumes = MediaType.APPLICATION_JSON_VALUE)
-    public synchronized ResponseEntity addPrivilegesToAnonymous(@RequestBody List<Privilege> privileges)
+    public ResponseEntity addPrivilegesToAnonymous(@RequestBody List<Privilege> privileges)
     {
         return processConfig(config -> privileges.forEach(this::addAnonymousAuthority));
     }
@@ -221,7 +221,7 @@ public class AuthorizationConfigController
     @RequestMapping(value = "anonymous/roles",
                     method = RequestMethod.POST,
                     consumes = MediaType.APPLICATION_JSON_VALUE)
-    public synchronized ResponseEntity addRolesToAnonymous(List<Role> roles)
+    public ResponseEntity addRolesToAnonymous(List<Role> roles)
     {
         return processConfig(config -> roles.forEach(role -> config.getRoles()
                                                                    .getRoles()
@@ -250,7 +250,7 @@ public class AuthorizationConfigController
                                      .add(simpleGrantedAuthority);
     }
 
-    private synchronized List<User> getAllUsers()
+    private List<User> getAllUsers()
     {
         return userService.findAll()
                           .orElse(new LinkedList<>());

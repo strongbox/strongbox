@@ -37,8 +37,6 @@ class UserServiceImpl
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    public static final String USERS_CACHE = "users";
-
     @Inject
     UserRepository repository;
 
