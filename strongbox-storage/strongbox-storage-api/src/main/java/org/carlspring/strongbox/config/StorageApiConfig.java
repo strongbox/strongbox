@@ -2,6 +2,7 @@ package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.data.service.NoProxyOrientRepositoryFactoryBean;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
@@ -35,7 +36,8 @@ import org.springframework.transaction.annotation.Transactional;
                        "org.carlspring.strongbox.xml"
                })
 @EnableOrientRepositories(basePackages = { "org.carlspring.strongbox.storage.repository",
-                                           "org.carlspring.strongbox.repository" })
+                                           "org.carlspring.strongbox.repository" },
+                          repositoryFactoryBeanClass = NoProxyOrientRepositoryFactoryBean.class)
 public class StorageApiConfig
 {
 

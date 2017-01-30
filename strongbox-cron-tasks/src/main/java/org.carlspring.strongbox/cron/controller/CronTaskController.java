@@ -12,7 +12,11 @@ import org.carlspring.strongbox.xml.parsers.GenericParser;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -136,10 +140,6 @@ public class CronTaskController
 
         try
         {
-            // used to serialize entity to JSON directly (without proxies)
-            databaseTx.activateOnCurrentThread();
-            config = databaseTx.detachAll(config, false);
-
             return ResponseEntity.ok(configParser.serialize(config));
         }
         catch (Exception e)

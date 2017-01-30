@@ -51,7 +51,7 @@ public class RemoteStorageTest
             // ignore internal spring-data-orientdb issue
         }
 
-        User user1 = databaseTx.detachAll(userService.save(user), true);
+        User user1 = userService.save(user);
 
         User storedUser = userService.findOne(user1.getObjectId())
                                      .get();

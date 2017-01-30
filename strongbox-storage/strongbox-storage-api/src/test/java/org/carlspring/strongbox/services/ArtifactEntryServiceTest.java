@@ -90,10 +90,10 @@ public class ArtifactEntryServiceTest
 
         if (artifactEntryService.count() > 0)
         {
-            ArtifactEntry savedEntry = databaseTx.detachAll(
-                    artifactEntryService
-                            .findOne(artifactEntry.getObjectId())
-                            .orElseThrow(() -> new NullPointerException("Unable to find any artifact entry")), true);
+            ArtifactEntry savedEntry = artifactEntryService
+                                               .findOne(artifactEntry.getObjectId())
+                                               .orElseThrow(
+                                                       () -> new NullPointerException("Unable to find any artifact entry"));
 
             logger.info("[checkThatArtifactEntryIsCreatable] Detached entity " + savedEntry);
 
@@ -133,14 +133,9 @@ public class ArtifactEntryServiceTest
 
         result.forEach(artifactEntry ->
                        {
-
-                           databaseTx.activateOnCurrentThread();
-                           ArtifactEntry artifact = databaseTx.detachAll(artifactEntry, true);
-
-                           logger.info("Found artifact " + artifact);
-
-                           assertEquals(groupId, artifact.getArtifactCoordinates()
-                                                         .getCoordinate("groupId"));
+                           logger.info("Found artifact " + artifactEntry);
+                           assertEquals(groupId, artifactEntry.getArtifactCoordinates()
+                                                              .getCoordinate("groupId"));
                        });
     }
 
@@ -169,16 +164,12 @@ public class ArtifactEntryServiceTest
 
         result.forEach(artifactEntry ->
                        {
+                           logger.info("Found artifact " + artifactEntry);
 
-                           databaseTx.activateOnCurrentThread();
-                           ArtifactEntry artifact = databaseTx.detachAll(artifactEntry, true);
-
-                           logger.info("Found artifact " + artifact);
-
-                           assertEquals(groupId, artifact.getArtifactCoordinates()
-                                                         .getCoordinate("groupId"));
-                           assertEquals(artifactId, artifact.getArtifactCoordinates()
-                                                            .getCoordinate("artifactId"));
+                           assertEquals(groupId, artifactEntry.getArtifactCoordinates()
+                                                              .getCoordinate("groupId"));
+                           assertEquals(artifactId, artifactEntry.getArtifactCoordinates()
+                                                                 .getCoordinate("artifactId"));
                        });
     }
 
@@ -192,14 +183,7 @@ public class ArtifactEntryServiceTest
             logger.warn("Artifact repository is empty");
         }
 
-        result.forEach(artifactEntry ->
-                       {
-                           databaseTx.activateOnCurrentThread();
-                           ArtifactEntry artifact = databaseTx.detachAll(
-                                   artifactEntry, true);
-                           logger.info("Found artifact " +
-                                       artifact);
-                       });
+        result.forEach(artifactEntry -> logger.info("Found artifact " + artifactEntry));
     }
 
     private void createArtifacts(String groupId,
@@ -242,8 +226,7 @@ public class ArtifactEntryServiceTest
         artifactEntry.setStorageId(storageId);
         artifactEntry.setRepositoryId(repositoryId);
 
-        databaseTx.activateOnCurrentThread();
-        return databaseTx.detachAll(artifactEntryService.save(artifactEntry), true);
+        return artifactEntryService.save(artifactEntry);
     }
 
     private ArtifactCoordinates createMavenArtifactCoordinates()

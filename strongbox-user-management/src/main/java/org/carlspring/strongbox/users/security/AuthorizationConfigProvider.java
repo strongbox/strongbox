@@ -71,12 +71,11 @@ public class AuthorizationConfigProvider
     }
 
     @PostConstruct
-    public synchronized void init()
+    public void init()
             throws IOException, JAXBException
     {
         // update schema in any case
         registerEntities();
-        databaseTx.activateOnCurrentThread();
 
         // check database for any configuration source, if something is already in place
         // reuse it and skip reading configuration from XML
@@ -87,8 +86,9 @@ public class AuthorizationConfigProvider
             try
             {
                 // get first of the available configs into work
-                configService.findAll().ifPresent(
-                        authorizationConfigs -> config = authorizationConfigs.get(0));
+                configService.findAll()
+                             .ifPresent(
+                                     authorizationConfigs -> config = authorizationConfigs.get(0));
 
                 // process the case when for some reason we have more than one config
                 if (configCount > 1)
@@ -116,7 +116,7 @@ public class AuthorizationConfigProvider
             validateConfig(config);
         }
 
-        config.setObjectId(null);
+        saveConfig();
     }
 
     @Transactional
@@ -142,19 +142,25 @@ public class AuthorizationConfigProvider
 
         // full class names used for clarity and to avoid conflicts with domain package
         // that contains the same class names
-        databaseTx.getEntityManager().registerEntityClass(AuthorizationConfig.class);
-        databaseTx.getEntityManager().registerEntityClass(org.carlspring.strongbox.security.Roles.class);
-        databaseTx.getEntityManager().registerEntityClass(Role.class);
+        databaseTx.getEntityManager()
+                  .registerEntityClass(AuthorizationConfig.class);
+        databaseTx.getEntityManager()
+                  .registerEntityClass(org.carlspring.strongbox.security.Roles.class);
+        databaseTx.getEntityManager()
+                  .registerEntityClass(Role.class);
     }
 
     private void validateConfig(@NotNull AuthorizationConfig config)
             throws ConfigurationException
     {
         // check that embedded roles was not overridden
-        throwIfNotEmpty(toIntersection(config.getRoles().getRoles(),
+        throwIfNotEmpty(toIntersection(config.getRoles()
+                                             .getRoles(),
                                        Arrays.asList(Roles.values()),
-                                       o -> ((Role) o).getName().toUpperCase(),
-                                       o -> ((Roles) o).name().toUpperCase()),
+                                       o -> ((Role) o).getName()
+                                                      .toUpperCase(),
+                                       o -> ((Roles) o).name()
+                                                       .toUpperCase()),
                         "Embedded roles overriding is forbidden: ");
     }
 

@@ -37,6 +37,8 @@ class UserServiceImpl
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
+    public static final String USERS_CACHE = "users";
+
     @Inject
     UserRepository repository;
 
@@ -70,6 +72,8 @@ class UserServiceImpl
     {
         try
         {
+            // TODO find more appropriate place for detaching in some place
+            // where actual generated query will be executed
             return databaseTx.detachAll(repository.findByUsername(name), true);
         }
         catch (Exception e)
