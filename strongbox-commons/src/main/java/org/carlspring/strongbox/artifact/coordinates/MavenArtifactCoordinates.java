@@ -102,7 +102,15 @@ public class MavenArtifactCoordinates extends AbstractArtifactCoordinates
     @Override
     public String toPath()
     {
-        return ArtifactUtils.convertArtifactToPath(toArtifact());
+        try
+        {
+            return ArtifactUtils.convertArtifactToPath(toArtifact());
+        }
+        catch (Exception e)
+        {
+            //e.printStackTrace();
+            return getCoordinates().toString();
+        }
     }
 
     public Artifact toArtifact()

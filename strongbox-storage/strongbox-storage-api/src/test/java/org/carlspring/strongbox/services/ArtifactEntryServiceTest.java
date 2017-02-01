@@ -9,15 +9,12 @@ import javax.inject.Inject;
 import java.util.List;
 
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
 import static org.junit.Assert.*;
 
 /**
@@ -28,8 +25,6 @@ import static org.junit.Assert.*;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { StorageApiConfig.class })
-@Transactional
-@Rollback(false)
 public class ArtifactEntryServiceTest
 {
 
@@ -47,79 +42,24 @@ public class ArtifactEntryServiceTest
     final String groupId = "org.carlspring.strongbox";
     final String artifactId = "coordinates-test";
 
-    @Before
-    public synchronized void init()
-            throws Exception
-    {
-
-        logger.info("[prepareTests] Create artifacts....");
-
-        createArtifacts(groupId, artifactId, storageId, repositoryId);
-        displayAllEntries();
-    }
-
-    @Test
-    public synchronized void testAll()
-            throws Exception
-    {
-        logger.info("[testAll] Start testing....");
-
-        if (artifactEntryService.count() > 0)
-        {
-
-            checkThatArtifactEntryIsCreatable();
-
-            searchBySingleCoordinate(groupId, 2);
-            searchByTwoCoordinate(groupId, artifactId, 1);
-
-            artifactEntryService.deleteAll();
-        }
-        else
-        {
-            logger.warn("Artifact entries storage was not initialized properly. Unable to execute any tests.");
-        }
-    }
-
-    private void checkThatArtifactEntryIsCreatable()
-    {
-        final String storageId = "storage3";
-        final String repositoryId = "release432";
-
-        ArtifactEntry artifactEntry = createArtifactEntry(createMavenArtifactCoordinates(), storageId, repositoryId);
-        logger.info("Saved entity " + artifactEntry);
-
-        if (artifactEntryService.count() > 0)
-        {
-            ArtifactEntry savedEntry = artifactEntryService
-                                               .findOne(artifactEntry.getObjectId())
-                                               .orElseThrow(
-                                                       () -> new NullPointerException("Unable to find any artifact entry"));
-
-            logger.info("[checkThatArtifactEntryIsCreatable] Detached entity " + savedEntry);
-
-            assertEquals(storageId, savedEntry.getStorageId());
-            assertEquals(repositoryId, savedEntry.getRepositoryId());
-
-            String savedObjectId = savedEntry.getObjectId();
-            logger.info("[checkThatArtifactEntryIsCreatable] Delete entity by ID " + savedObjectId);
-            artifactEntryService.delete(savedObjectId);
-        }
-        else
-        {
-            logger.warn("Unable to find saved entries in the db...");
-        }
-    }
-
     /**
      * Make sure that we are able to search artifacts by single coordinate.
      *
      * @param groupId
      * @throws Exception
      */
-    private void searchBySingleCoordinate(String groupId,
-                                          final int expectedResultCount)
+    @Test
+    public void searchBySingleCoordinate()
             throws Exception
     {
+
+        logger.info("[prepareTests] Create artifacts....");
+
+        artifactEntryService.deleteAll();
+        createArtifacts(groupId, artifactId, storageId, repositoryId);
+        displayAllEntries();
+
+        logger.info("\n\n\tThere is totally " + artifactEntryService.count() + " artifacts...\n");
 
         // prepare search query key (coordinates)
         MavenArtifactCoordinates query = new MavenArtifactCoordinates();
@@ -129,11 +69,12 @@ public class ArtifactEntryServiceTest
         assertNotNull(result);
         assertFalse(result.isEmpty());
 
-        assertEquals(expectedResultCount, result.size());
+        assertEquals(2, result.size());
 
         result.forEach(artifactEntry ->
                        {
                            logger.info("Found artifact " + artifactEntry);
+
                            assertEquals(groupId, artifactEntry.getArtifactCoordinates()
                                                               .getCoordinate("groupId"));
                        });
@@ -145,11 +86,18 @@ public class ArtifactEntryServiceTest
      * @param groupId
      * @param artifactId
      */
-    private void searchByTwoCoordinate(String groupId,
-                                       String artifactId,
-                                       final int expectedResultCount)
+    @Test
+    public void searchByTwoCoordinate()
             throws Exception
     {
+
+        logger.info("[prepareTests] Create artifacts....");
+
+        artifactEntryService.deleteAll();
+        createArtifacts(groupId, artifactId, storageId, repositoryId);
+        displayAllEntries();
+
+        logger.info("There is totally " + artifactEntryService.count() + " artifacts...");
 
         // prepare search query key (coordinates)
         MavenArtifactCoordinates query = new MavenArtifactCoordinates();
@@ -160,7 +108,7 @@ public class ArtifactEntryServiceTest
         assertNotNull(result);
         assertFalse(result.isEmpty());
 
-        assertEquals(expectedResultCount, result.size());
+        assertEquals(1, result.size());
 
         result.forEach(artifactEntry ->
                        {
@@ -171,9 +119,11 @@ public class ArtifactEntryServiceTest
                            assertEquals(artifactId, artifactEntry.getArtifactCoordinates()
                                                                  .getCoordinate("artifactId"));
                        });
+
+        artifactEntryService.deleteAll();
     }
 
-    private void displayAllEntries()
+    public void displayAllEntries()
     {
         logger.info("[displayAllEntries] ->>>> ...... ");
         List<ArtifactEntry> result = artifactEntryService.findAll()
@@ -183,13 +133,13 @@ public class ArtifactEntryServiceTest
             logger.warn("Artifact repository is empty");
         }
 
-        result.forEach(artifactEntry -> logger.info("Found artifact " + artifactEntry));
+        result.forEach(artifactEntry -> logger.info("[displayAllEntries] Found artifact " + artifactEntry));
     }
 
-    private void createArtifacts(String groupId,
-                                 String artifactId,
-                                 String storageId,
-                                 String repositoryId)
+    public void createArtifacts(String groupId,
+                                String artifactId,
+                                String storageId,
+                                String repositoryId)
     {
         // create 3 artifacts, one will have coordinates that matches our query, one - not
 
@@ -216,10 +166,12 @@ public class ArtifactEntryServiceTest
         createArtifactEntry(coordinates3, storageId, repositoryId);
     }
 
-    private ArtifactEntry createArtifactEntry(ArtifactCoordinates coordinates,
-                                              String storageId,
-                                              String repositoryId)
+    public ArtifactEntry createArtifactEntry(ArtifactCoordinates coordinates,
+                                             String storageId,
+                                             String repositoryId)
     {
+
+        logger.info("[createArtifactEntry] Create artifact " + coordinates.toPath());
 
         ArtifactEntry artifactEntry = new ArtifactEntry();
         artifactEntry.setArtifactCoordinates(coordinates);
@@ -229,7 +181,7 @@ public class ArtifactEntryServiceTest
         return artifactEntryService.save(artifactEntry);
     }
 
-    private ArtifactCoordinates createMavenArtifactCoordinates()
+    public ArtifactCoordinates createMavenArtifactCoordinates()
     {
 
         return new MavenArtifactCoordinates("org.carlspring.strongbox.another.package",
