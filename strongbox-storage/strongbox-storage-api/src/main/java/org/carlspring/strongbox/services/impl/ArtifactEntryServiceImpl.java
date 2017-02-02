@@ -1,11 +1,5 @@
 package org.carlspring.strongbox.services.impl;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.repository.ArtifactRepository;
-import org.carlspring.strongbox.services.ArtifactEntryService;
-
-import javax.inject.Inject;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,14 +7,21 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.orientechnologies.orient.core.query.OQueryAbstract;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import javax.inject.Inject;
+
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.repository.ArtifactRepository;
+import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 /**
  * DAO implementation for {@link ArtifactEntry} entities.
@@ -48,13 +49,9 @@ class ArtifactEntryServiceImpl
     OObjectDatabaseTx databaseTx;
 
     @Override
-    @SuppressWarnings("unchecked")
-    // don't try to use second level cache here until you make all coordinates properly serializable
-    public List<ArtifactEntry> findByCoordinates(ArtifactCoordinates coordinates)
+    public List<ArtifactEntry> findByCoordinates(Map<String, String> coordinates)
     {
-        // if search query is null or empty delegate to #findAll
-        if (coordinates == null || coordinates.getCoordinates()
-                                              .keySet()
+        if (coordinates == null || coordinates.keySet()
                                               .isEmpty())
         {
             return findAll().orElse(Collections.EMPTY_LIST);
@@ -62,9 +59,10 @@ class ArtifactEntryServiceImpl
 
         // prepare custom query based on all non-null coordinates that were joined by logical AND
         // read more about fetching strategies here: http://orientdb.com/docs/2.2/Fetching-Strategies.html
-        String nativeQuery = buildQueryFrom(coordinates);
-        OQueryAbstract query = new OSQLSynchQuery<>(nativeQuery).setFetchPlan("*:-1");
 
+
+        String nativeQuery = buildQuery(coordinates);
+        OSQLSynchQuery<ArtifactEntry> query = new OSQLSynchQuery<>(nativeQuery);
         logger.info("[findByCoordinates] SQL -> \n\t" + nativeQuery);
 
         databaseTx.activateOnCurrentThread();
@@ -78,13 +76,19 @@ class ArtifactEntryServiceImpl
         return detachedList;
     }
 
-    private String buildQueryFrom(ArtifactCoordinates coordinates)
+    @Override
+    @SuppressWarnings("unchecked")
+    // don't try to use second level cache here until you make all coordinates properly serializable
+    public List<ArtifactEntry> findByCoordinates(ArtifactCoordinates coordinates)
+    {
+        return findByCoordinates(coordinates == null ? null : coordinates.getCoordinates());
+    }
+
+    private String buildQuery(Map<String, String> map)
     {
         StringBuilder sb = new StringBuilder();
         sb.append("select * from ")
           .append(ARTIFACT_ENTRY_CLASS_NAME);
-
-        Map<String, String> map = coordinates.getCoordinates();
 
         if (map == null || map.isEmpty())
         {
