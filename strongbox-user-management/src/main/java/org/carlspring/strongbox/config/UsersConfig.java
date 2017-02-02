@@ -10,13 +10,15 @@ import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import java.io.IOException;
 
+import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanInstantiationException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -42,14 +44,16 @@ public class UsersConfig
 
     private final static GenericParser<Users> parser = new GenericParser<>(Users.class);
 
-    @Autowired
+    @Inject
     private OObjectDatabaseTx databaseTx;
 
-    @Autowired
+    @Inject
     private UserService userService;
 
+    private final Class<User> userClass = User.class;
+
     @PostConstruct
-    public synchronized void init()
+    public void init()
     {
         logger.debug("Loading users...");
 
@@ -59,13 +63,31 @@ public class UsersConfig
                   .registerEntityClasses(User.class.getPackage()
                                                    .getName());
 
+        // set unique constraints and index field 'username' if it isn't present yet
+        OClass oUserClass = databaseTx.getMetadata()
+                                      .getSchema()
+                                      .getOrCreateClass(userClass.getSimpleName());
+
+        if (!oUserClass.getIndexes()
+                       .stream()
+                       .filter(oIndex -> oIndex.getName()
+                                               .equals("idx_username"))
+                       .findAny()
+                       .isPresent())
+        {
+            oUserClass.createProperty("username", OType.STRING);
+            oUserClass.createIndex("idx_username", OClass.INDEX_TYPE.UNIQUE, "username");
+        }
+
+        // remove all possible existing users (due to test executions with @Rollback(false) or another causes)
+        // just to make sure
         userService.deleteAll();
 
         loadUsersFromConfigFile();
     }
 
     @Transactional
-    private synchronized void loadUsersFromConfigFile()
+    private void loadUsersFromConfigFile()
     {
         try
         {
@@ -83,8 +105,8 @@ public class UsersConfig
     }
 
     @Transactional
-    private synchronized void obtainUser(org.carlspring.strongbox.security.User user,
-                                         boolean needToSaveInDb)
+    private void obtainUser(org.carlspring.strongbox.security.User user,
+                            boolean needToSaveInDb)
     {
         User internalUser = toInternalUser(user);
 
@@ -96,7 +118,7 @@ public class UsersConfig
     }
 
     @Transactional
-    private synchronized User toInternalUser(org.carlspring.strongbox.security.User user)
+    private User toInternalUser(org.carlspring.strongbox.security.User user)
     {
         User internalUser = new User();
         internalUser.setUsername(user.getUsername());

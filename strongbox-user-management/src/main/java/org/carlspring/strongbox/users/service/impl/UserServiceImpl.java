@@ -22,6 +22,7 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -66,7 +67,7 @@ class UserServiceImpl
     @Cacheable(value = USERS_CACHE,
                key = "#name",
                sync = true)
-    public synchronized User findByUserName(String name)
+    public User findByUserName(String name)
     {
         try
         {
@@ -86,16 +87,9 @@ class UserServiceImpl
     }
 
     @Override
-    @Transactional
-    public synchronized <S extends User> S save(S newUser)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public <S extends User> S save(S newUser)
     {
-        // TODO set unique field constraints on user name
-        User existingUser = findByUserName(newUser.getUsername());
-        if (existingUser != null)
-        {
-            delete(existingUser.getObjectId());
-        }
-
         S user = repository.save(newUser);
         usersCache.put(user.getUsername(), user);
 
@@ -103,13 +97,13 @@ class UserServiceImpl
     }
 
     @Override
-    public synchronized <S extends User> Iterable<S> save(Iterable<S> var1)
+    public <S extends User> Iterable<S> save(Iterable<S> var1)
     {
         return repository.save(var1);
     }
 
     @Override
-    public synchronized Optional<User> findOne(String var1)
+    public Optional<User> findOne(String var1)
     {
         if (var1 == null)
         {
@@ -129,13 +123,13 @@ class UserServiceImpl
     }
 
     @Override
-    public synchronized boolean exists(String var1)
+    public boolean exists(String var1)
     {
         return repository.exists(var1);
     }
 
     @Override
-    public synchronized Optional<List<User>> findAll()
+    public Optional<List<User>> findAll()
     {
         try
         {
@@ -149,7 +143,7 @@ class UserServiceImpl
     }
 
     @Override
-    public synchronized Optional<List<User>> findAll(List<String> var1)
+    public Optional<List<User>> findAll(List<String> var1)
     {
         try
         {
@@ -163,13 +157,14 @@ class UserServiceImpl
     }
 
     @Override
-    public synchronized long count()
+    public long count()
     {
         return repository.count();
     }
 
     @Override
-    public synchronized void delete(String objectId)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void delete(String objectId)
     {
         findOne(objectId).ifPresent(user ->
                                     {
@@ -180,20 +175,22 @@ class UserServiceImpl
     }
 
     @Override
-    public synchronized void delete(User user)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void delete(User user)
     {
         usersCache.evict(user.getUsername());
         repository.delete(user);
     }
 
     @Override
-    public synchronized void delete(Iterable<? extends User> var1)
+    public void delete(Iterable<? extends User> var1)
     {
         repository.delete(var1);
     }
 
     @Override
-    public synchronized void deleteAll()
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void deleteAll()
     {
         usersCache.clear();
         repository.deleteAll();

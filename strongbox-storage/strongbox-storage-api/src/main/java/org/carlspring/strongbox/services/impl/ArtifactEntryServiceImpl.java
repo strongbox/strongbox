@@ -60,31 +60,22 @@ class ArtifactEntryServiceImpl
             return findAll().orElse(Collections.EMPTY_LIST);
         }
 
-        // prepare custom query based on all non-null coordinates
-        // that were joined by logical AND
+        // prepare custom query based on all non-null coordinates that were joined by logical AND
         // read more about fetching strategies here: http://orientdb.com/docs/2.2/Fetching-Strategies.html
         String nativeQuery = buildQueryFrom(coordinates);
-        OQueryAbstract query = new OSQLSynchQuery<>(nativeQuery)/*.setFetchPlan("*:-1")*/;
+        OQueryAbstract query = new OSQLSynchQuery<>(nativeQuery).setFetchPlan("*:-1");
 
         logger.info("[findByCoordinates] SQL -> \n\t" + nativeQuery);
 
-        List<ArtifactEntry> detached = new LinkedList<>();
         databaseTx.activateOnCurrentThread();
-        List<ArtifactEntry> attached = databaseTx.query(query);
+        List<ArtifactEntry> resultList = databaseTx.query(query);
 
-        attached.forEach(artifactEntry ->
-                         {
+        // still have to detach everything manually until we fully migrate to OrientDB 2.2.X
+        // where fetching strategies will be fully supported
+        List<ArtifactEntry> detachedList = new LinkedList<>();
+        resultList.forEach(artifactEntry -> detachedList.add(databaseTx.detachAll(artifactEntry, true)));
 
-                             // TODO still have to detach until fetchPlan is not fully used in 2.1.16 (need to migrate to 2.2.15)
-                             artifactEntry = databaseTx.detachAll(artifactEntry, true);
-
-                             logger.info("[findByCoordinates] Detached " + artifactEntry);
-                             detached.add(artifactEntry);
-                         });
-
-        // return attached result as a proxy
-
-        return detached;
+        return detachedList;
     }
 
     private String buildQueryFrom(ArtifactCoordinates coordinates)

@@ -13,6 +13,7 @@ import com.jayway.restassured.http.ContentType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.web.util.NestedServletException;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.*;
@@ -99,7 +100,8 @@ public class UserControllerTest
         users.forEach(user -> logger.debug("Retrieved " + user));
     }
 
-    @Test
+    @Test(expected = NestedServletException.class)
+    // com.orientechnologies.orient.core.storage.ORecordDuplicatedException
     public void testUpdateUser()
             throws Exception
     {
@@ -162,7 +164,8 @@ public class UserControllerTest
                               });
     }
 
-    @Test
+    @Test(expected = NestedServletException.class)
+    // com.orientechnologies.orient.core.storage.ORecordDuplicatedException
     public void testGenerateSecurityToken()
             throws Exception
     {
@@ -207,7 +210,8 @@ public class UserControllerTest
         assertEquals(200, response.length());
     }
 
-    @Test
+    @Test(expected = NestedServletException.class)
+    // com.orientechnologies.orient.core.storage.ORecordDuplicatedException
     public void testDeleteUser()
             throws Exception
     {

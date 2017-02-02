@@ -8,7 +8,6 @@ import org.carlspring.strongbox.domain.ArtifactEntry;
 import javax.inject.Inject;
 import java.util.List;
 
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -32,9 +31,6 @@ public class ArtifactEntryServiceTest
 
     @Inject
     ArtifactEntryService artifactEntryService;
-
-    @Inject
-    OObjectDatabaseTx databaseTx;
 
     final String storageId = "storage0";
     final String repositoryId = "release";

@@ -5,11 +5,12 @@ import org.carlspring.strongbox.users.repository.AuthorizationConfigRepository;
 import org.carlspring.strongbox.users.security.AuthorizationConfig;
 import org.carlspring.strongbox.users.service.AuthorizationConfigService;
 
+import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -23,10 +24,11 @@ class AuthorizationConfigServiceImpl
         implements AuthorizationConfigService
 {
 
-    @Autowired
+    @Inject
     AuthorizationConfigRepository repository;
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public <S extends AuthorizationConfig> S save(S var1)
     {
         return repository.save(var1);
