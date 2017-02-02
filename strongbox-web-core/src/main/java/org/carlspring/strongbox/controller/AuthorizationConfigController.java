@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -39,8 +38,6 @@ public class AuthorizationConfigController
         extends BaseArtifactController
 {
 
-    private final GenericParser<AuthorizationConfig> configGenericParser = new GenericParser<>(AuthorizationConfig.class);
-
     @Inject
     AuthorizationConfigProvider configProvider;
 
@@ -48,33 +45,29 @@ public class AuthorizationConfigController
     UserService userService;
 
     @Inject
-    OObjectDatabaseTx databaseTx;
-
-    @Inject
     CacheManager cacheManager;
 
     @Inject
     AnonymousAuthenticationFilter anonymousAuthenticationFilter;
 
-    private volatile AuthorizationConfig config;
+    private AuthorizationConfig config;
 
-    private synchronized ResponseEntity processConfig(Consumer<AuthorizationConfig> consumer)
+    private ResponseEntity processConfig(Consumer<AuthorizationConfig> consumer)
     {
         return processConfig(consumer, config -> ResponseEntity.ok()
                                                                .build());
     }
 
-    private synchronized ResponseEntity processConfig(Consumer<AuthorizationConfig> consumer,
-                                                      CustomSuccessResponseBuilder customSuccessResponseBuilder)
+    private ResponseEntity processConfig(Consumer<AuthorizationConfig> consumer,
+                                         CustomSuccessResponseBuilder customSuccessResponseBuilder)
     {
-        databaseTx.activateOnCurrentThread();
         Optional<AuthorizationConfig> configOptional = configProvider.getConfig();
 
         if (configOptional.isPresent())
         {
             try
             {
-                config = databaseTx.detachAll(configOptional.get(), true);
+                config = configOptional.get();
 
                 if (consumer != null)
                 {
@@ -106,14 +99,14 @@ public class AuthorizationConfigController
     @RequestMapping(value = "role",
                     method = RequestMethod.POST,
                     consumes = MediaType.TEXT_PLAIN_VALUE)
-    public synchronized ResponseEntity addRole(@RequestBody String serializedJson)
+    public ResponseEntity addRole(@RequestBody String serializedJson)
             throws JAXBException
     {
 
         GenericParser<Role> parser = new GenericParser<>(Role.class);
         Role role = parser.deserialize(serializedJson);
 
-        logger.debug("Trying to add new role from JSON\n" + serializedJson);
+        logger.info("Trying to add new role from JSON\n" + serializedJson);
         logger.debug(role.toString());
         return processConfig(config ->
                              {
@@ -124,8 +117,8 @@ public class AuthorizationConfigController
 
                                  if (result)
                                  {
-                                     logger.debug("Successfully added new role " + role.getName());
                                      configProvider.updateConfig(config);
+                                     logger.info("Successfully added new role " + role.getName());
                                  }
                                  else
                                  {
@@ -146,7 +139,7 @@ public class AuthorizationConfigController
                     method = RequestMethod.GET,
                     produces = { MediaType.APPLICATION_XML_VALUE,
                                  MediaType.APPLICATION_JSON_VALUE })
-    public synchronized ResponseEntity getAuthorizationConfig()
+    public ResponseEntity getAuthorizationConfig()
             throws JAXBException
     {
         logger.debug("Trying to receive authorization config as XML / JSON file...");
@@ -201,7 +194,7 @@ public class AuthorizationConfigController
                                                                        .remove(name.toUpperCase()))
                                                                {
                                                                    // evict such kind of users from cache
-                                                                   cacheManager.getCache("users")
+                                                                   cacheManager.getCache(UserService.USERS_CACHE)
                                                                                .evict(user);
                                                                }
                                                            });
@@ -216,7 +209,7 @@ public class AuthorizationConfigController
     @RequestMapping(value = "anonymous/privileges",
                     method = RequestMethod.POST,
                     consumes = MediaType.APPLICATION_JSON_VALUE)
-    public synchronized ResponseEntity addPrivilegesToAnonymous(@RequestBody List<Privilege> privileges)
+    public ResponseEntity addPrivilegesToAnonymous(@RequestBody List<Privilege> privileges)
     {
         return processConfig(config -> privileges.forEach(this::addAnonymousAuthority));
     }
@@ -228,7 +221,7 @@ public class AuthorizationConfigController
     @RequestMapping(value = "anonymous/roles",
                     method = RequestMethod.POST,
                     consumes = MediaType.APPLICATION_JSON_VALUE)
-    public synchronized ResponseEntity addRolesToAnonymous(List<Role> roles)
+    public ResponseEntity addRolesToAnonymous(List<Role> roles)
     {
         return processConfig(config -> roles.forEach(role -> config.getRoles()
                                                                    .getRoles()
@@ -257,14 +250,10 @@ public class AuthorizationConfigController
                                      .add(simpleGrantedAuthority);
     }
 
-    private synchronized List<User> getAllUsers()
+    private List<User> getAllUsers()
     {
-        final List<User> users = new LinkedList<>();
-        databaseTx.activateOnCurrentThread();
-        userService.findAll()
-                   .ifPresent(
-                           usersList -> usersList.forEach(user -> users.add(databaseTx.detach(user, true))));
-        return users;
+        return userService.findAll()
+                          .orElse(new LinkedList<>());
     }
 
     private interface CustomSuccessResponseBuilder

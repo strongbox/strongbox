@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.config;
 
+import org.carlspring.strongbox.data.service.NoProxyOrientRepositoryFactoryBean;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.security.Credentials;
 import org.carlspring.strongbox.security.Users;
@@ -9,14 +10,15 @@ import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import java.io.IOException;
 
+import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanInstantiationException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -31,52 +33,69 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.users" })
-@EnableOrientRepositories(basePackages = "org.carlspring.strongbox.users.repository")
+@EnableOrientRepositories(basePackages = "org.carlspring.strongbox.users.repository",
+                          repositoryFactoryBeanClass = NoProxyOrientRepositoryFactoryBean.class)
 @Import({ DataServiceConfig.class,
           CommonConfig.class })
 public class UsersConfig
 {
 
     private static final Logger logger = LoggerFactory.getLogger(UsersConfig.class);
-    
-    private final static GenericParser<Users> parser = new GenericParser<>(Users.class);
-    
-    @Autowired
-    private OObjectDatabaseTx databaseTx;
-    
-    @Autowired
-    private UserService userService;
-    
-    @Autowired
-    private CacheManager cacheManager;
 
-    private synchronized OObjectDatabaseTx getDatabaseTx()
-    {
-        databaseTx.activateOnCurrentThread();
-        return databaseTx;
-    }
+    private final static GenericParser<Users> parser = new GenericParser<>(Users.class);
+
+    @Inject
+    private OObjectDatabaseTx databaseTx;
+
+    @Inject
+    private UserService userService;
+
+    private final Class<User> userClass = User.class;
 
     @PostConstruct
-    @Transactional
-    public synchronized void init()
+    public void init()
     {
         logger.debug("Loading users...");
 
         // register all domain entities
-        getDatabaseTx().getEntityManager().registerEntityClasses(User.class.getPackage().getName());
+        databaseTx.activateOnCurrentThread();
+        databaseTx.getEntityManager()
+                  .registerEntityClasses(User.class.getPackage()
+                                                   .getName());
+
+        // set unique constraints and index field 'username' if it isn't present yet
+        OClass oUserClass = databaseTx.getMetadata()
+                                      .getSchema()
+                                      .getOrCreateClass(userClass.getSimpleName());
+
+        if (!oUserClass.getIndexes()
+                       .stream()
+                       .filter(oIndex -> oIndex.getName()
+                                               .equals("idx_username"))
+                       .findAny()
+                       .isPresent())
+        {
+            oUserClass.createProperty("username", OType.STRING);
+            oUserClass.createIndex("idx_username", OClass.INDEX_TYPE.UNIQUE, "username");
+        }
+
+        // remove all possible existing users (due to test executions with @Rollback(false) or another causes)
+        // just to make sure
+        userService.deleteAll();
 
         loadUsersFromConfigFile();
     }
 
     @Transactional
-    private synchronized void loadUsersFromConfigFile()
+    private void loadUsersFromConfigFile()
     {
         try
         {
             // save loaded users to the database if schema do not exists
             boolean needToSaveInDb = userService.count() == 0;
-            parser.parse(getUsersConfigurationResource().getURL()).getUsers().stream().forEach(
-                    user -> obtainUser(user, needToSaveInDb));
+            parser.parse(getUsersConfigurationResource().getURL())
+                  .getUsers()
+                  .forEach(user -> obtainUser(user, needToSaveInDb));
         }
         catch (Exception e)
         {
@@ -86,23 +105,20 @@ public class UsersConfig
     }
 
     @Transactional
-    private synchronized void obtainUser(org.carlspring.strongbox.security.User user,
-                                         boolean needToSaveInDb)
+    private void obtainUser(org.carlspring.strongbox.security.User user,
+                            boolean needToSaveInDb)
     {
         User internalUser = toInternalUser(user);
-        logger.debug("Saving new user from config file:\n\t" + user);
 
         if (needToSaveInDb)
         {
             internalUser = userService.save(internalUser);
-            internalUser = getDatabaseTx().detach(internalUser, true);
-            cacheManager.getCache("users")
-                        .put(internalUser.getUsername(), internalUser);
+            logger.debug("Saving new user from config file:\n\t" + internalUser);
         }
     }
 
     @Transactional
-    private synchronized User toInternalUser(org.carlspring.strongbox.security.User user)
+    private User toInternalUser(org.carlspring.strongbox.security.User user)
     {
         User internalUser = new User();
         internalUser.setUsername(user.getUsername());

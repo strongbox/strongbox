@@ -18,7 +18,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -31,7 +30,6 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 //@IntegrationTest
 @ContextConfiguration(classes = WebConfig.class)
 @WebAppConfiguration
-@Rollback
 @RunWith(SpringJUnit4ClassRunner.class)
 public class SpringSecurityTest
         extends RestAssuredBaseTest

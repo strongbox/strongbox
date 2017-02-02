@@ -4,11 +4,12 @@ import org.carlspring.strongbox.configuration.BinaryConfiguration;
 import org.carlspring.strongbox.services.ServerConfigurationService;
 import org.carlspring.strongbox.storage.repository.ServerConfigurationRepository;
 
+import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -20,82 +21,82 @@ class ServerConfigurationServiceImpl
         implements ServerConfigurationService
 {
 
-    @Autowired
+    @Inject
     ServerConfigurationRepository repository;
 
     @Override
-    @Transactional
-    public synchronized <S extends BinaryConfiguration> S save(S var1)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public <S extends BinaryConfiguration> S save(S var1)
     {
         return repository.save(var1);
     }
 
     @Override
     @Transactional
-    public synchronized <S extends BinaryConfiguration> Iterable<S> save(Iterable<S> var1)
+    public <S extends BinaryConfiguration> Iterable<S> save(Iterable<S> var1)
     {
         return repository.save(var1);
     }
 
     @Override
     @Transactional
-    public synchronized Optional<BinaryConfiguration> findOne(String id)
+    public Optional<BinaryConfiguration> findOne(String id)
     {
         return Optional.ofNullable(repository.findOne(id));
     }
 
     @Override
     @Transactional
-    public synchronized boolean exists(String var1)
+    public boolean exists(String var1)
     {
         return repository.exists(var1);
     }
 
     @Override
     @Transactional
-    public synchronized Optional<List<BinaryConfiguration>> findAll()
+    public Optional<List<BinaryConfiguration>> findAll()
     {
         return Optional.ofNullable(repository.findAll());
     }
 
     @Override
     @Transactional
-    public synchronized Optional<List<BinaryConfiguration>> findAll(List<String> ids)
+    public Optional<List<BinaryConfiguration>> findAll(List<String> ids)
     {
         return Optional.ofNullable(repository.findAll(ids));
     }
 
     @Override
     @Transactional
-    public synchronized long count()
+    public long count()
     {
         return repository.count();
     }
 
     @Override
     @Transactional
-    public synchronized void delete(String var1)
+    public void delete(String var1)
     {
         repository.delete(var1);
     }
 
     @Override
     @Transactional
-    public synchronized void delete(BinaryConfiguration var1)
+    public void delete(BinaryConfiguration var1)
     {
         repository.delete(var1);
     }
 
     @Override
     @Transactional
-    public synchronized void delete(Iterable<? extends BinaryConfiguration> var1)
+    public void delete(Iterable<? extends BinaryConfiguration> var1)
     {
         repository.delete(var1);
     }
 
     @Override
     @Transactional
-    public synchronized void deleteAll()
+    public void deleteAll()
     {
         repository.deleteAll();
     }

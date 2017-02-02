@@ -5,20 +5,24 @@ import org.carlspring.strongbox.users.repository.UserRepository;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.carlspring.strongbox.users.service.UserService;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.apache.commons.lang.StringUtils;
 import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -42,63 +46,90 @@ class UserServiceImpl
 
     @Inject
     SecurityTokenProvider tokenProvider;
-    
+
+    @Inject
+    OObjectDatabaseTx databaseTx;
+
+    Cache usersCache;
+
+    @PostConstruct
+    public void init()
+    {
+
+        usersCache = cacheManager.getCache(USERS_CACHE);
+        if (usersCache == null)
+        {
+            throw new BeanCreationException("Unable create users cache");
+        }
+    }
+
     @Override
-    @Transactional
-    @Cacheable(value = "users", key = "#name", sync = true)
-    public synchronized User findByUserName(String name)
+    @Cacheable(value = USERS_CACHE,
+               key = "#name",
+               sync = true)
+    public User findByUserName(String name)
     {
         try
         {
-            return repository.findByUsername(name);
+            // TODO find more appropriate place for detaching in some place
+            // where actual generated query will be executed
+            return databaseTx.detachAll(repository.findByUsername(name), true);
         }
         catch (Exception e)
         {
             logger.warn("Internal spring-data-orientdb exception: " + e.getLocalizedMessage());
             logger.trace("Exception details: ", e);
 
+            usersCache.evict(name);
+
             return null;
         }
     }
 
     @Override
-    @Transactional
-    public synchronized <S extends User> S save(S var1)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public <S extends User> S save(S newUser)
     {
-        // ID non-null check was removed because there will be no ID assigned by database
-        // until transaction is not committed (depends on PROPAGATE value)
+        S user = repository.save(newUser);
+        usersCache.put(user.getUsername(), user);
+
+        return user;
+    }
+
+    @Override
+    public <S extends User> Iterable<S> save(Iterable<S> var1)
+    {
         return repository.save(var1);
     }
 
     @Override
-    @Transactional
-    public synchronized <S extends User> Iterable<S> save(Iterable<S> var1)
-    {
-        return repository.save(var1);
-    }
-
-    @Override
-    @Transactional
-    public synchronized Optional<User> findOne(String var1)
+    public Optional<User> findOne(String var1)
     {
         if (var1 == null)
         {
             return Optional.empty();
         }
 
-        return Optional.ofNullable(repository.findOne(var1));
+        User user = repository.findOne(var1);
+        if (user != null)
+        {
+            usersCache.put(user.getUsername(), user);
+            return Optional.of(user);
+        }
+        else
+        {
+            return Optional.empty();
+        }
     }
 
     @Override
-    @Transactional
-    public synchronized boolean exists(String var1)
+    public boolean exists(String var1)
     {
         return repository.exists(var1);
     }
 
     @Override
-    @Transactional
-    public synchronized Optional<List<User>> findAll()
+    public Optional<List<User>> findAll()
     {
         try
         {
@@ -112,8 +143,7 @@ class UserServiceImpl
     }
 
     @Override
-    @Transactional
-    public synchronized Optional<List<User>> findAll(List<String> var1)
+    public Optional<List<User>> findAll(List<String> var1)
     {
         try
         {
@@ -127,52 +157,51 @@ class UserServiceImpl
     }
 
     @Override
-    @Transactional
-    public synchronized long count()
+    public long count()
     {
         return repository.count();
     }
 
     @Override
-    @Transactional
-    public synchronized void delete(String var1)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void delete(String objectId)
+    {
+        findOne(objectId).ifPresent(user ->
+                                    {
+                                        usersCache.evict(user.getUsername());
+                                    });
+
+        repository.delete(objectId);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void delete(User user)
+    {
+        usersCache.evict(user.getUsername());
+        repository.delete(user);
+    }
+
+    @Override
+    public void delete(Iterable<? extends User> var1)
     {
         repository.delete(var1);
     }
 
     @Override
-    @Transactional
-    public synchronized void delete(User var1)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void deleteAll()
     {
-        repository.delete(var1);
-    }
-
-    @Override
-    @Transactional
-    public synchronized void delete(Iterable<? extends User> var1)
-    {
-        repository.delete(var1);
-    }
-
-    @Override
-    @Transactional
-    public synchronized void deleteAll()
-    {
+        usersCache.clear();
         repository.deleteAll();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.carlspring.strongbox.users.service.UserService#generateSecurityToken(
-     * java.lang.String)
-     */
     @Override
-    public String generateSecurityToken(String id)
-        throws JoseException
+    public String generateSecurityToken(String userName)
+            throws JoseException
     {
-        User user = repository.findOne(id);
+
+        User user = findByUserName(userName);
 
         if (StringUtils.isEmpty(user.getSecurityTokenKey()))
         {
@@ -182,32 +211,32 @@ class UserServiceImpl
         Map<String, String> claimMap = new HashMap<>();
         claimMap.put("security-token-key", user.getSecurityTokenKey());
 
-        return tokenProvider.getToken(user.getUsername(), claimMap, null);
+        return tokenProvider.getToken(userName, claimMap, null);
     }
 
     @Override
-    public String generateAuthenticationToken(String id,
+    public String generateAuthenticationToken(String userName,
                                               Integer expireMinutes)
             throws JoseException
     {
-        User user = repository.findOne(id);
+        User user = findByUserName(userName);
 
         Map<String, String> claimMap = new HashMap<>();
         claimMap.put("credentials", user.getPassword());
 
-        return tokenProvider.getToken(user.getUsername(), claimMap, expireMinutes);
+        return tokenProvider.getToken(userName, claimMap, expireMinutes);
     }
 
     @Override
     public void verifySecurityToken(String userName,
                                     String apiKey)
     {
-        User user = repository.findByUsername(userName);
+        User user = findByUserName(userName);
 
         Map<String, String> claimMap = new HashMap<>();
         claimMap.put("security-token-key", user.getSecurityTokenKey());
 
-        tokenProvider.verifyToken(apiKey, user.getUsername(), claimMap);
+        tokenProvider.verifyToken(apiKey, userName, claimMap);
     }
-    
+
 }

@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.MediaType;
@@ -29,9 +28,6 @@ public class AuthorizationConfigControllerTest
 
     @Inject
     AuthorizationConfigProvider configProvider;
-
-    @Inject
-    OObjectDatabaseTx databaseTx;
 
     @Test
     public void testThatRoleCouldBeAdded()
