@@ -174,6 +174,8 @@ public class GroupRepositoryProviderTest
         Map<String, String> repositories = new LinkedHashMap<>();
         repositories.put(STORAGE0, "grpt-releases-1");
         repositories.put(STORAGE0, "grpt-releases-2");
+        repositories.put(STORAGE0, "grpt-releases-group-with-nested-group-level-1");
+        repositories.put(STORAGE0, "grpt-releases-group-with-nested-group-level-2");
 
         return repositories;
     }

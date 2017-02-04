@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.storage.indexing;
 
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 
@@ -25,9 +24,6 @@ public class RepositoryIndexerTest
         extends TestCaseWithArtifactGenerationWithIndexing
 {
 
-    private static final File REPOSITORY_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                            "/storages/storage0/repository-indexer-test-releases");
-
     @Autowired
     private RepositoryManagementService repositoryManagementService;
 
@@ -36,6 +32,8 @@ public class RepositoryIndexerTest
     public void init()
             throws Exception
     {
+        super.init();
+
         createTestRepositoryWithArtifacts(STORAGE0,
                                           "repository-indexer-test-releases",
                                           true,
@@ -63,8 +61,12 @@ public class RepositoryIndexerTest
 
         repositoryManagementService.pack(STORAGE0, "repository-indexer-test-releases");
 
-        assertTrue("Failed to pack index!", new File(REPOSITORY_BASEDIR.getAbsolutePath(), ".index/local/nexus-maven-repository-index.gz").exists());
-        assertTrue("Failed to pack index!", new File(REPOSITORY_BASEDIR.getAbsolutePath(), ".index/local/nexus-maven-repository-index-packer.properties").exists());
+        File repositoryBasedir = getRepositoryBasedir(STORAGE0, "repository-indexer-test-releases");
+
+        assertTrue("Failed to pack index!", new File(repositoryBasedir.getAbsolutePath(),
+                                                     ".index/local/nexus-maven-repository-index.gz").exists());
+        assertTrue("Failed to pack index!", new File(repositoryBasedir.getAbsolutePath(),
+                                                     ".index/local/nexus-maven-repository-index-packer.properties").exists());
 
         assertEquals("6 artifacts expected!",
 

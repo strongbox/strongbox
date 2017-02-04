@@ -44,11 +44,10 @@ public class ArtifactManagementServiceImplTest
 
     @Before
     public void init()
-            throws NoSuchAlgorithmException,
-                   XmlPullParserException,
-                   IOException,
-                   JAXBException
+            throws Exception
     {
+        super.init();
+
         // Used by testDeploymentToRepositoryWithForbiddenDeployments()
         Repository repositoryWithoutDelete = new Repository("amsi-releases-without-delete");
         repositoryWithoutDelete.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));

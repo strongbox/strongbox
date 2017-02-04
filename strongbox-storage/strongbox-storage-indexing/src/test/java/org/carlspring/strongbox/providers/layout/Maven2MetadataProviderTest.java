@@ -28,12 +28,6 @@ public class Maven2MetadataProviderTest
         extends TestCaseWithArtifactGenerationWithIndexing
 {
 
-/*
-    @org.springframework.context.annotation.Configuration
-    @Import({ StorageApiConfig.class, CommonConfig.class })
-    public static class SpringConfig { }
-*/
-
     public static final String REPOSITORYID = "maven-metadata-provider-test-releases";
 
     @Autowired
