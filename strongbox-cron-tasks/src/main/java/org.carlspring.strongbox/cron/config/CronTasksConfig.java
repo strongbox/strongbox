@@ -3,6 +3,7 @@ package org.carlspring.strongbox.cron.config;
 import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
+import org.carlspring.strongbox.data.service.NoProxyOrientRepositoryFactoryBean;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -31,11 +32,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.cron"
-})
+               })
 @Import({ DataServiceConfig.class,
           StorageApiConfig.class
-})
-@EnableOrientRepositories(basePackages = "org.carlspring.strongbox.cron.repository")
+        })
+@EnableOrientRepositories(basePackages = "org.carlspring.strongbox.cron.repository",
+                          repositoryFactoryBeanClass = NoProxyOrientRepositoryFactoryBean.class)
 @EnableWebMvc
 public class CronTasksConfig
         extends WebMvcConfigurerAdapter
@@ -68,7 +70,9 @@ public class CronTasksConfig
     {
         // register all domain entities
         databaseTx.activateOnCurrentThread();
-        databaseTx.getEntityManager().registerEntityClasses(CronTaskConfiguration.class.getPackage().getName());
+        databaseTx.getEntityManager()
+                  .registerEntityClasses(CronTaskConfiguration.class.getPackage()
+                                                                    .getName());
     }
 
     @Override

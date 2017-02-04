@@ -30,27 +30,39 @@
         </encoder>
     </appender>
 
-    <logger name="net.sf.ehcache">
-        <level value="ERROR"/>
-    </logger>
+    <!-- Notice: Don't define general loggers like "org.springframework" and more precise loggers at the same time
+         like "org.springframework.web" or "org.springframework.context" because it will lead to conflict and
+         illegal behaviour -->
 
-    <logger name="org.springframework">
-        <level value="ERROR"/>
+    <logger name="org.springframework.core">
+        <level value="WARN"/>
     </logger>
 
     <logger name="org.springframework.web">
-        <level value="ERROR"/>
+        <level value="WARN"/>
     </logger>
 
-    <logger name="org.apache">
-        <level value="ERROR"/>
+    <logger name="org.springframework.beans">
+        <level value="WARN"/>
+    </logger>
+
+    <logger name="org.springframework.context">
+        <level value="WARN"/>
+    </logger>
+
+    <logger name="org.springframework.data.orient">
+        <level value="WARN"/>
+    </logger>
+
+    <logger name="org.springframework.test">
+        <level value="WARN"/>
+    </logger>
+
+    <logger name="org.springframework.aop">
+        <level value="WARN"/>
     </logger>
 
     <logger name="org.apache.http">
-        <level value="ERROR"/>
-    </logger>
-
-    <logger name="org.apache.http.impl.conn">
         <level value="ERROR"/>
     </logger>
 
@@ -58,11 +70,15 @@
         <level value="WARN"/>
     </logger>
 
-    <logger name="org.carlspring">
-        <level value="DEBUG"/>
+    <logger name="org.carlspring.strongbox.security.authentication">
+        <level value="ERROR"/>
     </logger>
 
-    <logger name="org.carlspring.strongbox.security.authentication">
+    <logger name="org.carlspring.strongbox.data">
+        <level value="WARN"/>
+    </logger>
+
+    <logger name="net.sf.ehcache">
         <level value="ERROR"/>
     </logger>
 

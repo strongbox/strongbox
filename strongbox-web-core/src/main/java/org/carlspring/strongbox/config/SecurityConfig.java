@@ -1,13 +1,12 @@
 package org.carlspring.strongbox.config;
 
+import javax.annotation.PostConstruct;
+
 import org.carlspring.strongbox.security.authentication.CustomAnonymousAuthenticationFilter;
 import org.carlspring.strongbox.security.authentication.Http401AuthenticationEntryPoint;
 import org.carlspring.strongbox.security.authentication.JWTAuthenticationFilter;
 import org.carlspring.strongbox.security.authentication.JWtAuthenticationProvider;
 import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
-
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +15,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -32,12 +33,23 @@ public class SecurityConfig
         extends WebSecurityConfigurerAdapter
 {
 
+    /**
+     * This Configuration enables @PreAuthorize annotations
+     * 
+     * @author Sergey Bespalov
+     *
+     */
+    @Configuration
+    @EnableGlobalMethodSecurity(prePostEnabled = true)
+    public static class MethodSecurityConfig extends GlobalMethodSecurityConfiguration
+    {
+
+    }
+
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth,
-                                @Qualifier("userDetailsAuthenticationProvider")
-                                        AuthenticationProvider userDetailsAuthenticationProvider,
-                                @Qualifier("jwtAuthenticationProvider")
-                                        AuthenticationProvider jwtAuthenticationProvider)
+                                @Qualifier("userDetailsAuthenticationProvider") AuthenticationProvider userDetailsAuthenticationProvider,
+                                @Qualifier("jwtAuthenticationProvider") AuthenticationProvider jwtAuthenticationProvider)
     {
         auth.authenticationProvider(userDetailsAuthenticationProvider)
             .authenticationProvider(jwtAuthenticationProvider)
@@ -65,7 +77,7 @@ public class SecurityConfig
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .requestMatchers()
-                .antMatchers("/users/user/authenticate", "/storages")
+                .antMatchers("/users/user/authenticate", "/storages/**/*", "/trash/**/*")
                 .and()
                 .authorizeRequests()
                 .anyRequest()

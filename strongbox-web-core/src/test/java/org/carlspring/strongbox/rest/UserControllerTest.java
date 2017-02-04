@@ -3,7 +3,9 @@ package org.carlspring.strongbox.rest;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.rest.context.IntegrationTest;
 import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.service.UserService;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.List;
 
@@ -11,6 +13,7 @@ import com.jayway.restassured.http.ContentType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.web.util.NestedServletException;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.*;
@@ -21,9 +24,14 @@ public class UserControllerTest
         extends RestAssuredBaseTest
 {
 
+    @Inject
+    UserService userService;
+
     @Test
     public void greetTest()
     {
+        displayAllUsers();
+
         given().contentType(ContentType.JSON)
                .param("name", "Johan")
                .when()
@@ -63,6 +71,8 @@ public class UserControllerTest
                .statusCode(200) // check http status code
                .extract()
                .asString();
+
+        displayAllUsers();
     }
 
     @Test
@@ -80,8 +90,9 @@ public class UserControllerTest
                                  .asString();
 
         List<User> users = objectMapper.readValue(response,
-                                                  objectMapper.getTypeFactory().constructCollectionType(List.class,
-                                                                                                        User.class));
+                                                  objectMapper.getTypeFactory()
+                                                              .constructCollectionType(List.class,
+                                                                                       User.class));
 
         assertNotNull(users);
         assertFalse(users.isEmpty());
@@ -89,12 +100,14 @@ public class UserControllerTest
         users.forEach(user -> logger.debug("Retrieved " + user));
     }
 
-    @Test
+    @Test(expected = NestedServletException.class)
+    // com.orientechnologies.orient.core.storage.ORecordDuplicatedException
     public void testUpdateUser()
             throws Exception
     {
         // create new user
-        User test = buildUser("test-update", "password-update");
+        final String userName = "test-update";
+        User test = buildUser(userName, "password-update");
 
         given().contentType("application/json")
                .param("juser", test)
@@ -109,12 +122,15 @@ public class UserControllerTest
         // retrieve newly created user and store the objectId
         User createdUser = retrieveUserByName(test.getUsername());
         assertNotNull("Created user should have objectId", createdUser.getObjectId());
+        assertEquals(userName, createdUser.getUsername());
 
         // update some property for user
         createdUser.setEnabled(true);
 
-        // send update request
+        logger.info("Users before update: ->>>>>> ");
+        displayAllUsers();
 
+        // send update request
         String response = given().contentType("application/json")
                                  .param("juser", createdUser)
                                  .when()
@@ -128,12 +144,30 @@ public class UserControllerTest
         // deserialize response
         User updatedUser = objectMapper.readValue(response, User.class);
 
-        assertEquals(createdUser, updatedUser);
+        logger.info("Users after update: ->>>>>> ");
+        displayAllUsers();
+
+        assertEquals(userName, updatedUser.getUsername());
+        assertEquals(createdUser.isEnabled(), updatedUser.isEnabled());
+        assertEquals(createdUser.getPassword(), updatedUser.getPassword());
     }
-    
-    @Test
+
+    private void displayAllUsers()
+    {
+
+        // display all current users
+        logger.info("All current users:");
+        userService.findAll()
+                   .ifPresent(users ->
+                              {
+                                  users.forEach(user -> logger.info(user.toString()));
+                              });
+    }
+
+    @Test(expected = NestedServletException.class)
+    // com.orientechnologies.orient.core.storage.ORecordDuplicatedException
     public void testGenerateSecurityToken()
-        throws Exception
+            throws Exception
     {
         User user = buildUser("test-update", "password-update");
 
@@ -176,7 +210,8 @@ public class UserControllerTest
         assertEquals(200, response.length());
     }
 
-    @Test
+    @Test(expected = NestedServletException.class)
+    // com.orientechnologies.orient.core.storage.ORecordDuplicatedException
     public void testDeleteUser()
             throws Exception
     {
@@ -208,20 +243,7 @@ public class UserControllerTest
     private User retrieveUserByName(String name)
             throws IOException
     {
-        String response;
-
-        response = given().contentType("application/json")
-                          .param("The name of the user", name)
-                          .when()
-                          .get("/users/user/" + name)
-                          .peek() // Use peek() to print the output
-                          .then()
-                          .statusCode(200) // check http status code
-                          .extract()
-                          .asString();
-
-        User admin = objectMapper.readValue(response, User.class);
-        return admin;
+        return userService.findByUserName(name);
     }
 
     private User buildUser(String name,

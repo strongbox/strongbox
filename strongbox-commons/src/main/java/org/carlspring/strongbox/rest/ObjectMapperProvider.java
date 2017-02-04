@@ -3,6 +3,7 @@ package org.carlspring.strongbox.rest;
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,7 +40,8 @@ public class ObjectMapperProvider
                                  .configure(SerializationFeature.INDENT_OUTPUT, true)
                                  .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true)
                                  .configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true)
-                                 .setAnnotationIntrospector(createJaxbJacksonAnnotationIntrospector());
+                                 .setAnnotationIntrospector(createJaxbJacksonAnnotationIntrospector())
+                                 .setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
     private static AnnotationIntrospector createJaxbJacksonAnnotationIntrospector()

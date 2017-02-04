@@ -6,17 +6,13 @@ import org.carlspring.strongbox.users.service.UserService;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
 
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.jose4j.lang.JoseException;
-import org.springframework.cache.CacheManager;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -37,13 +33,6 @@ public class UserController
 
     @Inject
     UserService userService;
-
-    @Inject
-    OObjectDatabaseTx databaseTx;
-
-    @Inject
-    CacheManager cacheManager;
-
 
     // ----------------------------------------------------------------------------------------------------------------
     // This method exists for testing purpose
@@ -87,13 +76,8 @@ public class UserController
                           @RequestParam(value = "juser",
                                         required = false) String userJson)
     {
-        databaseTx.activateOnCurrentThread();
-        User user = databaseTx.detach(userService.save(read(userJson, User.class)), true);
-
-        logger.debug("Create new user " + user);
-
-        cacheManager.getCache("users")
-                    .put(user.getUsername(), user);
+        User user = userService.save(read(userJson, User.class));
+        logger.debug("Created new user " + user);
 
         return ResponseEntity.ok()
                              .build();
@@ -118,8 +102,7 @@ public class UserController
                                      required = true)
                            @PathVariable String name)
     {
-        User user = databaseTx.detach(userService.findByUserName(name), true);
-        return toResponse(user);
+        return toResponse(userService.findByUserName(name));
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -139,21 +122,8 @@ public class UserController
     @ResponseBody
     ResponseEntity getUsers()
     {
-        Optional<List<User>> possibleUsers = userService.findAll();
-        if (possibleUsers.isPresent())
-        {
-            // TODO Due to internal error in spring-data-orientdb
-            // com.orientechnologies.orient.client.remote.OStorageRemote cannot be cast to com.orientechnologies.orient.core.storage.impl.local.paginated.OLocalPaginatedStorage
-            List<User> users = new LinkedList<>();
-            possibleUsers.get()
-                         .forEach(user -> users.add(databaseTx.detach(user, true)));
-
-            return toResponse(users);
-        }
-        else
-        {
-            return toError("Unable to get list of users. See UserServiceImpl for details");
-        }
+        return toResponse(userService.findAll()
+                                     .orElse(new LinkedList<>()));
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -170,27 +140,12 @@ public class UserController
                     method = RequestMethod.PUT)
     public
     @ResponseBody
-    ResponseEntity update(@RequestParam(value = "juser",
-                                        required = false) String userJson)
+    ResponseEntity update(@RequestParam(value = "juser") String userJson)
     {
+        User userToUpdate = read(userJson, User.class);
+        userToUpdate = userService.save(userToUpdate);
 
-        User user = read(userJson, User.class);
-        String id = user.getObjectId();
-
-        if (id == null || !userService.findOne(id)
-                                      .isPresent())
-        {
-            return toError("Unable to update non-existing user with objectId " + id);
-        }
-
-        logger.debug("Update user by objectId " + id);
-
-        // do save
-        user = databaseTx.detach(userService.save(read(userJson, User.class)), true);
-        cacheManager.getCache("users")
-                    .put(user.getUsername(), user);
-
-        return toResponse(user);
+        return toResponse(userToUpdate);
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -209,7 +164,7 @@ public class UserController
     ResponseEntity delete(@ApiParam(value = "The name of the user") @PathVariable String name)
             throws Exception
     {
-        User user = databaseTx.detach(userService.findByUserName(name), true);
+        User user = userService.findByUserName(name);
         if (user == null || user.getObjectId() == null)
         {
             return toError("The specified user does not exist!");
@@ -221,28 +176,26 @@ public class UserController
                              .build();
     }
 
-    @ApiOperation(value = "Generate new security token for specified user.", position = 3)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The security token was generated."),
-                            @ApiResponse(code = 500, message = "An error occurred.") })
+    @ApiOperation(value = "Generate new security token for specified user.",
+                  position = 3)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "The security token was generated."),
+                            @ApiResponse(code = 500,
+                                         message = "An error occurred.") })
     @PreAuthorize("hasAuthority('UPDATE_USER')")
     @RequestMapping(value = "user/{userName}/generate-security-token",
                     method = RequestMethod.GET)
     public ResponseEntity generateSecurityToken(@ApiParam(value = "The name of the user") @PathVariable String userName)
-        throws JoseException
+            throws JoseException
 
     {
-        User user = databaseTx.detach(userService.findByUserName(userName), true);
-        if (user == null || user.getObjectId() == null)
-        {
-            return toError("The specified user does not exist!");
-        }
-
-        String result = userService.generateSecurityToken(user.getObjectId(), null);
+        String result = userService.generateSecurityToken(userName);
 
         if (result == null)
         {
-            return toError(String.format("Failed to generate SecurityToken, probably you should first set SecurityTokenKey for the user: user-[%s]",
-                                         user.getUsername()));
+            return toError(String.format(
+                    "Failed to generate SecurityToken, probably you should first set SecurityTokenKey for the user: user-[%s]",
+                    userName));
         }
 
         return ResponseEntity.ok(result);
@@ -251,29 +204,25 @@ public class UserController
     @ApiOperation(value = "Generate authentication token.",
                   position = 3)
     @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "The aouthentication token was generated."),
+                                         message = "The authentication token was generated."),
                             @ApiResponse(code = 500,
                                          message = "An error occurred.") })
     @PreAuthorize("authenticated")
     @RequestMapping(value = "user/authenticate",
                     method = RequestMethod.GET)
-    public ResponseEntity authenticate()
+    public ResponseEntity authenticate(@RequestParam(name = "expireSeconds",
+                                                     required = false) Integer expireSeconds)
             throws JoseException
 
     {
+        // We use Security Context from BasicAuth here
         String userName = SecurityContextHolder.getContext()
                                                .getAuthentication()
                                                .getName();
-        User user = databaseTx.detach(userService.findByUserName(userName), true);
-        if (user == null || user.getObjectId() == null)
-        {
-            return toError("The specified user does not exist!");
-        }
 
-        String result = userService.generateAuthenticationToken(user.getObjectId(), null);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(userService.generateAuthenticationToken(userName, expireSeconds));
     }
-    
+
     // ----------------------------------------------------------------------------------------------------------------
     // Common-purpose methods
 

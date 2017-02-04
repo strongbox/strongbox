@@ -10,7 +10,6 @@ import java.lang.annotation.Target;
 
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Meta annotation for generalised test execution context management.
@@ -21,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Retention(RetentionPolicy.RUNTIME)
 @ContextConfiguration(classes = { DataServiceConfig.class,
                                   UsersConfig.class })
-@Transactional
 @Rollback // change to false if you wanna inspect database content manually
 public @interface UserServiceTestContext
 {

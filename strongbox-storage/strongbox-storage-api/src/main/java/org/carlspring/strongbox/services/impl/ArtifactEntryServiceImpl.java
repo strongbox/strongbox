@@ -7,16 +7,19 @@ import org.carlspring.strongbox.services.ArtifactEntryService;
 
 import javax.inject.Inject;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.orientechnologies.orient.core.query.OQueryAbstract;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -57,16 +60,22 @@ class ArtifactEntryServiceImpl
             return findAll().orElse(Collections.EMPTY_LIST);
         }
 
-        // prepare custom query based on all non-null coordinates
-        // that were joined by logical AND
-
+        // prepare custom query based on all non-null coordinates that were joined by logical AND
+        // read more about fetching strategies here: http://orientdb.com/docs/2.2/Fetching-Strategies.html
         String nativeQuery = buildQueryFrom(coordinates);
-        OSQLSynchQuery<ArtifactEntry> query = new OSQLSynchQuery<>(nativeQuery);
+        OQueryAbstract query = new OSQLSynchQuery<>(nativeQuery).setFetchPlan("*:-1");
+
         logger.info("[findByCoordinates] SQL -> \n\t" + nativeQuery);
 
-        // return attached result as a proxy
         databaseTx.activateOnCurrentThread();
-        return databaseTx.query(query);
+        List<ArtifactEntry> resultList = databaseTx.query(query);
+
+        // still have to detach everything manually until we fully migrate to OrientDB 2.2.X
+        // where fetching strategies will be fully supported
+        List<ArtifactEntry> detachedList = new LinkedList<>();
+        resultList.forEach(artifactEntry -> detachedList.add(databaseTx.detachAll(artifactEntry, true)));
+
+        return detachedList;
     }
 
     private String buildQueryFrom(ArtifactCoordinates coordinates)
@@ -105,24 +114,21 @@ class ArtifactEntryServiceImpl
     }
 
     @Override
-    @Transactional
-    public synchronized <S extends ArtifactEntry> S save(S var1)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public <S extends ArtifactEntry> S save(S var1)
     {
-        // ID non-null check was removed because there will be no ID assigned by database
-        // until transaction is not committed (depends on PROPAGATE value)
         return repository.save(var1);
     }
 
     @Override
-    @Transactional
-    public synchronized <S extends ArtifactEntry> Iterable<S> save(Iterable<S> var1)
+    public <S extends ArtifactEntry> Iterable<S> save(Iterable<S> var1)
     {
         return repository.save(var1);
     }
 
     @Override
     @Transactional
-    public synchronized Optional<ArtifactEntry> findOne(String var1)
+    public Optional<ArtifactEntry> findOne(String var1)
     {
         if (var1 == null)
         {
@@ -134,14 +140,14 @@ class ArtifactEntryServiceImpl
 
     @Override
     @Transactional
-    public synchronized boolean exists(String var1)
+    public boolean exists(String var1)
     {
         return repository.exists(var1);
     }
 
     @Override
     @Transactional
-    public synchronized Optional<List<ArtifactEntry>> findAll()
+    public Optional<List<ArtifactEntry>> findAll()
     {
         try
         {
@@ -156,7 +162,7 @@ class ArtifactEntryServiceImpl
 
     @Override
     @Transactional
-    public synchronized Optional<List<ArtifactEntry>> findAll(List<String> var1)
+    public Optional<List<ArtifactEntry>> findAll(List<String> var1)
     {
         try
         {
@@ -171,35 +177,35 @@ class ArtifactEntryServiceImpl
 
     @Override
     @Transactional
-    public synchronized long count()
+    public long count()
     {
         return repository.count();
     }
 
     @Override
     @Transactional
-    public synchronized void delete(String var1)
+    public void delete(String var1)
     {
         repository.delete(var1);
     }
 
     @Override
     @Transactional
-    public synchronized void delete(ArtifactEntry var1)
+    public void delete(ArtifactEntry var1)
     {
         repository.delete(var1);
     }
 
     @Override
     @Transactional
-    public synchronized void delete(Iterable<? extends ArtifactEntry> var1)
+    public void delete(Iterable<? extends ArtifactEntry> var1)
     {
         repository.delete(var1);
     }
 
     @Override
     @Transactional
-    public synchronized void deleteAll()
+    public void deleteAll()
     {
         repository.deleteAll();
     }
