@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.providers.layout;
 
-import org.carlspring.strongbox.config.CommonConfig;
-import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
@@ -16,7 +14,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertFalse;
@@ -31,9 +28,11 @@ public class Maven2MetadataProviderTest
         extends TestCaseWithArtifactGenerationWithIndexing
 {
 
+/*
     @org.springframework.context.annotation.Configuration
     @Import({ StorageApiConfig.class, CommonConfig.class })
     public static class SpringConfig { }
+*/
 
     public static final String REPOSITORYID = "maven-metadata-provider-test-releases";
 

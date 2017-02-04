@@ -1,23 +1,17 @@
 package org.carlspring.strongbox.configuration;
 
-import org.carlspring.strongbox.config.CommonConfig;
-import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.config.ClientConfig;
+import org.carlspring.strongbox.config.CommonConfig;
 import org.carlspring.strongbox.config.DataServiceConfig;
+import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.RuleSet;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
-
-import javax.xml.bind.JAXBException;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-
 
 import javax.xml.bind.JAXBException;
 import java.io.ByteArrayOutputStream;
@@ -37,10 +31,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author mtodorov
@@ -48,6 +38,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 public class ConfigurationManagerTest
+        extends TestCaseWithArtifactGeneration
 {
 
     @org.springframework.context.annotation.Configuration
@@ -64,8 +55,6 @@ public class ConfigurationManagerTest
     public static final String CONFIGURATION_BASEDIR = TEST_CLASSES + "/xml";
 
     public static final String CONFIGURATION_OUTPUT_FILE = CONFIGURATION_BASEDIR + "/strongbox-saved-cm.xml";
-
-    public static final String STORAGE_BASEDIR = TEST_CLASSES + "/storages/storage0";
 
     private GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
 
@@ -142,7 +131,7 @@ public class ConfigurationManagerTest
 
         Storage storage = new Storage();
         storage.setId("myStorageId");
-        storage.setBasedir(STORAGE_BASEDIR);
+        storage.setBasedir(getStorageBasedir(STORAGE0).getAbsolutePath());
         storage.addOrUpdateRepository(repository1);
         storage.addOrUpdateRepository(repository2);
 
@@ -168,7 +157,7 @@ public class ConfigurationManagerTest
         repository3.addRepositoryToGroup(repository2.getId());
 
         Storage storage = new Storage("storage0");
-        storage.setBasedir(STORAGE_BASEDIR);
+        storage.setBasedir(getStorageBasedir(STORAGE0).getAbsolutePath());
         storage.addOrUpdateRepository(repository1);
         storage.addOrUpdateRepository(repository2);
         storage.addOrUpdateRepository(repository3);

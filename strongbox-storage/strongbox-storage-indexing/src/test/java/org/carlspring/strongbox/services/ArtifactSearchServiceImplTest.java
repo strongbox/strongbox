@@ -35,6 +35,7 @@ public class ArtifactSearchServiceImplTest
 
         createTestRepositoryWithArtifacts(STORAGE0,
                                           "artifact-search-service-test-releases",
+                                          true,
                                           "org.carlspring.strongbox:strongbox-utils",
                                           "1.0.1", "1.1.1", "1.2.1");
     }

@@ -32,6 +32,7 @@ public class Maven2ProxyRepositoryTest
 
         createTestRepositoryWithArtifacts(STORAGE0,
                                           "test-maven-releases",
+                                          true,
                                           "org.carlspring.strongbox:strongbox-search-test",
                                           "1.0", "1.1", "1.2");
 

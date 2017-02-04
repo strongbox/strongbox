@@ -2,11 +2,8 @@ package org.carlspring.strongbox.services;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.config.CommonConfig;
-import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -27,7 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.*;
 
@@ -38,14 +34,6 @@ import static org.junit.Assert.*;
 public class ArtifactManagementServiceImplTest
         extends TestCaseWithArtifactGenerationWithIndexing
 {
-
-    private static final File STORAGE_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0");
-
-    private static final File REPOSITORY_BASEDIR = new File(STORAGE_BASEDIR, "/amsi-releases");
-
-    @org.springframework.context.annotation.Configuration
-    @Import({ CommonConfig.class, StorageApiConfig.class })
-    public static class SpringConfig { }
 
     @Autowired
     private ArtifactManagementService artifactManagementService;
@@ -61,25 +49,6 @@ public class ArtifactManagementServiceImplTest
                    IOException,
                    JAXBException
     {
-        /*
-        if (!INITIALIZED)
-        {
-            //noinspection ResultOfMethodCallIgnored
-            INDEX_DIR.mkdirs();
-
-            String gavtc = "org.carlspring.strongbox:strongbox-utils::jar";
-
-            generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(),
-                             gavtc,
-                             new String[] { "7.0" // Used by testForceDelete()
-                                          });
-            generateArtifact(STORAGE_BASEDIR.getAbsolutePath() + "/releases-with-trash", gavtc, new String[] {"7.2"});
-            generateArtifact(STORAGE_BASEDIR.getAbsolutePath() + "/releases-with-redeployment", gavtc, new String[] {"7.3"});
-
-            INITIALIZED = true;
-        }
-        */
-
         // Used by testDeploymentToRepositoryWithForbiddenDeployments()
         Repository repositoryWithoutDelete = new Repository("amsi-releases-without-delete");
         repositoryWithoutDelete.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
@@ -113,6 +82,7 @@ public class ArtifactManagementServiceImplTest
         // - testDeploymentRedeploymentAndDeletionAgainstGroupRepository()
         createTestRepositoryWithArtifacts(STORAGE0,
                                           "amsi-releases",
+                                          false,
                                           "org.carlspring.strongbox:strongbox-utils",
                                           "7.0", // Used by testForceDelete()
                                           "7.3"  // Used by testArtifactResolutionFromGroup()
@@ -169,7 +139,7 @@ public class ArtifactManagementServiceImplTest
             String repositoryId = "amsi-releases-without-delete";
             String gavtc = "org.carlspring.strongbox:strongbox-utils:8.0:jar";
 
-            File repositoryDir = new File(STORAGE_BASEDIR, repositoryId);
+            File repositoryDir = getRepositoryBasedir(STORAGE0, "/amsi-releases");
             is = generateArtifactInputStream(repositoryDir.getAbsolutePath(), repositoryId, gavtc, true);
 
             Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
@@ -205,10 +175,10 @@ public class ArtifactManagementServiceImplTest
             String repositoryId = "amsi-releases-without-redeployment";
             String gavtc = "org.carlspring.strongbox:strongbox-utils:8.1:jar";
 
-            generateArtifact(new File(STORAGE_BASEDIR, repositoryId).getAbsolutePath(), gavtc);
+            File repositoryBasedir = getRepositoryBasedir(STORAGE0, repositoryId);
+            generateArtifact(repositoryBasedir.getAbsolutePath(), gavtc);
 
-            File repositoryDir = new File(STORAGE_BASEDIR, repositoryId);
-            is = generateArtifactInputStream(repositoryDir.getAbsolutePath(), repositoryId, gavtc, true);
+            is = generateArtifactInputStream(repositoryBasedir.getAbsolutePath(), repositoryId, gavtc, true);
 
             Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
             artifactManagementService.store(STORAGE0,
@@ -270,7 +240,7 @@ public class ArtifactManagementServiceImplTest
         //noinspection EmptyCatchBlock
         try
         {
-            File repositoryDir = new File(STORAGE_BASEDIR, repositoryId);
+            File repositoryDir = getRepositoryBasedir(STORAGE0, repositoryId);
             is = generateArtifactInputStream(repositoryDir.getAbsolutePath(), repositoryId, gavtc, true);
 
             artifactManagementService.store(STORAGE0,
@@ -294,7 +264,7 @@ public class ArtifactManagementServiceImplTest
         {
             // Generate the artifact on the file-system anyway so that we could achieve
             // the state of having it there before attempting a re-deployment
-            generateArtifact(new File(STORAGE_BASEDIR, repositoryId).getAbsolutePath(), gavtc);
+            generateArtifact(getRepositoryBasedir(STORAGE0, "/amsi-releases").getAbsolutePath(), gavtc);
             artifactManagementService.store(STORAGE0,
                                             repositoryId,
                                             ArtifactUtils.convertArtifactToPath(artifact),
@@ -380,7 +350,7 @@ public class ArtifactManagementServiceImplTest
                                          true);
 
         assertFalse("Failed to delete artifact during a force delete operation!",
-                    new File(REPOSITORY_BASEDIR, artifactPath1).exists());
+                    new File(getRepositoryBasedir(STORAGE0, "amsi-releases"), artifactPath1).exists());
 
         final String artifactPath2 = "org/carlspring/strongbox/strongbox-utils/7.2/strongbox-utils-7.2.jar";
         artifactManagementService.delete(STORAGE0,
@@ -388,7 +358,7 @@ public class ArtifactManagementServiceImplTest
                                          artifactPath2,
                                          true);
 
-        final File repositoryDir = new File(STORAGE_BASEDIR, "amsi-releases-with-trash/.trash");
+        final File repositoryDir = new File(getStorageBasedir(STORAGE0), "amsi-releases-with-trash/.trash");
 
         assertTrue("Should have moved the artifact to the trash during a force delete operation, " +
                    "when allowsForceDeletion is not enabled!",

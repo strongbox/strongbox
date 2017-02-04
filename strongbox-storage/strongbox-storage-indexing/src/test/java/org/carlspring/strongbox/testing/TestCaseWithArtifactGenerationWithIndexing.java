@@ -14,12 +14,20 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.repository.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.routing.RoutingRule;
+import org.carlspring.strongbox.storage.routing.RoutingRules;
+import org.carlspring.strongbox.storage.routing.RuleSet;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
@@ -37,6 +45,11 @@ import org.springframework.test.context.ContextConfiguration;
 public abstract class TestCaseWithArtifactGenerationWithIndexing
         extends TestCaseWithArtifactGeneration
 {
+
+    public static final int ROUTING_RULE_TYPE_DENIED = 0;
+
+    public static final int ROUTING_RULE_TYPE_ACCEPTED = 1;
+
 
     @Configuration
     @Import({ StorageIndexingConfig.class,
@@ -105,6 +118,7 @@ public abstract class TestCaseWithArtifactGenerationWithIndexing
 
     protected void createTestRepositoryWithArtifacts(String storageId,
                                                      String repositoryId,
+                                                     boolean indexing,
                                                      String ga,
                                                      String... versions)
             throws IOException,
@@ -112,16 +126,17 @@ public abstract class TestCaseWithArtifactGenerationWithIndexing
                    NoSuchAlgorithmException,
                    XmlPullParserException
     {
-        createTestRepository(storageId, repositoryId);
+        createTestRepository(storageId, repositoryId, indexing);
         generateArtifactsReIndexAndPack(storageId, repositoryId, ga, versions);
     }
 
     protected void createTestRepository(String storageId,
-                                        String repositoryId)
+                                        String repositoryId,
+                                        boolean indexing)
             throws IOException, JAXBException
     {
         Repository repository = new Repository(repositoryId);
-        repository.setIndexingEnabled(true);
+        repository.setIndexingEnabled(indexing);
         repository.setStorage(configurationManagementService.getStorage(storageId));
 
         createRepository(repository);
@@ -186,6 +201,39 @@ public abstract class TestCaseWithArtifactGenerationWithIndexing
         RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(storageId + ":" + repositoryId);
 
         indexer.addArtifactToIndex(repositoryId, artifactFile, artifact);
+    }
+
+
+    public void createRoutingRuleSet(String storageId,
+                                     String groupRepositoryId,
+                                     String[] repositoryIds,
+                                     String rulePattern,
+                                     int type)
+    {
+        Set<String> repositories = new LinkedHashSet<>();
+        repositories.addAll(Arrays.asList(repositoryIds));
+
+        RoutingRule routingRule = new RoutingRule(rulePattern, repositories);
+
+        List<RoutingRule> routingRulesList = new ArrayList<>();
+        routingRulesList.add(routingRule);
+
+        RuleSet ruleSet = new RuleSet();
+        ruleSet.setGroupRepository(groupRepositoryId);
+        ruleSet.setRoutingRules(routingRulesList);
+
+        RoutingRules routingRules = new RoutingRules();
+
+        if (type == ROUTING_RULE_TYPE_ACCEPTED)
+        {
+            routingRules.addAcceptRule(groupRepositoryId, ruleSet);
+            configurationManagementService.addOrUpdateAcceptedRuleSet(ruleSet);
+        }
+        else
+        {
+            routingRules.addDenyRule(groupRepositoryId, ruleSet);
+            configurationManagementService.addOrUpdateDeniedRuleSet(ruleSet);
+        }
     }
 
     public RepositoryIndexManager getRepositoryIndexManager()

@@ -50,7 +50,8 @@ public class Configuration
     private Map<String, Storage> storages = new LinkedHashMap<>();
 
     @XmlElement(name = "routing-rules")
-    private RoutingRules routingRules;
+    private RoutingRules routingRules = new RoutingRules();
+
 
     public Configuration()
     {
