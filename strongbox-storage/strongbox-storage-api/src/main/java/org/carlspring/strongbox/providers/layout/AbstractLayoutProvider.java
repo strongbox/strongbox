@@ -154,6 +154,31 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
         return decorateStream(path, os, artifactCoordinates);
     }
 
+    @Override
+    public boolean isExistChecksum(Repository repository,
+                                   String path)
+    {
+        return getDigestAlgorithmSet()
+                       .stream()
+                       .map(algorithm ->
+                            {
+                                String checksumPath = path.concat(".")
+                                                          .concat(algorithm.toLowerCase()
+                                                                           .replaceAll("-", ""));
+                                RepositoryPath checksum = null;
+                                try
+                                {
+                                    checksum = resolve(repository, checksumPath);
+                                }
+                                catch (IOException e)
+                                {
+                                    e.printStackTrace();
+                                }
+                                return checksum;
+                            })
+                       .allMatch(checksum -> Files.exists(checksum));
+    }
+
     protected ArtifactOutputStream decorateStream(String path,
                                                   OutputStream os,
                                                   T artifactCoordinates)

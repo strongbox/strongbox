@@ -22,7 +22,8 @@ public class ArtifactInputStream
 {
 
     public static final String[] DEFAULT_ALGORITHMS = { EncryptionAlgorithmsEnum.MD5.getAlgorithm(),
-                                                        EncryptionAlgorithmsEnum.SHA1.getAlgorithm() };
+                                                        EncryptionAlgorithmsEnum.SHA1.getAlgorithm(),
+                                                        };
 
     private ArtifactCoordinates artifactCoordinates;
 
@@ -38,6 +39,7 @@ public class ArtifactInputStream
         this.artifactCoordinates = coordinates;
         addAlgorithm(MessageDigestAlgorithms.MD5);
         addAlgorithm(MessageDigestAlgorithms.SHA_1);
+        addAlgorithm(MessageDigestAlgorithms.SHA_512);
     }
 
     public ArtifactCoordinates getArtifactCoordinates()
