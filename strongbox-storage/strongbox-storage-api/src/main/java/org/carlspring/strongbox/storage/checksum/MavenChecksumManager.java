@@ -13,6 +13,7 @@ import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -22,7 +23,6 @@ import java.security.NoSuchAlgorithmException;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
@@ -35,10 +35,10 @@ public class MavenChecksumManager
 
     private static final Logger logger = LoggerFactory.getLogger(MavenChecksumManager.class);
 
-    @Autowired
+    @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
-    @Autowired
+    @Inject
     protected StorageProviderRegistry storageProviderRegistry;
 
     public MavenChecksumManager()

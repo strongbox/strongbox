@@ -39,7 +39,6 @@ public class ArtifactInputStream
         this.artifactCoordinates = coordinates;
         addAlgorithm(MessageDigestAlgorithms.MD5);
         addAlgorithm(MessageDigestAlgorithms.SHA_1);
-        addAlgorithm(MessageDigestAlgorithms.SHA_512);
     }
 
     public ArtifactCoordinates getArtifactCoordinates()
