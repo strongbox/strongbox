@@ -4,14 +4,11 @@ import org.carlspring.strongbox.data.server.EmbeddedOrientDbServer;
 import org.carlspring.strongbox.data.tx.CustomOrientTransactionManager;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import java.io.IOException;
 
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -21,11 +18,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.orient.commons.core.OrientTransactionManager;
 import org.springframework.data.orient.object.OrientObjectDatabaseFactory;
 import org.springframework.data.orient.object.OrientObjectTemplate;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
@@ -38,11 +35,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @ComponentScan({ "org.carlspring.strongbox.data" })
 @Import(DataServicePropertiesConfig.class)
 @EnableCaching
-@Service
 public class DataServiceConfig
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(DataServiceConfig.class);
+    private static final Logger logger = LoggerFactory.getLogger("DataServiceConfig");
 
     @Value("${strongbox.orientdb.host:127.0.0.1}")
     String host;
@@ -59,10 +55,10 @@ public class DataServiceConfig
     @Value("${strongbox.orientdb.password:password}")
     String password;
 
-    @Autowired
-    EmbeddedOrientDbServer embeddableServer;
+    private static EmbeddedOrientDbServer embeddableServer;
 
     @Bean
+    @Lazy
     public OrientObjectDatabaseFactory factory()
     {
         OrientObjectDatabaseFactory factory = new OrientObjectDatabaseFactory();
@@ -74,24 +70,28 @@ public class DataServiceConfig
     }
 
     @Bean
+    @Lazy
     public OrientTransactionManager transactionManager()
     {
         return new CustomOrientTransactionManager(factory());
     }
 
     @Bean
+    @Lazy
     public OrientObjectTemplate objectTemplate()
     {
         return new OrientObjectTemplate(factory());
     }
 
     @Bean
+    @Lazy
     public OObjectDatabaseTx objectDatabaseTx()
     {
         return factory().db();
     }
 
     @Bean
+    @Lazy
     public CacheManager cacheManager()
     {
         return new EhCacheCacheManager(ehCacheCacheManager().getObject());
@@ -108,8 +108,14 @@ public class DataServiceConfig
 
     @PostConstruct
     public void registerEntities()
-            throws IOException
+            throws Exception
     {
+        if (embeddableServer == null)
+        {
+            embeddableServer = new EmbeddedOrientDbServer(this);
+            embeddableServer.init();
+        }
+
         embeddableServer.start();
 
         // create database if not initialized
@@ -117,14 +123,12 @@ public class DataServiceConfig
         if (!serverAdmin.existsDatabase())
         {
             logger.debug("Create database " + database);
-            serverAdmin.createDatabase(database, "document", "plocal").close();
+            serverAdmin.createDatabase(database, "document", "plocal")/*.close()*/;
         }
-    }
-
-    @PreDestroy
-    public void close()
-    {
-        embeddableServer.shutDown();
+        else
+        {
+            logger.debug("Reuse existing database " + database);
+        }
     }
 
     private String getConnectionUrl()
