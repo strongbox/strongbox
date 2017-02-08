@@ -125,8 +125,6 @@ public class ArtifactLocationGenerateMavenChecksumOperation
         }
     }
 
-    LayoutProvider provider = getLayoutProviderRegistry().getProvider(getRepository().getLayout());
-
     public LayoutProviderRegistry getLayoutProviderRegistry()
     {
         return layoutProviderRegistry;
