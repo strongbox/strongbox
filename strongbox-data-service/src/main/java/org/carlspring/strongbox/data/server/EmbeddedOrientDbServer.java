@@ -2,7 +2,6 @@ package org.carlspring.strongbox.data.server;
 
 import org.carlspring.strongbox.config.DataServiceConfig;
 
-import javax.annotation.PostConstruct;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -16,8 +15,6 @@ import com.orientechnologies.orient.server.config.OServerNetworkProtocolConfigur
 import com.orientechnologies.orient.server.config.OServerUserConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import static org.carlspring.strongbox.data.PropertyUtils.getVaultDirectory;
 
 /**
@@ -25,21 +22,22 @@ import static org.carlspring.strongbox.data.PropertyUtils.getVaultDirectory;
  *
  * @author Alex Oreshkevich
  */
-@Component
 public class EmbeddedOrientDbServer
 {
 
     private static final Logger logger = LoggerFactory.getLogger(EmbeddedOrientDbServer.class);
 
-    @Autowired
-    private DataServiceConfig dataServiceConfig;
+    private final DataServiceConfig dataServiceConfig;
 
     private OServer server;
 
     private OServerConfiguration serverConfiguration;
 
+    public EmbeddedOrientDbServer(DataServiceConfig dataServiceConfig)
+    {
+        this.dataServiceConfig = dataServiceConfig;
+    }
 
-    @PostConstruct
     public void init()
             throws Exception
     {
@@ -48,12 +46,12 @@ public class EmbeddedOrientDbServer
             return;
         }
 
-        server = OServerMain.create();
+        server = OServerMain.create(false);
         serverConfiguration = new OServerConfiguration();
 
         OServerNetworkListenerConfiguration binaryListener = new OServerNetworkListenerConfiguration();
         binaryListener.ipAddress = "0.0.0.0";
-        binaryListener.portRange = "2424-2500";
+        binaryListener.portRange = "2424-2424";
         binaryListener.protocol = "binary";
         binaryListener.socket = "default";
 
@@ -125,25 +123,6 @@ public class EmbeddedOrientDbServer
         catch (Exception e)
         {
             throw new RuntimeException("Unable to start the embedded OrientDb server!", e);
-        }
-    }
-
-    // actually there is no need for manual shutdown
-    // it's executed as a part of build / execution of app server finalisation
-    @SuppressWarnings("unused")
-    public void shutDown()
-    {
-        if (server.isActive())
-        {
-            try
-            {
-                server.getDatabasePoolFactory().close();
-                server.shutdown();
-            }
-            catch (Exception e)
-            {
-                logger.warn("Unable to close database pool correctly:", e.getMessage());
-            }
         }
     }
 }

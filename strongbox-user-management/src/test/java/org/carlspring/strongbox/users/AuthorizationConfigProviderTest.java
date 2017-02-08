@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.users;
 
+import org.carlspring.strongbox.config.DataServiceConfig;
+import org.carlspring.strongbox.config.UsersConfig;
 import org.carlspring.strongbox.security.Role;
 import org.carlspring.strongbox.users.security.AuthorizationConfig;
 import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
@@ -11,6 +13,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertTrue;
 
@@ -19,8 +22,9 @@ import static org.junit.Assert.assertTrue;
  *
  * @author Alex Oreshkevich
  */
-@UserServiceTestContext
 @RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = { DataServiceConfig.class,
+                                  UsersConfig.class })
 public class AuthorizationConfigProviderTest
 {
 
