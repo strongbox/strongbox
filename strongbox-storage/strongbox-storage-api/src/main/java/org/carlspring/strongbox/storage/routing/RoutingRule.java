@@ -1,12 +1,16 @@
 package org.carlspring.strongbox.storage.routing;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import javax.persistence.Version;
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * @author mtodorov
@@ -22,10 +26,6 @@ public class RoutingRule
      */
     @JsonIgnore
     protected String detachAll;
-
-    @Version
-    @JsonIgnore
-    protected Long version;
 
     @XmlAttribute
     private String pattern;
@@ -74,15 +74,6 @@ public class RoutingRule
     public void setDetachAll(String detachAll)
     {
         this.detachAll = detachAll;
-    }
-
-    public Long getVersion()
-    {
-        return version;
-    }
-
-    public void setVersion(Long version) {
-        this.version = version;
     }
 
     @Override

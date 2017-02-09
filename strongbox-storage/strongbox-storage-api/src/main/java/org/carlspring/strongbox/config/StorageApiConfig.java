@@ -22,7 +22,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.orient.commons.repository.config.EnableOrientRepositories;
-import org.springframework.transaction.annotation.Transactional;
 
 @Configuration
 @ComponentScan({
@@ -63,8 +62,7 @@ public class StorageApiConfig
     private OObjectDatabaseTx databaseTx;
 
     @PostConstruct
-    @Transactional
-    public synchronized void init()
+    public void init()
     {
         databaseTx.activateOnCurrentThread();
         OEntityManager entityManager = databaseTx.getEntityManager();

@@ -1,31 +1,15 @@
 package org.carlspring.strongbox.configuration;
 
-import javax.persistence.Id;
-import javax.persistence.Version;
-import java.io.Serializable;
+import org.carlspring.strongbox.data.domain.GenericEntity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Objects;
 
 /**
  * @author Alex Oreshkevich
  */
 public class BinaryConfiguration
-        implements Serializable
+        extends GenericEntity
 {
-
-    @Id
-    protected String id;
-
-    /**
-     * Added to avoid a runtime error whereby the detachAll property is checked for existence but not actually used.
-     */
-    @JsonIgnore
-    protected String detachAll;
-
-    @Version
-    @JsonIgnore
-    protected Long version;
 
     private String data;
 
@@ -43,16 +27,6 @@ public class BinaryConfiguration
         this.data = data;
     }
 
-    public String getId()
-    {
-        return id;
-    }
-
-    public void setId(String id)
-    {
-        this.id = id;
-    }
-
     @Override
     public boolean equals(Object o)
     {
@@ -64,9 +38,9 @@ public class BinaryConfiguration
         {
             return false;
         }
-    
+
         BinaryConfiguration that = (BinaryConfiguration) o;
-    
+
         return Objects.equal(data, that.data);
     }
 
@@ -80,10 +54,12 @@ public class BinaryConfiguration
     public String toString()
     {
         final StringBuilder sb = new StringBuilder("BinaryConfiguration{");
-        sb.append("data='").append(data).append('\'');
+        sb.append("data='")
+          .append(data)
+          .append('\'');
         sb.append('}');
-        
+
         return sb.toString();
     }
-    
+
 }

@@ -83,7 +83,7 @@ public class DataServiceConfig
         return new OrientObjectTemplate(factory());
     }
 
-    @Bean
+    @Bean(destroyMethod = "")   // prevents to call close() on non-activated member of connection pool
     @Lazy
     public OObjectDatabaseTx objectDatabaseTx()
     {
