@@ -3,7 +3,6 @@ package org.carlspring.strongbox.storage.checksum;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.io.RepositoryPath;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
@@ -17,14 +16,11 @@ import org.carlspring.strongbox.util.MessageDigestUtils;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.List;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,20 +79,22 @@ public class MavenChecksumManager
             if (!versioning.getVersions()
                            .isEmpty())
             {
-                Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
                 // Generate and write additional snapshot metadata.
                 for (String version : versioning.getVersions())
                 {
-                    artifact.setVersion(version);
-                    Path versionBasePath = Paths.get(request.getArtifactBasePath()
-                                                            .toString(),
-                                                     getVersionDirectoryName(repository, version));
 
-                    storeChecksum(versionBasePath, repository, artifact, forceRegeneration);
+                    String versionBasePath = Paths.get(request.getArtifactBasePath()
+                                                            .toString(),
+                                                       getVersionDirectoryName(repository, version))
+                                                  .toString();
+
+                    storeChecksum(versionBasePath, repository, forceRegeneration);
+
                     logger.debug("Generated Maven checksum for " + versionBasePath + ".");
                 }
-                storeChecksum(request.getArtifactBasePath(), repository, artifact, forceRegeneration);
             }
+            storeChecksum(request.getArtifactBasePath()
+                                 .toString(), repository, forceRegeneration);
         }
         else
         {
@@ -105,31 +103,42 @@ public class MavenChecksumManager
 
     }
 
-    private void storeChecksum(Path path,
+    private void storeChecksum(String basePath,
                                Repository repository,
-                               Artifact artifact,
                                boolean forceRegeneration)
             throws ProviderImplementationException, NoSuchAlgorithmException, IOException, ArtifactTransportException
     {
 
-        String basePath = path.toString();
-
         File file = new File(basePath);
 
-        String artifactPath = ArtifactUtils.convertArtifactToPath(artifact);
-
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
-        ArtifactInputStream is = layoutProvider.getInputStream(repository.getStorage()
-                                                                         .getId(), repository.getId(), artifactPath);
 
         List<File> list = Arrays.asList(file.listFiles());
 
         list.stream()
             .filter(File::isFile)
+            .filter(e -> !ArtifactUtils.isChecksum(e.getPath()))
             .forEach(e ->
                      {
                          if (!layoutProvider.isExistChecksum(repository, e.getPath()) || forceRegeneration)
                          {
+                             ArtifactInputStream is = null;
+                             try
+                             {
+                                 String artifactPath = e.getPath()
+                                                        .substring(repository.getBasedir()
+                                                                             .length() + 1);
+                                 is = layoutProvider.getInputStream(repository.getStorage()
+                                                                              .getId(), repository.getId(),
+                                                                    artifactPath);
+                             }
+                             catch (IOException |
+                                            NoSuchAlgorithmException |
+                                            ArtifactTransportException e1)
+                             {
+                                 e1.printStackTrace();
+                             }
+
                              writeChecksum(layoutProvider, is, e.getPath());
                          }
                      });

@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.providers.layout;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
@@ -16,7 +15,6 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.ArtifactFileUtils;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -161,27 +159,27 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
     public boolean isExistChecksum(Repository repository,
                                    String path)
     {
-        return !isChecksum(path) && getDigestAlgorithmSet()
-                                            .stream()
-                                            .map(algorithm ->
-                                                 {
-                                                     String checksumPath = path.concat(".")
-                                                                               .concat(algorithm.toLowerCase()
-                                                                                                .replaceAll(
-                                                                                                        "-",
-                                                                                                        ""));
-                                                     RepositoryPath checksum = null;
-                                                     try
-                                                     {
-                                                         checksum = resolve(repository, checksumPath);
-                                                     }
-                                                     catch (IOException e)
-                                                     {
-                                                         logger.error(e.getMessage());
-                                                     }
-                                                     return checksum;
-                                                 })
-                                            .allMatch(checksum -> Files.exists(checksum));
+        return getDigestAlgorithmSet()
+                       .stream()
+                       .map(algorithm ->
+                            {
+                                String checksumPath = path.concat(".")
+                                                          .concat(algorithm.toLowerCase()
+                                                                           .replaceAll(
+                                                                                   "-",
+                                                                                   ""));
+                                RepositoryPath checksum = null;
+                                try
+                                {
+                                    checksum = resolve(repository, checksumPath);
+                                }
+                                catch (IOException e)
+                                {
+                                    logger.error(e.getMessage());
+                                }
+                                return checksum;
+                            })
+                       .allMatch(checksum -> Files.exists(checksum));
 
     }
 
