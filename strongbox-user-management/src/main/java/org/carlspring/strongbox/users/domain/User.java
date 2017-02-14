@@ -150,8 +150,6 @@ public class User
                           .add("salt", getSalt())
                           .add("roles", getRoles())
                           .add("securityToken", StringUtils.isEmpty(getSecurityTokenKey()) ? "[EMPTY]" : "[SEECRET]")
-                          .add("detachAll", detachAll)
-                          .add("version", version)
                           .toString();
     }
 
