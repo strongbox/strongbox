@@ -8,6 +8,7 @@ import org.carlspring.strongbox.util.FileUtils;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
@@ -67,6 +68,14 @@ public class ChecksumServiceTest
             {
                 createRelease(ga + ":1." + i + ":jar");
             }
+        }
+
+        if (!new File(REPOSITORY_BASEDIR_1, "org/carlspring/strongbox/checksum/maven/checksum-rewrite").exists())
+        {
+            //noinspection ResultOfMethodCallIgnored
+            REPOSITORY_BASEDIR_1.mkdirs();
+            String ga2 = "org.carlspring.strongbox.checksum.maven:checksum-rewrite";
+            createRelease(ga2 + ":1.0:jar");
         }
 
         if (!new File(REPOSITORY_BASEDIR_2, "org/carlspring/strongbox/checksum").exists())
@@ -189,6 +198,46 @@ public class ChecksumServiceTest
                    new File(artifactPath, "/maven-metadata.xml.md5").exists());
         assertTrue("The checksum file for metadata file is empty!",
                    new File(artifactPath, "/maven-metadata.xml.sha1").length() > 0);
+    }
+
+    @Test
+    public void testRewriteMavenChecksum()
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException
+    {
+        String artifactPath = REPOSITORY_BASEDIR_1 + "/org/carlspring/strongbox/checksum/maven/checksum-rewrite";
+
+        artifactMetadataService.rebuildMetadata("storage0", "releases", "org/carlspring/strongbox/checksum");
+
+        assertTrue("The checksum file for artifact doesn't exist!",
+                   new File(artifactPath, "/1.0/checksum-rewrite-1.0.jar.md5").exists());
+        assertTrue("The checksum file for pom file doesn't exist!",
+                   new File(artifactPath, "/1.0/checksum-rewrite-1.0.pom.sha1").exists());
+        assertTrue("The checksum file for metadata doesn't exist!",
+                   new File(artifactPath, "/maven-metadata.xml.md5").exists());
+
+        new FileOutputStream(new File(artifactPath, "/1.0/checksum-rewrite-1.0.jar.md5"), false).write("".getBytes());
+        new FileOutputStream(new File(artifactPath, "/1.0/checksum-rewrite-1.0.jar.sha1"), false).write("".getBytes());
+        new FileOutputStream(new File(artifactPath, "/1.0/checksum-rewrite-1.0.pom.md5"), false).write("".getBytes());
+        new FileOutputStream(new File(artifactPath, "/1.0/checksum-rewrite-1.0.pom.sha1"), false).write("".getBytes());
+        new FileOutputStream(new File(artifactPath, "/maven-metadata.xml.md5"), false).write("".getBytes());
+        new FileOutputStream(new File(artifactPath, "/maven-metadata.xml.sha1"), false).write("".getBytes());
+
+        assertTrue("The checksum file for artifact isn't empty!",
+                   new File(artifactPath, "/1.0/checksum-rewrite-1.0.jar.md5").length() == 0);
+        assertTrue("The checksum file for pom file isn't empty!",
+                   new File(artifactPath, "/1.0/checksum-rewrite-1.0.pom.sha1").length() == 0);
+        assertTrue("The checksum file for metadata isn't empty!",
+                   new File(artifactPath, "/maven-metadata.xml.md5").length() == 0);
+
+        checksumService.regenerateChecksum("storage0", "releases",
+                                           "org/carlspring/strongbox/checksum/maven/checksum-rewrite", true);
+
+        assertTrue("The checksum file for artifact is empty!",
+                   new File(artifactPath, "/1.0/checksum-rewrite-1.0.jar.md5").length() > 0);
+        assertTrue("The checksum file for pom file is empty!",
+                   new File(artifactPath, "/1.0/checksum-rewrite-1.0.pom.sha1").length() > 0);
+        assertTrue("The checksum file for metadata is empty!",
+                   new File(artifactPath, "/maven-metadata.xml.md5").length() > 0);
     }
 
     /**
