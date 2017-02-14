@@ -136,7 +136,7 @@ public class MavenChecksumManager
                                             NoSuchAlgorithmException |
                                             ArtifactTransportException e1)
                              {
-                                 e1.printStackTrace();
+                                 logger.error(e1.getMessage(), e1);
                              }
 
                              writeChecksum(layoutProvider, is, e.getPath());
@@ -177,7 +177,6 @@ public class MavenChecksumManager
                                String path,
                                String algorithm)
     {
-
         if (ArtifactUtils.isArtifact(path))
         {
             return is.getMessageDigestAsHexadecimalString(algorithm);

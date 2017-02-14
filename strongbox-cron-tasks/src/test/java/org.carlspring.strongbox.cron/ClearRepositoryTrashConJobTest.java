@@ -132,7 +132,7 @@ public class ClearRepositoryTrashConJobTest
         CronTaskConfiguration cronTaskConfiguration = new CronTaskConfiguration();
         cronTaskConfiguration.setName(name);
         cronTaskConfiguration.addProperty("jobClass", ClearRepositoryTrashCronJob.class.getName());
-        cronTaskConfiguration.addProperty("cronExpression", "0 0/10 * 1/1 * ? *");
+        cronTaskConfiguration.addProperty("cronExpression", "0 0/1 * 1/1 * ? *");
         cronTaskConfiguration.addProperty("storageId", storageId);
         cronTaskConfiguration.addProperty("repositoryId", repositoryId);
 
