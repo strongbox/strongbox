@@ -1,12 +1,14 @@
 package org.carlspring.strongbox.config;
 
-import org.carlspring.strongbox.data.server.EmbeddedOrientDbServer;
-import org.carlspring.strongbox.data.tx.CustomOrientTransactionManager;
+
+
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.persistence.EntityManagerFactory;
 
-import com.orientechnologies.orient.client.remote.OServerAdmin;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import org.carlspring.strongbox.data.server.EmbeddedOrientDbServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,10 +22,16 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.data.orient.commons.core.OrientTransactionManager;
 import org.springframework.data.orient.object.OrientObjectDatabaseFactory;
 import org.springframework.data.orient.object.OrientObjectTemplate;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import com.orientechnologies.orient.client.remote.OServerAdmin;
+import com.orientechnologies.orient.core.entity.OEntityManager;
 
 /**
  * Spring configuration for data service project.
@@ -71,11 +79,24 @@ public class DataServiceConfig
 
     @Bean
     @Lazy
-    public OrientTransactionManager transactionManager()
+    public PlatformTransactionManager transactionManager(EntityManagerFactory emf)
     {
-        return new CustomOrientTransactionManager(factory());
+        return new JpaTransactionManager(emf);
     }
 
+    @Bean
+    @Lazy
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(){
+        Map<String, String> jpaProperties = new HashMap<>();
+        jpaProperties.put("javax.persistence.jdbc.url", getConnectionUrl());
+        jpaProperties.put("javax.persistence.jdbc.user", username);
+        jpaProperties.put("javax.persistence.jdbc.password", password);
+        
+        LocalContainerEntityManagerFactoryBean result = new LocalContainerEntityManagerFactoryBean();
+        result.setJpaPropertyMap(jpaProperties);
+        return result;
+    }
+    
     @Bean
     @Lazy
     public OrientObjectTemplate objectTemplate()
@@ -83,13 +104,27 @@ public class DataServiceConfig
         return new OrientObjectTemplate(factory());
     }
 
-    @Bean(destroyMethod = "")   // prevents to call close() on non-activated member of connection pool
-    @Lazy
-    public OObjectDatabaseTx objectDatabaseTx()
-    {
-        return factory().db();
-    }
+//    @Bean(destroyMethod = "")   // prevents to call close() on non-activated member of connection pool
+//    @Lazy
+//    public OObjectDatabaseTx objectDatabaseTx()
+//    {
+//        return factory().db();
+//    }
 
+    @Bean
+    @Lazy
+    public TransactionTemplate transactionTemplate(PlatformTransactionManager transactionManager){
+        TransactionTemplate result = new TransactionTemplate();
+        result.setTransactionManager(transactionManager);
+        return result;
+    }
+    
+    @Bean
+    @Lazy
+    public OEntityManager oEntityManager(){
+        return OEntityManager.getEntityManagerByDatabaseURL(getConnectionUrl()); 
+    }
+    
     @Bean
     @Lazy
     public CacheManager cacheManager()

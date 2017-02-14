@@ -6,8 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.orientechnologies.orient.core.query.OQueryAbstract;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.domain.ArtifactEntry;
@@ -45,10 +46,11 @@ class ArtifactEntryServiceImpl
     @Inject
     CacheManager cacheManager;
 
-    @Inject
-    OObjectDatabaseTx databaseTx;
-
+    @PersistenceContext
+    private EntityManager entityManager;
+    
     @Override
+    @Transactional
     public List<ArtifactEntry> findByCoordinates(Map<String, String> coordinates)
     {
         if (coordinates == null || coordinates.keySet()
@@ -65,13 +67,12 @@ class ArtifactEntryServiceImpl
         OSQLSynchQuery<ArtifactEntry> query = new OSQLSynchQuery<>(nativeQuery);
         logger.info("[findByCoordinates] SQL -> \n\t" + nativeQuery);
 
-        databaseTx.activateOnCurrentThread();
-        List<ArtifactEntry> resultList = databaseTx.query(query);
+        List<ArtifactEntry> resultList = ((OObjectDatabaseTx)entityManager.getDelegate()).query(query);
 
         // still have to detach everything manually until we fully migrate to OrientDB 2.2.X
         // where fetching strategies will be fully supported
         List<ArtifactEntry> detachedList = new LinkedList<>();
-        resultList.forEach(artifactEntry -> detachedList.add(databaseTx.detachAll(artifactEntry, true)));
+        resultList.forEach(artifactEntry -> detachedList.add(((OObjectDatabaseTx)entityManager.getDelegate()).detachAll(artifactEntry, true)));
 
         return detachedList;
     }

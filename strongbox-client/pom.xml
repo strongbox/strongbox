@@ -13,7 +13,6 @@
     </parent>
 
     <artifactId>strongbox-client</artifactId>
-    <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Strongbox: Client</name>
@@ -139,7 +138,6 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <version>4.2.4.RELEASE</version>
         </dependency>
     </dependencies>
 

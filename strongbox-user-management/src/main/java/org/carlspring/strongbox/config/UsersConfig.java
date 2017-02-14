@@ -11,8 +11,12 @@ import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 import java.io.IOException;
 
+import com.orientechnologies.orient.core.entity.OEntityManager;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
@@ -45,11 +49,14 @@ public class UsersConfig
     private final static GenericParser<Users> parser = new GenericParser<>(Users.class);
 
     @Inject
-    private OObjectDatabaseTx databaseTx;
+    private OEntityManager oEntityManager;
 
     @Inject
     private UserService userService;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+    
     private final Class<User> userClass = User.class;
 
     @PostConstruct
@@ -58,13 +65,11 @@ public class UsersConfig
         logger.debug("Loading users...");
 
         // register all domain entities
-        databaseTx.activateOnCurrentThread();
-        databaseTx.getEntityManager()
-                  .registerEntityClasses(User.class.getPackage()
+        oEntityManager.registerEntityClasses(User.class.getPackage()
                                                    .getName());
 
         // set unique constraints and index field 'username' if it isn't present yet
-        OClass oUserClass = databaseTx.getMetadata()
+        OClass oUserClass = ((OObjectDatabaseTx)entityManager.getDelegate()).getMetadata()
                                       .getSchema()
                                       .getOrCreateClass(userClass.getSimpleName());
 

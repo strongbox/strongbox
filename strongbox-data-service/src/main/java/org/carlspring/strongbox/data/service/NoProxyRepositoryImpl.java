@@ -3,9 +3,12 @@ package org.carlspring.strongbox.data.service;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import javax.persistence.EntityManagerFactory;
+
 import org.springframework.data.orient.commons.core.OrientOperations;
 import org.springframework.data.orient.commons.repository.support.SimpleOrientRepository;
+
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 /**
  * @param <T>
@@ -15,7 +18,7 @@ public class NoProxyRepositoryImpl<T>
         extends SimpleOrientRepository<T>
 {
 
-    private OObjectDatabaseTx databaseTx;
+    private EntityManagerFactory entityManagerFactory;
 
     public NoProxyRepositoryImpl(OrientOperations operations,
                                  Class<T> domainClass,
@@ -32,23 +35,26 @@ public class NoProxyRepositoryImpl<T>
         super(operations, domainClass, cluster, repositoryInterface);
     }
 
-    public void setDatabaseTx(OObjectDatabaseTx databaseTx)
+    public void setDatabaseTx(EntityManagerFactory entityManagerFactory)
     {
-        this.databaseTx = databaseTx;
+        this.entityManagerFactory = entityManagerFactory;
     }
 
     @Override
     public <S extends T> S save(S entity)
     {
-        databaseTx.activateOnCurrentThread();
-        return databaseTx.detachAll(super.save(entity), true);
+        return getDatabaseTx().detachAll(super.save(entity), true);
+    }
+
+    private OObjectDatabaseTx getDatabaseTx()
+    {
+        return (OObjectDatabaseTx) entityManagerFactory.createEntityManager().getDelegate();
     }
 
     @Override
     public T findOne(String id)
     {
-        databaseTx.activateOnCurrentThread();
-        return databaseTx.detachAll(super.findOne(id), true);
+        return getDatabaseTx().detachAll(super.findOne(id), true);
     }
 
     @Override
@@ -62,12 +68,11 @@ public class NoProxyRepositoryImpl<T>
             // com.orientechnologies.orient.client.remote.OStorageRemote cannot be cast to
             // com.orientechnologies.orient.core.storage.impl.local.paginated.OLocalPaginatedStorage
             // we have to do manual detach for all list entries
-            databaseTx.activateOnCurrentThread();
             final int size = result.size();
             List<T> obtainedResult = new LinkedList<>();
             for (int i = 0; i < size; i++)
             {
-                obtainedResult.add(databaseTx.detachAll(result.get(i), true));
+                obtainedResult.add(getDatabaseTx().detachAll(result.get(i), true));
             }
             return obtainedResult;
         }

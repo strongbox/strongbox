@@ -1,5 +1,11 @@
 package org.carlspring.strongbox.security.user;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.annotation.PostConstruct;
+import javax.transaction.Transactional;
+
 import org.carlspring.strongbox.security.Role;
 import org.carlspring.strongbox.users.domain.Roles;
 import org.carlspring.strongbox.users.domain.User;
@@ -38,14 +44,12 @@ public class StrongboxUserDetailService
     @Inject
     AuthorizationConfigProvider authorizationConfigProvider;
 
-    @Inject
-    private OObjectDatabaseTx databaseTx;
-
     private Set<GrantedAuthority> fullAuthorities;
 
     private Set<Role> configuredRoles;
 
     @PostConstruct
+    @Transactional
     public void init()
     {
         fullAuthorities = new HashSet<>();
@@ -55,7 +59,6 @@ public class StrongboxUserDetailService
                                    .ifPresent(
                                            config ->
                                            {
-                                               databaseTx.activateOnCurrentThread();
                                                try
                                                {
                                                    config.getRoles()

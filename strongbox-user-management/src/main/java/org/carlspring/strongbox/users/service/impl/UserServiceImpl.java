@@ -1,19 +1,20 @@
 package org.carlspring.strongbox.users.service.impl;
 
-import org.carlspring.strongbox.users.domain.User;
-import org.carlspring.strongbox.users.repository.UserRepository;
-import org.carlspring.strongbox.users.security.SecurityTokenProvider;
-import org.carlspring.strongbox.users.service.UserService;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 import org.apache.commons.lang.StringUtils;
+import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.repository.UserRepository;
+import org.carlspring.strongbox.users.security.SecurityTokenProvider;
+import org.carlspring.strongbox.users.service.UserService;
 import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,8 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 /**
  * DAO implementation for {@link User} entities.
@@ -49,8 +52,8 @@ public class UserServiceImpl
     @Inject
     SecurityTokenProvider tokenProvider;
 
-    @Inject
-    OObjectDatabaseTx databaseTx;
+    @PersistenceContext
+    EntityManager entityManager;
 
     Cache usersCache;
 
@@ -74,7 +77,7 @@ public class UserServiceImpl
         {
             // TODO find more appropriate place for detaching in some place
             // where actual generated query will be executed
-            return databaseTx.detachAll(repository.findByUsername(name), true);
+            return ((OObjectDatabaseTx)entityManager.getDelegate()).detachAll(repository.findByUsername(name), true);
         }
         catch (Exception e)
         {

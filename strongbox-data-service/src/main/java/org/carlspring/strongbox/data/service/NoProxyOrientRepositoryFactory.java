@@ -2,7 +2,8 @@ package org.carlspring.strongbox.data.service;
 
 import java.io.Serializable;
 
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import javax.persistence.EntityManagerFactory;
+
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.data.orient.commons.core.OrientOperations;
 import org.springframework.data.orient.commons.repository.support.OrientRepositoryFactory;
@@ -17,15 +18,15 @@ public class NoProxyOrientRepositoryFactory
         extends OrientRepositoryFactory
 {
 
-    private OObjectDatabaseTx databaseTx;
+    private EntityManagerFactory entityManagerFactory;
 
     public NoProxyOrientRepositoryFactory(OrientOperations operations,
-                                          OObjectDatabaseTx databaseTx)
+                                          EntityManagerFactory entityManagerFactory)
     {
         super(operations);
-        this.databaseTx = databaseTx;
+        this.entityManagerFactory = entityManagerFactory;
 
-        if (databaseTx == null)
+        if (entityManagerFactory == null)
         {
             throw new BeanCreationException("Unable to inject databaseTx.");
         }
@@ -51,7 +52,7 @@ public class NoProxyOrientRepositoryFactory
             repository = new NoProxyRepositoryImpl(operations, javaType, repositoryInterface);
         }
 
-        repository.setDatabaseTx(databaseTx);
+        repository.setDatabaseTx(entityManagerFactory);
 
         return repository;
     }

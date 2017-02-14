@@ -13,6 +13,9 @@ import org.carlspring.strongbox.storage.validation.version.VersionValidator;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+
+import static com.orientechnologies.orient.core.entity.OEntityManager.getEntityManagerByDatabaseURL;
+
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -58,14 +61,11 @@ public class StorageApiConfig
     private ConfigurationManager configurationManager;
 
     @Inject
-    private OObjectDatabaseTx databaseTx;
-
+    private OEntityManager entityManager;
+    
     @PostConstruct
     public void init()
     {
-        databaseTx.activateOnCurrentThread();
-        OEntityManager entityManager = databaseTx.getEntityManager();
-
         // register all domain entities
         entityManager.registerEntityClasses(ArtifactEntry.class.getPackage()
                                                                .getName());
