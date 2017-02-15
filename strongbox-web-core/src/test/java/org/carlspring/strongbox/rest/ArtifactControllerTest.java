@@ -63,7 +63,7 @@ public class ArtifactControllerTest
         removeDir(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/org/carlspring/strongbox/browse");
         removeDir(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/com/artifacts/to/delete");
 
-
+/*
         generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
                          "org.carlspring.strongbox.resolve.only:foo",
                          "1.1" // Used by testResolveViaProxy()
@@ -102,7 +102,7 @@ public class ArtifactControllerTest
                          "1.0", // Used by testDirectoryListing()
                          "2.4"  // Used by testDirectoryListing()
         );
-
+*/
         //noinspection ResultOfMethodCallIgnored
         new File(TEST_RESOURCES).mkdirs();
     }
@@ -256,10 +256,11 @@ public class ArtifactControllerTest
     public void testCopyArtifactFile()
             throws Exception
     {
+/*
         generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
                          "org.carlspring.strongbox.copy:copy-foo",
                          "1.1" );
-
+*/
         final File destRepositoryBasedir = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                     "/storages/storage0/releases-with-trash");
 

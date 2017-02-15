@@ -3,12 +3,15 @@ package org.carlspring.strongbox.rest.common;
 import org.carlspring.strongbox.artifact.generator.ArtifactDeployer;
 import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 import org.carlspring.strongbox.users.domain.Roles;
 
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
@@ -27,11 +30,12 @@ import org.springframework.web.context.WebApplicationContext;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 
 /**
- * General settings for the testing subsystem.
+ * General settings for the testing sub-system.
  *
  * @author Alex Oreshkevich
  */
 public abstract class RestAssuredBaseTest
+        extends TestCaseWithArtifactGenerationWithIndexing
 {
 
     public final static int DEFAULT_PORT = 48080;
@@ -47,6 +51,7 @@ public abstract class RestAssuredBaseTest
     protected WebApplicationContext context;
 
     @Autowired
+
     AnonymousAuthenticationFilter anonymousAuthenticationFilter;
 
     @Autowired
@@ -101,6 +106,19 @@ public abstract class RestAssuredBaseTest
                                      .addAll(provideAuthorities());
 
         setContextBaseUrl(contextBaseUrl);
+    }
+
+    /**
+     * This method should only be overriden by tests which need to have repositories.
+     * The majority of the RestAssured test cases don't need this, so we're, in effect,
+     * ignoring this from here.
+     *
+     * @return
+     */
+    @Override
+    public Map<String, String> getRepositoriesToClean()
+    {
+        return new HashMap<>();
     }
 
     @After
