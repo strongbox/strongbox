@@ -90,7 +90,8 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
 
     public Storage getStorage(String storageId)
     {
-        return configurationManager.getConfiguration().getStorage(storageId);
+        return configurationManager.getConfiguration()
+                                   .getStorage(storageId);
     }
 
     @Override
@@ -152,6 +153,34 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
         }
 
         return decorateStream(path, os, artifactCoordinates);
+    }
+
+    @Override
+    public boolean isExistChecksum(Repository repository,
+                                   String path)
+    {
+        return getDigestAlgorithmSet()
+                       .stream()
+                       .map(algorithm ->
+                            {
+                                String checksumPath = path.concat(".")
+                                                          .concat(algorithm.toLowerCase()
+                                                                           .replaceAll(
+                                                                                   "-",
+                                                                                   ""));
+                                RepositoryPath checksum = null;
+                                try
+                                {
+                                    checksum = resolve(repository, checksumPath);
+                                }
+                                catch (IOException e)
+                                {
+                                    logger.error(e.getMessage());
+                                }
+                                return checksum;
+                            })
+                       .allMatch(checksum -> Files.exists(checksum));
+
     }
 
     protected ArtifactOutputStream decorateStream(String path,
