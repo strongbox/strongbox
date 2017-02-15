@@ -41,9 +41,10 @@ public class CronTaskConfigurationControllerTest
 
     @Override
     public void init()
-            throws NoSuchAlgorithmException, XmlPullParserException, IOException
+            throws Exception
     {
         super.init();
+
         setContextBaseUrl(getContextBaseUrl() + "/configuration/crontasks");
     }
 

@@ -46,7 +46,7 @@ public class SearchControllerTest
 
     @Override
     public void init()
-            throws NoSuchAlgorithmException, XmlPullParserException, IOException
+            throws Exception
     {
         super.init();
 

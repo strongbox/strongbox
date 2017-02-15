@@ -95,7 +95,7 @@ public abstract class RestAssuredBaseTest
 
     @Before
     public void init()
-            throws NoSuchAlgorithmException, XmlPullParserException, IOException
+            throws Exception
     {
         RestAssuredMockMvc.webAppContextSetup(context);
 

@@ -10,9 +10,13 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
 
 import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,8 +50,9 @@ public class ArtifactIndexesControllerTest
     private RepositoryIndexManager repositoryIndexManager;
 
 
-    @Before
-    public void setUp()
+
+    @Override
+    public void init()
             throws Exception
     {
         super.init();
