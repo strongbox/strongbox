@@ -2,7 +2,6 @@ package org.carlspring.strongbox.storage.routing;
 
 import org.carlspring.strongbox.xml.RuleSetMapAdapter;
 
-import javax.persistence.Version;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -30,10 +29,6 @@ public class RoutingRules
      */
     @JsonIgnore
     protected String detachAll;
-
-    @Version
-    @JsonIgnore
-    protected Long version;
 
     /**
      * List of accepted patterns.
@@ -103,16 +98,6 @@ public class RoutingRules
     public void setDetachAll(String detachAll)
     {
         this.detachAll = detachAll;
-    }
-
-    public Long getVersion()
-    {
-        return version;
-    }
-
-    public void setVersion(Long version)
-    {
-        this.version = version;
     }
 
     public Map<String, RuleSet> getAccepted()

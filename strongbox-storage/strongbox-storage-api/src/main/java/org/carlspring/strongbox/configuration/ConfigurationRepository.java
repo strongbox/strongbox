@@ -176,7 +176,7 @@ public class ConfigurationRepository
     {
         binaryConfiguration.setData(data);
         binaryConfiguration = serverConfigurationService.save(binaryConfiguration);
-        currentDatabaseId = binaryConfiguration.getId();
+        currentDatabaseId = binaryConfiguration.getObjectId();
     }
 
     public Resource getConfigurationResource()
