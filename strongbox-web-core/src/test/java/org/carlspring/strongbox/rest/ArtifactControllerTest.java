@@ -119,8 +119,7 @@ public class ArtifactControllerTest
         Repository repository2 = new Repository(REPOSITORY_RELEASES2);
         repository2.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
         repository2.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
-        repository2.setAllowsRedeployment(true
-        );
+        repository2.setAllowsRedeployment(true);
 
         createRepository(repository2);
 
