@@ -47,10 +47,10 @@ public class Maven2MetadataProviderTest
         repository.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
         repository.setAllowsForceDeletion(true);
 
-        createTestRepositoryWithArtifacts(repository,
-                                          "com.artifacts.to.delete.releases:delete-foo",
-                                          "1.2.1", // testDeleteArtifact()
-                                          "1.2.2"  // testDeleteArtifactDirectory()
+        createRepositoryWithArtifacts(repository,
+                                      "com.artifacts.to.delete.releases:delete-foo",
+                                      "1.2.1", // testDeleteArtifact()
+                                      "1.2.2"  // testDeleteArtifactDirectory()
                                           );
     }
 

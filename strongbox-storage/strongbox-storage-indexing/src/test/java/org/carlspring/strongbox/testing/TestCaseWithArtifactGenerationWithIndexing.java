@@ -104,9 +104,9 @@ public abstract class TestCaseWithArtifactGenerationWithIndexing
         }
     }
 
-    protected void createTestRepositoryWithArtifacts(Repository repository,
-                                                     String ga,
-                                                     String... versions)
+    protected void createRepositoryWithArtifacts(Repository repository,
+                                                 String ga,
+                                                 String... versions)
             throws IOException,
                    JAXBException,
                    NoSuchAlgorithmException,
@@ -116,23 +116,23 @@ public abstract class TestCaseWithArtifactGenerationWithIndexing
         generateArtifactsReIndexAndPack(repository.getStorage().getId(), repository.getId(), ga, versions);
     }
 
-    protected void createTestRepositoryWithArtifacts(String storageId,
-                                                     String repositoryId,
-                                                     boolean indexing,
-                                                     String ga,
-                                                     String... versions)
+    protected void createRepositoryWithArtifacts(String storageId,
+                                                 String repositoryId,
+                                                 boolean indexing,
+                                                 String ga,
+                                                 String... versions)
             throws IOException,
                    JAXBException,
                    NoSuchAlgorithmException,
                    XmlPullParserException
     {
-        createTestRepository(storageId, repositoryId, indexing);
+        createRepository(storageId, repositoryId, indexing);
         generateArtifactsReIndexAndPack(storageId, repositoryId, ga, versions);
     }
 
-    protected void createTestRepository(String storageId,
-                                        String repositoryId,
-                                        boolean indexing)
+    protected void createRepository(String storageId,
+                                    String repositoryId,
+                                    boolean indexing)
             throws IOException, JAXBException
     {
         Repository repository = new Repository(repositoryId);
@@ -142,9 +142,9 @@ public abstract class TestCaseWithArtifactGenerationWithIndexing
         createRepository(repository);
     }
 
-    protected void createTestProxyRepository(String storageId,
-                                             String repositoryId,
-                                             String proxyUrl)
+    protected void createProxyRepository(String storageId,
+                                         String repositoryId,
+                                         String proxyUrl)
             throws IOException, JAXBException
     {
         RemoteRepository remoteRepository = new RemoteRepository();

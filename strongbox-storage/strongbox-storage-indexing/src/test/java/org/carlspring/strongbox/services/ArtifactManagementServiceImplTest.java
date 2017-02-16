@@ -10,7 +10,6 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 
-import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,38 +52,38 @@ public class ArtifactManagementServiceImplTest
         repositoryWithoutDelete.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
         repositoryWithoutDelete.setAllowsDelete(false);
 
-        createTestRepositoryWithArtifacts(repositoryWithoutDelete,
-                                          "org.carlspring.strongbox:strongbox-utils",
-                                          "8.0");
+        createRepositoryWithArtifacts(repositoryWithoutDelete,
+                                      "org.carlspring.strongbox:strongbox-utils",
+                                      "8.0");
 
         // Used by testRedeploymentToRepositoryWithForbiddenRedeployments()
         Repository repositoryWithoutRedeployments = new Repository("amsi-releases-without-redeployment");
         repositoryWithoutRedeployments.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
         repositoryWithoutRedeployments.setAllowsRedeployment(false);
 
-        createTestRepositoryWithArtifacts(repositoryWithoutRedeployments,
-                                          "org.carlspring.strongbox:strongbox-utils",
-                                          "8.1");
+        createRepositoryWithArtifacts(repositoryWithoutRedeployments,
+                                      "org.carlspring.strongbox:strongbox-utils",
+                                      "8.1");
 
         // Used by testDeletionFromRepositoryWithForbiddenDeletes()
         Repository repositoryWithoutDeletes = new Repository("amsi-releases-without-delete");
         repositoryWithoutDeletes.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
         repositoryWithoutDeletes.setAllowsDelete(false);
 
-        createTestRepositoryWithArtifacts(repositoryWithoutDeletes,
-                                          "org.carlspring.strongbox:strongbox-utils",
-                                          "8.2");
+        createRepositoryWithArtifacts(repositoryWithoutDeletes,
+                                      "org.carlspring.strongbox:strongbox-utils",
+                                      "8.2");
 
         // Used by:
         // - testForceDelete()
         // - testArtifactResolutionFromGroup()
         // - testDeploymentRedeploymentAndDeletionAgainstGroupRepository()
-        createTestRepositoryWithArtifacts(STORAGE0,
-                                          "amsi-releases",
-                                          false,
-                                          "org.carlspring.strongbox:strongbox-utils",
-                                          "7.0", // Used by testForceDelete()
-                                          "7.3"  // Used by testArtifactResolutionFromGroup()
+        createRepositoryWithArtifacts(STORAGE0,
+                                      "amsi-releases",
+                                      false,
+                                      "org.carlspring.strongbox:strongbox-utils",
+                                      "7.0", // Used by testForceDelete()
+                                      "7.3"  // Used by testArtifactResolutionFromGroup()
                                           );
 
         Repository repositoryGroup = new Repository("amsi-releases-group");
@@ -95,9 +94,9 @@ public class ArtifactManagementServiceImplTest
         repositoryGroup.setAllowsForceDeletion(false);
         repositoryGroup.addRepositoryToGroup("amsi-releases");
 
-        createTestRepositoryWithArtifacts(repositoryGroup,
-                                          "org.carlspring.strongbox:strongbox-utils",
-                                          "8.2" // Used by testDeploymentRedeploymentAndDeletionAgainstGroupRepository()
+        createRepositoryWithArtifacts(repositoryGroup,
+                                      "org.carlspring.strongbox:strongbox-utils",
+                                      "8.2" // Used by testDeploymentRedeploymentAndDeletionAgainstGroupRepository()
                                           );
 
         // Used by testForceDelete()
@@ -105,9 +104,9 @@ public class ArtifactManagementServiceImplTest
         repositoryWithTrash.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
         repositoryWithTrash.setTrashEnabled(true);
 
-        createTestRepositoryWithArtifacts(repositoryWithTrash,
-                                          "org.carlspring.strongbox:strongbox-utils",
-                                          "7.2");
+        createRepositoryWithArtifacts(repositoryWithTrash,
+                                      "org.carlspring.strongbox:strongbox-utils",
+                                      "7.2");
     }
 
     @Override

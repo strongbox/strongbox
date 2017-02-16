@@ -34,21 +34,21 @@ public class RepositoryManagementServiceImplTest
     {
         super.init();
 
-        createTestRepository(STORAGE0, "repository-management-releases-test-create-repository", false);
+        createRepository(STORAGE0, "repository-management-releases-test-create-repository", false);
 
-        createTestRepository(STORAGE0, "repository-management-releases-test-create-and-delete", false);
+        createRepository(STORAGE0, "repository-management-releases-test-create-and-delete", false);
 
-        createTestRepositoryWithArtifacts(STORAGE0,
-                                          "repository-management-releases-test-merge-1",
-                                          false,
-                                          "org.carlspring.strongbox:strongbox-utils",
-                                          "6.2.2");
+        createRepositoryWithArtifacts(STORAGE0,
+                                      "repository-management-releases-test-merge-1",
+                                      false,
+                                      "org.carlspring.strongbox:strongbox-utils",
+                                      "6.2.2");
 
-        createTestRepositoryWithArtifacts(STORAGE0,
-                                          "repository-management-releases-test-merge-2",
-                                          false,
-                                          "org.carlspring.strongbox:strongbox-utils",
-                                          "6.2.3");
+        createRepositoryWithArtifacts(STORAGE0,
+                                      "repository-management-releases-test-merge-2",
+                                      false,
+                                      "org.carlspring.strongbox:strongbox-utils",
+                                      "6.2.3");
     }
 
     @Override

@@ -6,15 +6,11 @@ import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.rest.context.IntegrationTest;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 
 import java.io.File;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +31,9 @@ public class TrashControllerTest
 
     private static final File BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory()).getAbsoluteFile();
 
-    private static final String REPOSITORY_WITH_TRASH = "releases-with-trash";
+    private static final String REPOSITORY_WITH_TRASH = "tct-releases-with-trash";
 
-    private static final String REPOSITORY_WITH_FORCE_DELETE = "releases-with-force-delete";
+    private static final String REPOSITORY_WITH_FORCE_DELETE = "tct-releases-with-force-delete";
 
     private static final String REPOSITORY_WITH_TRASH_BASEDIR = BASEDIR.getAbsolutePath() +
                                                                 "/storages/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH;

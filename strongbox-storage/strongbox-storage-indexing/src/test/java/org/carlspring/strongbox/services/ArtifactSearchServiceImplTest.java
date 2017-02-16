@@ -33,11 +33,11 @@ public class ArtifactSearchServiceImplTest
     {
         super.init();
 
-        createTestRepositoryWithArtifacts(STORAGE0,
-                                          "artifact-search-service-test-releases",
-                                          true,
-                                          "org.carlspring.strongbox:strongbox-utils",
-                                          "1.0.1", "1.1.1", "1.2.1");
+        createRepositoryWithArtifacts(STORAGE0,
+                                      "artifact-search-service-test-releases",
+                                      true,
+                                      "org.carlspring.strongbox:strongbox-utils",
+                                      "1.0.1", "1.1.1", "1.2.1");
     }
 
     @Override

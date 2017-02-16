@@ -10,14 +10,9 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -62,7 +57,7 @@ public class ArtifactIndexesControllerTest
         // - testRebuildIndexesInRepository()
         // - testRebuildIndexesInStorage()
         // - testRebuildIndexesInStorage()
-        createTestRepository(STORAGE0, "aict-releases-1", true);
+        createRepository(STORAGE0, "aict-releases-1", true);
 
         generateArtifact(getRepositoryBasedir(STORAGE0, "aict-releases-1").getAbsolutePath(),
                          "org.carlspring.strongbox.indexes:strongbox-test-one:1.0");
@@ -71,7 +66,7 @@ public class ArtifactIndexesControllerTest
                          "org.carlspring.strongbox.indexes:strongbox-test-two:1.0");
 
         // Used by testRebuildIndexesInStorage()
-        createTestRepository(STORAGE0, "aict-releases-2", true);
+        createRepository(STORAGE0, "aict-releases-2", true);
 
         generateArtifact(getRepositoryBasedir(STORAGE0, "aict-releases-2").getAbsolutePath(),
                          "org.carlspring.strongbox.indexes:strongbox-test-one:1.0");
@@ -80,10 +75,10 @@ public class ArtifactIndexesControllerTest
                          "org.carlspring.strongbox.indexes:strongbox-test-two:1.0");
 
         // Used by testRebuildIndexesInStorages()
-        createTestRepositoryWithArtifacts(STORAGE0,
-                                          "aict-releases-3",
-                                          true,
-                                          "org.carlspring.strongbox.indexes:strongbox-test-one", "1.0");
+        createRepositoryWithArtifacts(STORAGE0,
+                                      "aict-releases-3",
+                                      true,
+                                      "org.carlspring.strongbox.indexes:strongbox-test-one", "1.0");
     }
 
     @Override

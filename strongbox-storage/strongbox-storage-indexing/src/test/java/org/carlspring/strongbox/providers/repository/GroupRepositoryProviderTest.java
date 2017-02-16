@@ -55,17 +55,17 @@ public class GroupRepositoryProviderTest
     {
         super.init();
 
-        createTestRepositoryWithArtifacts(STORAGE0,
-                                          "grpt-releases-1",
-                                          false,
-                                          "com.artifacts.in.releases.one:foo",
-                                          "1.2.3");
+        createRepositoryWithArtifacts(STORAGE0,
+                                      "grpt-releases-1",
+                                      false,
+                                      "com.artifacts.in.releases.one:foo",
+                                      "1.2.3");
 
-        createTestRepositoryWithArtifacts(STORAGE0,
-                                          "grpt-releases-2",
-                                          false,
-                                          "com.artifacts.in.releases.two:foo",
-                                          "1.2.4");
+        createRepositoryWithArtifacts(STORAGE0,
+                                      "grpt-releases-2",
+                                      false,
+                                      "com.artifacts.in.releases.two:foo",
+                                      "1.2.4");
 
         Repository repositoryGroup = new Repository("grpt-releases-group");
         repositoryGroup.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));

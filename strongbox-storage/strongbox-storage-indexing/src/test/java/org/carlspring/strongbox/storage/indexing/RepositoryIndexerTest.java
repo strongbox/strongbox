@@ -34,11 +34,11 @@ public class RepositoryIndexerTest
     {
         super.init();
 
-        createTestRepositoryWithArtifacts(STORAGE0,
-                                          "repository-indexer-test-releases",
-                                          true,
-                                          "org.carlspring.strongbox:strongbox-commons",
-                                          "1.0", "1.1", "1.2");
+        createRepositoryWithArtifacts(STORAGE0,
+                                      "repository-indexer-test-releases",
+                                      true,
+                                      "org.carlspring.strongbox:strongbox-commons",
+                                      "1.0", "1.1", "1.2");
     }
 
     @Override

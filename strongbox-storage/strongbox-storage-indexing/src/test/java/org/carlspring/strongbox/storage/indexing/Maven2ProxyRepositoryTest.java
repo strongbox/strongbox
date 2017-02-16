@@ -30,15 +30,15 @@ public class Maven2ProxyRepositoryTest
     {
         super.init();
 
-        createTestRepositoryWithArtifacts(STORAGE0,
-                                          "test-maven-releases",
-                                          true,
-                                          "org.carlspring.strongbox:strongbox-search-test",
-                                          "1.0", "1.1", "1.2");
+        createRepositoryWithArtifacts(STORAGE0,
+                                      "test-maven-releases",
+                                      true,
+                                      "org.carlspring.strongbox:strongbox-search-test",
+                                      "1.0", "1.1", "1.2");
 
-        createTestProxyRepository(STORAGE0,
-                                  "test-proxied-maven-releases",
-                                  "http://localhost:48080/storages/storage0/test-maven-releases/");
+        createProxyRepository(STORAGE0,
+                              "test-proxied-maven-releases",
+                              "http://localhost:48080/storages/storage0/test-maven-releases/");
     }
 
     @Override

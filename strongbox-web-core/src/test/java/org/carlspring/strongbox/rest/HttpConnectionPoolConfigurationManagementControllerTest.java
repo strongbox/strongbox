@@ -23,7 +23,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static junit.framework.TestCase.assertEquals;
-import static org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration.generateArtifact;
 
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -42,9 +41,11 @@ public class HttpConnectionPoolConfigurationManagementControllerTest
     {
         File storageBasedir = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0");
 
+/*
         generateArtifact(storageBasedir.getAbsolutePath(),
                          "org.carlspring.strongbox:strongbox-utils:8.2:jar",
                          "1.0");
+*/
     }
 
     @Test

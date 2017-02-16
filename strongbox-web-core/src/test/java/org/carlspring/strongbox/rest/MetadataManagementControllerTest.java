@@ -55,12 +55,14 @@ public class MetadataManagementControllerTest
                   "/org/carlspring/strongbox/metadata/foo");
 
         // Generate releases
+/*
         generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
                          "org.carlspring.strongbox.metadata:strongbox-metadata",
                          "3.0.1",
                          "3.0.2",
                          "3.1",
                          "3.2");
+*/
 
         // Generate snapshots
         TestCaseWithArtifactGeneration generator = new TestCaseWithArtifactGeneration();
