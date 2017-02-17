@@ -2,9 +2,12 @@ package org.carlspring.strongbox.services.impl;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
+import org.carlspring.strongbox.artifact.locator.handlers.ArtifactLocationGenerateMavenChecksumOperation;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.handlers.ArtifactLocationRemoveTimestampedSnapshotOperation;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
@@ -19,11 +22,14 @@ import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.storage.snapshot.MavenSnapshotManager;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
 import org.carlspring.strongbox.storage.validation.version.VersionValidationException;
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
 import org.carlspring.strongbox.util.ArtifactFileUtils;
 
+import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -59,6 +65,9 @@ public class ArtifactManagementServiceImpl
 
     @Autowired
     private ChecksumCacheManager checksumCacheManager;
+
+    @Inject
+    private MavenSnapshotManager mavenSnapshotManager;
 
     @Autowired
     private ConfigurationManager configurationManager;
@@ -455,6 +464,37 @@ public class ArtifactManagementServiceImpl
         catch (IOException e)
         {
             throw new ArtifactStorageException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void removeTimestampedSnapshotArtifacts(String storageId,
+                                                   String repositoryId,
+                                                   String artifactPath,
+                                                   int numberToKeep,
+                                                   int keepPeriod)
+            throws IOException
+    {
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+
+        if (repository.getPolicy()
+                      .equals(RepositoryPolicyEnum.SNAPSHOT.getPolicy()))
+        {
+            ArtifactLocationRemoveTimestampedSnapshotOperation operation = new ArtifactLocationRemoveTimestampedSnapshotOperation(mavenSnapshotManager);
+            operation.setStorage(storage);
+            operation.setRepository(repository);
+            operation.setBasePath(artifactPath);
+            operation.setNumberToKeep(numberToKeep);
+            operation.setKeepPeriod(keepPeriod);
+
+            ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
+            locator.setOperation(operation);
+            locator.locateArtifactDirectories();
+        }
+        else
+        {
+            throw new ArtifactStorageException("Type of repository is invalid: repositoryId - " + repositoryId);
         }
     }
 

@@ -79,7 +79,6 @@ public class MavenChecksumManager
             if (!versioning.getVersions()
                            .isEmpty())
             {
-                // Generate and write additional snapshot metadata.
                 for (String version : versioning.getVersions())
                 {
 
