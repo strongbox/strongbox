@@ -8,7 +8,6 @@ import org.carlspring.strongbox.users.service.AuthorizationConfigService;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.annotation.PostConstruct;
-import javax.validation.constraints.NotNull;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.Arrays;
@@ -59,8 +58,8 @@ public class AuthorizationConfigProvider
         }
     }
 
-    private static Set<String> collect(@NotNull Iterable<?> it,
-                                       @NotNull NameFunction nameFunction)
+    private static Set<String> collect(Iterable<?> it,
+                                       NameFunction nameFunction)
     {
         Set<String> names = new HashSet<>();
         for (Object o : it)
@@ -99,7 +98,7 @@ public class AuthorizationConfigProvider
             catch (OSerializationException e)
             {
                 config = null;
-                logger.error("Unable to reuse existing authorization config", e);
+                logger.error("Unable to renuse existing authorization config", e);
                 throw new BeanInitializationException("Unable to reuse existing authorization config", e);
             }
         }
@@ -150,7 +149,7 @@ public class AuthorizationConfigProvider
                   .registerEntityClass(Role.class);
     }
 
-    private void validateConfig(@NotNull AuthorizationConfig config)
+    private void validateConfig(AuthorizationConfig config)
             throws ConfigurationException
     {
         // check that embedded roles was not overridden
@@ -168,10 +167,10 @@ public class AuthorizationConfigProvider
      * Calculates intersection of two sets that was created from two iterable sources with help of
      * two name functions respectively.
      */
-    private Sets.SetView<String> toIntersection(@NotNull Iterable<?> first,
-                                                @NotNull Iterable<?> second,
-                                                @NotNull NameFunction firstNameFunction,
-                                                @NotNull NameFunction secondNameFunction)
+    private Sets.SetView<String> toIntersection(Iterable<?> first,
+                                                Iterable<?> second,
+                                                NameFunction firstNameFunction,
+                                                NameFunction secondNameFunction)
     {
         return Sets.intersection(collect(first, firstNameFunction), collect(second, secondNameFunction));
     }
