@@ -50,6 +50,13 @@
 
         <version.servlet-api>3.1.0</version.servlet-api>
 
+        <version.javax.inject>1</version.javax.inject>
+        <version.validation-api>1.1.0.Final</version.validation-api>
+        <version.cdi-api>1.1</version.cdi-api>
+        <version.hibernate-validator>5.4.0.Final</version.hibernate-validator>
+        <version.javax.el-api>3.0.0</version.javax.el-api>
+        <version.javax.el>2.2.6</version.javax.el>
+
         <version.httpclient>4.5</version.httpclient>
         <version.jackson>2.8.6</version.jackson>
         <version.jersey>2.23.1</version.jersey>
@@ -413,7 +420,7 @@
             <dependency>
                 <groupId>javax.inject</groupId>
                 <artifactId>javax.inject</artifactId>
-                <version>1</version>
+                <version>${version.javax.inject}</version>
             </dependency>
 
             <dependency>
@@ -425,19 +432,37 @@
             <dependency>
                 <groupId>javax.enterprise</groupId>
                 <artifactId>cdi-api</artifactId>
-                <version>1.1</version>
+                <version>${version.cdi-api}</version>
             </dependency>
 
             <dependency>
                 <groupId>javax.validation</groupId>
                 <artifactId>validation-api</artifactId>
-                <version>1.1.0.Final</version>
+                <version>${version.validation-api}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-validator</artifactId>
-                <version>5.4.0.Final</version>
+                <version>${version.hibernate-validator}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-validator-cdi</artifactId>
+                <version>${version.hibernate-validator}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.el</groupId>
+                <artifactId>javax.el-api</artifactId>
+                <version>${version.javax.el-api}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.glassfish.web</groupId>
+                <artifactId>javax.el</artifactId>
+                <version>${version.javax.el}</version>
             </dependency>
 
             <dependency>
