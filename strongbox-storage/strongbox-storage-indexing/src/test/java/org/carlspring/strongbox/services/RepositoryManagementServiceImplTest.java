@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -28,12 +29,17 @@ public class RepositoryManagementServiceImplTest
     private static final String STORAGES_BASEDIR = ConfigurationResourceResolver.getVaultDirectory() + "/storages";
 
 
-    @Before
-    public void init()
+    @BeforeClass
+    public static void cleanUp()
             throws Exception
     {
-        super.init();
+        cleanUp(getRepositoriesToClean());
+    }
 
+    @Before
+    public void setUp()
+            throws Exception
+    {
         createRepository(STORAGE0, "repository-management-releases-test-create-repository", false);
 
         createRepository(STORAGE0, "repository-management-releases-test-create-and-delete", false);
@@ -51,8 +57,7 @@ public class RepositoryManagementServiceImplTest
                                       "6.2.3");
     }
 
-    @Override
-    public Map<String, String> getRepositoriesToClean()
+    public static Map<String, String> getRepositoriesToClean()
     {
         Map<String, String> repositories = new LinkedHashMap<>();
         repositories.put(STORAGE0, "repository-management-releases-test-create-repository");

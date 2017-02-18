@@ -32,7 +32,7 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -73,13 +73,12 @@ public abstract class TestCaseWithArtifactGenerationWithIndexing
     protected ArtifactSearchService artifactSearchService;
 
 
-    @Before
-    public void init()
+    public static void cleanUp(Map<String, String> repositoriesToClean)
             throws Exception
     {
-        if (getRepositoriesToClean() != null)
+        if (repositoriesToClean != null)
         {
-            for (Map.Entry<String, String> entry : getRepositoriesToClean().entrySet())
+            for (Map.Entry<String, String> entry : repositoriesToClean.entrySet())
             {
                 String storageId = entry.getKey();
                 String repositoryId = entry.getValue();
@@ -89,10 +88,8 @@ public abstract class TestCaseWithArtifactGenerationWithIndexing
         }
     }
 
-    public abstract Map<String, String> getRepositoriesToClean();
-
-    private void removeRepositoryDirectory(String storageId,
-                                           String repositoryId)
+    private static void removeRepositoryDirectory(String storageId,
+                                                  String repositoryId)
             throws IOException
     {
         File repositoryBaseDir = new File(ConfigurationResourceResolver.getVaultDirectory(),

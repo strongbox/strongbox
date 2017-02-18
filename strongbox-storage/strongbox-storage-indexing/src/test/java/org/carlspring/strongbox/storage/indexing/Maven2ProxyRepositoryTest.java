@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -24,12 +25,17 @@ public class Maven2ProxyRepositoryTest
 {
 
 
-    @Before
-    public void init()
+    @BeforeClass
+    public static void cleanUp()
             throws Exception
     {
-        super.init();
+        cleanUp(getRepositoriesToClean());
+    }
 
+    @Before
+    public void setUp()
+            throws Exception
+    {
         createRepositoryWithArtifacts(STORAGE0,
                                       "test-maven-releases",
                                       true,
@@ -41,8 +47,7 @@ public class Maven2ProxyRepositoryTest
                               "http://localhost:48080/storages/storage0/test-maven-releases/");
     }
 
-    @Override
-    public Map<String, String> getRepositoriesToClean()
+    public static Map<String, String> getRepositoriesToClean()
     {
         Map<String, String> repositories = new LinkedHashMap<>();
         repositories.put(STORAGE0, "test-maven-releases");

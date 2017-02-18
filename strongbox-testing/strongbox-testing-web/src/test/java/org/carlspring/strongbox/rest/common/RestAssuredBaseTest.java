@@ -3,6 +3,7 @@ package org.carlspring.strongbox.rest.common;
 import org.carlspring.strongbox.artifact.generator.ArtifactDeployer;
 import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 import org.carlspring.strongbox.users.domain.Roles;
 
 import java.io.File;
@@ -19,6 +20,7 @@ import org.apache.maven.artifact.Artifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +29,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.web.context.WebApplicationContext;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
 
 /**
  * General settings for the testing sub-system.
@@ -35,6 +36,7 @@ import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
  * @author Alex Oreshkevich
  */
 public abstract class RestAssuredBaseTest
+        extends TestCaseWithArtifactGenerationWithIndexing
 {
 
     public final static int DEFAULT_PORT = 48080;
@@ -93,6 +95,7 @@ public abstract class RestAssuredBaseTest
 
     @Before
     public void init()
+            throws Exception
     {
         RestAssuredMockMvc.webAppContextSetup(context);
 
@@ -169,7 +172,7 @@ public abstract class RestAssuredBaseTest
                       .contentType(MediaType.TEXT_PLAIN_VALUE)
                       .when()
                       .get(url)
-                      .getStatusCode() == OK;
+                      .getStatusCode() == RestAssuredArtifactClient.OK;
     }
 
     protected void assertPathExists(String url)

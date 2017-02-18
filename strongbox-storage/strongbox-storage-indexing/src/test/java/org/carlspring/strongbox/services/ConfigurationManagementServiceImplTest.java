@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -28,8 +29,6 @@ import org.springframework.test.annotation.Commit;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author mtodorov
@@ -59,12 +58,17 @@ public class ConfigurationManagementServiceImplTest
     private ConfigurationManagementService configurationManagementService;
 
 
-    @Before
-    public void init()
+    @BeforeClass
+    public static void cleanUp()
             throws Exception
     {
-        super.init();
+        cleanUp(getRepositoriesToClean());
+    }
 
+    @Before
+    public void setUp()
+            throws Exception
+    {
         Storage storage = configurationManagementService.getStorage(STORAGE0);
 
         Repository repository = new Repository("cmsi-releases");
@@ -86,8 +90,7 @@ public class ConfigurationManagementServiceImplTest
         createRepository(groupRepository2);
     }
 
-    @Override
-    public Map<String, String> getRepositoriesToClean()
+    public static Map<String, String> getRepositoriesToClean()
     {
         Map<String, String> repositories = new LinkedHashMap<>();
         repositories.put(STORAGE0, "cmsi-releases");

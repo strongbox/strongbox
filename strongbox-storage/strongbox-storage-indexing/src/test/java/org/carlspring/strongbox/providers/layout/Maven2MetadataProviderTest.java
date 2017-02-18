@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,12 +38,17 @@ public class Maven2MetadataProviderTest
     private ConfigurationManager configurationManager;
 
 
-    @Before
-    public void init()
+    @BeforeClass
+    public static void cleanUp()
             throws Exception
     {
-        super.init();
+        cleanUp(getRepositoriesToClean());
+    }
 
+    @Before
+    public void setUp()
+            throws Exception
+    {
         Repository repository = new Repository(REPOSITORYID);
         repository.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
         repository.setAllowsForceDeletion(true);
@@ -51,11 +57,10 @@ public class Maven2MetadataProviderTest
                                       "com.artifacts.to.delete.releases:delete-foo",
                                       "1.2.1", // testDeleteArtifact()
                                       "1.2.2"  // testDeleteArtifactDirectory()
-                                          );
+                                      );
     }
 
-    @Override
-    public Map<String, String> getRepositoriesToClean()
+    public static Map<String, String> getRepositoriesToClean()
     {
         Map<String, String> repositories = new LinkedHashMap<>();
         repositories.put(STORAGE0, REPOSITORYID);

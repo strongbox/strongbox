@@ -20,6 +20,7 @@ import java.util.Map;
 import org.apache.maven.artifact.Artifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,12 +42,17 @@ public class ArtifactManagementServiceImplTest
     private ConfigurationManager configurationManager;
 
 
-    @Before
-    public void init()
+    @BeforeClass
+    public static void cleanUp()
             throws Exception
     {
-        super.init();
+        cleanUp(getRepositoriesToClean());
+    }
 
+    @Before
+    public void setUp()
+            throws Exception
+    {
         // Used by testDeploymentToRepositoryWithForbiddenDeployments()
         Repository repositoryWithoutDelete = new Repository("amsi-releases-without-delete");
         repositoryWithoutDelete.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
@@ -109,8 +115,7 @@ public class ArtifactManagementServiceImplTest
                                       "7.2");
     }
 
-    @Override
-    public Map<String, String> getRepositoriesToClean()
+    public static Map<String, String> getRepositoriesToClean()
     {
         Map<String, String> repositories = new LinkedHashMap<>();
         repositories.put(STORAGE0, "amsi-releases");

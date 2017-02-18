@@ -1,17 +1,24 @@
 package org.carlspring.strongbox.rest;
 
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.rest.context.IntegrationTest;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import java.io.File;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration.generateArtifact;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -26,46 +33,75 @@ public class TrashControllerTest
 
     private static final File BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory()).getAbsoluteFile();
 
-    private static final String STORAGE = "storage0";
+    private static final String REPOSITORY_WITH_TRASH = "tct-releases-with-trash";
 
-    private static final String REPOSITORY_WITH_TRASH = "releases-with-trash";
+    private static final String REPOSITORY_WITH_FORCE_DELETE = "tct-releases-with-force-delete";
 
     private static final String REPOSITORY_WITH_TRASH_BASEDIR = BASEDIR.getAbsolutePath() +
-                                                                "/storages/" + STORAGE + "/" + REPOSITORY_WITH_TRASH;
+                                                                "/storages/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH;
 
     private static final File ARTIFACT_FILE_IN_TRASH = new File(REPOSITORY_WITH_TRASH_BASEDIR + "/.trash/" +
                                                                 "org/carlspring/strongbox/test-artifact-to-trash/1.0/" +
                                                                 "test-artifact-to-trash-1.0.jar").getAbsoluteFile();
 
-    @Override
-    public void init()
+    @Autowired
+    private ConfigurationManager configurationManager;
+
+
+    @BeforeClass
+    public static void cleanUp()
+            throws Exception
+    {
+        cleanUp(getRepositoriesToClean());
+    }
+
+    @Before
+    public void setUp()
+            throws Exception
     {
         super.init();
 
-        removeDir(new File(REPOSITORY_WITH_TRASH, "org"));
-        removeDir(new File(REPOSITORY_WITH_TRASH, "com"));
-        removeDir(new File(REPOSITORY_WITH_TRASH, ".trash/org"));
-        removeDir(new File(REPOSITORY_WITH_TRASH, ".trash/com"));
-
         try
         {
-            final String gavtc = "org.carlspring.strongbox:test-artifact-to-trash::jar";
+            Storage storage = configurationManager.getConfiguration().getStorage(STORAGE0);
 
-            logger.debug("REPOSITORY_WITH_TRASH_BASEDIR: " + REPOSITORY_WITH_TRASH_BASEDIR);
-            logger.debug("BASEDIR.getAbsolutePath(): " + BASEDIR.getAbsolutePath());
+            // Notes:
+            // - Used by testForceDeleteArtifactNotAllowed()
+            // - Forced deletions are not allowed
+            // - Has enabled trash
+            Repository repositoryWithTrash = new Repository(REPOSITORY_WITH_TRASH);
+            repositoryWithTrash.setStorage(storage);
+            repositoryWithTrash.setAllowsForceDeletion(false);
+            repositoryWithTrash.setTrashEnabled(true);
+            repositoryWithTrash.setIndexingEnabled(false);
 
-            generateArtifact(REPOSITORY_WITH_TRASH_BASEDIR, gavtc, "1.0");
-            generateArtifact(BASEDIR.getAbsolutePath() + "/storages/" + STORAGE + "/releases", gavtc, "1.1");
+            createRepository(repositoryWithTrash);
+
+            generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_TRASH).getAbsolutePath(),
+                             "org.carlspring.strongbox:test-artifact-to-trash:1.0");
+
+            // Notes:
+            // - Used by testForceDeleteArtifactAllowed()
+            // - Forced deletions are allowed
+            Repository repositoryWithForceDeletions = new Repository(REPOSITORY_WITH_FORCE_DELETE);
+            repositoryWithForceDeletions.setStorage(storage);
+            repositoryWithForceDeletions.setAllowsForceDeletion(false);
+            repositoryWithForceDeletions.setIndexingEnabled(false);
+
+            createRepository(repositoryWithForceDeletions);
+
+            generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_FORCE_DELETE).getAbsolutePath(),
+                             "org.carlspring.strongbox:test-artifact-to-trash:1.1");
 
             // Delete the artifact (this one should get placed under the .trash)
-            client.delete(STORAGE,
+            client.delete(STORAGE0,
                           REPOSITORY_WITH_TRASH,
                           "org/carlspring/strongbox/test-artifact-to-trash/1.0/test-artifact-to-trash-1.0.jar",
                           true);
 
             // Delete the artifact (this one shouldn't get placed under the .trash)
-            client.delete(STORAGE,
-                          "releases",
+            client.delete(STORAGE0,
+                          REPOSITORY_WITH_FORCE_DELETE,
                           "org/carlspring/strongbox/test-artifact-to-trash/1.1/test-artifact-to-trash-1.1.jar",
                           true);
         }
@@ -75,14 +111,23 @@ public class TrashControllerTest
         }
     }
 
+    public static Map<String, String> getRepositoriesToClean()
+    {
+        Map<String, String> repositories = new LinkedHashMap<>();
+        repositories.put(STORAGE0, REPOSITORY_WITH_TRASH);
+        repositories.put(STORAGE0, REPOSITORY_WITH_FORCE_DELETE);
+
+        return repositories;
+    }
+
     @Test
     public void testForceDeleteArtifactNotAllowed()
             throws Exception
     {
         final String artifactPath = "org/carlspring/strongbox/test-artifact-to-trash/1.0/test-artifact-to-trash-1.0.jar";
 
-        final File repositoryDir = new File(BASEDIR + "/storages/storage0/releases-with-trash/.trash");
-        final File repositoryIndexDir = new File(BASEDIR + "/storages/storage0/releases-with-trash/.index");
+        final File repositoryDir = new File(BASEDIR + "/storages/storage0/" + REPOSITORY_WITH_TRASH + "/.trash");
+        final File repositoryIndexDir = new File(BASEDIR + "/storages/storage0/" + REPOSITORY_WITH_TRASH + "/.index");
         final File artifactFile = new File(repositoryDir, artifactPath);
 
         logger.debug("Artifact file: " + artifactFile.getAbsolutePath());
@@ -101,8 +146,8 @@ public class TrashControllerTest
     {
         final String artifactPath = "org/carlspring/strongbox/test-artifact-to-trash/1.1/test-artifact-to-trash-1.1.jar";
 
-        final File repositoryTrashDir = new File(BASEDIR + "/storages/storage0/releases/.trash");
-        final File repositoryDir = new File(BASEDIR + "/storages/storage0/releases/.trash");
+        final File repositoryTrashDir = new File(BASEDIR + "/storages/storage0/" + REPOSITORY_WITH_FORCE_DELETE + "/.trash");
+        final File repositoryDir = new File(BASEDIR + "/storages/storage0/" + REPOSITORY_WITH_FORCE_DELETE + "/.trash");
 
         assertFalse("Failed to delete artifact during a force delete operation!",
                     new File(repositoryTrashDir, artifactPath).exists());
@@ -114,7 +159,7 @@ public class TrashControllerTest
     public void testDeleteArtifactAndEmptyTrashForRepository()
             throws Exception
     {
-        String url = getContextBaseUrl() + "/trash/" + STORAGE + "/" + REPOSITORY_WITH_TRASH;
+        String url = getContextBaseUrl() + "/trash/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH;
 
         given().contentType(MediaType.TEXT_PLAIN_VALUE)
                .when()

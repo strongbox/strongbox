@@ -12,6 +12,7 @@ import java.util.Set;
 
 import org.apache.maven.index.ArtifactInfo;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +29,17 @@ public class RepositoryIndexerTest
     private RepositoryManagementService repositoryManagementService;
 
 
-    @Before
-    public void init()
+    @BeforeClass
+    public static void cleanUp()
             throws Exception
     {
-        super.init();
+        cleanUp(getRepositoriesToClean());
+    }
 
+    @Before
+    public void setUp()
+            throws Exception
+    {
         createRepositoryWithArtifacts(STORAGE0,
                                       "repository-indexer-test-releases",
                                       true,
@@ -41,8 +47,7 @@ public class RepositoryIndexerTest
                                       "1.0", "1.1", "1.2");
     }
 
-    @Override
-    public Map<String, String> getRepositoriesToClean()
+    public static Map<String, String> getRepositoriesToClean()
     {
         Map<String, String> repositories = new LinkedHashMap<>();
         repositories.put(STORAGE0, "repository-indexer-test-releases");

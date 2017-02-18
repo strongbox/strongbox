@@ -4,13 +4,10 @@ import org.carlspring.strongbox.booters.ResourcesBooter;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 
 import java.io.File;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertTrue;
@@ -26,6 +23,14 @@ public class ResourcesBooterTest extends TestCaseWithArtifactGenerationWithIndex
     @Autowired
     private ResourcesBooter resourcesBooter;
 
+
+    @BeforeClass
+    public static void cleanUp()
+            throws Exception
+    {
+        // No need to clean up anything, just overriding the method from the parent
+    }
+
     @Test
     public void testResourceBooting()
             throws Exception
@@ -33,12 +38,6 @@ public class ResourcesBooterTest extends TestCaseWithArtifactGenerationWithIndex
         File file = new File(ConfigurationResourceResolver.getHomeDirectory() + "/etc/conf/strongbox.xml");
 
         assertTrue("Failed to copy configuration resource from classpath!", file.exists());
-    }
-
-    @Override
-    public Map<String, String> getRepositoriesToClean()
-    {
-        return new LinkedHashMap<>();
     }
 
 }

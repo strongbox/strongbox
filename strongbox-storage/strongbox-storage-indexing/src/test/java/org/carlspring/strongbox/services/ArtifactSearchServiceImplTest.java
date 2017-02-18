@@ -6,6 +6,7 @@ import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexi
 import java.util.Map;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +28,17 @@ public class ArtifactSearchServiceImplTest
     private RepositoryManagementService repositoryManagementService;
 
 
-    @Before
-    public void init()
+    @BeforeClass
+    public static void cleanUp()
             throws Exception
     {
-        super.init();
+        cleanUp(getRepositoriesToClean());
+    }
 
+    @Before
+    public void setUp()
+            throws Exception
+    {
         createRepositoryWithArtifacts(STORAGE0,
                                       "artifact-search-service-test-releases",
                                       true,
@@ -40,8 +46,7 @@ public class ArtifactSearchServiceImplTest
                                       "1.0.1", "1.1.1", "1.2.1");
     }
 
-    @Override
-    public Map<String, String> getRepositoriesToClean()
+    public static Map<String, String> getRepositoriesToClean()
     {
         return null;
     }

@@ -18,6 +18,7 @@ import com.carmatechnologies.commons.testing.logging.ExpectedLogs;
 import com.carmatechnologies.commons.testing.logging.api.LogLevel;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,12 +50,17 @@ public class GroupRepositoryProviderTest
     }};
 
 
-    @Before
-    public void init()
+    @BeforeClass
+    public static void cleanUp()
             throws Exception
     {
-        super.init();
+        cleanUp(getRepositoriesToClean());
+    }
 
+    @Before
+    public void setUp()
+            throws Exception
+    {
         createRepositoryWithArtifacts(STORAGE0,
                                       "grpt-releases-1",
                                       false,
@@ -168,8 +174,7 @@ public class GroupRepositoryProviderTest
                              ROUTING_RULE_TYPE_DENIED);
     }
 
-    @Override
-    public Map<String, String> getRepositoriesToClean()
+    public static Map<String, String> getRepositoriesToClean()
     {
         Map<String, String> repositories = new LinkedHashMap<>();
         repositories.put(STORAGE0, "grpt-releases-1");
