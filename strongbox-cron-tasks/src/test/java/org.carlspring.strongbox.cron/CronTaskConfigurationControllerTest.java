@@ -9,12 +9,9 @@ import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
 
 import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
@@ -41,10 +38,8 @@ public class CronTaskConfigurationControllerTest
 
     @Override
     public void init()
-            throws Exception
     {
         super.init();
-
         setContextBaseUrl(getContextBaseUrl() + "/configuration/crontasks");
     }
 
@@ -189,6 +184,5 @@ public class CronTaskConfigurationControllerTest
                       .when()
                       .get(getContextBaseUrl() + "/cron").peek();
     }
-
 
 }

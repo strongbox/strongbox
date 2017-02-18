@@ -34,6 +34,10 @@
          like "org.springframework.web" or "org.springframework.context" because it will lead to conflict and
          illegal behaviour -->
 
+    <logger name="org.jooq">
+        <level value="ERROR"/>
+    </logger>
+
     <logger name="org.springframework.core">
         <level value="WARN"/>
     </logger>
@@ -50,7 +54,19 @@
         <level value="WARN"/>
     </logger>
 
-    <logger name="org.springframework.data.orient">
+    <logger name="org.springframework.data">
+        <level value="WARN"/>
+    </logger>
+
+    <logger name="org.springframework.security.access.intercept">
+        <level value="WARN"/>
+    </logger>
+
+    <logger name="org.springframework.security.web.access.intercept">
+        <level value="WARN"/>
+    </logger>
+
+    <logger name="org.springframework.transaction">
         <level value="WARN"/>
     </logger>
 
@@ -59,6 +75,10 @@
     </logger>
 
     <logger name="org.springframework.aop">
+        <level value="WARN"/>
+    </logger>
+
+    <logger name="org.springframework.cache">
         <level value="WARN"/>
     </logger>
 
@@ -75,6 +95,10 @@
     </logger>
 
     <logger name="org.carlspring.strongbox.data">
+        <level value="WARN"/>
+    </logger>
+
+    <logger name="org.carlspring.strongbox.data.tx">
         <level value="WARN"/>
     </logger>
 
