@@ -4,7 +4,6 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.xml.RepositoryMapAdapter;
 
-import javax.persistence.Version;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -32,10 +31,6 @@ public class Storage
      */
     @JsonIgnore
     protected String detachAll;
-    
-    @Version
-    @JsonIgnore
-    protected Long version;
     
     @XmlAttribute
     private String id;
@@ -167,16 +162,6 @@ public class Storage
     public void setDetachAll(String detachAll)
     {
         this.detachAll = detachAll;
-    }
-
-    public Long getVersion()
-    {
-        return version;
-    }
-
-    public void setVersion(Long version)
-    {
-        this.version = version;
     }
 
     @Override

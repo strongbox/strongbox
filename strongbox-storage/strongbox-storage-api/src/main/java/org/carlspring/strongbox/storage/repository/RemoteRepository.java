@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.storage.repository;
 
-import javax.persistence.Version;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -23,10 +22,6 @@ public class RemoteRepository
      */
     @JsonIgnore
     protected String detachAll;
-
-    @Version
-    @JsonIgnore
-    protected Long version;
 
     @XmlAttribute
     private String url;
@@ -132,15 +127,5 @@ public class RemoteRepository
     public void setDetachAll(String detachAll)
     {
         this.detachAll = detachAll;
-    }
-
-    public Long getVersion()
-    {
-        return version;
-    }
-
-    public void setVersion(Long version)
-    {
-        this.version = version;
     }
 }

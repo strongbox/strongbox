@@ -3,10 +3,10 @@ package org.carlspring.strongbox.data.domain;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.Version;
 import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.orientechnologies.orient.core.annotation.OVersion;
 
 /**
  * Base class for all entities that have to be stored in OrientDB.
@@ -36,7 +36,7 @@ public abstract class GenericEntity
     @JsonIgnore
     protected String detachAll;
 
-    @Version
+    @OVersion
     @JsonIgnore
     protected Long version;
 

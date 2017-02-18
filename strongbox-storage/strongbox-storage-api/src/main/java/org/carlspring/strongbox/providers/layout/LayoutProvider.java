@@ -8,6 +8,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Set;
 
 /**
  * @author carlspring
@@ -72,5 +73,10 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
 
     void undeleteTrash()
             throws IOException;
+
+    boolean isExistChecksum(Repository repository,
+                            String path);
+
+    Set<String> getDigestAlgorithmSet();
 
 }
