@@ -32,7 +32,6 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.BeforeClass;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -155,7 +154,7 @@ public abstract class TestCaseWithArtifactGenerationWithIndexing
         createRepository(repository);
     }
 
-    protected void createRepository(Repository repository)
+    public void createRepository(Repository repository)
             throws IOException,
                    JAXBException
     {

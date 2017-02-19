@@ -10,25 +10,24 @@ import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
-import junit.framework.TestCase;
 import org.apache.maven.artifact.Artifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+import org.springframework.test.context.TestContext;
 import org.springframework.web.context.WebApplicationContext;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
+import static org.junit.Assert.assertTrue;
 
 /**
  * General settings for the testing sub-system.
@@ -108,6 +107,12 @@ public abstract class RestAssuredBaseTest
         setContextBaseUrl(contextBaseUrl);
     }
 
+    @Override
+    public void beforeTestClass(TestContext testContext)
+            throws Exception
+    {
+    }
+
     @After
     public void shutdown()
     {
@@ -172,12 +177,12 @@ public abstract class RestAssuredBaseTest
                       .contentType(MediaType.TEXT_PLAIN_VALUE)
                       .when()
                       .get(url)
-                      .getStatusCode() == RestAssuredArtifactClient.OK;
+                      .getStatusCode() == OK;
     }
 
     protected void assertPathExists(String url)
     {
-        TestCase.assertTrue("Path " + url + " doesn't exists.", pathExists(url));
+        assertTrue("Path " + url + " doesn't exist.", pathExists(url));
     }
 
     protected ArtifactDeployer buildArtifactDeployer(File file)

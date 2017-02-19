@@ -15,7 +15,6 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
-import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -31,11 +30,12 @@ import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.artifact.PluginArtifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.TestContext;
+import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.carlspring.maven.commons.util.ArtifactUtils.getArtifactFromGAVTC;
 import static org.junit.Assert.*;
@@ -48,6 +48,7 @@ import static org.junit.Assert.*;
  */
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
+@TestExecutionListeners({ ArtifactControllerTest.class})
 public class ArtifactControllerTest
         extends RestAssuredBaseTest
 {
@@ -62,7 +63,7 @@ public class ArtifactControllerTest
 
     public static final String REPOSITORY_SNAPSHOTS = "act-snapshots";
 
-    @Inject
+    @Autowired
     private ConfigurationManager configurationManager;
 
 
@@ -73,10 +74,23 @@ public class ArtifactControllerTest
         cleanUp(getRepositoriesToClean());
     }
 
-    @Before
-    public void setUp()
+    @Override
+    public void beforeTestClass(TestContext testContext)
             throws Exception
     {
+        configurationManager = testContext.getApplicationContext()
+                                          .getAutowireCapableBeanFactory()
+                                          .createBean(ConfigurationManager.class);
+        /*
+        testContext.getApplicationContext()
+                   .getAutowireCapableBeanFactory().initializeBean(configurationManager, null);
+        testContext.getApplicationContext()
+                   .getAutowireCapableBeanFactory().applyBeanPostProcessorsAfterInitialization(configurationManager, null);
+        */
+        testContext.getApplicationContext()
+                   .getAutowireCapableBeanFactory()
+                   .autowireBean(configurationManager);
+
         System.out.println();
         System.out.println();
         System.out.println(" Foo bar ");

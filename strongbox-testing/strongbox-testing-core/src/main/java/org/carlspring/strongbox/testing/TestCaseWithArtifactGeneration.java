@@ -19,11 +19,12 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.maven.artifact.Artifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.springframework.test.context.support.AbstractTestExecutionListener;
 
 /**
  * @author mtodorov
  */
-public class TestCaseWithArtifactGeneration
+public class TestCaseWithArtifactGeneration extends AbstractTestExecutionListener
 {
 
     public static final String STORAGE0 = "storage0";
