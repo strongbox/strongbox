@@ -15,6 +15,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
+import javax.annotation.PostConstruct;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -48,7 +49,6 @@ import static org.junit.Assert.*;
  */
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestExecutionListeners({ ArtifactControllerTest.class})
 public class ArtifactControllerTest
         extends RestAssuredBaseTest
 {
@@ -67,30 +67,19 @@ public class ArtifactControllerTest
     private ConfigurationManager configurationManager;
 
 
+/*
     @BeforeClass
     public static void cleanUp()
             throws Exception
     {
         cleanUp(getRepositoriesToClean());
     }
+*/
 
-    @Override
-    public void beforeTestClass(TestContext testContext)
+    @PostConstruct
+    public void initialize()
             throws Exception
     {
-        configurationManager = testContext.getApplicationContext()
-                                          .getAutowireCapableBeanFactory()
-                                          .createBean(ConfigurationManager.class);
-        /*
-        testContext.getApplicationContext()
-                   .getAutowireCapableBeanFactory().initializeBean(configurationManager, null);
-        testContext.getApplicationContext()
-                   .getAutowireCapableBeanFactory().applyBeanPostProcessorsAfterInitialization(configurationManager, null);
-        */
-        testContext.getApplicationContext()
-                   .getAutowireCapableBeanFactory()
-                   .autowireBean(configurationManager);
-
         System.out.println();
         System.out.println();
         System.out.println(" Foo bar ");
