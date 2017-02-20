@@ -3,7 +3,6 @@ package org.carlspring.strongbox.handlers;
 import org.carlspring.maven.commons.io.filters.PomFilenameFilter;
 import org.carlspring.strongbox.artifact.locator.handlers.AbstractArtifactLocationHandler;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.storage.metadata.VersionCollectionRequest;
 import org.carlspring.strongbox.storage.metadata.VersionCollector;
 import org.carlspring.strongbox.storage.snapshot.MavenSnapshotManager;
@@ -13,10 +12,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,8 +39,10 @@ public class ArtifactLocationRemoveTimestampedSnapshotOperation
 
     private MavenSnapshotManager mavenSnapshotManager;
 
-    private LayoutProviderRegistry layoutProviderRegistry;
 
+    public ArtifactLocationRemoveTimestampedSnapshotOperation()
+    {
+    }
 
     public ArtifactLocationRemoveTimestampedSnapshotOperation(MavenSnapshotManager mavenSnapshotManager)
     {
@@ -115,22 +118,16 @@ public class ArtifactLocationRemoveTimestampedSnapshotOperation
                     mavenSnapshotManager.deleteTimestampedSnapshotArtifacts(getRepository(), artifactPath, request,
                                                                             numberToKeep, keepPeriod);
                 }
-                catch (IOException | ProviderImplementationException | NoSuchAlgorithmException e)
+                catch (IOException |
+                               ProviderImplementationException |
+                               NoSuchAlgorithmException |
+                               ParseException |
+                               XmlPullParserException e)
                 {
-                    logger.error("Failed to generate checksum for " + artifactPath, e);
+                    logger.error("Failed to delete timestamped snapshot artifacts for " + artifactPath, e);
                 }
             }
         }
-    }
-
-    public LayoutProviderRegistry getLayoutProviderRegistry()
-    {
-        return layoutProviderRegistry;
-    }
-
-    public void setLayoutProviderRegistry(LayoutProviderRegistry layoutProviderRegistry)
-    {
-        this.layoutProviderRegistry = layoutProviderRegistry;
     }
 
     public MavenSnapshotManager getMavenSnapshotManager()

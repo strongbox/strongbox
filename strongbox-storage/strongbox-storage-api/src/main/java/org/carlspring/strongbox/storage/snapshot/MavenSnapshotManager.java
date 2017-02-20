@@ -59,13 +59,14 @@ public class MavenSnapshotManager
     {
     }
 
-
     public void deleteTimestampedSnapshotArtifacts(Repository repository,
                                                    String artifactPath,
                                                    VersionCollectionRequest request,
                                                    int numberToKeep,
                                                    int keepPeriod)
-            throws IOException, ProviderImplementationException, NoSuchAlgorithmException, ParseException, XmlPullParserException
+            throws IOException, ProviderImplementationException,
+                   NoSuchAlgorithmException, ParseException,
+                   XmlPullParserException
     {
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
         if (layoutProvider.containsPath(repository, artifactPath))
@@ -125,7 +126,7 @@ public class MavenSnapshotManager
              * map of snapshots for removing
              * k - number of the build, v - version of the snapshot
              */
-            Map<Integer, String> mapToRemove = getRemovingSnapshots(basePath, metadata, numberToKeep, keepPeriod);
+            Map<Integer, String> mapToRemove = getRemovingSnapshots(metadata, numberToKeep, keepPeriod);
 
             if (!mapToRemove.isEmpty())
             {
@@ -170,8 +171,17 @@ public class MavenSnapshotManager
 
     }
 
-    private Map<Integer, String> getRemovingSnapshots(String basePath,
-                                                      Metadata metadata,
+    /**
+     * To get map of removing timestamped snapshots
+     *
+     * @param metadata     type Metadata
+     * @param numberToKeep type int
+     * @param keepPeriod   type int
+     * @return type Map<Integer, String>
+     * @throws IOException
+     * @throws XmlPullParserException
+     */
+    private Map<Integer, String> getRemovingSnapshots(Metadata metadata,
                                                       int numberToKeep,
                                                       int keepPeriod)
             throws IOException, XmlPullParserException
@@ -234,6 +244,12 @@ public class MavenSnapshotManager
         return mapToRemove;
     }
 
+    /**
+     * To get day's number of keeping timestamp snapshot
+     * @param buildTimestamp type String
+     * @return days type int
+     * @throws ParseException
+     */
     private int getDifferenceDays(String buildTimestamp)
             throws ParseException
     {
