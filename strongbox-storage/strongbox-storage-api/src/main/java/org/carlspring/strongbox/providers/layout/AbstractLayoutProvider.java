@@ -215,23 +215,22 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
                                                  String path,
                                                  InputStream is,
                                                  T artifactCoordinates)
-            throws NoSuchAlgorithmException
+        throws NoSuchAlgorithmException
     {
-        ArtifactInputStream result = new ArtifactInputStream(artifactCoordinates, is);
+        ArtifactInputStream result = new ArtifactInputStream(artifactCoordinates, is, getDigestAlgorithmSet());
         // Add digest algorithm only if it is not a Checksum (we don't need a Checksum of Checksum).
         if (!ArtifactFileUtils.isChecksum(path))
         {
             getDigestAlgorithmSet().stream()
-                                   .forEach(a ->
-                                            {
-                                                String checksum = getChecksum(storageId, repositoryId, path, a);
-                                                if (checksum == null)
-                                                {
-                                                    return;
-                                                }
-                                                result.getHexDigests()
-                                                      .put(a, checksum);
-                                            });
+                                   .forEach(a -> {
+                                       String checksum = getChecksum(storageId, repositoryId, path, a);
+                                       if (checksum == null)
+                                       {
+                                           return;
+                                       }
+                                       result.getHexDigests()
+                                             .put(a, checksum);
+                                   });
         }
         return result;
     }

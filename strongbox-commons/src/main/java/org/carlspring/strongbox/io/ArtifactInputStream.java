@@ -1,18 +1,19 @@
 package org.carlspring.strongbox.io;
 
-import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
-import org.carlspring.commons.util.MessageDigestUtils;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
+import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
+import org.carlspring.commons.util.MessageDigestUtils;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 
 /**
  * @author mtodorov
@@ -32,13 +33,29 @@ public class ArtifactInputStream
     private Map<String, String> hexDigests = new LinkedHashMap<>();
 
     public ArtifactInputStream(ArtifactCoordinates coordinates,
-                               InputStream is)
-            throws NoSuchAlgorithmException
+                               InputStream is,
+                               Set<String> checkSumDigestAlgorithmSet)
+        throws NoSuchAlgorithmException
     {
         super(is);
         this.artifactCoordinates = coordinates;
-        addAlgorithm(MessageDigestAlgorithms.MD5);
-        addAlgorithm(MessageDigestAlgorithms.SHA_1);
+        for (String algorithm : checkSumDigestAlgorithmSet)
+        {
+            addAlgorithm(algorithm);
+        }
+    }
+
+    public ArtifactInputStream(ArtifactCoordinates coordinates,
+                               InputStream is)
+        throws NoSuchAlgorithmException
+    {
+        this(coordinates, is, new HashSet<String>()
+        {
+            {
+                add(MessageDigestAlgorithms.MD5);
+                add(MessageDigestAlgorithms.SHA_1);
+            }
+        });
     }
 
     public ArtifactCoordinates getArtifactCoordinates()
@@ -64,6 +81,10 @@ public class ArtifactInputStream
         return digests;
     }
 
+    public void resetHexDidests(){
+        hexDigests.clear();
+    }
+    
     public Map<String, String> getHexDigests()
     {
         return hexDigests;
