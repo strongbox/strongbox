@@ -468,11 +468,11 @@ public class ArtifactManagementServiceImpl
     }
 
     @Override
-    public void removeTimestampedSnapshotArtifacts(String storageId,
-                                                   String repositoryId,
-                                                   String artifactPath,
-                                                   int numberToKeep,
-                                                   int keepPeriod)
+    public void removeTimestampedSnapshots(String storageId,
+                                           String repositoryId,
+                                           String artifactPath,
+                                           int numberToKeep,
+                                           int keepPeriod)
             throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);

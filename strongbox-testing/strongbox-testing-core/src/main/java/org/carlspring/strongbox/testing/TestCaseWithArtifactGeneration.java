@@ -213,6 +213,38 @@ public class TestCaseWithArtifactGeneration
         return artifact;
     }
 
+    public Artifact createTimestampedSnapshot(String repositoryBasedir,
+                                              String groupId,
+                                              String artifactId,
+                                              String baseSnapshotVersion,
+                                              String packaging,
+                                              String[] classifiers,
+                                              int numberOfBuild,
+                                              String timestamp)
+            throws NoSuchAlgorithmException, XmlPullParserException, IOException
+    {
+        Artifact artifact;
+
+        String version = createSnapshotVersion(baseSnapshotVersion, numberOfBuild, timestamp);
+
+        artifact = new DetachedArtifact(groupId, artifactId, version);
+        artifact.setFile(new File(repositoryBasedir + "/" + ArtifactUtils.convertArtifactToPath(artifact)));
+
+        generateArtifact(repositoryBasedir, artifact, packaging);
+
+        if (classifiers != null)
+        {
+            for (String classifier : classifiers)
+            {
+                String gavtc = groupId + ":" + artifactId + ":" + version + ":jar:" + classifier;
+                generateArtifact(repositoryBasedir, ArtifactUtils.getArtifactFromGAVTC(gavtc));
+            }
+        }
+
+        // Return the main artifact
+        return artifact;
+    }
+
     public String createSnapshotVersion(String baseSnapshotVersion, int buildNumber)
     {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
@@ -222,6 +254,19 @@ public class TestCaseWithArtifactGeneration
         calendar.add(Calendar.MINUTE, 5);
 
         String timestamp = formatter.format(calendar.getTime());
+        @SuppressWarnings("UnnecessaryLocalVariable")
+        String version = baseSnapshotVersion + "-" + timestamp + "-" + buildNumber;
+
+        return version;
+    }
+
+    public String createSnapshotVersion(String baseSnapshotVersion,
+                                        int buildNumber,
+                                        String timestamp)
+    {
+//        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
+//
+//        timestamp = formatter.format(timestamp);
         @SuppressWarnings("UnnecessaryLocalVariable")
         String version = baseSnapshotVersion + "-" + timestamp + "-" + buildNumber;
 

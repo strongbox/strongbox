@@ -60,11 +60,11 @@ public interface ArtifactManagementService extends ConfigurationService
     void undeleteTrash()
             throws IOException, ProviderImplementationException;
 
-    void removeTimestampedSnapshotArtifacts(String storageId,
-                                            String repositoryId,
-                                            String artifactPath,
-                                            int numberToKeep,
-                                            int keepPeriod)
+    void removeTimestampedSnapshots(String storageId,
+                                    String repositoryId,
+                                    String artifactPath,
+                                    int numberToKeep,
+                                    int keepPeriod)
             throws IOException;
 
     Storage getStorage(String storageId);

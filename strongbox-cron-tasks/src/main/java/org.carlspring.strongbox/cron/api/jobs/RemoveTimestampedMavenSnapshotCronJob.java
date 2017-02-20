@@ -22,11 +22,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author Kate Novik.
  */
-public class RemoveTimestampedMavenSnapshotArtifactsCronJob
+public class RemoveTimestampedMavenSnapshotCronJob
         extends JavaCronJob
 {
 
-    private final Logger logger = LoggerFactory.getLogger(RemoveTimestampedMavenSnapshotArtifactsCronJob.class);
+    private final Logger logger = LoggerFactory.getLogger(RemoveTimestampedMavenSnapshotCronJob.class);
 
     @Autowired
     private ArtifactManagementService artifactManagementService;
@@ -42,7 +42,7 @@ public class RemoveTimestampedMavenSnapshotArtifactsCronJob
     protected void executeInternal(JobExecutionContext jobExecutionContext)
             throws JobExecutionException
     {
-        logger.debug("Executed RemoveTimestampedMavenSnapshotArtifactsCronJob.");
+        logger.debug("Executed RemoveTimestampedMavenSnapshotCronJob.");
 
         CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap()
                                                                                   .get("config");
@@ -71,9 +71,9 @@ public class RemoveTimestampedMavenSnapshotArtifactsCronJob
             }
             else
             {
-                artifactManagementService.removeTimestampedSnapshotArtifacts(storageId, repositoryId,
-                                                                             basePath, numberToKeep,
-                                                                             keepPeriod);
+                artifactManagementService.removeTimestampedSnapshots(storageId, repositoryId,
+                                                                     basePath, numberToKeep,
+                                                                     keepPeriod);
             }
         }
         catch (IOException | XmlPullParserException | NoSuchAlgorithmException e)
@@ -107,8 +107,8 @@ public class RemoveTimestampedMavenSnapshotArtifactsCronJob
             if (repository.getPolicy()
                           .equals(RepositoryPolicyEnum.SNAPSHOT.getPolicy()))
             {
-                artifactManagementService.removeTimestampedSnapshotArtifacts(storageId, repositoryId, null,
-                                                                             numberToKeep, keepPeriod);
+                artifactManagementService.removeTimestampedSnapshots(storageId, repositoryId, null,
+                                                                     numberToKeep, keepPeriod);
             }
         }
     }

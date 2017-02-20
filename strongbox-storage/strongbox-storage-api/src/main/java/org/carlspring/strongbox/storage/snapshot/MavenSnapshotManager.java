@@ -215,11 +215,9 @@ public class MavenSnapshotManager
         {
             snapshots.forEach(((k, v) ->
                                {
-                                   int count = 0;
-                                   if (count != snapshots.size() - numberToKeep)
+                                   if (mapToRemove.size() < snapshots.size() - numberToKeep)
                                    {
                                        mapToRemove.put(k, v);
-                                       count++;
                                    }
                                }));
         }
