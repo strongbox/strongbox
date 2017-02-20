@@ -35,8 +35,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.TestContext;
-import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.carlspring.maven.commons.util.ArtifactUtils.getArtifactFromGAVTC;
 import static org.junit.Assert.*;
@@ -67,25 +65,17 @@ public class ArtifactControllerTest
     private ConfigurationManager configurationManager;
 
 
-/*
     @BeforeClass
     public static void cleanUp()
             throws Exception
     {
         cleanUp(getRepositoriesToClean());
     }
-*/
 
     @PostConstruct
     public void initialize()
             throws Exception
     {
-        System.out.println();
-        System.out.println();
-        System.out.println(" Foo bar ");
-        System.out.println();
-        System.out.println();
-
         GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/local");
 
         Repository repository1 = new Repository(REPOSITORY_RELEASES1);
