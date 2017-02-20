@@ -7,6 +7,8 @@ import org.carlspring.strongbox.rest.context.IntegrationTest;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -15,7 +17,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
@@ -44,7 +45,7 @@ public class TrashControllerTest
                                                                 "org/carlspring/strongbox/test-artifact-to-trash/1.0/" +
                                                                 "test-artifact-to-trash-1.0.jar").getAbsoluteFile();
 
-    @Autowired
+    @Inject
     private ConfigurationManager configurationManager;
 
 
@@ -55,8 +56,8 @@ public class TrashControllerTest
         cleanUp(getRepositoriesToClean());
     }
 
-    @Before
-    public void setUp()
+    @PostConstruct
+    public void initialize()
             throws Exception
     {
         super.init();
@@ -92,18 +93,6 @@ public class TrashControllerTest
 
             generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_FORCE_DELETE).getAbsolutePath(),
                              "org.carlspring.strongbox:test-artifact-to-trash:1.1");
-
-            // Delete the artifact (this one should get placed under the .trash)
-            client.delete(STORAGE0,
-                          REPOSITORY_WITH_TRASH,
-                          "org/carlspring/strongbox/test-artifact-to-trash/1.0/test-artifact-to-trash-1.0.jar",
-                          true);
-
-            // Delete the artifact (this one shouldn't get placed under the .trash)
-            client.delete(STORAGE0,
-                          REPOSITORY_WITH_FORCE_DELETE,
-                          "org/carlspring/strongbox/test-artifact-to-trash/1.1/test-artifact-to-trash-1.1.jar",
-                          true);
         }
         catch (Exception e)
         {
@@ -126,6 +115,9 @@ public class TrashControllerTest
     {
         final String artifactPath = "org/carlspring/strongbox/test-artifact-to-trash/1.0/test-artifact-to-trash-1.0.jar";
 
+        // Delete the artifact (this one should get placed under the .trash)
+        client.delete(STORAGE0, REPOSITORY_WITH_TRASH, artifactPath, false);
+
         final File repositoryDir = new File(BASEDIR + "/storages/storage0/" + REPOSITORY_WITH_TRASH + "/.trash");
         final File repositoryIndexDir = new File(BASEDIR + "/storages/storage0/" + REPOSITORY_WITH_TRASH + "/.index");
         final File artifactFile = new File(repositoryDir, artifactPath);
@@ -145,6 +137,9 @@ public class TrashControllerTest
             throws Exception
     {
         final String artifactPath = "org/carlspring/strongbox/test-artifact-to-trash/1.1/test-artifact-to-trash-1.1.jar";
+
+        // Delete the artifact (this one shouldn't get placed under the .trash)
+        client.delete(STORAGE0, REPOSITORY_WITH_FORCE_DELETE, artifactPath, true);
 
         final File repositoryTrashDir = new File(BASEDIR + "/storages/storage0/" + REPOSITORY_WITH_FORCE_DELETE + "/.trash");
         final File repositoryDir = new File(BASEDIR + "/storages/storage0/" + REPOSITORY_WITH_FORCE_DELETE + "/.trash");

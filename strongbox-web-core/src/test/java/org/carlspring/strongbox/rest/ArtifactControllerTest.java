@@ -16,6 +16,7 @@ import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -34,7 +35,6 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.carlspring.maven.commons.util.ArtifactUtils.getArtifactFromGAVTC;
 import static org.junit.Assert.*;
@@ -61,7 +61,7 @@ public class ArtifactControllerTest
 
     public static final String REPOSITORY_SNAPSHOTS = "act-snapshots";
 
-    @Autowired
+    @Inject
     private ConfigurationManager configurationManager;
 
 

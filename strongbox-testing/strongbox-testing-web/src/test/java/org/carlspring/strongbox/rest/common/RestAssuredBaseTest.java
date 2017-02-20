@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
-import org.springframework.test.context.TestContext;
 import org.springframework.web.context.WebApplicationContext;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
@@ -96,6 +95,8 @@ public abstract class RestAssuredBaseTest
     public void init()
             throws Exception
     {
+        logger.debug("Initializing RestAssured...");
+
         RestAssuredMockMvc.webAppContextSetup(context);
 
         // security settings for tests
@@ -105,12 +106,6 @@ public abstract class RestAssuredBaseTest
                                      .addAll(provideAuthorities());
 
         setContextBaseUrl(contextBaseUrl);
-    }
-
-    @Override
-    public void beforeTestClass(TestContext testContext)
-            throws Exception
-    {
     }
 
     @After

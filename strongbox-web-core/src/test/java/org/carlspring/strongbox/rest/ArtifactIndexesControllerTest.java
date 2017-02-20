@@ -8,11 +8,11 @@ import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,7 +43,6 @@ public class ArtifactIndexesControllerTest
     private RepositoryIndexManager repositoryIndexManager;
 
 
-
     @BeforeClass
     public static void cleanUp()
             throws Exception
@@ -51,8 +50,8 @@ public class ArtifactIndexesControllerTest
         cleanUp(getRepositoriesToClean());
     }
 
-    @Before
-    public void setUp()
+    @PostConstruct
+    public void initialize()
             throws Exception
     {
         // Used by:
