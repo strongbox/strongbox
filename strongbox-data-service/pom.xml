@@ -222,10 +222,6 @@
         </dependency>
         <dependency>
             <groupId>com.orientechnologies</groupId>
-            <artifactId>orientdb-enterprise</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.orientechnologies</groupId>
             <artifactId>orientdb-server</artifactId>
         </dependency>
         <dependency>
