@@ -81,7 +81,8 @@ public class ArtifactInputStream
         return digests;
     }
 
-    public void resetHexDidests(){
+    public void resetHexDidests()
+    {
         hexDigests.clear();
     }
     
