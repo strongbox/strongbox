@@ -54,7 +54,9 @@ public class ChecksumServiceTest
 
     @Before
     public void setUp()
-            throws NoSuchAlgorithmException, XmlPullParserException, IOException
+            throws NoSuchAlgorithmException,
+                   XmlPullParserException,
+                   IOException
     {
         if (!new File(REPOSITORY_BASEDIR_1, "org/carlspring/strongbox/checksum/maven/strongbox-checksum").exists())
         {
@@ -95,7 +97,9 @@ public class ChecksumServiceTest
 
     @Test
     public void testGenerateMavenChecksumForReleaseArtifact()
-            throws IOException, XmlPullParserException, NoSuchAlgorithmException
+            throws IOException,
+                   XmlPullParserException,
+                   NoSuchAlgorithmException
     {
         String artifactPath = REPOSITORY_BASEDIR_1 + "/org/carlspring/strongbox/checksum/maven/strongbox-checksum";
 
@@ -152,7 +156,9 @@ public class ChecksumServiceTest
 
     @Test
     public void testGenerateMavenChecksumForSnapshotArtifact()
-            throws IOException, XmlPullParserException, NoSuchAlgorithmException
+            throws IOException,
+                   XmlPullParserException,
+                   NoSuchAlgorithmException
     {
         String artifactPath = REPOSITORY_BASEDIR_2 + "/org/carlspring/strongbox/checksum";
 
@@ -202,7 +208,9 @@ public class ChecksumServiceTest
 
     @Test
     public void testRewriteMavenChecksum()
-            throws IOException, XmlPullParserException, NoSuchAlgorithmException
+            throws IOException,
+                   XmlPullParserException,
+                   NoSuchAlgorithmException
     {
         String artifactPath = REPOSITORY_BASEDIR_1 + "/org/carlspring/strongbox/checksum/maven/checksum-rewrite";
 
@@ -249,7 +257,9 @@ public class ChecksumServiceTest
      * @throws IOException
      */
     private Artifact createRelease(String gavtc)
-            throws NoSuchAlgorithmException, XmlPullParserException, IOException
+            throws NoSuchAlgorithmException,
+                   XmlPullParserException,
+                   IOException
     {
         return generateArtifact(REPOSITORY_BASEDIR_1.getAbsolutePath(), gavtc);
     }
