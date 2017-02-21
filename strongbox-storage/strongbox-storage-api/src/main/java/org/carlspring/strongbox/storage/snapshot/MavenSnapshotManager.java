@@ -131,7 +131,7 @@ public class MavenSnapshotManager
              * map of snapshots for removing
              * k - number of the build, v - version of the snapshot
              */
-            Map<Integer, String> mapToRemove = getRemovingSnapshots(metadata, numberToKeep, keepPeriod);
+            Map<Integer, String> mapToRemove = getRemovableTimestampedSnapshots(metadata, numberToKeep, keepPeriod);
 
             if (!mapToRemove.isEmpty())
             {
@@ -177,7 +177,7 @@ public class MavenSnapshotManager
     }
 
     /**
-     * To get map of removing timestamped snapshots
+     * To get map of removable timestamped snapshots
      *
      * @param metadata     type Metadata
      * @param numberToKeep type int
@@ -186,9 +186,9 @@ public class MavenSnapshotManager
      * @throws IOException
      * @throws XmlPullParserException
      */
-    private Map<Integer, String> getRemovingSnapshots(Metadata metadata,
-                                                      int numberToKeep,
-                                                      int keepPeriod)
+    private Map<Integer, String> getRemovableTimestampedSnapshots(Metadata metadata,
+                                                                  int numberToKeep,
+                                                                  int keepPeriod)
             throws IOException,
                    XmlPullParserException
     {
