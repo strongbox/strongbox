@@ -28,7 +28,7 @@ Welcome to the Strongbox Maven artifact repository manager's home.
     * Manage cron tasks
   * Automated generation of documentation using Swagger
   * Ready-to-use Java-based client(s) covering each REST command.
-* Cron tasks
+* [[Cron Tasks]]
   * Implementations:
     * [Java](https://github.com/strongbox/strongbox-cron-tasks#java-cron-task)
     * [Groovy](https://github.com/strongbox/strongbox-cron-tasks#groovy-cron-task)
