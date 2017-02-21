@@ -24,6 +24,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
+ * @author Martin Todorov
  * @author Alex Oreshkevich
  */
 @IntegrationTest
@@ -62,42 +63,35 @@ public class TrashControllerTest
     {
         super.init();
 
-        try
-        {
-            Storage storage = configurationManager.getConfiguration().getStorage(STORAGE0);
+        Storage storage = configurationManager.getConfiguration().getStorage(STORAGE0);
 
-            // Notes:
-            // - Used by testForceDeleteArtifactNotAllowed()
-            // - Forced deletions are not allowed
-            // - Has enabled trash
-            Repository repositoryWithTrash = new Repository(REPOSITORY_WITH_TRASH);
-            repositoryWithTrash.setStorage(storage);
-            repositoryWithTrash.setAllowsForceDeletion(false);
-            repositoryWithTrash.setTrashEnabled(true);
-            repositoryWithTrash.setIndexingEnabled(false);
+        // Notes:
+        // - Used by testForceDeleteArtifactNotAllowed()
+        // - Forced deletions are not allowed
+        // - Has enabled trash
+        Repository repositoryWithTrash = new Repository(REPOSITORY_WITH_TRASH);
+        repositoryWithTrash.setStorage(storage);
+        repositoryWithTrash.setAllowsForceDeletion(false);
+        repositoryWithTrash.setTrashEnabled(true);
+        repositoryWithTrash.setIndexingEnabled(false);
 
-            createRepository(repositoryWithTrash);
+        createRepository(repositoryWithTrash);
 
-            generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_TRASH).getAbsolutePath(),
-                             "org.carlspring.strongbox:test-artifact-to-trash:1.0");
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_TRASH).getAbsolutePath(),
+                         "org.carlspring.strongbox:test-artifact-to-trash:1.0");
 
-            // Notes:
-            // - Used by testForceDeleteArtifactAllowed()
-            // - Forced deletions are allowed
-            Repository repositoryWithForceDeletions = new Repository(REPOSITORY_WITH_FORCE_DELETE);
-            repositoryWithForceDeletions.setStorage(storage);
-            repositoryWithForceDeletions.setAllowsForceDeletion(false);
-            repositoryWithForceDeletions.setIndexingEnabled(false);
+        // Notes:
+        // - Used by testForceDeleteArtifactAllowed()
+        // - Forced deletions are allowed
+        Repository repositoryWithForceDeletions = new Repository(REPOSITORY_WITH_FORCE_DELETE);
+        repositoryWithForceDeletions.setStorage(storage);
+        repositoryWithForceDeletions.setAllowsForceDeletion(false);
+        repositoryWithForceDeletions.setIndexingEnabled(false);
 
-            createRepository(repositoryWithForceDeletions);
+        createRepository(repositoryWithForceDeletions);
 
-            generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_FORCE_DELETE).getAbsolutePath(),
-                             "org.carlspring.strongbox:test-artifact-to-trash:1.1");
-        }
-        catch (Exception e)
-        {
-            throw new AssertionError("Unable to initialize test", e);
-        }
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_FORCE_DELETE).getAbsolutePath(),
+                         "org.carlspring.strongbox:test-artifact-to-trash:1.1");
     }
 
     public static Map<String, String> getRepositoriesToClean()
