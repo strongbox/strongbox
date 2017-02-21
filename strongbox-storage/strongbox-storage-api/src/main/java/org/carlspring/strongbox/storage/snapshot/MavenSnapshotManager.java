@@ -64,8 +64,10 @@ public class MavenSnapshotManager
                                                    VersionCollectionRequest request,
                                                    int numberToKeep,
                                                    int keepPeriod)
-            throws IOException, ProviderImplementationException,
-                   NoSuchAlgorithmException, ParseException,
+            throws IOException,
+                   ProviderImplementationException,
+                   NoSuchAlgorithmException,
+                   ParseException,
                    XmlPullParserException
     {
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
@@ -110,7 +112,10 @@ public class MavenSnapshotManager
                                               Repository repository,
                                               int numberToKeep,
                                               int keepPeriod)
-            throws ProviderImplementationException, IOException, XmlPullParserException, ParseException
+            throws ProviderImplementationException,
+                   IOException,
+                   XmlPullParserException,
+                   ParseException
     {
         String storageId = repository.getStorage()
                                      .getId();
@@ -151,7 +156,7 @@ public class MavenSnapshotManager
                                      layoutProvider.delete(storageId, repository.getId(), e.getPath(), true);
 
                                      String artifactName = e.getName();
-                                     artifactName = artifactName.substring(0, artifactName.lastIndexOf("."));
+                                     artifactName = artifactName.substring(0, artifactName.lastIndexOf('.'));
                                      String pomPath = Paths.get(e.getParent(), artifactName)
                                                            .toString()
                                                            .concat(".pom");
@@ -184,7 +189,8 @@ public class MavenSnapshotManager
     private Map<Integer, String> getRemovingSnapshots(Metadata metadata,
                                                       int numberToKeep,
                                                       int keepPeriod)
-            throws IOException, XmlPullParserException
+            throws IOException,
+                   XmlPullParserException
     {
         /**
          * map of the snapshots in metadata file
@@ -202,8 +208,7 @@ public class MavenSnapshotManager
                 .forEach(e ->
                          {
 
-                             if (e.getExtension()
-                                  .equals("jar"))
+                             if ("jar".equals(e.getExtension()))
                              {
                                  String version = e.getVersion();
                                  snapshots.put(Integer.parseInt(ArtifactUtils.getSnapshotBuildNumber(version)),
@@ -213,17 +218,17 @@ public class MavenSnapshotManager
 
         if (numberToKeep != 0 && snapshots.size() > numberToKeep)
         {
-            snapshots.forEach(((k, v) ->
+            snapshots.forEach((k, v) ->
                                {
                                    if (mapToRemove.size() < snapshots.size() - numberToKeep)
                                    {
                                        mapToRemove.put(k, v);
                                    }
-                               }));
+                               });
         }
         else if (numberToKeep == 0 && keepPeriod != 0)
         {
-            snapshots.forEach(((k, v) ->
+            snapshots.forEach((k, v) ->
                                {
                                    try
                                    {
@@ -236,7 +241,7 @@ public class MavenSnapshotManager
                                    {
                                        logger.error(e.getMessage(), e);
                                    }
-                               }));
+                               });
         }
 
         return mapToRemove;

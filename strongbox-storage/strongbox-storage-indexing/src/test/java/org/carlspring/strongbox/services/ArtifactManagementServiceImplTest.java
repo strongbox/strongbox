@@ -3,7 +3,6 @@ package org.carlspring.strongbox.services;
 import org.carlspring.maven.commons.io.filters.JarFilenameFilter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.config.ClientConfig;
 import org.carlspring.strongbox.config.CommonConfig;
 import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
@@ -11,7 +10,6 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
-import org.carlspring.strongbox.util.FileUtils;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -27,7 +25,6 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.*;
@@ -353,7 +350,9 @@ public class ArtifactManagementServiceImplTest
 
     @Test
     public void testRemoveTimestampedSnapshots()
-            throws NoSuchAlgorithmException, XmlPullParserException, IOException
+            throws NoSuchAlgorithmException,
+                   XmlPullParserException,
+                   IOException
     {
         String artifactPath = REPOSITORY_BASEDIR_2 + "/org/carlspring/strongbox/timestamped";
 
@@ -405,9 +404,6 @@ public class ArtifactManagementServiceImplTest
 
         assertEquals("Amount of timestamped snapshots doesn't equal 1.", 1, files.length);
         assertTrue(artifactName.endsWith("-3"));
-
-
-
     }
 
 }

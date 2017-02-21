@@ -24,12 +24,12 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Kate Novik.
  */
-public class ArtifactLocationRemoveTimestampedSnapshotOperation
+public class RemoveTimestampedSnapshotOperation
         extends AbstractArtifactLocationHandler
 {
 
     private static final Logger logger = LoggerFactory.getLogger(
-            ArtifactLocationRemoveTimestampedSnapshotOperation.class);
+            RemoveTimestampedSnapshotOperation.class);
 
     private String previousPath;
 
@@ -40,11 +40,11 @@ public class ArtifactLocationRemoveTimestampedSnapshotOperation
     private MavenSnapshotManager mavenSnapshotManager;
 
 
-    public ArtifactLocationRemoveTimestampedSnapshotOperation()
+    public RemoveTimestampedSnapshotOperation()
     {
     }
 
-    public ArtifactLocationRemoveTimestampedSnapshotOperation(MavenSnapshotManager mavenSnapshotManager)
+    public RemoveTimestampedSnapshotOperation(MavenSnapshotManager mavenSnapshotManager)
     {
         this.mavenSnapshotManager = mavenSnapshotManager;
     }

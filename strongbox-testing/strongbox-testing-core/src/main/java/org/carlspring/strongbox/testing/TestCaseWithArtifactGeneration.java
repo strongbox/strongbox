@@ -264,9 +264,6 @@ public class TestCaseWithArtifactGeneration
                                         int buildNumber,
                                         String timestamp)
     {
-//        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
-//
-//        timestamp = formatter.format(timestamp);
         @SuppressWarnings("UnnecessaryLocalVariable")
         String version = baseSnapshotVersion + "-" + timestamp + "-" + buildNumber;
 
