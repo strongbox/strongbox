@@ -63,7 +63,7 @@
         <version.spring>4.3.6.RELEASE</version.spring>
         <version.spring.security>4.2.1.RELEASE</version.spring.security>
         <version.spring.data>0.10.0-SNAPSHOT</version.spring.data>
-        <version.orientdb>2.2.16</version.orientdb>
+        <version.orientdb>2.2.18-SNAPSHOT</version.orientdb>
         <version.guava>19.0</version.guava>
         <version.jetty.maven.plugin>9.3.12.v20160915</version.jetty.maven.plugin>
         <version.junit>4.12</version.junit>
