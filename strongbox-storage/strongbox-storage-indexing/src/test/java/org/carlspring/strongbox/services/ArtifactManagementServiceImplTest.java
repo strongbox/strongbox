@@ -1,8 +1,11 @@
 package org.carlspring.strongbox.services;
 
+import org.carlspring.maven.commons.io.filters.JarFilenameFilter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.config.CommonConfig;
+import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
@@ -10,12 +13,16 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import org.apache.maven.artifact.Artifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -24,6 +31,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.*;
 
@@ -35,10 +43,19 @@ public class ArtifactManagementServiceImplTest
         extends TestCaseWithArtifactGenerationWithIndexing
 {
 
-    @Autowired
+    @org.springframework.context.annotation.Configuration
+    @Import({ CommonConfig.class, StorageApiConfig.class })
+    public static class SpringConfig { }
+
+    private DateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
+
+    @Inject
     private ArtifactManagementService artifactManagementService;
 
-    @Autowired
+    @Inject
+    private ArtifactMetadataService artifactMetadataService;
+
+    @Inject
     private ConfigurationManager configurationManager;
 
 
@@ -90,7 +107,7 @@ public class ArtifactManagementServiceImplTest
                                       "org.carlspring.strongbox:strongbox-utils",
                                       "7.0", // Used by testForceDelete()
                                       "7.3"  // Used by testArtifactResolutionFromGroup()
-                                          );
+        );
 
         Repository repositoryGroup = new Repository("amsi-releases-group");
         repositoryGroup.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
@@ -103,7 +120,7 @@ public class ArtifactManagementServiceImplTest
         createRepositoryWithArtifacts(repositoryGroup,
                                       "org.carlspring.strongbox:strongbox-utils",
                                       "8.2" // Used by testDeploymentRedeploymentAndDeletionAgainstGroupRepository()
-                                          );
+        );
 
         // Used by testForceDelete()
         Repository repositoryWithTrash = new Repository("amsi-releases-with-trash");
@@ -113,6 +130,15 @@ public class ArtifactManagementServiceImplTest
         createRepositoryWithArtifacts(repositoryWithTrash,
                                       "org.carlspring.strongbox:strongbox-utils",
                                       "7.2");
+
+        createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_2.getAbsolutePath(),
+                                          "org.carlspring.strongbox",
+                                          "timestamped",
+                                          "2.0",
+                                          "jar",
+                                          null,
+                                          3);
+
     }
 
     public static Map<String, String> getRepositoriesToClean()
@@ -366,6 +392,64 @@ public class ArtifactManagementServiceImplTest
         assertTrue("Should have moved the artifact to the trash during a force delete operation, " +
                    "when allowsForceDeletion is not enabled!",
                    new File(repositoryDir, artifactPath2).exists());
+    }
+
+    @Test
+    public void testRemoveTimestampedSnapshots()
+            throws NoSuchAlgorithmException,
+                   XmlPullParserException,
+                   IOException
+    {
+        String artifactPath = REPOSITORY_BASEDIR_2 + "/org/carlspring/strongbox/timestamped";
+
+        File file = new File(artifactPath, "2.0-SNAPSHOT");
+
+        assertEquals("Amount of timestamped snapshots doesn't equal 3.", 3,
+                     file.listFiles(new JarFilenameFilter()).length);
+
+        artifactMetadataService.rebuildMetadata("storage0", "snapshots", "org/carlspring/strongbox/timestamped");
+
+        //To check removing timestamped snapshot with numberToKeep = 1
+        artifactManagementService.removeTimestampedSnapshots("storage0", "snapshots",
+                                                             "org/carlspring/strongbox/timestamped", 1, 0);
+
+        File[] files = file.listFiles(new JarFilenameFilter());
+        Artifact artifact = ArtifactUtils.convertPathToArtifact(files[0].getPath());
+        String artifactName = artifact.getVersion();
+
+        assertEquals("Amount of timestamped snapshots doesn't equal 1.", 1, files.length);
+        assertTrue(artifactName.endsWith("-3"));
+
+        //Creating timestamped snapshot with another timestamp
+
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -5);
+        String timestamp = formatter.format(cal.getTime());
+
+        createTimestampedSnapshot(REPOSITORY_BASEDIR_2.getAbsolutePath(),
+                                  "org.carlspring.strongbox",
+                                  "timestamped",
+                                  "2.0",
+                                  "jar",
+                                  null,
+                                  2,
+                                  timestamp);
+
+        artifactMetadataService.rebuildMetadata("storage0", "snapshots", "org/carlspring/strongbox/timestamped");
+
+        assertEquals("Amount of timestamped snapshots doesn't equal 2.", 2,
+                     file.listFiles(new JarFilenameFilter()).length);
+
+        //To check removing timestamped snapshot with keepPeriod = 3 and numberToKeep = 0
+        artifactManagementService.removeTimestampedSnapshots("storage0", "snapshots",
+                                                             "org/carlspring/strongbox/timestamped", 0, 3);
+
+        files = file.listFiles(new JarFilenameFilter());
+        artifact = ArtifactUtils.convertPathToArtifact(files[0].getPath());
+        artifactName = artifact.getVersion();
+
+        assertEquals("Amount of timestamped snapshots doesn't equal 1.", 1, files.length);
+        assertTrue(artifactName.endsWith("-3"));
     }
 
 }
