@@ -7,6 +7,7 @@ import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
+import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.metadata.VersionCollectionRequest;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -37,6 +38,9 @@ public class MavenChecksumManager
     private static final Logger logger = LoggerFactory.getLogger(MavenChecksumManager.class);
 
     @Inject
+    private ArtifactResolutionService artifactResolutionService;
+
+    @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
     @Inject
@@ -60,8 +64,11 @@ public class MavenChecksumManager
                                  String path,
                                  VersionCollectionRequest request,
                                  boolean forceRegeneration)
-            throws IOException, NoSuchAlgorithmException, ProviderImplementationException,
-                   UnknownRepositoryTypeException, ArtifactTransportException
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   ProviderImplementationException,
+                   UnknownRepositoryTypeException,
+                   ArtifactTransportException
     {
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
         if (layoutProvider.containsPath(repository, path))
@@ -104,7 +111,10 @@ public class MavenChecksumManager
     private void storeChecksum(String basePath,
                                Repository repository,
                                boolean forceRegeneration)
-            throws ProviderImplementationException, NoSuchAlgorithmException, IOException, ArtifactTransportException
+            throws ProviderImplementationException,
+                   NoSuchAlgorithmException,
+                   IOException,
+                   ArtifactTransportException
     {
 
         File file = new File(basePath);
@@ -126,13 +136,15 @@ public class MavenChecksumManager
                                  String artifactPath = e.getPath()
                                                         .substring(repository.getBasedir()
                                                                              .length() + 1);
-                                 is = layoutProvider.getInputStream(repository.getStorage()
-                                                                              .getId(), repository.getId(),
-                                                                    artifactPath);
+                                 is = (ArtifactInputStream) artifactResolutionService.getInputStream(
+                                         repository.getStorage()
+                                                   .getId(),
+                                         repository.getId(), artifactPath);
                              }
                              catch (IOException |
                                             NoSuchAlgorithmException |
-                                            ArtifactTransportException e1)
+                                            ArtifactTransportException |
+                                            ProviderImplementationException e1)
                              {
                                  logger.error(e1.getMessage(), e1);
                              }
@@ -150,36 +162,25 @@ public class MavenChecksumManager
         provider.getDigestAlgorithmSet()
                 .stream()
                 .forEach(e ->
-                           {
-                               String checksum = getChecksum(is, filePath, e.toString());
-                               String checksumExtension = "." + e.toString()
-                                                                 .toLowerCase()
-                                                                 .replaceAll("-", "");
-                               try
-                               {
-                                   MessageDigestUtils.writeChecksum(new File(filePath), checksumExtension,
-                                                                    checksum);
-                               }
-                               catch (IOException e1)
-                               {
-                                   logger.error(
-                                           String.format("Failed to write checksum: alg-[%s]; path-[%s];",
-                                                         e,
-                                                         filePath + "." + checksumExtension));
-                               }
-                           });
+                                       {
+                                           String checksum = is.getMessageDigestAsHexadecimalString(e.toString());
+                                           String checksumExtension = "." + e.toString()
+                                                                             .toLowerCase()
+                                                                             .replaceAll("-", "");
+                                           try
+                                           {
+                                               MessageDigestUtils.writeChecksum(new File(filePath), checksumExtension,
+                                                                                checksum);
+                                           }
+                                           catch (IOException e1)
+                                           {
+                                               logger.error(
+                                                       String.format("Failed to write checksum: alg-[%s]; path-[%s];",
+                                                                     e,
+                                                                     filePath + "." + checksumExtension));
+                                           }
+                                       });
 
-    }
-
-    private String getChecksum(ArtifactInputStream is,
-                               String path,
-                               String algorithm)
-    {
-        if (ArtifactUtils.isArtifact(path))
-        {
-            return is.getMessageDigestAsHexadecimalString(algorithm);
-        }
-        return MessageDigestUtils.convertToHexadecimalString(is.getMessageDigest(algorithm));
     }
 
     private String getVersionDirectoryName(Repository repository,
