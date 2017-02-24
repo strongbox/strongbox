@@ -8,11 +8,13 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 
+import javax.annotation.PreDestroy;
+import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import com.carmatechnologies.commons.testing.logging.ExpectedLogs;
 import com.carmatechnologies.commons.testing.logging.api.LogLevel;
@@ -120,6 +122,13 @@ public class GroupRepositoryProviderTest
         createRoutingRules();
     }
 
+    @PreDestroy
+    public void removeRepositories()
+            throws IOException, JAXBException
+    {
+        removeRepositories(getRepositoriesToClean());
+    }
+
     private void createRoutingRules()
     {
         /**
@@ -174,13 +183,13 @@ public class GroupRepositoryProviderTest
                              ROUTING_RULE_TYPE_DENIED);
     }
 
-    public static Map<String, String> getRepositoriesToClean()
+    public static Set<Repository> getRepositoriesToClean()
     {
-        Map<String, String> repositories = new LinkedHashMap<>();
-        repositories.put(STORAGE0, "grpt-releases-1");
-        repositories.put(STORAGE0, "grpt-releases-2");
-        repositories.put(STORAGE0, "grpt-releases-group-with-nested-group-level-1");
-        repositories.put(STORAGE0, "grpt-releases-group-with-nested-group-level-2");
+        Set<Repository> repositories = new LinkedHashSet<>();
+        repositories.add(mockRepositoryMock(STORAGE0, "grpt-releases-1"));
+        repositories.add(mockRepositoryMock(STORAGE0, "grpt-releases-2"));
+        repositories.add(mockRepositoryMock(STORAGE0, "grpt-releases-group-with-nested-group-level-1"));
+        repositories.add(mockRepositoryMock(STORAGE0, "grpt-releases-group-with-nested-group-level-2"));
 
         return repositories;
     }

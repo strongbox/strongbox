@@ -3,10 +3,14 @@ package org.carlspring.strongbox.storage.indexing;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.MockedIndexResourceFetcherConfig;
 import org.carlspring.strongbox.storage.RepositoryInitializationException;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import javax.annotation.PreDestroy;
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -47,11 +51,18 @@ public class Maven2ProxyRepositoryTest
                               "http://localhost:48080/storages/storage0/test-maven-releases/");
     }
 
-    public static Map<String, String> getRepositoriesToClean()
+    @PreDestroy
+    public void removeRepositories()
+            throws IOException, JAXBException
     {
-        Map<String, String> repositories = new LinkedHashMap<>();
-        repositories.put(STORAGE0, "test-maven-releases");
-        repositories.put(STORAGE0, "test-proxied-maven-releases");
+        removeRepositories(getRepositoriesToClean());
+    }
+
+    public static Set<Repository> getRepositoriesToClean()
+    {
+        Set<Repository> repositories = new LinkedHashSet<>();
+        repositories.add(mockRepositoryMock(STORAGE0, "test-maven-releases"));
+        repositories.add(mockRepositoryMock(STORAGE0, "test-proxied-maven-releases"));
 
         return repositories;
     }

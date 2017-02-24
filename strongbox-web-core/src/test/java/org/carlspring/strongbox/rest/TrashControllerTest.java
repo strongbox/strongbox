@@ -8,12 +8,14 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
 import java.io.File;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.io.IOException;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -94,11 +96,18 @@ public class TrashControllerTest
                          "org.carlspring.strongbox:test-artifact-to-trash:1.1");
     }
 
-    public static Map<String, String> getRepositoriesToClean()
+    @PreDestroy
+    public void removeRepositories()
+            throws IOException, JAXBException
     {
-        Map<String, String> repositories = new LinkedHashMap<>();
-        repositories.put(STORAGE0, REPOSITORY_WITH_TRASH);
-        repositories.put(STORAGE0, REPOSITORY_WITH_FORCE_DELETE);
+        removeRepositories(getRepositoriesToClean());
+    }
+
+    public static Set<Repository> getRepositoriesToClean()
+    {
+        Set<Repository> repositories = new LinkedHashSet<>();
+        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_WITH_TRASH));
+        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_WITH_FORCE_DELETE));
 
         return repositories;
     }

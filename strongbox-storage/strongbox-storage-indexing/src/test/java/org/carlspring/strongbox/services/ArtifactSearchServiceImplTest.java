@@ -1,9 +1,14 @@
 package org.carlspring.strongbox.services;
 
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 
-import java.util.Map;
+import javax.annotation.PreDestroy;
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -46,9 +51,19 @@ public class ArtifactSearchServiceImplTest
                                       "1.0.1", "1.1.1", "1.2.1");
     }
 
-    public static Map<String, String> getRepositoriesToClean()
+    @PreDestroy
+    public void removeRepositories()
+            throws IOException, JAXBException
     {
-        return null;
+        removeRepositories(getRepositoriesToClean());
+    }
+
+    public static Set<Repository> getRepositoriesToClean()
+    {
+        Set<Repository> repositories = new LinkedHashSet<>();
+        repositories.add(mockRepositoryMock(STORAGE0, "artifact-search-service-test-releases"));
+
+        return repositories;
     }
 
     @Test

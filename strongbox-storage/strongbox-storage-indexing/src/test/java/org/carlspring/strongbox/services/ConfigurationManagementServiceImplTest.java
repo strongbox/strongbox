@@ -10,13 +10,14 @@ import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RuleSet;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 
+import javax.annotation.PreDestroy;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -90,12 +91,19 @@ public class ConfigurationManagementServiceImplTest
         createRepository(groupRepository2);
     }
 
-    public static Map<String, String> getRepositoriesToClean()
+    @PreDestroy
+    public void removeRepositories()
+            throws IOException, JAXBException
     {
-        Map<String, String> repositories = new LinkedHashMap<>();
-        repositories.put(STORAGE0, "cmsi-releases");
-        repositories.put(STORAGE0, "cmsi-group-1");
-        repositories.put(STORAGE0, "cmsi-group-2");
+        removeRepositories(getRepositoriesToClean());
+    }
+
+    public static Set<Repository> getRepositoriesToClean()
+    {
+        Set<Repository> repositories = new LinkedHashSet<>();
+        repositories.add(mockRepositoryMock(STORAGE0, "cmsi-releases"));
+        repositories.add(mockRepositoryMock(STORAGE0, "cmsi-group-1"));
+        repositories.add(mockRepositoryMock(STORAGE0, "cmsi-group-2"));
 
         return repositories;
     }

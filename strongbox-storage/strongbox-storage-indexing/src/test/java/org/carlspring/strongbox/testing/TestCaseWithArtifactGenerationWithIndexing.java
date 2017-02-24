@@ -10,6 +10,7 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
+import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.repository.RemoteRepository;
@@ -26,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
@@ -72,17 +72,14 @@ public abstract class TestCaseWithArtifactGenerationWithIndexing
     protected ArtifactSearchService artifactSearchService;
 
 
-    public static void cleanUp(Map<String, String> repositoriesToClean)
+    public static void cleanUp(Set<Repository> repositoriesToClean)
             throws Exception
     {
         if (repositoriesToClean != null)
         {
-            for (Map.Entry<String, String> entry : repositoriesToClean.entrySet())
+            for (Repository repository : repositoriesToClean)
             {
-                String storageId = entry.getKey();
-                String repositoryId = entry.getValue();
-
-                removeRepositoryDirectory(storageId, repositoryId);
+                removeRepositoryDirectory(repository.getStorage().getId(), repository.getId());
             }
         }
     }
@@ -98,6 +95,32 @@ public abstract class TestCaseWithArtifactGenerationWithIndexing
         {
             FileUtils.deleteDirectory(repositoryBaseDir);
         }
+    }
+
+    public void removeRepositories(Set<Repository> repositoriesToClean)
+            throws IOException, JAXBException
+    {
+        for (Repository repository : repositoriesToClean)
+        {
+            configurationManagementService.removeRepository(repository.getStorage().getId(), repository.getId());
+            if (repository.isIndexingEnabled())
+            {
+                repositoryIndexManager.closeIndexersForRepository(repository.getStorage().getId(), repository.getId());
+            }
+        }
+    }
+
+    public static Repository mockRepositoryMock(String storageId,
+                                                String repositoryId)
+    {
+        // This is no the real storage, but has a matching ID.
+        // We're mocking it, as the configurationManager is not available at the the static methods are invoked.
+        Storage storage = new Storage(storageId);
+
+        Repository repository = new Repository(repositoryId);
+        repository.setStorage(storage);
+
+        return repository;
     }
 
     protected void createRepositoryWithArtifacts(Repository repository,

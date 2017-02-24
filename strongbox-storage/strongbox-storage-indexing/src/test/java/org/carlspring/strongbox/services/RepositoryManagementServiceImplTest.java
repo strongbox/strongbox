@@ -2,13 +2,15 @@ package org.carlspring.strongbox.services;
 
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 
+import javax.annotation.PreDestroy;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -57,13 +59,20 @@ public class RepositoryManagementServiceImplTest
                                       "6.2.3");
     }
 
-    public static Map<String, String> getRepositoriesToClean()
+    @PreDestroy
+    public void removeRepositories()
+            throws IOException, JAXBException
     {
-        Map<String, String> repositories = new LinkedHashMap<>();
-        repositories.put(STORAGE0, "repository-management-releases-test-create-repository");
-        repositories.put(STORAGE0, "repository-management-releases-test-create-and-delete");
-        repositories.put(STORAGE0, "repository-management-releases-test-merge-1");
-        repositories.put(STORAGE0, "repository-management-releases-test-merge-2");
+        removeRepositories(getRepositoriesToClean());
+    }
+
+    public static Set<Repository> getRepositoriesToClean()
+    {
+        Set<Repository> repositories = new LinkedHashSet<>();
+        repositories.add(mockRepositoryMock(STORAGE0, "repository-management-releases-test-create-repository"));
+        repositories.add(mockRepositoryMock(STORAGE0, "repository-management-releases-test-create-and-delete"));
+        repositories.add(mockRepositoryMock(STORAGE0, "repository-management-releases-test-merge-1"));
+        repositories.add(mockRepositoryMock(STORAGE0, "repository-management-releases-test-merge-2"));
 
         return repositories;
     }

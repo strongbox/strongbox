@@ -4,11 +4,13 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 
+import javax.annotation.PreDestroy;
+import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -60,10 +62,17 @@ public class Maven2MetadataProviderTest
                                       );
     }
 
-    public static Map<String, String> getRepositoriesToClean()
+    @PreDestroy
+    public void removeRepositories()
+            throws IOException, JAXBException
     {
-        Map<String, String> repositories = new LinkedHashMap<>();
-        repositories.put(STORAGE0, REPOSITORYID);
+        removeRepositories(getRepositoriesToClean());
+    }
+
+    public static Set<Repository> getRepositoriesToClean()
+    {
+        Set<Repository> repositories = new LinkedHashSet<>();
+        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORYID));
 
         return repositories;
     }

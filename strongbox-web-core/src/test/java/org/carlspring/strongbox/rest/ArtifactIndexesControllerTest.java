@@ -7,11 +7,15 @@ import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -83,12 +87,19 @@ public class ArtifactIndexesControllerTest
                                       "org.carlspring.strongbox.indexes:strongbox-test-one", "1.0");
     }
 
-    public static Map<String, String> getRepositoriesToClean()
+    @PreDestroy
+    public void removeRepositories()
+            throws IOException, JAXBException
     {
-        Map<String, String> repositories = new LinkedHashMap<>();
-        repositories.put(STORAGE0, "aict-releases-1");
-        repositories.put(STORAGE0, "aict-releases-2");
-        repositories.put(STORAGE0, "aict-releases-3");
+        removeRepositories(getRepositoriesToClean());
+    }
+
+    public static Set<Repository> getRepositoriesToClean()
+    {
+        Set<Repository> repositories = new LinkedHashSet<>();
+        repositories.add(mockRepositoryMock(STORAGE0, "aict-releases-1"));
+        repositories.add(mockRepositoryMock(STORAGE0, "aict-releases-2"));
+        repositories.add(mockRepositoryMock(STORAGE0, "aict-releases-3"));
 
         return repositories;
     }

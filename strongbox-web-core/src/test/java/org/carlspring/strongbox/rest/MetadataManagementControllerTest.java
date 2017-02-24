@@ -12,12 +12,15 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
@@ -114,11 +117,18 @@ public class MetadataManagementControllerTest
                                           5);
     }
 
-    public static Map<String, String> getRepositoriesToClean()
+    @PreDestroy
+    public void removeRepositories()
+            throws IOException, JAXBException
     {
-        Map<String, String> repositories = new LinkedHashMap<>();
-        repositories.put(STORAGE0, REPOSITORY_RELEASES);
-        repositories.put(STORAGE0, REPOSITORY_SNAPSHOTS);
+        removeRepositories(getRepositoriesToClean());
+    }
+
+    public static Set<Repository> getRepositoriesToClean()
+    {
+        Set<Repository> repositories = new LinkedHashSet<>();
+        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
+        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS));
 
         return repositories;
     }

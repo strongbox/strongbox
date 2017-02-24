@@ -3,34 +3,37 @@ package org.carlspring.strongbox.services;
 import org.carlspring.maven.commons.io.filters.JarFilenameFilter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.config.CommonConfig;
 import org.carlspring.strongbox.config.StorageApiConfig;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.*;
@@ -42,6 +45,20 @@ import static org.junit.Assert.*;
 public class ArtifactManagementServiceImplTest
         extends TestCaseWithArtifactGenerationWithIndexing
 {
+
+    public static final String REPOSITORY_RELEASES = "amsi-releases";
+
+    public static final String REPOSITORY_RELEASES_WITH_TRASH = "amsi-releases-with-trash";
+
+    public static final String REPOSITORY_RELEASES_WITHOUT_DEPLOYMENT = "amsi-releases-without-deployment";
+
+    public static final String REPOSITORY_RELEASES_WITHOUT_REDEPLOYMENT = "amsi-releases-without-redeployment";
+
+    public static final String REPOSITORY_RELEASES_WITHOUT_DELETE = "amsi-releases-without-delete";
+
+    public static final String REPOSITORY_SNAPSHOTS = "amsi-snapshots";
+
+    public static final String REPOSITORY_GROUP = "amsi-group";
 
     @org.springframework.context.annotation.Configuration
     @Import({ CommonConfig.class, StorageApiConfig.class })
@@ -66,12 +83,19 @@ public class ArtifactManagementServiceImplTest
         cleanUp(getRepositoriesToClean());
     }
 
-    @Before
-    public void setUp()
+    @PreDestroy
+    public void removeRepositories()
+            throws IOException, JAXBException
+    {
+        removeRepositories(getRepositoriesToClean());
+    }
+
+    @PostConstruct
+    public void initialize()
             throws Exception
     {
         // Used by testDeploymentToRepositoryWithForbiddenDeployments()
-        Repository repositoryWithoutDelete = new Repository("amsi-releases-without-delete");
+        Repository repositoryWithoutDelete = new Repository(REPOSITORY_RELEASES_WITHOUT_DELETE);
         repositoryWithoutDelete.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
         repositoryWithoutDelete.setAllowsDelete(false);
 
@@ -80,7 +104,7 @@ public class ArtifactManagementServiceImplTest
                                       "8.0");
 
         // Used by testRedeploymentToRepositoryWithForbiddenRedeployments()
-        Repository repositoryWithoutRedeployments = new Repository("amsi-releases-without-redeployment");
+        Repository repositoryWithoutRedeployments = new Repository(REPOSITORY_RELEASES_WITHOUT_REDEPLOYMENT);
         repositoryWithoutRedeployments.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
         repositoryWithoutRedeployments.setAllowsRedeployment(false);
 
@@ -89,33 +113,29 @@ public class ArtifactManagementServiceImplTest
                                       "8.1");
 
         // Used by testDeletionFromRepositoryWithForbiddenDeletes()
-        Repository repositoryWithoutDeletes = new Repository("amsi-releases-without-delete");
-        repositoryWithoutDeletes.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
-        repositoryWithoutDeletes.setAllowsDelete(false);
-
-        createRepositoryWithArtifacts(repositoryWithoutDeletes,
-                                      "org.carlspring.strongbox:strongbox-utils",
-                                      "8.2");
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES_WITHOUT_DELETE).getAbsolutePath(),
+                         "org.carlspring.strongbox:strongbox-utils",
+                         new String[] { "8.2" });
 
         // Used by:
         // - testForceDelete()
         // - testArtifactResolutionFromGroup()
         // - testDeploymentRedeploymentAndDeletionAgainstGroupRepository()
         createRepositoryWithArtifacts(STORAGE0,
-                                      "amsi-releases",
+                                      REPOSITORY_RELEASES,
                                       false,
                                       "org.carlspring.strongbox:strongbox-utils",
                                       "7.0", // Used by testForceDelete()
                                       "7.3"  // Used by testArtifactResolutionFromGroup()
         );
 
-        Repository repositoryGroup = new Repository("amsi-releases-group");
+        Repository repositoryGroup = new Repository(REPOSITORY_GROUP);
         repositoryGroup.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
         repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
         repositoryGroup.setAllowsRedeployment(false);
         repositoryGroup.setAllowsDelete(false);
         repositoryGroup.setAllowsForceDeletion(false);
-        repositoryGroup.addRepositoryToGroup("amsi-releases");
+        repositoryGroup.addRepositoryToGroup(REPOSITORY_RELEASES);
 
         createRepositoryWithArtifacts(repositoryGroup,
                                       "org.carlspring.strongbox:strongbox-utils",
@@ -123,7 +143,7 @@ public class ArtifactManagementServiceImplTest
         );
 
         // Used by testForceDelete()
-        Repository repositoryWithTrash = new Repository("amsi-releases-with-trash");
+        Repository repositoryWithTrash = new Repository(REPOSITORY_RELEASES_WITH_TRASH);
         repositoryWithTrash.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
         repositoryWithTrash.setTrashEnabled(true);
 
@@ -131,24 +151,22 @@ public class ArtifactManagementServiceImplTest
                                       "org.carlspring.strongbox:strongbox-utils",
                                       "7.2");
 
-        createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_2.getAbsolutePath(),
-                                          "org.carlspring.strongbox",
-                                          "timestamped",
-                                          "2.0",
-                                          "jar",
-                                          null,
-                                          3);
-
+        // Used by testRemoveTimestampedSnapshots()
+        Repository repositorySnapshots = new Repository(REPOSITORY_SNAPSHOTS);
+        repositorySnapshots.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
+        repositorySnapshots.setPolicy(RepositoryPolicyEnum.SNAPSHOT.getPolicy());
     }
 
-    public static Map<String, String> getRepositoriesToClean()
+    public static Set<Repository> getRepositoriesToClean()
     {
-        Map<String, String> repositories = new LinkedHashMap<>();
-        repositories.put(STORAGE0, "amsi-releases");
-        repositories.put(STORAGE0, "amsi-releases-group");
-        repositories.put(STORAGE0, "amsi-releases-with-trash");
-        repositories.put(STORAGE0, "amsi-releases-with-deployment");
-        repositories.put(STORAGE0, "amsi-releases-with-redeployment");
+        Set<Repository> repositories = new LinkedHashSet<>();
+        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
+        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES_WITHOUT_DEPLOYMENT));
+        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES_WITHOUT_REDEPLOYMENT));
+        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES_WITH_TRASH));
+        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES_WITHOUT_DELETE));
+        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS));
+        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_GROUP));
 
         return repositories;
     }
@@ -165,15 +183,17 @@ public class ArtifactManagementServiceImplTest
         //noinspection EmptyCatchBlock
         try
         {
-            String repositoryId = "amsi-releases-without-delete";
             String gavtc = "org.carlspring.strongbox:strongbox-utils:8.0:jar";
 
-            File repositoryDir = getRepositoryBasedir(STORAGE0, "/amsi-releases");
-            is = generateArtifactInputStream(repositoryDir.getAbsolutePath(), repositoryId, gavtc, true);
+            File repositoryDir = getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES);
+            is = generateArtifactInputStream(repositoryDir.getAbsolutePath(),
+                                             REPOSITORY_RELEASES_WITHOUT_DELETE,
+                                             gavtc,
+                                             true);
 
             Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
             artifactManagementService.store(STORAGE0,
-                                            repositoryId,
+                                            REPOSITORY_RELEASES_WITHOUT_DELETE,
                                             ArtifactUtils.convertArtifactToPath(artifact),
                                             is);
 
@@ -201,17 +221,19 @@ public class ArtifactManagementServiceImplTest
         //noinspection EmptyCatchBlock
         try
         {
-            String repositoryId = "amsi-releases-without-redeployment";
             String gavtc = "org.carlspring.strongbox:strongbox-utils:8.1:jar";
 
-            File repositoryBasedir = getRepositoryBasedir(STORAGE0, repositoryId);
+            File repositoryBasedir = getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES_WITHOUT_REDEPLOYMENT);
             generateArtifact(repositoryBasedir.getAbsolutePath(), gavtc);
 
-            is = generateArtifactInputStream(repositoryBasedir.getAbsolutePath(), repositoryId, gavtc, true);
+            is = generateArtifactInputStream(repositoryBasedir.getAbsolutePath(),
+                                             REPOSITORY_RELEASES_WITHOUT_REDEPLOYMENT,
+                                             gavtc,
+                                             true);
 
             Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
             artifactManagementService.store(STORAGE0,
-                                            repositoryId,
+                                            REPOSITORY_RELEASES_WITHOUT_REDEPLOYMENT,
                                             ArtifactUtils.convertArtifactToPath(artifact),
                                             is);
 
@@ -236,12 +258,11 @@ public class ArtifactManagementServiceImplTest
         //noinspection EmptyCatchBlock
         try
         {
-            String repositoryId = "amsi-releases-without-delete";
             String gavtc = "org.carlspring.strongbox:strongbox-utils:8.2:jar";
 
             Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
             artifactManagementService.delete(STORAGE0,
-                                             repositoryId,
+                                             REPOSITORY_RELEASES_WITHOUT_DELETE,
                                              ArtifactUtils.convertArtifactToPath(artifact),
                                              false);
 
@@ -261,7 +282,6 @@ public class ArtifactManagementServiceImplTest
     {
         InputStream is = null;
 
-        String repositoryId = "amsi-releases-group";
         String gavtc = "org.carlspring.strongbox:strongbox-utils:8.3:jar";
 
         Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
@@ -269,11 +289,11 @@ public class ArtifactManagementServiceImplTest
         //noinspection EmptyCatchBlock
         try
         {
-            File repositoryDir = getRepositoryBasedir(STORAGE0, repositoryId);
-            is = generateArtifactInputStream(repositoryDir.getAbsolutePath(), repositoryId, gavtc, true);
+            File repositoryDir = getRepositoryBasedir(STORAGE0, REPOSITORY_GROUP);
+            is = generateArtifactInputStream(repositoryDir.getAbsolutePath(), REPOSITORY_GROUP, gavtc, true);
 
             artifactManagementService.store(STORAGE0,
-                                            repositoryId,
+                                            REPOSITORY_GROUP,
                                             ArtifactUtils.convertArtifactToPath(artifact),
                                             is);
 
@@ -293,9 +313,9 @@ public class ArtifactManagementServiceImplTest
         {
             // Generate the artifact on the file-system anyway so that we could achieve
             // the state of having it there before attempting a re-deployment
-            generateArtifact(getRepositoryBasedir(STORAGE0, "/amsi-releases").getAbsolutePath(), gavtc);
+            generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES).getAbsolutePath(), gavtc);
             artifactManagementService.store(STORAGE0,
-                                            repositoryId,
+                                            REPOSITORY_GROUP,
                                             ArtifactUtils.convertArtifactToPath(artifact),
                                             is);
 
@@ -315,7 +335,7 @@ public class ArtifactManagementServiceImplTest
         try
         {
             artifactManagementService.delete(STORAGE0,
-                                             repositoryId,
+                                             REPOSITORY_GROUP,
                                              ArtifactUtils.convertArtifactToPath(artifact),
                                              false);
 
@@ -335,7 +355,7 @@ public class ArtifactManagementServiceImplTest
         try
         {
             artifactManagementService.delete(STORAGE0,
-                                             repositoryId,
+                                             REPOSITORY_GROUP,
                                              ArtifactUtils.convertArtifactToPath(artifact),
                                              true);
 
@@ -359,7 +379,7 @@ public class ArtifactManagementServiceImplTest
                    ProviderImplementationException
     {
         InputStream is = artifactManagementService.resolve(STORAGE0,
-                                                           "amsi-releases-group",
+                                                           REPOSITORY_GROUP,
                                                            "org/carlspring/strongbox/strongbox-utils/7.3/strongbox-utils-7.3.jar");
 
         assertFalse("Failed to resolve artifact from group repository!", is == null);
@@ -372,48 +392,57 @@ public class ArtifactManagementServiceImplTest
     public void testForceDelete()
             throws IOException
     {
-        final String artifactPath1 = "org/carlspring/strongbox/strongbox-utils/7.0/strongbox-utils-7.0.jar";
-        artifactManagementService.delete(STORAGE0,
-                                         "amsi-releases",
-                                         artifactPath1,
-                                         true);
+        final String artifactPath = "org/carlspring/strongbox/strongbox-utils/7.0/strongbox-utils-7.0.jar";
+        artifactManagementService.delete(STORAGE0, REPOSITORY_RELEASES, artifactPath, true);
 
         assertFalse("Failed to delete artifact during a force delete operation!",
-                    new File(getRepositoryBasedir(STORAGE0, "amsi-releases"), artifactPath1).exists());
+                    new File(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES), artifactPath).exists());
 
         final String artifactPath2 = "org/carlspring/strongbox/strongbox-utils/7.2/strongbox-utils-7.2.jar";
         artifactManagementService.delete(STORAGE0,
-                                         "amsi-releases-with-trash",
+                                         REPOSITORY_RELEASES_WITH_TRASH,
                                          artifactPath2,
                                          true);
 
-        final File repositoryDir = new File(getStorageBasedir(STORAGE0), "amsi-releases-with-trash/.trash");
+        final File repositoryDir = new File(getStorageBasedir(STORAGE0), REPOSITORY_RELEASES_WITH_TRASH + "/.trash");
 
         assertTrue("Should have moved the artifact to the trash during a force delete operation, " +
                    "when allowsForceDeletion is not enabled!",
                    new File(repositoryDir, artifactPath2).exists());
     }
 
+    @Ignore
     @Test
     public void testRemoveTimestampedSnapshots()
             throws NoSuchAlgorithmException,
                    XmlPullParserException,
                    IOException
     {
-        String artifactPath = REPOSITORY_BASEDIR_2 + "/org/carlspring/strongbox/timestamped";
+        String repositoryBasedir = getRepositoryBasedir(STORAGE0, REPOSITORY_SNAPSHOTS).getAbsolutePath();
+        String artifactPath = repositoryBasedir + "/org/carlspring/strongbox/timestamped";
 
-        File file = new File(artifactPath, "2.0-SNAPSHOT");
+        File artifactVersionBaseDir = new File(artifactPath, "2.0-SNAPSHOT");
 
-        assertEquals("Amount of timestamped snapshots doesn't equal 3.", 3,
-                     file.listFiles(new JarFilenameFilter()).length);
+        createTimestampedSnapshotArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_SNAPSHOTS).getAbsolutePath(),
+                                          "org.carlspring.strongbox",
+                                          "timestamped",
+                                          "2.0",
+                                          "jar",
+                                          null,
+                                          3);
 
-        artifactMetadataService.rebuildMetadata("storage0", "snapshots", "org/carlspring/strongbox/timestamped");
+        assertEquals("Amount of timestamped snapshots doesn't equal 3.",
+                     3,
+                     artifactVersionBaseDir.listFiles(new JarFilenameFilter()).length);
+
+        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS, "org/carlspring/strongbox/timestamped");
 
         //To check removing timestamped snapshot with numberToKeep = 1
-        artifactManagementService.removeTimestampedSnapshots("storage0", "snapshots",
+        artifactManagementService.removeTimestampedSnapshots(STORAGE0,
+                                                             REPOSITORY_SNAPSHOTS,
                                                              "org/carlspring/strongbox/timestamped", 1, 0);
 
-        File[] files = file.listFiles(new JarFilenameFilter());
+        File[] files = artifactVersionBaseDir.listFiles(new JarFilenameFilter());
         Artifact artifact = ArtifactUtils.convertPathToArtifact(files[0].getPath());
         String artifactName = artifact.getVersion();
 
@@ -426,7 +455,7 @@ public class ArtifactManagementServiceImplTest
         cal.add(Calendar.DATE, -5);
         String timestamp = formatter.format(cal.getTime());
 
-        createTimestampedSnapshot(REPOSITORY_BASEDIR_2.getAbsolutePath(),
+        createTimestampedSnapshot(repositoryBasedir,
                                   "org.carlspring.strongbox",
                                   "timestamped",
                                   "2.0",
@@ -435,16 +464,17 @@ public class ArtifactManagementServiceImplTest
                                   2,
                                   timestamp);
 
-        artifactMetadataService.rebuildMetadata("storage0", "snapshots", "org/carlspring/strongbox/timestamped");
+        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS, "org/carlspring/strongbox/timestamped");
 
         assertEquals("Amount of timestamped snapshots doesn't equal 2.", 2,
-                     file.listFiles(new JarFilenameFilter()).length);
+                     artifactVersionBaseDir.listFiles(new JarFilenameFilter()).length);
 
         //To check removing timestamped snapshot with keepPeriod = 3 and numberToKeep = 0
-        artifactManagementService.removeTimestampedSnapshots("storage0", "snapshots",
+        artifactManagementService.removeTimestampedSnapshots(STORAGE0,
+                                                             REPOSITORY_SNAPSHOTS,
                                                              "org/carlspring/strongbox/timestamped", 0, 3);
 
-        files = file.listFiles(new JarFilenameFilter());
+        files = artifactVersionBaseDir.listFiles(new JarFilenameFilter());
         artifact = ArtifactUtils.convertPathToArtifact(files[0].getPath());
         artifactName = artifact.getVersion();
 
