@@ -42,7 +42,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
@@ -56,28 +55,28 @@ public class ArtifactManagementServiceImpl
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactManagementServiceImpl.class);
 
-    @Autowired
+    @Inject
     private ArtifactResolutionService artifactResolutionService;
 
-    @Autowired
+    @Inject
     private VersionValidatorService versionValidatorService;
 
-    @Autowired
+    @Inject
     private ChecksumCacheManager checksumCacheManager;
 
     @Inject
     private MavenSnapshotManager mavenSnapshotManager;
 
-    @Autowired
+    @Inject
     private ConfigurationManager configurationManager;
 
-    @Autowired
+    @Inject
     private RepositoryIndexManager repositoryIndexManager;
 
-    @Autowired
+    @Inject
     private ArtifactOperationsValidator artifactOperationsValidator;
 
-    @Autowired
+    @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
 
