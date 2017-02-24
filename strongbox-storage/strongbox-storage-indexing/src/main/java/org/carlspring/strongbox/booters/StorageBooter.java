@@ -138,7 +138,6 @@ public class StorageBooter
     private boolean lockExists()
             throws IOException
     {
-        final File lockFile = new File(ConfigurationResourceResolver.getVaultDirectory(), "storage-booter.lock");
         if (lockFile.exists())
         {
             logger.debug(" -> Lock found: '" + ConfigurationResourceResolver.getVaultDirectory() + "'!");
