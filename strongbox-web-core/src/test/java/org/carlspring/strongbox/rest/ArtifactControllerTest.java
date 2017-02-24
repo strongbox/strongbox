@@ -23,8 +23,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import com.jayway.restassured.response.ExtractableResponse;
 import org.apache.maven.artifact.Artifact;
@@ -140,10 +140,10 @@ public class ArtifactControllerTest
         new File(TEST_RESOURCES).mkdirs();
     }
 
-    public static Map<String, String> getRepositoriesToClean()
+    public static Set<Repository> getRepositoriesToClean()
     {
-        Map<String, String> repositories = new LinkedHashMap<>();
-        repositories.put(STORAGE0, REPOSITORY_RELEASES1);
+        Set<Repository> repositories = new LinkedHashSet<>();
+        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES1));
 
         return repositories;
     }
