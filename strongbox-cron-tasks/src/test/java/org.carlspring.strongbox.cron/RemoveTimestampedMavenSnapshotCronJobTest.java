@@ -69,6 +69,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTest
 
     private static boolean initialized;
 
+
     @Before
     public void setUp()
             throws Exception
@@ -312,6 +313,8 @@ public class RemoveTimestampedMavenSnapshotCronJobTest
     {
         File[] files = artifactFile.listFiles(new JarFilenameFilter());
         Artifact artifact = ArtifactUtils.convertPathToArtifact(files[0].getPath());
+
         return artifact.getVersion();
     }
+
 }

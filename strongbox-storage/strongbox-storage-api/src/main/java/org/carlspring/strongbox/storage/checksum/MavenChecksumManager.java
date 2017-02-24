@@ -82,8 +82,7 @@ public class MavenChecksumManager
                 for (String version : versioning.getVersions())
                 {
 
-                    String versionBasePath = Paths.get(request.getArtifactBasePath()
-                                                            .toString(),
+                    String versionBasePath = Paths.get(request.getArtifactBasePath().toString(),
                                                        getVersionDirectoryName(repository, version))
                                                   .toString();
 
@@ -151,24 +150,24 @@ public class MavenChecksumManager
         provider.getDigestAlgorithmSet()
                 .stream()
                 .forEach(e ->
-                                       {
-                                           String checksum = getChecksum(is, filePath, e.toString());
-                                           String checksumExtension = "." + e.toString()
-                                                                             .toLowerCase()
-                                                                             .replaceAll("-", "");
-                                           try
-                                           {
-                                               MessageDigestUtils.writeChecksum(new File(filePath), checksumExtension,
-                                                                                checksum);
-                                           }
-                                           catch (IOException e1)
-                                           {
-                                               logger.error(
-                                                       String.format("Failed to write checksum: alg-[%s]; path-[%s];",
-                                                                     e,
-                                                                     filePath + "." + checksumExtension));
-                                           }
-                                       });
+                           {
+                               String checksum = getChecksum(is, filePath, e.toString());
+                               String checksumExtension = "." + e.toString()
+                                                                 .toLowerCase()
+                                                                 .replaceAll("-", "");
+                               try
+                               {
+                                   MessageDigestUtils.writeChecksum(new File(filePath), checksumExtension,
+                                                                    checksum);
+                               }
+                               catch (IOException e1)
+                               {
+                                   logger.error(
+                                           String.format("Failed to write checksum: alg-[%s]; path-[%s];",
+                                                         e,
+                                                         filePath + "." + checksumExtension));
+                               }
+                           });
 
     }
 

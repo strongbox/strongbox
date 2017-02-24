@@ -38,12 +38,8 @@ public class ChecksumServiceTest
                                                               "/storages/storage0/snapshots");
 
     @org.springframework.context.annotation.Configuration
-    @ComponentScan(basePackages = { "org.carlspring.strongbox",
-                                    "org.carlspring.logging" })
-    public static class SpringConfig
-    {
-
-    }
+    @ComponentScan(basePackages = { "org.carlspring.strongbox", "org.carlspring.logging" })
+    public static class SpringConfig { }
 
     @Inject
     private ChecksumService checksumService;
