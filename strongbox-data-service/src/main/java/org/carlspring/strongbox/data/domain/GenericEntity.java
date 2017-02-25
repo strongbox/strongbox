@@ -38,7 +38,7 @@ public abstract class GenericEntity
 
     @OVersion
     @JsonIgnore
-    protected Long version;
+    protected Long entityVersion;
 
     public GenericEntity()
     {
