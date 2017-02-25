@@ -27,6 +27,8 @@ public class RepositoryIndexerTest
         extends TestCaseWithArtifactGenerationWithIndexing
 {
 
+    public static final String REPOSITORY_RELEASES = "ri-releases";
+
     @Autowired
     private RepositoryManagementService repositoryManagementService;
 
@@ -43,7 +45,7 @@ public class RepositoryIndexerTest
             throws Exception
     {
         createRepositoryWithArtifacts(STORAGE0,
-                                      "repository-indexer-test-releases",
+                                      REPOSITORY_RELEASES,
                                       true,
                                       "org.carlspring.strongbox:strongbox-commons",
                                       "1.0", "1.1", "1.2");
@@ -59,7 +61,7 @@ public class RepositoryIndexerTest
     public static Set<Repository> getRepositoriesToClean()
     {
         Set<Repository> repositories = new LinkedHashSet<>();
-        repositories.add(mockRepositoryMock(STORAGE0, "repository-indexer-test-releases"));
+        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
 
         return repositories;
     }
@@ -67,15 +69,15 @@ public class RepositoryIndexerTest
     @Test
     public void testIndex() throws Exception
     {
-        final RepositoryIndexer repositoryIndexer = getRepositoryIndexManager().getRepositoryIndexer("storage0:repository-indexer-test-releases:local");
+        RepositoryIndexer repositoryIndexer = getRepositoryIndexManager().getRepositoryIndexer(STORAGE0 + ":" + REPOSITORY_RELEASES + ":local");
 
-        final int x = repositoryManagementService.reIndex(STORAGE0,
-                                                          "repository-indexer-test-releases",
-                                                          "org/carlspring/strongbox/strongbox-commons");
+        int x = repositoryManagementService.reIndex(STORAGE0,
+                                                    REPOSITORY_RELEASES,
+                                                    "org/carlspring/strongbox/strongbox-commons");
 
-        repositoryManagementService.pack(STORAGE0, "repository-indexer-test-releases");
+        repositoryManagementService.pack(STORAGE0, REPOSITORY_RELEASES);
 
-        File repositoryBasedir = getRepositoryBasedir(STORAGE0, "repository-indexer-test-releases");
+        File repositoryBasedir = getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES);
 
         assertTrue("Failed to pack index!", new File(repositoryBasedir.getAbsolutePath(),
                                                      ".index/local/nexus-maven-repository-index.gz").exists());

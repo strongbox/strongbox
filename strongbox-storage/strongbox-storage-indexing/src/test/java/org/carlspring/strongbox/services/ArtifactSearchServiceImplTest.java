@@ -26,6 +26,8 @@ public class ArtifactSearchServiceImplTest
         extends TestCaseWithArtifactGenerationWithIndexing
 {
 
+    public static final String REPOSITORYID = "artifact-search-service-test-releases";
+
     @Autowired
     private ArtifactSearchService artifactSearchService;
 
@@ -45,7 +47,7 @@ public class ArtifactSearchServiceImplTest
             throws Exception
     {
         createRepositoryWithArtifacts(STORAGE0,
-                                      "artifact-search-service-test-releases",
+                                      REPOSITORYID,
                                       true,
                                       "org.carlspring.strongbox:strongbox-utils",
                                       "1.0.1", "1.1.1", "1.2.1");
@@ -61,7 +63,7 @@ public class ArtifactSearchServiceImplTest
     public static Set<Repository> getRepositoriesToClean()
     {
         Set<Repository> repositories = new LinkedHashSet<>();
-        repositories.add(mockRepositoryMock(STORAGE0, "artifact-search-service-test-releases"));
+        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORYID));
 
         return repositories;
     }
@@ -70,13 +72,13 @@ public class ArtifactSearchServiceImplTest
     public void testContains() throws Exception
     {
         final int x = repositoryManagementService.reIndex(STORAGE0,
-                                                          "artifact-search-service-test-releases",
+                                                          REPOSITORYID,
                                                           "org/carlspring/strongbox/strongbox-utils");
 
         assertTrue("Incorrect number of artifacts found!", x >= 3);
 
         SearchRequest request = new SearchRequest(STORAGE0,
-                                                  "artifact-search-service-test-releases",
+                                                  REPOSITORYID,
                                                   "+g:org.carlspring.strongbox +a:strongbox-utils +v:1.0.1 +p:jar");
 
         artifactSearchService.contains(request);

@@ -6,6 +6,7 @@ import org.carlspring.strongbox.storage.RepositoryInitializationException;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -29,6 +30,11 @@ public class Maven2ProxyRepositoryTest
 {
 
 
+    public static final String REPOSITORY_RELEASES = "test-maven-releases";
+
+    public static final String REPOSITORY_PROXY = "test-proxied-maven-releases";
+
+
     @BeforeClass
     public static void cleanUp()
             throws Exception
@@ -36,19 +42,19 @@ public class Maven2ProxyRepositoryTest
         cleanUp(getRepositoriesToClean());
     }
 
-    @Before
-    public void setUp()
+    @PostConstruct
+    public void initialize()
             throws Exception
     {
         createRepositoryWithArtifacts(STORAGE0,
-                                      "test-maven-releases",
+                                      REPOSITORY_RELEASES,
                                       true,
                                       "org.carlspring.strongbox:strongbox-search-test",
                                       "1.0", "1.1", "1.2");
 
         createProxyRepository(STORAGE0,
-                              "test-proxied-maven-releases",
-                              "http://localhost:48080/storages/storage0/test-maven-releases/");
+                              REPOSITORY_PROXY,
+                              "http://localhost:48080/storages/storage0/" + REPOSITORY_RELEASES + "/");
     }
 
     @PreDestroy
@@ -61,8 +67,8 @@ public class Maven2ProxyRepositoryTest
     public static Set<Repository> getRepositoriesToClean()
     {
         Set<Repository> repositories = new LinkedHashSet<>();
-        repositories.add(mockRepositoryMock(STORAGE0, "test-maven-releases"));
-        repositories.add(mockRepositoryMock(STORAGE0, "test-proxied-maven-releases"));
+        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
+        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_PROXY));
 
         return repositories;
     }
@@ -71,7 +77,7 @@ public class Maven2ProxyRepositoryTest
     public void testRepositoryIndexFetching()
             throws ArtifactTransportException, RepositoryInitializationException
     {
-        repositoryManagementService.downloadRemoteIndex(STORAGE0, "test-proxied-maven-releases");
+        repositoryManagementService.downloadRemoteIndex(STORAGE0, REPOSITORY_PROXY);
     }
 
 }

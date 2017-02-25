@@ -126,7 +126,10 @@ public class RepositoryManagementServiceImplTest
 
         assertFalse(artifactSearchService.contains(request));
 
-        getRepositoryManagementService().mergeIndexes(STORAGE0, REPOSITORY_RELEASES_MERGE_2, STORAGE0, REPOSITORY_RELEASES_MERGE_1);
+        getRepositoryManagementService().mergeIndexes(STORAGE0,
+                                                      REPOSITORY_RELEASES_MERGE_2,
+                                                      STORAGE0,
+                                                      REPOSITORY_RELEASES_MERGE_1);
 
         request = new SearchRequest(STORAGE0,
                                     REPOSITORY_RELEASES_MERGE_1,
