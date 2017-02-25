@@ -144,6 +144,8 @@ public class ArtifactControllerTest
     {
         Set<Repository> repositories = new LinkedHashSet<>();
         repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES1));
+        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES2));
+        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS));
 
         return repositories;
     }
@@ -201,7 +203,7 @@ public class ArtifactControllerTest
             throws Exception
     {
         // test that given artifact exists
-        String url = getContextBaseUrl() + "/storages/storage0/" + REPOSITORY_RELEASES1;
+        String url = getContextBaseUrl() + "/storages/" + STORAGE0 +"/" + REPOSITORY_RELEASES1;
         String pathToJar = "/org/carlspring/strongbox/partial/partial-foo/3.1/partial-foo-3.1.jar";
         String artifactPath = url + pathToJar;
 
@@ -303,7 +305,7 @@ public class ArtifactControllerTest
         );
 
         final File destRepositoryBasedir = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                    "/storages/storage0/" + REPOSITORY_RELEASES2);
+                                                    "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES2);
 
         String artifactPath = "org/carlspring/strongbox/copy/copy-foo/1.1/copy-foo-1.1.jar";
 
@@ -400,7 +402,7 @@ public class ArtifactControllerTest
 
         assertTrue("Failed to locate artifact file '" + artifact.getAbsolutePath() + "'!", artifact.exists());
 
-        String basePath = "storages/storage0/" + REPOSITORY_RELEASES1;
+        String basePath = "storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES1;
 
         ExtractableResponse repositoryRoot = client.getResourceWithResponse(basePath, "");
         ExtractableResponse trashDirectoryListing = client.getResourceWithResponse(basePath, ".trash");

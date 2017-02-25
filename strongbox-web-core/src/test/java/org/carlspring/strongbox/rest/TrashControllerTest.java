@@ -121,8 +121,8 @@ public class TrashControllerTest
         // Delete the artifact (this one should get placed under the .trash)
         client.delete(STORAGE0, REPOSITORY_WITH_TRASH, artifactPath, false);
 
-        final File repositoryDir = new File(BASEDIR + "/storages/storage0/" + REPOSITORY_WITH_TRASH + "/.trash");
-        final File repositoryIndexDir = new File(BASEDIR + "/storages/storage0/" + REPOSITORY_WITH_TRASH + "/.index");
+        final File repositoryDir = new File(BASEDIR + "/storages/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH + "/.trash");
+        final File repositoryIndexDir = new File(BASEDIR + "/storages/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH + "/.index");
         final File artifactFile = new File(repositoryDir, artifactPath);
 
         logger.debug("Artifact file: " + artifactFile.getAbsolutePath());
@@ -144,8 +144,11 @@ public class TrashControllerTest
         // Delete the artifact (this one shouldn't get placed under the .trash)
         client.delete(STORAGE0, REPOSITORY_WITH_FORCE_DELETE, artifactPath, true);
 
-        final File repositoryTrashDir = new File(BASEDIR + "/storages/storage0/" + REPOSITORY_WITH_FORCE_DELETE + "/.trash");
-        final File repositoryDir = new File(BASEDIR + "/storages/storage0/" + REPOSITORY_WITH_FORCE_DELETE + "/.trash");
+        final File repositoryTrashDir = new File(BASEDIR + "/storages/" + STORAGE0 + "/" +
+                                                 REPOSITORY_WITH_FORCE_DELETE + "/.trash");
+
+        final File repositoryDir = new File(BASEDIR + "/storages/" + STORAGE0 + "/" +
+                                            REPOSITORY_WITH_FORCE_DELETE + "/.trash");
 
         assertFalse("Failed to delete artifact during a force delete operation!",
                     new File(repositoryTrashDir, artifactPath).exists());
