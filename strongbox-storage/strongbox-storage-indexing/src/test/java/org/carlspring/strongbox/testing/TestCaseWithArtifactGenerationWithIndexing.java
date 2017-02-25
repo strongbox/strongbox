@@ -181,8 +181,6 @@ public abstract class TestCaseWithArtifactGenerationWithIndexing
             throws IOException,
                    JAXBException
     {
-        repository.setIndexingEnabled(true);
-
         configurationManagementService.addOrUpdateRepository(repository.getStorage().getId(), repository);
 
         // Create the repository
@@ -203,8 +201,11 @@ public abstract class TestCaseWithArtifactGenerationWithIndexing
             generateArtifact(repositoryBaseDir, ga + ":" + version + ":jar");
         }
 
-        repositoryManagementService.reIndex(storageId, repositoryId, ga.replaceAll("\\.", "/").replaceAll("\\:", "\\/"));
-        repositoryManagementService.pack(storageId, repositoryId);
+        if (configurationManagementService.getConfiguration().getStorage(storageId).getRepository(repositoryId).isIndexingEnabled())
+        {
+            repositoryManagementService.reIndex(storageId, repositoryId, ga.replaceAll("\\.", "/").replaceAll("\\:", "\\/"));
+            repositoryManagementService.pack(storageId, repositoryId);
+        }
     }
 
     public void addArtifactToIndex(File repositoryBasedir,

@@ -4,6 +4,7 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -12,7 +13,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,7 +31,7 @@ public class Maven2MetadataProviderTest
         extends TestCaseWithArtifactGenerationWithIndexing
 {
 
-    public static final String REPOSITORYID = "maven-metadata-provider-test-releases";
+    public static final String REPOSITORYID = "mmp-releases";
 
     @Autowired
     private LayoutProviderRegistry layoutProviderRegistry;
@@ -47,8 +47,8 @@ public class Maven2MetadataProviderTest
         cleanUp(getRepositoriesToClean());
     }
 
-    @Before
-    public void setUp()
+    @PostConstruct
+    public void initialize()
             throws Exception
     {
         Repository repository = new Repository(REPOSITORYID);
