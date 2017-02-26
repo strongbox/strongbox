@@ -155,6 +155,8 @@ public class ArtifactManagementServiceImplTest
         Repository repositorySnapshots = new Repository(REPOSITORY_SNAPSHOTS);
         repositorySnapshots.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
         repositorySnapshots.setPolicy(RepositoryPolicyEnum.SNAPSHOT.getPolicy());
+
+        createRepository(repositorySnapshots);
     }
 
     public static Set<Repository> getRepositoriesToClean()
@@ -411,7 +413,6 @@ public class ArtifactManagementServiceImplTest
                    new File(repositoryDir, artifactPath2).exists());
     }
 
-    @Ignore
     @Test
     public void testRemoveTimestampedSnapshots()
             throws NoSuchAlgorithmException,
@@ -422,6 +423,8 @@ public class ArtifactManagementServiceImplTest
         String artifactPath = repositoryBasedir + "/org/carlspring/strongbox/timestamped";
 
         File artifactVersionBaseDir = new File(artifactPath, "2.0-SNAPSHOT");
+
+        assertFalse(artifactVersionBaseDir.exists());
 
         createTimestampedSnapshotArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_SNAPSHOTS).getAbsolutePath(),
                                           "org.carlspring.strongbox",
