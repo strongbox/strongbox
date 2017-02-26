@@ -75,6 +75,8 @@ public interface ConfigurationManagementService extends ConfigurationService
 
     boolean addOrUpdateAcceptedRuleSet(RuleSet ruleSet);
 
+    boolean addOrUpdateDeniedRuleSet(RuleSet ruleSet);
+
     boolean removeAcceptedRuleSet(String groupRepository);
 
     boolean addOrUpdateAcceptedRepository(String groupRepository,

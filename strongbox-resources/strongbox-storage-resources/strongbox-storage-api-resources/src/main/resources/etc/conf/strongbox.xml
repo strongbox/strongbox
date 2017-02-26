@@ -14,18 +14,10 @@
         <storage id="storage0">
             <repositories>
                 <!-- Secured repositories do not allow anonymous access -->
-                <repository id="releases" policy="release" implementation="file-system" layout="Maven 2" type="hosted" allows-force-deletion="true" checksum-headers-enabled="true"/>
-                <repository id="releases-test-nested" policy="release" implementation="file-system" layout="Maven 2" type="hosted" allows-force-deletion="true" checksum-headers-enabled="true"/>
-                <repository id="releases-with-redeployment" policy="release" implementation="file-system" layout="Maven 2" type="hosted" allows-redeployment="true" indexing-enabled="false"/>
-                <repository id="releases-with-trash" policy="release" implementation="file-system" layout="Maven 2" type="hosted" trash-enabled="true" allows-redeployment="true"/>
-                <repository id="releases-without-deployment" policy="release" implementation="file-system" layout="Maven 2" type="hosted" allows-deployment="false" indexing-enabled="false"/>
-                <repository id="releases-without-redeployment" policy="release" implementation="file-system" layout="Maven 2" type="hosted" allows-deployment="false" indexing-enabled="false"/>
-                <repository id="releases-without-delete" policy="release" implementation="file-system" layout="Maven 2" type="hosted" allows-delete="false" indexing-enabled="false"/>
-                <repository id="releases-without-delete-trash" policy="release" implementation="file-system" layout="Maven 2" type="hosted" trash-enabled="true" allows-delete="false" indexing-enabled="false"/>
-                <repository id="releases-without-browsing" policy="release" implementation="file-system" layout="Maven 2" type="hosted" allows-directory-browsing="false" indexing-enabled="false"/>
-
+                <repository id="releases" policy="release" implementation="file-system" layout="Maven 2" type="hosted" allows-force-deletion="true" checksum-headers-enabled="true" indexing-enabled="true"/>
                 <repository id="snapshots" policy="snapshot" implementation="file-system" layout="Maven 2" type="hosted" secured="true" checksum-headers-enabled="true"/>
 
+                <!--
                 <repository id="proxied-releases" policy="release" implementation="proxy" layout="Maven 2" type="proxy">
                     <proxy-configuration host="localhost" port="8180" username="testuser" password="password" />
                     <remote-repository url="http://localhost:48080/storages/storage0/releases/"
@@ -35,57 +27,8 @@
                                        auto-blocking="true"
                                        checksum-validation="true" />
                 </repository>
+                -->
 
-                <repository id="group-releases" policy="release" implementation="file-system" layout="Maven 2" type="group" secured="true">
-                    <group>
-                        <repository>releases</repository>
-                        <repository>releases-with-redeployment</repository>
-                        <repository>releases-with-trash</repository>
-                        <repository>releases-without-deployment</repository>
-                        <repository>releases-without-redeployment</repository>
-                        <repository>releases-without-delete</repository>
-                        <repository>releases-without-delete-trash</repository>
-                        <repository>releases-without-browsing</repository>
-                    </group>
-                </repository>
-
-                <repository id="group-releases-with-options" policy="release" implementation="file-system" layout="Maven 2" type="group" secured="true">
-                    <group>
-                        <repository>releases</repository>
-                        <repository>releases-with-redeployment</repository>
-                        <repository>releases-with-trash</repository>
-                    </group>
-                </repository>
-                <repository id="group-releases-without-options" policy="release" implementation="file-system" layout="Maven 2" type="group" secured="true">
-                    <group>
-                        <repository>releases-without-deployment</repository>
-                        <repository>releases-without-redeployment</repository>
-                        <repository>releases-without-delete</repository>
-                        <repository>releases-without-delete-trash</repository>
-                        <repository>releases-without-browsing</repository>
-                    </group>
-                </repository>
-                <repository id="group-releases-nested" policy="release" implementation="file-system" layout="Maven 2" type="group" secured="true">
-                    <group>
-	                    <repository>group-releases-with-options</repository>
-                        <repository>group-releases-without-options</repository>
-                    </group>
-                </repository>
-                <repository id="group-releases-nested-deep-1" policy="release" implementation="file-system" layout="Maven 2" type="group" secured="true">
-                    <group>
-                        <repository>group-releases-nested-deep-2</repository>
-                    </group>
-                </repository>
-                <repository id="group-releases-nested-deep-2" policy="release" implementation="file-system" layout="Maven 2" type="group" secured="true">
-                    <group>
-                        <repository>group-releases-nested-deep-3</repository>
-                    </group>
-                </repository>
-                <repository id="group-releases-nested-deep-3" policy="release" implementation="file-system" layout="Maven 2" type="group" secured="true">
-                    <group>
-                        <repository>releases-test-nested</repository>
-                    </group>
-                </repository>
             </repositories>
         </storage>
         <storage id="storage-common-proxies">
@@ -228,6 +171,7 @@
                     </repositories>
                 </rule>
             </rule-set>
+
             <rule-set group-repository="*">
                 <rule pattern=".*(com|org)/artifacts.in.releases.*">
                     <repositories>
@@ -235,20 +179,11 @@
                     </repositories>
                 </rule>
             </rule-set>
-        </accepted>
-        <accepted>
             <rule-set group-repository="group-releases">
                 <rule pattern=".*(com|org)/artifacts.in.releases.with.trash.*">
                     <repositories>
                         <repository>releases-with-trash</repository>
                         <repository>releases-with-redeployment</repository>
-                    </repositories>
-                </rule>
-            </rule-set>
-            <rule-set group-repository="*">
-                <rule pattern=".*(com|org)/artifacts.in.releases.*">
-                    <repositories>
-                        <repository>releases</repository>
                     </repositories>
                 </rule>
             </rule-set>

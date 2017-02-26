@@ -2,6 +2,8 @@ package org.carlspring.strongbox.storage.indexing;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.services.ArtifactIndexesService;
+import org.carlspring.strongbox.storage.RepositoryInitializationException;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -27,6 +29,9 @@ public class RepositoryIndexerFactory
 
     private IndexerConfiguration indexerConfiguration;
 
+    @Inject
+    private ArtifactIndexesService artifactIndexesService;
+
     private Configuration configuration;
 
 
@@ -40,16 +45,29 @@ public class RepositoryIndexerFactory
 
     public RepositoryIndexer createRepositoryIndexer(String storageId,
                                                      String repositoryId,
+                                                     String indexType,
                                                      File repositoryBasedir,
                                                      File indexDir)
-            throws IOException
+            throws RepositoryInitializationException
     {
-        RepositoryIndexer repositoryIndexer = new RepositoryIndexer();
+        IndexingContext indexingContext;
+        try
+        {
+            indexingContext = createIndexingContext(storageId, repositoryId, indexType, repositoryBasedir, indexDir);
+        }
+        catch (IOException e)
+        {
+            logger.error(e.getMessage(), e);
+
+            throw new RepositoryInitializationException(e.getMessage(), e);
+        }
+
+        RepositoryIndexer repositoryIndexer = new RepositoryIndexer(storageId + ":" + repositoryId + ":" + indexType);
         repositoryIndexer.setStorageId(storageId);
         repositoryIndexer.setRepositoryId(repositoryId);
         repositoryIndexer.setRepositoryBasedir(repositoryBasedir);
         repositoryIndexer.setIndexDir(indexDir);
-        repositoryIndexer.setIndexingContext(createIndexingContext(repositoryId, repositoryBasedir, indexDir));
+        repositoryIndexer.setIndexingContext(indexingContext);
         repositoryIndexer.setIndexer(indexerConfiguration.getIndexer());
         repositoryIndexer.setScanner(indexerConfiguration.getScanner());
         repositoryIndexer.setConfiguration(configuration);
@@ -57,12 +75,14 @@ public class RepositoryIndexerFactory
         return repositoryIndexer;
     }
 
-    private IndexingContext createIndexingContext(String repositoryId,
+    private IndexingContext createIndexingContext(String storageId,
+                                                  String repositoryId,
+                                                  String indexType,
                                                   File repositoryBasedir,
                                                   File indexDir)
             throws IOException
     {
-        return getIndexer().createIndexingContext(repositoryId + "/ctx",
+        return getIndexer().createIndexingContext(storageId + ":" + repositoryId + ":" + indexType,
                                                   repositoryId,
                                                   repositoryBasedir,
                                                   indexDir,

@@ -1,14 +1,20 @@
 package org.carlspring.strongbox.services.impl;
 
+import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
+import org.carlspring.strongbox.storage.RepositoryInitializationException;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.ReindexArtifactScanningListener;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexerFactory;
+import org.carlspring.strongbox.storage.indexing.downloader.IndexDownloadRequest;
+import org.carlspring.strongbox.storage.indexing.downloader.IndexDownloader;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -22,9 +28,9 @@ import org.apache.maven.index.ScanningResult;
 import org.apache.maven.index.context.IndexingContext;
 import org.apache.maven.index.packer.IndexPacker;
 import org.apache.maven.index.packer.IndexPackingRequest;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -37,13 +43,16 @@ public class RepositoryManagementServiceImpl
 
     private static final Logger logger = LoggerFactory.getLogger(RepositoryManagementServiceImpl.class);
 
-    @Autowired
+    @Inject
+    private IndexDownloader downloader;
+
+    @Inject
     private RepositoryIndexManager repositoryIndexManager;
 
-    @Autowired
+    @Inject
     private RepositoryIndexerFactory repositoryIndexerFactory;
 
-    @Autowired
+    @Inject
     private ConfigurationManager configurationManager;
 
     @Inject
@@ -56,20 +65,93 @@ public class RepositoryManagementServiceImpl
             throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
 
         final String storageBasedirPath = storage.getBasedir();
         final File repositoryBasedir = new File(storageBasedirPath, repositoryId).getAbsoluteFile();
 
         createRepositoryStructure(storageBasedirPath, repositoryId);
 
-        final File indexDir = new File(repositoryBasedir, ".index");
+        if (repository.isIndexingEnabled())
+        {
+            if (repository.isProxyRepository())
+            {
+                // Create a remote index
+                createRepositoryIndexer(storageId, repositoryId, IndexTypeEnum.REMOTE.getType(), repositoryBasedir);
+            }
 
-        RepositoryIndexer repositoryIndexer = repositoryIndexerFactory.createRepositoryIndexer(storageId,
+            // Create a local index
+            createRepositoryIndexer(storageId, repositoryId, IndexTypeEnum.LOCAL.getType(), repositoryBasedir);
+        }
+    }
+
+    private RepositoryIndexer createRepositoryIndexer(String storageId,
+                                                      String repositoryId,
+                                                      String indexType,
+                                                      File repositoryBasedir)
+            throws RepositoryInitializationException
+    {
+        File repositoryIndexDir = new File(repositoryBasedir, ".index/" + indexType);
+        if (!repositoryIndexDir.exists())
+        {
+            //noinspection ResultOfMethodCallIgnored
+            repositoryIndexDir.mkdirs();
+        }
+
+        String contextId = storageId + ":" + repositoryId + ":" + indexType;
+
+        RepositoryIndexer repositoryIndexer = repositoryIndexerFactory.createRepositoryIndexer(contextId,
                                                                                                repositoryId,
+                                                                                               indexType,
                                                                                                repositoryBasedir,
-                                                                                               indexDir);
+                                                                                               repositoryIndexDir);
 
-        repositoryIndexManager.addRepositoryIndex(storageId + ":" + repositoryId, repositoryIndexer);
+        repositoryIndexManager.addRepositoryIndexer(contextId, repositoryIndexer);
+
+        return repositoryIndexer;
+    }
+
+    @Override
+    public void downloadRemoteIndex(String storageId,
+                                    String repositoryId)
+            throws ArtifactTransportException, RepositoryInitializationException
+    {
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+        File repositoryBasedir = new File(repository.getBasedir());
+
+        File remoteIndexDirectory = new File(repositoryBasedir, ".index/remote");
+        if (!remoteIndexDirectory.exists())
+        {
+            //noinspection ResultOfMethodCallIgnored
+            remoteIndexDirectory.mkdirs();
+        }
+
+        // Create a remote index
+        RepositoryIndexer repositoryIndexer = createRepositoryIndexer(storageId,
+                                                                      repositoryId,
+                                                                      IndexTypeEnum.REMOTE.getType(),
+                                                                      repositoryBasedir);
+
+
+        IndexDownloadRequest request = new IndexDownloadRequest();
+        request.setIndexingContextId(storageId + ":" + repositoryId + ":remote");
+        request.setStorageId(storageId);
+        request.setRepositoryId(repositoryId);
+        request.setRemoteRepositoryURL(repository.getRemoteRepository().getUrl());
+        request.setIndexLocalCacheDir(repositoryBasedir);
+        request.setIndexDir(remoteIndexDirectory.toString());
+        request.setIndexer(repositoryIndexer.getIndexer());
+
+        try
+        {
+            downloader.download(request);
+        }
+        catch (IOException | ComponentLookupException e)
+        {
+            throw new ArtifactTransportException("Failed to retrieve remote index for " +
+                                                 storageId + ":" + repositoryId + "!");
+        }
     }
 
     private void createRepositoryStructure(String storageBasedirPath,
@@ -96,9 +178,9 @@ public class RepositoryManagementServiceImpl
                        String path)
             throws IOException
     {
-        logger.info("Re-indexing " + storageId + ":" + repositoryId + (path != null ? ":" + path : "") + "...");
+        logger.info("Re-indexing " + storageId + ":" + repositoryId + ":local" + (path != null ? ":" + path : "") + "...");
 
-        RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndex(storageId + ":" + repositoryId);
+        RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer(storageId + ":" + repositoryId + ":local");
 
         File startingPath = path != null ? new File(path) : new File(".");
 
@@ -123,14 +205,16 @@ public class RepositoryManagementServiceImpl
     {
         try
         {
-            final RepositoryIndexer sourceIndex = repositoryIndexManager.getRepositoryIndex(sourceStorage + ":" +
-                                                                                            sourceRepositoryId);
+            final RepositoryIndexer sourceIndex = repositoryIndexManager.getRepositoryIndexer(sourceStorage + ":" +
+                                                                                              sourceRepositoryId +
+                                                                                              ":local");
             if (sourceIndex == null)
             {
                 throw new ArtifactStorageException("Source repository not found!");
             }
 
-            final RepositoryIndexer targetIndex = repositoryIndexManager.getRepositoryIndex(targetStorage + ":" + targetRepositoryId);
+            final RepositoryIndexer targetIndex = repositoryIndexManager.getRepositoryIndexer(
+                    targetStorage + ":" + targetRepositoryId + ":local");
             if (targetIndex == null)
             {
                 throw new ArtifactStorageException("Target repository not found!");
@@ -149,20 +233,21 @@ public class RepositoryManagementServiceImpl
                      String repositoryId)
             throws IOException
     {
-        logger.info("Packing index for " + storageId + ":" + repositoryId + "...");
+        logger.info("Packing index for " + storageId + ":" + repositoryId + ":local...");
 
-        final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storageId + ":" + repositoryId);
+        final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(storageId + ":" + repositoryId + ":local");
 
         IndexingContext context = indexer.getIndexingContext();
         final IndexSearcher indexSearcher = context.acquireIndexSearcher();
         try
         {
-            IndexPackingRequest request = new IndexPackingRequest(context, indexSearcher.getIndexReader(),
-                                                                  new File(indexer.getRepositoryBasedir() + "/.index"));
+            IndexPackingRequest request = new IndexPackingRequest(context,
+                                                                  indexSearcher.getIndexReader(),
+                                                                  new File(indexer.getRepositoryBasedir() + "/.index/local"));
             request.setUseTargetProperties(true);
             indexPacker.packIndex(request);
 
-            logger.info("Index for " + storageId + ":" + repositoryId + " was packed successfully.");
+            logger.info("Index for " + storageId + ":" + repositoryId + ":local was packed successfully.");
         }
         finally
         {

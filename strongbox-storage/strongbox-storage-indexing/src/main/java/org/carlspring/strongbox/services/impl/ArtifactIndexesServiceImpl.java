@@ -10,12 +10,12 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -28,15 +28,14 @@ public class ArtifactIndexesServiceImpl
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactIndexesServiceImpl.class);
 
-    @Autowired
+    @Inject
     private ConfigurationManager configurationManager;
 
-    @Autowired
+    @Inject
     private RepositoryIndexManager repositoryIndexManager;
 
-    @Autowired
+    @Inject
     private RepositoryManagementService repositoryManagementService;
-
 
     @Override
     public void rebuildIndexes(String storageId,
@@ -57,7 +56,7 @@ public class ArtifactIndexesServiceImpl
         locator.setOperation(operation);
         locator.locateArtifactDirectories();
 
-        if (artifactPath == null)
+        if (artifactPath == null && repository.isIndexingEnabled())
         {
             repositoryManagementService.pack(storageId, repositoryId);
         }

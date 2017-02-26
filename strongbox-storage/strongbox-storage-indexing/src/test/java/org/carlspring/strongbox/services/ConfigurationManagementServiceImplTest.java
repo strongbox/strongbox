@@ -10,12 +10,17 @@ import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RuleSet;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 
+import javax.annotation.PreDestroy;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -25,8 +30,6 @@ import org.springframework.test.annotation.Commit;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author mtodorov
@@ -37,11 +40,19 @@ import static org.junit.Assert.assertTrue;
 public class ConfigurationManagementServiceImplTest
         extends TestCaseWithArtifactGenerationWithIndexing
 {
+
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationManagementServiceImplTest.class);
+
     private static final String RULE_PATTERN = "*.org.test";
-    private static final String REPOSITORY_ID = "repo-id";
-    public static final String GROUP_REPOSITORY = "group-repository-id";
-    public static final String REPOSITORY_ID_2 = "repo";
+
+    public static final String REPOSITORY_RELEASES_1 = "cmsi-releases-1";
+
+    public static final String REPOSITORY_RELEASES_2 = "cmsi-releases-2";
+
+    public static final String REPOSITORY_GROUP_1 = "csmi-group-1";
+
+    public static final String REPOSITORY_GROUP_2 = "csmi-group-2";
+
     @Autowired
     private ConfigurationRepository configurationRepository;
 
@@ -50,6 +61,61 @@ public class ConfigurationManagementServiceImplTest
     private ConfigurationManagementService configurationManagementService;
 
 
+    @BeforeClass
+    public static void cleanUp()
+            throws Exception
+    {
+        cleanUp(getRepositoriesToClean());
+    }
+
+    @Before
+    public void setUp()
+            throws Exception
+    {
+        Storage storage = configurationManagementService.getStorage(STORAGE0);
+
+        Repository repository1 = new Repository(REPOSITORY_RELEASES_1);
+        repository1.setType(RepositoryTypeEnum.HOSTED.getType());
+        repository1.setStorage(storage);
+
+        Repository repository2 = new Repository(REPOSITORY_RELEASES_2);
+        repository2.setType(RepositoryTypeEnum.HOSTED.getType());
+        repository2.setStorage(storage);
+
+        Repository groupRepository1 = new Repository(REPOSITORY_GROUP_1);
+        groupRepository1.setType(RepositoryTypeEnum.GROUP.getType());
+        groupRepository1.getGroupRepositories().add(repository1.getId());
+        groupRepository1.setStorage(storage);
+
+        Repository groupRepository2 = new Repository(REPOSITORY_GROUP_2);
+        groupRepository2.setType(RepositoryTypeEnum.GROUP.getType());
+        groupRepository2.getGroupRepositories().add(repository1.getId());
+        groupRepository2.setStorage(storage);
+
+        createRepository(repository1);
+        createRepository(repository2);
+        createRepository(groupRepository1);
+        createRepository(groupRepository2);
+    }
+
+    @PreDestroy
+    public void removeRepositories()
+            throws IOException, JAXBException
+    {
+        removeRepositories(getRepositoriesToClean());
+    }
+
+    public static Set<Repository> getRepositoriesToClean()
+    {
+        Set<Repository> repositories = new LinkedHashSet<>();
+        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1));
+        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2));
+        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_GROUP_1));
+        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_GROUP_2));
+
+        return repositories;
+    }
+
     @Test
     public void testGetGroupRepositories() throws Exception
     {
@@ -57,83 +123,62 @@ public class ConfigurationManagementServiceImplTest
 
         assertFalse(groupRepositories.isEmpty());
 
-        System.out.println("Group repositories:");
+        logger.debug("Group repositories:");
 
         for (Repository repository : groupRepositories)
         {
-            System.out.println(" - " + repository.getId());
+            logger.debug(" - " + repository.getId());
         }
     }
 
     @Test
     public void testGetGroupRepositoriesContainingRepository() throws Exception
     {
-        List<Repository> groupRepositoriesContainingReleases = configurationManagementService.getGroupRepositoriesContaining("releases");
+        List<Repository> groups = configurationManagementService.getGroupRepositoriesContaining(REPOSITORY_RELEASES_1);
 
-        assertFalse(groupRepositoriesContainingReleases.isEmpty());
+        assertFalse(groups.isEmpty());
 
-        System.out.println("Group repositories containing \"releases\" repository:");
+        logger.debug("Group repositories containing \"" + REPOSITORY_RELEASES_1 + "\" repository:");
 
-        for (Repository repository : groupRepositoriesContainingReleases)
+        for (Repository repository : groups)
         {
-            System.out.println(" - " + repository.getId());
+            logger.debug(" - " + repository.getId());
         }
     }
 
     @Test
     public void testRemoveRepositoryFromAssociatedGroups() throws Exception
     {
-        Storage storage = configurationManagementService.getStorage("storage0");
-
-        Repository repository = new Repository("test-repository-releases");
-        repository.setType(RepositoryTypeEnum.HOSTED.getType());
-        repository.setStorage(storage);
-
-        Repository groupRepository1 = new Repository("test-group-repository-releases-1");
-        groupRepository1.setType(RepositoryTypeEnum.GROUP.getType());
-        groupRepository1.getGroupRepositories().add(repository.getId());
-        groupRepository1.setStorage(storage);
-
-        Repository groupRepository2 = new Repository("test-group-repository-releases-2");
-        groupRepository2.setType(RepositoryTypeEnum.GROUP.getType());
-        groupRepository2.getGroupRepositories().add(repository.getId());
-        groupRepository2.setStorage(storage);
-
-        configurationManagementService.addOrUpdateRepository("storage0", repository);
-        configurationManagementService.addOrUpdateRepository("storage0", groupRepository1);
-        configurationManagementService.addOrUpdateRepository("storage0", groupRepository2);
-
         assertEquals("Failed to add repository to group!",
                      2,
-                     configurationManagementService.getGroupRepositoriesContaining("test-repository-releases").size());
+                     configurationManagementService.getGroupRepositoriesContaining(REPOSITORY_RELEASES_1).size());
 
-        configurationManagementService.removeRepositoryFromAssociatedGroups("test-repository-releases");
+        configurationManagementService.removeRepositoryFromAssociatedGroups(REPOSITORY_RELEASES_1);
 
         assertEquals("Failed to remove repository from all associated groups!",
                      0,
-                     configurationManagementService.getGroupRepositoriesContaining("test-repository-releases").size());
+                     configurationManagementService.getGroupRepositoriesContaining(REPOSITORY_RELEASES_1).size());
 
-        configurationManagementService.removeRepository("storage0", groupRepository1.getId());
-        configurationManagementService.removeRepository("storage0", groupRepository2.getId());
+        configurationManagementService.removeRepository(STORAGE0, REPOSITORY_GROUP_1);
+        configurationManagementService.removeRepository(STORAGE0, REPOSITORY_GROUP_2);
     }
 
     @Test
     public void testSetProxyRepositoryMaxConnections() throws IOException, JAXBException
     {
-        Storage storage = configurationManagementService.getStorage("storage0");
+        Storage storage = configurationManagementService.getStorage(STORAGE0);
 
-        Repository repository = new Repository("test-repository-releases");
-        repository.setType(RepositoryTypeEnum.HOSTED.getType());
-        repository.setStorage(storage);
+        Repository repository = storage.getRepository(REPOSITORY_RELEASES_2);
 
-        configurationManagementService.addOrUpdateRepository("storage0", repository);
+        configurationManagementService.addOrUpdateRepository(STORAGE0, repository);
 
         configurationManagementService.setProxyRepositoryMaxConnections(storage.getId(), repository.getId(), 10);
 
-        HttpConnectionPool httpConnectionPool =
-                configurationManagementService.getHttpConnectionPoolConfiguration(storage.getId(), repository.getId());
-        assertNotNull(httpConnectionPool);
-        assertEquals(10, httpConnectionPool.getAllocatedConnections());
+        HttpConnectionPool pool = configurationManagementService.getHttpConnectionPoolConfiguration(storage.getId(),
+                                                                                                    repository.getId());
+
+        assertNotNull(pool);
+        assertEquals(10, pool.getAllocatedConnections());
     }
 
     @Test
@@ -144,42 +189,49 @@ public class ConfigurationManagementServiceImplTest
         final boolean added = configurationManagementService.addOrUpdateAcceptedRuleSet(ruleSet);
         final Configuration configuration = configurationRepository.getConfiguration();
 
-        final RuleSet addedRuleSet = configuration.getRoutingRules().getAccepted().get(GROUP_REPOSITORY);
+        final RuleSet addedRuleSet = configuration.getRoutingRules().getAccepted().get(REPOSITORY_GROUP_1);
+
         assertTrue(added);
         assertNotNull(addedRuleSet);
         assertEquals(1, addedRuleSet.getRoutingRules().size());
-        assertTrue(addedRuleSet.getRoutingRules().get(0).getRepositories().contains(REPOSITORY_ID));
+        assertTrue(addedRuleSet.getRoutingRules().get(0).getRepositories().contains(REPOSITORY_RELEASES_1));
         assertEquals(1, addedRuleSet.getRoutingRules().get(0).getRepositories().size());
         assertEquals(RULE_PATTERN, addedRuleSet.getRoutingRules().get(0).getPattern());
     }
 
     @Test
-    public void removeAcceptedRuleSet()
+    public void testRemoveAcceptedRuleSet()
             throws Exception
     {
         configurationManagementService.addOrUpdateAcceptedRuleSet(getRuleSet());
 
-        final boolean removed = configurationManagementService.removeAcceptedRuleSet(GROUP_REPOSITORY);
+        final boolean removed = configurationManagementService.removeAcceptedRuleSet(REPOSITORY_GROUP_1);
 
         final Configuration configuration = configurationRepository.getConfiguration();
-        final RuleSet addedRuleSet = configuration.getRoutingRules().getAccepted().get(GROUP_REPOSITORY);
+        final RuleSet addedRuleSet = configuration.getRoutingRules().getAccepted().get(REPOSITORY_GROUP_1);
+
         assertTrue(removed);
         assertNull(addedRuleSet);
     }
 
     @Test
-    public void addAcceptedRepo()
+    public void testAddAcceptedRepo()
             throws Exception
     {
         configurationManagementService.addOrUpdateAcceptedRuleSet(getRuleSet());
 
-        final boolean added = configurationManagementService.addOrUpdateAcceptedRepository(GROUP_REPOSITORY, getRoutingRule());
+        final boolean added = configurationManagementService.addOrUpdateAcceptedRepository(REPOSITORY_GROUP_1, getRoutingRule());
         final Configuration configuration = configurationRepository.getConfiguration();
 
         assertTrue(added);
-        configuration.getRoutingRules().getAccepted().get(GROUP_REPOSITORY).getRoutingRules().stream().filter(
-                routingRule -> routingRule.getPattern().equals(RULE_PATTERN))
-                     .forEach(routingRule -> assertTrue(routingRule.getRepositories().contains(REPOSITORY_ID_2)));
+
+        configuration.getRoutingRules()
+                     .getAccepted()
+                     .get(REPOSITORY_GROUP_1)
+                     .getRoutingRules()
+                     .stream()
+                     .filter(routingRule -> routingRule.getPattern().equals(RULE_PATTERN))
+                     .forEach(routingRule -> assertTrue(routingRule.getRepositories().contains(REPOSITORY_RELEASES_2)));
     }
 
     @Test
@@ -188,20 +240,21 @@ public class ConfigurationManagementServiceImplTest
     {
         configurationManagementService.addOrUpdateAcceptedRuleSet(getRuleSet());
 
-        final boolean removed = configurationManagementService.removeAcceptedRepository(GROUP_REPOSITORY, RULE_PATTERN,
-                                                                             REPOSITORY_ID);
+        final boolean removed = configurationManagementService.removeAcceptedRepository(REPOSITORY_GROUP_1,
+                                                                                        RULE_PATTERN,
+                                                                                        REPOSITORY_RELEASES_1);
 
         final Configuration configuration = configurationRepository.getConfiguration();
-        configuration.getRoutingRules().getAccepted().get(GROUP_REPOSITORY).getRoutingRules().forEach(
+        configuration.getRoutingRules().getAccepted().get(REPOSITORY_GROUP_1).getRoutingRules().forEach(
                 routingRule -> {
                     if (routingRule.getPattern().equals(RULE_PATTERN))
                     {
-                        assertFalse(routingRule.getRepositories().contains(REPOSITORY_ID));
+                        assertFalse(routingRule.getRepositories().contains(REPOSITORY_RELEASES_1));
                     }
                 }
         );
-        assertTrue(removed);
 
+        assertTrue(removed);
     }
 
     @Test
@@ -211,9 +264,9 @@ public class ConfigurationManagementServiceImplTest
         configurationManagementService.addOrUpdateAcceptedRuleSet(getRuleSet());
 
         final RoutingRule rl = getRoutingRule();
-        final boolean overridden = configurationManagementService.overrideAcceptedRepositories(GROUP_REPOSITORY, rl);
+        final boolean overridden = configurationManagementService.overrideAcceptedRepositories(REPOSITORY_GROUP_1, rl);
         final Configuration configuration = configurationRepository.getConfiguration();
-        configuration.getRoutingRules().getAccepted().get(GROUP_REPOSITORY).getRoutingRules().forEach(
+        configuration.getRoutingRules().getAccepted().get(REPOSITORY_GROUP_1).getRoutingRules().forEach(
                 routingRule -> {
                     if (routingRule.getPattern().equals(rl.getPattern()))
                     {
@@ -230,18 +283,19 @@ public class ConfigurationManagementServiceImplTest
     {
         RoutingRule routingRule = new RoutingRule();
         routingRule.setPattern(RULE_PATTERN);
-        routingRule.setRepositories(new HashSet<>(Collections.singletonList(REPOSITORY_ID_2)));
+        routingRule.setRepositories(new HashSet<>(Collections.singletonList(REPOSITORY_RELEASES_2)));
 
         return routingRule;
     }
 
     private RuleSet getRuleSet()
     {
-        final RuleSet ruleSet = new RuleSet();
-        ruleSet.setGroupRepository(GROUP_REPOSITORY);
-        final RoutingRule routingRule = new RoutingRule();
+        RoutingRule routingRule = new RoutingRule();
         routingRule.setPattern(RULE_PATTERN);
-        routingRule.setRepositories(new HashSet<>(Collections.singletonList(REPOSITORY_ID)));
+        routingRule.setRepositories(new HashSet<>(Collections.singletonList(REPOSITORY_RELEASES_1)));
+
+        RuleSet ruleSet = new RuleSet();
+        ruleSet.setGroupRepository(REPOSITORY_GROUP_1);
         ruleSet.setRoutingRules(Collections.singletonList(routingRule));
 
         return ruleSet;

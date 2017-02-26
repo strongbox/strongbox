@@ -58,6 +58,14 @@
         <level value="WARN"/>
     </logger>
 
+    <logger name="org.springframework.security.access.intercept">
+        <level value="WARN"/>
+    </logger>
+
+    <logger name="org.springframework.security.web.access.intercept">
+        <level value="WARN"/>
+    </logger>
+
     <logger name="org.springframework.transaction">
         <level value="WARN"/>
     </logger>

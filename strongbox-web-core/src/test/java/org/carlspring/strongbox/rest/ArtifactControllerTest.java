@@ -6,14 +6,25 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.generator.ArtifactDeployer;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.controller.ArtifactController;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.rest.context.IntegrationTest;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
-import java.io.*;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import com.jayway.restassured.response.ExtractableResponse;
 import org.apache.maven.artifact.Artifact;
@@ -26,13 +37,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.carlspring.maven.commons.util.ArtifactUtils.getArtifactFromGAVTC;
-import static org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration.generateArtifact;
 import static org.junit.Assert.*;
 
 /**
  * Test cases for {@link ArtifactController}.
  *
- * @author Alex Oreshkevich, Martin Todorov
+ * @author Alex Oreshkevich
+ * @author Martin Todorov
  */
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -42,69 +53,101 @@ public class ArtifactControllerTest
 
     private static final String TEST_RESOURCES = "target/test-resources";
 
-    private static File GENERATOR_BASEDIR;
+    private static File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/local");
 
-    private static File REPOSITORY_BASEDIR_RELEASES;
+    public static final String REPOSITORY_RELEASES1 = "act-releases-1";
+
+    public static final String REPOSITORY_RELEASES2 = "act-releases-2";
+
+    public static final String REPOSITORY_SNAPSHOTS = "act-snapshots";
+
+    @Inject
+    private ConfigurationManager configurationManager;
 
 
     @BeforeClass
-    public static void setUpClass()
+    public static void cleanUp()
+            throws Exception
+    {
+        cleanUp(getRepositoriesToClean());
+    }
+
+    @PostConstruct
+    public void initialize()
             throws Exception
     {
         GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/local");
-        REPOSITORY_BASEDIR_RELEASES = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                               "/storages/storage0/releases");
 
-        // to make this test idempotent (in general) we will check and remove previous generated artifacts if they are present
-        // notice that we can't delete the whole repository basedir because it contains also .index, .trash etc.
-        removeDir(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/org/carlspring/strongbox/resolve");
-        removeDir(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/org/carlspring/strongbox/partial");
-        removeDir(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/org/carlspring/strongbox/copy");
-        removeDir(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/org/carlspring/strongbox/browse");
-        removeDir(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/com/artifacts/to/delete");
+        Repository repository1 = new Repository(REPOSITORY_RELEASES1);
+        repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
+        repository1.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
 
-
-        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
-                         "org.carlspring.strongbox.resolve.only:foo",
-                         "1.1" // Used by testResolveViaProxy()
-        );
+        createRepository(repository1);
 
         // Generate releases
         // Used by testPartialFetch():
-        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES1).getAbsolutePath(),
                          "org.carlspring.strongbox.partial:partial-foo",
-                         "3.1", // Used by testPartialFetch()
-                         "3.2"  // Used by testPartialFetch()
+                         new String[] { "3.1", // Used by testPartialFetch()
+                                        "3.2"  // Used by testPartialFetch()
+                         }
         );
 
         // Used by testCopy*():
-        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES1).getAbsolutePath(),
                          "org.carlspring.strongbox.copy:copy-foo",
-                         "1.1", // Used by testCopyArtifactFile()
-                         "1.2"  // Used by testCopyArtifactDirectory()
+                         new String[] { "1.1", // Used by testCopyArtifactFile()
+                                        "1.2"  // Used by testCopyArtifactDirectory()
+                         }
         );
 
         // Used by testDelete():
-        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES1).getAbsolutePath(),
                          "com.artifacts.to.delete.releases:delete-foo",
-                         "1.2.1", // Used by testDeleteArtifactFile
-                         "1.2.2"  // Used by testDeleteArtifactDirectory
+                         new String[] { "1.2.1", // Used by testDeleteArtifactFile
+                                        "1.2.2"  // Used by testDeleteArtifactDirectory
+                         }
         );
 
-        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES1).getAbsolutePath(),
                          "org.carlspring.strongbox.partial:partial-foo",
-                         "3.1", // Used by testPartialFetch()
-                         "3.2"  // Used by testPartialFetch()
+                         new String[]{ "3.1", // Used by testPartialFetch()
+                                       "3.2"  // Used by testPartialFetch()
+                         }
         );
 
-        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES1).getAbsolutePath(),
                          "org.carlspring.strongbox.browse:foo-bar",
-                         "1.0", // Used by testDirectoryListing()
-                         "2.4"  // Used by testDirectoryListing()
+                         new String[]{ "1.0", // Used by testDirectoryListing()
+                                       "2.4"  // Used by testDirectoryListing()
+                         }
         );
+
+        Repository repository2 = new Repository(REPOSITORY_RELEASES2);
+        repository2.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
+        repository2.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
+        repository2.setAllowsRedeployment(true);
+
+        createRepository(repository2);
+
+        Repository repository3 = new Repository(REPOSITORY_SNAPSHOTS);
+        repository3.setPolicy(RepositoryPolicyEnum.SNAPSHOT.getPolicy());
+        repository3.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
+
+        createRepository(repository3);
 
         //noinspection ResultOfMethodCallIgnored
         new File(TEST_RESOURCES).mkdirs();
+    }
+
+    public static Set<Repository> getRepositoriesToClean()
+    {
+        Set<Repository> repositories = new LinkedHashSet<>();
+        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES1));
+        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES2));
+        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS));
+
+        return repositories;
     }
 
     /**
@@ -160,7 +203,7 @@ public class ArtifactControllerTest
             throws Exception
     {
         // test that given artifact exists
-        String url = getContextBaseUrl() + "/storages/storage0/releases";
+        String url = getContextBaseUrl() + "/storages/" + STORAGE0 +"/" + REPOSITORY_RELEASES1;
         String pathToJar = "/org/carlspring/strongbox/partial/partial-foo/3.1/partial-foo-3.1.jar";
         String artifactPath = url + pathToJar;
 
@@ -256,12 +299,13 @@ public class ArtifactControllerTest
     public void testCopyArtifactFile()
             throws Exception
     {
-        generateArtifact(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath(),
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES1).getAbsolutePath(),
                          "org.carlspring.strongbox.copy:copy-foo",
-                         "1.1" );
+                         new String[] { "1.1" }
+        );
 
         final File destRepositoryBasedir = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                    "/storages/storage0/releases-with-trash");
+                                                    "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES2);
 
         String artifactPath = "org/carlspring/strongbox/copy/copy-foo/1.1/copy-foo-1.1.jar";
 
@@ -273,10 +317,10 @@ public class ArtifactControllerTest
         }
 
         client.copy(artifactPath,
-                    "storage0",
-                    "releases",
-                    "storage0",
-                    "releases-with-trash");
+                    STORAGE0,
+                    REPOSITORY_RELEASES1,
+                    STORAGE0,
+                    REPOSITORY_RELEASES2);
 
         assertTrue("Failed to copy artifact to destination repository '" + destRepositoryBasedir + "'!",
                    destArtifactFile.exists());
@@ -287,7 +331,7 @@ public class ArtifactControllerTest
             throws Exception
     {
         final File destRepositoryBasedir = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                    "/storages/storage0/releases-with-trash");
+                                                    "/storages/storage0/" + REPOSITORY_RELEASES2);
 
         String artifactPath = "org/carlspring/strongbox/copy/copy-foo/1.2";
 
@@ -302,10 +346,10 @@ public class ArtifactControllerTest
                     artifactFileRestoredFromTrash.exists());
 
         client.copy(artifactPath,
-                    "storage0",
-                    "releases",
-                    "storage0",
-                    "releases-with-trash");
+                    STORAGE0,
+                    REPOSITORY_RELEASES1,
+                    STORAGE0,
+                    REPOSITORY_RELEASES2);
 
         assertTrue("Failed to copy artifact to destination repository '" + destRepositoryBasedir + "'!",
                    artifactFileRestoredFromTrash.exists());
@@ -317,13 +361,13 @@ public class ArtifactControllerTest
     {
         String artifactPath = "com/artifacts/to/delete/releases/delete-foo/1.2.1/delete-foo-1.2.1.jar";
 
-        File deletedArtifact = new File(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/" +
+        File deletedArtifact = new File(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES1).getAbsolutePath(),
                                         artifactPath).getAbsoluteFile();
 
         assertTrue("Failed to locate artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
                    deletedArtifact.exists());
 
-        client.delete("storage0", "releases", artifactPath);
+        client.delete(STORAGE0, REPOSITORY_RELEASES1, artifactPath);
 
         assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
                     deletedArtifact.exists());
@@ -335,13 +379,13 @@ public class ArtifactControllerTest
     {
         String artifactPath = "com/artifacts/to/delete/releases/delete-foo/1.2.2";
 
-        File deletedArtifact = new File(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/" +
+        File deletedArtifact = new File(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES1).getAbsolutePath(),
                                         artifactPath).getAbsoluteFile();
 
         assertTrue("Failed to locate artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
                    deletedArtifact.exists());
 
-        client.delete("storage0", "releases", artifactPath);
+        client.delete(STORAGE0, REPOSITORY_RELEASES1, artifactPath);
 
         assertFalse("Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!",
                     deletedArtifact.exists());
@@ -353,11 +397,12 @@ public class ArtifactControllerTest
     {
         String artifactPath = "org/carlspring/strongbox/browse/foo-bar";
 
-        File artifact = new File(REPOSITORY_BASEDIR_RELEASES.getAbsolutePath() + "/" + artifactPath).getAbsoluteFile();
+        File artifact = new File(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES1).getAbsolutePath(), artifactPath)
+                                .getAbsoluteFile();
 
         assertTrue("Failed to locate artifact file '" + artifact.getAbsolutePath() + "'!", artifact.exists());
 
-        String basePath = "storages/storage0/releases";
+        String basePath = "storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES1;
 
         ExtractableResponse repositoryRoot = client.getResourceWithResponse(basePath, "");
         ExtractableResponse trashDirectoryListing = client.getResourceWithResponse(basePath, ".trash");
@@ -416,16 +461,13 @@ public class ArtifactControllerTest
 
         ArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR);
 
-        String storageId = "storage0";
-        String repositoryId = "snapshots";
-
-        artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp1, storageId, repositoryId);
-        artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp2, storageId, repositoryId);
-        artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp3, storageId, repositoryId);
-        artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp4, storageId, repositoryId);
+        artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp1, STORAGE0, REPOSITORY_SNAPSHOTS);
+        artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp2, STORAGE0, REPOSITORY_SNAPSHOTS);
+        artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp3, STORAGE0, REPOSITORY_SNAPSHOTS);
+        artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp4, STORAGE0, REPOSITORY_SNAPSHOTS);
 
         String path = ArtifactUtils.getVersionLevelMetadataPath(artifact1);
-        String url = "/storages/" + storageId + "/" + repositoryId + "/";
+        String url = "/storages/" + STORAGE0 + "/" + REPOSITORY_SNAPSHOTS + "/";
 
         String metadataUrl = url + path;
 
@@ -509,27 +551,24 @@ public class ArtifactControllerTest
 
         ArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR);
 
-        String storageId = "storage0";
-        String repositoryId = "releases-with-redeployment";
-
         // When
-        artifactDeployer.generateAndDeployArtifact(a, storageId, repositoryId);
-        artifactDeployer.generateAndDeployArtifact(b, storageId, repositoryId);
-        artifactDeployer.generateAndDeployArtifact(c, storageId, repositoryId);
-        artifactDeployer.generateAndDeployArtifact(d, storageId, repositoryId);
-        artifactDeployer.generateAndDeployArtifact(artifact5, storageId, repositoryId);
-        artifactDeployer.generateAndDeployArtifact(artifact6, storageId, repositoryId);
+        artifactDeployer.generateAndDeployArtifact(a, STORAGE0, REPOSITORY_RELEASES2);
+        artifactDeployer.generateAndDeployArtifact(b, STORAGE0, REPOSITORY_RELEASES2);
+        artifactDeployer.generateAndDeployArtifact(c, STORAGE0, REPOSITORY_RELEASES2);
+        artifactDeployer.generateAndDeployArtifact(d, STORAGE0, REPOSITORY_RELEASES2);
+        artifactDeployer.generateAndDeployArtifact(artifact5, STORAGE0, REPOSITORY_RELEASES2);
+        artifactDeployer.generateAndDeployArtifact(artifact6, STORAGE0, REPOSITORY_RELEASES2);
 
         // Then
         // Group level metadata
-        Metadata groupLevelMetadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
+        Metadata groupLevelMetadata = client.retrieveMetadata("storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES2 + "/" +
                                                               ArtifactUtils.getGroupLevelMetadataPath(artifact1));
 
         assertNotNull(groupLevelMetadata);
         assertEquals(2, groupLevelMetadata.getPlugins().size());
 
         // Artifact Level metadata
-        Metadata artifactLevelMetadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
+        Metadata artifactLevelMetadata = client.retrieveMetadata("storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES2 + "/" +
                                                                  ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
 
         assertNotNull(artifactLevelMetadata);
@@ -540,7 +579,7 @@ public class ArtifactControllerTest
         assertEquals(2, artifactLevelMetadata.getVersioning().getVersions().size());
         assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
 
-        artifactLevelMetadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
+        artifactLevelMetadata = client.retrieveMetadata("storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES2 + "/" +
                                                         ArtifactUtils.getArtifactLevelMetadataPath(artifact2));
 
         assertNotNull(artifactLevelMetadata);
@@ -551,7 +590,7 @@ public class ArtifactControllerTest
         assertEquals(2, artifactLevelMetadata.getVersioning().getVersions().size());
         assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
 
-        artifactLevelMetadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
+        artifactLevelMetadata = client.retrieveMetadata("storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES2 + "/" +
                                                         ArtifactUtils.getArtifactLevelMetadataPath(artifact5));
 
         assertNotNull(artifactLevelMetadata);
@@ -582,18 +621,15 @@ public class ArtifactControllerTest
 
         ArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR);
 
-        String storageId = "storage0";
-        String repositoryId = "releases-with-redeployment";
-
-        artifactDeployer.generateAndDeployArtifact(artifact1, storageId, repositoryId);
-        artifactDeployer.generateAndDeployArtifact(artifact2, storageId, repositoryId);
+        artifactDeployer.generateAndDeployArtifact(artifact1, STORAGE0, REPOSITORY_RELEASES2);
+        artifactDeployer.generateAndDeployArtifact(artifact2, STORAGE0, REPOSITORY_RELEASES2);
 
         // When
         String path = "org/carlspring/strongbox/delete-metadata/metadata-foo/1.2.2";
-        client.delete(storageId, repositoryId, path);
+        client.delete(STORAGE0, REPOSITORY_RELEASES2, path);
 
         //Aca deberiamos mirar el FS y a la mierda
-        Metadata metadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
+        Metadata metadata = client.retrieveMetadata("storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES2 + "/" +
                                                     ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
         assertTrue(!metadata.getVersioning().getVersions().contains("1.2.2"));
     }
@@ -617,21 +653,18 @@ public class ArtifactControllerTest
 
         ArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR);
 
-        String storageId = "storage0";
-        String repositoryId = "snapshots";
-
-        artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp1, storageId, repositoryId);
-        artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp2, storageId, repositoryId);
-        artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp3, storageId, repositoryId);
-        artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp4, storageId, repositoryId);
+        artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp1, STORAGE0, REPOSITORY_SNAPSHOTS);
+        artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp2, STORAGE0, REPOSITORY_SNAPSHOTS);
+        artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp3, STORAGE0, REPOSITORY_SNAPSHOTS);
+        artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp4, STORAGE0, REPOSITORY_SNAPSHOTS);
 
         String path = "org/carlspring/strongbox/metadata/metadata-foo/3.1-SNAPSHOT";
 
         // When
-        client.delete(storageId, repositoryId, path);
+        client.delete(STORAGE0, REPOSITORY_SNAPSHOTS, path);
 
         // Then
-        Metadata metadata = client.retrieveMetadata("storages/" + storageId + "/" + repositoryId + "/" +
+        Metadata metadata = client.retrieveMetadata("storages/" + STORAGE0 + "/" + REPOSITORY_SNAPSHOTS + "/" +
                                                     ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
         assertTrue(!metadata.getVersioning().getVersions().contains("3.1-SNAPSHOT"));
     }

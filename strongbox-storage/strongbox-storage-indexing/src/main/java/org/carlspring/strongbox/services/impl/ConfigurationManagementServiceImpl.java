@@ -267,14 +267,17 @@ public class ConfigurationManagementServiceImpl
     @Override
     public boolean addOrUpdateAcceptedRuleSet(RuleSet ruleSet)
     {
-        final Configuration configuration = getConfig();
-        if (configuration.getRoutingRules() == null)
-        {
-            configuration.setRoutingRules(new RoutingRules());
-        }
-        configuration.getRoutingRules().addAcceptRule(ruleSet.getGroupRepository(), ruleSet);
-        updateConfiguration(configuration);
+        getConfiguration().getRoutingRules().addAcceptRule(ruleSet.getGroupRepository(), ruleSet);
+        updateConfiguration(getConfiguration());
 
+        return true;
+    }
+
+    @Override
+    public boolean addOrUpdateDeniedRuleSet(RuleSet ruleSet)
+    {
+        getConfiguration().getRoutingRules().addDenyRule(ruleSet.getGroupRepository(), ruleSet);
+        updateConfiguration(getConfiguration());
 
         return true;
     }
@@ -282,15 +285,15 @@ public class ConfigurationManagementServiceImpl
     @Override
     public boolean removeAcceptedRuleSet(String groupRepository)
     {
-        final Configuration configuration = getConfig();
-        final Map<String, RuleSet> accepted = configuration.getRoutingRules().getAccepted();
+        final Map<String, RuleSet> accepted = getConfiguration().getRoutingRules().getAccepted();
         boolean result = false;
         if (accepted.containsKey(groupRepository))
         {
             result = true;
             accepted.remove(groupRepository);
         }
-        updateConfiguration(configuration);
+
+        updateConfiguration(getConfiguration());
 
         return result;
     }
@@ -299,8 +302,7 @@ public class ConfigurationManagementServiceImpl
     public boolean addOrUpdateAcceptedRepository(String groupRepository,
                                                  RoutingRule routingRule)
     {
-        final Configuration configuration = getConfig();
-        RoutingRules routingRules = configuration.getRoutingRules();
+        RoutingRules routingRules = getConfiguration().getRoutingRules();
 
         logger.info("Routing rules: \n" + routingRules + "\nAccepted empty " + routingRules.getAccepted().isEmpty());
 
@@ -317,7 +319,7 @@ public class ConfigurationManagementServiceImpl
                 }
             }
         }
-        updateConfiguration(configuration);
+        updateConfiguration(getConfiguration());
 
         return added;
     }
@@ -327,8 +329,7 @@ public class ConfigurationManagementServiceImpl
                                             String pattern,
                                             String repositoryId)
     {
-        final Configuration configuration = getConfig();
-        final Map<String, RuleSet> acceptedRules = configuration.getRoutingRules().getAccepted();
+        final Map<String, RuleSet> acceptedRules = getConfiguration().getRoutingRules().getAccepted();
         boolean removed = false;
         if (acceptedRules.containsKey(groupRepository))
         {
@@ -341,7 +342,7 @@ public class ConfigurationManagementServiceImpl
                 }
             }
         }
-        updateConfiguration(configuration);
+        updateConfiguration(getConfiguration());
 
         return removed;
     }
@@ -350,11 +351,13 @@ public class ConfigurationManagementServiceImpl
     public boolean overrideAcceptedRepositories(String groupRepository,
                                                 RoutingRule routingRule)
     {
-        final Configuration configuration = getConfig();
         boolean overridden = false;
-        if (configuration.getRoutingRules().getAccepted().containsKey(groupRepository))
+        if (getConfiguration().getRoutingRules().getAccepted().containsKey(groupRepository))
         {
-            for (RoutingRule rule : configuration.getRoutingRules().getAccepted().get(groupRepository).getRoutingRules())
+            for (RoutingRule rule : getConfiguration().getRoutingRules()
+                                                      .getAccepted()
+                                                      .get(groupRepository)
+                                                      .getRoutingRules())
             {
                 if (routingRule.getPattern().equals(rule.getPattern()))
                 {
@@ -363,7 +366,8 @@ public class ConfigurationManagementServiceImpl
                 }
             }
         }
-        updateConfiguration(configuration);
+
+        updateConfiguration(getConfiguration());
 
         return overridden;
     }
@@ -377,21 +381,6 @@ public class ConfigurationManagementServiceImpl
     private void updateConfiguration(Configuration configuration)
     {
         configurationRepository.updateConfiguration(configuration);
-    }
-
-    private Configuration getConfig()
-    {
-        return configurationRepository.getConfiguration();
-    }
-
-    public ConfigurationManager getConfigurationManager()
-    {
-        return configurationManager;
-    }
-
-    public void setConfigurationManager(ConfigurationManager configurationManager)
-    {
-        this.configurationManager = configurationManager;
     }
 
 }

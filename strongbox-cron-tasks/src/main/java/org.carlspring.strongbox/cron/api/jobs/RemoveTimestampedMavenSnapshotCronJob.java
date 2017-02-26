@@ -124,4 +124,5 @@ public class RemoveTimestampedMavenSnapshotCronJob
         return getStorages().get(storageId)
                             .getRepositories();
     }
+
 }

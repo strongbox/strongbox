@@ -438,25 +438,19 @@ public class ConfigurationManagementController
     }
 
     @ApiOperation(value = "Adds or updates a repository.")
-    @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "The repository was updated successfully."),
-                            @ApiResponse(code = 404,
-                                         message = "Repository ${repositoryId} not found!"),
-                            @ApiResponse(code = 500,
-                                         message = "Failed to remove repository ${repositoryId}!") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The repository was updated successfully."),
+                            @ApiResponse(code = 404, message = "Repository ${repositoryId} not found!"),
+                            @ApiResponse(code = 500, message = "Failed to remove repository ${repositoryId}!") })
     @PreAuthorize("hasAuthority('CONFIGURATION_ADD_UPDATE_REPOSITORY')")
     @RequestMapping(value = "/storages/{storageId}/{repositoryId}",
                     method = RequestMethod.PUT,
                     consumes = { MediaType.APPLICATION_XML_VALUE,
                                  MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity addOrUpdateRepository(@ApiParam(value = "The storageId",
-                                                          required = true)
+    public ResponseEntity addOrUpdateRepository(@ApiParam(value = "The storageId", required = true)
                                                 @PathVariable String storageId,
-                                                @ApiParam(value = "The repositoryId",
-                                                          required = true)
+                                                @ApiParam(value = "The repositoryId", required = true)
                                                 @PathVariable String repositoryId,
-                                                @ApiParam(value = "The repository object",
-                                                          required = true)
+                                                @ApiParam(value = "The repository object", required = true)
                                                 @RequestBody Repository repository)
             throws IOException, JAXBException
     {

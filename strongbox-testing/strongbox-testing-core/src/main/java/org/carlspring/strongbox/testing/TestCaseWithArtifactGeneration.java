@@ -3,6 +3,7 @@ package org.carlspring.strongbox.testing;
 import org.carlspring.maven.commons.DetachedArtifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.generator.ArtifactGenerator;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,6 +25,9 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
  */
 public class TestCaseWithArtifactGeneration
 {
+
+    public static final String STORAGE0 = "storage0";
+
 
     public Artifact generateArtifact(String basedir, String gavtc)
             throws IOException,
@@ -331,6 +335,16 @@ public class TestCaseWithArtifactGeneration
                 attributes.setTimes(time, time, time);
             }
         }
+    }
+
+    public File getStorageBasedir(String storageId)
+    {
+        return new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/" + storageId);
+    }
+
+    public File getRepositoryBasedir(String storageId, String repositoryId)
+    {
+        return new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/" + storageId + "/" + repositoryId);
     }
 
 }

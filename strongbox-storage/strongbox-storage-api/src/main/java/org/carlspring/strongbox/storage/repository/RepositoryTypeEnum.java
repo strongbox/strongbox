@@ -8,7 +8,7 @@ public enum RepositoryTypeEnum
 
     HOSTED("hosted"),
 
-    PROXY("proxy"),     // Unsupported
+    PROXY("proxy"),
 
     GROUP("group"),
 

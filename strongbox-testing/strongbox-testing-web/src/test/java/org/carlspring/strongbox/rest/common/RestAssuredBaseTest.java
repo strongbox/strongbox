@@ -3,6 +3,7 @@ package org.carlspring.strongbox.rest.common;
 import org.carlspring.strongbox.artifact.generator.ArtifactDeployer;
 import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
 import org.carlspring.strongbox.users.domain.Roles;
 
 import java.io.File;
@@ -24,15 +25,16 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.web.context.WebApplicationContext;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static junit.framework.TestCase.assertTrue;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
+import static org.junit.Assert.assertTrue;
 
 /**
- * General settings for the testing subsystem.
+ * General settings for the testing sub-system.
  *
  * @author Alex Oreshkevich
  */
 public abstract class RestAssuredBaseTest
+        extends TestCaseWithArtifactGenerationWithIndexing
 {
 
     public final static int DEFAULT_PORT = 48080;
@@ -91,7 +93,10 @@ public abstract class RestAssuredBaseTest
 
     @Before
     public void init()
+            throws Exception
     {
+        logger.debug("Initializing RestAssured...");
+
         RestAssuredMockMvc.webAppContextSetup(context);
 
         // security settings for tests
@@ -172,7 +177,7 @@ public abstract class RestAssuredBaseTest
 
     protected void assertPathExists(String url)
     {
-        assertTrue("Path " + url + " doesn't exists.", pathExists(url));
+        assertTrue("Path " + url + " doesn't exist.", pathExists(url));
     }
 
     protected ArtifactDeployer buildArtifactDeployer(File file)

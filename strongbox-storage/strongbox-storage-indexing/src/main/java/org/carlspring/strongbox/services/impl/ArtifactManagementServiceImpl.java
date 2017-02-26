@@ -42,7 +42,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
@@ -56,28 +55,28 @@ public class ArtifactManagementServiceImpl
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactManagementServiceImpl.class);
 
-    @Autowired
+    @Inject
     private ArtifactResolutionService artifactResolutionService;
 
-    @Autowired
+    @Inject
     private VersionValidatorService versionValidatorService;
 
-    @Autowired
+    @Inject
     private ChecksumCacheManager checksumCacheManager;
 
     @Inject
     private MavenSnapshotManager mavenSnapshotManager;
 
-    @Autowired
+    @Inject
     private ConfigurationManager configurationManager;
 
-    @Autowired
+    @Inject
     private RepositoryIndexManager repositoryIndexManager;
 
-    @Autowired
+    @Inject
     private ArtifactOperationsValidator artifactOperationsValidator;
 
-    @Autowired
+    @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
 
@@ -139,7 +138,7 @@ public class ArtifactManagementServiceImpl
     {
         if (ArtifactFileUtils.isArtifactFile(path))
         {
-            final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storageId + ":" + repositoryId);
+            final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(storageId + ":" + repositoryId);
             if (indexer != null)
             {
                 final Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
@@ -194,7 +193,7 @@ public class ArtifactManagementServiceImpl
             !ArtifactUtils.isMetadata(path) && !ArtifactUtils.isChecksum(path))
         {
             LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-            ArtifactCoordinates coordinates = (ArtifactCoordinates) layoutProvider.getArtifactCoordinates(path);
+            ArtifactCoordinates coordinates = layoutProvider.getArtifactCoordinates(path);
 
             try
             {
@@ -235,7 +234,7 @@ public class ArtifactManagementServiceImpl
             LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
             layoutProvider.delete(storageId, repositoryId, artifactPath, force);
 
-            final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storageId + ":" + repositoryId);
+            final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(storageId + ":" + repositoryId);
             if (indexer != null)
             {
                 String extension = artifactPath.substring(artifactPath.lastIndexOf('.') + 1, artifactPath.length());
@@ -412,7 +411,7 @@ public class ArtifactManagementServiceImpl
 
             /*
             // TODO: This will need further fixing:
-            final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(storageId + ":" + repositoryId);
+            final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(storageId + ":" + repositoryId);
             if (indexer != null)
             {
                 final Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);

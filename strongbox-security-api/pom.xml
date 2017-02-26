@@ -320,6 +320,8 @@
                                 <port.littleproxy>${port.littleproxy.listen}</port.littleproxy>
                                 <port.unboundid>${port.unboundid}</port.unboundid>
                             </systemPropertyVariables>
+
+                            <useUnlimitedThreads>false</useUnlimitedThreads>
                         </configuration>
                     </plugin>
                 </plugins>

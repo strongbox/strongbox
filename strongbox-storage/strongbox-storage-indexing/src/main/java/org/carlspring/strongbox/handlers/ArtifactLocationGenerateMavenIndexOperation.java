@@ -46,8 +46,7 @@ public class ArtifactLocationGenerateMavenIndexOperation
     {
         if (path != null)
         {
-            File f = path.toAbsolutePath()
-                         .toFile();
+            File f = path.toAbsolutePath().toFile();
 
             String[] list = f.list(new PomFilenameFilter());
 
@@ -56,15 +55,12 @@ public class ArtifactLocationGenerateMavenIndexOperation
                 String[] listJar = f.list(new JarFilenameFilter());
                 List<String> filePaths = listJar != null ? Arrays.asList(listJar) : new ArrayList<>();
 
-                String parentPath = path.getParent()
-                                        .toAbsolutePath()
-                                        .toString();
+                String parentPath = path.getParent().toAbsolutePath().toString();
 
                 if (!filePaths.isEmpty())
                 {
                     //absolute path to artifact
-                    String resultPath = Paths.get(f.getPath(), filePaths.get(0))
-                                             .toString();
+                    String resultPath = Paths.get(f.getPath(), filePaths.get(0)).toString();
 
                     // Don't enter visited paths (i.e. version directories such as 1.2, 1.3, 1.4...)
                     if (!getVisitedRootPaths().isEmpty() && getVisitedRootPaths().containsKey(parentPath))
@@ -109,16 +105,16 @@ public class ArtifactLocationGenerateMavenIndexOperation
                             }
                         }
 
-                        String artifactPath = resultPath.substring(getRepository().getBasedir()
-                                                                                  .length() + 1,
+                        String artifactPath = resultPath.substring(getRepository().getBasedir().length() + 1,
                                                                    resultPath.length());
 
                         String repositoryId = getRepository().getId();
                         String storageId = getStorage().getId();
 
-                        RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndex(
+                        RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(
                                 storageId.concat(":")
-                                         .concat(repositoryId));
+                                         .concat(repositoryId)
+                                         .concat(":local"));
 
                         if (indexer != null)
                         {

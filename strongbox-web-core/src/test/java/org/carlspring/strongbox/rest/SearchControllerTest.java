@@ -11,8 +11,11 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 
 import org.apache.maven.artifact.Artifact;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.MediaType;
@@ -43,6 +46,7 @@ public class SearchControllerTest
 
     @Override
     public void init()
+            throws Exception
     {
         super.init();
 
@@ -58,8 +62,7 @@ public class SearchControllerTest
         try
         {
             File strongboxBaseDir = new File(ConfigurationResourceResolver.getVaultDirectory() + "/tmp");
-            String[] classifiers = new String[]{ "javadoc",
-                                                 "tests" };
+            String[] classifiers = new String[]{ "javadoc", "tests" };
 
             Artifact artifact1 = getArtifactFromGAVTC("org.carlspring.strongbox.searches:test-project:1.0.11.3");
             Artifact artifact2 = getArtifactFromGAVTC("org.carlspring.strongbox.searches:test-project:1.0.11.3.1");
@@ -71,18 +74,11 @@ public class SearchControllerTest
             artifactDeployer.generateAndDeployArtifact(artifact2, classifiers, "storage0", "releases", "jar");
             artifactDeployer.generateAndDeployArtifact(artifact3, classifiers, "storage0", "releases", "jar");
 
-            // Initialize indexes (for IDE launches)
-            if (repositoryIndexManager.getIndexes().isEmpty())
-            {
-                storageBooter.reInitializeRepositoryIndex("storage0", "releases");
+            final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer("storage0:releases:local");
 
-                final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndex(
-                        "storage0:releases");
+            assertNotNull(repositoryIndexer);
 
-                assertNotNull(repositoryIndexer);
-
-                repositoryManagementService.reIndex("storage0", "releases", "org/carlspring/strongbox/searches");
-            }
+            repositoryManagementService.reIndex("storage0", "releases", "org/carlspring/strongbox/searches");
         }
         catch (Exception e)
         {

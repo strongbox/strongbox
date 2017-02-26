@@ -126,8 +126,8 @@ public class RebuildMavenMetadataCronJobTest
             repository.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
             repository.setStorage(storage);
             configurationManagementService.addOrUpdateStorage(storage);
-            repositoryManagementService.createRepository("storage1", "releases");
             storage.addOrUpdateRepository(repository);
+            repositoryManagementService.createRepository("storage1", "releases");
 
             //Create released artifact
             artifact4 = generateArtifact(REPOSITORY_BASEDIR_3.getAbsolutePath(), ga + ":1.0:jar");

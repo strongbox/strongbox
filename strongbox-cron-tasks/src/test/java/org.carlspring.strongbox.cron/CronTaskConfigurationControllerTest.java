@@ -38,6 +38,7 @@ public class CronTaskConfigurationControllerTest
 
     @Override
     public void init()
+            throws Exception
     {
         super.init();
         setContextBaseUrl(getContextBaseUrl() + "/configuration/crontasks");
@@ -184,6 +185,5 @@ public class CronTaskConfigurationControllerTest
                       .when()
                       .get(getContextBaseUrl() + "/cron").peek();
     }
-
 
 }
