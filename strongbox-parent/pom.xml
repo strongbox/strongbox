@@ -694,9 +694,10 @@
 
                         <executions>
                             <execution>
+                                <id>dependency-check</id>
                                 <goals>
                                     <goal>check</goal>
-                                    <goal>aggregate</goal>                                </goals>
+                                </goals>
                             </execution>
                         </executions>
                     </plugin>
