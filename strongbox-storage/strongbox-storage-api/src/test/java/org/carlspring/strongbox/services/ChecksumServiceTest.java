@@ -117,7 +117,8 @@ public class ChecksumServiceTest
         assertTrue("The checksum file for artifact exist!",
                    !new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5").exists());
 
-        checksumService.regenerateChecksum("storage0", "releases", "org/carlspring/strongbox/checksum/maven", false);
+        checksumService.regenerateChecksum("storage0", "releases",
+                                           "org/carlspring/strongbox/checksum/maven/strongbox-checksum", false);
 
         assertTrue("The checksum file for artifact doesn't exist!",
                    new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.sha1").exists());

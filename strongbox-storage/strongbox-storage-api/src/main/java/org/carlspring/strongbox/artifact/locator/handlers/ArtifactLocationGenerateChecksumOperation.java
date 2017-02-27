@@ -3,8 +3,8 @@ package org.carlspring.strongbox.artifact.locator.handlers;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.filters.MetadataFilenameFilter;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.storage.checksum.NugetChecksumManager;
 import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
 
 import java.io.File;
@@ -18,28 +18,27 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
 /**
  * @author Kate Novik.
  */
-public class ArtifactLocationGenerateNugetChecksumOperation
+public class ArtifactLocationGenerateChecksumOperation
         extends AbstractArtifactLocationHandler
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(ArtifactLocationGenerateNugetChecksumOperation.class);
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactLocationGenerateChecksumOperation.class);
 
     private String previousPath;
 
     private boolean forceRegeneration = false;
 
-    private NugetChecksumManager nugetChecksumManager;
-
     private LayoutProviderRegistry layoutProviderRegistry;
 
 
-    public ArtifactLocationGenerateNugetChecksumOperation(NugetChecksumManager nugetChecksumManager)
+    public ArtifactLocationGenerateChecksumOperation(LayoutProviderRegistry layoutProviderRegistry)
     {
-        this.nugetChecksumManager = nugetChecksumManager;
+        this.layoutProviderRegistry = layoutProviderRegistry;
     }
 
     public void execute(Path path)
@@ -104,14 +103,14 @@ public class ArtifactLocationGenerateNugetChecksumOperation
 
                 try
                 {
-                    nugetChecksumManager.generateChecksum(getRepository(), artifactPath, versionDirectories,
-                                                          forceRegeneration);
+                    LayoutProvider layoutProvider = getLayoutProvider(getRepository(), layoutProviderRegistry);
+                    layoutProvider.generateChecksum(getRepository(), artifactPath, versionDirectories,
+                                                    forceRegeneration);
                 }
                 catch (IOException |
                                NoSuchAlgorithmException |
                                ProviderImplementationException |
-                               UnknownRepositoryTypeException |
-                               ArtifactTransportException e)
+                               UnknownRepositoryTypeException | ArtifactTransportException e)
                 {
                     logger.error("Failed to generate checksum for " + artifactPath, e);
                 }
@@ -129,16 +128,6 @@ public class ArtifactLocationGenerateNugetChecksumOperation
         this.layoutProviderRegistry = layoutProviderRegistry;
     }
 
-    public NugetChecksumManager getNugetChecksumManager()
-    {
-        return nugetChecksumManager;
-    }
-
-    public void setNugetChecksumManager(NugetChecksumManager nugetChecksumManager)
-    {
-        this.nugetChecksumManager = nugetChecksumManager;
-    }
-
     public boolean getForceRegeneration()
     {
         return forceRegeneration;
@@ -148,5 +137,4 @@ public class ArtifactLocationGenerateNugetChecksumOperation
     {
         this.forceRegeneration = forceRegeneration;
     }
-
 }

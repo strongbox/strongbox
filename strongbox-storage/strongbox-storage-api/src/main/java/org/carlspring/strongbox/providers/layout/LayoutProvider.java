@@ -4,10 +4,14 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -73,6 +77,16 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
 
     void undeleteTrash()
             throws IOException;
+
+    void generateChecksum(Repository repository,
+                          String path,
+                          List<File> versionDirectories,
+                          boolean forceRegeneration)
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   ProviderImplementationException,
+                   UnknownRepositoryTypeException,
+                   ArtifactTransportException;
 
     boolean isExistChecksum(Repository repository,
                             String path);
