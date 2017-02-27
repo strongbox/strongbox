@@ -52,7 +52,7 @@
         <version.servlet-api>3.1.0</version.servlet-api>
 
         <version.httpclient>4.5</version.httpclient>
-        <version.jackson>2.8.6</version.jackson>
+        <version.jackson>2.8.7</version.jackson>
         <version.jersey>2.23.1</version.jersey>
         <version.jetty>9.3.7.v20160115</version.jetty>
         <version.lucene>4.8.1</version.lucene>
@@ -266,6 +266,20 @@
                 <groupId>com.orientechnologies</groupId>
                 <artifactId>orientdb-graphdb</artifactId>
                 <version>${version.orientdb}</version>
+                <exclusions>
+                    <exclusion>
+                        <!-- Excluding this transitive dependency in order to not be exposed to:
+                             http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-0114 -->
+                        <groupId>commons-beanutils</groupId>
+                        <artifactId>commons-beanutils-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <!-- Excluding this transitive dependency in order to not be exposed to:
+                             http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-0114 -->
+                        <groupId>commons-beanutils</groupId>
+                        <artifactId>commons-beanutils</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.orientechnologies</groupId>
@@ -305,7 +319,15 @@
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>2.4</version>
+                <version>2.5</version>
+            </dependency>
+            <!-- Override for transitive dependencies which bring older vulnerable versions
+                 of the commons-beanutils:commons-beanutils in order to not be exposed to:
+                 http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-0114 -->
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>1.9.3</version>
             </dependency>
 
             <dependency>
@@ -317,6 +339,12 @@
                     <exclusion>
                         <groupId>javax.ws.rs</groupId>
                         <artifactId>jsr311-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <!-- Excluding this transitive dependency in order to not be exposed to:
+                             http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-3720 -->
+                        <groupId>com.fasterxml.jackson.datatype</groupId>
+                        <artifactId>jackson-datatype-joda</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -359,6 +387,11 @@
                 <artifactId>jackson-module-jaxb-annotations</artifactId>
                 <version>${version.jackson}</version>
             </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.jaxrs</groupId>
+                <artifactId>jackson-jaxrs-json-provider</artifactId>
+                <version>${version.jackson}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.glassfish.jersey.core</groupId>
@@ -374,6 +407,20 @@
                 <groupId>org.glassfish.jersey.media</groupId>
                 <artifactId>jersey-media-json-jackson</artifactId>
                 <version>${version.jersey}</version>
+                <exclusions>
+                    <exclusion>
+                        <!-- Exclude this transitive dependency in order to not be exposed to:
+                             http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-3720 -->
+                        <groupId>com.fasterxml.jackson.jaxrs</groupId>
+                        <artifactId>jackson-jaxrs-base</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <!-- Exclude this transitive dependency in order to not be exposed to:
+                             http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-3720 -->
+                        <groupId>com.fasterxml.jackson.jaxrs</groupId>
+                        <artifactId>jackson-jaxrs-json-provider</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.ext</groupId>
@@ -395,26 +442,6 @@
                 <artifactId>jersey-apache-connector</artifactId>
                 <version>${version.jersey}</version>
             </dependency>
-
-            <!--<dependency>
-                <groupId>org.glassfish.jersey.ext</groupId>
-                <artifactId>jersey-spring3</artifactId>
-                <version>${version.jersey}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-web</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-beans</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-core</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency> -->
 
             <dependency>
                 <groupId>javax</groupId>
@@ -636,6 +663,45 @@
                     <scope>test</scope>
                 </dependency>
             </dependencies>
+        </profile>
+
+        <profile>
+            <id>dependency-check</id>
+
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.owasp</groupId>
+                        <artifactId>dependency-check-maven</artifactId>
+                        <version>1.4.5</version>
+
+                        <configuration>
+                            <autoconfAnalyzerEnabled>false</autoconfAnalyzerEnabled>
+                            <cmakeAnalyzerEnabled>false</cmakeAnalyzerEnabled>
+                            <cocoapodsAnalyzerEnabled>false</cocoapodsAnalyzerEnabled>
+                            <composerAnalyzerEnabled>false</composerAnalyzerEnabled>
+                            <nuspecAnalyzerEnabled>false</nuspecAnalyzerEnabled>
+                            <pyPackageAnalyzerEnabled>false</pyPackageAnalyzerEnabled>
+                            <pyDistributionAnalyzerEnabled>false</pyDistributionAnalyzerEnabled>
+                            <rubygemsAnalyzerEnabled>false</rubygemsAnalyzerEnabled>
+                            <swiftPackageManagerAnalyzerEnabled>false</swiftPackageManagerAnalyzerEnabled>
+                            <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
+                        </configuration>
+
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 
