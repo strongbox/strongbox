@@ -139,6 +139,14 @@ class ArtifactEntryServiceImpl
     }
 
     @Override
+    public Optional<ArtifactEntry> findOne(ArtifactCoordinates artifactCoordinates)
+    {
+        List<ArtifactEntry> artifactEntryList = findByCoordinates(artifactCoordinates);
+        return Optional.ofNullable(artifactEntryList == null || artifactEntryList.isEmpty() ? null
+                : artifactEntryList.iterator().next());
+    }
+
+    @Override
     @Transactional
     public boolean exists(String var1)
     {
