@@ -696,7 +696,7 @@
                             <execution>
                                 <goals>
                                     <goal>check</goal>
-                                </goals>
+                                    <goal>aggregate</goal>                                </goals>
                             </execution>
                         </executions>
                     </plugin>
