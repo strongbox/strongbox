@@ -14,7 +14,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
-public class JWtAuthenticationProvider
+public class JWTAuthenticationProvider
         implements AuthenticationProvider
 {
 
