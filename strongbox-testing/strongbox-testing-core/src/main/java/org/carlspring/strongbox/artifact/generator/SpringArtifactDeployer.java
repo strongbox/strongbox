@@ -5,10 +5,10 @@ package org.carlspring.strongbox.artifact.generator;
  */
 @Deprecated
 public class SpringArtifactDeployer
-        extends ArtifactDeployer
+        extends MavenArtifactDeployer
 {
 
-//    private static final Logger logger = LoggerFactory.getLogger(ArtifactDeployer.class);
+//    private static final Logger logger = LoggerFactory.getLogger(MavenArtifactDeployer.class);
 //
 //    private String username;
 //

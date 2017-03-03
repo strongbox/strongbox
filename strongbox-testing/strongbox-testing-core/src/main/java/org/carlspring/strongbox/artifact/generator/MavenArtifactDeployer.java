@@ -27,11 +27,11 @@ import static org.carlspring.maven.commons.util.ArtifactUtils.getArtifactFileNam
 /**
  * @author mtodorov
  */
-public class ArtifactDeployer
-        extends ArtifactGenerator
+public class MavenArtifactDeployer
+        extends MavenArtifactGenerator
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(ArtifactDeployer.class);
+    private static final Logger logger = LoggerFactory.getLogger(MavenArtifactDeployer.class);
 
     private String username;
 
@@ -41,16 +41,16 @@ public class ArtifactDeployer
 
     private MetadataMerger metadataMerger;
 
-    public ArtifactDeployer()
+    public MavenArtifactDeployer()
     {
     }
 
-    public ArtifactDeployer(String basedir)
+    public MavenArtifactDeployer(String basedir)
     {
         super(basedir);
     }
 
-    public ArtifactDeployer(File basedir)
+    public MavenArtifactDeployer(File basedir)
     {
         super(basedir);
     }

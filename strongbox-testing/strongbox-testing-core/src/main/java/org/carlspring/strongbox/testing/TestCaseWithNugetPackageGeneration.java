@@ -26,9 +26,9 @@ public class TestCaseWithNugetPackageGeneration
         generator.generateNugetPackage(id, versions);
     }
 
-    public void generateSnapshotNugetPackage(String basedir,
-                                             String id,
-                                             String... versions)
+    public void generateAlphaNugetPackage(String basedir,
+                                          String id,
+                                          String... versions)
             throws IOException, NoSuchAlgorithmException, NugetFormatException, JAXBException
     {
         NugetPackageGenerator generator = new NugetPackageGenerator(basedir);
@@ -41,7 +41,7 @@ public class TestCaseWithNugetPackageGeneration
 
     private String getNugetSnapshotVersion(String version)
     {
-        return version.concat("-SNAPSHOT");
+        return version.concat("-alpha");
     }
 
 }
