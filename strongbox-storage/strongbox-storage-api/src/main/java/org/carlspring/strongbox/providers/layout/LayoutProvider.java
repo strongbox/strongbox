@@ -79,4 +79,22 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
 
     Set<String> getDigestAlgorithmSet();
 
+    void rebuildMetadata(String storageId,
+                         String repositoryId,
+                         String basePath,
+                         boolean forceRegeneration)
+            throws IOException;
+
+    void rebuildIndexes(String storageId,
+                        String repositoryId,
+                        String basePath,
+                        boolean forceRegeneration)
+            throws IOException;
+
+    void regenerateChecksums(String storageId,
+                             String repositoryId,
+                             String basePath,
+                             boolean forceRegeneration)
+            throws IOException;
+
 }

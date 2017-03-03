@@ -36,7 +36,7 @@
 
     <modules>
         <module>strongbox-storage-api</module>
-        <module>strongbox-storage-indexing</module>
+        <module>strongbox-storage-maven-layout-provider</module>
     </modules>
 
 </project>

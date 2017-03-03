@@ -333,8 +333,14 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-storage-indexing</artifactId>
+            <artifactId>strongbox-storage-maven-layout-provider</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-storage-maven-layout-provider</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -355,12 +361,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-testing-web</artifactId>
-            <version>${project.version}</version>
-            <type>test-jar</type>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-storage-indexing</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
         </dependency>

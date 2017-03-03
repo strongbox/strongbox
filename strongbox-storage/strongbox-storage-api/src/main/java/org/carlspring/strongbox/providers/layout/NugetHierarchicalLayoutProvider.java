@@ -112,4 +112,34 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
                      .collect(Collectors.toSet());
     }
 
+    @Override
+    public void rebuildMetadata(String storageId,
+                                String repositoryId,
+                                String basePath,
+                                boolean forceRegeneration)
+            throws IOException
+    {
+        throw new UnsupportedOperationException("Not yet implemented!");
+    }
+
+    @Override
+    public void rebuildIndexes(String storageId,
+                               String repositoryId,
+                               String basePath,
+                               boolean forceRegeneration)
+            throws IOException
+    {
+        throw new UnsupportedOperationException("Not yet implemented!");
+    }
+
+    @Override
+    public void regenerateChecksums(String storageId,
+                                    String repositoryId,
+                                    String basePath,
+                                    boolean forceRegeneration)
+            throws IOException
+    {
+        throw new UnsupportedOperationException("Not yet implemented!");
+    }
+
 }
