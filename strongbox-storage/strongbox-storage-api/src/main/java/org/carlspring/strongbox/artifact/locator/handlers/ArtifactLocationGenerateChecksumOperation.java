@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.artifact.locator.handlers;
 
 import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.io.filters.MetadataFilenameFilter;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
@@ -46,7 +45,18 @@ public class ArtifactLocationGenerateChecksumOperation
         File f = path.toAbsolutePath()
                      .toFile();
 
-        String[] list = f.list(new MetadataFilenameFilter());
+        LayoutProvider layoutProvider = null;
+        try
+        {
+            layoutProvider = getLayoutProvider(getRepository(), layoutProviderRegistry);
+            setFilenameFilter(layoutProvider.getMetadataFilenameFilter());
+        }
+        catch (ProviderImplementationException e)
+        {
+            logger.error("Failed to get layout provider for repository " + getRepository(), e);
+        }
+
+        String[] list = f.list(getFilenameFilter());
         List<String> filePaths = list != null ? Arrays.asList(list) : new ArrayList<>();
 
         String parentPath = path.getParent()
@@ -103,7 +113,6 @@ public class ArtifactLocationGenerateChecksumOperation
 
                 try
                 {
-                    LayoutProvider layoutProvider = getLayoutProvider(getRepository(), layoutProviderRegistry);
                     layoutProvider.generateChecksum(getRepository(), artifactPath, versionDirectories,
                                                     forceRegeneration);
                 }

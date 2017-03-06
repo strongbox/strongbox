@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.providers.layout;
 
+import org.carlspring.maven.commons.io.filters.PomFilenameFilter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
@@ -13,6 +14,7 @@ import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeExceptio
 
 import javax.annotation.PostConstruct;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -180,6 +182,12 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         {
             logger.error("Artifact checksum generation failed: " + path + ".");
         }
+    }
+
+    @Override
+    public FilenameFilter getMetadataFilenameFilter()
+    {
+        return new PomFilenameFilter();
     }
 
 }

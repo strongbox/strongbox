@@ -10,6 +10,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -82,6 +83,12 @@ public class P2LayoutProvider
                    ArtifactTransportException
     {
 
+    }
+
+    @Override
+    public FilenameFilter getMetadataFilenameFilter()
+    {
+        return null;
     }
 
     @Override

@@ -6,11 +6,11 @@ import java.io.FilenameFilter;
 /**
  * @author Kate Novik.
  */
-public class MetadataFilenameFilter
+public class NuspecFilenameFilter
         implements FilenameFilter
 {
 
-    public MetadataFilenameFilter()
+    public NuspecFilenameFilter()
     {
     }
 
@@ -18,6 +18,7 @@ public class MetadataFilenameFilter
     public boolean accept(File dir,
                           String name)
     {
-        return name.endsWith(".pom") || name.endsWith(".nuspec");
+        return name.endsWith(".nuspec");
     }
+
 }
