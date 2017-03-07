@@ -3,7 +3,7 @@ package org.carlspring.strongbox.rest.common;
 import org.carlspring.strongbox.artifact.generator.ArtifactDeployer;
 import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.users.domain.Roles;
 
 import java.io.File;
@@ -34,7 +34,7 @@ import static org.junit.Assert.assertTrue;
  * @author Alex Oreshkevich
  */
 public abstract class RestAssuredBaseTest
-        extends TestCaseWithArtifactGenerationWithIndexing
+        extends TestCaseWithArtifactGenerationAndIndexing
 {
 
     public final static int DEFAULT_PORT = 48080;

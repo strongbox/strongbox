@@ -12,7 +12,7 @@ import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -42,22 +42,22 @@ import static org.junit.Assert.*;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ArtifactManagementServiceImplTest
-        extends TestCaseWithArtifactGenerationWithIndexing
+        extends TestCaseWithArtifactGenerationAndIndexing
 {
 
-    public static final String REPOSITORY_RELEASES = "amsi-releases";
+    private static final String REPOSITORY_RELEASES = "amsi-releases";
 
-    public static final String REPOSITORY_RELEASES_WITH_TRASH = "amsi-releases-with-trash";
+    private static final String REPOSITORY_RELEASES_WITH_TRASH = "amsi-releases-with-trash";
 
-    public static final String REPOSITORY_RELEASES_WITHOUT_DEPLOYMENT = "amsi-releases-without-deployment";
+    private static final String REPOSITORY_RELEASES_WITHOUT_DEPLOYMENT = "amsi-releases-without-deployment";
 
-    public static final String REPOSITORY_RELEASES_WITHOUT_REDEPLOYMENT = "amsi-releases-without-redeployment";
+    private static final String REPOSITORY_RELEASES_WITHOUT_REDEPLOYMENT = "amsi-releases-without-redeployment";
 
-    public static final String REPOSITORY_RELEASES_WITHOUT_DELETE = "amsi-releases-without-delete";
+    private static final String REPOSITORY_RELEASES_WITHOUT_DELETE = "amsi-releases-without-delete";
 
-    public static final String REPOSITORY_SNAPSHOTS = "amsi-snapshots";
+    private static final String REPOSITORY_SNAPSHOTS = "amsi-snapshots";
 
-    public static final String REPOSITORY_GROUP = "amsi-group";
+    private static final String REPOSITORY_GROUP = "amsi-group";
 
     @org.springframework.context.annotation.Configuration
     @Import({ CommonConfig.class, StorageApiConfig.class })
@@ -161,13 +161,13 @@ public class ArtifactManagementServiceImplTest
     public static Set<Repository> getRepositoriesToClean()
     {
         Set<Repository> repositories = new LinkedHashSet<>();
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES_WITHOUT_DEPLOYMENT));
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES_WITHOUT_REDEPLOYMENT));
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES_WITH_TRASH));
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES_WITHOUT_DELETE));
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS));
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_GROUP));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_WITHOUT_DEPLOYMENT));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_WITHOUT_REDEPLOYMENT));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_WITH_TRASH));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_WITHOUT_DELETE));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP));
 
         return repositories;
     }

@@ -1,26 +1,32 @@
 package org.carlspring.strongbox.services;
 
-import org.carlspring.maven.commons.io.filters.JarFilenameFilter;
-import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.util.FileUtils;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -28,19 +34,22 @@ import static org.junit.Assert.assertTrue;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
-@Ignore
 public class ChecksumServiceTest
-        extends TestCaseWithArtifactGeneration
+        extends TestCaseWithArtifactGenerationAndIndexing
 {
 
-    private static final File REPOSITORY_BASEDIR_1 = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                              "/storages/storage0/releases");
+    private static final String REPOSITORY_RELEASES = "cs-releases";
 
-    private static final File REPOSITORY_BASEDIR_2 = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                              "/storages/storage0/snapshots");
+    private static final String REPOSITORY_SNAPSHOTS = "cs-snapshots";
+
+    private static final File REPOSITORY_RELEASES_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                                     "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES);
+
+    private static final File REPOSITORY_SNAPSHOTS_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                                      "/storages/" + STORAGE0 + "/" + REPOSITORY_SNAPSHOTS);
 
     @org.springframework.context.annotation.Configuration
-    @ComponentScan(basePackages = { "org.carlspring.strongbox", "org.carlspring.logging" })
+    @ComponentScan(basePackages = { "org.carlspring.strongbox" })
     public static class SpringConfig { }
 
     @Inject
@@ -49,48 +58,49 @@ public class ChecksumServiceTest
     @Inject
     private ArtifactMetadataService artifactMetadataService;
 
+    @Inject
+    private LayoutProviderRegistry layoutProviderRegistry;
 
-    @Before
-    public void setUp()
-            throws NoSuchAlgorithmException,
-                   XmlPullParserException,
-                   IOException
+    @Inject
+    private ConfigurationManager configurationManager;
+
+    private static Artifact snapshotArtifact;
+
+
+    @BeforeClass
+    public static void cleanUp()
+            throws Exception
     {
-        if (!new File(REPOSITORY_BASEDIR_1, "org/carlspring/strongbox/checksum/maven/strongbox-checksum").exists())
-        {
-            //noinspection ResultOfMethodCallIgnored
-            REPOSITORY_BASEDIR_1.mkdirs();
+        cleanUp(getRepositoriesToClean());
+    }
 
-            String ga = "org.carlspring.strongbox.checksum.maven:strongbox-checksum";
+    @PostConstruct
+    public void initialize()
+            throws Exception
+    {
+        createRepository(STORAGE0, REPOSITORY_RELEASES, RepositoryPolicyEnum.RELEASE.getPolicy(), false);
+        createRepository(STORAGE0, REPOSITORY_SNAPSHOTS, RepositoryPolicyEnum.SNAPSHOT.getPolicy(), false);
 
-            // Create released artifacts
-            for (int i = 0; i <= 1; i++)
-            {
-                createRelease(ga + ":1." + i + ":jar");
-            }
-        }
+        createRelease("org.carlspring.strongbox.checksum.maven:strongbox-checksum:1.0:jar");
+        createRelease("org.carlspring.strongbox.checksum.maven:strongbox-checksum:1.1:jar");
+        createRelease("org.carlspring.strongbox.checksum.maven:checksum-rewrite:1.0:jar");
 
-        if (!new File(REPOSITORY_BASEDIR_1, "org/carlspring/strongbox/checksum/maven/checksum-rewrite").exists())
-        {
-            //noinspection ResultOfMethodCallIgnored
-            REPOSITORY_BASEDIR_1.mkdirs();
-            String ga2 = "org.carlspring.strongbox.checksum.maven:checksum-rewrite";
-            createRelease(ga2 + ":1.0:jar");
-        }
+        snapshotArtifact = createTimestampedSnapshotArtifact(REPOSITORY_SNAPSHOTS_BASEDIR.getAbsolutePath(),
+                                                             "org.carlspring.strongbox",
+                                                             "checksum",
+                                                             "2.0",
+                                                             "jar",
+                                                             null,
+                                                             1);
+    }
 
-        if (!new File(REPOSITORY_BASEDIR_2, "org/carlspring/strongbox/checksum").exists())
-        {
-            //noinspection ResultOfMethodCallIgnored
-            REPOSITORY_BASEDIR_2.mkdirs();
+    public static Set<Repository> getRepositoriesToClean()
+    {
+        Set<Repository> repositories = new LinkedHashSet<>();
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS));
 
-            createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_2.getAbsolutePath(),
-                                              "org.carlspring.strongbox",
-                                              "checksum",
-                                              "2.0",
-                                              "jar",
-                                              null,
-                                              2);
-        }
+        return repositories;
     }
 
     @Test
@@ -99,57 +109,56 @@ public class ChecksumServiceTest
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
-        String artifactPath = REPOSITORY_BASEDIR_1 + "/org/carlspring/strongbox/checksum/maven/strongbox-checksum";
+        String artifactPath = REPOSITORY_RELEASES_BASEDIR + "/org/carlspring/strongbox/checksum/maven/strongbox-checksum";
 
-        artifactMetadataService.rebuildMetadata("storage0", "releases", "org/carlspring/strongbox/checksum");
+        // Remove these for the sake of the test:
+        FileUtils.deleteIfExists(new File(artifactPath, "1.0/strongbox-checksum-1.0.jar.md5"));
+        FileUtils.deleteIfExists(new File(artifactPath, "1.0/strongbox-checksum-1.0.jar.sha1"));
 
-        FileUtils.deleteIfExists(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5"));
-        FileUtils.deleteIfExists(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.sha1"));
-        FileUtils.deleteIfExists(new File(artifactPath, "/1.0/strongbox-checksum-1.0.pom.md5"));
-        FileUtils.deleteIfExists(new File(artifactPath, "/1.0/strongbox-checksum-1.0.pom.sha1"));
+        assertFalse("The checksum file for artifact exist!",
+                    new File(artifactPath, "1.0/strongbox-checksum-1.0.jar.md5").exists());
 
-        FileUtils.deleteIfExists(new File(artifactPath, "/1.1/strongbox-checksum-1.1.jar.md5"));
-        FileUtils.deleteIfExists(new File(artifactPath, "/1.1/strongbox-checksum-1.1.jar.sha1"));
-        FileUtils.deleteIfExists(new File(artifactPath, "/1.1/strongbox-checksum-1.1.pom.md5"));
-        FileUtils.deleteIfExists(new File(artifactPath, "/1.1/strongbox-checksum-1.1.pom.sha1"));
+        Repository repository = configurationManager.getRepository(STORAGE0, REPOSITORY_RELEASES);
 
-        FileUtils.deleteIfExists(new File(artifactPath, "/maven-metadata.xml.md5"));
-        FileUtils.deleteIfExists(new File(artifactPath, "/maven-metadata.xml.sha1"));
+        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        layoutProvider.rebuildMetadata(STORAGE0,
+                                       REPOSITORY_RELEASES,
+                                       "org/carlspring/strongbox/checksum/maven/strongbox-checksum");
 
-        assertTrue("The checksum file for artifact exist!",
-                   !new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5").exists());
-
-        checksumService.regenerateChecksum("storage0", "releases", "org/carlspring/strongbox/checksum/maven", false);
-
-        assertTrue("The checksum file for artifact doesn't exist!",
-                   new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.sha1").exists());
-        assertTrue("The checksum file for artifact is empty!",
-                   new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.sha1").length() > 0);
+        layoutProvider.regenerateChecksums(STORAGE0,
+                                           REPOSITORY_RELEASES,
+                                           "org/carlspring/strongbox/checksum/maven/strongbox-checksum",
+                                           false);
 
         assertTrue("The checksum file for artifact doesn't exist!",
-                   new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5").exists());
+                   new File(artifactPath, "1.0/strongbox-checksum-1.0.jar.sha1").exists());
         assertTrue("The checksum file for artifact is empty!",
-                   new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5").length() > 0);
+                   new File(artifactPath, "1.0/strongbox-checksum-1.0.jar.sha1").length() > 0);
+
+        assertTrue("The checksum file for artifact doesn't exist!",
+                   new File(artifactPath, "1.0/strongbox-checksum-1.0.jar.md5").exists());
+        assertTrue("The checksum file for artifact is empty!",
+                   new File(artifactPath, "1.0/strongbox-checksum-1.0.jar.md5").length() > 0);
 
         assertTrue("The checksum file for pom file doesn't exist!",
-                   new File(artifactPath, "/1.0/strongbox-checksum-1.0.pom.sha1").exists());
+                   new File(artifactPath, "1.0/strongbox-checksum-1.0.pom.sha1").exists());
         assertTrue("The checksum file for pom file is empty!",
-                   new File(artifactPath, "/1.0/strongbox-checksum-1.0.pom.md5").length() > 0);
+                   new File(artifactPath, "1.0/strongbox-checksum-1.0.pom.md5").length() > 0);
 
         assertTrue("The checksum file for artifact doesn't exist!",
-                   new File(artifactPath, "/1.1/strongbox-checksum-1.1.jar.sha1").exists());
+                   new File(artifactPath, "1.1/strongbox-checksum-1.1.jar.sha1").exists());
         assertTrue("The checksum file for artifact is empty!",
-                   new File(artifactPath, "/1.1/strongbox-checksum-1.1.jar.sha1").length() > 0);
+                   new File(artifactPath, "1.1/strongbox-checksum-1.1.jar.sha1").length() > 0);
 
         assertTrue("The checksum file for pom file doesn't exist!",
-                   new File(artifactPath, "/1.1/strongbox-checksum-1.1.pom.sha1").exists());
+                   new File(artifactPath, "1.1/strongbox-checksum-1.1.pom.sha1").exists());
         assertTrue("The checksum file for pom file is empty!",
-                   new File(artifactPath, "/1.1/strongbox-checksum-1.1.pom.md5").length() > 0);
+                   new File(artifactPath, "1.1/strongbox-checksum-1.1.pom.md5").length() > 0);
 
         assertTrue("The checksum file for metadata file doesn't exist!",
-                   new File(artifactPath, "/maven-metadata.xml.md5").exists());
+                   new File(artifactPath, "maven-metadata.xml.md5").exists());
         assertTrue("The checksum file for metadata file is empty!",
-                   new File(artifactPath, "/maven-metadata.xml.sha1").length() > 0);
+                   new File(artifactPath, "maven-metadata.xml.sha1").length() > 0);
     }
 
     @Test
@@ -158,50 +167,47 @@ public class ChecksumServiceTest
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
-        String artifactPath = REPOSITORY_BASEDIR_2 + "/org/carlspring/strongbox/checksum";
+        FileUtils.deleteIfExists(new File(snapshotArtifact.getFile().getAbsolutePath() + ".jar.md5"));
+        FileUtils.deleteIfExists(new File(snapshotArtifact.getFile().getAbsolutePath() + ".jar.sha1"));
+        FileUtils.deleteIfExists(new File(snapshotArtifact.getFile().getAbsolutePath() + ".pom.md5"));
+        FileUtils.deleteIfExists(new File(snapshotArtifact.getFile().getAbsolutePath() + ".pom.sha1"));
 
-        File file = new File(artifactPath, "2.0-SNAPSHOT");
-        File[] files = file.listFiles(new JarFilenameFilter());
-        Artifact artifact = ArtifactUtils.convertPathToArtifact(files[0].getPath());
-        String artifactName = artifact.getVersion();
+        String artifactPath = REPOSITORY_SNAPSHOTS_BASEDIR + "/org/carlspring/strongbox/checksum";
 
-        artifactMetadataService.rebuildMetadata("storage0", "snapshots", "org/carlspring/strongbox/checksum");
+        Repository repository = configurationManager.getRepository(STORAGE0, REPOSITORY_RELEASES);
 
-        FileUtils.deleteIfExists(new File(artifactPath, "/2.0-SNAPSHOT/checksum-" + artifactName + ".jar.md5"));
-        FileUtils.deleteIfExists(new File(artifactPath, "/2.0-SNAPSHOT/checksum-" + artifactName + ".jar.sha1"));
-        FileUtils.deleteIfExists(new File(artifactPath, "/2.0-SNAPSHOT/checksum-" + artifactName + ".pom.md5"));
-        FileUtils.deleteIfExists(new File(artifactPath, "/2.0-SNAPSHOT/checksum-" + artifactName + ".pom.sha1"));
+        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        layoutProvider.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS, "org/carlspring/strongbox/checksum");
 
-        FileUtils.deleteIfExists(new File(artifactPath, "/2.0-SNAPSHOT/maven-metadata.xml.md5"));
-        FileUtils.deleteIfExists(new File(artifactPath, "/2.0-SNAPSHOT/maven-metadata.xml.sha1"));
+        assertFalse("The checksum file for artifact exist!",
+                    new File(snapshotArtifact.getFile().getAbsolutePath() + ".jar.md5").exists());
+        assertFalse("The checksum file for artifact exist!",
+                    new File(snapshotArtifact.getFile().getAbsolutePath() + ".jar.sha1").exists());
 
-        FileUtils.deleteIfExists(new File(artifactPath, "/maven-metadata.xml.md5"));
-        FileUtils.deleteIfExists(new File(artifactPath, "/maven-metadata.xml.sha1"));
+        layoutProvider.regenerateChecksums(STORAGE0, REPOSITORY_SNAPSHOTS, "org/carlspring/strongbox/checksum", false);
 
-        assertTrue("The checksum file for artifact exist!",
-                   !new File(artifactPath, "/2.0-SNAPSHOT/checksum-" + artifactName + ".jar.md5").exists());
+        assertTrue("The checksum file for the artifact doesn't exist!",
+                   new File(snapshotArtifact.getFile().getAbsolutePath() + ".sha1").exists());
+        assertTrue("The checksum file for the artifact is empty!",
+                   new File(snapshotArtifact.getFile().getAbsolutePath() + ".sha1").length() > 0);
+        assertTrue("The checksum file for the artifact doesn't exist!",
+                   new File(snapshotArtifact.getFile().getAbsolutePath() + ".md5").exists());
+        assertTrue("The checksum file for the artifact is empty!",
+                   new File(snapshotArtifact.getFile().getAbsolutePath() + ".md5").length() > 0);
 
-        checksumService.regenerateChecksum("storage0", "snapshots", "org/carlspring/strongbox/checksum", false);
-
-        assertTrue("The checksum file for artifact doesn't exist!",
-                   new File(artifactPath, "/2.0-SNAPSHOT/checksum-" + artifactName + ".jar.sha1").exists());
-        assertTrue("The checksum file for artifact is empty!",
-                   new File(artifactPath, "/2.0-SNAPSHOT/checksum-" + artifactName + ".jar.sha1").length() > 0);
-
-        assertTrue("The checksum file for artifact doesn't exist!",
-                   new File(artifactPath, "/2.0-SNAPSHOT/checksum-" + artifactName + ".jar.md5").exists());
-        assertTrue("The checksum file for artifact is empty!",
-                   new File(artifactPath, "/2.0-SNAPSHOT/checksum-" + artifactName + ".jar.md5").length() > 0);
-
-        assertTrue("The checksum file for pom file doesn't exist!",
-                   new File(artifactPath, "/2.0-SNAPSHOT/checksum-" + artifactName + ".pom.sha1").exists());
-        assertTrue("The checksum file for pom file is empty!",
-                   new File(artifactPath, "/2.0-SNAPSHOT/checksum-" + artifactName + ".pom.md5").length() > 0);
+        assertTrue("The checksum file for the pom file doesn't exist!",
+                   new File(snapshotArtifact.getFile().getAbsolutePath().replaceAll("jar", "pom") + ".sha1").exists());
+        assertTrue("The checksum file for the pom file is empty!",
+                   new File(snapshotArtifact.getFile().getAbsolutePath().replaceAll("jar", "pom") + ".sha1").length() > 0);
+        assertTrue("The checksum file for the pom file doesn't exist!",
+                   new File(snapshotArtifact.getFile().getAbsolutePath().replaceAll("jar", "pom") + ".md5").exists());
+        assertTrue("The checksum file for the pom file is empty!",
+                   new File(snapshotArtifact.getFile().getAbsolutePath().replaceAll("jar", "pom") + ".md5").length() > 0);
 
         assertTrue("The checksum file for metadata file doesn't exist!",
-                   new File(artifactPath, "/maven-metadata.xml.md5").exists());
+                   new File(artifactPath, "maven-metadata.xml.md5").exists());
         assertTrue("The checksum file for metadata file is empty!",
-                   new File(artifactPath, "/maven-metadata.xml.sha1").length() > 0);
+                   new File(artifactPath, "maven-metadata.xml.sha1").length() > 0);
     }
 
     @Test
@@ -210,40 +216,49 @@ public class ChecksumServiceTest
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
-        String artifactPath = REPOSITORY_BASEDIR_1 + "/org/carlspring/strongbox/checksum/maven/checksum-rewrite";
+        String artifactPath = REPOSITORY_RELEASES_BASEDIR + "/org/carlspring/strongbox/checksum/maven/checksum-rewrite";
 
-        artifactMetadataService.rebuildMetadata("storage0", "releases", "org/carlspring/strongbox/checksum");
+        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_RELEASES, "org/carlspring/strongbox/checksum");
+
+        File md5File = new File(artifactPath, "1.0/checksum-rewrite-1.0.jar.md5");
 
         assertTrue("The checksum file for artifact doesn't exist!",
-                   new File(artifactPath, "/1.0/checksum-rewrite-1.0.jar.md5").exists());
+                   md5File.exists());
         assertTrue("The checksum file for pom file doesn't exist!",
-                   new File(artifactPath, "/1.0/checksum-rewrite-1.0.pom.sha1").exists());
+                   new File(artifactPath, "1.0/checksum-rewrite-1.0.pom.sha1").exists());
         assertTrue("The checksum file for metadata doesn't exist!",
-                   new File(artifactPath, "/maven-metadata.xml.md5").exists());
+                   new File(artifactPath, "maven-metadata.xml.md5").exists());
 
-        new FileOutputStream(new File(artifactPath, "/1.0/checksum-rewrite-1.0.jar.md5"), false).write("".getBytes());
-        new FileOutputStream(new File(artifactPath, "/1.0/checksum-rewrite-1.0.jar.sha1"), false).write("".getBytes());
-        new FileOutputStream(new File(artifactPath, "/1.0/checksum-rewrite-1.0.pom.md5"), false).write("".getBytes());
-        new FileOutputStream(new File(artifactPath, "/1.0/checksum-rewrite-1.0.pom.sha1"), false).write("".getBytes());
-        new FileOutputStream(new File(artifactPath, "/maven-metadata.xml.md5"), false).write("".getBytes());
-        new FileOutputStream(new File(artifactPath, "/maven-metadata.xml.sha1"), false).write("".getBytes());
+        new FileOutputStream(md5File, false).write("".getBytes());
+        new FileOutputStream(new File(artifactPath, "1.0/checksum-rewrite-1.0.jar.sha1"), false).write("".getBytes());
+        new FileOutputStream(new File(artifactPath, "1.0/checksum-rewrite-1.0.pom.md5"), false).write("".getBytes());
+        new FileOutputStream(new File(artifactPath, "1.0/checksum-rewrite-1.0.pom.sha1"), false).write("".getBytes());
+        new FileOutputStream(new File(artifactPath, "maven-metadata.xml.md5"), false).write("".getBytes());
+        new FileOutputStream(new File(artifactPath, "maven-metadata.xml.sha1"), false).write("".getBytes());
 
         assertTrue("The checksum file for artifact isn't empty!",
-                   new File(artifactPath, "/1.0/checksum-rewrite-1.0.jar.md5").length() == 0);
+                   md5File.length() == 0);
         assertTrue("The checksum file for pom file isn't empty!",
-                   new File(artifactPath, "/1.0/checksum-rewrite-1.0.pom.sha1").length() == 0);
+                   new File(artifactPath, "1.0/checksum-rewrite-1.0.pom.sha1").length() == 0);
         assertTrue("The checksum file for metadata isn't empty!",
-                   new File(artifactPath, "/maven-metadata.xml.md5").length() == 0);
+                   new File(artifactPath, "maven-metadata.xml.md5").length() == 0);
 
-        checksumService.regenerateChecksum("storage0", "releases",
-                                           "org/carlspring/strongbox/checksum/maven/checksum-rewrite", true);
+        Repository repository = configurationManager.getRepository(STORAGE0, REPOSITORY_RELEASES);
+
+        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        layoutProvider.regenerateChecksums(STORAGE0,
+                                           REPOSITORY_RELEASES,
+                                           "org/carlspring/strongbox/checksum/maven/checksum-rewrite",
+                                           true);
+
+        System.out.println(md5File);
 
         assertTrue("The checksum file for artifact is empty!",
-                   new File(artifactPath, "/1.0/checksum-rewrite-1.0.jar.md5").length() > 0);
+                   md5File.length() > 0);
         assertTrue("The checksum file for pom file is empty!",
-                   new File(artifactPath, "/1.0/checksum-rewrite-1.0.pom.sha1").length() > 0);
+                   new File(artifactPath, "1.0/checksum-rewrite-1.0.pom.sha1").length() > 0);
         assertTrue("The checksum file for metadata is empty!",
-                   new File(artifactPath, "/maven-metadata.xml.md5").length() > 0);
+                   new File(artifactPath, "maven-metadata.xml.md5").length() > 0);
     }
 
     /**
@@ -259,7 +274,7 @@ public class ChecksumServiceTest
                    XmlPullParserException,
                    IOException
     {
-        return generateArtifact(REPOSITORY_BASEDIR_1.getAbsolutePath(), gavtc);
+        return generateArtifact(REPOSITORY_RELEASES_BASEDIR.getAbsolutePath(), gavtc);
     }
 
 }

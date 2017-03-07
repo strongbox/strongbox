@@ -8,7 +8,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RuleSet;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
 
 import javax.annotation.PreDestroy;
 import javax.xml.bind.JAXBException;
@@ -38,20 +38,20 @@ import static org.junit.Assert.*;
 @Transactional
 @Commit
 public class ConfigurationManagementServiceImplTest
-        extends TestCaseWithArtifactGenerationWithIndexing
+        extends TestCaseWithArtifactGenerationAndIndexing
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationManagementServiceImplTest.class);
 
     private static final String RULE_PATTERN = "*.org.test";
 
-    public static final String REPOSITORY_RELEASES_1 = "cmsi-releases-1";
+    private static final String REPOSITORY_RELEASES_1 = "cmsi-releases-1";
 
-    public static final String REPOSITORY_RELEASES_2 = "cmsi-releases-2";
+    private static final String REPOSITORY_RELEASES_2 = "cmsi-releases-2";
 
-    public static final String REPOSITORY_GROUP_1 = "csmi-group-1";
+    private static final String REPOSITORY_GROUP_1 = "csmi-group-1";
 
-    public static final String REPOSITORY_GROUP_2 = "csmi-group-2";
+    private static final String REPOSITORY_GROUP_2 = "csmi-group-2";
 
     @Autowired
     private ConfigurationRepository configurationRepository;
@@ -108,10 +108,10 @@ public class ConfigurationManagementServiceImplTest
     public static Set<Repository> getRepositoriesToClean()
     {
         Set<Repository> repositories = new LinkedHashSet<>();
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1));
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2));
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_GROUP_1));
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_GROUP_2));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_1));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_2));
 
         return repositories;
     }

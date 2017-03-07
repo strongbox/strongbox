@@ -2,7 +2,7 @@ package org.carlspring.strongbox.providers.layout;
 
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -27,11 +27,11 @@ import static org.junit.Assert.assertTrue;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
-public class Maven2MetadataProviderTest
-        extends TestCaseWithArtifactGenerationWithIndexing
+public class Maven2LayoutProviderTest
+        extends TestCaseWithArtifactGenerationAndIndexing
 {
 
-    public static final String REPOSITORYID = "mmp-releases";
+    private static final String REPOSITORYID = "mmp-releases";
 
     @Autowired
     private LayoutProviderRegistry layoutProviderRegistry;
@@ -72,7 +72,7 @@ public class Maven2MetadataProviderTest
     public static Set<Repository> getRepositoriesToClean()
     {
         Set<Repository> repositories = new LinkedHashSet<>();
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORYID));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORYID));
 
         return repositories;
     }

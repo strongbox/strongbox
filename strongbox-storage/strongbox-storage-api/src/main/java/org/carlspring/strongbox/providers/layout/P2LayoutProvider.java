@@ -7,7 +7,9 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,9 +69,10 @@ public class P2LayoutProvider
     @Override
     public void rebuildMetadata(String storageId,
                                 String repositoryId,
-                                String basePath,
-                                boolean forceRegeneration)
-            throws IOException
+                                String basePath)
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   XmlPullParserException
     {
         throw new UnsupportedOperationException("Not yet implemented!");
     }

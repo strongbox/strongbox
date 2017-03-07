@@ -2,7 +2,7 @@ package org.carlspring.strongbox.storage.indexing;
 
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
 
 import javax.annotation.PreDestroy;
 import javax.xml.bind.JAXBException;
@@ -24,10 +24,10 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 public class RepositoryIndexerTest
-        extends TestCaseWithArtifactGenerationWithIndexing
+        extends TestCaseWithArtifactGenerationAndIndexing
 {
 
-    public static final String REPOSITORY_RELEASES = "ri-releases";
+    private static final String REPOSITORY_RELEASES = "ri-releases";
 
     @Autowired
     private RepositoryManagementService repositoryManagementService;
@@ -61,7 +61,7 @@ public class RepositoryIndexerTest
     public static Set<Repository> getRepositoriesToClean()
     {
         Set<Repository> repositories = new LinkedHashSet<>();
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
 
         return repositories;
     }

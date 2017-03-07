@@ -337,6 +337,7 @@ public class TestCaseWithArtifactGeneration
         }
     }
 
+
     public File getStorageBasedir(String storageId)
     {
         return new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/" + storageId);

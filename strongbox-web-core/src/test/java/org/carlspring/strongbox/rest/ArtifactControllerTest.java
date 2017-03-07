@@ -55,11 +55,11 @@ public class ArtifactControllerTest
 
     private static File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/local");
 
-    public static final String REPOSITORY_RELEASES1 = "act-releases-1";
+    private static final String REPOSITORY_RELEASES1 = "act-releases-1";
 
-    public static final String REPOSITORY_RELEASES2 = "act-releases-2";
+    private static final String REPOSITORY_RELEASES2 = "act-releases-2";
 
-    public static final String REPOSITORY_SNAPSHOTS = "act-snapshots";
+    private static final String REPOSITORY_SNAPSHOTS = "act-snapshots";
 
     @Inject
     private ConfigurationManager configurationManager;
@@ -143,9 +143,9 @@ public class ArtifactControllerTest
     public static Set<Repository> getRepositoriesToClean()
     {
         Set<Repository> repositories = new LinkedHashSet<>();
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES1));
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES2));
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES1));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES2));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS));
 
         return repositories;
     }

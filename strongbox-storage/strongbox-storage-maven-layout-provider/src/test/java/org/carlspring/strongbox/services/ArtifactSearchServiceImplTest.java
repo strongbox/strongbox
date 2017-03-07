@@ -2,7 +2,7 @@ package org.carlspring.strongbox.services;
 
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
 
 import javax.annotation.PreDestroy;
 import javax.xml.bind.JAXBException;
@@ -23,7 +23,7 @@ import static org.junit.Assert.assertTrue;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ArtifactSearchServiceImplTest
-        extends TestCaseWithArtifactGenerationWithIndexing
+        extends TestCaseWithArtifactGenerationAndIndexing
 {
 
     public static final String REPOSITORYID = "artifact-search-service-test-releases";
@@ -63,7 +63,7 @@ public class ArtifactSearchServiceImplTest
     public static Set<Repository> getRepositoriesToClean()
     {
         Set<Repository> repositories = new LinkedHashSet<>();
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORYID));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORYID));
 
         return repositories;
     }

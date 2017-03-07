@@ -5,6 +5,7 @@ import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.io.RepositoryPath;
 import org.carlspring.strongbox.locator.handlers.GenerateMavenChecksumOperation;
+import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.checksum.MavenChecksumManager;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
@@ -40,6 +41,9 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
 
     @Inject
     private MavenChecksumManager mavenChecksumManager;
+
+    @Inject
+    private ArtifactMetadataService artifactMetadataService;
 
     @PostConstruct
     @Override
@@ -133,11 +137,12 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
     @Override
     public void rebuildMetadata(String storageId,
                                 String repositoryId,
-                                String basePath,
-                                boolean forceRegeneration)
-            throws IOException
+                                String basePath)
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   XmlPullParserException
     {
-        throw new UnsupportedOperationException("Not yet implemented!");
+        artifactMetadataService.rebuildMetadata(storageId, repositoryId, basePath);
     }
 
     @Override

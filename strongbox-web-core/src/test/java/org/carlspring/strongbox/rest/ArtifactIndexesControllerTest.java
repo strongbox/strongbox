@@ -97,9 +97,9 @@ public class ArtifactIndexesControllerTest
     public static Set<Repository> getRepositoriesToClean()
     {
         Set<Repository> repositories = new LinkedHashSet<>();
-        repositories.add(mockRepositoryMock(STORAGE0, "aict-releases-1"));
-        repositories.add(mockRepositoryMock(STORAGE0, "aict-releases-2"));
-        repositories.add(mockRepositoryMock(STORAGE0, "aict-releases-3"));
+        repositories.add(createRepositoryMock(STORAGE0, "aict-releases-1"));
+        repositories.add(createRepositoryMock(STORAGE0, "aict-releases-2"));
+        repositories.add(createRepositoryMock(STORAGE0, "aict-releases-3"));
 
         return repositories;
     }

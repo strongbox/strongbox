@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Set;
 
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+
 /**
  * @author carlspring
  */
@@ -81,9 +83,10 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
 
     void rebuildMetadata(String storageId,
                          String repositoryId,
-                         String basePath,
-                         boolean forceRegeneration)
-            throws IOException;
+                         String basePath)
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   XmlPullParserException;
 
     void rebuildIndexes(String storageId,
                         String repositoryId,

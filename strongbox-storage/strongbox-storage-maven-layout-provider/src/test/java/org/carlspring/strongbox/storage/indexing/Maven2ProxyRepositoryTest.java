@@ -4,7 +4,7 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.MockedIndexResourceFetcherConfig;
 import org.carlspring.strongbox.storage.RepositoryInitializationException;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,13 +25,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(classes = MockedIndexResourceFetcherConfig.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 public class Maven2ProxyRepositoryTest
-        extends TestCaseWithArtifactGenerationWithIndexing
+        extends TestCaseWithArtifactGenerationAndIndexing
 {
 
+    private static final String REPOSITORY_RELEASES = "test-maven-releases";
 
-    public static final String REPOSITORY_RELEASES = "test-maven-releases";
-
-    public static final String REPOSITORY_PROXY = "test-proxied-maven-releases";
+    private static final String REPOSITORY_PROXY = "test-proxied-maven-releases";
 
 
     @BeforeClass
@@ -67,8 +65,8 @@ public class Maven2ProxyRepositoryTest
     public static Set<Repository> getRepositoriesToClean()
     {
         Set<Repository> repositories = new LinkedHashSet<>();
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_PROXY));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_PROXY));
 
         return repositories;
     }

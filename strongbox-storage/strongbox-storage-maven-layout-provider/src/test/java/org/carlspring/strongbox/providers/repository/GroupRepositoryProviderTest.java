@@ -6,7 +6,7 @@ import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
 
 import javax.annotation.PreDestroy;
 import javax.xml.bind.JAXBException;
@@ -36,18 +36,18 @@ import static org.junit.Assert.assertNull;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 public class GroupRepositoryProviderTest
-        extends TestCaseWithArtifactGenerationWithIndexing
+        extends TestCaseWithArtifactGenerationAndIndexing
 {
 
-    public static final String REPOSITORY_RELEASES_1 = "grpt-releases-1";
+    private static final String REPOSITORY_RELEASES_1 = "grpt-releases-1";
 
-    public static final String REPOSITORY_RELEASES_2 = "grpt-releases-2";
+    private static final String REPOSITORY_RELEASES_2 = "grpt-releases-2";
 
-    public static final String REPOSITORY_GROUP_WITH_NESTED_GROUP_1 = "grpt-releases-group-with-nested-group-level-1";
+    private static final String REPOSITORY_GROUP_WITH_NESTED_GROUP_1 = "grpt-releases-group-with-nested-group-level-1";
 
-    public static final String REPOSITORY_GROUP_WITH_NESTED_GROUP_2 = "grpt-releases-group-with-nested-group-level-2";
+    private static final String REPOSITORY_GROUP_WITH_NESTED_GROUP_2 = "grpt-releases-group-with-nested-group-level-2";
 
-    public static final String REPOSITORY_GROUP = "grpt-releases-group";
+    private static final String REPOSITORY_GROUP = "grpt-releases-group";
 
 
     @Autowired
@@ -197,11 +197,11 @@ public class GroupRepositoryProviderTest
     public static Set<Repository> getRepositoriesToClean()
     {
         Set<Repository> repositories = new LinkedHashSet<>();
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1));
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2));
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_GROUP_WITH_NESTED_GROUP_1));
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_GROUP_WITH_NESTED_GROUP_2));
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_GROUP));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_WITH_NESTED_GROUP_1));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_WITH_NESTED_GROUP_2));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP));
 
         return repositories;
     }

@@ -53,14 +53,11 @@ public class MetadataManagementController
     @RequestMapping(value = "{storageId}/{repositoryId}/{path:.+}",
                     method = RequestMethod.POST,
                     produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity rebuild(@ApiParam(value = "The storageId",
-                                            required = true)
+    public ResponseEntity rebuild(@ApiParam(value = "The storageId", required = true)
                                   @PathVariable String storageId,
-                                  @ApiParam(value = "The repositoryId",
-                                            required = true)
+                                  @ApiParam(value = "The repositoryId", required = true)
                                   @PathVariable String repositoryId,
-                                  @PathVariable String path,
-                                  HttpServletRequest request)
+                                  @PathVariable String path)
             throws IOException,
                    AuthenticationException,
                    NoSuchAlgorithmException,
@@ -82,29 +79,23 @@ public class MetadataManagementController
 
     @ApiOperation(value = "Used to delete metadata entries for an artifact",
                   position = 0)
-    @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "Successfully removed metadata entry."),
-                            @ApiResponse(code = 500,
-                                         message = "An error occurred.") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully removed metadata entry."),
+                            @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('MANAGEMENT_DELETE_METADATA')")
     @RequestMapping(value = "{storageId}/{repositoryId}/{path:.+}",
                     method = RequestMethod.DELETE,
                     produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity delete(@ApiParam(value = "The storageId",
-                                           required = true)
+    public ResponseEntity delete(@ApiParam(value = "The storageId", required = true)
                                  @PathVariable String storageId,
-                                 @ApiParam(value = "The repositoryId",
-                                           required = true)
+                                 @ApiParam(value = "The repositoryId", required = true)
                                  @PathVariable String repositoryId,
-                                 @ApiParam(value = "The version of the artifact.",
-                                           required = true)
+                                 @ApiParam(value = "The version of the artifact.", required = true)
                                  @RequestParam(name = "version") String version,
                                  @ApiParam(value = "The classifier of the artifact.")
                                  @RequestParam(name = "classifier") String classifier,
                                  @ApiParam(value = "The type of metadata (artifact/snapshot/plugin).")
                                  @RequestParam(name = "metadataType") String metadataType,
-                                 @PathVariable String path,
-                                 HttpServletRequest request)
+                                 @PathVariable String path)
             throws IOException,
                    AuthenticationException,
                    NoSuchAlgorithmException,

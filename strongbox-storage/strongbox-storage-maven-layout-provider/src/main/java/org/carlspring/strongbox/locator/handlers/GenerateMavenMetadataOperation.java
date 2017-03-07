@@ -28,8 +28,7 @@ public class GenerateMavenMetadataOperation
         extends AbstractArtifactLocationHandler
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(
-            GenerateMavenMetadataOperation.class);
+    private static final Logger logger = LoggerFactory.getLogger(GenerateMavenMetadataOperation.class);
 
     private MavenMetadataManager mavenMetadataManager;
 

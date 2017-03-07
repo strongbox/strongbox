@@ -41,7 +41,7 @@ import org.springframework.test.context.ContextConfiguration;
  * @author carlspring
  */
 @ContextConfiguration
-public abstract class TestCaseWithArtifactGenerationWithIndexing
+public abstract class TestCaseWithArtifactGenerationAndIndexing
         extends TestCaseWithArtifactGeneration
 {
 
@@ -110,8 +110,8 @@ public abstract class TestCaseWithArtifactGenerationWithIndexing
         }
     }
 
-    public static Repository mockRepositoryMock(String storageId,
-                                                String repositoryId)
+    public static Repository createRepositoryMock(String storageId,
+                                                  String repositoryId)
     {
         // This is no the real storage, but has a matching ID.
         // We're mocking it, as the configurationManager is not available at the the static methods are invoked.
@@ -154,8 +154,19 @@ public abstract class TestCaseWithArtifactGenerationWithIndexing
                                     boolean indexing)
             throws IOException, JAXBException
     {
+        createRepository(storageId, repositoryId, null, indexing);
+    }
+
+
+    protected void createRepository(String storageId,
+                                    String repositoryId,
+                                    String policy,
+                                    boolean indexing)
+            throws IOException, JAXBException
+    {
         Repository repository = new Repository(repositoryId);
         repository.setIndexingEnabled(indexing);
+        repository.setPolicy(policy);
         repository.setStorage(configurationManagementService.getStorage(storageId));
 
         createRepository(repository);

@@ -359,7 +359,7 @@ public class MavenMetadataManager
                    ProviderImplementationException
     {
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
-        ArtifactCoordinates coordinates = (ArtifactCoordinates) layoutProvider.getArtifactCoordinates(ArtifactUtils.convertArtifactToPath(artifact));
+        ArtifactCoordinates coordinates = layoutProvider.getArtifactCoordinates(ArtifactUtils.convertArtifactToPath(artifact));
 
         if (layoutProvider.containsArtifact(repository, coordinates))
         {

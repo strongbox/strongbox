@@ -106,8 +106,8 @@ public class TrashControllerTest
     public static Set<Repository> getRepositoriesToClean()
     {
         Set<Repository> repositories = new LinkedHashSet<>();
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_WITH_TRASH));
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_WITH_FORCE_DELETE));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_WITH_TRASH));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_WITH_FORCE_DELETE));
 
         return repositories;
     }

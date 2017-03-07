@@ -3,7 +3,7 @@ package org.carlspring.strongbox.services;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -25,18 +25,18 @@ import static org.junit.Assert.assertTrue;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 public class RepositoryManagementServiceImplTest
-        extends TestCaseWithArtifactGenerationWithIndexing
+        extends TestCaseWithArtifactGenerationAndIndexing
 {
 
     private static final String STORAGES_BASEDIR = ConfigurationResourceResolver.getVaultDirectory() + "/storages";
 
-    public static final String REPOSITORY_RELEASES_1 = "rmsi-releases-1";
+    private static final String REPOSITORY_RELEASES_1 = "rmsi-releases-1";
 
-    public static final String REPOSITORY_RELEASES_2 = "rmsi-releases-2";
+    private static final String REPOSITORY_RELEASES_2 = "rmsi-releases-2";
 
-    public static final String REPOSITORY_RELEASES_MERGE_1 = "rmsi-releases-merge-1";
+    private static final String REPOSITORY_RELEASES_MERGE_1 = "rmsi-releases-merge-1";
 
-    public static final String REPOSITORY_RELEASES_MERGE_2 = "rmsi-releases-merge-2";
+    private static final String REPOSITORY_RELEASES_MERGE_2 = "rmsi-releases-merge-2";
 
 
     @BeforeClass
@@ -77,10 +77,10 @@ public class RepositoryManagementServiceImplTest
     public static Set<Repository> getRepositoriesToClean()
     {
         Set<Repository> repositories = new LinkedHashSet<>();
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1));
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2));
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES_MERGE_1));
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES_MERGE_2));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_MERGE_1));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_MERGE_2));
 
         return repositories;
     }
