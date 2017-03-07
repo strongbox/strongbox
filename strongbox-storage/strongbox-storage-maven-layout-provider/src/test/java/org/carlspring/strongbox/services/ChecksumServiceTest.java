@@ -125,7 +125,12 @@ public class ChecksumServiceTest
                                        REPOSITORY_RELEASES,
                                        "org/carlspring/strongbox/checksum/maven/strongbox-checksum");
 
-        layoutProvider.regenerateChecksums(STORAGE0,
+//        layoutProvider.regenerateChecksums(STORAGE0,
+//                                           REPOSITORY_RELEASES,
+//                                           "org/carlspring/strongbox/checksum/maven/strongbox-checksum",
+//                                           false);
+
+        checksumService.regenerateChecksum(STORAGE0,
                                            REPOSITORY_RELEASES,
                                            "org/carlspring/strongbox/checksum/maven/strongbox-checksum",
                                            false);
@@ -184,7 +189,9 @@ public class ChecksumServiceTest
         assertFalse("The checksum file for artifact exist!",
                     new File(snapshotArtifact.getFile().getAbsolutePath() + ".jar.sha1").exists());
 
-        layoutProvider.regenerateChecksums(STORAGE0, REPOSITORY_SNAPSHOTS, "org/carlspring/strongbox/checksum", false);
+//        layoutProvider.regenerateChecksums(STORAGE0, REPOSITORY_SNAPSHOTS, "org/carlspring/strongbox/checksum", false);
+
+        checksumService.regenerateChecksum(STORAGE0, REPOSITORY_SNAPSHOTS, "org/carlspring/strongbox/checksum", false);
 
         assertTrue("The checksum file for the artifact doesn't exist!",
                    new File(snapshotArtifact.getFile().getAbsolutePath() + ".sha1").exists());
@@ -218,7 +225,11 @@ public class ChecksumServiceTest
     {
         String artifactPath = REPOSITORY_RELEASES_BASEDIR + "/org/carlspring/strongbox/checksum/maven/checksum-rewrite";
 
-        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_RELEASES, "org/carlspring/strongbox/checksum");
+        Repository repository = configurationManager.getRepository(STORAGE0, REPOSITORY_RELEASES);
+
+        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+
+        layoutProvider.rebuildMetadata(STORAGE0, REPOSITORY_RELEASES, "org/carlspring/strongbox/checksum");
 
         File md5File = new File(artifactPath, "1.0/checksum-rewrite-1.0.jar.md5");
 
@@ -243,10 +254,12 @@ public class ChecksumServiceTest
         assertTrue("The checksum file for metadata isn't empty!",
                    new File(artifactPath, "maven-metadata.xml.md5").length() == 0);
 
-        Repository repository = configurationManager.getRepository(STORAGE0, REPOSITORY_RELEASES);
+//        layoutProvider.regenerateChecksums(STORAGE0,
+//                                           REPOSITORY_RELEASES,
+//                                           "org/carlspring/strongbox/checksum/maven/checksum-rewrite",
+//                                           true);
 
-        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        layoutProvider.regenerateChecksums(STORAGE0,
+        checksumService.regenerateChecksum(STORAGE0,
                                            REPOSITORY_RELEASES,
                                            "org/carlspring/strongbox/checksum/maven/checksum-rewrite",
                                            true);

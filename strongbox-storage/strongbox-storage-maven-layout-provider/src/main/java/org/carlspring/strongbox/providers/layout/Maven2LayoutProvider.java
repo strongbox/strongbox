@@ -1,22 +1,30 @@
 package org.carlspring.strongbox.providers.layout;
 
+import org.carlspring.maven.commons.io.filters.PomFilenameFilter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
+import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.RepositoryPath;
 import org.carlspring.strongbox.locator.handlers.GenerateMavenChecksumOperation;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.checksum.MavenChecksumManager;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
@@ -155,25 +163,85 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         throw new UnsupportedOperationException("Not yet implemented!");
     }
 
+//    @Override
+//    public void regenerateChecksums(String storageId,
+//                                    String repositoryId,
+//                                    String basePath,
+//                                    boolean forceRegeneration)
+//            throws IOException
+//    {
+//        Storage storage = getConfiguration().getStorage(storageId);
+//        Repository repository = storage.getRepository(repositoryId);
+//
+//        GenerateMavenChecksumOperation operation = new GenerateMavenChecksumOperation(mavenChecksumManager);
+//        operation.setStorage(storage);
+//        operation.setRepository(repository);
+//        operation.setBasePath(basePath);
+//        operation.setForceRegeneration(forceRegeneration);
+//
+//        ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
+//        locator.setOperation(operation);
+//        locator.locateArtifactDirectories();
+//    }
+
     @Override
-    public void regenerateChecksums(String storageId,
-                                    String repositoryId,
-                                    String basePath,
-                                    boolean forceRegeneration)
-            throws IOException
+    public void generateChecksum(Repository repository,
+                                 String path,
+                                 List<File> versionDirectories,
+                                 boolean forceRegeneration)
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   ProviderImplementationException,
+                   UnknownRepositoryTypeException,
+                   ArtifactTransportException
     {
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
+        if (containsPath(repository, path))
+        {
+            logger.debug("Artifact checksum generation triggered for " + path + " in '" +
+                         repository.getStorage()
+                                   .getId() + ":" + repository.getId() + "'" +
+                         " [policy: " + repository.getPolicy() + "].");
 
-        GenerateMavenChecksumOperation operation = new GenerateMavenChecksumOperation(mavenChecksumManager);
-        operation.setStorage(storage);
-        operation.setRepository(repository);
-        operation.setBasePath(basePath);
-        operation.setForceRegeneration(forceRegeneration);
+            /**
+             * In the repository we need to generate checksum for files in the artifactBasePath and
+             * for each version directory.
+             */
+            if (!versionDirectories.isEmpty())
+            {
+                versionDirectories.forEach(file ->
+                                           {
+                                               String versionBasePath = file.getPath();
+                                               try
+                                               {
+                                                   storeChecksum(versionBasePath, repository, forceRegeneration);
+                                               }
+                                               catch (IOException |
+                                                              NoSuchAlgorithmException |
+                                                              ArtifactTransportException |
+                                                              ProviderImplementationException e)
+                                               {
+                                                   logger.error(e.getMessage(), e);
+                                               }
 
-        ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
-        locator.setOperation(operation);
-        locator.locateArtifactDirectories();
+                                               logger.debug("Generated Maven checksum for " + versionBasePath + ".");
+                                           });
+            }
+
+            storeChecksum(Paths.get(repository.getBasedir(), path)
+                               .toString(), repository, forceRegeneration);
+        }
+        else
+        {
+            logger.error("Artifact checksum generation failed: " + path + ".");
+        }
     }
+
+    @Override
+    public FilenameFilter getMetadataFilenameFilter()
+    {
+        return new PomFilenameFilter();
+    }
+
+
 
 }

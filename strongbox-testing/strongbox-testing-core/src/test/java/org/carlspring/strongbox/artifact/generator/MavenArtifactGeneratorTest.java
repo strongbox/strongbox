@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
  * @author mtodorov
  */
 @Ignore
-public class ArtifactGeneratorTest
+public class MavenArtifactGeneratorTest
         extends TestCaseWithArtifactGeneration
 {
 
