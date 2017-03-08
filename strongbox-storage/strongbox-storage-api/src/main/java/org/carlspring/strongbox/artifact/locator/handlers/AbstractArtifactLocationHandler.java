@@ -5,6 +5,7 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,6 +24,8 @@ public abstract class AbstractArtifactLocationHandler
 
     private Repository repository;
 
+    private FilenameFilter filter;
+
     private LinkedHashMap<String, List<File>> visitedRootPaths = new LinkedHashMap<>();
 
     /**
@@ -39,7 +42,7 @@ public abstract class AbstractArtifactLocationHandler
     public List<File> getVersionDirectories(Path basePath)
     {
         File basedir = basePath.toFile();
-        File[] versionDirectories = basedir.listFiles(new ArtifactVersionDirectoryFilter());
+        File[] versionDirectories = basedir.listFiles(new ArtifactVersionDirectoryFilter(filter));
 
         if (versionDirectories != null)
         {
@@ -86,6 +89,16 @@ public abstract class AbstractArtifactLocationHandler
     public void setBasePath(String basePath)
     {
         this.basePath = basePath;
+    }
+
+    public FilenameFilter getFilenameFilter()
+    {
+        return filter;
+    }
+
+    public void setFilenameFilter(FilenameFilter filter)
+    {
+        this.filter = filter;
     }
 
 }

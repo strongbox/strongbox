@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.rest;
 
-import org.carlspring.strongbox.artifact.generator.ArtifactDeployer;
+import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
 import org.carlspring.strongbox.booters.StorageBooter;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
@@ -11,11 +11,8 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 
 import org.apache.maven.artifact.Artifact;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.MediaType;
@@ -68,7 +65,7 @@ public class SearchControllerTest
             Artifact artifact2 = getArtifactFromGAVTC("org.carlspring.strongbox.searches:test-project:1.0.11.3.1");
             Artifact artifact3 = getArtifactFromGAVTC("org.carlspring.strongbox.searches:test-project:1.0.11.3.2");
 
-            ArtifactDeployer artifactDeployer = buildArtifactDeployer(strongboxBaseDir);
+            MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(strongboxBaseDir);
 
             artifactDeployer.generateAndDeployArtifact(artifact1, classifiers, "storage0", "releases", "jar");
             artifactDeployer.generateAndDeployArtifact(artifact2, classifiers, "storage0", "releases", "jar");

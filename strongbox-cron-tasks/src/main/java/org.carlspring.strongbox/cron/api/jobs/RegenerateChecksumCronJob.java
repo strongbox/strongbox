@@ -21,11 +21,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author Kate Novik.
  */
-public class RegenerateMavenChecksumCronJob
+public class RegenerateChecksumCronJob
         extends JavaCronJob
 {
 
-    private final Logger logger = LoggerFactory.getLogger(RegenerateMavenChecksumCronJob.class);
+    private final Logger logger = LoggerFactory.getLogger(RegenerateChecksumCronJob.class);
 
     @Autowired
     private ChecksumService checksumService;
@@ -41,7 +41,7 @@ public class RegenerateMavenChecksumCronJob
     protected void executeInternal(JobExecutionContext jobExecutionContext)
             throws JobExecutionException
     {
-        logger.debug("Executed RegenerateMavenChecksumCronJob.");
+        logger.debug("Executed RegenerateChecksumCronJob.");
 
         CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap()
                                                                                   .get("config");

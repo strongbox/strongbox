@@ -26,26 +26,26 @@ import java.util.zip.ZipOutputStream;
 /**
  * @author mtodorov
  */
-public class ArtifactGenerator
+public class MavenArtifactGenerator
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(ArtifactGenerator.class);
+    private static final Logger logger = LoggerFactory.getLogger(MavenArtifactGenerator.class);
 
     public static final String PACKAGING_JAR = "jar";
 
     private String basedir;
 
 
-    public ArtifactGenerator()
+    public MavenArtifactGenerator()
     {
     }
 
-    public ArtifactGenerator(String basedir)
+    public MavenArtifactGenerator(String basedir)
     {
         this.basedir = basedir;
     }
 
-    public ArtifactGenerator(File basedir)
+    public MavenArtifactGenerator(File basedir)
     {
         this.basedir = basedir.getAbsolutePath();
     }
