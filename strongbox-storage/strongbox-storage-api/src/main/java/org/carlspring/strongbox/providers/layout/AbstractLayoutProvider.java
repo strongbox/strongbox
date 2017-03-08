@@ -583,8 +583,8 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
         return Files.exists(repositoryPath.resolve(path));
     }
 
-    protected void storeChecksum(String basePath,
-                                 Repository repository,
+    protected void storeChecksum(Repository repository,
+                                 String basePath,
                                  boolean forceRegeneration)
             throws IOException,
                    NoSuchAlgorithmException,
@@ -606,11 +606,8 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
                              ArtifactInputStream is = null;
                              try
                              {
-                                 String artifactPath = e.getPath()
-                                                        .substring(repository.getBasedir()
-                                                                             .length() + 1);
-                                 is = getInputStream(repository.getStorage()
-                                                               .getId(), repository.getId(), artifactPath);
+                                 String artifactPath = e.getPath().substring(repository.getBasedir().length() + 1);
+                                 is = getInputStream(repository.getStorage().getId(), repository.getId(), artifactPath);
                              }
                              catch (IOException | NoSuchAlgorithmException e1)
                              {
@@ -630,15 +627,12 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
                 .stream()
                 .forEach(e ->
                          {
-                             String checksum = is.getHexDigests()
-                                                 .get(e);
-                             String checksumExtension = ".".concat(e.toLowerCase()
-                                                                    .replaceAll("-", ""));
+                             String checksum = is.getHexDigests().get(e);
+                             String checksumExtension = ".".concat(e.toLowerCase().replaceAll("-", ""));
 
                              try
                              {
-                                 MessageDigestUtils.writeChecksum(filePath, checksumExtension,
-                                                                  checksum);
+                                 MessageDigestUtils.writeChecksum(filePath, checksumExtension, checksum);
                              }
                              catch (IOException e1)
                              {

@@ -7,16 +7,13 @@ import org.carlspring.strongbox.io.RepositoryPath;
 import org.carlspring.strongbox.io.filters.NuspecFilenameFilter;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
 
 import javax.annotation.PostConstruct;
-import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -142,56 +139,38 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
         throw new UnsupportedOperationException("Not yet implemented!");
     }
 
-//    @Override
-//    public void regenerateChecksums(String storageId,
-//                                    String repositoryId,
-//                                    String basePath,
-//                                    boolean forceRegeneration)
-//            throws IOException
-//    {
-//        throw new UnsupportedOperationException("Not yet implemented!");
-//    }
-
-    public void generateChecksum(Repository repository,
-                                 String path,
-                                 List<File> versionDirectories,
-                                 boolean forceRegeneration)
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   ProviderImplementationException,
-                   UnknownRepositoryTypeException,
-                   ArtifactTransportException
+    @Override
+    public void regenerateChecksums(String storageId,
+                                    String repositoryId,
+                                    String basePath,
+                                    boolean forceRegeneration)
+            throws IOException
     {
-        if (containsPath(repository, path))
+        Repository repository = getStorage(storageId).getRepository(repositoryId);
+
+        if (containsPath(repository, basePath))
         {
-            logger.debug("Artifact checksum generation triggered for " + path + " in '" + repository.getStorage()
-                                                                                                    .getId() + ":" +
-                         repository.getId() + "'" + " [policy: " + repository.getPolicy() + "].");
+            logger.debug("Artifact checksum generation triggered for " + basePath + " in '" +
+                         repository.getStorage().getId() + ":" + repository.getId() + "'" +
+                         " [policy: " + repository.getPolicy() + "].");
 
-            if (!versionDirectories.isEmpty())
+            try
             {
-                versionDirectories.forEach(file ->
-                                           {
-                                               String versionBasePath = file.getPath();
-                                               try
-                                               {
-                                                   storeChecksum(versionBasePath, repository, forceRegeneration);
-                                               }
-                                               catch (IOException |
-                                                              NoSuchAlgorithmException |
-                                                              ArtifactTransportException |
-                                                              ProviderImplementationException e)
-                                               {
-                                                   logger.error(e.getMessage(), e);
-                                               }
-
-                                               logger.debug("Generated Nuget checksum for " + versionBasePath + ".");
-                                           });
+                storeChecksum(repository, basePath, forceRegeneration);
             }
+            catch (IOException |
+                           NoSuchAlgorithmException |
+                           ArtifactTransportException |
+                           ProviderImplementationException e)
+            {
+                logger.error(e.getMessage(), e);
+            }
+
+            logger.debug("Generated Nuget checksum for " + basePath + ".");
         }
         else
         {
-            logger.error("Artifact checksum generation failed: " + path + ".");
+            logger.error("Artifact checksum generation failed: " + basePath + ".");
         }
     }
 

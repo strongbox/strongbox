@@ -99,21 +99,11 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
                         boolean forceRegeneration)
             throws IOException;
 
-//    void regenerateChecksums(String storageId,
-//                             String repositoryId,
-//                             String basePath,
-//                             boolean forceRegeneration)
-//            throws IOException;
-
-    void generateChecksum(Repository repository,
-                          String path,
-                          List<File> versionDirectories,
-                          boolean forceRegeneration)
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   ProviderImplementationException,
-                   UnknownRepositoryTypeException,
-                   ArtifactTransportException;
+    void regenerateChecksums(String storageId,
+                             String repositoryId,
+                             String basePath,
+                             boolean forceRegeneration)
+            throws IOException;
 
     FilenameFilter getMetadataFilenameFilter();
 

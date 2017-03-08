@@ -2,18 +2,13 @@ package org.carlspring.strongbox.providers.layout;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.P2ArtifactCoordinates;
-import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.p2.P2ArtifactReader;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
 
-import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
 
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
@@ -93,15 +88,15 @@ public class P2LayoutProvider
         throw new UnsupportedOperationException("Not yet implemented!");
     }
 
-//    @Override
-//    public void regenerateChecksums(String storageId,
-//                                    String repositoryId,
-//                                    String basePath,
-//                                    boolean forceRegeneration)
-//            throws IOException
-//    {
-//        throw new UnsupportedOperationException("Not yet implemented!");
-//    }
+    @Override
+    public void regenerateChecksums(String storageId,
+                                    String repositoryId,
+                                    String basePath,
+                                    boolean forceRegeneration)
+            throws IOException
+    {
+        throw new UnsupportedOperationException("Not yet implemented!");
+    }
 
     @Override
     public boolean containsArtifact(Repository repository,
@@ -135,20 +130,6 @@ public class P2LayoutProvider
             throws IOException
     {
         return containsArtifact(repository, P2ArtifactCoordinates.create(path));
-    }
-
-    @Override
-    public void generateChecksum(Repository repository,
-                                 String path,
-                                 List<File> versionDirectories,
-                                 boolean forceRegeneration)
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   ProviderImplementationException,
-                   UnknownRepositoryTypeException,
-                   ArtifactTransportException
-    {
-
     }
 
     @Override

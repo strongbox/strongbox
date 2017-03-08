@@ -1,16 +1,13 @@
 package org.carlspring.strongbox.artifact.locator.handlers;
 
-import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -111,17 +108,19 @@ public class ArtifactLocationGenerateChecksumOperation
                 String artifactPath = parentPath.substring(getRepository().getBasedir()
                                                                           .length() + 1, parentPath.length());
 
-                try
+                for (File versionDirectory : versionDirectories)
                 {
-                    layoutProvider.generateChecksum(getRepository(), artifactPath, versionDirectories,
-                                                    forceRegeneration);
-                }
-                catch (IOException |
-                               NoSuchAlgorithmException |
-                               ProviderImplementationException |
-                               UnknownRepositoryTypeException | ArtifactTransportException e)
-                {
-                    logger.error("Failed to generate checksum for " + artifactPath, e);
+                    try
+                    {
+                        layoutProvider.regenerateChecksums(getRepository().getStorage().getId(),
+                                                           getRepository().getId(),
+                                                           versionDirectory.getAbsolutePath(),
+                                                           forceRegeneration);
+                    }
+                    catch (IOException e)
+                    {
+                        logger.error("Failed to generate checksum for " + artifactPath, e);
+                    }
                 }
             }
         }
