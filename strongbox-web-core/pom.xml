@@ -493,6 +493,14 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>ru.aristar.nuget</groupId>
+            <artifactId>jnuget-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ru.aristar.nuget</groupId>
+            <artifactId>jnuget-server</artifactId>
+        </dependency>
 
         <!-- Testing frameworks -->
         <dependency>

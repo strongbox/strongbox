@@ -12,10 +12,11 @@
         <relativePath>../../strongbox-parent</relativePath>
     </parent>
 
-    <artifactId>strongbox-storage-api</artifactId>
+    <artifactId>strongbox-storage-nuget-layout-provider</artifactId>
+    <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>Strongbox: Storage [API]</name>
+    <name>Strongbox: Storage [Nuget Layout Provider]</name>
 
     <licenses>
         <license>
@@ -186,33 +187,32 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-configuration</artifactId>
+            <artifactId>strongbox-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-data-service</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-client</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-security-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-metadata-maven-api</artifactId>
+            <artifactId>strongbox-storage-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -223,19 +223,15 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-storage-api-resources</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-testing-core</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
-            <groupId>org.carlspring.maven</groupId>
-            <artifactId>maven-commons</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-rest-client</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
         </dependency>
 
         <dependency>
@@ -254,13 +250,6 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <exclusions>
-              <!-- Exclude Commons Logging -->
-              <exclusion>
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-              </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -269,14 +258,14 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.maven.indexer</groupId>
-            <artifactId>indexer-core</artifactId>
+            <groupId>ru.aristar.nuget</groupId>
+            <artifactId>jnuget-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ru.aristar.nuget</groupId>
+            <artifactId>jnuget-server</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
         <dependency>
             <groupId>com.carmatechnologies.commons</groupId>
             <artifactId>commons-testing</artifactId>
@@ -287,9 +276,20 @@
         </dependency>
 
         <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xercesImpl</artifactId>
-        </dependency>		
+            <groupId>org.apache.maven.indexer</groupId>
+            <artifactId>indexer-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

@@ -174,11 +174,11 @@ public abstract class TestCaseWithArtifactGenerationAndIndexing
 
     protected void createProxyRepository(String storageId,
                                          String repositoryId,
-                                         String proxyUrl)
+                                         String remoteRepositoryUrl)
             throws IOException, JAXBException
     {
         RemoteRepository remoteRepository = new RemoteRepository();
-        remoteRepository.setUrl(proxyUrl);
+        remoteRepository.setUrl(remoteRepositoryUrl);
 
         Repository repository = new Repository(repositoryId);
         repository.setRemoteRepository(remoteRepository);
