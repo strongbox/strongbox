@@ -625,6 +625,7 @@
                 <property>
                     <name>jetty.block</name>
                 </property>
+                <activeByDefault>false</activeByDefault>
             </activation>
 
             <properties>
@@ -793,28 +794,9 @@
                             </execution>
                         </executions>
                     </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>run-jetty</id>
-            <activation>
-                <property>
-                    <name>!skipJetty</name>
-                </property>
-            </activation>
 
-            <properties>
-                <dir.strongbox.home>${project.build.directory}/strongbox</dir.strongbox.home>
-                <dir.strongbox.vault>${project.build.directory}/strongbox-vault</dir.strongbox.vault>
-                <dir.jetty.etc>${dir.strongbox.home}/etc/jetty</dir.jetty.etc>
-            </properties>
-
-            <build>
-                <plugins>
                     <!-- This plugin needs to be defined first, as the execution of the Jetty Maven plugin
                          which shuts down Jetty overlaps with this and shuts it down before the tests are done.-->
-
                     <plugin>
                         <groupId>org.eclipse.jetty</groupId>
                         <artifactId>jetty-maven-plugin</artifactId>
