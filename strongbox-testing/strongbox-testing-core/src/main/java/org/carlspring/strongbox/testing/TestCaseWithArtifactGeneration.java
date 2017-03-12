@@ -34,6 +34,14 @@ public class TestCaseWithArtifactGeneration
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
+        return generateArtifact(new File(basedir), gavtc);
+    }
+
+    public Artifact generateArtifact(File basedir, String gavtc)
+            throws IOException,
+                   XmlPullParserException,
+                   NoSuchAlgorithmException
+    {
         Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
         artifact.setFile(new File(basedir + "/" + ArtifactUtils.convertArtifactToPath(artifact)));
 
