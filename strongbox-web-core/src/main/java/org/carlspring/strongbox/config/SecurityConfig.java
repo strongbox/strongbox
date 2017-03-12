@@ -77,7 +77,12 @@ public class SecurityConfig
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .requestMatchers()
-                .antMatchers("/users/user/authenticate", "/storages/**/*", "/trash/**/*")
+                .antMatchers("/configuration/**/*", // The authentication is not working properly,
+                                                    // so until this is fixed, we're adding this here manually,
+                                                    // in order to not block work on the UI
+                             "/users/user/authenticate",
+                             "/storages/**/*",
+                             "/trash/**/*")
                 .and()
                 .authorizeRequests()
                 .anyRequest()
