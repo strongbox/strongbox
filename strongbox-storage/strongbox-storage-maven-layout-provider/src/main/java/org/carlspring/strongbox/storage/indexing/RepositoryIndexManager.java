@@ -39,7 +39,7 @@ public class RepositoryIndexManager
     }
 
     @PreDestroy
-    private void close()
+    private synchronized void close()
     {
         for (String contextId : indexes.keySet())
         {
