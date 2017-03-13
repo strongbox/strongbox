@@ -113,19 +113,19 @@ public class RestAssuredArtifactClient
         logger.debug("Deploying " + url);
 
         givenLocal().contentType(mediaType)
-               .header("Content-Disposition", contentDisposition)
-               .header("filename", fileName)
-               .body(bytes)
-               .when()
-               .put(url)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value());
+                    .header("Content-Disposition", contentDisposition)
+                    .header("filename", fileName)
+                    .body(bytes)
+                    .when()
+                    .put(url)
+                    .peek()
+                    .then()
+                    .statusCode(HttpStatus.OK.value());
     }
 
     private MockMvcRequestSpecification givenLocal()
     {
-        return RestAssuredMockMvc.given().header("user-agent", "Maven/*");
+        return RestAssuredMockMvc.given().header("User-Agent", "Maven/*");
     }
 
     public MockMvcResponse put2(String relativeUrl,
@@ -218,14 +218,14 @@ public class RestAssuredArtifactClient
                      String destRepositoryId)
     {
         givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
-               .params("srcStorageId", srcStorageId,
-                       "srcRepositoryId", srcRepositoryId,
-                       "destStorageId", destStorageId,
-                       "destRepositoryId", destRepositoryId)
-               .when()
-               .post(getContextBaseUrl() + "/storages/copy/" + path)
-               .then()
-               .statusCode(OK);
+                    .params("srcStorageId", srcStorageId,
+                            "srcRepositoryId", srcRepositoryId,
+                            "destStorageId", destStorageId,
+                            "destRepositoryId", destRepositoryId)
+                    .when()
+                    .post(getContextBaseUrl() + "/storages/copy/" + path)
+                    .then()
+                    .statusCode(OK);
     }
 
     public void delete(String storageId,
@@ -246,12 +246,12 @@ public class RestAssuredArtifactClient
                      storageId + "/" + repositoryId + "/" + path;
 
         givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
-               .param("force", force)
-               .when()
-               .delete(url)
-               .peek()
-               .then()
-               .statusCode(OK);
+                    .param("force", force)
+                    .when()
+                    .delete(url)
+                    .peek()
+                    .then()
+                    .statusCode(OK);
     }
 
     public ExtractableResponse getResourceWithResponse(String path,
@@ -280,11 +280,11 @@ public class RestAssuredArtifactClient
                      (basePath != null ? basePath : "");
 
         givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
-               .when()
-               .post(url)
-               .peek()
-               .then()
-               .statusCode(OK);
+                    .when()
+                    .post(url)
+                    .peek()
+                    .then()
+                    .statusCode(OK);
     }
 
     public void rebuildIndexes(String storageId,
@@ -341,14 +341,14 @@ public class RestAssuredArtifactClient
                      (artifactPath != null ? artifactPath : "");
 
         givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
-               .params("version", version,
-                       "classifier", classifier,
-                       "metadataType", metadataType)
-               .when()
-               .delete(url)
-               .peek()
-               .then()
-               .statusCode(OK);
+                    .params("version", version,
+                            "classifier", classifier,
+                            "metadataType", metadataType)
+                    .when()
+                    .delete(url)
+                    .peek()
+                    .then()
+                    .statusCode(OK);
     }
 
     public String search(String query,
@@ -377,15 +377,15 @@ public class RestAssuredArtifactClient
         query = URLEncoder.encode(query, "UTF-8");
 
         return givenLocal().params("repositoryId", repositoryId, "q", query)
-                      .header("accept", mediaType)
-                      .when()
-                      .get(url)
-                      .then()
-                      .statusCode(OK)
-                      .extract()
-                      .response()
-                      .getBody()
-                      .asString();
+                           .header("accept", mediaType)
+                           .when()
+                           .get(url)
+                           .then()
+                           .statusCode(OK)
+                           .extract()
+                           .response()
+                           .getBody()
+                           .asString();
     }
 
 }

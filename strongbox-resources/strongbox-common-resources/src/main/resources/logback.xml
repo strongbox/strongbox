@@ -38,6 +38,10 @@
         <level value="ERROR"/>
     </logger>
 
+    <logger name="ch.qos.logback">
+        <level value="ERROR"/>
+    </logger>
+
     <logger name="org.springframework.core">
         <level value="WARN"/>
     </logger>
