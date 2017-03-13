@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,13 +34,15 @@ public class RepositoryIndexManager
     @Inject
     private ConfigurationManager configurationManager;
 
+    private ReentrantLock lock = new ReentrantLock();
+
 
     public RepositoryIndexManager()
     {
     }
 
     @PreDestroy
-    private synchronized void close()
+    private void close()
     {
         for (String contextId : indexes.keySet())
         {
@@ -89,20 +92,29 @@ public class RepositoryIndexManager
     public void closeIndexer(String contextId)
             throws IOException
     {
-        final RepositoryIndexer repositoryIndexer = indexes.get(contextId);
+        lock.lock();
 
-        System.out.println("Indexes size:" + indexes.size());
-
-        if (repositoryIndexer != null)
+        try
         {
-            logger.debug("Closing indexer for " + contextId + "...");
+            final RepositoryIndexer repositoryIndexer = indexes.get(contextId);
 
-            repositoryIndexer.close();
+            System.out.println("Indexes size:" + indexes.size());
 
-            logger.debug("Closed indexer for " + contextId + ".");
+            if (repositoryIndexer != null)
+            {
+                logger.debug("Closing indexer for " + contextId + "...");
+
+                repositoryIndexer.close();
+
+                logger.debug("Closed indexer for " + contextId + ".");
+            }
+
+            indexes.remove(contextId);
         }
-
-        indexes.remove(contextId);
+        finally
+        {
+            lock.unlock();
+        }
     }
 
     public Map<String, RepositoryIndexer> getIndexes()
