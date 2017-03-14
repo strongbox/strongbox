@@ -42,10 +42,10 @@ public class ArtifactVersionDirectoryFilter
     @Override
     public boolean accept(File file)
     {
-        return super.accept(file) && containsPomFiles(file);
+        return super.accept(file) && containsMetadataFiles(file);
     }
 
-    private boolean containsPomFiles(File file)
+    private boolean containsMetadataFiles(File file)
     {
         if (file.isDirectory())
         {

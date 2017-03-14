@@ -4,6 +4,7 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
+import org.carlspring.strongbox.io.RepositoryPath;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
@@ -99,11 +100,14 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
                         boolean forceRegeneration)
             throws IOException;
 
-    void regenerateChecksums(String storageId,
-                             String repositoryId,
-                             String basePath,
+    void regenerateChecksums(Repository repository,
+                             List<String> versionDirectories,
                              boolean forceRegeneration)
-            throws IOException;
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   ProviderImplementationException,
+                   UnknownRepositoryTypeException,
+                   ArtifactTransportException;
 
     FilenameFilter getMetadataFilenameFilter();
 

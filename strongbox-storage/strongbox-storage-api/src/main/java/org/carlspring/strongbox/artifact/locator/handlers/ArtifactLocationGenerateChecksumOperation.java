@@ -1,13 +1,17 @@
 package org.carlspring.strongbox.artifact.locator.handlers;
 
+import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.io.RepositoryPath;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -108,20 +112,24 @@ public class ArtifactLocationGenerateChecksumOperation
                 String artifactPath = parentPath.substring(getRepository().getBasedir()
                                                                           .length() + 1, parentPath.length());
 
-                for (File versionDirectory : versionDirectories)
-                {
+                List<String> versionPaths = new ArrayList<>();
+                versionDirectories.forEach(file -> versionPaths.add(file.getAbsolutePath()));
+
                     try
                     {
-                        layoutProvider.regenerateChecksums(getRepository().getStorage().getId(),
-                                                           getRepository().getId(),
-                                                           versionDirectory.getAbsolutePath(),
+                        layoutProvider.regenerateChecksums(getRepository(),
+                                                           versionPaths,
                                                            forceRegeneration);
                     }
-                    catch (IOException e)
+                    catch (IOException |
+                                   NoSuchAlgorithmException |
+                                   ArtifactTransportException |
+                                   ProviderImplementationException |
+                                   UnknownRepositoryTypeException e)
                     {
                         logger.error("Failed to generate checksum for " + artifactPath, e);
                     }
-                }
+
             }
         }
     }

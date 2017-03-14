@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -140,37 +141,42 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
     }
 
     @Override
-    public void regenerateChecksums(String storageId,
-                                    String repositoryId,
-                                    String basePath,
+    public void regenerateChecksums(Repository repository,
+                                    List<String> versionDirectories,
                                     boolean forceRegeneration)
             throws IOException
     {
-        Repository repository = getStorage(storageId).getRepository(repositoryId);
 
-        if (containsPath(repository, basePath))
-        {
-            logger.debug("Artifact checksum generation triggered for " + basePath + " in '" +
-                         repository.getStorage().getId() + ":" + repository.getId() + "'" +
-                         " [policy: " + repository.getPolicy() + "].");
-
-            try
+        if (!versionDirectories.isEmpty())
             {
-                storeChecksum(repository, basePath, forceRegeneration);
-            }
-            catch (IOException |
-                           NoSuchAlgorithmException |
-                           ArtifactTransportException |
-                           ProviderImplementationException e)
-            {
-                logger.error(e.getMessage(), e);
-            }
+                RepositoryPath basePath = resolve(repository, versionDirectories.get(0)).getParent();
 
-            logger.debug("Generated Nuget checksum for " + basePath + ".");
-        }
+                logger.debug("Artifact checksum generation triggered for " + basePath + " in '" +
+                             repository.getStorage()
+                                       .getId() + ":" +
+                             repository.getId() + "'" + " [policy: " + repository.getPolicy() + "].");
+
+                versionDirectories.forEach(path ->
+                                           {
+                                               try
+                                               {
+                                                   storeChecksum(repository, resolve(repository, path),
+                                                                 forceRegeneration);
+                                               }
+                                               catch (IOException |
+                                                              NoSuchAlgorithmException |
+                                                              ArtifactTransportException |
+                                                              ProviderImplementationException e)
+                                               {
+                                                   logger.error(e.getMessage(), e);
+                                               }
+
+                                               logger.debug("Generated Nuget checksum for " + path + ".");
+                                           });
+            }
         else
         {
-            logger.error("Artifact checksum generation failed: " + basePath + ".");
+            logger.error("Artifact checksum generation failed.");
         }
     }
 
