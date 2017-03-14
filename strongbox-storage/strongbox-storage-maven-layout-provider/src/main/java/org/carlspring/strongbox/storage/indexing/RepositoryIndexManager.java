@@ -33,7 +33,6 @@ public class RepositoryIndexManager
     @Inject
     private ConfigurationManager configurationManager;
 
-
     public RepositoryIndexManager()
     {
     }
@@ -41,38 +40,43 @@ public class RepositoryIndexManager
     @PreDestroy
     private void close()
     {
-        for (String contextId : indexes.keySet())
-        {
-            try
-            {
-                closeIndexer(contextId);
-            }
-            catch (IOException e)
-            {
-                logger.error(e.getMessage(), e);
-            }
-        }
+        indexes.forEach((contextId, repositoryIndexer) ->
+                        {
+                            try
+                            {
+                                closeIndexer(contextId, repositoryIndexer, false);
+                            }
+                            catch (IOException e)
+                            {
+                                logger.error("Unable to close indexer for contextId " + contextId, e);
+                            }
+                        });
+
+        indexes.clear();
+        indexes = null;
     }
 
     public void closeIndexersForStorage(String storageId)
     {
-        for (String contextId : indexes.keySet())
-        {
-            if (contextId.substring(0, contextId.indexOf(':')).equals(storageId))
-            {
-                try
-                {
-                    closeIndexer(contextId);
-                }
-                catch (IOException e)
-                {
-                    logger.error(e.getMessage(), e);
-                }
-            }
-        }
+        indexes.keySet()
+               .stream()
+               .filter(contextId -> contextId.substring(0, contextId.indexOf(':'))
+                                             .equals(storageId))
+               .forEach(contextId ->
+                        {
+                            try
+                            {
+                                closeIndexer(contextId);
+                            }
+                            catch (IOException e)
+                            {
+                                logger.error(e.getMessage(), e);
+                            }
+                        });
     }
 
-    public void closeIndexersForRepository(String storageId, String repositoryId)
+    public void closeIndexersForRepository(String storageId,
+                                           String repositoryId)
             throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
@@ -89,9 +93,23 @@ public class RepositoryIndexManager
     public void closeIndexer(String contextId)
             throws IOException
     {
-        final RepositoryIndexer repositoryIndexer = indexes.get(contextId);
+        closeIndexer(contextId, indexes.get(contextId));
+    }
 
-        System.out.println("Indexes size:" + indexes.size());
+    public void closeIndexer(String contextId,
+                             RepositoryIndexer repositoryIndexer)
+            throws IOException
+    {
+        closeIndexer(contextId, repositoryIndexer, true);
+    }
+
+    public void closeIndexer(String contextId,
+                             RepositoryIndexer repositoryIndexer,
+                             boolean remove)
+            throws IOException
+    {
+
+        logger.debug("Indexes size:" + indexes.size());
 
         if (repositoryIndexer != null)
         {
@@ -102,7 +120,10 @@ public class RepositoryIndexManager
             logger.debug("Closed indexer for " + contextId + ".");
         }
 
-        indexes.remove(contextId);
+        if (remove)
+        {
+            indexes.remove(contextId);
+        }
     }
 
     public Map<String, RepositoryIndexer> getIndexes()
@@ -120,7 +141,8 @@ public class RepositoryIndexManager
         return indexes.get(storageAndRepositoryId);
     }
 
-    public RepositoryIndexer addRepositoryIndexer(String repositoryId, RepositoryIndexer value)
+    public RepositoryIndexer addRepositoryIndexer(String repositoryId,
+                                                  RepositoryIndexer value)
     {
         return indexes.put(repositoryId, value);
     }
