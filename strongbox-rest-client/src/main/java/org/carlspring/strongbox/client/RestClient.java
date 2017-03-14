@@ -300,6 +300,10 @@ public class RestClient
 
             storage = parser.parse(bais);
         }
+        else
+        {
+            displayResponseError(response);
+        }
 
         return storage;
     }
@@ -313,8 +317,8 @@ public class RestClient
     public int deleteStorage(String storageId,
                              boolean force)
     {
-        String url =
-                getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId + (force ? "?force=true" : "");
+        String url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId +
+                     (force ? "?force=true" : "");
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
@@ -394,6 +398,10 @@ public class RestClient
             GenericParser<Repository> parser = new GenericParser<>(Repository.class);
 
             repository = parser.parse(bais);
+        }
+        else
+        {
+            displayResponseError(response);
         }
 
         return repository;
@@ -542,12 +550,8 @@ public class RestClient
     {
         this.username = username;
         this.password = password;
+
         return prepareTarget(arg);
     }
 
-    public void resetAuthentication()
-    {
-        this.username = "admin";
-        this.password = "password";
-    }
 }
