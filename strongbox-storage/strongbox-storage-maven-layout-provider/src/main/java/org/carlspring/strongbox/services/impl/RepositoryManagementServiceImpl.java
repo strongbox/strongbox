@@ -233,9 +233,17 @@ public class RepositoryManagementServiceImpl
                      String repositoryId)
             throws IOException
     {
-        logger.info("Packing index for " + storageId + ":" + repositoryId + ":local...");
+        String lookupKey = storageId + ":" + repositoryId + ":local";
 
-        final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(storageId + ":" + repositoryId + ":local");
+        logger.info("Packing index for " + lookupKey + " ...");
+
+        final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(lookupKey);
+        if (indexer == null)
+        {
+            throw new NullPointerException("Unable to find RepositoryIndexer by key " + lookupKey +
+                                           ". \nAvailable keys are " + repositoryIndexManager.getIndexes()
+                                                                                             .keySet());
+        }
 
         IndexingContext context = indexer.getIndexingContext();
         final IndexSearcher indexSearcher = context.acquireIndexSearcher();
