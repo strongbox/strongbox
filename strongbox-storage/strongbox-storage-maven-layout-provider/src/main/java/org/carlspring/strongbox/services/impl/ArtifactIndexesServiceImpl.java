@@ -67,6 +67,7 @@ public class ArtifactIndexesServiceImpl
             throws IOException
     {
         Map<String, Repository> repositories = getRepositories(storageId);
+        logger.debug("Rebuilding indexes for repositories " + repositories.keySet());
 
         for (String repository : repositories.keySet())
         {
