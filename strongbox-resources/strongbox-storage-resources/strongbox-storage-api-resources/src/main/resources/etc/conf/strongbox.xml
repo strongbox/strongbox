@@ -33,13 +33,7 @@
         </storage>
 
         <storage id="storage-indexing-tests">
-            <repositories>
-                <!-- Secured repositories do not allow anonymous access -->
-                <repository id="releases" policy="release" implementation="file-system" layout="Maven 2" type="hosted"
-                            allows-force-deletion="true" checksum-headers-enabled="true" indexing-enabled="true"/>
-                <repository id="snapshots" policy="snapshot" implementation="file-system" layout="Maven 2" type="hosted"
-                            secured="true" checksum-headers-enabled="true"/>
-            </repositories>
+            <repositories/>
         </storage>
 
         <storage id="storage-common-proxies">
