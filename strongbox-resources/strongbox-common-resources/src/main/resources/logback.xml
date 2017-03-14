@@ -59,7 +59,6 @@
     <logger name="org.carlspring.strongbox.data.tx" level="WARN"/>
 
     <logger name="net.sf.ehcache" level="ERROR"/>
-    -->
 
     <root level="DEBUG">
         <appender-ref ref="CONSOLE"/>
