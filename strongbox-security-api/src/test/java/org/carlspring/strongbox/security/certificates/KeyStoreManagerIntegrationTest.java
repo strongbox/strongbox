@@ -3,6 +3,7 @@ package org.carlspring.strongbox.security.certificates;
 import org.carlspring.strongbox.net.ConnectionChecker;
 import org.carlspring.strongbox.testing.AssignedPorts;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -21,7 +22,6 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -38,8 +38,7 @@ public class KeyStoreManagerIntegrationTest
                                     "org.carlspring.strongbox.testing" })
     public static class SpringConfig { }
 
-
-    @Autowired
+    @Inject
     private AssignedPorts assignedPorts;
 
     private static final String PROXY_USERNAME = "testuser";
@@ -66,7 +65,7 @@ public class KeyStoreManagerIntegrationTest
 
     private File f;
 
-    @Autowired
+    @Inject
     KeyStoreManager keyStoreManager;
 
 

@@ -6,7 +6,7 @@ import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.inject.Inject;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
@@ -16,7 +16,6 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -40,7 +39,7 @@ public class MetadataManagementController
 
     public final static String ROOT_CONTEXT = "/metadata";
 
-    @Autowired
+    @Inject
     private ArtifactMetadataService artifactMetadataService;
 
     @ApiOperation(value = "Used to rebuild the metadata for a given path.",

@@ -11,6 +11,7 @@ import org.carlspring.strongbox.storage.routing.RuleSet;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
 
 import javax.annotation.PreDestroy;
+import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.Collections;
@@ -25,7 +26,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Commit;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,11 +53,11 @@ public class ConfigurationManagementServiceImplTest
 
     private static final String REPOSITORY_GROUP_2 = "csmi-group-2";
 
-    @Autowired
+    @Inject
     private ConfigurationRepository configurationRepository;
 
 
-    @Autowired
+    @Inject
     private ConfigurationManagementService configurationManagementService;
 
 

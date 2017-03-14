@@ -13,6 +13,7 @@ import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.RuleSet;
 
+import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,7 +23,6 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,10 +37,10 @@ public class ConfigurationManagementServiceImpl
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationManagementService.class);
 
-    @Autowired
+    @Inject
     private ConfigurationManager configurationManager;
 
-    @Autowired
+    @Inject
     ConfigurationRepository configurationRepository;
 
 

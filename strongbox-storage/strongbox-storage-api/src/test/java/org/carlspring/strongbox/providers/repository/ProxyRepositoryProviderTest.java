@@ -4,6 +4,7 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
@@ -12,7 +13,6 @@ import com.google.common.io.ByteStreams;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -40,7 +40,7 @@ public class ProxyRepositoryProviderTest
 
     }
 
-    @Autowired
+    @Inject
     private ArtifactResolutionService artifactResolutionService;
 
 

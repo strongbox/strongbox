@@ -6,11 +6,12 @@ import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.RepositoryInitializationException;
 
+import javax.inject.Inject;
+
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Kate Novik.
@@ -21,10 +22,10 @@ public class DownloadRemoteIndexCronJob
 
     private final Logger logger = LoggerFactory.getLogger(DownloadRemoteIndexCronJob.class);
 
-    @Autowired
+    @Inject
     private RepositoryManagementService repositoryManagementService;
 
-    @Autowired
+    @Inject
     private JobManager manager;
 
     @Override

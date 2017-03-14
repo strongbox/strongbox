@@ -11,6 +11,7 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 
+import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -46,7 +47,7 @@ public class ArtifactOutputStreamTest
 
     }
 
-    @Autowired
+    @Inject
     private ConfigurationManager configurationManager;
 
     @Test

@@ -13,6 +13,7 @@ import org.carlspring.strongbox.storage.routing.RuleSet;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
+import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -26,7 +27,6 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -58,10 +58,10 @@ public class ConfigurationManagerTest
 
     private GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
 
-    @Autowired
+    @Inject
     private ConfigurationManager configurationManager;
 
-    @Autowired
+    @Inject
     private ArtifactResolutionService artifactResolutionService;
 
 

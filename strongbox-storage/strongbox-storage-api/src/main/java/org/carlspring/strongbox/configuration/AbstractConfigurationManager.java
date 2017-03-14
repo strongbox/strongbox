@@ -3,13 +3,13 @@ package org.carlspring.strongbox.configuration;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanCreationException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 
 /**
@@ -21,8 +21,8 @@ public abstract class AbstractConfigurationManager<T>
     private static final Logger logger = LoggerFactory.getLogger(AbstractConfigurationManager.class);
     
     protected ServerConfiguration configuration;
-    
-    @Autowired
+
+    @Inject
     protected ConfigurationRepository configurationRepository;
     
     private String configurationPath;

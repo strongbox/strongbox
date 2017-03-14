@@ -9,6 +9,7 @@ import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
 
 import javax.annotation.PreDestroy;
+import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,7 +25,6 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertNotNull;
@@ -50,10 +50,10 @@ public class GroupRepositoryProviderTest
     private static final String REPOSITORY_GROUP = "grpt-releases-group";
 
 
-    @Autowired
+    @Inject
     private RepositoryProviderRegistry repositoryProviderRegistry;
 
-    @Autowired
+    @Inject
     private ConfigurationManager configurationManager;
 
     @Rule

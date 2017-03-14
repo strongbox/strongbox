@@ -3,13 +3,21 @@ package org.carlspring.strongbox.cron.quartz;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.exceptions.CronTaskNotFoundException;
 
+import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.quartz.*;
+import org.quartz.CronScheduleBuilder;
+import org.quartz.Job;
+import org.quartz.JobBuilder;
+import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Service;
 
@@ -22,10 +30,11 @@ public class CronJobSchedulerService
 
     private final Logger logger = LoggerFactory.getLogger(CronJobSchedulerService.class);
 
-    @Autowired
+    @Inject
     private SchedulerFactoryBean schedulerFactoryBean;
 
     private Map<String, CronTask> jobsMap = new HashMap<>();
+
 
     public void scheduleJob(CronTaskConfiguration cronTaskConfiguration)
             throws ClassNotFoundException, SchedulerException

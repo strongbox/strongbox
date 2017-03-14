@@ -17,6 +17,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.ArtifactFileUtils;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -25,7 +26,6 @@ import java.io.OutputStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.NoSuchAlgorithmException;
@@ -39,7 +39,6 @@ import java.util.stream.Stream;
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author mtodorov
@@ -50,13 +49,13 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractLayoutProvider.class);
 
-    @Autowired
+    @Inject
     protected LayoutProviderRegistry layoutProviderRegistry;
 
-    @Autowired
+    @Inject
     protected StorageProviderRegistry storageProviderRegistry;
 
-    @Autowired
+    @Inject
     private ConfigurationManager configurationManager;
 
     public LayoutProviderRegistry getLayoutProviderRegistry()

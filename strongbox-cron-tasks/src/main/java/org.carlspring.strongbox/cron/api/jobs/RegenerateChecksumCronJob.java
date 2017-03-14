@@ -7,6 +7,7 @@ import org.carlspring.strongbox.services.ChecksumService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
@@ -16,7 +17,6 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Kate Novik.
@@ -27,13 +27,13 @@ public class RegenerateChecksumCronJob
 
     private final Logger logger = LoggerFactory.getLogger(RegenerateChecksumCronJob.class);
 
-    @Autowired
+    @Inject
     private ChecksumService checksumService;
 
-    @Autowired
+    @Inject
     private ConfigurationManager configurationManager;
 
-    @Autowired
+    @Inject
     private JobManager manager;
 
 

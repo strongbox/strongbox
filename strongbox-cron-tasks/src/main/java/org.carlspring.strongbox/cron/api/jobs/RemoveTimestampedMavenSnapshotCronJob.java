@@ -8,6 +8,7 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
@@ -17,7 +18,6 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Kate Novik.
@@ -28,13 +28,13 @@ public class RemoveTimestampedMavenSnapshotCronJob
 
     private final Logger logger = LoggerFactory.getLogger(RemoveTimestampedMavenSnapshotCronJob.class);
 
-    @Autowired
+    @Inject
     private ArtifactManagementService artifactManagementService;
 
-    @Autowired
+    @Inject
     private ConfigurationManager configurationManager;
 
-    @Autowired
+    @Inject
     private JobManager manager;
 
 

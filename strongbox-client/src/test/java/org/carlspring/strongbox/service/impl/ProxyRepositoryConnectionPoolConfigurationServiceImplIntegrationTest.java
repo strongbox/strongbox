@@ -3,6 +3,7 @@ package org.carlspring.strongbox.service.impl;
 import org.carlspring.strongbox.config.ClientConfig;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 
+import javax.inject.Inject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
 
@@ -31,7 +32,7 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImplIntegrationTes
     {
     }
 
-    @Autowired
+    @Inject
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
 
     @Test

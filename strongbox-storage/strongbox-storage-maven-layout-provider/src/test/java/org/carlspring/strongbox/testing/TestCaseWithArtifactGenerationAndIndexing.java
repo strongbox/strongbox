@@ -19,6 +19,7 @@ import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.RuleSet;
 
+import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
@@ -32,7 +33,6 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
@@ -59,16 +59,16 @@ public abstract class TestCaseWithArtifactGenerationAndIndexing
             })
     public static class SpringConfig { }
 
-    @Autowired
+    @Inject
     protected RepositoryIndexManager repositoryIndexManager;
 
-    @Autowired
+    @Inject
     protected ConfigurationManagementService configurationManagementService;
 
-    @Autowired
+    @Inject
     protected RepositoryManagementService repositoryManagementService;
 
-    @Autowired
+    @Inject
     protected ArtifactSearchService artifactSearchService;
 
 

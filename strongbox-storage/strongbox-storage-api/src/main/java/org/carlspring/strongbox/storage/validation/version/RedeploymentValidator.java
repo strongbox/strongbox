@@ -7,9 +7,9 @@ import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
+import javax.inject.Inject;
 import java.io.IOException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -20,7 +20,7 @@ public class RedeploymentValidator
         implements VersionValidator
 {
 
-    @Autowired
+    @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
 

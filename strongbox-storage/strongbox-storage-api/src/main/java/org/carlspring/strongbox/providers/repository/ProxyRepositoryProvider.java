@@ -14,6 +14,7 @@ import org.carlspring.strongbox.storage.repository.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,7 +23,6 @@ import java.security.NoSuchAlgorithmException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -37,13 +37,13 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
 
     private static final String ALIAS = "proxy";
 
-    @Autowired
+    @Inject
     private RepositoryProviderRegistry repositoryProviderRegistry;
 
-    @Autowired
+    @Inject
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
 
-    @Autowired
+    @Inject
     @Qualifier("filesystemStorageProvider")
     private StorageProvider filesystemStorageProvider;
 

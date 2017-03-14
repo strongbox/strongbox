@@ -8,6 +8,7 @@ import org.carlspring.strongbox.users.service.AuthorizationConfigService;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -22,7 +23,6 @@ import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanInitializationException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,12 +40,12 @@ public class AuthorizationConfigProvider
 
     private static final Logger logger = LoggerFactory.getLogger(AuthorizationConfigProvider.class);
 
-    @Autowired
+    @Inject
     AuthorizationConfigService configService;
 
     private GenericParser<AuthorizationConfig> parser;
 
-    @Autowired
+    @Inject
     private OObjectDatabaseTx databaseTx;
 
     private AuthorizationConfig config;

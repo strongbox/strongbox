@@ -10,9 +10,9 @@ import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.repository.Repository;
 
+import javax.inject.Inject;
 import java.io.IOException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
@@ -24,10 +24,10 @@ import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.g
 public class ArtifactOperationsValidator
 {
 
-    @Autowired
+    @Inject
     private ConfigurationManager configurationManager;
 
-    @Autowired
+    @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
 

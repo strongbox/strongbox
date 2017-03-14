@@ -7,6 +7,7 @@ import org.carlspring.strongbox.security.authentication.JWtAuthenticationProvide
 import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -46,7 +47,7 @@ public class SecurityConfig
 
     }
 
-    @Autowired
+    @Inject
     public void configureGlobal(AuthenticationManagerBuilder auth,
                                 @Qualifier("userDetailsAuthenticationProvider") AuthenticationProvider userDetailsAuthenticationProvider,
                                 @Qualifier("jwtAuthenticationProvider") AuthenticationProvider jwtAuthenticationProvider)
@@ -103,8 +104,9 @@ public class SecurityConfig
             extends WebSecurityConfigurerAdapter
     {
 
-        @Autowired
+        @Inject
         private AuthorizationConfigProvider authorizationConfigProvider;
+
         private AnonymousAuthenticationFilter anonymousAuthenticationFilter;
 
         public JwtSecurityConfig()
