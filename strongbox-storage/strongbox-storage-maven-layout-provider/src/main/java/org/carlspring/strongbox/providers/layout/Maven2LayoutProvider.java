@@ -12,6 +12,7 @@ import org.carlspring.strongbox.storage.checksum.MavenChecksumManager;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -19,6 +20,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
@@ -158,41 +160,50 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
     }
 
     @Override
-    public void regenerateChecksums(String storageId,
-                                    String repositoryId,
-                                    String basePath,
+    public void regenerateChecksums(Repository repository,
+                                    List<String> versionDirectories,
                                     boolean forceRegeneration)
-            throws IOException
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   ProviderImplementationException,
+                   UnknownRepositoryTypeException,
+                   ArtifactTransportException
     {
-        Repository repository = getStorage(storageId).getRepository(repositoryId);
-        if (containsPath(repository, basePath))
-        {
-            logger.debug("Artifact checksum generation triggered for " + basePath + " in '" +
-                         repository.getStorage().getId() + ":" + repository.getId() + "'" +
-                         " [policy: " + repository.getPolicy() + "].");
-
             /**
              * In the repository we need to generate checksum for files in the artifactBasePath and
              * for each version directory.
              */
-            String versionBasePath = repository.getBasedir() + "/" + basePath;
-            try
+        if (!versionDirectories.isEmpty())
             {
-                storeChecksum(repository, versionBasePath, forceRegeneration);
+                RepositoryPath basePath = resolve(repository, versionDirectories.get(0)).getParent();
 
-                logger.debug("Generated Maven checksum for " + versionBasePath + ".");
-            }
-            catch (IOException |
-                   NoSuchAlgorithmException |
-                   ArtifactTransportException |
-                   ProviderImplementationException e)
-            {
-                logger.error(e.getMessage(), e);
-            }
+                logger.debug("Artifact checksum generation triggered for " + basePath + " in '" +
+                             repository.getStorage()
+                                       .getId() + ":" + repository.getId() + "'" +
+                             " [policy: " + repository.getPolicy() + "].");
+                versionDirectories.forEach(path ->
+                                           {
+                                               try
+                                               {
+                                                   storeChecksum(repository, resolve(repository, path),
+                                                                 forceRegeneration);
+                                               }
+                                               catch (IOException |
+                                                              NoSuchAlgorithmException |
+                                                              ArtifactTransportException |
+                                                              ProviderImplementationException e)
+                                               {
+                                                   logger.error(e.getMessage(), e);
+                                               }
+
+                                               logger.debug("Generated Maven checksum for " + path + ".");
+                                           });
+
+                storeChecksum(repository, basePath, forceRegeneration);
         }
         else
         {
-            logger.error("Artifact checksum generation failed: " + basePath + ".");
+            logger.error("Artifact checksum generation failed.");
         }
     }
 

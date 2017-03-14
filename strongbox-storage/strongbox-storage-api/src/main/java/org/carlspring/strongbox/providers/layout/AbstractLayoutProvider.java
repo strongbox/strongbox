@@ -247,27 +247,30 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
                                ArtifactInputStream is,
                                String digestAlgorithm)
     {
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+
         String checksumExtension = ".".concat(digestAlgorithm.toLowerCase()
                                                              .replaceAll("-", ""));
         String checksumPath = path.concat(checksumExtension);
         String checksum = null;
 
-        if (Files.exists(Paths.get(checksumPath)))
-        {
             try
             {
+                if (Files.exists(resolve(repository, checksumPath)) && new File(checksumPath).length() != 0)
+                {
                 checksum = MessageDigestUtils.readChecksumFile(getInputStream(storageId, repositoryId, checksumPath));
+                }
+                else
+                {
+                    checksum = is.getMessageDigestAsHexadecimalString(digestAlgorithm);
+                }
             }
             catch (IOException | NoSuchAlgorithmException e)
             {
                 logger.error(String.format("Failed to read checksum: alg-[%s]; path-[%s];",
                                            digestAlgorithm, path + "." + checksumExtension), e);
             }
-        }
-        else
-        {
-            checksum = is.getMessageDigestAsHexadecimalString(digestAlgorithm);
-        }
 
         return checksum;
     }
@@ -584,7 +587,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
     }
 
     protected void storeChecksum(Repository repository,
-                                 String basePath,
+                                 RepositoryPath basePath,
                                  boolean forceRegeneration)
             throws IOException,
                    NoSuchAlgorithmException,
@@ -592,7 +595,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
                    ProviderImplementationException
 
     {
-        File file = new File(basePath);
+        File file = basePath.toFile();
 
         List<File> list = Arrays.asList(file.listFiles());
 
