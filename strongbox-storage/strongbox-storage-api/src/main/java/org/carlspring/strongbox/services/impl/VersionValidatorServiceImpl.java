@@ -3,10 +3,10 @@ package org.carlspring.strongbox.services.impl;
 import org.carlspring.strongbox.services.VersionValidatorService;
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
 
+import javax.inject.Inject;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -17,7 +17,7 @@ public class VersionValidatorServiceImpl
         implements VersionValidatorService
 {
 
-    @Autowired
+    @Inject
     private Set<VersionValidator> versionValidators = new LinkedHashSet<>();
 
 

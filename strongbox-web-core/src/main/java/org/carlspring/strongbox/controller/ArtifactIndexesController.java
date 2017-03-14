@@ -3,6 +3,7 @@ package org.carlspring.strongbox.controller;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 
@@ -11,7 +12,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +31,7 @@ public class ArtifactIndexesController
         extends BaseArtifactController
 {
 
-    @Autowired
+    @Inject
     private ArtifactIndexesService artifactIndexesService;
 
     @ApiOperation(value = "Used to rebuild the indexes in repository or for artifact.",

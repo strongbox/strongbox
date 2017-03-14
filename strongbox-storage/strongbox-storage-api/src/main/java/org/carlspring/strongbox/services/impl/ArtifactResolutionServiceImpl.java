@@ -14,10 +14,10 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -28,13 +28,13 @@ public class ArtifactResolutionServiceImpl
         implements ArtifactResolutionService
 {
 
-    @Autowired
+    @Inject
     private ConfigurationManager configurationManager;
 
-    @Autowired
+    @Inject
     private ArtifactOperationsValidator artifactOperationsValidator;
 
-    @Autowired
+    @Inject
     private RepositoryProviderRegistry repositoryProviderRegistry;
 
 

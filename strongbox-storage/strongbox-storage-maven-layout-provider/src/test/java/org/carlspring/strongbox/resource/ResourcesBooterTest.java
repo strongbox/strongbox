@@ -3,12 +3,12 @@ package org.carlspring.strongbox.resource;
 import org.carlspring.strongbox.booters.ResourcesBooter;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
 
+import javax.inject.Inject;
 import java.io.File;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertTrue;
 
@@ -20,7 +20,7 @@ public class ResourcesBooterTest extends TestCaseWithArtifactGenerationAndIndexi
 {
 
     // This field is indeed used. It's execute() method is being invoked with a @PostConstruct.
-    @Autowired
+    @Inject
     private ResourcesBooter resourcesBooter;
 
 

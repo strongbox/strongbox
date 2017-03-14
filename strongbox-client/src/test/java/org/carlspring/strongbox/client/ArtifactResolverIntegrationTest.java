@@ -3,6 +3,7 @@ package org.carlspring.strongbox.client;
 import org.carlspring.strongbox.config.ClientConfig;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 
+import javax.inject.Inject;
 import java.io.IOException;
 
 import org.junit.Before;
@@ -10,7 +11,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
@@ -38,7 +38,7 @@ public class ArtifactResolverIntegrationTest
     // fake url
     private String repositoryUrl = "https://repo.maven.apache.org/maven2/";
 
-    @Autowired
+    @Inject
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
 
     @Before

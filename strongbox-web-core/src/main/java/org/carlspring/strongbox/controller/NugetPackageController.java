@@ -7,6 +7,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.utils.ArtifactControllerHelper;
 
+import javax.inject.Inject;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
@@ -63,7 +64,7 @@ public class NugetPackageController extends BaseArtifactController
 
     public final static String ROOT_CONTEXT = "/storages";
 
-    @Autowired
+    @Inject
     private UserService userService;
 
     /**

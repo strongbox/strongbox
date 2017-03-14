@@ -6,6 +6,7 @@ import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.users.domain.Roles;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -19,7 +20,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
@@ -46,16 +46,16 @@ public abstract class RestAssuredBaseTest
      */
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
-    @Autowired
+    @Inject
     protected WebApplicationContext context;
 
-    @Autowired
+    @Inject
     AnonymousAuthenticationFilter anonymousAuthenticationFilter;
 
-    @Autowired
+    @Inject
     protected RestAssuredArtifactClient client;
 
-    @Autowired
+    @Inject
     protected ObjectMapper objectMapper;
 
     private String host;

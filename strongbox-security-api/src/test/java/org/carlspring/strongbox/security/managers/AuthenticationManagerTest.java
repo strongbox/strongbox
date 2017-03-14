@@ -2,11 +2,11 @@ package org.carlspring.strongbox.security.managers;
 
 import org.carlspring.strongbox.config.CommonConfig;
 import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
-import org.carlspring.strongbox.security.managers.AuthenticationManager;
+
+import javax.inject.Inject;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
@@ -28,7 +28,7 @@ public class AuthenticationManagerTest
     })
     public static class SpringConfig { }
 
-    @Autowired
+    @Inject
     private AuthenticationManager authenticationManager;
 
     @Test

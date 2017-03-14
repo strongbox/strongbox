@@ -4,13 +4,13 @@ import org.carlspring.strongbox.cron.config.JobManager;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
 
+import javax.inject.Inject;
 import java.io.IOException;
 
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Kate Novik.
@@ -21,10 +21,10 @@ public class RebuildMavenIndexesCronJob
 
     private final Logger logger = LoggerFactory.getLogger(RebuildMavenIndexesCronJob.class);
 
-    @Autowired
+    @Inject
     private ArtifactIndexesService artifactIndexesService;
 
-    @Autowired
+    @Inject
     private JobManager manager;
 
     @Override

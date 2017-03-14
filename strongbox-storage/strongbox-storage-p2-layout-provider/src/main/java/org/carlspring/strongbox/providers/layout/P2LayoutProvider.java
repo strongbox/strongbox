@@ -9,6 +9,7 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
 
+import javax.inject.Inject;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -17,7 +18,6 @@ import java.util.List;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class P2LayoutProvider
         extends AbstractLayoutProvider<P2ArtifactCoordinates>
@@ -27,7 +27,7 @@ public class P2LayoutProvider
 
     public static final String ALIAS = "P2 Repository";
 
-    @Autowired
+    @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
     @Override

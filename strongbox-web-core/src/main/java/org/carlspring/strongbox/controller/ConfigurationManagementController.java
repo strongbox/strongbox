@@ -13,6 +13,7 @@ import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RuleSet;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
+import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +26,6 @@ import io.swagger.annotations.ApiResponses;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -49,16 +49,16 @@ public class ConfigurationManagementController
 
     private static final Logger logger = LogManager.getLogger(ConfigurationManagementController.class);
 
-    @Autowired
+    @Inject
     private ConfigurationManagementService configurationManagementService;
 
-    @Autowired
+    @Inject
     private StorageManagementService storageManagementService;
 
-    @Autowired
+    @Inject
     private RepositoryManagementService repositoryManagementService;
 
-    @Autowired
+    @Inject
     private RepositoryIndexManager repositoryIndexManager;
 
 

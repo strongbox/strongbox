@@ -7,13 +7,13 @@ import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
 import org.carlspring.strongbox.users.service.UserService;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.Set;
 
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -32,13 +32,13 @@ public class StrongboxUserDetailService
     // @Autowired
     // private PasswordEncoder passwordEncoder;
 
-    @Autowired
+    @Inject
     UserService userService;
 
-    @Autowired
+    @Inject
     AuthorizationConfigProvider authorizationConfigProvider;
 
-    @Autowired
+    @Inject
     private OObjectDatabaseTx databaseTx;
 
     private Set<GrantedAuthority> fullAuthorities;

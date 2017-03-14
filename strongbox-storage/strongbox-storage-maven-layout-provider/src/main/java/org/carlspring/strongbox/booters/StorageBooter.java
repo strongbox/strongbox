@@ -14,6 +14,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +24,6 @@ import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -38,16 +38,16 @@ public class StorageBooter
 
     private static final Logger logger = LoggerFactory.getLogger(StorageBooter.class);
 
-    @Autowired
+    @Inject
     private RepositoryManagementService repositoryManagementService;
 
-    @Autowired
+    @Inject
     private RepositoryIndexManager repositoryIndexManager;
 
-    @Autowired
+    @Inject
     private RepositoryIndexerFactory repositoryIndexerFactory;
 
-    @Autowired
+    @Inject
     private ConfigurationManager configurationManager;
 
     private File lockFile = new File(ConfigurationResourceResolver.getVaultDirectory(), "storage-booter.lock");

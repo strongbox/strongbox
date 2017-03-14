@@ -6,13 +6,13 @@ import org.carlspring.strongbox.services.StorageManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -24,10 +24,10 @@ public class StorageManagementServiceImpl implements StorageManagementService
 
     private static final Logger logger = LoggerFactory.getLogger(StorageManagementServiceImpl.class);
 
-    @Autowired
+    @Inject
     private ConfigurationManager configurationManager;
 
-    @Autowired
+    @Inject
     private RepositoryManagementService repositoryManagementService;
 
 

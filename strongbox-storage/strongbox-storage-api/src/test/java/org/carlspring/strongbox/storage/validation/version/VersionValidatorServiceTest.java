@@ -4,9 +4,10 @@ import org.carlspring.strongbox.config.CommonConfig;
 import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.services.VersionValidatorService;
 
+import javax.inject.Inject;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -27,7 +28,7 @@ public class VersionValidatorServiceTest
     })
     public static class SpringConfig { }
 
-    @Autowired
+    @Inject
     private VersionValidatorService versionValidatorService;
 
 

@@ -12,6 +12,7 @@ import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -28,7 +29,6 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
@@ -68,7 +68,7 @@ public class ArtifactMetadataServiceSnapshotsTest
 
     private static Artifact mergeArtifact;
 
-    @Autowired
+    @Inject
     private ArtifactMetadataService artifactMetadataService;
 
     private SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss");

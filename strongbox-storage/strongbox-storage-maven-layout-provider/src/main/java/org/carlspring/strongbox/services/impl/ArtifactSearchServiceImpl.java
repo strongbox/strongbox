@@ -12,6 +12,7 @@ import org.carlspring.strongbox.storage.indexing.SearchResult;
 import org.carlspring.strongbox.storage.indexing.SearchResults;
 import org.carlspring.strongbox.storage.repository.Repository;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
@@ -19,7 +20,6 @@ import java.util.Set;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -32,10 +32,10 @@ public class ArtifactSearchServiceImpl
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactSearchServiceImpl.class);
 
-    @Autowired
+    @Inject
     private RepositoryIndexManager repositoryIndexManager;
 
-    @Autowired
+    @Inject
     private ConfigurationManager configurationManager;
 
 

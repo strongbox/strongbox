@@ -3,6 +3,7 @@ package org.carlspring.strongbox.controller;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -12,7 +13,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.ByteStreams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -26,10 +26,10 @@ public abstract class BaseController
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Autowired
+    @Inject
     protected ObjectMapper objectMapper;
 
-    @Autowired
+    @Inject
     protected ConfigurationManager configurationManager;
 
 
