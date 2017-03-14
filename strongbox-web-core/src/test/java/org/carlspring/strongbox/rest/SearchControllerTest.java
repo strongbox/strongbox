@@ -11,7 +11,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.MediaType;
@@ -25,7 +24,6 @@ import static org.junit.Assert.assertTrue;
  */
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
-@Ignore
 public class SearchControllerTest
         extends RestAssuredBaseTest
 {
