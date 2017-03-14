@@ -1,12 +1,13 @@
 package org.carlspring.strongbox.config;
 
-import javax.annotation.PostConstruct;
-
 import org.carlspring.strongbox.security.authentication.CustomAnonymousAuthenticationFilter;
 import org.carlspring.strongbox.security.authentication.Http401AuthenticationEntryPoint;
 import org.carlspring.strongbox.security.authentication.JWTAuthenticationFilter;
 import org.carlspring.strongbox.security.authentication.JWtAuthenticationProvider;
 import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
+
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -24,7 +25,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
@@ -148,7 +148,7 @@ public class SecurityConfig
                 .anyRequest()
                 .authenticated()
                 .and()
-                .addFilterAfter(jwtFilter, BasicAuthenticationFilter.class)
+                //.addFilterAfter(jwtFilter, BasicAuthenticationFilter.class)
                 .logout()
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                 .logoutSuccessUrl("/")
