@@ -58,6 +58,8 @@ public class ArtifactIndexesControllerTest
     public void initialize()
             throws Exception
     {
+        super.init();
+
         // Used by:
         // - testRebuildArtifactsIndexes()
         // - testRebuildIndexesInRepository()
