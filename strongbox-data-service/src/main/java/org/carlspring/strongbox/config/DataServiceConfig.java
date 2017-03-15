@@ -24,6 +24,8 @@ import org.springframework.data.orient.commons.core.OrientTransactionManager;
 import org.springframework.data.orient.object.OrientObjectDatabaseFactory;
 import org.springframework.data.orient.object.OrientObjectTemplate;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.validation.Validator;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 /**
  * Spring configuration for data service project.
@@ -129,6 +131,12 @@ public class DataServiceConfig
         {
             logger.debug("Reuse existing database " + database);
         }
+    }
+
+    @Bean
+    public Validator validator()
+    {
+        return new LocalValidatorFactoryBean();
     }
 
     private String getConnectionUrl()
