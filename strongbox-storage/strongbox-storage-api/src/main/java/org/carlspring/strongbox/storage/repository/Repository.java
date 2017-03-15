@@ -105,6 +105,7 @@ public class Repository
     @XmlElementWrapper(name = "group")
     private Set<String> groupRepositories = new LinkedHashSet<>();
 
+    @JsonIgnore
     @XmlTransient
     private Storage storage;
 
