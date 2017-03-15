@@ -178,9 +178,11 @@ public class RepositoryManagementServiceImpl
                        String path)
             throws IOException
     {
-        logger.info("Re-indexing " + storageId + ":" + repositoryId + ":local" + (path != null ? ":" + path : "") + "...");
+        String lookupKey = storageId + ":" + repositoryId + ":local";
 
-        RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer(storageId + ":" + repositoryId + ":local");
+        logger.info("Re-indexing " + lookupKey + (path != null ? ":" + path : "") + "...");
+
+        RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer(lookupKey);
 
         File startingPath = path != null ? new File(path) : new File(".");
 

@@ -11,7 +11,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.MediaType;
@@ -25,15 +24,17 @@ import static org.junit.Assert.assertTrue;
  */
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
-@Ignore
 public class SearchControllerTest
         extends RestAssuredBaseTest
 {
 
+    public static final String STORAGE_SC_TEST = "storage-sc-test";
+
     private static final String REPOSITORY_RELEASES = "sc-releases-search";
 
     private static final File REPOSITORY_RELEASES_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                     "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES);
+                                                                     "/storages/" + STORAGE_SC_TEST + "/" +
+                                                                     REPOSITORY_RELEASES);
 
     @BeforeClass
     public static void cleanUp()
@@ -48,25 +49,25 @@ public class SearchControllerTest
     {
         super.init();
 
-        createRepository(STORAGE0, REPOSITORY_RELEASES, true);
+        createRepository(STORAGE_SC_TEST, REPOSITORY_RELEASES, true);
 
         generateArtifact(REPOSITORY_RELEASES_BASEDIR, "org.carlspring.strongbox.searches:test-project:1.0.11.3");
         generateArtifact(REPOSITORY_RELEASES_BASEDIR, "org.carlspring.strongbox.searches:test-project:1.0.11.3.1");
         generateArtifact(REPOSITORY_RELEASES_BASEDIR, "org.carlspring.strongbox.searches:test-project:1.0.11.3.2");
 
-        final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer(STORAGE0 + ":" +
+        final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer(STORAGE_SC_TEST + ":" +
                                                                                                 REPOSITORY_RELEASES +
                                                                                                 ":local");
 
         assertNotNull(repositoryIndexer);
 
-        repositoryManagementService.reIndex(STORAGE0, REPOSITORY_RELEASES, "org/carlspring/strongbox/searches");
+        repositoryManagementService.reIndex(STORAGE_SC_TEST, REPOSITORY_RELEASES, "org/carlspring/strongbox/searches");
     }
 
     public static Set<Repository> getRepositoriesToClean()
     {
         Set<Repository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
+        repositories.add(createRepositoryMock(STORAGE_SC_TEST, REPOSITORY_RELEASES));
 
         return repositories;
     }
