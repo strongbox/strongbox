@@ -81,7 +81,7 @@ public class ArtifactDeployerTest
                                              "jdk14",
                                              "tests" };
 
-        ArtifactDeployer artifactDeployer = new ArtifactDeployer(BASEDIR);
+        MavenArtifactDeployer artifactDeployer = new MavenArtifactDeployer(BASEDIR);
         artifactDeployer.setClient(client);
         artifactDeployer.generateAndDeployArtifact(artifact, classifiers, "storage0", "releases", "jar");
     }

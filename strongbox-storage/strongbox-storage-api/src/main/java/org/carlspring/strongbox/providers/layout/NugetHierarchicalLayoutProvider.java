@@ -1,14 +1,23 @@
 package org.carlspring.strongbox.providers.layout;
 
+import org.carlspring.maven.commons.io.filters.PomFilenameFilter;
 import org.carlspring.strongbox.artifact.coordinates.NugetHierarchicalArtifactCoordinates;
+import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.io.RepositoryPath;
+import org.carlspring.strongbox.io.filters.NuspecFilenameFilter;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
 
 import javax.annotation.PostConstruct;
+import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -110,6 +119,55 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
     {
         return Stream.of(MessageDigestAlgorithms.SHA_512)
                      .collect(Collectors.toSet());
+    }
+
+    public void generateChecksum(Repository repository,
+                                 String path,
+                                 List<File> versionDirectories,
+                                 boolean forceRegeneration)
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   ProviderImplementationException,
+                   UnknownRepositoryTypeException,
+                   ArtifactTransportException
+    {
+        if (containsPath(repository, path))
+        {
+            logger.debug("Artifact checksum generation triggered for " + path + " in '" + repository.getStorage()
+                                                                                                    .getId() + ":" +
+                         repository.getId() + "'" + " [policy: " + repository.getPolicy() + "].");
+
+            if (!versionDirectories.isEmpty())
+            {
+                versionDirectories.forEach(file ->
+                                           {
+                                               String versionBasePath = file.getPath();
+                                               try
+                                               {
+                                                   storeChecksum(versionBasePath, repository, forceRegeneration);
+                                               }
+                                               catch (IOException |
+                                                              NoSuchAlgorithmException |
+                                                              ArtifactTransportException |
+                                                              ProviderImplementationException e)
+                                               {
+                                                   logger.error(e.getMessage(), e);
+                                               }
+
+                                               logger.debug("Generated Nuget checksum for " + versionBasePath + ".");
+                                           });
+            }
+        }
+        else
+        {
+            logger.error("Artifact checksum generation failed: " + path + ".");
+        }
+    }
+
+    @Override
+    public FilenameFilter getMetadataFilenameFilter()
+    {
+        return new NuspecFilenameFilter();
     }
 
 }

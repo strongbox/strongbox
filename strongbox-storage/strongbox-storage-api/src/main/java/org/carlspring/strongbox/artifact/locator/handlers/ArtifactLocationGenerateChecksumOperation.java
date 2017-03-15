@@ -1,12 +1,9 @@
 package org.carlspring.strongbox.artifact.locator.handlers;
 
-import org.carlspring.maven.commons.io.filters.PomFilenameFilter;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.storage.checksum.MavenChecksumManager;
-import org.carlspring.strongbox.storage.metadata.VersionCollectionRequest;
-import org.carlspring.strongbox.storage.metadata.VersionCollector;
 import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
 
 import java.io.File;
@@ -20,28 +17,27 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
 /**
  * @author Kate Novik.
  */
-public class ArtifactLocationGenerateMavenChecksumOperation
+public class ArtifactLocationGenerateChecksumOperation
         extends AbstractArtifactLocationHandler
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(ArtifactLocationGenerateMavenChecksumOperation.class);
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactLocationGenerateChecksumOperation.class);
 
     private String previousPath;
 
     private boolean forceRegeneration = false;
 
-    private MavenChecksumManager mavenChecksumManager;
-
     private LayoutProviderRegistry layoutProviderRegistry;
 
 
-    public ArtifactLocationGenerateMavenChecksumOperation(MavenChecksumManager mavenChecksumManager)
+    public ArtifactLocationGenerateChecksumOperation(LayoutProviderRegistry layoutProviderRegistry)
     {
-        this.mavenChecksumManager = mavenChecksumManager;
+        this.layoutProviderRegistry = layoutProviderRegistry;
     }
 
     public void execute(Path path)
@@ -49,7 +45,18 @@ public class ArtifactLocationGenerateMavenChecksumOperation
         File f = path.toAbsolutePath()
                      .toFile();
 
-        String[] list = f.list(new PomFilenameFilter());
+        LayoutProvider layoutProvider = null;
+        try
+        {
+            layoutProvider = getLayoutProvider(getRepository(), layoutProviderRegistry);
+            setFilenameFilter(layoutProvider.getMetadataFilenameFilter());
+        }
+        catch (ProviderImplementationException e)
+        {
+            logger.error("Failed to get layout provider for repository " + getRepository(), e);
+        }
+
+        String[] list = f.list(getFilenameFilter());
         List<String> filePaths = list != null ? Arrays.asList(list) : new ArrayList<>();
 
         String parentPath = path.getParent()
@@ -92,10 +99,6 @@ public class ArtifactLocationGenerateMavenChecksumOperation
             {
                 getVisitedRootPaths().put(parentPath, versionDirectories);
 
-                VersionCollector versionCollector = new VersionCollector();
-                VersionCollectionRequest request = versionCollector.collectVersions(path.getParent()
-                                                                                        .toAbsolutePath());
-
                 if (logger.isDebugEnabled())
                 {
                     for (File directory : versionDirectories)
@@ -110,7 +113,8 @@ public class ArtifactLocationGenerateMavenChecksumOperation
 
                 try
                 {
-                    mavenChecksumManager.generateChecksum(getRepository(), artifactPath, request, forceRegeneration);
+                    layoutProvider.generateChecksum(getRepository(), artifactPath, versionDirectories,
+                                                    forceRegeneration);
                 }
                 catch (IOException |
                                NoSuchAlgorithmException |
@@ -131,16 +135,6 @@ public class ArtifactLocationGenerateMavenChecksumOperation
     public void setLayoutProviderRegistry(LayoutProviderRegistry layoutProviderRegistry)
     {
         this.layoutProviderRegistry = layoutProviderRegistry;
-    }
-
-    public MavenChecksumManager getMavenChecksumManager()
-    {
-        return mavenChecksumManager;
-    }
-
-    public void setMavenChecksumManager(MavenChecksumManager mavenChecksumManager)
-    {
-        this.mavenChecksumManager = mavenChecksumManager;
     }
 
     public boolean getForceRegeneration()
