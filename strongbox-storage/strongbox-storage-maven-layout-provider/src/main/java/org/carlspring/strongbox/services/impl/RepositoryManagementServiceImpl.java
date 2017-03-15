@@ -178,11 +178,11 @@ public class RepositoryManagementServiceImpl
                        String path)
             throws IOException
     {
-        String lookupKey = storageId + ":" + repositoryId + ":local";
+        String contextId = storageId + ":" + repositoryId + ":local";
 
-        logger.info("Re-indexing " + lookupKey + (path != null ? ":" + path : "") + "...");
+        logger.info("Re-indexing " + contextId + (path != null ? ":" + path : "") + "...");
 
-        RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer(lookupKey);
+        RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer(contextId);
 
         File startingPath = path != null ? new File(path) : new File(".");
 
@@ -235,14 +235,14 @@ public class RepositoryManagementServiceImpl
                      String repositoryId)
             throws IOException
     {
-        String lookupKey = storageId + ":" + repositoryId + ":local";
+        String contextId = storageId + ":" + repositoryId + ":local";
 
-        logger.info("Packing index for " + lookupKey + " ...");
+        logger.info("Packing index for " + contextId + " ...");
 
-        final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(lookupKey);
+        final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(contextId);
         if (indexer == null)
         {
-            throw new NullPointerException("Unable to find RepositoryIndexer by key " + lookupKey +
+            throw new NullPointerException("Unable to find RepositoryIndexer by key " + contextId +
                                            ". \nAvailable keys are " + repositoryIndexManager.getIndexes()
                                                                                              .keySet());
         }
