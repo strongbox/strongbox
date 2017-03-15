@@ -132,8 +132,8 @@ public class ConfigurationManagerTest
         Storage storage = new Storage();
         storage.setId("myStorageId");
         storage.setBasedir(getStorageBasedir(STORAGE0).getAbsolutePath());
-        storage.addOrUpdateRepository(repository1);
-        storage.addOrUpdateRepository(repository2);
+        storage.saveRepository(repository1);
+        storage.saveRepository(repository2);
 
         Configuration configuration = new Configuration();
         configuration.addStorage(storage);
@@ -158,9 +158,9 @@ public class ConfigurationManagerTest
 
         Storage storage = new Storage("storage0");
         storage.setBasedir(getStorageBasedir(STORAGE0).getAbsolutePath());
-        storage.addOrUpdateRepository(repository1);
-        storage.addOrUpdateRepository(repository2);
-        storage.addOrUpdateRepository(repository3);
+        storage.saveRepository(repository1);
+        storage.saveRepository(repository2);
+        storage.saveRepository(repository3);
 
         Configuration configuration = new Configuration();
         configuration.addStorage(storage);

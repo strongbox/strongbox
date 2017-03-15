@@ -48,7 +48,8 @@ public interface ConfigurationManagementService extends ConfigurationService
     void removeStorage(String storageId)
             throws IOException, JAXBException;
 
-    void addOrUpdateRepository(String storageId, Repository repository)
+    void saveRepository(String storageId,
+                        Repository repository)
             throws IOException, JAXBException;
 
     Repository getRepository(String storageId, String repositoryId)
@@ -73,14 +74,14 @@ public interface ConfigurationManagementService extends ConfigurationService
     HttpConnectionPool getHttpConnectionPoolConfiguration(String storageId, String repositoryId)
             throws IOException, JAXBException;
 
-    boolean addOrUpdateAcceptedRuleSet(RuleSet ruleSet);
+    boolean saveAcceptedRuleSet(RuleSet ruleSet);
 
-    boolean addOrUpdateDeniedRuleSet(RuleSet ruleSet);
+    boolean saveDeniedRuleSet(RuleSet ruleSet);
 
     boolean removeAcceptedRuleSet(String groupRepository);
 
-    boolean addOrUpdateAcceptedRepository(String groupRepository,
-                                          RoutingRule routingRule);
+    boolean saveAcceptedRepository(String groupRepository,
+                                   RoutingRule routingRule);
 
     boolean removeAcceptedRepository(String groupRepository,
                                      String pattern,

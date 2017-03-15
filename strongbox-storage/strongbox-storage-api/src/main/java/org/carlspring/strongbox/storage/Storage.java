@@ -113,7 +113,7 @@ public class Storage
         this.repositories = repositories;
     }
 
-    public void addOrUpdateRepository(Repository repository)
+    public void saveRepository(Repository repository)
     {
         repositories.put(repository.getId(), repository);
     }

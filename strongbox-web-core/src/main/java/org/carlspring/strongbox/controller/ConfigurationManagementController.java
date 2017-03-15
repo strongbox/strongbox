@@ -323,8 +323,8 @@ public class ConfigurationManagementController
                     method = RequestMethod.PUT,
                     consumes = { MediaType.APPLICATION_XML_VALUE,
                                  MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity addOrUpdateStorage(@ApiParam(value = "The storage object",
-                                                       required = true)
+    public ResponseEntity saveStorage(@ApiParam(value = "The storage object",
+                                                required = true)
                                              @RequestBody Storage storage)
             throws IOException, JAXBException
     {
@@ -459,7 +459,7 @@ public class ConfigurationManagementController
             logger.debug("Creating repository " + storageId + ":" + repositoryId + "...");
 
             repository.setStorage(configurationManagementService.getStorage(storageId));
-            configurationManagementService.addOrUpdateRepository(storageId, repository);
+            configurationManagementService.saveRepository(storageId, repository);
 
             final File repositoryBaseDir = new File(repository.getBasedir());
             if (!repositoryBaseDir.exists())
@@ -621,7 +621,7 @@ public class ConfigurationManagementController
                                  .build();
         }
 
-        final boolean added = configurationManagementService.addOrUpdateAcceptedRuleSet(ruleSet);
+        final boolean added = configurationManagementService.saveAcceptedRuleSet(ruleSet);
         if (added)
         {
             return ResponseEntity.ok()
@@ -671,7 +671,7 @@ public class ConfigurationManagementController
                                  .body("Routing rule is empty");
         }
 
-        return getResponse(configurationManagementService.addOrUpdateAcceptedRepository(groupRepository, routingRule));
+        return getResponse(configurationManagementService.saveAcceptedRepository(groupRepository, routingRule));
     }
 
     @RequestMapping(value = "/routing/rules/accepted/{groupRepository}/repositories/{repositoryId}",

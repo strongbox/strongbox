@@ -31,7 +31,7 @@ public class RepositoryTest
         Repository repository = createTestRepositoryWithCustomConfig();
 
         Storage storage = new Storage("storage0");
-        storage.addOrUpdateRepository(repository);
+        storage.saveRepository(repository);
 
         Configuration configuration = new Configuration();
         configuration.addStorage(storage);
@@ -55,7 +55,7 @@ public class RepositoryTest
         Repository repository = new Repository("test-repository");
         repository.setStorage(storage);
 
-        storage.addOrUpdateRepository(repository);
+        storage.saveRepository(repository);
 
         Configuration configuration = new Configuration();
         configuration.addStorage(storage);
@@ -83,7 +83,7 @@ public class RepositoryTest
         Repository repository = new Repository("test-repository");
         repository.setStorage(storage);
 
-        storage.addOrUpdateRepository(repository);
+        storage.saveRepository(repository);
 
         Configuration configuration = new Configuration();
         configuration.addStorage(storage);

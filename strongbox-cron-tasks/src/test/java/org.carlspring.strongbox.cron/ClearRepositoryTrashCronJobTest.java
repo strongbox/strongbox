@@ -85,7 +85,7 @@ public class ClearRepositoryTrashCronJobTest
             repository1.setTrashEnabled(true);
             Storage storage = configurationManagementService.getStorage("storage0");
             repository1.setStorage(storage);
-            storage.addOrUpdateRepository(repository1);
+            storage.saveRepository(repository1);
             repositoryManagementService.createRepository("storage0", "releases-tt");
 
             //Create released artifact
@@ -96,7 +96,7 @@ public class ClearRepositoryTrashCronJobTest
             repository2.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
             repository2.setTrashEnabled(true);
             repository2.setStorage(storage);
-            storage.addOrUpdateRepository(repository2);
+            storage.saveRepository(repository2);
             repositoryManagementService.createRepository("storage0", "releases-test-two");
 
             String ga2 = "org.carlspring.strongbox.clear:strongbox-test-two";
@@ -109,7 +109,7 @@ public class ClearRepositoryTrashCronJobTest
             repository3.setTrashEnabled(true);
             repository3.setStorage(newStorage);
             configurationManagementService.saveStorage(newStorage);
-            newStorage.addOrUpdateRepository(repository3);
+            newStorage.saveRepository(repository3);
             repositoryManagementService.createRepository("storage1", "releases");
 
             //Create released artifact

@@ -192,7 +192,8 @@ public abstract class TestCaseWithArtifactGenerationAndIndexing
             throws IOException,
                    JAXBException
     {
-        configurationManagementService.addOrUpdateRepository(repository.getStorage().getId(), repository);
+        configurationManagementService.saveRepository(repository.getStorage()
+                                                                .getId(), repository);
 
         // Create the repository
         repositoryManagementService.createRepository(repository.getStorage().getId(), repository.getId());
@@ -258,12 +259,12 @@ public abstract class TestCaseWithArtifactGenerationAndIndexing
         if (type == ROUTING_RULE_TYPE_ACCEPTED)
         {
             routingRules.addAcceptRule(groupRepositoryId, ruleSet);
-            configurationManagementService.addOrUpdateAcceptedRuleSet(ruleSet);
+            configurationManagementService.saveAcceptedRuleSet(ruleSet);
         }
         else
         {
             routingRules.addDenyRule(groupRepositoryId, ruleSet);
-            configurationManagementService.addOrUpdateDeniedRuleSet(ruleSet);
+            configurationManagementService.saveDeniedRuleSet(ruleSet);
         }
     }
 

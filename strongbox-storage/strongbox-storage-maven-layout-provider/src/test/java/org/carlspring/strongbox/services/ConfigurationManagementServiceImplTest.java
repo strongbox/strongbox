@@ -170,7 +170,7 @@ public class ConfigurationManagementServiceImplTest
 
         Repository repository = storage.getRepository(REPOSITORY_RELEASES_2);
 
-        configurationManagementService.addOrUpdateRepository(STORAGE0, repository);
+        configurationManagementService.saveRepository(STORAGE0, repository);
 
         configurationManagementService.setProxyRepositoryMaxConnections(storage.getId(), repository.getId(), 10);
 
@@ -186,7 +186,7 @@ public class ConfigurationManagementServiceImplTest
             throws Exception
     {
         final RuleSet ruleSet = getRuleSet();
-        final boolean added = configurationManagementService.addOrUpdateAcceptedRuleSet(ruleSet);
+        final boolean added = configurationManagementService.saveAcceptedRuleSet(ruleSet);
         final Configuration configuration = configurationRepository.getConfiguration();
 
         final RuleSet addedRuleSet = configuration.getRoutingRules().getAccepted().get(REPOSITORY_GROUP_1);
@@ -203,7 +203,7 @@ public class ConfigurationManagementServiceImplTest
     public void testRemoveAcceptedRuleSet()
             throws Exception
     {
-        configurationManagementService.addOrUpdateAcceptedRuleSet(getRuleSet());
+        configurationManagementService.saveAcceptedRuleSet(getRuleSet());
 
         final boolean removed = configurationManagementService.removeAcceptedRuleSet(REPOSITORY_GROUP_1);
 
@@ -218,9 +218,10 @@ public class ConfigurationManagementServiceImplTest
     public void testAddAcceptedRepo()
             throws Exception
     {
-        configurationManagementService.addOrUpdateAcceptedRuleSet(getRuleSet());
+        configurationManagementService.saveAcceptedRuleSet(getRuleSet());
 
-        final boolean added = configurationManagementService.addOrUpdateAcceptedRepository(REPOSITORY_GROUP_1, getRoutingRule());
+        final boolean added = configurationManagementService.saveAcceptedRepository(REPOSITORY_GROUP_1,
+                                                                                    getRoutingRule());
         final Configuration configuration = configurationRepository.getConfiguration();
 
         assertTrue(added);
@@ -238,7 +239,7 @@ public class ConfigurationManagementServiceImplTest
     public void testRemoveAcceptedRepository()
             throws Exception
     {
-        configurationManagementService.addOrUpdateAcceptedRuleSet(getRuleSet());
+        configurationManagementService.saveAcceptedRuleSet(getRuleSet());
 
         final boolean removed = configurationManagementService.removeAcceptedRepository(REPOSITORY_GROUP_1,
                                                                                         RULE_PATTERN,
@@ -261,7 +262,7 @@ public class ConfigurationManagementServiceImplTest
     public void testOverrideAcceptedRepositories()
             throws Exception
     {
-        configurationManagementService.addOrUpdateAcceptedRuleSet(getRuleSet());
+        configurationManagementService.saveAcceptedRuleSet(getRuleSet());
 
         final RoutingRule rl = getRoutingRule();
         final boolean overridden = configurationManagementService.overrideAcceptedRepositories(REPOSITORY_GROUP_1, rl);

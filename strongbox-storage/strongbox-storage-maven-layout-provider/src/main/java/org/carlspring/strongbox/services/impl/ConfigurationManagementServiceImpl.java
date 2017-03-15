@@ -151,12 +151,13 @@ public class ConfigurationManagementServiceImpl
     }
 
     @Override
-    public synchronized void addOrUpdateRepository(String storageId,
-                                                   Repository repository)
+    public synchronized void saveRepository(String storageId,
+                                            Repository repository)
             throws IOException, JAXBException
     {
         Configuration configuration = configurationManager.getConfiguration();
-        configuration.getStorage(storageId).addOrUpdateRepository(repository);
+        configuration.getStorage(storageId)
+                     .saveRepository(repository);
         configurationManager.setConfiguration(configuration);
         configurationManager.store();
     }
@@ -265,7 +266,7 @@ public class ConfigurationManagementServiceImpl
     }
 
     @Override
-    public boolean addOrUpdateAcceptedRuleSet(RuleSet ruleSet)
+    public boolean saveAcceptedRuleSet(RuleSet ruleSet)
     {
         getConfiguration().getRoutingRules().addAcceptRule(ruleSet.getGroupRepository(), ruleSet);
         updateConfiguration(getConfiguration());
@@ -274,7 +275,7 @@ public class ConfigurationManagementServiceImpl
     }
 
     @Override
-    public boolean addOrUpdateDeniedRuleSet(RuleSet ruleSet)
+    public boolean saveDeniedRuleSet(RuleSet ruleSet)
     {
         getConfiguration().getRoutingRules().addDenyRule(ruleSet.getGroupRepository(), ruleSet);
         updateConfiguration(getConfiguration());
@@ -299,8 +300,8 @@ public class ConfigurationManagementServiceImpl
     }
 
     @Override
-    public boolean addOrUpdateAcceptedRepository(String groupRepository,
-                                                 RoutingRule routingRule)
+    public boolean saveAcceptedRepository(String groupRepository,
+                                          RoutingRule routingRule)
     {
         RoutingRules routingRules = getConfiguration().getRoutingRules();
 
