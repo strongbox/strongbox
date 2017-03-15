@@ -25,9 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Kate Novik.
@@ -86,7 +84,7 @@ public class RegenerateNugetChecksumCronJobTest
 
             //Create a new storage with id "storage1" and repository nuget-releases in it
             Storage storage1 = new Storage("storage1");
-            configurationManagementService.addOrUpdateStorage(storage1);
+            configurationManagementService.saveStorage(storage1);
             createRepository(storage1, "nuget-releases", RepositoryPolicyEnum.RELEASE.getPolicy());
 
             //Create pre-released nuget package in the repository nuget-alpha

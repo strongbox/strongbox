@@ -39,7 +39,7 @@ public interface ConfigurationManagementService extends ConfigurationService
                                ProxyConfiguration proxyConfiguration)
             throws IOException, JAXBException;
 
-    void addOrUpdateStorage(Storage storage)
+    void saveStorage(Storage storage)
             throws IOException, JAXBException;
 
     Storage getStorage(String storageId)

@@ -124,7 +124,7 @@ public class ConfigurationManagementServiceImpl
     }
 
     @Override
-    public void addOrUpdateStorage(Storage storage)
+    public void saveStorage(Storage storage)
             throws IOException, JAXBException
     {
         Configuration configuration = configurationManager.getConfiguration();

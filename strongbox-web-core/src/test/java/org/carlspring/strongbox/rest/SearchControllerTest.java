@@ -28,7 +28,7 @@ public class SearchControllerTest
         extends RestAssuredBaseTest
 {
 
-    public static final String STORAGE_SC_TEST = "storage-sc-test";
+    private static final String STORAGE_SC_TEST = "storage-sc-test";
 
     private static final String REPOSITORY_RELEASES = "sc-releases-search";
 
@@ -48,6 +48,9 @@ public class SearchControllerTest
             throws Exception
     {
         super.init();
+
+        // prepare storage: create it from Java code instead of putting <storage/> in strongbox.xml
+        createStorage(STORAGE_SC_TEST);
 
         createRepository(STORAGE_SC_TEST, REPOSITORY_RELEASES, true);
 

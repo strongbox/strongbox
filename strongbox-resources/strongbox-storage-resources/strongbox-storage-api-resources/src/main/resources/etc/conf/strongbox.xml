@@ -34,12 +34,6 @@
             </repositories>
         </storage>
 
-        <storage id="storage-indexing-tests">
-            <repositories/>
-        </storage>
-
-        <storage id="storage-sc-test"/>
-
         <storage id="storage-common-proxies">
             <repositories>
                 <repository id="maven-central" policy="release" implementation="file-system" layout="Maven 2" type="proxy">

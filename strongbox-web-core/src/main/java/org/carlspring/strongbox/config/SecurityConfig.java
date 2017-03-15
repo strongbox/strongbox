@@ -3,13 +3,12 @@ package org.carlspring.strongbox.config;
 import org.carlspring.strongbox.security.authentication.CustomAnonymousAuthenticationFilter;
 import org.carlspring.strongbox.security.authentication.Http401AuthenticationEntryPoint;
 import org.carlspring.strongbox.security.authentication.JWTAuthenticationFilter;
-import org.carlspring.strongbox.security.authentication.JWtAuthenticationProvider;
+import org.carlspring.strongbox.security.authentication.JWTAuthenticationProvider;
 import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -178,6 +177,6 @@ public class SecurityConfig
     @Bean
     public AuthenticationProvider jwtAuthenticationProvider()
     {
-        return new JWtAuthenticationProvider();
+        return new JWTAuthenticationProvider();
     }
 }

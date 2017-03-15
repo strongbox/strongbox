@@ -120,7 +120,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTest
             Repository repository1 = new Repository("snapshots");
             repository1.setPolicy(RepositoryPolicyEnum.SNAPSHOT.getPolicy());
             repository1.setStorage(storage1);
-            configurationManagementService.addOrUpdateStorage(storage1);
+            configurationManagementService.saveStorage(storage1);
             repositoryManagementService.createRepository("storage1", "snapshots");
             storage1.addOrUpdateRepository(repository1);
 

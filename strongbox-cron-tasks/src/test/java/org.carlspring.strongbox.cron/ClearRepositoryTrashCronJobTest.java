@@ -108,7 +108,7 @@ public class ClearRepositoryTrashCronJobTest
             repository3.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
             repository3.setTrashEnabled(true);
             repository3.setStorage(newStorage);
-            configurationManagementService.addOrUpdateStorage(newStorage);
+            configurationManagementService.saveStorage(newStorage);
             newStorage.addOrUpdateRepository(repository3);
             repositoryManagementService.createRepository("storage1", "releases");
 

@@ -330,7 +330,7 @@ public class ConfigurationManagementController
     {
         try
         {
-            configurationManagementService.addOrUpdateStorage(storage);
+            configurationManagementService.saveStorage(storage);
 
             if (!storage.existsOnFileSystem())
             {
@@ -569,7 +569,7 @@ public class ConfigurationManagementController
                 Storage storage = configuration.getStorage(storageId);
                 storage.removeRepository(repositoryId);
 
-                configurationManagementService.addOrUpdateStorage(storage);
+                configurationManagementService.saveStorage(storage);
 
                 logger.debug("Removed repository " + storageId + ":" + repositoryId + ".");
 

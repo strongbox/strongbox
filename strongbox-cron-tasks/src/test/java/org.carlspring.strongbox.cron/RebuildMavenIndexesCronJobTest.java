@@ -20,15 +20,12 @@ import javax.inject.Inject;
 import java.io.File;
 import java.util.List;
 
-
 import org.apache.maven.artifact.Artifact;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Kate Novik.
@@ -120,7 +117,7 @@ public class RebuildMavenIndexesCronJobTest
             repository3.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
             repository3.setIndexingEnabled(true);
             repository3.setStorage(newStorage);
-            configurationManagementService.addOrUpdateStorage(newStorage);
+            configurationManagementService.saveStorage(newStorage);
             newStorage.addOrUpdateRepository(repository3);
             repositoryManagementService.createRepository("storage1", "releases");
 
