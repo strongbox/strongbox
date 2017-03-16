@@ -221,16 +221,4 @@ public abstract class RestAssuredBaseTest
                                                            numberOfBuilds);
     }
 
-    protected void createStorage(String storageId)
-            throws IOException, JAXBException
-    {
-        createStorage(new Storage(storageId));
-    }
-
-    protected void createStorage(Storage storage)
-            throws IOException, JAXBException
-    {
-        configurationManagementService.saveStorage(storage);
-        storageManagementService.createStorage(storage);
-    }
 }

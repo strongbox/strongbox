@@ -1,28 +1,32 @@
 package org.carlspring.strongbox.cron;
 
-import org.carlspring.maven.commons.io.filters.JarFilenameFilter;
-import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.cron.api.jobs.RegenerateChecksumCronJob;
 import org.carlspring.strongbox.cron.config.JobManager;
 import org.carlspring.strongbox.cron.context.CronTaskTest;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.services.ArtifactMetadataService;
-import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.util.FileUtils;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
 import java.io.File;
+import java.io.IOException;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -34,84 +38,102 @@ import static org.junit.Assert.*;
 @CronTaskTest
 @RunWith(SpringJUnit4ClassRunner.class)
 public class RegenerateMavenChecksumCronJobTest
-        extends TestCaseWithArtifactGeneration
+        extends TestCaseWithArtifactGenerationAndIndexing
 {
+
+    private static final String STORAGE1 = "storage1";
+
+    private static final String REPOSITORY_RELEASES = "rmccj-releases";
+
+    private static final String REPOSITORY_SNAPSHOTS = "rmccj-snapshots";
+
+    private static final File REPOSITORY_RELEASES_BASEDIR_1 = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                                       "/storages/" + STORAGE0 + "/" +
+                                                                       REPOSITORY_RELEASES);
+
+    private static final File REPOSITORY_SNAPSHOTS_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                                      "/storages/" + STORAGE0 + "/" +
+                                                                      REPOSITORY_SNAPSHOTS);
+
+    private static final File REPOSITORY_RELEASES_BASEDIR_2 = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                                       "/storages/" + STORAGE1 + "/" +
+                                                                       REPOSITORY_RELEASES);
+
+    private static Artifact snapshotArtifact_1;
+
+    private static Artifact snapshotArtifact_2;
 
     @Inject
     private CronTaskConfigurationService cronTaskConfigurationService;
 
     @Inject
-    private ArtifactMetadataService artifactMetadataService;
+    private ConfigurationManager configurationManager;
 
     @Inject
-    private ConfigurationManagementService configurationManagementService;
-
-    @Inject
-    private RepositoryManagementService repositoryManagementService;
+    private LayoutProviderRegistry layoutProviderRegistry;
 
     @Inject
     private JobManager jobManager;
 
-    private static final File REPOSITORY_BASEDIR_1 = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                              "/storages/storage0/snapshots");
-
-    private static final File REPOSITORY_BASEDIR_2 = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                              "/storages/storage0/releases");
-
-    private static final File REPOSITORY_BASEDIR_3 = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                              "/storages/storage1/releases");
-
-    private static final String ARTIFACT_BASE_PATH_STRONGBOX_CHECKSUM = "org/carlspring/strongbox/strongbox-checksum-one";
-
-    private static boolean initialized;
-
-    @Before
-    public void setUp()
+    @BeforeClass
+    public static void cleanUp()
             throws Exception
     {
-        if (!initialized)
-        {
-            //noinspection ResultOfMethodCallIgnored
-            REPOSITORY_BASEDIR_1.mkdirs();
-            REPOSITORY_BASEDIR_2.mkdirs();
-            REPOSITORY_BASEDIR_3.mkdirs();
+        cleanUp(getRepositoriesToClean());
+    }
 
-            //Create snapshot artifact in repository snapshots
-            createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_1.getAbsolutePath(),
-                                              "org.carlspring.strongbox",
-                                              "strongbox-checksum-one",
-                                              "2.0",
-                                              "jar",
-                                              null,
-                                              1);
+    @PostConstruct
+    public void initialize()
+            throws Exception
+    {
+        createRepository(STORAGE0, REPOSITORY_RELEASES, RepositoryPolicyEnum.RELEASE.getPolicy(), false);
 
-            //Create snapshot artifact in repository snapshots
-            createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_1.getAbsolutePath(),
-                                              "org.carlspring.strongbox",
-                                              "strongbox-checksum-second",
-                                              "2.0",
-                                              "jar",
-                                              null,
-                                              1);
+        generateArtifact(REPOSITORY_RELEASES_BASEDIR_1.getAbsolutePath(),
+                         "org.carlspring.strongbox.checksum:strongbox-checksum:1.0:jar");
 
-            //Create released artifact
-            String ga = "org.carlspring.strongbox.checksum:strongbox-checksum";
-            generateArtifact(REPOSITORY_BASEDIR_2.getAbsolutePath(), ga + ":1.0:jar");
+        createRepository(STORAGE0, REPOSITORY_SNAPSHOTS, RepositoryPolicyEnum.SNAPSHOT.getPolicy(), false);
 
-            //Create storage and repository for testing rebuild metadata in storages
-            Storage storage = new Storage("storage1");
-            Repository repository = new Repository("releases");
-            repository.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
-            repository.setStorage(storage);
-            configurationManagementService.saveStorage(storage);
-            storage.saveRepository(repository);
-            repositoryManagementService.createRepository("storage1", "releases");
+        snapshotArtifact_1 = createTimestampedSnapshotArtifact(REPOSITORY_SNAPSHOTS_BASEDIR.getAbsolutePath(),
+                                                               "org.carlspring.strongbox",
+                                                               "strongbox-checksum-one",
+                                                               "2.0",
+                                                               "jar",
+                                                               null,
+                                                               1);
+        snapshotArtifact_2 = createTimestampedSnapshotArtifact(REPOSITORY_SNAPSHOTS_BASEDIR.getAbsolutePath(),
+                                                               "org.carlspring.strongbox",
+                                                               "strongbox-checksum-second",
+                                                               "2.0",
+                                                               "jar",
+                                                               null,
+                                                               1);
 
-            //Create released artifact
-            generateArtifact(REPOSITORY_BASEDIR_3.getAbsolutePath(), ga + ":1.0:jar");
+        Storage storage = new Storage(STORAGE1);
+        createStorage(STORAGE1);
+        Repository repository = new Repository(REPOSITORY_RELEASES);
+        repository.setStorage(storage);
 
-            initialized = true;
-        }
+        createRepository(STORAGE1, REPOSITORY_RELEASES, RepositoryPolicyEnum.RELEASE.getPolicy(), false);
+        storage.saveRepository(repository);
+
+        generateArtifact(REPOSITORY_RELEASES_BASEDIR_2.getAbsolutePath(),
+                         "org.carlspring.strongbox.checksum:strongbox-checksum:1.0:jar");
+    }
+
+    @PreDestroy
+    public void removeRepositories()
+            throws IOException, JAXBException
+    {
+        removeRepositories(getRepositoriesToClean());
+    }
+
+    public static Set<Repository> getRepositoriesToClean()
+    {
+        Set<Repository> repositories = new LinkedHashSet<>();
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS));
+        repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_RELEASES));
+        return repositories;
     }
 
     public void addRegenerateCronJobConfig(String name,
@@ -155,20 +177,25 @@ public class RegenerateMavenChecksumCronJobTest
     {
         String jobName = "Regenerate-1";
 
-        String artifactPath = REPOSITORY_BASEDIR_1 + "/org/carlspring/strongbox/strongbox-checksum-one";
+        String artifactPath = REPOSITORY_SNAPSHOTS_BASEDIR + "/org/carlspring/strongbox/strongbox-checksum-one";
 
-        String artifactVersion = getSnapshotArtifactVersion(artifactPath.concat("/2.0-SNAPSHOT"));
+        getLayoutProvider(REPOSITORY_SNAPSHOTS).rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS,
+                                                                "org/carlspring/strongbox/strongbox-checksum-one");
 
-        artifactMetadataService.rebuildMetadata("storage0", "snapshots", ARTIFACT_BASE_PATH_STRONGBOX_CHECKSUM);
-
         FileUtils.deleteIfExists(
-                new File(artifactPath, "/2.0-SNAPSHOT/strongbox-checksum-one-" + artifactVersion + ".jar.md5"));
+                new File(snapshotArtifact_1.getFile()
+                                           .getAbsolutePath() + ".md5"));
         FileUtils.deleteIfExists(
-                new File(artifactPath, "/2.0-SNAPSHOT/strongbox-checksum-one-" + artifactVersion + ".jar.sha1"));
+                new File(snapshotArtifact_1.getFile()
+                                           .getAbsolutePath() + ".sha1"));
         FileUtils.deleteIfExists(
-                new File(artifactPath, "/2.0-SNAPSHOT/strongbox-checksum-one-" + artifactVersion + ".pom.md5"));
+                new File(snapshotArtifact_1.getFile()
+                                           .getAbsolutePath()
+                                           .replaceAll("jar", "pom") + ".md5"));
         FileUtils.deleteIfExists(
-                new File(artifactPath, "/2.0-SNAPSHOT/strongbox-checksum-one-" + artifactVersion + ".pom.sha1"));
+                new File(snapshotArtifact_1.getFile()
+                                           .getAbsolutePath()
+                                           .replaceAll("jar", "pom") + ".sha1"));
 
         FileUtils.deleteIfExists(new File(artifactPath, "/2.0-SNAPSHOT/maven-metadata.xml.md5"));
         FileUtils.deleteIfExists(new File(artifactPath, "/2.0-SNAPSHOT/maven-metadata.xml.sha1"));
@@ -176,11 +203,8 @@ public class RegenerateMavenChecksumCronJobTest
         FileUtils.deleteIfExists(new File(artifactPath, "/maven-metadata.xml.md5"));
         FileUtils.deleteIfExists(new File(artifactPath, "/maven-metadata.xml.sha1"));
 
-        assertTrue("The checksum file for artifact exist!",
-                   !new File(artifactPath,
-                             "/2.0-SNAPSHOT/strongbox-checksum-one-" + artifactVersion + ".jar.md5").exists());
-
-        addRegenerateCronJobConfig(jobName, "storage0", "snapshots", ARTIFACT_BASE_PATH_STRONGBOX_CHECKSUM, false);
+        addRegenerateCronJobConfig(jobName, STORAGE0, REPOSITORY_SNAPSHOTS,
+                                   "org/carlspring/strongbox/strongbox-checksum-one", false);
 
         //Checking if job was executed
         while (!jobManager.getExecutedJobs()
@@ -193,25 +217,27 @@ public class RegenerateMavenChecksumCronJobTest
                                      .toString());
 
         assertTrue("The checksum file for artifact doesn't exist!",
-                   new File(artifactPath,
-                            "/2.0-SNAPSHOT/strongbox-checksum-one-" + artifactVersion + ".jar.sha1").exists());
+                   new File(snapshotArtifact_1.getFile()
+                                              .getAbsolutePath() + ".sha1").exists());
         assertTrue("The checksum file for artifact is empty!",
-                   new File(artifactPath,
-                            "/2.0-SNAPSHOT/strongbox-checksum-one-" + artifactVersion + ".jar.sha1").length() > 0);
+                   new File(snapshotArtifact_1.getFile()
+                                              .getAbsolutePath() + ".sha1").length() > 0);
 
         assertTrue("The checksum file for artifact doesn't exist!",
-                   new File(artifactPath,
-                            "/2.0-SNAPSHOT/strongbox-checksum-one-" + artifactVersion + ".jar.md5").exists());
+                   new File(snapshotArtifact_1.getFile()
+                                              .getAbsolutePath() + ".md5").exists());
         assertTrue("The checksum file for artifact is empty!",
-                   new File(artifactPath,
-                            "/2.0-SNAPSHOT/strongbox-checksum-one-" + artifactVersion + ".jar.md5").length() > 0);
+                   new File(snapshotArtifact_1.getFile()
+                                              .getAbsolutePath() + ".md5").length() > 0);
 
         assertTrue("The checksum file for pom file doesn't exist!",
-                   new File(artifactPath,
-                            "/2.0-SNAPSHOT/strongbox-checksum-one-" + artifactVersion + ".pom.sha1").exists());
+                   new File(snapshotArtifact_1.getFile()
+                                              .getAbsolutePath()
+                                              .replaceAll("jar", "pom") + ".sha1").exists());
         assertTrue("The checksum file for pom file is empty!",
-                   new File(artifactPath,
-                            "/2.0-SNAPSHOT/strongbox-checksum-one-" + artifactVersion + ".pom.md5").length() > 0);
+                   new File(snapshotArtifact_1.getFile()
+                                              .getAbsolutePath()
+                                              .replaceAll("jar", "pom") + ".md5").length() > 0);
 
         assertTrue("The checksum file for metadata file doesn't exist!",
                    new File(artifactPath, "/maven-metadata.xml.md5").exists());
@@ -227,21 +253,25 @@ public class RegenerateMavenChecksumCronJobTest
     {
         String jobName = "Regenerate-2";
 
-        String artifactPath = REPOSITORY_BASEDIR_1 + "/org/carlspring/strongbox/strongbox-checksum-second";
+        String artifactPath = REPOSITORY_SNAPSHOTS_BASEDIR + "/org/carlspring/strongbox/strongbox-checksum-second";
 
-        String artifactVersion = getSnapshotArtifactVersion(artifactPath.concat("/2.0-SNAPSHOT"));
-
-        artifactMetadataService.rebuildMetadata("storage0", "snapshots",
-                                                "org/carlspring/strongbox/strongbox-checksum-second");
+        getLayoutProvider(REPOSITORY_SNAPSHOTS).rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS,
+                                                                "org/carlspring/strongbox/strongbox-checksum-second");
 
         FileUtils.deleteIfExists(
-                new File(artifactPath, "/2.0-SNAPSHOT/strongbox-checksum-second-" + artifactVersion + ".jar.md5"));
+                new File(snapshotArtifact_2.getFile()
+                                           .getAbsolutePath() + ".md5"));
         FileUtils.deleteIfExists(
-                new File(artifactPath, "/2.0-SNAPSHOT/strongbox-checksum-second-" + artifactVersion + ".jar.sha1"));
+                new File(snapshotArtifact_2.getFile()
+                                           .getAbsolutePath() + ".sha1"));
         FileUtils.deleteIfExists(
-                new File(artifactPath, "/2.0-SNAPSHOT/strongbox-checksum-second-" + artifactVersion + ".pom.md5"));
+                new File(snapshotArtifact_2.getFile()
+                                           .getAbsolutePath()
+                                           .replaceAll("jar", "pom") + ".md5"));
         FileUtils.deleteIfExists(
-                new File(artifactPath, "/2.0-SNAPSHOT/strongbox-checksum-second-" + artifactVersion + ".pom.sha1"));
+                new File(snapshotArtifact_2.getFile()
+                                           .getAbsolutePath()
+                                           .replaceAll("jar", "pom") + ".sha1"));
 
         FileUtils.deleteIfExists(new File(artifactPath, "/2.0-SNAPSHOT/maven-metadata.xml.md5"));
         FileUtils.deleteIfExists(new File(artifactPath, "/2.0-SNAPSHOT/maven-metadata.xml.sha1"));
@@ -249,11 +279,7 @@ public class RegenerateMavenChecksumCronJobTest
         FileUtils.deleteIfExists(new File(artifactPath, "/maven-metadata.xml.md5"));
         FileUtils.deleteIfExists(new File(artifactPath, "/maven-metadata.xml.sha1"));
 
-        assertTrue("The checksum file for artifact exist!",
-                   !new File(artifactPath,
-                             "/2.0-SNAPSHOT/strongbox-checksum-second-" + artifactVersion + ".jar.md5").exists());
-
-        addRegenerateCronJobConfig(jobName, "storage0", "snapshots", null, false);
+        addRegenerateCronJobConfig(jobName, STORAGE0, REPOSITORY_SNAPSHOTS, null, false);
 
         //Checking if job was executed
         while (!jobManager.getExecutedJobs()
@@ -266,25 +292,27 @@ public class RegenerateMavenChecksumCronJobTest
                                      .toString());
 
         assertTrue("The checksum file for artifact doesn't exist!",
-                   new File(artifactPath,
-                            "/2.0-SNAPSHOT/strongbox-checksum-second-" + artifactVersion + ".jar.sha1").exists());
+                   new File(snapshotArtifact_2.getFile()
+                                              .getAbsolutePath() + ".sha1").exists());
         assertTrue("The checksum file for artifact is empty!",
-                   new File(artifactPath,
-                            "/2.0-SNAPSHOT/strongbox-checksum-second-" + artifactVersion + ".jar.sha1").length() > 0);
+                   new File(snapshotArtifact_2.getFile()
+                                              .getAbsolutePath() + ".sha1").length() > 0);
 
         assertTrue("The checksum file for artifact doesn't exist!",
-                   new File(artifactPath,
-                            "/2.0-SNAPSHOT/strongbox-checksum-second-" + artifactVersion + ".jar.md5").exists());
+                   new File(snapshotArtifact_2.getFile()
+                                              .getAbsolutePath() + ".md5").exists());
         assertTrue("The checksum file for artifact is empty!",
-                   new File(artifactPath,
-                            "/2.0-SNAPSHOT/strongbox-checksum-second-" + artifactVersion + ".jar.md5").length() > 0);
+                   new File(snapshotArtifact_2.getFile()
+                                              .getAbsolutePath() + ".md5").length() > 0);
 
         assertTrue("The checksum file for pom file doesn't exist!",
-                   new File(artifactPath,
-                            "/2.0-SNAPSHOT/strongbox-checksum-second-" + artifactVersion + ".pom.sha1").exists());
+                   new File(snapshotArtifact_2.getFile()
+                                              .getAbsolutePath()
+                                              .replaceAll("jar", "pom") + ".sha1").exists());
         assertTrue("The checksum file for pom file is empty!",
-                   new File(artifactPath,
-                            "/2.0-SNAPSHOT/strongbox-checksum-second-" + artifactVersion + ".pom.md5").length() > 0);
+                   new File(snapshotArtifact_2.getFile()
+                                              .getAbsolutePath()
+                                              .replaceAll("jar", "pom") + ".sha1").length() > 0);
 
         assertTrue("The checksum file for metadata file doesn't exist!",
                    new File(artifactPath, "/maven-metadata.xml.md5").exists());
@@ -300,9 +328,10 @@ public class RegenerateMavenChecksumCronJobTest
     {
         String jobName = "Regenerate-3";
 
-        String artifactPath = REPOSITORY_BASEDIR_2 + "/org/carlspring/strongbox/checksum/strongbox-checksum";
+        String artifactPath = REPOSITORY_RELEASES_BASEDIR_1 + "/org/carlspring/strongbox/checksum/strongbox-checksum";
 
-        artifactMetadataService.rebuildMetadata("storage0", "releases", "org/carlspring/strongbox/checksum");
+        getLayoutProvider(REPOSITORY_RELEASES).rebuildMetadata(STORAGE0, REPOSITORY_RELEASES,
+                                                               "org/carlspring/strongbox/checksum/strongbox-checksum");
 
         FileUtils.deleteIfExists(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5"));
         FileUtils.deleteIfExists(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.sha1"));
@@ -315,7 +344,7 @@ public class RegenerateMavenChecksumCronJobTest
         assertTrue("The checksum file for artifact exist!",
                    !new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5").exists());
 
-        addRegenerateCronJobConfig(jobName, "storage0", null, null, false);
+        addRegenerateCronJobConfig(jobName, STORAGE0, null, null, false);
 
         //Checking if job was executed
         while (!jobManager.getExecutedJobs()
@@ -353,9 +382,10 @@ public class RegenerateMavenChecksumCronJobTest
     {
         String jobName = "Regenerate-4";
 
-        String artifactPath = REPOSITORY_BASEDIR_3 + "/org/carlspring/strongbox/checksum/strongbox-checksum";
+        String artifactPath = REPOSITORY_RELEASES_BASEDIR_2 + "/org/carlspring/strongbox/checksum/strongbox-checksum";
 
-        artifactMetadataService.rebuildMetadata("storage1", "releases", "org/carlspring/strongbox/checksum");
+        getLayoutProvider(REPOSITORY_RELEASES).rebuildMetadata(STORAGE1, REPOSITORY_RELEASES,
+                                                               "org/carlspring/strongbox/checksum/strongbox-checksum");
 
         FileUtils.deleteIfExists(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.md5"));
         FileUtils.deleteIfExists(new File(artifactPath, "/1.0/strongbox-checksum-1.0.jar.sha1"));
@@ -400,12 +430,11 @@ public class RegenerateMavenChecksumCronJobTest
         deleteRegenerateCronJobConfig(jobName);
     }
 
-    private String getSnapshotArtifactVersion(String artifactPath)
+    private LayoutProvider getLayoutProvider(String repositoryId)
     {
-        File file = new File(artifactPath);
-        File[] files = file.listFiles(new JarFilenameFilter());
-        Artifact artifact = ArtifactUtils.convertPathToArtifact(files[0].getPath());
-        return artifact.getVersion();
+        Repository repository = configurationManager.getRepository(STORAGE0, repositoryId);
+
+        return layoutProviderRegistry.getProvider(repository.getLayout());
     }
 
 }

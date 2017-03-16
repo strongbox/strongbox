@@ -10,6 +10,7 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
+import org.carlspring.strongbox.services.StorageManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
@@ -70,6 +71,9 @@ public abstract class TestCaseWithArtifactGenerationAndIndexing
 
     @Inject
     protected ArtifactSearchService artifactSearchService;
+
+    @Inject
+    protected StorageManagementService storageManagementService;
 
 
     public static void cleanUp(Set<Repository> repositoriesToClean)
@@ -197,6 +201,19 @@ public abstract class TestCaseWithArtifactGenerationAndIndexing
 
         // Create the repository
         repositoryManagementService.createRepository(repository.getStorage().getId(), repository.getId());
+    }
+
+    public void createStorage(String storageId)
+            throws IOException, JAXBException
+    {
+        createStorage(new Storage(storageId));
+    }
+
+    public void createStorage(Storage storage)
+            throws IOException, JAXBException
+    {
+        configurationManagementService.saveStorage(storage);
+        storageManagementService.createStorage(storage);
     }
 
     private void generateArtifactsReIndexAndPack(String storageId,
