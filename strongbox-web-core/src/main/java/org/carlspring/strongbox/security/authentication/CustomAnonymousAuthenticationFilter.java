@@ -23,14 +23,14 @@ public class CustomAnonymousAuthenticationFilter
         extends AnonymousAuthenticationFilter
 {
 
-    private boolean enableContextAutoCreation;
+    private boolean contextAutoCreationEnabled;
 
     public CustomAnonymousAuthenticationFilter(String key,
                                                Object principal,
                                                List<GrantedAuthority> authorities)
     {
         super(key, principal, authorities);
-        enableContextAutoCreation = true;
+        contextAutoCreationEnabled = true;
     }
 
     public void doFilter(ServletRequest req,
@@ -38,7 +38,7 @@ public class CustomAnonymousAuthenticationFilter
                          FilterChain chain)
             throws IOException, ServletException
     {
-        if (enableContextAutoCreation)
+        if (contextAutoCreationEnabled)
         {
             super.doFilter(req, res, chain);
         }
@@ -63,13 +63,13 @@ public class CustomAnonymousAuthenticationFilter
         }
     }
 
-    public boolean isEnableContextAutoCreation()
+    public boolean isContextAutoCreationEnabled()
     {
-        return enableContextAutoCreation;
+        return contextAutoCreationEnabled;
     }
 
-    public void setEnableContextAutoCreation(boolean enableContextAutoCreation)
+    public void setContextAutoCreationEnabled(boolean contextAutoCreationEnabled)
     {
-        this.enableContextAutoCreation = enableContextAutoCreation;
+        this.contextAutoCreationEnabled = contextAutoCreationEnabled;
     }
 }

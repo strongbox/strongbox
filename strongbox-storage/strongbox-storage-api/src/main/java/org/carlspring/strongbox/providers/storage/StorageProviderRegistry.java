@@ -6,11 +6,11 @@ import org.carlspring.strongbox.providers.AbstractMappedProviderRegistry;
 import org.carlspring.strongbox.storage.Storage;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -23,7 +23,7 @@ public class StorageProviderRegistry extends AbstractMappedProviderRegistry<Stor
     private static final Logger logger = LoggerFactory.getLogger(StorageProviderRegistry.class);
 
 
-    @Autowired
+    @Inject
     private ConfigurationManager configurationManager;
 
 

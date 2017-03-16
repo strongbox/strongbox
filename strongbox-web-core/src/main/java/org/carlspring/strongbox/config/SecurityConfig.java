@@ -1,13 +1,14 @@
 package org.carlspring.strongbox.config;
 
-import javax.annotation.PostConstruct;
-
 import org.carlspring.strongbox.security.authentication.CustomAnonymousAuthenticationFilter;
 import org.carlspring.strongbox.security.authentication.Http401AuthenticationEntryPoint;
 import org.carlspring.strongbox.security.authentication.JWTAuthenticationFilter;
 import org.carlspring.strongbox.security.authentication.JWTAuthenticationProvider;
 import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +25,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
@@ -46,7 +46,7 @@ public class SecurityConfig
 
     }
 
-    @Autowired
+    @Inject
     public void configureGlobal(AuthenticationManagerBuilder auth,
                                 @Qualifier("userDetailsAuthenticationProvider") AuthenticationProvider userDetailsAuthenticationProvider,
                                 @Qualifier("jwtAuthenticationProvider") AuthenticationProvider jwtAuthenticationProvider)
@@ -103,8 +103,9 @@ public class SecurityConfig
             extends WebSecurityConfigurerAdapter
     {
 
-        @Autowired
+        @Inject
         private AuthorizationConfigProvider authorizationConfigProvider;
+
         private AnonymousAuthenticationFilter anonymousAuthenticationFilter;
 
         public JwtSecurityConfig()
@@ -148,7 +149,7 @@ public class SecurityConfig
                 .anyRequest()
                 .authenticated()
                 .and()
-                .addFilterAfter(jwtFilter, BasicAuthenticationFilter.class)
+                //.addFilterAfter(jwtFilter, BasicAuthenticationFilter.class)
                 .logout()
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                 .logoutSuccessUrl("/")

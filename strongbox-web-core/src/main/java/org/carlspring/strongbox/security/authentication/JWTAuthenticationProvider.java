@@ -3,10 +3,10 @@ package org.carlspring.strongbox.security.authentication;
 import org.carlspring.strongbox.security.exceptions.SecurityTokenException;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 
+import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -18,10 +18,12 @@ public class JWTAuthenticationProvider
         implements AuthenticationProvider
 {
 
-    @Autowired
+    @Inject
     private UserDetailsService userDetailsService;
-    @Autowired
+
+    @Inject
     private SecurityTokenProvider securityTokenProvider;
+
 
     @Override
     public Authentication authenticate(Authentication authentication)

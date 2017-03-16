@@ -105,7 +105,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTest
             repository.setPolicy(RepositoryPolicyEnum.SNAPSHOT.getPolicy());
             repository.setStorage(storage);
             repositoryManagementService.createRepository("storage0", "snapshots-test");
-            storage.addOrUpdateRepository(repository);
+            storage.saveRepository(repository);
 
             createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_2.getAbsolutePath(),
                                               "org.carlspring.strongbox",
@@ -120,9 +120,9 @@ public class RemoveTimestampedMavenSnapshotCronJobTest
             Repository repository1 = new Repository("snapshots");
             repository1.setPolicy(RepositoryPolicyEnum.SNAPSHOT.getPolicy());
             repository1.setStorage(storage1);
-            configurationManagementService.addOrUpdateStorage(storage1);
+            configurationManagementService.saveStorage(storage1);
             repositoryManagementService.createRepository("storage1", "snapshots");
-            storage1.addOrUpdateRepository(repository1);
+            storage1.saveRepository(repository1);
 
             createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_3.getAbsolutePath(),
                                               "org.carlspring.strongbox",

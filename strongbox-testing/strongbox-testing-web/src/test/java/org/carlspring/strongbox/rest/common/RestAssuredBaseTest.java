@@ -1,11 +1,16 @@
 package org.carlspring.strongbox.rest.common;
 
-import org.carlspring.strongbox.artifact.generator.ArtifactDeployer;
+import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
 import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
+import org.carlspring.strongbox.services.ConfigurationManagementService;
+import org.carlspring.strongbox.services.StorageManagementService;
+import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationWithIndexing;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.users.domain.Roles;
 
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -19,7 +24,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
@@ -34,7 +38,7 @@ import static org.junit.Assert.assertTrue;
  * @author Alex Oreshkevich
  */
 public abstract class RestAssuredBaseTest
-        extends TestCaseWithArtifactGenerationWithIndexing
+        extends TestCaseWithArtifactGenerationAndIndexing
 {
 
     public final static int DEFAULT_PORT = 48080;
@@ -46,17 +50,23 @@ public abstract class RestAssuredBaseTest
      */
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
-    @Autowired
+    @Inject
     protected WebApplicationContext context;
 
-    @Autowired
+    @Inject
     AnonymousAuthenticationFilter anonymousAuthenticationFilter;
 
-    @Autowired
+    @Inject
     protected RestAssuredArtifactClient client;
 
-    @Autowired
+    @Inject
     protected ObjectMapper objectMapper;
+
+    @Inject
+    protected StorageManagementService storageManagementService;
+
+    @Inject
+    protected ConfigurationManagementService configurationManagementService;
 
     private String host;
 
@@ -180,9 +190,9 @@ public abstract class RestAssuredBaseTest
         assertTrue("Path " + url + " doesn't exist.", pathExists(url));
     }
 
-    protected ArtifactDeployer buildArtifactDeployer(File file)
+    protected MavenArtifactDeployer buildArtifactDeployer(File file)
     {
-        ArtifactDeployer artifactDeployer = new ArtifactDeployer(file.getAbsolutePath());
+        MavenArtifactDeployer artifactDeployer = new MavenArtifactDeployer(file.getAbsolutePath());
         artifactDeployer.setClient(client);
         return artifactDeployer;
     }
@@ -211,4 +221,16 @@ public abstract class RestAssuredBaseTest
                                                            numberOfBuilds);
     }
 
+    protected void createStorage(String storageId)
+            throws IOException, JAXBException
+    {
+        createStorage(new Storage(storageId));
+    }
+
+    protected void createStorage(Storage storage)
+            throws IOException, JAXBException
+    {
+        configurationManagementService.saveStorage(storage);
+        storageManagementService.createStorage(storage);
+    }
 }

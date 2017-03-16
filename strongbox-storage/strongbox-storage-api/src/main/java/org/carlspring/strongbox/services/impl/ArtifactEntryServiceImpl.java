@@ -39,7 +39,7 @@ class ArtifactEntryServiceImpl
     private static final String ARTIFACT_ENTRY_CLASS_NAME = ArtifactEntry.class.getSimpleName();
 
     @Inject
-    ArtifactRepository repository;
+    ArtifactRepository artifactRepository;
 
     @Inject
     CacheManager cacheManager;
@@ -117,13 +117,13 @@ class ArtifactEntryServiceImpl
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public <S extends ArtifactEntry> S save(S var1)
     {
-        return repository.save(var1);
+        return artifactRepository.save(var1);
     }
 
     @Override
     public <S extends ArtifactEntry> Iterable<S> save(Iterable<S> var1)
     {
-        return repository.save(var1);
+        return artifactRepository.save(var1);
     }
 
     @Override
@@ -135,14 +135,14 @@ class ArtifactEntryServiceImpl
             return Optional.empty();
         }
 
-        return Optional.ofNullable(repository.findOne(var1));
+        return Optional.ofNullable(artifactRepository.findOne(var1));
     }
 
     @Override
     @Transactional
     public boolean exists(String var1)
     {
-        return repository.exists(var1);
+        return artifactRepository.exists(var1);
     }
 
     @Override
@@ -151,7 +151,7 @@ class ArtifactEntryServiceImpl
     {
         try
         {
-            return Optional.ofNullable(repository.findAll());
+            return Optional.ofNullable(artifactRepository.findAll());
         }
         catch (Exception e)
         {
@@ -166,7 +166,7 @@ class ArtifactEntryServiceImpl
     {
         try
         {
-            return Optional.ofNullable(repository.findAll(var1));
+            return Optional.ofNullable(artifactRepository.findAll(var1));
         }
         catch (Exception e)
         {
@@ -179,34 +179,34 @@ class ArtifactEntryServiceImpl
     @Transactional
     public long count()
     {
-        return repository.count();
+        return artifactRepository.count();
     }
 
     @Override
     @Transactional
     public void delete(String var1)
     {
-        repository.delete(var1);
+        artifactRepository.delete(var1);
     }
 
     @Override
     @Transactional
     public void delete(ArtifactEntry var1)
     {
-        repository.delete(var1);
+        artifactRepository.delete(var1);
     }
 
     @Override
     @Transactional
     public void delete(Iterable<? extends ArtifactEntry> var1)
     {
-        repository.delete(var1);
+        artifactRepository.delete(var1);
     }
 
     @Override
     @Transactional
     public void deleteAll()
     {
-        repository.deleteAll();
+        artifactRepository.deleteAll();
     }
 }

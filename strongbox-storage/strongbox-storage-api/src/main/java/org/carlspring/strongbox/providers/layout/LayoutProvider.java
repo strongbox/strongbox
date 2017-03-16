@@ -4,11 +4,19 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
+import org.carlspring.strongbox.io.RepositoryPath;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.Set;
+
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 /**
  * @author carlspring
@@ -78,5 +86,29 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
                             String path);
 
     Set<String> getDigestAlgorithmSet();
+
+    void rebuildMetadata(String storageId,
+                         String repositoryId,
+                         String basePath)
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   XmlPullParserException;
+
+    void rebuildIndexes(String storageId,
+                        String repositoryId,
+                        String basePath,
+                        boolean forceRegeneration)
+            throws IOException;
+
+    void regenerateChecksums(Repository repository,
+                             List<String> versionDirectories,
+                             boolean forceRegeneration)
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   ProviderImplementationException,
+                   UnknownRepositoryTypeException,
+                   ArtifactTransportException;
+
+    FilenameFilter getMetadataFilenameFilter();
 
 }

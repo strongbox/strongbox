@@ -7,16 +7,16 @@ import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
+import javax.inject.Inject;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Map;
 
 /**
  * @author Kate Novik
@@ -27,13 +27,13 @@ public class RebuildMavenMetadataCronJob
 
     private final Logger logger = LoggerFactory.getLogger(RebuildMavenMetadataCronJob.class);
 
-    @Autowired
+    @Inject
     private ArtifactMetadataService artifactMetadataService;
 
-    @Autowired
+    @Inject
     private ConfigurationManager configurationManager;
 
-    @Autowired
+    @Inject
     private JobManager manager;
 
 

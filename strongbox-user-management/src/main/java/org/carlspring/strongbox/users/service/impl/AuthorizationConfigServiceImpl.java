@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @Transactional
-class AuthorizationConfigServiceImpl
+public class AuthorizationConfigServiceImpl
         implements AuthorizationConfigService
 {
 

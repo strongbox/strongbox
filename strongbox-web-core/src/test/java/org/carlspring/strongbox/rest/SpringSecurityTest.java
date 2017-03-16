@@ -27,7 +27,6 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 /**
  * @author Alex Oreshkevich
  */
-//@IntegrationTest
 @ContextConfiguration(classes = WebConfig.class)
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -76,7 +75,7 @@ public class SpringSecurityTest
     public void testUnauthorizedRequest()
     {
         // clear default anonymous authorization context and disable it's population
-        ((CustomAnonymousAuthenticationFilter) anonymousAuthenticationFilter).setEnableContextAutoCreation(false);
+        ((CustomAnonymousAuthenticationFilter) anonymousAuthenticationFilter).setContextAutoCreationEnabled(false);
         SecurityContextHolder.getContext().setAuthentication(null);
 
         RestAssuredMockMvc.given()
@@ -90,6 +89,7 @@ public class SpringSecurityTest
     }
 
     @Test
+    @Ignore
     public void testJWTAuth()
     {
         String url = getContextBaseUrl() + "/users/user/authenticate";
@@ -127,6 +127,7 @@ public class SpringSecurityTest
     }
 
     @Test
+    @Ignore
     public void testJWTExpire()
         throws InterruptedException
     {

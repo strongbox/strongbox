@@ -6,11 +6,11 @@ import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.data.service.NoProxyOrientRepositoryFactoryBean;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -43,9 +43,10 @@ public class CronTasksConfig
         extends WebMvcConfigurerAdapter
 {
 
-    @Autowired
+    @Inject
     private OObjectDatabaseTx databaseTx;
-    @Autowired
+
+    @Inject
     ApplicationContext applicationContext;
 
     @Bean

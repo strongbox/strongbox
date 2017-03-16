@@ -1,13 +1,14 @@
 package org.carlspring.strongbox.artifact.generator;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.client.ArtifactClient;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.client.ArtifactClient;
 import org.carlspring.strongbox.config.TestingCoreConfig;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.testing.AssignedPorts;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -19,7 +20,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -35,7 +35,7 @@ public class ArtifactDeployerTest
     private static final File BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                  "/storages/storage0/releases/.temp");
 
-    @Autowired
+    @Inject
     private AssignedPorts assignedPorts;
 
     private static ArtifactClient client;
@@ -81,7 +81,7 @@ public class ArtifactDeployerTest
                                              "jdk14",
                                              "tests" };
 
-        ArtifactDeployer artifactDeployer = new ArtifactDeployer(BASEDIR);
+        MavenArtifactDeployer artifactDeployer = new MavenArtifactDeployer(BASEDIR);
         artifactDeployer.setClient(client);
         artifactDeployer.generateAndDeployArtifact(artifact, classifiers, "storage0", "releases", "jar");
     }

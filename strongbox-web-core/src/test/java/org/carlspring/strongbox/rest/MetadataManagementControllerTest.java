@@ -40,9 +40,9 @@ public class MetadataManagementControllerTest
         extends RestAssuredBaseTest
 {
 
-    public static final String REPOSITORY_RELEASES = "mmct-releases";
+    private static final String REPOSITORY_RELEASES = "mmct-releases";
 
-    public static final String REPOSITORY_SNAPSHOTS = "mmct-snapshots";
+    private static final String REPOSITORY_SNAPSHOTS = "mmct-snapshots";
     
     private static final File REPOSITORY_BASEDIR_RELEASES = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                                      "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES);
@@ -127,8 +127,8 @@ public class MetadataManagementControllerTest
     public static Set<Repository> getRepositoriesToClean()
     {
         Set<Repository> repositories = new LinkedHashSet<>();
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS));
 
         return repositories;
     }

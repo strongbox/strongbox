@@ -4,16 +4,16 @@ import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
+import javax.inject.Inject;
 import java.io.IOException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
 public abstract class BaseArtifactController
         extends BaseController
 {
 
-    @Autowired
+    @Inject
     protected ArtifactManagementService artifactManagementService;
 
     // ----------------------------------------------------------------------------------------------------------------

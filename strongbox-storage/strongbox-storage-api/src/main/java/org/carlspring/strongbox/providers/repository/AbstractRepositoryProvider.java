@@ -5,7 +5,7 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 
 /**
  * @author carlspring
@@ -13,16 +13,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 public abstract class AbstractRepositoryProvider implements RepositoryProvider
 {
 
-    @Autowired
+    @Inject
     private RepositoryProviderRegistry repositoryProviderRegistry;
 
-    @Autowired
+    @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
-    @Autowired
+    @Inject
     private StorageProviderRegistry storageProviderRegistry;
 
-    @Autowired
+    @Inject
     private ConfigurationManager configurationManager;
 
 

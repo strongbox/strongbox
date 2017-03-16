@@ -14,8 +14,6 @@ public interface UserService
         extends CrudService<User, String>
 {
 
-    String USERS_CACHE = "users";
-
     User findByUserName(final String username);
 
     /**

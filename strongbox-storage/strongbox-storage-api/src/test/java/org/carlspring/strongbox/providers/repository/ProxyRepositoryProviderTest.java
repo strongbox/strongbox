@@ -4,14 +4,15 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 
 import com.google.common.io.ByteStreams;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -26,13 +27,20 @@ public class ProxyRepositoryProviderTest
 {
 
     @org.springframework.context.annotation.Configuration
-    @ComponentScan(basePackages = { "org.carlspring.strongbox.services" })
+    @ComponentScan(basePackages = { "org.carlspring.strongbox.artifact",
+                                    "org.carlspring.strongbox.configuration",
+                                    "org.carlspring.strongbox.io",
+                                    "org.carlspring.strongbox.providers",
+                                    "org.carlspring.strongbox.repository",
+                                    "org.carlspring.strongbox.services",
+                                    "org.carlspring.strongbox.storage",
+                                    "org.carlspring.strongbox.xml" })
     public static class SpringConfig
     {
 
     }
 
-    @Autowired
+    @Inject
     private ArtifactResolutionService artifactResolutionService;
 
 
@@ -52,6 +60,7 @@ public class ProxyRepositoryProviderTest
         System.out.println(ByteStreams.toByteArray(is));
     }
 
+    @Ignore // Broken while Docker is being worked on, as there is no running instance of the Strongbox service.
     @Test
     public void testStrongboxAtCarlspringDotOrg()
             throws ProviderImplementationException,

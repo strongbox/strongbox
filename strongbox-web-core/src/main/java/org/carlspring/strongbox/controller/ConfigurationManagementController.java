@@ -13,6 +13,7 @@ import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RuleSet;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
+import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +26,6 @@ import io.swagger.annotations.ApiResponses;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -49,16 +49,16 @@ public class ConfigurationManagementController
 
     private static final Logger logger = LogManager.getLogger(ConfigurationManagementController.class);
 
-    @Autowired
+    @Inject
     private ConfigurationManagementService configurationManagementService;
 
-    @Autowired
+    @Inject
     private StorageManagementService storageManagementService;
 
-    @Autowired
+    @Inject
     private RepositoryManagementService repositoryManagementService;
 
-    @Autowired
+    @Inject
     private RepositoryIndexManager repositoryIndexManager;
 
 
@@ -323,14 +323,14 @@ public class ConfigurationManagementController
                     method = RequestMethod.PUT,
                     consumes = { MediaType.APPLICATION_XML_VALUE,
                                  MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity addOrUpdateStorage(@ApiParam(value = "The storage object",
-                                                       required = true)
+    public ResponseEntity saveStorage(@ApiParam(value = "The storage object",
+                                                required = true)
                                              @RequestBody Storage storage)
             throws IOException, JAXBException
     {
         try
         {
-            configurationManagementService.addOrUpdateStorage(storage);
+            configurationManagementService.saveStorage(storage);
 
             if (!storage.existsOnFileSystem())
             {
@@ -459,7 +459,7 @@ public class ConfigurationManagementController
             logger.debug("Creating repository " + storageId + ":" + repositoryId + "...");
 
             repository.setStorage(configurationManagementService.getStorage(storageId));
-            configurationManagementService.addOrUpdateRepository(storageId, repository);
+            configurationManagementService.saveRepository(storageId, repository);
 
             final File repositoryBaseDir = new File(repository.getBasedir());
             if (!repositoryBaseDir.exists())
@@ -569,7 +569,7 @@ public class ConfigurationManagementController
                 Storage storage = configuration.getStorage(storageId);
                 storage.removeRepository(repositoryId);
 
-                configurationManagementService.addOrUpdateStorage(storage);
+                configurationManagementService.saveStorage(storage);
 
                 logger.debug("Removed repository " + storageId + ":" + repositoryId + ".");
 
@@ -621,7 +621,7 @@ public class ConfigurationManagementController
                                  .build();
         }
 
-        final boolean added = configurationManagementService.addOrUpdateAcceptedRuleSet(ruleSet);
+        final boolean added = configurationManagementService.saveAcceptedRuleSet(ruleSet);
         if (added)
         {
             return ResponseEntity.ok()
@@ -671,7 +671,7 @@ public class ConfigurationManagementController
                                  .body("Routing rule is empty");
         }
 
-        return getResponse(configurationManagementService.addOrUpdateAcceptedRepository(groupRepository, routingRule));
+        return getResponse(configurationManagementService.saveAcceptedRepository(groupRepository, routingRule));
     }
 
     @RequestMapping(value = "/routing/rules/accepted/{groupRepository}/repositories/{repositoryId}",

@@ -1,7 +1,8 @@
 package org.carlspring.strongbox.data.service;
 
+import javax.inject.Inject;
+
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.orient.commons.core.OrientOperations;
 import org.springframework.data.orient.commons.repository.support.OrientRepositoryFactoryBean;
 import org.springframework.data.repository.core.support.RepositoryFactorySupport;
@@ -16,10 +17,10 @@ public class NoProxyOrientRepositoryFactoryBean
     /**
      * The orient operations.
      */
-    @Autowired
+    @Inject
     private OrientOperations operations;
 
-    @Autowired
+    @Inject
     private OObjectDatabaseTx databaseTx;
 
     protected RepositoryFactorySupport doCreateRepositoryFactory()

@@ -9,6 +9,7 @@ import org.carlspring.strongbox.io.RepositoryPath;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,7 +21,6 @@ import java.security.NoSuchAlgorithmException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -34,7 +34,7 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
 
     private static final String ALIAS = "file-system";
 
-    @Autowired
+    @Inject
     private StorageProviderRegistry storageProviderRegistry;
 
     @Override

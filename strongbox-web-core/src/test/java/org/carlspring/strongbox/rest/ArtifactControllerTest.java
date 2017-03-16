@@ -3,7 +3,7 @@ package org.carlspring.strongbox.rest;
 import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.artifact.generator.ArtifactDeployer;
+import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
@@ -55,11 +55,11 @@ public class ArtifactControllerTest
 
     private static File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/local");
 
-    public static final String REPOSITORY_RELEASES1 = "act-releases-1";
+    private static final String REPOSITORY_RELEASES1 = "act-releases-1";
 
-    public static final String REPOSITORY_RELEASES2 = "act-releases-2";
+    private static final String REPOSITORY_RELEASES2 = "act-releases-2";
 
-    public static final String REPOSITORY_SNAPSHOTS = "act-snapshots";
+    private static final String REPOSITORY_SNAPSHOTS = "act-snapshots";
 
     @Inject
     private ConfigurationManager configurationManager;
@@ -143,9 +143,9 @@ public class ArtifactControllerTest
     public static Set<Repository> getRepositoriesToClean()
     {
         Set<Repository> repositories = new LinkedHashSet<>();
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES1));
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_RELEASES2));
-        repositories.add(mockRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES1));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES2));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS));
 
         return repositories;
     }
@@ -459,7 +459,7 @@ public class ArtifactControllerTest
         Artifact artifact1WithTimestamp3 = getArtifactFromGAVTC(ga + ":" + snapshotVersion3);
         Artifact artifact1WithTimestamp4 = getArtifactFromGAVTC(ga + ":" + snapshotVersion4);
 
-        ArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR);
+        MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR);
 
         artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp1, STORAGE0, REPOSITORY_SNAPSHOTS);
         artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp2, STORAGE0, REPOSITORY_SNAPSHOTS);
@@ -549,7 +549,7 @@ public class ArtifactControllerTest
         PluginArtifact c = new PluginArtifact(p3, artifact3);
         PluginArtifact d = new PluginArtifact(p4, artifact4);
 
-        ArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR);
+        MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR);
 
         // When
         artifactDeployer.generateAndDeployArtifact(a, STORAGE0, REPOSITORY_RELEASES2);
@@ -619,7 +619,7 @@ public class ArtifactControllerTest
         Artifact artifact1 = getArtifactFromGAVTC(groupId + ":" + artifactId + ":" + version1);
         Artifact artifact2 = getArtifactFromGAVTC(groupId + ":" + artifactId + ":" + version2);
 
-        ArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR);
+        MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR);
 
         artifactDeployer.generateAndDeployArtifact(artifact1, STORAGE0, REPOSITORY_RELEASES2);
         artifactDeployer.generateAndDeployArtifact(artifact2, STORAGE0, REPOSITORY_RELEASES2);
@@ -651,7 +651,7 @@ public class ArtifactControllerTest
         Artifact artifact1WithTimestamp3 = getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 3));
         Artifact artifact1WithTimestamp4 = getArtifactFromGAVTC(ga + ":" + createSnapshotVersion("3.1", 4));
 
-        ArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR);
+        MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR);
 
         artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp1, STORAGE0, REPOSITORY_SNAPSHOTS);
         artifactDeployer.generateAndDeployArtifact(artifact1WithTimestamp2, STORAGE0, REPOSITORY_SNAPSHOTS);

@@ -2,7 +2,7 @@ package org.carlspring.strongbox.cron;
 
 import org.carlspring.maven.commons.io.filters.JarFilenameFilter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.cron.api.jobs.RegenerateMavenChecksumCronJob;
+import org.carlspring.strongbox.cron.api.jobs.RegenerateChecksumCronJob;
 import org.carlspring.strongbox.cron.config.JobManager;
 import org.carlspring.strongbox.cron.context.CronTaskTest;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
@@ -26,9 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Kate Novik.
@@ -105,9 +103,9 @@ public class RegenerateMavenChecksumCronJobTest
             Repository repository = new Repository("releases");
             repository.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
             repository.setStorage(storage);
-            configurationManagementService.addOrUpdateStorage(storage);
+            configurationManagementService.saveStorage(storage);
+            storage.saveRepository(repository);
             repositoryManagementService.createRepository("storage1", "releases");
-            storage.addOrUpdateRepository(repository);
 
             //Create released artifact
             generateArtifact(REPOSITORY_BASEDIR_3.getAbsolutePath(), ga + ":1.0:jar");
@@ -125,7 +123,7 @@ public class RegenerateMavenChecksumCronJobTest
     {
         CronTaskConfiguration cronTaskConfiguration = new CronTaskConfiguration();
         cronTaskConfiguration.setName(name);
-        cronTaskConfiguration.addProperty("jobClass", RegenerateMavenChecksumCronJob.class.getName());
+        cronTaskConfiguration.addProperty("jobClass", RegenerateChecksumCronJob.class.getName());
         cronTaskConfiguration.addProperty("cronExpression", "0 0/1 * 1/1 * ? *");
         cronTaskConfiguration.addProperty("storageId", storageId);
         cronTaskConfiguration.addProperty("repositoryId", repositoryId);

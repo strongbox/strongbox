@@ -2,7 +2,7 @@ package org.carlspring.strongbox.testing;
 
 import org.carlspring.maven.commons.DetachedArtifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.artifact.generator.ArtifactGenerator;
+import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 
 import java.io.File;
@@ -34,6 +34,14 @@ public class TestCaseWithArtifactGeneration
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
+        return generateArtifact(new File(basedir), gavtc);
+    }
+
+    public Artifact generateArtifact(File basedir, String gavtc)
+            throws IOException,
+                   XmlPullParserException,
+                   NoSuchAlgorithmException
+    {
         Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
         artifact.setFile(new File(basedir + "/" + ArtifactUtils.convertArtifactToPath(artifact)));
 
@@ -49,7 +57,7 @@ public class TestCaseWithArtifactGeneration
     {
         artifact.setFile(new File(basedir + "/" + ArtifactUtils.convertArtifactToPath(artifact)));
 
-        ArtifactGenerator generator = new ArtifactGenerator(basedir);
+        MavenArtifactGenerator generator = new MavenArtifactGenerator(basedir);
         generator.generate(artifact);
     }
 
@@ -60,7 +68,7 @@ public class TestCaseWithArtifactGeneration
     {
         artifact.setFile(new File(basedir + "/" + ArtifactUtils.convertArtifactToPath(artifact)));
 
-        ArtifactGenerator generator = new ArtifactGenerator(basedir);
+        MavenArtifactGenerator generator = new MavenArtifactGenerator(basedir);
         generator.generate(artifact);
     }
 
@@ -71,7 +79,7 @@ public class TestCaseWithArtifactGeneration
     {
         artifact.setFile(new File(basedir + "/" + ArtifactUtils.convertArtifactToPath(artifact)));
 
-        ArtifactGenerator generator = new ArtifactGenerator(basedir);
+        MavenArtifactGenerator generator = new MavenArtifactGenerator(basedir);
         generator.generate(artifact, packaging);
     }
 
@@ -80,7 +88,7 @@ public class TestCaseWithArtifactGeneration
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
-        ArtifactGenerator generator = new ArtifactGenerator(basedir);
+        MavenArtifactGenerator generator = new MavenArtifactGenerator(basedir);
         generator.generate(gavtc, versions);
     }
 
@@ -89,7 +97,7 @@ public class TestCaseWithArtifactGeneration
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
-        ArtifactGenerator generator = new ArtifactGenerator(basedir);
+        MavenArtifactGenerator generator = new MavenArtifactGenerator(basedir);
         generator.generate(gavtc, packaging, versions);
     }
 
@@ -98,7 +106,7 @@ public class TestCaseWithArtifactGeneration
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
-        ArtifactGenerator generator = new ArtifactGenerator(basedir);
+        MavenArtifactGenerator generator = new MavenArtifactGenerator(basedir);
         generator.generate(gavtc, "maven-plugin", versions);
     }
 
@@ -336,6 +344,7 @@ public class TestCaseWithArtifactGeneration
             }
         }
     }
+
 
     public File getStorageBasedir(String storageId)
     {

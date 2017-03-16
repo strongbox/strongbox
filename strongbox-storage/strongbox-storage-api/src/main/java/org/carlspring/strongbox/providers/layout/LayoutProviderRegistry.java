@@ -8,6 +8,7 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -15,7 +16,6 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -27,7 +27,7 @@ public class LayoutProviderRegistry extends AbstractMappedProviderRegistry<Layou
 
     private static final Logger logger = LoggerFactory.getLogger(LayoutProviderRegistry.class);
 
-    @Autowired
+    @Inject
     private ConfigurationManager configurationManager;
 
 

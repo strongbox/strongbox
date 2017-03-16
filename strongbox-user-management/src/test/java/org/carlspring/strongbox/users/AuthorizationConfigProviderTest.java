@@ -6,13 +6,13 @@ import org.carlspring.strongbox.security.Role;
 import org.carlspring.strongbox.users.security.AuthorizationConfig;
 import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
 
+import javax.inject.Inject;
 import java.util.Optional;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertTrue;
@@ -30,7 +30,7 @@ public class AuthorizationConfigProviderTest
 
     private static final Logger logger = LoggerFactory.getLogger(AuthorizationConfigProviderTest.class);
 
-    @Autowired
+    @Inject
     AuthorizationConfigProvider authorizationConfigProvider;
 
     @Test

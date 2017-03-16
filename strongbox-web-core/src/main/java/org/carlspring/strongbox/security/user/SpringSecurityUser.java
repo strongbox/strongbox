@@ -123,20 +123,20 @@ class SpringSecurityUser
     @Override
     public String toString()
     {
-        final StringBuilder sb = new StringBuilder("SpringSecurityUser{");
-        sb.append("\n\tusername='")
+        final StringBuilder sb = new StringBuilder("SpringSecurityUser {");
+        sb.append(" username='")
           .append(username)
           .append('\'');
-        sb.append(", \n\tpassword='")
+        sb.append(", password='")
           .append(password)
           .append('\'');
-        sb.append(", \n\tenabled=")
+        sb.append(", enabled=")
           .append(enabled);
-        sb.append(", \n\tsalt='")
+        sb.append(", salt='")
           .append(salt)
           .append('\'');
-        sb.append(", \n\tauthorities=")
-          .append(authorities);
+        sb.append(", authorities (size)=")
+          .append(authorities.size());
         sb.append('}');
         return sb.toString();
     }

@@ -141,7 +141,21 @@ public class ArtifactController
 
         Storage storage = configurationManager.getConfiguration()
                                               .getStorage(storageId);
+        if (storage == null)
+        {
+            logger.error("Unable to find storage by ID " + storageId);
+            response.sendError(INTERNAL_SERVER_ERROR.value(), "Unable to find storage by ID " + storageId);
+            return;
+        }
+
         Repository repository = storage.getRepository(repositoryId);
+        if (repository == null)
+        {
+            logger.error("Unable to find repository by ID " + repositoryId + " for storage " + storageId);
+            response.sendError(INTERNAL_SERVER_ERROR.value(),
+                               "Unable to find repository by ID " + repositoryId + " for storage " + storageId);
+            return;
+        }
 
         if (!repository.isInService())
         {

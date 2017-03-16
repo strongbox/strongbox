@@ -1,26 +1,21 @@
 package org.carlspring.strongbox.rest;
 
-import org.carlspring.strongbox.artifact.generator.ArtifactDeployer;
-import org.carlspring.strongbox.booters.StorageBooter;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.rest.context.IntegrationTest;
-import org.carlspring.strongbox.services.RepositoryManagementService;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
+import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
+import org.carlspring.strongbox.storage.repository.Repository;
 
-import javax.inject.Inject;
 import java.io.File;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
-import org.apache.maven.artifact.Artifact;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.carlspring.maven.commons.util.ArtifactUtils.getArtifactFromGAVTC;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -34,15 +29,20 @@ public class SearchControllerTest
         extends RestAssuredBaseTest
 {
 
-    @Inject
-    StorageBooter storageBooter;
+    private static final String STORAGE_SC_TEST = "storage-sc-test";
 
-    @Inject
-    RepositoryIndexManager repositoryIndexManager;
+    private static final String REPOSITORY_RELEASES = "sc-releases-search";
 
-    @Inject
-    RepositoryManagementService repositoryManagementService;
+    private static final File REPOSITORY_RELEASES_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                                     "/storages/" + STORAGE_SC_TEST + "/" +
+                                                                     REPOSITORY_RELEASES);
 
+    @BeforeClass
+    public static void cleanUp()
+            throws Exception
+    {
+        cleanUp(getRepositoriesToClean());
+    }
 
     @Override
     public void init()
@@ -50,44 +50,34 @@ public class SearchControllerTest
     {
         super.init();
 
-        prepareMockData();
+        // prepare storage: create it from Java code instead of putting <storage/> in strongbox.xml
+        createStorage(STORAGE_SC_TEST);
+
+        createRepository(STORAGE_SC_TEST, REPOSITORY_RELEASES, true);
+
+        generateArtifact(REPOSITORY_RELEASES_BASEDIR, "org.carlspring.strongbox.searches:test-project:1.0.11.3");
+        generateArtifact(REPOSITORY_RELEASES_BASEDIR, "org.carlspring.strongbox.searches:test-project:1.0.11.3.1");
+        generateArtifact(REPOSITORY_RELEASES_BASEDIR, "org.carlspring.strongbox.searches:test-project:1.0.11.3.2");
+
+        final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer(STORAGE_SC_TEST + ":" +
+                                                                                                REPOSITORY_RELEASES + ":" +
+                                                                                                IndexTypeEnum.LOCAL.getType());
+
+        assertNotNull(repositoryIndexer);
+
+        repositoryManagementService.reIndex(STORAGE_SC_TEST, REPOSITORY_RELEASES, "org/carlspring/strongbox/searches");
     }
 
-    private void prepareMockData()
+    public static Set<Repository> getRepositoriesToClean()
     {
-        File repositoryBasedir = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                          "/storages/storage0/releases");
-        removeDir(new File(repositoryBasedir, "org/carlspring/strongbox/searches/test-project").getAbsolutePath());
+        Set<Repository> repositories = new LinkedHashSet<>();
+        repositories.add(createRepositoryMock(STORAGE_SC_TEST, REPOSITORY_RELEASES));
 
-        try
-        {
-            File strongboxBaseDir = new File(ConfigurationResourceResolver.getVaultDirectory() + "/tmp");
-            String[] classifiers = new String[]{ "javadoc", "tests" };
-
-            Artifact artifact1 = getArtifactFromGAVTC("org.carlspring.strongbox.searches:test-project:1.0.11.3");
-            Artifact artifact2 = getArtifactFromGAVTC("org.carlspring.strongbox.searches:test-project:1.0.11.3.1");
-            Artifact artifact3 = getArtifactFromGAVTC("org.carlspring.strongbox.searches:test-project:1.0.11.3.2");
-
-            ArtifactDeployer artifactDeployer = buildArtifactDeployer(strongboxBaseDir);
-
-            artifactDeployer.generateAndDeployArtifact(artifact1, classifiers, "storage0", "releases", "jar");
-            artifactDeployer.generateAndDeployArtifact(artifact2, classifiers, "storage0", "releases", "jar");
-            artifactDeployer.generateAndDeployArtifact(artifact3, classifiers, "storage0", "releases", "jar");
-
-            final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer("storage0:releases:local");
-
-            assertNotNull(repositoryIndexer);
-
-            repositoryManagementService.reIndex("storage0", "releases", "org/carlspring/strongbox/searches");
-        }
-        catch (Exception e)
-        {
-            throw new RuntimeException("Unable to prepare mock data", e);
-        }
+        return repositories;
     }
 
     @Test
-    public void doSearchTests()
+    public void testSearches()
             throws Exception
     {
         final String q = "g:org.carlspring.strongbox.searches a:test-project";
@@ -100,7 +90,6 @@ public class SearchControllerTest
                    response.contains("org.carlspring.strongbox.searches:test-project:1.0.11.3.1:jar"));
 
         // testSearchJSON
-
         response = client.search(q, MediaType.APPLICATION_JSON_VALUE);
 
         assertTrue("Received unexpected response! \n" + response + "\n",

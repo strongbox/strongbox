@@ -2,7 +2,8 @@ package org.carlspring.strongbox.providers.storage;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.inject.Inject;
 
 /**
  * @author carlspring
@@ -11,10 +12,10 @@ public abstract class AbstractStorageProvider
         implements StorageProvider
 {
 
-    @Autowired
+    @Inject
     private StorageProviderRegistry storageProviderRegistry;
 
-    @Autowired
+    @Inject
     private ConfigurationManager configurationManager;
 
 
