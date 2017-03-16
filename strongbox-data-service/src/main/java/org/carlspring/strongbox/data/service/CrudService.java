@@ -12,25 +12,21 @@ import java.util.Optional;
 public interface CrudService<T, ID extends Serializable>
 {
 
-    <S extends T> S save(S var1);
+    <S extends T> S save(S entity);
 
-    <S extends T> Iterable<S> save(Iterable<S> var1);
+    Optional<T> findOne(ID id);
 
-    Optional<T> findOne(ID var1);
-
-    boolean exists(ID var1);
+    boolean exists(ID id);
 
     Optional<List<T>> findAll();
 
-    Optional<List<T>> findAll(List<ID> var1);
+    Optional<List<T>> findAll(List<ID> idList);
 
     long count();
 
-    void delete(ID var1);
+    void delete(ID id);
 
-    void delete(T var1);
-
-    void delete(Iterable<? extends T> var1);
+    void delete(T entity);
 
     void deleteAll();
 

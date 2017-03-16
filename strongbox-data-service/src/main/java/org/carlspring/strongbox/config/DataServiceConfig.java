@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.config;
 
-
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,6 +17,7 @@ import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.ClassPathResource;
@@ -39,10 +38,11 @@ import com.orientechnologies.orient.core.entity.OEntityManager;
  * @author Alex Oreshkevich
  */
 @Configuration
-@EnableTransactionManagement
+@EnableTransactionManagement(proxyTargetClass = true, order = 100)
+@EnableAspectJAutoProxy(proxyTargetClass = true)
 @ComponentScan({ "org.carlspring.strongbox.data" })
 @Import(DataServicePropertiesConfig.class)
-@EnableCaching
+@EnableCaching(order = 105)
 public class DataServiceConfig
 {
 
@@ -78,58 +78,57 @@ public class DataServiceConfig
     }
 
     @Bean
-    @Lazy
     public PlatformTransactionManager transactionManager(EntityManagerFactory emf)
     {
         return new JpaTransactionManager(emf);
     }
 
     @Bean
-    @Lazy
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory(){
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory()
+    {
         Map<String, String> jpaProperties = new HashMap<>();
         jpaProperties.put("javax.persistence.jdbc.url", getConnectionUrl());
         jpaProperties.put("javax.persistence.jdbc.user", username);
         jpaProperties.put("javax.persistence.jdbc.password", password);
-        
+
         LocalContainerEntityManagerFactoryBean result = new LocalContainerEntityManagerFactoryBean();
         result.setJpaPropertyMap(jpaProperties);
         return result;
     }
-    
+
     @Bean
-    @Lazy
     public OrientObjectTemplate objectTemplate()
     {
         return new OrientObjectTemplate(factory());
     }
 
-//    @Bean(destroyMethod = "")   // prevents to call close() on non-activated member of connection pool
-//    @Lazy
-//    public OObjectDatabaseTx objectDatabaseTx()
-//    {
-//        return factory().db();
-//    }
+    // @Bean(destroyMethod = "") // prevents to call close() on non-activated member of connection pool
+    // @Lazy
+    // public OObjectDatabaseTx objectDatabaseTx()
+    // {
+    // return factory().db();
+    // }
 
     @Bean
-    @Lazy
-    public TransactionTemplate transactionTemplate(PlatformTransactionManager transactionManager){
+    public TransactionTemplate transactionTemplate(PlatformTransactionManager transactionManager)
+    {
         TransactionTemplate result = new TransactionTemplate();
         result.setTransactionManager(transactionManager);
         return result;
     }
-    
+
     @Bean
-    @Lazy
-    public OEntityManager oEntityManager(){
-        return OEntityManager.getEntityManagerByDatabaseURL(getConnectionUrl()); 
+    public OEntityManager oEntityManager()
+    {
+        return OEntityManager.getEntityManagerByDatabaseURL(getConnectionUrl());
     }
-    
+
     @Bean
-    @Lazy
     public CacheManager cacheManager()
     {
-        return new EhCacheCacheManager(ehCacheCacheManager().getObject());
+        EhCacheCacheManager result = new EhCacheCacheManager(ehCacheCacheManager().getObject());
+        result.setTransactionAware(true);
+        return result;
     }
 
     @Bean
@@ -143,7 +142,7 @@ public class DataServiceConfig
 
     @PostConstruct
     public void registerEntities()
-            throws Exception
+        throws Exception
     {
         if (embeddableServer == null)
         {
@@ -158,7 +157,7 @@ public class DataServiceConfig
         if (!serverAdmin.existsDatabase())
         {
             logger.debug("Create database " + database);
-            serverAdmin.createDatabase(database, "document", "plocal")/*.close()*/;
+            serverAdmin.createDatabase(database, "document", "plocal")/* .close() */;
         }
         else
         {

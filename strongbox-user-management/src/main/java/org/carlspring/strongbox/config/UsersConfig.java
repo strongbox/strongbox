@@ -7,7 +7,6 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import org.carlspring.strongbox.data.service.NoProxyOrientRepositoryFactoryBean;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.security.Credentials;
 import org.carlspring.strongbox.security.Users;
@@ -22,8 +21,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.Resource;
-import org.springframework.data.orient.commons.repository.config.EnableOrientRepositories;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -40,8 +39,7 @@ import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
  */
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.users" })
-@EnableOrientRepositories(basePackages = "org.carlspring.strongbox.users.repository",
-                          repositoryFactoryBeanClass = NoProxyOrientRepositoryFactoryBean.class)
+@EnableTransactionManagement(proxyTargetClass = true, order = 100)
 @Import({ DataServiceConfig.class,
           CommonConfig.class })
 public class UsersConfig
@@ -78,7 +76,6 @@ public class UsersConfig
             }
             
         });
-        doInit();
     }
 
     private void doInit()

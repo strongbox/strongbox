@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.services.impl;
 
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -18,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
@@ -31,8 +29,7 @@ import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
  */
 @Service
 @Transactional
-class ArtifactEntryServiceImpl
-        implements ArtifactEntryService
+class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry> implements ArtifactEntryService
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactEntryService.class);
@@ -43,8 +40,11 @@ class ArtifactEntryServiceImpl
     @Inject
     ArtifactRepository artifactRepository;
 
-    @Inject
-    CacheManager cacheManager;
+    @Override
+    public Class<ArtifactEntry> getEntityClass()
+    {
+        return ArtifactEntry.class;
+    }
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -62,19 +62,12 @@ class ArtifactEntryServiceImpl
         // prepare custom query based on all non-null coordinates that were joined by logical AND
         // read more about fetching strategies here: http://orientdb.com/docs/2.2/Fetching-Strategies.html
 
-
         String nativeQuery = buildQuery(coordinates);
         OSQLSynchQuery<ArtifactEntry> query = new OSQLSynchQuery<>(nativeQuery);
         logger.info("[findByCoordinates] SQL -> \n\t" + nativeQuery);
 
-        List<ArtifactEntry> resultList = ((OObjectDatabaseTx)entityManager.getDelegate()).query(query);
-
-        // still have to detach everything manually until we fully migrate to OrientDB 2.2.X
-        // where fetching strategies will be fully supported
-        List<ArtifactEntry> detachedList = new LinkedList<>();
-        resultList.forEach(artifactEntry -> detachedList.add(((OObjectDatabaseTx)entityManager.getDelegate()).detachAll(artifactEntry, true)));
-
-        return detachedList;
+        List<ArtifactEntry> resultList = getDelegate().query(query);
+        return resultList;
     }
 
     @Override
@@ -119,10 +112,11 @@ class ArtifactEntryServiceImpl
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public <S extends ArtifactEntry> S save(S var1)
+    public Optional<ArtifactEntry> findOne(ArtifactCoordinates artifactCoordinates)
     {
-        return artifactRepository.save(var1);
+        List<ArtifactEntry> artifactEntryList = findByCoordinates(artifactCoordinates);
+        return Optional.ofNullable(artifactEntryList == null || artifactEntryList.isEmpty() ? null
+                : artifactEntryList.iterator().next());
     }
 
     @Override
