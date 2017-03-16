@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
@@ -107,8 +108,6 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
                                String metadataPath)
             throws IOException
     {
-        // TODO: Further untangle the relationships of this so that the code below can be uncommented:
-
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
         RepositoryPath repositoryPath = resolve(repository);
@@ -119,16 +118,15 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
 
         try
         {
-            String version = repositoryPath.getFileName()
-                                           .toString();
-            java.nio.file.Path path = repositoryPath.getParent();
+            String version = repositoryPath.getFileName().toString();
+            Path path = repositoryPath.getParent();
+
             Metadata metadata = mavenMetadataManager.readMetadata(path);
-            if (metadata != null && metadata.getVersioning() != null
-                    && metadata.getVersioning().getVersions().contains(version))
+            if (metadata != null &&
+                metadata.getVersioning() != null &&
+                metadata.getVersioning().getVersions().contains(version))
             {
-                metadata.getVersioning()
-                        .getVersions()
-                        .remove(version);
+                metadata.getVersioning().getVersions().remove(version);
                 mavenMetadataManager.storeMetadata(path, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
             }
         }

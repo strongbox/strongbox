@@ -7,7 +7,6 @@ import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
-import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.utils.ArtifactControllerHelper;
 
@@ -18,8 +17,6 @@ import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.nio.file.Paths;
-import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -34,8 +31,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.comparator.DirectoryFileComparator;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -487,7 +482,6 @@ public class ArtifactController
             }
 
             getArtifactManagementService().delete(storageId, repositoryId, path, force);
-            deleteMetadataFromFS(storageId, repositoryId, path);
         }
         catch (ArtifactStorageException e)
         {
@@ -500,46 +494,5 @@ public class ArtifactController
         return ResponseEntity.ok("The artifact was deleted.");
     }
 
-    private void deleteMetadataFromFS(String storageId,
-                                      String repositoryId,
-                                      String metadataPath)
-    {
-        Storage storage = configurationManager.getConfiguration()
-                                              .getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
-        final File repoPath = new File(repository.getBasedir());
-
-        try
-        {
-            File artifactFile = new File(repoPath, metadataPath).getCanonicalFile();
-            if (!artifactFile.isFile())
-            {
-                String version = artifactFile.getPath()
-                                             .substring(
-                                                     artifactFile.getPath()
-                                                                 .lastIndexOf(File.separatorChar) + 1);
-                java.nio.file.Path path = Paths.get(
-                        artifactFile.getPath()
-                                    .substring(0, artifactFile.getPath()
-                                                              .lastIndexOf(File.separatorChar)));
-
-                Metadata metadata = mavenMetadataManager.readMetadata(path);
-                if (metadata != null && metadata.getVersioning() != null
-                    && metadata.getVersioning()
-                               .getVersions()
-                               .contains(version))
-                {
-                    metadata.getVersioning()
-                            .getVersions()
-                            .remove(version);
-                    mavenMetadataManager.storeMetadata(path, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
-                }
-            }
-        }
-        catch (IOException | XmlPullParserException | NoSuchAlgorithmException e)
-        {
-            // We won't do anything in this case because it doesn't have an impact to the deletion
-        }
-    }
 
 }
