@@ -69,7 +69,10 @@ public class RepositoryIndexerTest
     @Test
     public void testIndex() throws Exception
     {
-        RepositoryIndexer repositoryIndexer = getRepositoryIndexManager().getRepositoryIndexer(STORAGE0 + ":" + REPOSITORY_RELEASES + ":local");
+        RepositoryIndexer repositoryIndexer = getRepositoryIndexManager().getRepositoryIndexer(STORAGE0 + ":" +
+                                                                                               REPOSITORY_RELEASES + ":" +
+                                                                                               IndexTypeEnum.LOCAL
+                                                                                                            .getType());
 
         int x = repositoryManagementService.reIndex(STORAGE0,
                                                     REPOSITORY_RELEASES,

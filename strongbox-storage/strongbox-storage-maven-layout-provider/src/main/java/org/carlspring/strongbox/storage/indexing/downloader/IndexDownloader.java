@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.storage.indexing.downloader;
 
-import org.carlspring.strongbox.storage.indexing.IndexerConfiguration;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 
 import javax.inject.Inject;
@@ -25,9 +24,6 @@ public class IndexDownloader
 {
 
     private static final Logger logger = LoggerFactory.getLogger(IndexDownloader.class);
-
-    @Inject
-    private IndexerConfiguration indexerConfiguration;
 
     @Inject
     private IndexUpdater indexUpdater;

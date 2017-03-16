@@ -5,6 +5,7 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.services.ConfigurationService;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
@@ -59,7 +60,9 @@ public class ArtifactSearchServiceImpl
                 {
                     if (storage.containsRepository(repositoryId))
                     {
-                        final String contextId = storage.getId() + ":" + repositoryId + ":local";
+                        final String contextId = storage.getId() + ":" +
+                                                 repositoryId + ":" +
+                                                 IndexTypeEnum.LOCAL.getType();
                         final Set<SearchResult> sr = repositoryIndexManager.getRepositoryIndexer(contextId)
                                                                            .search(searchRequest.getQuery());
 
@@ -76,7 +79,10 @@ public class ArtifactSearchServiceImpl
             }
             else
             {
-                String contextId = searchRequest.getStorageId() + ":" + searchRequest.getRepositoryId() + ":local";
+                String contextId = searchRequest.getStorageId() + ":" +
+                                   searchRequest.getRepositoryId() + ":" +
+                                   IndexTypeEnum.LOCAL.getType();
+
                 final Set<SearchResult> sr = repositoryIndexManager.getRepositoryIndexer(contextId)
                                                                    .search(searchRequest.getQuery());
 
@@ -98,7 +104,7 @@ public class ArtifactSearchServiceImpl
                 {
                     logger.debug("Repository: {}", r.getId());
 
-                    String contextId = storage.getId() + ":" + r.getId() + ":local";
+                    String contextId = storage.getId() + ":" + r.getId() + ":" + IndexTypeEnum.LOCAL.getType();
                     final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer(contextId);
                     if (repositoryIndexer != null)
                     {

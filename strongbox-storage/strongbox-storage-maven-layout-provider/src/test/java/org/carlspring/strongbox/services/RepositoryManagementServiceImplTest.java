@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.services;
 
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
@@ -103,7 +104,7 @@ public class RepositoryManagementServiceImplTest
 
         assertTrue("Failed to create the repository \"" + repositoryDir.getAbsolutePath() + "\"!", repositoryDir.exists());
 
-        getRepositoryIndexManager().closeIndexer(STORAGE0 + ":" + REPOSITORY_RELEASES_2 + ":local");
+        getRepositoryIndexManager().closeIndexer(STORAGE0 + ":" + REPOSITORY_RELEASES_2 + ":" + IndexTypeEnum.LOCAL.getType());
 
         getRepositoryManagementService().removeRepository(STORAGE0, REPOSITORY_RELEASES_2);
 

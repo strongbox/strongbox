@@ -4,6 +4,7 @@ import org.carlspring.maven.commons.io.filters.JarFilenameFilter;
 import org.carlspring.maven.commons.io.filters.PomFilenameFilter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.locator.handlers.AbstractArtifactLocationHandler;
+import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 
@@ -114,7 +115,8 @@ public class ArtifactLocationGenerateMavenIndexOperation
                         RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(
                                 storageId.concat(":")
                                          .concat(repositoryId)
-                                         .concat(":local"));
+                                         .concat(":")
+                                         .concat(IndexTypeEnum.LOCAL.getType()));
 
                         if (indexer != null)
                         {

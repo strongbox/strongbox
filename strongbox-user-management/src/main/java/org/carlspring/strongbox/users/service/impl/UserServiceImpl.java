@@ -32,11 +32,13 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @Transactional
-class UserServiceImpl
+public class UserServiceImpl
         implements UserService
 {
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+
+    public static final String USERS_CACHE = "users";
 
     @Inject
     UserRepository repository;
@@ -55,7 +57,6 @@ class UserServiceImpl
     @PostConstruct
     public void init()
     {
-
         usersCache = cacheManager.getCache(USERS_CACHE);
         if (usersCache == null)
         {
@@ -200,7 +201,6 @@ class UserServiceImpl
     public String generateSecurityToken(String userName)
             throws JoseException
     {
-
         User user = findByUserName(userName);
 
         if (StringUtils.isEmpty(user.getSecurityTokenKey()))

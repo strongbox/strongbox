@@ -24,15 +24,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.orient.commons.repository.config.EnableOrientRepositories;
 
 @Configuration
-@ComponentScan({
-                       "org.carlspring.strongbox.artifact",
-                       "org.carlspring.strongbox.configuration",
-                       "org.carlspring.strongbox.io",
-                       "org.carlspring.strongbox.providers",
-                       "org.carlspring.strongbox.services",
-                       "org.carlspring.strongbox.storage",
-                       "org.carlspring.strongbox.storage.resolvers",
-                       "org.carlspring.strongbox.xml"
+@ComponentScan({ "org.carlspring.strongbox.artifact",
+                 "org.carlspring.strongbox.configuration",
+                 "org.carlspring.strongbox.io",
+                 "org.carlspring.strongbox.providers",
+                 "org.carlspring.strongbox.services",
+                 "org.carlspring.strongbox.storage",
+                 "org.carlspring.strongbox.storage.resolvers",
+                 "org.carlspring.strongbox.xml"
                })
 @EnableOrientRepositories(basePackages = { "org.carlspring.strongbox.storage.repository",
                                            "org.carlspring.strongbox.repository" },

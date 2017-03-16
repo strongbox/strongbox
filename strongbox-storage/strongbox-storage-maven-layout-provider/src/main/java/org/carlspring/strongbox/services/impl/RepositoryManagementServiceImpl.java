@@ -135,7 +135,7 @@ public class RepositoryManagementServiceImpl
 
 
         IndexDownloadRequest request = new IndexDownloadRequest();
-        request.setIndexingContextId(storageId + ":" + repositoryId + ":remote");
+        request.setIndexingContextId(storageId + ":" + repositoryId + ":" + IndexTypeEnum.REMOTE.getType());
         request.setStorageId(storageId);
         request.setRepositoryId(repositoryId);
         request.setRemoteRepositoryURL(repository.getRemoteRepository().getUrl());
@@ -178,7 +178,7 @@ public class RepositoryManagementServiceImpl
                        String path)
             throws IOException
     {
-        String contextId = storageId + ":" + repositoryId + ":local";
+        String contextId = storageId + ":" + repositoryId + ":" + IndexTypeEnum.LOCAL.getType();
 
         logger.info("Re-indexing " + contextId + (path != null ? ":" + path : "") + "...");
 
@@ -209,14 +209,18 @@ public class RepositoryManagementServiceImpl
         {
             final RepositoryIndexer sourceIndex = repositoryIndexManager.getRepositoryIndexer(sourceStorage + ":" +
                                                                                               sourceRepositoryId +
-                                                                                              ":local");
+                                                                                              ":" +
+                                                                                              IndexTypeEnum.LOCAL
+                                                                                                           .getType());
             if (sourceIndex == null)
             {
                 throw new ArtifactStorageException("Source repository not found!");
             }
 
-            final RepositoryIndexer targetIndex = repositoryIndexManager.getRepositoryIndexer(
-                    targetStorage + ":" + targetRepositoryId + ":local");
+            final RepositoryIndexer targetIndex = repositoryIndexManager.getRepositoryIndexer(targetStorage + ":" +
+                                                                                              targetRepositoryId + ":" +
+                                                                                              IndexTypeEnum.LOCAL
+                                                                                                           .getType());
             if (targetIndex == null)
             {
                 throw new ArtifactStorageException("Target repository not found!");
@@ -235,7 +239,7 @@ public class RepositoryManagementServiceImpl
                      String repositoryId)
             throws IOException
     {
-        String contextId = storageId + ":" + repositoryId + ":local";
+        String contextId = storageId + ":" + repositoryId + ":" + IndexTypeEnum.LOCAL.getType();
 
         logger.info("Packing index for " + contextId + " ...");
 
@@ -257,7 +261,8 @@ public class RepositoryManagementServiceImpl
             request.setUseTargetProperties(true);
             indexPacker.packIndex(request);
 
-            logger.info("Index for " + storageId + ":" + repositoryId + ":local was packed successfully.");
+            logger.info("Index for " + storageId + ":" + repositoryId + ":" + IndexTypeEnum.LOCAL.getType() +
+                        " was packed successfully.");
         }
         finally
         {

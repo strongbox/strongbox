@@ -84,10 +84,10 @@ public class RepositoryIndexManager
 
         if (repository.isProxyRepository())
         {
-            closeIndexer(storageId + ":" + repositoryId + ":remote");
+            closeIndexer(storageId + ":" + repositoryId + ":" + IndexTypeEnum.REMOTE.getType());
         }
 
-        closeIndexer(storageId + ":" + repositoryId + ":local");
+        closeIndexer(storageId + ":" + repositoryId + ":" + IndexTypeEnum.LOCAL.getType());
     }
 
     public void closeIndexer(String contextId)

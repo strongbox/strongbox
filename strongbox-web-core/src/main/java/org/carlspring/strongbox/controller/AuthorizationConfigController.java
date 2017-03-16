@@ -6,6 +6,7 @@ import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.security.AuthorizationConfig;
 import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
 import org.carlspring.strongbox.users.service.UserService;
+import org.carlspring.strongbox.users.service.impl.UserServiceImpl;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.inject.Inject;
@@ -190,11 +191,10 @@ public class AuthorizationConfigController
                                      // revoke role from every user that exists in the system
                                      getAllUsers().forEach(user ->
                                                            {
-                                                               if (user.getRoles()
-                                                                       .remove(name.toUpperCase()))
+                                                               if (user.getRoles().remove(name.toUpperCase()))
                                                                {
                                                                    // evict such kind of users from cache
-                                                                   cacheManager.getCache(UserService.USERS_CACHE)
+                                                                   cacheManager.getCache(UserServiceImpl.USERS_CACHE)
                                                                                .evict(user);
                                                                }
                                                            });

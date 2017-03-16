@@ -3,6 +3,7 @@ package org.carlspring.strongbox.rest;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.rest.context.IntegrationTest;
+import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.repository.Repository;
 
@@ -59,8 +60,8 @@ public class SearchControllerTest
         generateArtifact(REPOSITORY_RELEASES_BASEDIR, "org.carlspring.strongbox.searches:test-project:1.0.11.3.2");
 
         final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer(STORAGE_SC_TEST + ":" +
-                                                                                                REPOSITORY_RELEASES +
-                                                                                                ":local");
+                                                                                                REPOSITORY_RELEASES + ":" +
+                                                                                                IndexTypeEnum.LOCAL.getType());
 
         assertNotNull(repositoryIndexer);
 
