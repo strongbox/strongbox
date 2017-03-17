@@ -9,7 +9,6 @@ import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
@@ -108,13 +107,9 @@ public class RegenerateMavenChecksumCronJobTest
                                                                null,
                                                                1);
 
-        Storage storage = new Storage(STORAGE1);
         createStorage(STORAGE1);
-        Repository repository = new Repository(REPOSITORY_RELEASES);
-        repository.setStorage(storage);
 
         createRepository(STORAGE1, REPOSITORY_RELEASES, RepositoryPolicyEnum.RELEASE.getPolicy(), false);
-        storage.saveRepository(repository);
 
         generateArtifact(REPOSITORY_RELEASES_BASEDIR_2.getAbsolutePath(),
                          "org.carlspring.strongbox.checksum:strongbox-checksum:1.0:jar");
@@ -182,20 +177,16 @@ public class RegenerateMavenChecksumCronJobTest
         getLayoutProvider(REPOSITORY_SNAPSHOTS).rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS,
                                                                 "org/carlspring/strongbox/strongbox-checksum-one");
 
-        FileUtils.deleteIfExists(
-                new File(snapshotArtifact_1.getFile()
-                                           .getAbsolutePath() + ".md5"));
-        FileUtils.deleteIfExists(
-                new File(snapshotArtifact_1.getFile()
-                                           .getAbsolutePath() + ".sha1"));
-        FileUtils.deleteIfExists(
-                new File(snapshotArtifact_1.getFile()
-                                           .getAbsolutePath()
-                                           .replaceAll("jar", "pom") + ".md5"));
-        FileUtils.deleteIfExists(
-                new File(snapshotArtifact_1.getFile()
-                                           .getAbsolutePath()
-                                           .replaceAll("jar", "pom") + ".sha1"));
+        FileUtils.deleteIfExists(new File(snapshotArtifact_1.getFile()
+                                                            .getAbsolutePath() + ".md5"));
+        FileUtils.deleteIfExists(new File(snapshotArtifact_1.getFile()
+                                                            .getAbsolutePath() + ".sha1"));
+        FileUtils.deleteIfExists(new File(snapshotArtifact_1.getFile()
+                                                            .getAbsolutePath()
+                                                            .replaceAll("jar", "pom") + ".md5"));
+        FileUtils.deleteIfExists(new File(snapshotArtifact_1.getFile()
+                                                            .getAbsolutePath()
+                                                            .replaceAll("jar", "pom") + ".sha1"));
 
         FileUtils.deleteIfExists(new File(artifactPath, "/2.0-SNAPSHOT/maven-metadata.xml.md5"));
         FileUtils.deleteIfExists(new File(artifactPath, "/2.0-SNAPSHOT/maven-metadata.xml.sha1"));
@@ -258,20 +249,16 @@ public class RegenerateMavenChecksumCronJobTest
         getLayoutProvider(REPOSITORY_SNAPSHOTS).rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS,
                                                                 "org/carlspring/strongbox/strongbox-checksum-second");
 
-        FileUtils.deleteIfExists(
-                new File(snapshotArtifact_2.getFile()
-                                           .getAbsolutePath() + ".md5"));
-        FileUtils.deleteIfExists(
-                new File(snapshotArtifact_2.getFile()
-                                           .getAbsolutePath() + ".sha1"));
-        FileUtils.deleteIfExists(
-                new File(snapshotArtifact_2.getFile()
-                                           .getAbsolutePath()
-                                           .replaceAll("jar", "pom") + ".md5"));
-        FileUtils.deleteIfExists(
-                new File(snapshotArtifact_2.getFile()
-                                           .getAbsolutePath()
-                                           .replaceAll("jar", "pom") + ".sha1"));
+        FileUtils.deleteIfExists(new File(snapshotArtifact_2.getFile()
+                                                            .getAbsolutePath() + ".md5"));
+        FileUtils.deleteIfExists(new File(snapshotArtifact_2.getFile()
+                                                            .getAbsolutePath() + ".sha1"));
+        FileUtils.deleteIfExists(new File(snapshotArtifact_2.getFile()
+                                                            .getAbsolutePath()
+                                                            .replaceAll("jar", "pom") + ".md5"));
+        FileUtils.deleteIfExists(new File(snapshotArtifact_2.getFile()
+                                                            .getAbsolutePath()
+                                                            .replaceAll("jar", "pom") + ".sha1"));
 
         FileUtils.deleteIfExists(new File(artifactPath, "/2.0-SNAPSHOT/maven-metadata.xml.md5"));
         FileUtils.deleteIfExists(new File(artifactPath, "/2.0-SNAPSHOT/maven-metadata.xml.sha1"));

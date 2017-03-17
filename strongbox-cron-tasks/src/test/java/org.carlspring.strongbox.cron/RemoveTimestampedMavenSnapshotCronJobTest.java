@@ -9,22 +9,25 @@ import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
-import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.services.RepositoryManagementService;
-import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
 import java.io.File;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -36,8 +39,30 @@ import static org.junit.Assert.*;
 @CronTaskTest
 @RunWith(SpringJUnit4ClassRunner.class)
 public class RemoveTimestampedMavenSnapshotCronJobTest
-        extends TestCaseWithArtifactGeneration
+        extends TestCaseWithArtifactGenerationAndIndexing
 {
+
+    private static final String STORAGE1 = "storage1";
+
+    private static final String REPOSITORY_SNAPSHOTS_1 = "rtmscj-snapshots";
+
+    private static final String REPOSITORY_SNAPSHOTS_2 = "rtmscj-snapshots-test";
+
+    private static final File REPOSITORY_SNAPSHOTS_BASEDIR_1 = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                                        "/storages/" + STORAGE0 + "/" +
+                                                                        REPOSITORY_SNAPSHOTS_1);
+
+    private static final File REPOSITORY_SNAPSHOTS_BASEDIR_2 = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                                        "/storages/" + STORAGE0 + "/" +
+                                                                        REPOSITORY_SNAPSHOTS_2);
+
+    private static final File REPOSITORY_SNAPSHOTS_BASEDIR_3 = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                                        "/storages/" + STORAGE1 + "/" +
+                                                                        REPOSITORY_SNAPSHOTS_1);
+
+    private static final String ARTIFACT_BASE_PATH_STRONGBOX_TIMESTAMPED = "org/carlspring/strongbox/strongbox-timestamped-first";
+
+    private DateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
 
     @Inject
     private CronTaskConfigurationService cronTaskConfigurationService;
@@ -46,108 +71,91 @@ public class RemoveTimestampedMavenSnapshotCronJobTest
     private ArtifactMetadataService artifactMetadataService;
 
     @Inject
-    private ConfigurationManagementService configurationManagementService;
-
-    @Inject
-    private RepositoryManagementService repositoryManagementService;
-
-    @Inject
     private JobManager jobManager;
 
-    private static final File REPOSITORY_BASEDIR_1 = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                              "/storages/storage0/snapshots");
-
-    private static final File REPOSITORY_BASEDIR_2 = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                              "/storages/storage0/snapshots-test");
-
-    private static final File REPOSITORY_BASEDIR_3 = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                              "/storages/storage1/snapshots");
-
-    private static final String ARTIFACT_BASE_PATH_STRONGBOX_TIMESTAMPED = "org/carlspring/strongbox/strongbox-timestamped-first";
-
-    private DateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
-
-    private static boolean initialized;
-
-
-    @Before
-    public void setUp()
+    @BeforeClass
+    public static void cleanUp()
             throws Exception
     {
-        if (!initialized)
-        {
-            //noinspection ResultOfMethodCallIgnored
-            REPOSITORY_BASEDIR_1.mkdirs();
-            REPOSITORY_BASEDIR_2.mkdirs();
-            REPOSITORY_BASEDIR_3.mkdirs();
+        cleanUp(getRepositoriesToClean());
+    }
 
-            //Create snapshot artifact in repository snapshots
-            createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_1.getAbsolutePath(),
-                                              "org.carlspring.strongbox",
-                                              "strongbox-timestamped-first",
-                                              "2.0",
-                                              "jar",
-                                              null,
-                                              3);
+    @PostConstruct
+    public void initialize()
+            throws Exception
+    {
+        //Create repository rtmscj-snapshots in storage0
+        createRepository(STORAGE0, REPOSITORY_SNAPSHOTS_1, RepositoryPolicyEnum.SNAPSHOT.getPolicy(), false);
 
-            //Create snapshot artifact in repository snapshots
-            createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_1.getAbsolutePath(),
-                                              "org.carlspring.strongbox",
-                                              "strongbox-timestamped-second",
-                                              "2.0",
-                                              "jar",
-                                              null,
-                                              2);
+        createTimestampedSnapshotArtifact(REPOSITORY_SNAPSHOTS_BASEDIR_1.getAbsolutePath(),
+                                          "org.carlspring.strongbox",
+                                          "strongbox-timestamped-first",
+                                          "2.0",
+                                          "jar",
+                                          null,
+                                          3);
 
-            //Create repository snapshots-test in storage0
-            Storage storage = configurationManagementService.getStorage("storage0");
-            Repository repository = new Repository("snapshots-test");
-            repository.setPolicy(RepositoryPolicyEnum.SNAPSHOT.getPolicy());
-            repository.setStorage(storage);
-            repositoryManagementService.createRepository("storage0", "snapshots-test");
-            storage.saveRepository(repository);
+        createTimestampedSnapshotArtifact(REPOSITORY_SNAPSHOTS_BASEDIR_1.getAbsolutePath(),
+                                          "org.carlspring.strongbox",
+                                          "strongbox-timestamped-second",
+                                          "2.0",
+                                          "jar",
+                                          null,
+                                          2);
 
-            createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_2.getAbsolutePath(),
-                                              "org.carlspring.strongbox",
-                                              "strongbox-timestamped-first",
-                                              "2.0",
-                                              "jar",
-                                              null,
-                                              5);
+        //Create repository rtmscj-snapshots-test in storage0
+        createRepository(STORAGE0, REPOSITORY_SNAPSHOTS_2, RepositoryPolicyEnum.SNAPSHOT.getPolicy(), false);
 
-            //Create storage and repository for testing rebuild metadata in storages
-            Storage storage1 = new Storage("storage1");
-            Repository repository1 = new Repository("snapshots");
-            repository1.setPolicy(RepositoryPolicyEnum.SNAPSHOT.getPolicy());
-            repository1.setStorage(storage1);
-            configurationManagementService.saveStorage(storage1);
-            repositoryManagementService.createRepository("storage1", "snapshots");
-            storage1.saveRepository(repository1);
+        createTimestampedSnapshotArtifact(REPOSITORY_SNAPSHOTS_BASEDIR_2.getAbsolutePath(),
+                                          "org.carlspring.strongbox",
+                                          "strongbox-timestamped-first",
+                                          "2.0",
+                                          "jar",
+                                          null,
+                                          5);
 
-            createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_3.getAbsolutePath(),
-                                              "org.carlspring.strongbox",
-                                              "strongbox-timestamped-first",
-                                              "2.0",
-                                              "jar",
-                                              null,
-                                              1);
+        //Create storage and repository for testing removing timestamped snapshots in storages
+        createStorage(STORAGE1);
 
-            //Creating timestamped snapshot with another timestamp
-            Calendar cal = Calendar.getInstance();
-            cal.add(Calendar.DATE, -5);
-            String timestamp = formatter.format(cal.getTime());
+        createRepository(STORAGE1, REPOSITORY_SNAPSHOTS_1, RepositoryPolicyEnum.SNAPSHOT.getPolicy(), false);
 
-            createTimestampedSnapshot(REPOSITORY_BASEDIR_3.getAbsolutePath(),
-                                      "org.carlspring.strongbox",
-                                      "strongbox-timestamped-first",
-                                      "2.0",
-                                      "jar",
-                                      null,
-                                      2,
-                                      timestamp);
+        createTimestampedSnapshotArtifact(REPOSITORY_SNAPSHOTS_BASEDIR_3.getAbsolutePath(),
+                                          "org.carlspring.strongbox",
+                                          "strongbox-timestamped-first",
+                                          "2.0",
+                                          "jar",
+                                          null,
+                                          1);
 
-            initialized = true;
-        }
+        //Creating timestamped snapshot with another timestamp
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -5);
+        String timestamp = formatter.format(cal.getTime());
+
+        createTimestampedSnapshot(REPOSITORY_SNAPSHOTS_BASEDIR_3.getAbsolutePath(),
+                                  "org.carlspring.strongbox",
+                                  "strongbox-timestamped-first",
+                                  "2.0",
+                                  "jar",
+                                  null,
+                                  2,
+                                  timestamp);
+    }
+
+    @PreDestroy
+    public void removeRepositories()
+            throws IOException, JAXBException
+    {
+        removeRepositories(getRepositoriesToClean());
+    }
+
+    public static Set<Repository> getRepositoriesToClean()
+    {
+        Set<Repository> repositories = new LinkedHashSet<>();
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS_1));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS_2));
+        repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_SNAPSHOTS_1));
+        return repositories;
     }
 
     public void addRemoveCronJobConfig(String name,
@@ -193,14 +201,16 @@ public class RemoveTimestampedMavenSnapshotCronJobTest
     {
         String jobName = "RemoveSnapshot-1";
 
-        String artifactPath = REPOSITORY_BASEDIR_1 + "/org/carlspring/strongbox/strongbox-timestamped-first";
+        String artifactPath = REPOSITORY_SNAPSHOTS_BASEDIR_1 + "/org/carlspring/strongbox/strongbox-timestamped-first";
 
         File file = new File(artifactPath, "2.0-SNAPSHOT");
 
-        artifactMetadataService.rebuildMetadata("storage0", "snapshots", ARTIFACT_BASE_PATH_STRONGBOX_TIMESTAMPED);
+        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS_1,
+                                                ARTIFACT_BASE_PATH_STRONGBOX_TIMESTAMPED);
 
 
-        addRemoveCronJobConfig(jobName, "storage0", "snapshots", ARTIFACT_BASE_PATH_STRONGBOX_TIMESTAMPED, 1, 0);
+        addRemoveCronJobConfig(jobName, STORAGE0, REPOSITORY_SNAPSHOTS_1, ARTIFACT_BASE_PATH_STRONGBOX_TIMESTAMPED, 1,
+                               0);
 
         //Checking if job was executed
         while (!jobManager.getExecutedJobs()
@@ -225,14 +235,14 @@ public class RemoveTimestampedMavenSnapshotCronJobTest
     {
         String jobName = "RemoveSnapshot-2";
 
-        String artifactPath = REPOSITORY_BASEDIR_1 + "/org/carlspring/strongbox/strongbox-timestamped-second";
+        String artifactPath = REPOSITORY_SNAPSHOTS_BASEDIR_1 + "/org/carlspring/strongbox/strongbox-timestamped-second";
 
         File file = new File(artifactPath, "2.0-SNAPSHOT");
 
-        artifactMetadataService.rebuildMetadata("storage0", "snapshots",
+        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS_1,
                                                 "org/carlspring/strongbox/strongbox-timestamped-second");
 
-        addRemoveCronJobConfig(jobName, "storage0", "snapshots", null, 1, 0);
+        addRemoveCronJobConfig(jobName, STORAGE0, REPOSITORY_SNAPSHOTS_1, null, 1, 0);
 
         //Checking if job was executed
         while (!jobManager.getExecutedJobs()
@@ -257,14 +267,14 @@ public class RemoveTimestampedMavenSnapshotCronJobTest
     {
         String jobName = "RemoveSnapshot-3";
 
-        String artifactPath = REPOSITORY_BASEDIR_2 + "/org/carlspring/strongbox/strongbox-timestamped-first";
+        String artifactPath = REPOSITORY_SNAPSHOTS_BASEDIR_2 + "/org/carlspring/strongbox/strongbox-timestamped-first";
 
         File file = new File(artifactPath, "2.0-SNAPSHOT");
 
-        artifactMetadataService.rebuildMetadata("storage0", "snapshots-test",
+        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS_2,
                                                 "org/carlspring/strongbox/strongbox-timestamped-first");
 
-        addRemoveCronJobConfig(jobName, "storage0", null, null, 1, 0);
+        addRemoveCronJobConfig(jobName, STORAGE0, null, null, 1, 0);
 
         //Checking if job was executed
         while (!jobManager.getExecutedJobs()
@@ -286,11 +296,11 @@ public class RemoveTimestampedMavenSnapshotCronJobTest
     {
         String jobName = "RemoveSnapshot-4";
 
-        String artifactPath = REPOSITORY_BASEDIR_3 + "/org/carlspring/strongbox/strongbox-timestamped-first";
+        String artifactPath = REPOSITORY_SNAPSHOTS_BASEDIR_3 + "/org/carlspring/strongbox/strongbox-timestamped-first";
 
         File file = new File(artifactPath, "2.0-SNAPSHOT");
 
-        artifactMetadataService.rebuildMetadata("storage1", "snapshots",
+        artifactMetadataService.rebuildMetadata(STORAGE1, REPOSITORY_SNAPSHOTS_1,
                                                 "org/carlspring/strongbox/strongbox-timestamped-first");
 
         addRemoveCronJobConfig(jobName, null, null, null, 0, 3);
