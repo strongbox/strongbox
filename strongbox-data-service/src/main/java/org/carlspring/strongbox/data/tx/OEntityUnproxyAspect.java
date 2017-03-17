@@ -63,7 +63,7 @@ public class OEntityUnproxyAspect implements Ordered
         }
         else if (result instanceof Optional)
         {
-            result = Optional.ofNullable(unproxy(((Optional) result).get()));
+            result = Optional.ofNullable(unproxy(((Optional) result).orElse(null)));
         }
         return result;
     }

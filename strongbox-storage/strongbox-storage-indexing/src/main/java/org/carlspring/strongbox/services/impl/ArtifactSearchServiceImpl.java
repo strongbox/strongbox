@@ -18,6 +18,7 @@ import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.services.ConfigurationService;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
@@ -63,7 +64,7 @@ public class ArtifactSearchServiceImpl
 
         Pattern pattern = Pattern.compile(QUERY_PATTERN_DB);
         Matcher matcher = pattern.matcher(query);
-        //If query matches then we have a DataBase search request
+        // If query matches then we have a DataBase search request
         if (matcher.matches())
         {
             Map<String, String> coordinates = new HashMap<>();
@@ -86,7 +87,8 @@ public class ArtifactSearchServiceImpl
             }
             else
             {
-                searchResults.getResults().addAll(indexSearch(query, storageId, repositoryId));
+                Storage storage = getConfiguration().getStorage(storageId);
+                searchResults.getResults().addAll(indexSearch(query, storage, repositoryId));
             }
         }
         else
@@ -140,12 +142,13 @@ public class ArtifactSearchServiceImpl
     }
 
     private List<SearchResult> indexSearch(String query,
-                                           String storageId,
+                                           Storage storage,
                                            String repositoryId)
         throws ParseException,
         IOException
     {
-        String storageAndRepositoryId = storageId + ":" + repositoryId;
+        Repository repository = storage.getRepository(repositoryId);
+        String storageAndRepositoryId = getIndexId(storage, repository);
         List<SearchResult> result = new LinkedList<>();
         final Set<SearchResult> sr = repositoryIndexManager.getRepositoryIndexer(storageAndRepositoryId)
                                                            .search(query);
@@ -154,6 +157,13 @@ public class ArtifactSearchServiceImpl
             result.addAll(sr);
         }
         return result;
+    }
+
+    protected String getIndexId(Storage storage,
+                                Repository repository)
+    {
+        return storage.getId() + ":" + repository.getId() + ":"
+                + (repository.isProxyRepository() ? IndexTypeEnum.REMOTE.getType() : IndexTypeEnum.LOCAL.getType());
     }
 
     private List<SearchResult> indexSearch(String query,
@@ -167,7 +177,7 @@ public class ArtifactSearchServiceImpl
         {
             if (storage.containsRepository(repositoryId))
             {
-                final String storageAndRepositoryId = storage.getId() + ":" + repositoryId;
+                final String storageAndRepositoryId = getIndexId(storage, storage.getRepository(repositoryId));
                 final Set<SearchResult> sr = repositoryIndexManager.getRepositoryIndexer(storageAndRepositoryId)
                                                                    .search(query);
 

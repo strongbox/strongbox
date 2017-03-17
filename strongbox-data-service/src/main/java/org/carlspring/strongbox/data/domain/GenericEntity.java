@@ -4,6 +4,7 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.MappedSuperclass;
 import java.io.Serializable;
+import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.orientechnologies.orient.core.annotation.OVersion;
@@ -27,7 +28,7 @@ public abstract class GenericEntity
     // and then this object will be placed in some cluster in async way
     // and it will have different objectId
     @Id
-    @JsonIgnore
+    //@JsonIgnore
     protected String objectId;
 
     /**
