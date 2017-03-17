@@ -81,10 +81,8 @@ public class UserServiceImpl extends CommonCrudService<User>
     @Cacheable(value = USERS_CACHE, key = "#newUser.username", sync = true)
     public <S extends User> S save(S newUser)
     {
-//        String entityId = newUser.getObjectId();
-//        newUser = (S) findOne(entityId).orElse(newUser);
         S user = super.save(newUser);
-        // usersCache.put(user.getUsername(), user);
+        usersCache.put(user.getUsername(), getDelegate().detachAll(user, true));
         return user;
     }
 

@@ -28,6 +28,7 @@ public abstract class GenericEntity
     // and then this object will be placed in some cluster in async way
     // and it will have different objectId
     @Id
+    //TODO: https://youtrack.carlspring.org/issue/SB-762
     //@JsonIgnore
     protected String objectId;
 

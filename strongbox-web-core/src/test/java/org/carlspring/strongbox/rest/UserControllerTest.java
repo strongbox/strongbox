@@ -19,6 +19,7 @@ import org.carlspring.strongbox.users.service.UserService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.jayway.restassured.http.ContentType;
@@ -171,6 +172,7 @@ public class UserControllerTest
     }
 
     @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     // com.orientechnologies.orient.core.storage.ORecordDuplicatedException
     public void testGenerateSecurityToken()
             throws Exception

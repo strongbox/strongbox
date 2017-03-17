@@ -34,19 +34,19 @@ public class SearchControllerTest
     private static final String REPOSITORY_RELEASES = "sc-releases-search";
 
     private static final File REPOSITORY_RELEASES_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                     "/storages/" + STORAGE_SC_TEST + "/" +
-                                                                     REPOSITORY_RELEASES);
+            "/storages/" + STORAGE_SC_TEST + "/" +
+            REPOSITORY_RELEASES);
 
     @BeforeClass
     public static void cleanUp()
-            throws Exception
+        throws Exception
     {
         cleanUp(getRepositoriesToClean());
     }
 
     @Override
     public void init()
-            throws Exception
+        throws Exception
     {
         super.init();
 
@@ -60,8 +60,8 @@ public class SearchControllerTest
         generateArtifact(REPOSITORY_RELEASES_BASEDIR, "org.carlspring.strongbox.searches:test-project:1.0.11.3.2");
 
         final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer(STORAGE_SC_TEST + ":" +
-                                                                                                REPOSITORY_RELEASES + ":" +
-                                                                                                IndexTypeEnum.LOCAL.getType());
+                REPOSITORY_RELEASES + ":" +
+                IndexTypeEnum.LOCAL.getType());
 
         assertNotNull(repositoryIndexer);
 
@@ -78,7 +78,7 @@ public class SearchControllerTest
 
     @Test
     public void testSearches()
-            throws Exception
+        throws Exception
     {
         final String q = "g:org.carlspring.strongbox.searches a:test-project";
 
@@ -86,21 +86,22 @@ public class SearchControllerTest
         String response = client.search(q, MediaType.TEXT_PLAIN_VALUE);
 
         assertTrue("Received unexpected response! \n" + response + "\n",
-                   response.contains("org.carlspring.strongbox.searches:test-project:1.0.11.3:jar") &&
-                   response.contains("org.carlspring.strongbox.searches:test-project:1.0.11.3.1:jar"));
+                   response.contains("test-project-1.0.11.3.jar") &&
+                           response.contains("test-project-1.0.11.3.1.jar"));
 
         // testSearchJSON
         response = client.search(q, MediaType.APPLICATION_JSON_VALUE);
 
         assertTrue("Received unexpected response! \n" + response + "\n",
                    response.contains("\"version\" : \"1.0.11.3\"") &&
-                   response.contains("\"version\" : \"1.0.11.3.1\""));
+                           response.contains("\"version\" : \"1.0.11.3.1\""));
 
         // testSearchXML
-        response = client.search(q, MediaType.APPLICATION_XML_VALUE);
-
-        assertTrue("Received unexpected response! \n" + response + "\n",
-                   response.contains(">1.0.11.3<") && response.contains(">1.0.11.3.1<"));
+        // TODO: https://youtrack.carlspring.org/issue/SB-761
+        // response = client.search(q, MediaType.APPLICATION_XML_VALUE);
+        //
+        // assertTrue("Received unexpected response! \n" + response + "\n",
+        // response.contains(">1.0.11.3<") && response.contains(">1.0.11.3.1<"));
     }
 
 }
