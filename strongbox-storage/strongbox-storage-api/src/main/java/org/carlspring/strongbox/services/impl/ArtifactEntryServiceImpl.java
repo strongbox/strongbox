@@ -5,22 +5,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.data.service.CommonCrudService;
 import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.repository.ArtifactRepository;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 /**
  * DAO implementation for {@link ArtifactEntry} entities.
@@ -36,9 +33,6 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry> implemen
 
     // will help us avoid to have hardcoded name of this class
     private static final String ARTIFACT_ENTRY_CLASS_NAME = ArtifactEntry.class.getSimpleName();
-
-    @Inject
-    ArtifactRepository artifactRepository;
 
     @Override
     public Class<ArtifactEntry> getEntityClass()
@@ -119,101 +113,4 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry> implemen
                 : artifactEntryList.iterator().next());
     }
 
-    @Override
-    public <S extends ArtifactEntry> Iterable<S> save(Iterable<S> var1)
-    {
-        return artifactRepository.save(var1);
-    }
-
-    @Override
-    @Transactional
-    public Optional<ArtifactEntry> findOne(String var1)
-    {
-        if (var1 == null)
-        {
-            return Optional.empty();
-        }
-
-        return Optional.ofNullable(artifactRepository.findOne(var1));
-    }
-
-    @Override
-    public Optional<ArtifactEntry> findOne(ArtifactCoordinates artifactCoordinates)
-    {
-        List<ArtifactEntry> artifactEntryList = findByCoordinates(artifactCoordinates);
-        return Optional.ofNullable(artifactEntryList == null || artifactEntryList.isEmpty() ? null
-                : artifactEntryList.iterator().next());
-    }
-
-    @Override
-    @Transactional
-    public boolean exists(String var1)
-    {
-        return artifactRepository.exists(var1);
-    }
-
-    @Override
-    @Transactional
-    public Optional<List<ArtifactEntry>> findAll()
-    {
-        try
-        {
-            return Optional.ofNullable(artifactRepository.findAll());
-        }
-        catch (Exception e)
-        {
-            logger.warn("Internal spring-data-orientdb exception.", e);
-            return Optional.empty();
-        }
-    }
-
-    @Override
-    @Transactional
-    public Optional<List<ArtifactEntry>> findAll(List<String> var1)
-    {
-        try
-        {
-            return Optional.ofNullable(artifactRepository.findAll(var1));
-        }
-        catch (Exception e)
-        {
-            logger.warn("Internal spring-data-orientdb exception.", e);
-            return Optional.empty();
-        }
-    }
-
-    @Override
-    @Transactional
-    public long count()
-    {
-        return artifactRepository.count();
-    }
-
-    @Override
-    @Transactional
-    public void delete(String var1)
-    {
-        artifactRepository.delete(var1);
-    }
-
-    @Override
-    @Transactional
-    public void delete(ArtifactEntry var1)
-    {
-        artifactRepository.delete(var1);
-    }
-
-    @Override
-    @Transactional
-    public void delete(Iterable<? extends ArtifactEntry> var1)
-    {
-        artifactRepository.delete(var1);
-    }
-
-    @Override
-    @Transactional
-    public void deleteAll()
-    {
-        artifactRepository.deleteAll();
-    }
 }

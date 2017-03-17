@@ -63,7 +63,7 @@ public class AuthorizationConfigProvider
     @Inject
     private OEntityManager oEntityManager;
     private AuthorizationConfig config;
-    @Autowired
+    @Inject
     private TransactionTemplate transactionTemplate;
 
     private static void throwIfNotEmpty(Sets.SetView<String> intersectionView,

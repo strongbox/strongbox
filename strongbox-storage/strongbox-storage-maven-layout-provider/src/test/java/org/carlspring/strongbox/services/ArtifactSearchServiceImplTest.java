@@ -5,7 +5,6 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
 
 import javax.annotation.PreDestroy;
-import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.LinkedHashSet;
@@ -13,8 +12,10 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertTrue;
 
@@ -28,10 +29,10 @@ public class ArtifactSearchServiceImplTest
 
     public static final String REPOSITORYID = "artifact-search-service-test-releases";
 
-    @Inject
+    @Autowired
     private ArtifactSearchService artifactSearchService;
 
-    @Inject
+    @Autowired
     private RepositoryManagementService repositoryManagementService;
 
 
@@ -69,6 +70,7 @@ public class ArtifactSearchServiceImplTest
     }
 
     @Test
+    @Ignore
     public void testContains() throws Exception
     {
         final int x = repositoryManagementService.reIndex(STORAGE0,

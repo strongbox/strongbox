@@ -1,5 +1,10 @@
 package org.carlspring.strongbox.services.impl;
 
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
@@ -16,11 +21,6 @@ import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-
 import org.springframework.stereotype.Component;
 
 /**
@@ -40,7 +40,7 @@ public class ArtifactResolutionServiceImpl
     @Inject
     private RepositoryProviderRegistry repositoryProviderRegistry;
 
-    @Autowired
+    @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
     @Override

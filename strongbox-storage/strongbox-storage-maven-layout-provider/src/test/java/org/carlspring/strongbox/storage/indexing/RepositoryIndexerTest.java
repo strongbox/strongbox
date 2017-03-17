@@ -1,35 +1,37 @@
 package org.carlspring.strongbox.storage.indexing;
 
-import org.carlspring.strongbox.services.RepositoryManagementService;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import javax.annotation.PreDestroy;
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import javax.annotation.PreDestroy;
+import javax.xml.bind.JAXBException;
+
 import org.apache.maven.index.ArtifactInfo;
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.services.RepositoryManagementService;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 public class RepositoryIndexerTest
         extends TestCaseWithArtifactGenerationAndIndexing
 {
 
-    private static final String REPOSITORY_RELEASES = "ri-releases";
+    public static final String REPOSITORY_RELEASES = "ri-releases";
 
-    @Inject
+    @Autowired
     private RepositoryManagementService repositoryManagementService;
 
 
@@ -69,10 +71,7 @@ public class RepositoryIndexerTest
     @Test
     public void testIndex() throws Exception
     {
-        RepositoryIndexer repositoryIndexer = getRepositoryIndexManager().getRepositoryIndexer(STORAGE0 + ":" +
-                                                                                               REPOSITORY_RELEASES + ":" +
-                                                                                               IndexTypeEnum.LOCAL
-                                                                                                            .getType());
+        RepositoryIndexer repositoryIndexer = getRepositoryIndexManager().getRepositoryIndexer(STORAGE0 + ":" + REPOSITORY_RELEASES + ":local");
 
         int x = repositoryManagementService.reIndex(STORAGE0,
                                                     REPOSITORY_RELEASES,
@@ -118,11 +117,11 @@ public class RepositoryIndexerTest
         for (SearchResult result : results)
         {
             artifactInfos.add(new ArtifactInfo(result.getRepositoryId(),
-                                               result.getGroupId(),
-                                               result.getArtifactId(),
-                                               result.getVersion(),
-                                               result.getClassifier(),
-                                               result.getExtension()));
+                    ((MavenArtifactCoordinates) result.getArtifactCoordinates()).getGroupId(),
+                    ((MavenArtifactCoordinates) result.getArtifactCoordinates()).getArtifactId(),
+                    ((MavenArtifactCoordinates) result.getArtifactCoordinates()).getVersion(),
+                    ((MavenArtifactCoordinates) result.getArtifactCoordinates()).getClassifier(),
+                    ((MavenArtifactCoordinates) result.getArtifactCoordinates()).getExtension()));
         }
 
         return artifactInfos;

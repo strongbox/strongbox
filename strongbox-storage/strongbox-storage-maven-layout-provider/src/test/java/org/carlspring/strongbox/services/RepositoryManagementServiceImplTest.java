@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.services;
 
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
@@ -15,6 +14,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -31,13 +31,13 @@ public class RepositoryManagementServiceImplTest
 
     private static final String STORAGES_BASEDIR = ConfigurationResourceResolver.getVaultDirectory() + "/storages";
 
-    private static final String REPOSITORY_RELEASES_1 = "rmsi-releases-1";
+    public static final String REPOSITORY_RELEASES_1 = "rmsi-releases-1";
 
-    private static final String REPOSITORY_RELEASES_2 = "rmsi-releases-2";
+    public static final String REPOSITORY_RELEASES_2 = "rmsi-releases-2";
 
-    private static final String REPOSITORY_RELEASES_MERGE_1 = "rmsi-releases-merge-1";
+    public static final String REPOSITORY_RELEASES_MERGE_1 = "rmsi-releases-merge-1";
 
-    private static final String REPOSITORY_RELEASES_MERGE_2 = "rmsi-releases-merge-2";
+    public static final String REPOSITORY_RELEASES_MERGE_2 = "rmsi-releases-merge-2";
 
 
     @BeforeClass
@@ -104,7 +104,7 @@ public class RepositoryManagementServiceImplTest
 
         assertTrue("Failed to create the repository \"" + repositoryDir.getAbsolutePath() + "\"!", repositoryDir.exists());
 
-        getRepositoryIndexManager().closeIndexer(STORAGE0 + ":" + REPOSITORY_RELEASES_2 + ":" + IndexTypeEnum.LOCAL.getType());
+        getRepositoryIndexManager().closeIndexer(STORAGE0 + ":" + REPOSITORY_RELEASES_2 + ":local");
 
         getRepositoryManagementService().removeRepository(STORAGE0, REPOSITORY_RELEASES_2);
 
@@ -112,6 +112,7 @@ public class RepositoryManagementServiceImplTest
     }
 
     @Test
+    @Ignore
     public void testMerge()
             throws Exception
     {

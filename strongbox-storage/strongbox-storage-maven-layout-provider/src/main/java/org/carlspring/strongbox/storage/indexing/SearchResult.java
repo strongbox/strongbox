@@ -4,7 +4,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
+
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 
 /**
  * @author mtodorov
@@ -14,29 +15,13 @@ import javax.xml.bind.annotation.XmlTransient;
 public class SearchResult
 {
 
-    @XmlElement
-    private String groupId;
-
-    @XmlElement
-    private String artifactId;
-
-    @XmlElement
-    private String version;
-
-    @XmlElement
-    private String classifier;
-
-    @XmlTransient
-    private String extension;
+    private ArtifactCoordinates artifactCoordinates;
 
     @XmlElement
     private String storageId;
 
     @XmlElement
     private String repositoryId;
-
-    @XmlElement
-    private String path;
 
     @XmlElement
     private String url;
@@ -48,22 +33,12 @@ public class SearchResult
 
     public SearchResult(String storageId,
                         String repositoryId,
-                        String groupId,
-                        String artifactId,
-                        String version,
-                        String classifier,
-                        String extension,
-                        String path,
+                        ArtifactCoordinates artifactCoordinates,
                         String url)
     {
         this.storageId = storageId;
         this.repositoryId = repositoryId;
-        this.groupId = groupId;
-        this.artifactId = artifactId;
-        this.version = version;
-        this.classifier = classifier;
-        this.extension = extension;
-        this.path = path;
+        this.artifactCoordinates = artifactCoordinates;
         this.url = url;
     }
 
@@ -87,64 +62,19 @@ public class SearchResult
         this.repositoryId = repositoryId;
     }
 
-    public String getGroupId()
+    public ArtifactCoordinates getArtifactCoordinates()
     {
-        return groupId;
+        return artifactCoordinates;
     }
 
-    public void setGroupId(String groupId)
+    public void setArtifactCoordinates(ArtifactCoordinates artifactCoordinates)
     {
-        this.groupId = groupId;
-    }
-
-    public String getArtifactId()
-    {
-        return artifactId;
-    }
-
-    public void setArtifactId(String artifactId)
-    {
-        this.artifactId = artifactId;
-    }
-
-    public String getVersion()
-    {
-        return version;
-    }
-
-    public void setVersion(String version)
-    {
-        this.version = version;
-    }
-
-    public String getClassifier()
-    {
-        return classifier;
-    }
-
-    public void setClassifier(String classifier)
-    {
-        this.classifier = classifier;
-    }
-
-    public String getExtension()
-    {
-        return extension;
-    }
-
-    public void setExtension(String extension)
-    {
-        this.extension = extension;
+        this.artifactCoordinates = artifactCoordinates;
     }
 
     public String getPath()
     {
-        return path;
-    }
-
-    public void setPath(String path)
-    {
-        this.path = path;
+        return getArtifactCoordinates().toPath();
     }
 
     public String getUrl()
@@ -160,7 +90,7 @@ public class SearchResult
     @Override
     public String toString()
     {
-        return groupId + ':' + artifactId + ':' + version + ':' + extension + ':' + classifier;
+        return getPath();
     }
 
 }
