@@ -19,10 +19,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.data.orient.object.OrientObjectDatabaseFactory;
-import org.springframework.data.orient.object.OrientObjectTemplate;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -66,18 +63,6 @@ public class DataServiceConfig
     private static EmbeddedOrientDbServer embeddableServer;
 
     @Bean
-    @Lazy
-    public OrientObjectDatabaseFactory factory()
-    {
-        OrientObjectDatabaseFactory factory = new OrientObjectDatabaseFactory();
-        factory.setUrl(getConnectionUrl());
-        factory.setUsername(username);
-        factory.setPassword(password);
-
-        return factory;
-    }
-
-    @Bean
     public PlatformTransactionManager transactionManager(EntityManagerFactory emf)
     {
         return new JpaTransactionManager(emf);
@@ -94,12 +79,6 @@ public class DataServiceConfig
         LocalContainerEntityManagerFactoryBean result = new LocalContainerEntityManagerFactoryBean();
         result.setJpaPropertyMap(jpaProperties);
         return result;
-    }
-
-    @Bean
-    public OrientObjectTemplate objectTemplate()
-    {
-        return new OrientObjectTemplate(factory());
     }
 
     // @Bean(destroyMethod = "") // prevents to call close() on non-activated member of connection pool

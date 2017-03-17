@@ -20,8 +20,6 @@ public interface CrudService<T, ID extends Serializable>
 
     Optional<List<T>> findAll();
 
-    Optional<List<T>> findAll(List<ID> idList);
-
     long count();
 
     void delete(ID id);

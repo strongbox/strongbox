@@ -6,6 +6,8 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.utils.ArtifactControllerHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.servlet.ServletInputStream;
@@ -30,8 +32,6 @@ import org.apache.commons.fileupload.FileUploadBase.FileUploadIOException;
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.fileupload.MultipartStream.MalformedStreamException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -60,7 +60,7 @@ import ru.aristar.jnuget.files.TempNupkgFile;
 public class NugetPackageController extends BaseArtifactController
 {
 
-    private static final Logger logger = LogManager.getLogger(NugetPackageController.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(NugetPackageController.class.getName());
 
     public final static String ROOT_CONTEXT = "/storages";
 

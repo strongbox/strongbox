@@ -12,6 +12,8 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RuleSet;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -23,8 +25,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -47,7 +47,7 @@ public class ConfigurationManagementController
         extends BaseController
 {
 
-    private static final Logger logger = LogManager.getLogger(ConfigurationManagementController.class);
+    private static final Logger logger = LoggerFactory.getLogger(ConfigurationManagementController.class);
 
     @Inject
     private ConfigurationManagementService configurationManagementService;

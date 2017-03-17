@@ -8,14 +8,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.carlspring.strongbox.data.domain.GenericEntity;
-import org.jooq.Query;
-import org.jooq.SQLDialect;
-import org.jooq.conf.ParamType;
-import org.jooq.impl.DSL;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 @Transactional
@@ -56,24 +51,6 @@ public abstract class CommonCrudService<T extends GenericEntity> implements Crud
             resultList.add(t);
         }
         return Optional.of(resultList);
-    }
-
-    @Override
-    public Optional<List<T>> findAll(List<String> idList)
-    {
-        List<ORecordId> oRecordIds = new ArrayList<>();
-        for (String id : idList)
-        {
-            ORecordId oRecordId = new ORecordId();
-            oRecordId.fromString(id);
-            oRecordIds.add(oRecordId);
-        }
-        Query query = DSL.using(SQLDialect.MYSQL)
-                         .select()
-                         .from(getEntityClass().getSimpleName())
-                         .orderBy(DSL.field("objectId"));
-        OSQLSynchQuery<Object> oQuery = new OSQLSynchQuery<>(query.getSQL(ParamType.INLINED));
-        return Optional.ofNullable(getDelegate().query(oQuery, oRecordIds));
     }
 
     @Override

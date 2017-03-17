@@ -501,6 +501,17 @@
             </dependency>
 
             <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjrt</artifactId>
+                <version>1.8.10</version>
+            </dependency>
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjweaver</artifactId>
+                <version>1.8.10</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-aop</artifactId>
                 <version>${version.spring}</version>
@@ -566,27 +577,6 @@
                 <version>${version.spring}</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.springframework.data</groupId>
-                <artifactId>spring-data-orientdb-document</artifactId>
-                <version>${version.spring.data}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.data</groupId>
-                <artifactId>spring-data-orientdb-object</artifactId>
-                <version>${version.spring.data}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.data</groupId>
-                <artifactId>spring-data-orientdb-graph</artifactId>
-                <version>${version.spring.data}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.codehaus.groovy</groupId>
-                        <artifactId>groovy</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
 	        <dependency>
 	            <groupId>ru.aristar.nuget</groupId>
 	            <artifactId>jnuget-core</artifactId>

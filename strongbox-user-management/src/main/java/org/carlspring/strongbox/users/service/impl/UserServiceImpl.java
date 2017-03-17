@@ -78,7 +78,6 @@ public class UserServiceImpl extends CommonCrudService<User>
     }
 
     @Override
-    @Cacheable(value = USERS_CACHE, key = "#newUser.username", sync = true)
     public <S extends User> S save(S newUser)
     {
         S user = super.save(newUser);

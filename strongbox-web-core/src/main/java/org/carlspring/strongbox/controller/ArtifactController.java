@@ -32,10 +32,10 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.comparator.DirectoryFileComparator;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -67,7 +67,7 @@ public class ArtifactController
         extends BaseArtifactController
 {
 
-    private static final Logger logger = LogManager.getLogger(ArtifactController.class);
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactController.class);
 
     // must be the same as @RequestMapping value on the class definition
     public final static String ROOT_CONTEXT = "/storages";
@@ -200,8 +200,7 @@ public class ArtifactController
         }
         catch (ArtifactResolutionException | ArtifactTransportException e)
         {
-            logger.info("Unable to find artifact by path " + path);
-            logger.trace(e);
+            logger.info("Unable to find artifact by path " + path, e);
             response.setStatus(NOT_FOUND.value());
             return;
         }
