@@ -81,13 +81,6 @@ public class DataServiceConfig
         return result;
     }
 
-    // @Bean(destroyMethod = "") // prevents to call close() on non-activated member of connection pool
-    // @Lazy
-    // public OObjectDatabaseTx objectDatabaseTx()
-    // {
-    // return factory().db();
-    // }
-
     @Bean
     public TransactionTemplate transactionTemplate(PlatformTransactionManager transactionManager)
     {

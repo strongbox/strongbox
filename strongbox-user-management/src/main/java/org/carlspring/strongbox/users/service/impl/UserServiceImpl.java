@@ -73,7 +73,7 @@ public class UserServiceImpl extends CommonCrudService<User>
         params.put("userName", name);
 
         List<User> resultList = getDelegate().command(oQuery).execute(params);
-        return resultList.size() > 0 ? resultList.iterator().next() : null;
+        return !resultList.isEmpty() ? resultList.iterator().next() : null;
     }
 
     @Override

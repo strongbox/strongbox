@@ -60,8 +60,7 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry> implemen
         OSQLSynchQuery<ArtifactEntry> query = new OSQLSynchQuery<>(nativeQuery);
         logger.info("[findByCoordinates] SQL -> \n\t" + nativeQuery);
 
-        List<ArtifactEntry> resultList = getDelegate().query(query);
-        return resultList;
+        return getDelegate().query(query);
     }
 
     @Override
