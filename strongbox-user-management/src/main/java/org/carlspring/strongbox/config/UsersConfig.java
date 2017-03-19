@@ -40,7 +40,7 @@ import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
  */
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.users" })
-@EnableTransactionManagement(proxyTargetClass = true, order = 100)
+@EnableTransactionManagement(proxyTargetClass = true, order = DataServiceConfig.TRANSACTIONAL_INTERCEPTOR_ORDER)
 @Import({ DataServiceConfig.class,
           CommonConfig.class })
 public class UsersConfig

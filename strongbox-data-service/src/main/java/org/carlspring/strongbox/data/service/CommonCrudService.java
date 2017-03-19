@@ -85,6 +85,12 @@ public abstract class CommonCrudService<T extends GenericEntity> implements Crud
         }
     }
 
+    /**
+     * We can get an internal OrientDB transaction API with this, which can be needed to execute some OrientDB queries,
+     * for example.
+     * 
+     * @return
+     */
     protected OObjectDatabaseTx getDelegate()
     {
         return (OObjectDatabaseTx) entityManager.getDelegate();

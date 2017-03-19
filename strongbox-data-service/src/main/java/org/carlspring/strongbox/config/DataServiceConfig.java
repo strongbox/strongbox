@@ -7,6 +7,7 @@ import javax.annotation.PostConstruct;
 import javax.persistence.EntityManagerFactory;
 
 import org.carlspring.strongbox.data.server.EmbeddedOrientDbServer;
+import org.carlspring.strongbox.data.tx.OEntityUnproxyAspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,13 +36,18 @@ import com.orientechnologies.orient.core.entity.OEntityManager;
  * @author Alex Oreshkevich
  */
 @Configuration
-@EnableTransactionManagement(proxyTargetClass = true, order = 100)
+@EnableTransactionManagement(proxyTargetClass = true, order = DataServiceConfig.TRANSACTIONAL_INTERCEPTOR_ORDER)
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @ComponentScan({ "org.carlspring.strongbox.data" })
 @Import(DataServicePropertiesConfig.class)
 @EnableCaching(order = 105)
 public class DataServiceConfig
 {
+
+    /**
+     * This must be after {@link OEntityUnproxyAspect} order.
+     */
+    public static final int TRANSACTIONAL_INTERCEPTOR_ORDER = 100;
 
     private static final Logger logger = LoggerFactory.getLogger("DataServiceConfig");
 
