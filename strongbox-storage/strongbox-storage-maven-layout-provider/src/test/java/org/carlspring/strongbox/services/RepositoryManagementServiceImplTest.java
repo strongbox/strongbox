@@ -1,25 +1,26 @@
 package org.carlspring.strongbox.services;
 
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
-import org.carlspring.strongbox.storage.indexing.SearchRequest;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.xml.bind.JAXBException;
+
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
+import org.carlspring.strongbox.storage.indexing.SearchRequest;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author mtodorov
@@ -31,13 +32,13 @@ public class RepositoryManagementServiceImplTest
 
     private static final String STORAGES_BASEDIR = ConfigurationResourceResolver.getVaultDirectory() + "/storages";
 
-    private static final String REPOSITORY_RELEASES_1 = "rmsi-releases-1";
+    public static final String REPOSITORY_RELEASES_1 = "rmsi-releases-1";
 
-    private static final String REPOSITORY_RELEASES_2 = "rmsi-releases-2";
+    public static final String REPOSITORY_RELEASES_2 = "rmsi-releases-2";
 
-    private static final String REPOSITORY_RELEASES_MERGE_1 = "rmsi-releases-merge-1";
+    public static final String REPOSITORY_RELEASES_MERGE_1 = "rmsi-releases-merge-1";
 
-    private static final String REPOSITORY_RELEASES_MERGE_2 = "rmsi-releases-merge-2";
+    public static final String REPOSITORY_RELEASES_MERGE_2 = "rmsi-releases-merge-2";
 
 
     @BeforeClass

@@ -1,12 +1,13 @@
 package org.carlspring.strongbox.config;
 
-import org.carlspring.strongbox.data.server.EmbeddedOrientDbServer;
-import org.carlspring.strongbox.data.tx.CustomOrientTransactionManager;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.persistence.EntityManagerFactory;
 
-import com.orientechnologies.orient.client.remote.OServerAdmin;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import org.carlspring.strongbox.data.server.EmbeddedOrientDbServer;
+import org.carlspring.strongbox.data.tx.OEntityUnproxyAspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,13 +18,17 @@ import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.data.orient.commons.core.OrientTransactionManager;
-import org.springframework.data.orient.object.OrientObjectDatabaseFactory;
-import org.springframework.data.orient.object.OrientObjectTemplate;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import com.orientechnologies.orient.client.remote.OServerAdmin;
+import com.orientechnologies.orient.core.entity.OEntityManager;
 
 /**
  * Spring configuration for data service project.
@@ -31,12 +36,18 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  * @author Alex Oreshkevich
  */
 @Configuration
-@EnableTransactionManagement
+@EnableTransactionManagement(proxyTargetClass = true, order = DataServiceConfig.TRANSACTIONAL_INTERCEPTOR_ORDER)
+@EnableAspectJAutoProxy(proxyTargetClass = true)
 @ComponentScan({ "org.carlspring.strongbox.data" })
 @Import(DataServicePropertiesConfig.class)
-@EnableCaching
+@EnableCaching(order = 105)
 public class DataServiceConfig
 {
+
+    /**
+     * This must be after {@link OEntityUnproxyAspect} order.
+     */
+    public static final int TRANSACTIONAL_INTERCEPTOR_ORDER = 100;
 
     private static final Logger logger = LoggerFactory.getLogger("DataServiceConfig");
 
@@ -58,43 +69,44 @@ public class DataServiceConfig
     private static EmbeddedOrientDbServer embeddableServer;
 
     @Bean
-    @Lazy
-    public OrientObjectDatabaseFactory factory()
+    public PlatformTransactionManager transactionManager(EntityManagerFactory emf)
     {
-        OrientObjectDatabaseFactory factory = new OrientObjectDatabaseFactory();
-        factory.setUrl(getConnectionUrl());
-        factory.setUsername(username);
-        factory.setPassword(password);
-
-        return factory;
+        return new JpaTransactionManager(emf);
     }
 
     @Bean
-    @Lazy
-    public OrientTransactionManager transactionManager()
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory()
     {
-        return new CustomOrientTransactionManager(factory());
+        Map<String, String> jpaProperties = new HashMap<>();
+        jpaProperties.put("javax.persistence.jdbc.url", getConnectionUrl());
+        jpaProperties.put("javax.persistence.jdbc.user", username);
+        jpaProperties.put("javax.persistence.jdbc.password", password);
+
+        LocalContainerEntityManagerFactoryBean result = new LocalContainerEntityManagerFactoryBean();
+        result.setJpaPropertyMap(jpaProperties);
+        return result;
     }
 
     @Bean
-    @Lazy
-    public OrientObjectTemplate objectTemplate()
+    public TransactionTemplate transactionTemplate(PlatformTransactionManager transactionManager)
     {
-        return new OrientObjectTemplate(factory());
-    }
-
-    @Bean(destroyMethod = "")   // prevents to call close() on non-activated member of connection pool
-    @Lazy
-    public OObjectDatabaseTx objectDatabaseTx()
-    {
-        return factory().db();
+        TransactionTemplate result = new TransactionTemplate();
+        result.setTransactionManager(transactionManager);
+        return result;
     }
 
     @Bean
-    @Lazy
+    public OEntityManager oEntityManager()
+    {
+        return OEntityManager.getEntityManagerByDatabaseURL(getConnectionUrl());
+    }
+
+    @Bean
     public CacheManager cacheManager()
     {
-        return new EhCacheCacheManager(ehCacheCacheManager().getObject());
+        EhCacheCacheManager result = new EhCacheCacheManager(ehCacheCacheManager().getObject());
+        result.setTransactionAware(true);
+        return result;
     }
 
     @Bean
@@ -108,7 +120,7 @@ public class DataServiceConfig
 
     @PostConstruct
     public void registerEntities()
-            throws Exception
+        throws Exception
     {
         if (embeddableServer == null)
         {
@@ -123,7 +135,7 @@ public class DataServiceConfig
         if (!serverAdmin.existsDatabase())
         {
             logger.debug("Create database " + database);
-            serverAdmin.createDatabase(database, "document", "plocal")/*.close()*/;
+            serverAdmin.createDatabase(database, "document", "plocal")/* .close() */;
         }
         else
         {

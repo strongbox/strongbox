@@ -1,14 +1,14 @@
 package org.carlspring.strongbox.users.domain;
 
-import org.carlspring.strongbox.data.domain.GenericEntity;
-
 import java.util.HashSet;
 import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
+import org.carlspring.strongbox.data.domain.GenericEntity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
-import org.apache.commons.lang.StringUtils;
 
 /**
  * An application user
@@ -129,14 +129,13 @@ public class User
                Objects.equal(username, user.username) &&
                Objects.equal(password, user.password) &&
                Objects.equal(salt, user.salt) &&
-               Objects.equal(roles, user.roles) &&
-               Objects.equal(detachAll, user.detachAll);
+               Objects.equal(roles, user.roles);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hashCode(objectId, username, password, enabled, salt, roles, detachAll);
+        return Objects.hashCode(objectId, username, password, enabled, salt, roles);
     }
 
     @Override

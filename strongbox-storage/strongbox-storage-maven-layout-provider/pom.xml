@@ -13,7 +13,6 @@
     </parent>
 
     <artifactId>strongbox-storage-maven-layout-provider</artifactId>
-    <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Strongbox: Storage [Maven Layout Provider]</name>
@@ -243,6 +242,10 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+        </dependency>        
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>

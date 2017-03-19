@@ -1,33 +1,35 @@
 package org.carlspring.strongbox.storage.indexing;
 
-import org.carlspring.strongbox.services.RepositoryManagementService;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import javax.annotation.PreDestroy;
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+
 import org.apache.maven.index.ArtifactInfo;
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.services.RepositoryManagementService;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 public class RepositoryIndexerTest
         extends TestCaseWithArtifactGenerationAndIndexing
 {
 
-    private static final String REPOSITORY_RELEASES = "ri-releases";
+    public static final String REPOSITORY_RELEASES = "ri-releases";
 
     @Inject
     private RepositoryManagementService repositoryManagementService;
@@ -117,12 +119,13 @@ public class RepositoryIndexerTest
         Collection<ArtifactInfo> artifactInfos = new LinkedHashSet<>();
         for (SearchResult result : results)
         {
+            MavenArtifactCoordinates mavenArtifactCoordinates = (MavenArtifactCoordinates) result.getArtifactCoordinates();
             artifactInfos.add(new ArtifactInfo(result.getRepositoryId(),
-                                               result.getGroupId(),
-                                               result.getArtifactId(),
-                                               result.getVersion(),
-                                               result.getClassifier(),
-                                               result.getExtension()));
+                    mavenArtifactCoordinates.getGroupId(),
+                    mavenArtifactCoordinates.getArtifactId(),
+                    mavenArtifactCoordinates.getVersion(),
+                    mavenArtifactCoordinates.getClassifier(),
+                    mavenArtifactCoordinates.getExtension()));
         }
 
         return artifactInfos;

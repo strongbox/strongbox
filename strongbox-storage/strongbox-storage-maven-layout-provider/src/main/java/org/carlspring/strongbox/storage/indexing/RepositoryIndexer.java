@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.storage.indexing;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.configuration.Configuration;
+import static java.util.Arrays.asList;
+import static org.apache.lucene.search.BooleanClause.Occur.MUST;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,10 +31,10 @@ import org.apache.maven.index.Scanner;
 import org.apache.maven.index.context.IndexCreator;
 import org.apache.maven.index.context.IndexingContext;
 import org.apache.maven.index.expr.SourcedSearchExpression;
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static java.util.Arrays.asList;
-import static org.apache.lucene.search.BooleanClause.Occur.MUST;
 
 public class RepositoryIndexer
 {
@@ -253,17 +253,11 @@ public class RepositoryIndexer
                                                     // This particular part is not quite smart, but should do:
                                                     new DefaultArtifactHandler(artifactInfo.getFileExtension()));
 
-            String path = ArtifactUtils.convertArtifactToPath(artifact);
-            String url = getURLForArtifact(storageId, repositoryId, path);
-
+            MavenArtifactCoordinates artifactCoordinates = new MavenArtifactCoordinates(artifact);
+            String url = getURLForArtifact(storageId, repositoryId, artifactCoordinates.toPath());
             final SearchResult result = new SearchResult(storageId,
                                                          artifactInfo.getRepository(),
-                                                         artifactInfo.getGroupId(),
-                                                         artifactInfo.getArtifactId(),
-                                                         artifactInfo.getVersion(),
-                                                         artifactInfo.getClassifier(),
-                                                         artifactInfo.getFileExtension(),
-                                                         path,
+                                                         artifactCoordinates,
                                                          url);
             results.add(result);
         }

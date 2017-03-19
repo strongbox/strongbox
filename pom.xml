@@ -62,7 +62,7 @@
         <module>strongbox-data-service</module>
         <module>strongbox-user-management</module>
         <module>strongbox-web-core</module>
-        <module>strongbox-cron-tasks</module>
+        <!--module>strongbox-cron-tasks</module-->
     </modules>
 
     <profiles>

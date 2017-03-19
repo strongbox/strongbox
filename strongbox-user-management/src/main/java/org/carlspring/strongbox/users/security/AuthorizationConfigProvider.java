@@ -1,31 +1,35 @@
 package org.carlspring.strongbox.users.security;
 
-import org.carlspring.strongbox.configuration.ConfigurationException;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.security.Role;
-import org.carlspring.strongbox.users.domain.Roles;
-import org.carlspring.strongbox.users.service.AuthorizationConfigService;
-import org.carlspring.strongbox.xml.parsers.GenericParser;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
-import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import com.google.common.collect.Sets;
-import com.orientechnologies.orient.core.exception.OSerializationException;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.xml.bind.JAXBException;
+
+import org.carlspring.strongbox.configuration.ConfigurationException;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.security.Role;
+import org.carlspring.strongbox.users.domain.Roles;
+import org.carlspring.strongbox.users.service.AuthorizationConfigService;
+import org.carlspring.strongbox.xml.parsers.GenericParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import com.google.common.collect.Sets;
+import com.orientechnologies.orient.core.entity.OEntityManager;
+import com.orientechnologies.orient.core.exception.OSerializationException;
 
 /**
  * Responsible for load, validate and save to the persistent storage {@link AuthorizationConfig} from configuration
@@ -41,14 +45,13 @@ public class AuthorizationConfigProvider
     private static final Logger logger = LoggerFactory.getLogger(AuthorizationConfigProvider.class);
 
     @Inject
-    AuthorizationConfigService configService;
-
+    private AuthorizationConfigService configService;
     private GenericParser<AuthorizationConfig> parser;
-
     @Inject
-    private OObjectDatabaseTx databaseTx;
-
+    private OEntityManager oEntityManager;
     private AuthorizationConfig config;
+    @Inject
+    private TransactionTemplate transactionTemplate;
 
     private static void throwIfNotEmpty(Sets.SetView<String> intersectionView,
                                         String message)
@@ -72,13 +75,32 @@ public class AuthorizationConfigProvider
 
     @PostConstruct
     public void init()
-            throws IOException, JAXBException
+        throws IOException,
+        JAXBException
     {
         // update schema in any case
         registerEntities();
 
         // check database for any configuration source, if something is already in place
         // reuse it and skip reading configuration from XML
+        transactionTemplate.execute((s) -> {
+            try
+            {
+                doInit();
+            }
+            catch (Exception e)
+            {
+                throw new BeanInitializationException(String.format("Failed to initialize: msg-[%s]", e.getMessage()),
+                        e);
+            }
+            return null;
+        });
+    }
+
+    protected void doInit()
+        throws IOException,
+        JAXBException
+    {
         long configCount = configService.count();
         if (configCount > 0)
         {
@@ -88,7 +110,7 @@ public class AuthorizationConfigProvider
                 // get first of the available configs into work
                 configService.findAll()
                              .ifPresent(
-                                     authorizationConfigs -> config = authorizationConfigs.get(0));
+                                        authorizationConfigs -> config = authorizationConfigs.get(0));
 
                 // process the case when for some reason we have more than one config
                 if (configCount > 1)
@@ -138,20 +160,15 @@ public class AuthorizationConfigProvider
 
     private synchronized void registerEntities()
     {
-        databaseTx.activateOnCurrentThread();
-
         // full class names used for clarity and to avoid conflicts with domain package
         // that contains the same class names
-        databaseTx.getEntityManager()
-                  .registerEntityClass(AuthorizationConfig.class);
-        databaseTx.getEntityManager()
-                  .registerEntityClass(org.carlspring.strongbox.security.Roles.class);
-        databaseTx.getEntityManager()
-                  .registerEntityClass(Role.class);
+        oEntityManager.registerEntityClass(AuthorizationConfig.class);
+        oEntityManager.registerEntityClass(org.carlspring.strongbox.security.Roles.class);
+        oEntityManager.registerEntityClass(Role.class);
     }
 
     private void validateConfig(@NotNull AuthorizationConfig config)
-            throws ConfigurationException
+        throws ConfigurationException
     {
         // check that embedded roles was not overridden
         throwIfNotEmpty(toIntersection(config.getRoles()
@@ -165,8 +182,8 @@ public class AuthorizationConfigProvider
     }
 
     /**
-     * Calculates intersection of two sets that was created from two iterable sources with help of
-     * two name functions respectively.
+     * Calculates intersection of two sets that was created from two iterable sources with help of two name functions
+     * respectively.
      */
     private Sets.SetView<String> toIntersection(@NotNull Iterable<?> first,
                                                 @NotNull Iterable<?> second,
@@ -196,7 +213,7 @@ public class AuthorizationConfigProvider
     }
 
     private Resource getConfigurationResource()
-            throws IOException
+        throws IOException
     {
         return ConfigurationResourceResolver.getConfigurationResource("authorization.config.xml",
                                                                       "etc/conf/security-authorization.xml");

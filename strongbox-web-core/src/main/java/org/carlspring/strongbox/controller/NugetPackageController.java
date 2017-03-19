@@ -1,16 +1,5 @@
 package org.carlspring.strongbox.controller;
 
-import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.security.exceptions.SecurityTokenException;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.users.service.UserService;
-import org.carlspring.strongbox.utils.ArtifactControllerHelper;
-
-import javax.inject.Inject;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -22,17 +11,23 @@ import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import javax.inject.Inject;
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.MediaType;
+
 import org.apache.commons.fileupload.FileUploadBase.FileUploadIOException;
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.fileupload.MultipartStream.MalformedStreamException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.security.exceptions.SecurityTokenException;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.users.service.UserService;
+import org.carlspring.strongbox.utils.ArtifactControllerHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -47,6 +42,11 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import ru.aristar.jnuget.files.TempNupkgFile;
 
 /**
@@ -60,7 +60,7 @@ import ru.aristar.jnuget.files.TempNupkgFile;
 public class NugetPackageController extends BaseArtifactController
 {
 
-    private static final Logger logger = LogManager.getLogger(NugetPackageController.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(NugetPackageController.class.getName());
 
     public final static String ROOT_CONTEXT = "/storages";
 
