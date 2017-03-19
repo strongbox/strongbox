@@ -66,8 +66,7 @@ public class UserServiceImpl extends CommonCrudService<User>
     @Cacheable(value = USERS_CACHE, key = "#name", sync = true)
     public User findByUserName(String name)
     {
-        String sQuery = String.format("select * from %s where userName=:userName", getEntityClass().getSimpleName(),
-                                      name);
+        String sQuery = String.format("select * from %s where userName=:userName", getEntityClass().getSimpleName());
         OSQLSynchQuery<Long> oQuery = new OSQLSynchQuery<Long>(sQuery);
         oQuery.setLimit(1);
         HashMap<String, String> params = new HashMap<String, String>();
