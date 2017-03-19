@@ -119,12 +119,13 @@ public class RepositoryIndexerTest
         Collection<ArtifactInfo> artifactInfos = new LinkedHashSet<>();
         for (SearchResult result : results)
         {
+            MavenArtifactCoordinates mavenArtifactCoordinates = (MavenArtifactCoordinates) result.getArtifactCoordinates();
             artifactInfos.add(new ArtifactInfo(result.getRepositoryId(),
-                    ((MavenArtifactCoordinates) result.getArtifactCoordinates()).getGroupId(),
-                    ((MavenArtifactCoordinates) result.getArtifactCoordinates()).getArtifactId(),
-                    ((MavenArtifactCoordinates) result.getArtifactCoordinates()).getVersion(),
-                    ((MavenArtifactCoordinates) result.getArtifactCoordinates()).getClassifier(),
-                    ((MavenArtifactCoordinates) result.getArtifactCoordinates()).getExtension()));
+                    mavenArtifactCoordinates.getGroupId(),
+                    mavenArtifactCoordinates.getArtifactId(),
+                    mavenArtifactCoordinates.getVersion(),
+                    mavenArtifactCoordinates.getClassifier(),
+                    mavenArtifactCoordinates.getExtension()));
         }
 
         return artifactInfos;
