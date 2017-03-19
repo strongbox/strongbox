@@ -10,6 +10,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.annotation.PreDestroy;
+import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 
 import org.apache.maven.index.ArtifactInfo;
@@ -21,7 +22,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -31,7 +31,7 @@ public class RepositoryIndexerTest
 
     public static final String REPOSITORY_RELEASES = "ri-releases";
 
-    @Autowired
+    @Inject
     private RepositoryManagementService repositoryManagementService;
 
 
@@ -71,7 +71,10 @@ public class RepositoryIndexerTest
     @Test
     public void testIndex() throws Exception
     {
-        RepositoryIndexer repositoryIndexer = getRepositoryIndexManager().getRepositoryIndexer(STORAGE0 + ":" + REPOSITORY_RELEASES + ":local");
+        RepositoryIndexer repositoryIndexer = getRepositoryIndexManager().getRepositoryIndexer(STORAGE0 + ":" +
+                                                                                               REPOSITORY_RELEASES + ":" +
+                                                                                               IndexTypeEnum.LOCAL
+                                                                                                            .getType());
 
         int x = repositoryManagementService.reIndex(STORAGE0,
                                                     REPOSITORY_RELEASES,
