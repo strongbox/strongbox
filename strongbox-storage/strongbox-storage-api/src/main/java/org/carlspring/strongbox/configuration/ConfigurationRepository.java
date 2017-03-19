@@ -16,6 +16,7 @@ import org.carlspring.strongbox.services.ServerConfigurationService;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
@@ -71,26 +72,20 @@ public class ConfigurationRepository
 
         oEntityManager.registerEntityClass(BinaryConfiguration.class, true);
 
-        transactionTemplate.execute(new TransactionCallback<Object>()
-        {
-
-            @Override
-            public Object doInTransaction(TransactionStatus status)
+        transactionTemplate.execute((s) -> {
+            if (!schemaExists() || getConfiguration() == null)
             {
-                if (!schemaExists() || getConfiguration() == null)
+                try
                 {
-                    try
-                    {
-                        createSettings();
-                    }
-                    catch (IOException e)
-                    {
-                        throw new RuntimeException(e);
-                    }
-                }                
-                return null;
+                    createSettings();
+                }
+                catch (IOException e)
+                {
+                    throw new BeanInitializationException(String.format("Failed to init: msg-[%s]", e.getMessage()), e);
+                }
             }
-            
+            return null;
+
         });
         
     }

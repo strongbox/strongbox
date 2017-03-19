@@ -7,6 +7,7 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.persistence.EntityManagerFactory;
@@ -39,7 +40,7 @@ public class OJPAObjectDatabaseTxPresistence implements PersistenceProvider
         }
         catch (Exception e)
         {
-            logger.info("Cannot parse '" + PERSISTENCE_XML + "' :" + e.getMessage());
+            logger.log(Level.INFO, "Cannot parse '" + PERSISTENCE_XML + "' :" + e.getMessage(), e);
         }
     }
 
@@ -66,7 +67,7 @@ public class OJPAObjectDatabaseTxPresistence implements PersistenceProvider
         OJPAProperties properties = sourceProperties instanceof OJPAProperties ? (OJPAProperties) sourceProperties
                 : new OJPAProperties();
 
-        if (sourceProperties != null && properties != sourceProperties)
+        if (sourceProperties != null && !sourceProperties.equals(properties))
         {
             properties.putAll(sourceProperties);
         }

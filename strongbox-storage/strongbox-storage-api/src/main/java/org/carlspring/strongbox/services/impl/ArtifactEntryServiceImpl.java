@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.service.CommonCrudService;
 import org.carlspring.strongbox.domain.ArtifactEntry;
@@ -40,9 +37,6 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry> implemen
         return ArtifactEntry.class;
     }
 
-    @PersistenceContext
-    private EntityManager entityManager;
-    
     @Override
     @Transactional
     public List<ArtifactEntry> findByCoordinates(Map<String, String> coordinates)

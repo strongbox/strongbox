@@ -17,6 +17,7 @@ import org.carlspring.strongbox.xml.parsers.GenericParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanInstantiationException;
+import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -65,16 +66,9 @@ public class UsersConfig
     {
         logger.debug("Loading users...");
 
-        transactionTemplate.execute(new TransactionCallback<Object>()
-        {
-
-            @Override
-            public Object doInTransaction(TransactionStatus status)
-            {
-                doInit();
-                return null;
-            }
-            
+        transactionTemplate.execute((s) -> {
+            doInit();
+            return null;
         });
     }
 

@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.JAXBException;
 
@@ -16,20 +17,6 @@ import org.carlspring.strongbox.security.Role;
 import org.carlspring.strongbox.users.domain.Roles;
 import org.carlspring.strongbox.users.service.AuthorizationConfigService;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
-import javax.xml.bind.JAXBException;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-
-import com.google.common.collect.Sets;
-import com.orientechnologies.orient.core.exception.OSerializationException;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -96,23 +83,17 @@ public class AuthorizationConfigProvider
 
         // check database for any configuration source, if something is already in place
         // reuse it and skip reading configuration from XML
-        transactionTemplate.execute(new TransactionCallback<Object>()
-        {
-
-            @Override
-            public Object doInTransaction(TransactionStatus status)
+        transactionTemplate.execute((s) -> {
+            try
             {
-                try
-                {
-                    doInit();
-                }
-                catch (Exception e)
-                {
-                    throw new RuntimeException(e);
-                }
-                return null;
+                doInit();
             }
-
+            catch (Exception e)
+            {
+                throw new BeanInitializationException(String.format("Failed to initialize: msg-[%s]", e.getMessage()),
+                        e);
+            }
+            return null;
         });
     }
 
