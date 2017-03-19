@@ -32,12 +32,6 @@ public abstract class GenericEntity
     //@JsonIgnore
     protected String objectId;
 
-    /**
-     * Added to avoid a runtime error whereby the detachAll property is checked for existence but not actually used.
-     */
-    @JsonIgnore
-    protected String detachAll;
-
     @OVersion
     @JsonIgnore
     protected Long entityVersion;
