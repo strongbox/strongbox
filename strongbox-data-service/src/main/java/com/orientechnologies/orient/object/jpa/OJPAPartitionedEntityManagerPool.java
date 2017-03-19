@@ -54,11 +54,7 @@ public class OJPAPartitionedEntityManagerPool implements EntityManagerFactory
     private EntityManager createEntityManager(final OJPAProperties properties)
     {
         OObjectDatabaseTx db = new OObjectDatabaseTx(databasePool.acquire());
-        //db.open(properties.getUser(), properties.getPassword());
-
-        final OJPAObjectDatabaseTxEntityManager newInstance = new OJPAObjectDatabaseTxEntityManager(db, this,
-                properties);
-        return newInstance;
+        return new OJPAObjectDatabaseTxEntityManager(db, this, properties);
     }
 
     @Override

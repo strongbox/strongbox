@@ -1,10 +1,10 @@
 package org.carlspring.strongbox.data.domain;
 
+import java.io.Serializable;
+
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.MappedSuperclass;
-import java.io.Serializable;
-import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.orientechnologies.orient.core.annotation.OVersion;
@@ -23,12 +23,12 @@ public abstract class GenericEntity
         implements Serializable
 {
 
-    // objectId may differ's because of internal OrientDB layout
+    // TODO: objectId may differ's because of internal OrientDB layout
     // at the first time it will be something like #-1:-2
     // and then this object will be placed in some cluster in async way
     // and it will have different objectId
+    // https://youtrack.carlspring.org/issue/SB-762
     @Id
-    //TODO: https://youtrack.carlspring.org/issue/SB-762
     //@JsonIgnore
     protected String objectId;
 

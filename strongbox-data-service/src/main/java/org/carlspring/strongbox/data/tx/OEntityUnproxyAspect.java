@@ -14,16 +14,17 @@ import org.aspectj.lang.annotation.Aspect;
 import org.carlspring.strongbox.data.domain.GenericEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionInterceptor;
 
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 @Aspect
 @Component
 @Order(OEntityUnproxyAspect.ORDER)
-public class OEntityUnproxyAspect implements Ordered
+public class OEntityUnproxyAspect
 {
     public static final int ORDER = 110;
 
@@ -32,6 +33,18 @@ public class OEntityUnproxyAspect implements Ordered
     @PersistenceContext
     private EntityManager entityManager;
 
+    /**
+     * This method will wrap "Top level" transactional invocations according to rules defined with pointcut expressions.
+     * "Top level" means the methods, declared with {@link Transactional}, where the new Transaction has started and
+     * will be ended after method invocation complete.
+     * The goal is to get unproxied value, which has been returned with intercepted (target) method.
+     * The order of calling the interceptor is important, for this reason the class is declared with {@link Order} annotation.
+     * The order must be before the {@link TransactionInterceptor}.
+     * 
+     * @param jp
+     * @return
+     * @throws Throwable
+     */
     @Around("execution(@org.springframework.transaction.annotation.Transactional * *(..)) "
             + "|| (execution(public * ((@org.springframework.transaction.annotation.Transactional *)+).*(..)) "
             + "&& within(@org.springframework.transaction.annotation.Transactional *))) "
@@ -67,11 +80,5 @@ public class OEntityUnproxyAspect implements Ordered
         }
         return result;
     }
-
-    @Override
-    public int getOrder()
-    {
-        return ORDER;
-    };
 
 }
