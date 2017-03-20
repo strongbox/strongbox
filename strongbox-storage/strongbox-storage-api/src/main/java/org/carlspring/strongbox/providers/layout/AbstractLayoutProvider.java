@@ -15,6 +15,7 @@ import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.ArtifactFileUtils;
+import org.carlspring.strongbox.util.FileUtils;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import javax.inject.Inject;
@@ -442,7 +443,8 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
                                                           IOException exc)
                         throws IOException
                 {
-                    Files.delete(dir);
+//                    Files.delete(dir);
+                    FileUtils.deleteIfExists(dir.toFile());
                     return FileVisitResult.CONTINUE;
                 }
             });

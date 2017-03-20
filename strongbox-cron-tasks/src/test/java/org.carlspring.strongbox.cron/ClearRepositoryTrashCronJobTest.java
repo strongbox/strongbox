@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.cron;
 
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.cron.api.jobs.ClearRepositoryTrashCronJob;
 import org.carlspring.strongbox.cron.config.JobManager;
 import org.carlspring.strongbox.cron.context.CronTaskTest;
@@ -14,13 +15,21 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
 import java.io.File;
+import java.io.IOException;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -33,32 +42,26 @@ import static org.junit.Assert.*;
 @CronTaskTest
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ClearRepositoryTrashCronJobTest
-        extends TestCaseWithArtifactGeneration
+        extends TestCaseWithArtifactGenerationAndIndexing
 {
 
-    @Inject
-    private CronTaskConfigurationService cronTaskConfigurationService;
+    private static final String STORAGE1 = "storage1";
 
-    @Inject
-    private ConfigurationManagementService configurationManagementService;
+    private static final String REPOSITORY_RELEASES_1 = "crtcj-releases";
 
-    @Inject
-    private RepositoryManagementService repositoryManagementService;
+    private static final String REPOSITORY_RELEASES_2 = "crtcj-releases-test";
 
-    @Inject
-    private LayoutProviderRegistry layoutProviderRegistry;
+    private static final File REPOSITORY_RELEASES_BASEDIR_1 = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                                       "/storages/" + STORAGE0 + "/" +
+                                                                       REPOSITORY_RELEASES_1);
 
-    @Inject
-    private JobManager jobManager;
+    private static final File REPOSITORY_RELEASES_BASEDIR_2 = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                                       "/storages/" + STORAGE0 + "/" +
+                                                                       REPOSITORY_RELEASES_2);
 
-    private static final File REPOSITORY_BASEDIR_1 = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                              "/storages/storage0/releases-tt");
-
-    private static final File REPOSITORY_BASEDIR_2 = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                              "/storages/storage0/releases-test-two");
-
-    private static final File REPOSITORY_BASEDIR_3 = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                              "/storages/storage1/releases");
+    private static final File REPOSITORY_RELEASES_BASEDIR_3 = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                                       "/storages/" + STORAGE1 + "/" +
+                                                                       REPOSITORY_RELEASES_1);
 
     private static Repository repository1;
 
@@ -66,62 +69,86 @@ public class ClearRepositoryTrashCronJobTest
 
     private static Repository repository3;
 
-    private static Artifact artifact1;
-
-    private static Artifact artifact2;
-
-    private static Artifact artifact3;
-
     private static boolean initialized;
 
-    @Before
-    public void setUp()
+    @Inject
+    private CronTaskConfigurationService cronTaskConfigurationService;
+
+    @Inject
+    private LayoutProviderRegistry layoutProviderRegistry;
+
+    @Inject
+    private ConfigurationManager configurationManager;
+
+    @Inject
+    private JobManager jobManager;
+
+    @BeforeClass
+    public static void cleanUp()
+            throws Exception
+    {
+        cleanUp(getRepositoriesToClean());
+    }
+
+    @PostConstruct
+    public void initialize()
             throws Exception
     {
         if (!initialized)
         {
-            repository1 = new Repository("releases-tt");
-            repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
+            repository1 = new Repository(REPOSITORY_RELEASES_1);
+            repository1.setStorage(configurationManager.getConfiguration()
+                                                       .getStorage(STORAGE0));
+            repository1.setAllowsForceDeletion(false);
             repository1.setTrashEnabled(true);
-            Storage storage = configurationManagementService.getStorage("storage0");
-            repository1.setStorage(storage);
-            storage.saveRepository(repository1);
-            repositoryManagementService.createRepository("storage0", "releases-tt");
+            repository1.setIndexingEnabled(false);
+            createRepository(repository1);
 
-            //Create released artifact
-            String ga1 = "org.carlspring.strongbox.clear:strongbox-test-one";
-            artifact1 = generateArtifact(REPOSITORY_BASEDIR_1.getAbsolutePath(), ga1 + ":1.0:jar");
+            generateArtifact(REPOSITORY_RELEASES_BASEDIR_1.getAbsolutePath(),
+                             "org.carlspring.strongbox.clear:strongbox-test-one:1.0:jar");
 
-            repository2 = new Repository("releases-test-two");
-            repository2.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
+            repository2 = new Repository(REPOSITORY_RELEASES_2);
+            repository2.setStorage(configurationManager.getConfiguration()
+                                                       .getStorage(STORAGE0));
+            repository2.setAllowsForceDeletion(false);
             repository2.setTrashEnabled(true);
-            repository2.setStorage(storage);
-            storage.saveRepository(repository2);
-            repositoryManagementService.createRepository("storage0", "releases-test-two");
+            repository2.setIndexingEnabled(false);
+            createRepository(repository2);
 
-            String ga2 = "org.carlspring.strongbox.clear:strongbox-test-two";
-            artifact2 = generateArtifact(REPOSITORY_BASEDIR_2.getAbsolutePath(), ga2 + ":1.0:jar");
+            generateArtifact(REPOSITORY_RELEASES_BASEDIR_2.getAbsolutePath(),
+                             "org.carlspring.strongbox.clear:strongbox-test-two:1.0:jar");
 
-            //Create storage and repository for testing removing trash in storages
-            Storage newStorage = new Storage("storage1");
-            repository3 = new Repository("releases");
-            repository3.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
+            createStorage(new Storage(STORAGE1));
+
+            repository3 = new Repository(REPOSITORY_RELEASES_1);
+            repository3.setStorage(configurationManager.getConfiguration()
+                                                       .getStorage(STORAGE1));
+            repository3.setAllowsForceDeletion(false);
             repository3.setTrashEnabled(true);
-            repository3.setStorage(newStorage);
-            configurationManagementService.saveStorage(newStorage);
-            newStorage.saveRepository(repository3);
-            repositoryManagementService.createRepository("storage1", "releases");
+            repository3.setIndexingEnabled(false);
+            createRepository(repository3);
 
-            //Create released artifact
-            artifact3 = generateArtifact(REPOSITORY_BASEDIR_3.getAbsolutePath(), ga1 + ":1.0:jar");
-
-
-            changeCreationDate(artifact1);
-            changeCreationDate(artifact2);
-            changeCreationDate(artifact3);
+            generateArtifact(REPOSITORY_RELEASES_BASEDIR_3.getAbsolutePath(),
+                             "org.carlspring.strongbox.clear:strongbox-test-one:1.0:jar");
 
             initialized = true;
         }
+    }
+
+    @PreDestroy
+    public void removeRepositories()
+            throws IOException, JAXBException
+    {
+        removeRepositories(getRepositoriesToClean());
+    }
+
+    public static Set<Repository> getRepositoriesToClean()
+    {
+        Set<Repository> repositories = new LinkedHashSet<>();
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2));
+        repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_RELEASES_1));
+        return repositories;
     }
 
     public void addRebuildCronJobConfig(String name,
@@ -167,7 +194,7 @@ public class ClearRepositoryTrashCronJobTest
 
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository1.getLayout());
         String path = "org/carlspring/strongbox/clear/strongbox-test-one/1.0";
-        layoutProvider.delete("storage0", "releases-tt", path, false);
+        layoutProvider.delete(STORAGE0, REPOSITORY_RELEASES_1, path, false);
 
         dirs = basedirTrash.listFiles();
 
@@ -176,7 +203,7 @@ public class ClearRepositoryTrashCronJobTest
 
         String jobName = "RemoveTrash-1";
 
-        addRebuildCronJobConfig(jobName, "storage0", "releases-tt");
+        addRebuildCronJobConfig(jobName, STORAGE0, REPOSITORY_RELEASES_1);
 
         //Checking if job was executed
         while (!jobManager.getExecutedJobs()
@@ -205,7 +232,7 @@ public class ClearRepositoryTrashCronJobTest
 
         LayoutProvider layoutProvider1 = layoutProviderRegistry.getProvider(repository2.getLayout());
         String path1 = "org/carlspring/strongbox/clear/strongbox-test-two/1.0";
-        layoutProvider1.delete("storage0", "releases-test-two", path1, false);
+        layoutProvider1.delete(STORAGE0, REPOSITORY_RELEASES_2, path1, false);
 
         final File basedirTrash2 = repository3.getTrashDir();
         File[] dirs2 = basedirTrash2.listFiles();
@@ -215,7 +242,7 @@ public class ClearRepositoryTrashCronJobTest
 
         LayoutProvider layoutProvider2 = layoutProviderRegistry.getProvider(repository3.getLayout());
         String path2 = "org/carlspring/strongbox/clear/strongbox-test-one/1.0";
-        layoutProvider2.delete("storage1", "releases", path2, false);
+        layoutProvider2.delete(STORAGE1, REPOSITORY_RELEASES_1, path2, false);
 
         dirs1 = basedirTrash1.listFiles();
         dirs2 = basedirTrash1.listFiles();

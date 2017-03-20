@@ -64,6 +64,8 @@ public class RemoveTimestampedMavenSnapshotCronJobTest
 
     private DateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
 
+    private static boolean initialized;
+
     @Inject
     private CronTaskConfigurationService cronTaskConfigurationService;
 
@@ -84,62 +86,66 @@ public class RemoveTimestampedMavenSnapshotCronJobTest
     public void initialize()
             throws Exception
     {
-        //Create repository rtmscj-snapshots in storage0
-        createRepository(STORAGE0, REPOSITORY_SNAPSHOTS_1, RepositoryPolicyEnum.SNAPSHOT.getPolicy(), false);
+        if (!initialized)
+        {
+            //Create repository rtmscj-snapshots in storage0
+            createRepository(STORAGE0, REPOSITORY_SNAPSHOTS_1, RepositoryPolicyEnum.SNAPSHOT.getPolicy(), false);
 
-        createTimestampedSnapshotArtifact(REPOSITORY_SNAPSHOTS_BASEDIR_1.getAbsolutePath(),
-                                          "org.carlspring.strongbox",
-                                          "strongbox-timestamped-first",
-                                          "2.0",
-                                          "jar",
-                                          null,
-                                          3);
+            createTimestampedSnapshotArtifact(REPOSITORY_SNAPSHOTS_BASEDIR_1.getAbsolutePath(),
+                                              "org.carlspring.strongbox",
+                                              "strongbox-timestamped-first",
+                                              "2.0",
+                                              "jar",
+                                              null,
+                                              3);
 
-        createTimestampedSnapshotArtifact(REPOSITORY_SNAPSHOTS_BASEDIR_1.getAbsolutePath(),
-                                          "org.carlspring.strongbox",
-                                          "strongbox-timestamped-second",
-                                          "2.0",
-                                          "jar",
-                                          null,
-                                          2);
+            createTimestampedSnapshotArtifact(REPOSITORY_SNAPSHOTS_BASEDIR_1.getAbsolutePath(),
+                                              "org.carlspring.strongbox",
+                                              "strongbox-timestamped-second",
+                                              "2.0",
+                                              "jar",
+                                              null,
+                                              2);
 
-        //Create repository rtmscj-snapshots-test in storage0
-        createRepository(STORAGE0, REPOSITORY_SNAPSHOTS_2, RepositoryPolicyEnum.SNAPSHOT.getPolicy(), false);
+            //Create repository rtmscj-snapshots-test in storage0
+            createRepository(STORAGE0, REPOSITORY_SNAPSHOTS_2, RepositoryPolicyEnum.SNAPSHOT.getPolicy(), false);
 
-        createTimestampedSnapshotArtifact(REPOSITORY_SNAPSHOTS_BASEDIR_2.getAbsolutePath(),
-                                          "org.carlspring.strongbox",
-                                          "strongbox-timestamped-first",
-                                          "2.0",
-                                          "jar",
-                                          null,
-                                          5);
+            createTimestampedSnapshotArtifact(REPOSITORY_SNAPSHOTS_BASEDIR_2.getAbsolutePath(),
+                                              "org.carlspring.strongbox",
+                                              "strongbox-timestamped-first",
+                                              "2.0",
+                                              "jar",
+                                              null,
+                                              5);
 
-        //Create storage and repository for testing removing timestamped snapshots in storages
-        createStorage(STORAGE1);
+            //Create storage and repository for testing removing timestamped snapshots in storages
+            createStorage(STORAGE1);
 
-        createRepository(STORAGE1, REPOSITORY_SNAPSHOTS_1, RepositoryPolicyEnum.SNAPSHOT.getPolicy(), false);
+            createRepository(STORAGE1, REPOSITORY_SNAPSHOTS_1, RepositoryPolicyEnum.SNAPSHOT.getPolicy(), false);
 
-        createTimestampedSnapshotArtifact(REPOSITORY_SNAPSHOTS_BASEDIR_3.getAbsolutePath(),
-                                          "org.carlspring.strongbox",
-                                          "strongbox-timestamped-first",
-                                          "2.0",
-                                          "jar",
-                                          null,
-                                          1);
+            createTimestampedSnapshotArtifact(REPOSITORY_SNAPSHOTS_BASEDIR_3.getAbsolutePath(),
+                                              "org.carlspring.strongbox",
+                                              "strongbox-timestamped-first",
+                                              "2.0",
+                                              "jar",
+                                              null,
+                                              1);
 
-        //Creating timestamped snapshot with another timestamp
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DATE, -5);
-        String timestamp = formatter.format(cal.getTime());
+            //Creating timestamped snapshot with another timestamp
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.DATE, -5);
+            String timestamp = formatter.format(cal.getTime());
 
-        createTimestampedSnapshot(REPOSITORY_SNAPSHOTS_BASEDIR_3.getAbsolutePath(),
-                                  "org.carlspring.strongbox",
-                                  "strongbox-timestamped-first",
-                                  "2.0",
-                                  "jar",
-                                  null,
-                                  2,
-                                  timestamp);
+            createTimestampedSnapshot(REPOSITORY_SNAPSHOTS_BASEDIR_3.getAbsolutePath(),
+                                      "org.carlspring.strongbox",
+                                      "strongbox-timestamped-first",
+                                      "2.0",
+                                      "jar",
+                                      null,
+                                      2,
+                                      timestamp);
+            initialized = true;
+        }
     }
 
     @PreDestroy
