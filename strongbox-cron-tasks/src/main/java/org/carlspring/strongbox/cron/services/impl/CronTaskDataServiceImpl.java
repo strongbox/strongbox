@@ -40,7 +40,7 @@ public class CronTaskDataServiceImpl
         }
         catch (Exception e)
         {
-            logger.warn("Internal spring-data-orientdb exception: " + e.getMessage());
+            logger.warn("Internal spring-data-orientdb exception: " + e.getMessage(), e);
             return new LinkedList<>();
         }
     }

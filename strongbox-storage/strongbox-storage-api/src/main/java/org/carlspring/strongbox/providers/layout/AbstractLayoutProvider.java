@@ -221,22 +221,23 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
                                                  String path,
                                                  InputStream is,
                                                  T artifactCoordinates)
-        throws NoSuchAlgorithmException
+            throws NoSuchAlgorithmException
     {
         ArtifactInputStream result = new ArtifactInputStream(artifactCoordinates, is, getDigestAlgorithmSet());
         // Add digest algorithm only if it is not a Checksum (we don't need a Checksum of Checksum).
         if (!ArtifactFileUtils.isChecksum(path))
         {
             getDigestAlgorithmSet().stream()
-                                   .forEach(a -> {
-                                       String checksum = getChecksum(storageId, repositoryId, path, result, a);
-                                       if (checksum == null)
-                                       {
-                                           return;
-                                       }
-                                       result.getHexDigests()
-                                             .put(a, checksum);
-                                   });
+                                   .forEach(a ->
+                                            {
+                                                String checksum = getChecksum(storageId, repositoryId, path, result, a);
+                                                if (checksum == null)
+                                                {
+                                                    return;
+                                                }
+                                                result.getHexDigests()
+                                                      .put(a, checksum);
+                                            });
         }
         return result;
     }
@@ -255,22 +256,22 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
         String checksumPath = path.concat(checksumExtension);
         String checksum = null;
 
-            try
+        try
+        {
+            if (Files.exists(resolve(repository, checksumPath)) && new File(checksumPath).length() != 0)
             {
-                if (Files.exists(resolve(repository, checksumPath)) && new File(checksumPath).length() != 0)
-                {
                 checksum = MessageDigestUtils.readChecksumFile(getInputStream(storageId, repositoryId, checksumPath));
-                }
-                else
-                {
-                    checksum = is.getMessageDigestAsHexadecimalString(digestAlgorithm);
-                }
             }
-            catch (IOException | NoSuchAlgorithmException e)
+            else
             {
-                logger.error(String.format("Failed to read checksum: alg-[%s]; path-[%s];",
-                                           digestAlgorithm, path + "." + checksumExtension), e);
+                checksum = is.getMessageDigestAsHexadecimalString(digestAlgorithm);
             }
+        }
+        catch (IOException | NoSuchAlgorithmException e)
+        {
+            logger.error(String.format("Failed to read checksum: alg-[%s]; path-[%s];",
+                                       digestAlgorithm, path + "." + checksumExtension), e);
+        }
 
         return checksum;
     }
@@ -443,7 +444,6 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
                                                           IOException exc)
                         throws IOException
                 {
-//                    Files.delete(dir);
                     FileUtils.deleteIfExists(dir.toFile());
                     return FileVisitResult.CONTINUE;
                 }
@@ -596,54 +596,63 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
                    ProviderImplementationException
 
     {
-        File file = basePath.toFile();
+        File[] files = basePath.toFile()
+                               .listFiles();
 
-        List<File> list = Arrays.asList(file.listFiles());
+        if (files != null)
+        {
+            List<File> list = Arrays.asList(files);
 
-        list.stream()
-            .filter(File::isFile)
-            .filter(e -> !ArtifactFileUtils.isChecksum(e.getPath()))
-            .forEach(e ->
-                     {
-                         if (!isExistChecksum(repository, e.getPath()) || forceRegeneration)
+            list.stream()
+                .filter(File::isFile)
+                .filter(e -> !ArtifactFileUtils.isChecksum(e.getPath()))
+                .forEach(e ->
                          {
-                             ArtifactInputStream is = null;
-                             try
+                             if (!isExistChecksum(repository, e.getPath()) || forceRegeneration)
                              {
-                                 String artifactPath = e.getPath().substring(repository.getBasedir().length() + 1);
-                                 is = getInputStream(repository.getStorage().getId(), repository.getId(), artifactPath);
-                             }
-                             catch (IOException | NoSuchAlgorithmException e1)
-                             {
-                                 logger.error(e1.getMessage(), e1);
-                             }
+                                 ArtifactInputStream is = null;
+                                 try
+                                 {
+                                     String artifactPath = e.getPath()
+                                                            .substring(repository.getBasedir()
+                                                                                 .length() + 1);
+                                     is = getInputStream(repository.getStorage()
+                                                                   .getId(), repository.getId(), artifactPath);
+                                 }
+                                 catch (IOException | NoSuchAlgorithmException e1)
+                                 {
+                                     logger.error(e1.getMessage(), e1);
+                                 }
 
-                             writeChecksum(is, e);
-                         }
-                     });
+                                 writeChecksum(is, e);
+                             }
+                         });
+        }
     }
 
     private void writeChecksum(ArtifactInputStream is,
                                File filePath)
 
     {
-        getDigestAlgorithmSet()
-                .stream()
-                .forEach(e ->
-                         {
-                             String checksum = is.getHexDigests().get(e);
-                             String checksumExtension = ".".concat(e.toLowerCase().replaceAll("-", ""));
+        getDigestAlgorithmSet().stream()
+                               .forEach(e ->
+                                        {
+                                            String checksum = is.getHexDigests()
+                                                                .get(e);
+                                            String checksumExtension = ".".concat(e.toLowerCase()
+                                                                                   .replaceAll("-", ""));
 
-                             try
-                             {
-                                 MessageDigestUtils.writeChecksum(filePath, checksumExtension, checksum);
-                             }
-                             catch (IOException e1)
-                             {
-                                 logger.error(String.format("Failed to write checksum: alg-[%s]; path-[%s];",
-                                                            e, filePath + "." + checksumExtension), e1);
-                             }
-                         });
+                                            try
+                                            {
+                                                MessageDigestUtils.writeChecksum(filePath, checksumExtension, checksum);
+                                            }
+                                            catch (IOException e1)
+                                            {
+                                                logger.error(
+                                                        String.format("Failed to write checksum: alg-[%s]; path-[%s];",
+                                                                      e, filePath + "." + checksumExtension), e1);
+                                            }
+                                        });
     }
 
 }

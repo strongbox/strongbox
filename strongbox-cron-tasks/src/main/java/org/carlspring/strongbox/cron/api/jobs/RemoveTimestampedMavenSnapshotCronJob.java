@@ -92,25 +92,31 @@ public class RemoveTimestampedMavenSnapshotCronJob
      * @param keepPeriod   the period to keep artifacts (the number of days)
      * @throws NoSuchAlgorithmException
      * @throws XmlPullParserException
-     * @throws IOException
      */
     private void removeTimestampedSnapshotArtifacts(String storageId,
                                                     int numberToKeep,
                                                     int keepPeriod)
-            throws NoSuchAlgorithmException, XmlPullParserException, IOException
+            throws NoSuchAlgorithmException, XmlPullParserException
     {
         Map<String, Repository> repositories = getRepositories(storageId);
 
-        for (String repositoryId : repositories.keySet())
-        {
-            Repository repository = repositories.get(repositoryId);
-            if (repository.getPolicy()
-                          .equals(RepositoryPolicyEnum.SNAPSHOT.getPolicy()))
-            {
-                artifactManagementService.removeTimestampedSnapshots(storageId, repositoryId, null,
-                                                                     numberToKeep, keepPeriod);
-            }
-        }
+        repositories.forEach((k, v) ->
+                             {
+                                 if (v.getPolicy()
+                                      .equals(RepositoryPolicyEnum.SNAPSHOT.getPolicy()))
+                                 {
+                                     try
+                                     {
+                                         artifactManagementService.removeTimestampedSnapshots(storageId, k, null,
+                                                                                              numberToKeep, keepPeriod);
+                                     }
+                                     catch (IOException e)
+                                     {
+                                         logger.error(e.getMessage(), e);
+                                     }
+                                 }
+                             });
+
     }
 
     private Map<String, Storage> getStorages()

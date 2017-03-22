@@ -57,6 +57,7 @@ public class CronTasksConfig
         return schedulerFactoryBean;
     }
 
+    // Custom job factory of spring with DI support for @Autowired
     @Bean
     public SpringBeanJobFactory springBeanJobFactory()
     {
@@ -82,7 +83,8 @@ public class CronTasksConfig
         StringHttpMessageConverter stringConverter = new StringHttpMessageConverter();
         stringConverter.setWriteAcceptCharset(false);
 
-        converters.add(new ByteArrayHttpMessageConverter()); // if your argument is a byte[]
+        // if your argument is a byte[]
+        converters.add(new ByteArrayHttpMessageConverter());
         converters.add(stringConverter);
         converters.add(new FormHttpMessageConverter());
         converters.add(new MappingJackson2HttpMessageConverter());
