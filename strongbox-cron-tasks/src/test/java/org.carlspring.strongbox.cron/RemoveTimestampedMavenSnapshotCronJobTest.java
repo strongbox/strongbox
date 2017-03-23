@@ -14,7 +14,7 @@ import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGeneration;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -36,7 +36,7 @@ import static org.junit.Assert.*;
 @CronTaskTest
 @RunWith(SpringJUnit4ClassRunner.class)
 public class RemoveTimestampedMavenSnapshotCronJobTest
-        extends TestCaseWithArtifactGeneration
+        extends TestCaseWithMavenArtifactGeneration
 {
 
     @Inject
@@ -105,7 +105,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTest
             repository.setPolicy(RepositoryPolicyEnum.SNAPSHOT.getPolicy());
             repository.setStorage(storage);
             repositoryManagementService.createRepository("storage0", "snapshots-test");
-            storage.saveRepository(repository);
+            storage.addRepository(repository);
 
             createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_2.getAbsolutePath(),
                                               "org.carlspring.strongbox",
@@ -122,7 +122,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTest
             repository1.setStorage(storage1);
             configurationManagementService.saveStorage(storage1);
             repositoryManagementService.createRepository("storage1", "snapshots");
-            storage1.saveRepository(repository1);
+            storage1.addRepository(repository1);
 
             createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_3.getAbsolutePath(),
                                               "org.carlspring.strongbox",

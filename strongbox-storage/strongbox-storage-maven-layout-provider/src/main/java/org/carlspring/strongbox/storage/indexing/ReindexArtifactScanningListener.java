@@ -20,7 +20,7 @@ public class ReindexArtifactScanningListener
 
     private static final Logger logger = LoggerFactory.getLogger(ReindexArtifactScanningListener.class);
 
-    int totalFiles;
+    private int totalFiles;
 
     private IndexingContext context;
 
@@ -43,6 +43,7 @@ public class ReindexArtifactScanningListener
                                  final ScanningResult result)
     {
         result.setTotalFiles(totalFiles);
+
         logger.debug("Scanning finished; total files: {}; has exception: {}",
                      result.getTotalFiles(),
                      result.hasExceptions());
@@ -52,7 +53,7 @@ public class ReindexArtifactScanningListener
     public void artifactError(final ArtifactContext ac,
                               final Exception ex)
     {
-        logger.error("artifact error", ex);
+        logger.error(ex.getMessage(), ex);
     }
 
     @Override
@@ -61,16 +62,11 @@ public class ReindexArtifactScanningListener
         try
         {
             logger.debug("Adding artifact: {}; ctx id: {}; idx dir: {}",
-                         new String[]{ ac.getGav()
-                                         .getGroupId() + ":" +
-                                       ac.getGav()
-                                         .getArtifactId() + ":" +
-                                       ac.getGav()
-                                         .getVersion() + ":" +
-                                       ac.getGav()
-                                         .getClassifier() + ":" +
-                                       ac.getGav()
-                                         .getExtension(),
+                         new String[]{ ac.getGav().getGroupId() + ":" +
+                                       ac.getGav().getArtifactId() + ":" +
+                                       ac.getGav().getVersion() + ":" +
+                                       ac.getGav().getClassifier() + ":" +
+                                       ac.getGav().getExtension(),
                                        context.getId(),
                                        context.getIndexDirectory().toString() });
 

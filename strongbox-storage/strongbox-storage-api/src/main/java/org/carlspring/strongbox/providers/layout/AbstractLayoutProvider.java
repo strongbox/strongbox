@@ -12,6 +12,8 @@ import org.carlspring.strongbox.io.RepositoryPath;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.storage.StorageProvider;
 import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
+import org.carlspring.strongbox.repository.RepositoryFeatures;
+import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.ArtifactFileUtils;
@@ -43,7 +45,9 @@ import org.slf4j.LoggerFactory;
 /**
  * @author mtodorov
  */
-public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
+public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
+                                             U extends RepositoryFeatures,
+                                             V extends RepositoryManagementStrategy>
         implements LayoutProvider<T>
 {
 
@@ -473,6 +477,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
             throws IOException
     {
         logger.debug("Emptying trash for repositoryId " + repositoryId + "...");
+
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
         RepositoryPath path = resolve(repository);

@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.resource;
 
 import org.carlspring.strongbox.booters.ResourcesBooter;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -16,7 +16,7 @@ import static org.junit.Assert.assertTrue;
  * @author mtodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-public class ResourcesBooterTest extends TestCaseWithArtifactGenerationAndIndexing
+public class ResourcesBooterTest extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     // This field is indeed used. It's execute() method is being invoked with a @PostConstruct.

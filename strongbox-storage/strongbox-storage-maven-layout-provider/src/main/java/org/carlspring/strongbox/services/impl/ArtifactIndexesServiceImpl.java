@@ -4,6 +4,10 @@ import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.handlers.ArtifactLocationGenerateMavenIndexOperation;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
+import org.carlspring.strongbox.repository.RepositoryFeatures;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.Storage;
@@ -37,6 +41,10 @@ public class ArtifactIndexesServiceImpl
     @Inject
     private RepositoryManagementService repositoryManagementService;
 
+    @Inject
+    private LayoutProviderRegistry layoutProviderRegistry;
+
+
     @Override
     public void rebuildIndexes(String storageId,
                                String repositoryId,
@@ -58,7 +66,10 @@ public class ArtifactIndexesServiceImpl
 
         if (artifactPath == null && repository.isIndexingEnabled())
         {
-            repositoryManagementService.pack(storageId, repositoryId);
+            LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+            MavenRepositoryFeatures features = (MavenRepositoryFeatures) layoutProvider.getRepositoryFeatures();
+
+            features.pack(storageId, repositoryId);
         }
     }
 

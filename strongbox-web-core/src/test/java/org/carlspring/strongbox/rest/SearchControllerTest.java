@@ -65,7 +65,7 @@ public class SearchControllerTest
 
         assertNotNull(repositoryIndexer);
 
-        repositoryManagementService.reIndex(STORAGE_SC_TEST, REPOSITORY_RELEASES, "org/carlspring/strongbox/searches");
+        reIndex(STORAGE_SC_TEST, REPOSITORY_RELEASES, "org/carlspring/strongbox/searches");
     }
 
     public static Set<Repository> getRepositoriesToClean()

@@ -3,7 +3,7 @@ package org.carlspring.strongbox.storage.repository.artifact.locator;
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.artifact.locator.handlers.ArtifactLocationReportOperation;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGeneration;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -23,7 +23,7 @@ import static org.junit.Assert.assertFalse;
  * @author mtodorov
  */
 public class ArtifactDirectoryLocatorTest
-        extends TestCaseWithArtifactGeneration
+        extends TestCaseWithMavenArtifactGeneration
 {
 
     private static final File REPOSITORY_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/releases");

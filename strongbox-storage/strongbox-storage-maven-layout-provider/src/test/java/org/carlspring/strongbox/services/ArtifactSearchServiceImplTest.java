@@ -1,9 +1,11 @@
 package org.carlspring.strongbox.services;
 
+import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.storage.indexing.SearchRequest;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -11,7 +13,6 @@ import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +24,7 @@ import static org.junit.Assert.assertTrue;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ArtifactSearchServiceImplTest
-        extends TestCaseWithArtifactGenerationAndIndexing
+        extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     public static final String REPOSITORYID = "artifact-search-service-test-releases";
@@ -42,8 +43,8 @@ public class ArtifactSearchServiceImplTest
         cleanUp(getRepositoriesToClean());
     }
 
-    @Before
-    public void setUp()
+    @PostConstruct
+    public void initialize()
             throws Exception
     {
         createRepositoryWithArtifacts(STORAGE0,
@@ -71,9 +72,8 @@ public class ArtifactSearchServiceImplTest
     @Test
     public void testContains() throws Exception
     {
-        final int x = repositoryManagementService.reIndex(STORAGE0,
-                                                          REPOSITORYID,
-                                                          "org/carlspring/strongbox/strongbox-utils");
+        MavenRepositoryFeatures features = (MavenRepositoryFeatures) getFeatures(STORAGE0, REPOSITORYID);
+        final int x = features.reIndex(STORAGE0, REPOSITORYID, "org/carlspring/strongbox/strongbox-utils");
 
         assertTrue("Incorrect number of artifacts found!", x >= 3);
 

@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.cron.config;
 
 import org.carlspring.strongbox.config.DataServiceConfig;
-import org.carlspring.strongbox.config.StorageApiConfig;
+import org.carlspring.strongbox.config.StorageCoreConfig;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.data.service.NoProxyOrientRepositoryFactoryBean;
 
@@ -34,7 +34,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @ComponentScan({ "org.carlspring.strongbox.cron"
                })
 @Import({ DataServiceConfig.class,
-          StorageApiConfig.class
+          StorageCoreConfig.class
         })
 @EnableOrientRepositories(basePackages = "org.carlspring.strongbox.cron.repository",
                           repositoryFactoryBeanClass = NoProxyOrientRepositoryFactoryBean.class)

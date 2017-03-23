@@ -197,6 +197,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-storage-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-data-service</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -228,9 +233,8 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-testing-core</artifactId>
+            <artifactId>strongbox-testing-storage</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
 
         <dependency>

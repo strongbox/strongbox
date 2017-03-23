@@ -340,7 +340,7 @@ public class ConfigurationManagementControllerTest
     public void testGetAndSetConfiguration()
             throws IOException, JAXBException
     {
-        Configuration configuration = getConfiguration();
+        Configuration configuration = getConfigurationFromRemote();
 
         Storage storage = new Storage("storage3");
 
@@ -358,12 +358,12 @@ public class ConfigurationManagementControllerTest
                .then()
                .statusCode(200);
 
-        final Configuration c = getConfiguration();
+        final Configuration c = getConfigurationFromRemote();
 
         assertNotNull("Failed to create storage3!", c.getStorage("storage3"));
     }
 
-    public Configuration getConfiguration()
+    public Configuration getConfigurationFromRemote()
             throws IOException, JAXBException
     {
         String url = getContextBaseUrl() + "/configuration/strongbox/xml";
@@ -379,7 +379,6 @@ public class ConfigurationManagementControllerTest
         Configuration configuration = parser.deserialize(response);
 
         return configuration;
-
     }
 
     @Test

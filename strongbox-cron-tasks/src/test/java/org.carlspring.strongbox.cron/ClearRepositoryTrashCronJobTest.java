@@ -13,7 +13,7 @@ import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGeneration;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -33,7 +33,7 @@ import static org.junit.Assert.*;
 @CronTaskTest
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ClearRepositoryTrashCronJobTest
-        extends TestCaseWithArtifactGeneration
+        extends TestCaseWithMavenArtifactGeneration
 {
 
     @Inject
@@ -85,7 +85,7 @@ public class ClearRepositoryTrashCronJobTest
             repository1.setTrashEnabled(true);
             Storage storage = configurationManagementService.getStorage("storage0");
             repository1.setStorage(storage);
-            storage.saveRepository(repository1);
+            storage.addRepository(repository1);
             repositoryManagementService.createRepository("storage0", "releases-tt");
 
             //Create released artifact
@@ -96,7 +96,7 @@ public class ClearRepositoryTrashCronJobTest
             repository2.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
             repository2.setTrashEnabled(true);
             repository2.setStorage(storage);
-            storage.saveRepository(repository2);
+            storage.addRepository(repository2);
             repositoryManagementService.createRepository("storage0", "releases-test-two");
 
             String ga2 = "org.carlspring.strongbox.clear:strongbox-test-two";
@@ -109,7 +109,7 @@ public class ClearRepositoryTrashCronJobTest
             repository3.setTrashEnabled(true);
             repository3.setStorage(newStorage);
             configurationManagementService.saveStorage(newStorage);
-            newStorage.saveRepository(repository3);
+            newStorage.addRepository(repository3);
             repositoryManagementService.createRepository("storage1", "releases");
 
             //Create released artifact

@@ -22,12 +22,12 @@ import org.springframework.stereotype.Component;
 public class RepositoryIndexManager
 {
 
+    private static final Logger logger = LoggerFactory.getLogger(RepositoryIndexManager.class);
+
     /**
      * K: storageId:repositoryId:type[local|remote]
      * V: index
      */
-    private static final Logger logger = LoggerFactory.getLogger(RepositoryIndexManager.class);
-
     private Map<String, RepositoryIndexer> indexes = new LinkedHashMap<>();
 
     @Inject
@@ -136,9 +136,9 @@ public class RepositoryIndexManager
         this.indexes = indexes;
     }
 
-    public RepositoryIndexer getRepositoryIndexer(String storageAndRepositoryId)
+    public RepositoryIndexer getRepositoryIndexer(String contextId)
     {
-        return indexes.get(storageAndRepositoryId);
+        return indexes.get(contextId);
     }
 
     public RepositoryIndexer addRepositoryIndexer(String repositoryId,

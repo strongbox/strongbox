@@ -7,7 +7,7 @@ import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -37,7 +37,7 @@ import static org.junit.Assert.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 public class ArtifactMetadataServiceReleasesTest
-        extends TestCaseWithArtifactGenerationAndIndexing
+        extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     private static final String REPOSITORY_RELEASES = "amsr-releases";

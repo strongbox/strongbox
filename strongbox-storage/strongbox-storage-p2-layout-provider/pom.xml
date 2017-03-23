@@ -223,7 +223,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-testing-core</artifactId>
+            <artifactId>strongbox-testing-storage</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

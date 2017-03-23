@@ -2,14 +2,14 @@ package org.carlspring.strongbox.services;
 
 import org.carlspring.maven.commons.DetachedArtifact;
 import org.carlspring.strongbox.config.CommonConfig;
-import org.carlspring.strongbox.config.StorageApiConfig;
+import org.carlspring.strongbox.config.StorageCoreConfig;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -45,12 +45,12 @@ import static org.junit.Assert.assertNull;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 public class ArtifactMetadataServiceSnapshotsTest
-        extends TestCaseWithArtifactGenerationAndIndexing
+        extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     @ComponentScan(basePackages = {"org.carlspring.strongbox"})
     @org.springframework.context.annotation.Configuration
-    @Import({ CommonConfig.class, StorageApiConfig.class })
+    @Import({ CommonConfig.class, StorageCoreConfig.class })
     public static class SpringConfig { }
 
     private static final String REPOSITORY_SNAPSHOTS = "amss-snapshots";

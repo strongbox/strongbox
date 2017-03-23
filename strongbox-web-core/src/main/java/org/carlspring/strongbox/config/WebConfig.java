@@ -36,8 +36,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
                  "org.carlspring.logging" })
 @Import({ CommonConfig.class,
           StrongboxSecurityConfig.class,
-          StorageIndexingConfig.class,
-          StorageApiConfig.class,
+          Maven2LayoutProviderConfig.class,
+          StorageCoreConfig.class,
           UsersConfig.class,
           SecurityConfig.class,
           ClientConfig.class })

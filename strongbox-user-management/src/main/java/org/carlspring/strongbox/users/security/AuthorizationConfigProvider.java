@@ -99,14 +99,17 @@ public class AuthorizationConfigProvider
             catch (OSerializationException e)
             {
                 config = null;
+
                 logger.error("Unable to reuse existing authorization config", e);
+
                 throw new BeanInitializationException("Unable to reuse existing authorization config", e);
             }
         }
 
         if (config == null)
         {
-            logger.debug("Load authorization config from XLM file...");
+            logger.debug("Load authorization config from XML file...");
+
             parser = new GenericParser<>(AuthorizationConfig.class);
             config = parser.parse(getConfigurationResource().getURL());
 

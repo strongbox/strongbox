@@ -5,8 +5,8 @@ import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGeneration;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.users.domain.Roles;
 
 import javax.inject.Inject;
@@ -38,7 +38,7 @@ import static org.junit.Assert.assertTrue;
  * @author Alex Oreshkevich
  */
 public abstract class RestAssuredBaseTest
-        extends TestCaseWithArtifactGenerationAndIndexing
+        extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     public final static int DEFAULT_PORT = 48080;
@@ -74,7 +74,7 @@ public abstract class RestAssuredBaseTest
 
     private String contextBaseUrl;
 
-    private TestCaseWithArtifactGeneration generator = new TestCaseWithArtifactGeneration();
+    private TestCaseWithMavenArtifactGeneration generator = new TestCaseWithMavenArtifactGeneration();
 
 
     public RestAssuredBaseTest()

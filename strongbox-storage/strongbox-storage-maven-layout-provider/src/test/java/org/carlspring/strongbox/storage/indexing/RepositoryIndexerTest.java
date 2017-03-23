@@ -1,11 +1,11 @@
 package org.carlspring.strongbox.storage.indexing;
 
-import org.carlspring.strongbox.services.RepositoryManagementService;
+import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
@@ -14,7 +14,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.maven.index.ArtifactInfo;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,13 +23,10 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 public class RepositoryIndexerTest
-        extends TestCaseWithArtifactGenerationAndIndexing
+        extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     private static final String REPOSITORY_RELEASES = "ri-releases";
-
-    @Inject
-    private RepositoryManagementService repositoryManagementService;
 
 
     @BeforeClass
@@ -40,8 +36,8 @@ public class RepositoryIndexerTest
         cleanUp(getRepositoriesToClean());
     }
 
-    @Before
-    public void setUp()
+    @PostConstruct
+    public void initialize()
             throws Exception
     {
         createRepositoryWithArtifacts(STORAGE0,
@@ -74,11 +70,11 @@ public class RepositoryIndexerTest
                                                                                                IndexTypeEnum.LOCAL
                                                                                                             .getType());
 
-        int x = repositoryManagementService.reIndex(STORAGE0,
-                                                    REPOSITORY_RELEASES,
-                                                    "org/carlspring/strongbox/strongbox-commons");
+        MavenRepositoryFeatures features = (MavenRepositoryFeatures) getFeatures(STORAGE0, REPOSITORY_RELEASES);
 
-        repositoryManagementService.pack(STORAGE0, REPOSITORY_RELEASES);
+        int x = features.reIndex(STORAGE0, REPOSITORY_RELEASES, "org/carlspring/strongbox/strongbox-commons");
+
+        features.pack(STORAGE0, REPOSITORY_RELEASES);
 
         File repositoryBasedir = getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES);
 
