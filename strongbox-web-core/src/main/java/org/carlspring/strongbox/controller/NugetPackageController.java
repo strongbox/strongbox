@@ -30,8 +30,8 @@ import org.apache.commons.fileupload.FileUploadBase.FileUploadIOException;
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.fileupload.MultipartStream.MalformedStreamException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -59,7 +59,7 @@ import ru.aristar.jnuget.files.TempNupkgFile;
 public class NugetPackageController extends BaseArtifactController
 {
 
-    private static final Logger logger = LogManager.getLogger(NugetPackageController.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(NugetPackageController.class);
 
     public final static String ROOT_CONTEXT = "/storages";
 
