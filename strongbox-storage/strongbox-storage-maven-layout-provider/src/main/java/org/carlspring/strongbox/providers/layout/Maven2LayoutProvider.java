@@ -6,6 +6,8 @@ import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.RepositoryPath;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
+import org.carlspring.strongbox.repository.MavenRepositoryManagementStrategy;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.checksum.MavenChecksumManager;
@@ -33,7 +35,9 @@ import org.springframework.stereotype.Component;
  * @author carlspring
  */
 @Component("maven2LayoutProvider")
-public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCoordinates>
+public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCoordinates,
+                                                                 MavenRepositoryFeatures,
+                                                                 MavenRepositoryManagementStrategy>
 {
 
     private static final Logger logger = LoggerFactory.getLogger(Maven2LayoutProvider.class);
@@ -48,6 +52,13 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
 
     @Inject
     private ArtifactMetadataService artifactMetadataService;
+
+    @Inject
+    private MavenRepositoryFeatures mavenRepositoryFeatures;
+
+    @Inject
+    private MavenRepositoryManagementStrategy mavenRepositoryManagementStrategy;
+
 
     @PostConstruct
     @Override
@@ -189,9 +200,9 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
                                                                  forceRegeneration);
                                                }
                                                catch (IOException |
-                                                              NoSuchAlgorithmException |
-                                                              ArtifactTransportException |
-                                                              ProviderImplementationException e)
+                                                      NoSuchAlgorithmException |
+                                                      ArtifactTransportException |
+                                                      ProviderImplementationException e)
                                                {
                                                    logger.error(e.getMessage(), e);
                                                }
@@ -213,6 +224,16 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         return new PomFilenameFilter();
     }
 
+    @Override
+    public MavenRepositoryFeatures getRepositoryFeatures()
+    {
+        return mavenRepositoryFeatures;
+    }
 
+    @Override
+    public MavenRepositoryManagementStrategy getRepositoryManagementStrategy()
+    {
+        return mavenRepositoryManagementStrategy;
+    }
 
 }

@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.storage.validation.version;
 
 import org.carlspring.strongbox.config.CommonConfig;
-import org.carlspring.strongbox.config.StorageApiConfig;
+import org.carlspring.strongbox.config.StorageCoreConfig;
 import org.carlspring.strongbox.services.VersionValidatorService;
 
 import javax.inject.Inject;
@@ -23,8 +23,8 @@ public class VersionValidatorServiceTest
 
     @org.springframework.context.annotation.Configuration
     @Import({
-            StorageApiConfig.class,
-            CommonConfig.class
+                    StorageCoreConfig.class,
+                    CommonConfig.class
     })
     public static class SpringConfig { }
 

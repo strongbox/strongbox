@@ -2,11 +2,10 @@ package org.carlspring.strongbox.storage.indexing;
 
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.MockedIndexResourceFetcherConfig;
-import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.storage.RepositoryInitializationException;
+import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -30,7 +29,7 @@ import static org.junit.Assert.assertTrue;
 @ContextConfiguration(classes = MockedIndexResourceFetcherConfig.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 public class Maven2ProxyRepositoryTest
-        extends TestCaseWithArtifactGenerationAndIndexing
+        extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     private static final String REPOSITORY_RELEASES = "m2pr-releases";
@@ -83,8 +82,10 @@ public class Maven2ProxyRepositoryTest
     public void testRepositoryIndexFetching()
             throws ArtifactTransportException, IOException
     {
+        MavenRepositoryFeatures features = (MavenRepositoryFeatures) getFeatures(STORAGE0, REPOSITORY_RELEASES);
+
         // Make sure the repositoryReleases that is being proxied has a packed index to serve:
-        repositoryManagementService.pack(STORAGE0, REPOSITORY_RELEASES);
+        features.pack(STORAGE0, REPOSITORY_RELEASES);
 
         Repository repositoryReleases = configurationManager.getRepository(STORAGE0, REPOSITORY_RELEASES);
         File indexPropertiesFile = new File(repositoryReleases.getBasedir(),
@@ -95,11 +96,11 @@ public class Maven2ProxyRepositoryTest
                    indexPropertiesFile.exists());
 
         // Download the remote index for the proxy repository
-        repositoryManagementService.downloadRemoteIndex(STORAGE0, REPOSITORY_PROXY);
+        features.downloadRemoteIndex(STORAGE0, REPOSITORY_PROXY);
 
         Repository repositoryProxiedReleases = configurationManager.getRepository(STORAGE0, REPOSITORY_PROXY);
         File indexPropertiesUpdaterFile = new File(repositoryProxiedReleases.getBasedir(),
-                                            ".index/remote/nexus-maven-repository-index-updater.properties");
+                                                   ".index/remote/nexus-maven-repository-index-updater.properties");
 
         assertTrue("Failed to retrieve nexus-maven-repositoryReleases-index-updater.properties from the remote!",
                    indexPropertiesUpdaterFile.exists());

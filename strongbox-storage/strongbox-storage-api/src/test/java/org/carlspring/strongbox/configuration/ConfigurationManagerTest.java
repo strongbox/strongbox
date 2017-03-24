@@ -3,14 +3,14 @@ package org.carlspring.strongbox.configuration;
 import org.carlspring.strongbox.config.ClientConfig;
 import org.carlspring.strongbox.config.CommonConfig;
 import org.carlspring.strongbox.config.DataServiceConfig;
-import org.carlspring.strongbox.config.StorageApiConfig;
+import org.carlspring.strongbox.config.StorageCoreConfig;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.RuleSet;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.inject.Inject;
@@ -30,6 +30,7 @@ import org.junit.runner.RunWith;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import static org.carlspring.strongbox.testing.TestCaseWithRepository.STORAGE0;
 import static org.junit.Assert.*;
 
 /**
@@ -38,15 +39,14 @@ import static org.junit.Assert.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 public class ConfigurationManagerTest
-        extends TestCaseWithArtifactGeneration
 {
 
     @org.springframework.context.annotation.Configuration
     @Import({
-            StorageApiConfig.class,
-            CommonConfig.class,
-            ClientConfig.class,
-            DataServiceConfig.class
+                    StorageCoreConfig.class,
+                    CommonConfig.class,
+                    ClientConfig.class,
+                    DataServiceConfig.class
     })
     public static class SpringConfig { }
 
@@ -131,9 +131,10 @@ public class ConfigurationManagerTest
 
         Storage storage = new Storage();
         storage.setId("myStorageId");
-        storage.setBasedir(getStorageBasedir(STORAGE0).getAbsolutePath());
-        storage.saveRepository(repository1);
-        storage.saveRepository(repository2);
+        storage.setBasedir(new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages" + STORAGE0)
+                                   .getAbsolutePath());
+        storage.addRepository(repository1);
+        storage.addRepository(repository2);
 
         Configuration configuration = new Configuration();
         configuration.addStorage(storage);
@@ -157,10 +158,11 @@ public class ConfigurationManagerTest
         repository3.addRepositoryToGroup(repository2.getId());
 
         Storage storage = new Storage("storage0");
-        storage.setBasedir(getStorageBasedir(STORAGE0).getAbsolutePath());
-        storage.saveRepository(repository1);
-        storage.saveRepository(repository2);
-        storage.saveRepository(repository3);
+        storage.setBasedir(new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages" + STORAGE0)
+                                   .getAbsolutePath());
+        storage.addRepository(repository1);
+        storage.addRepository(repository2);
+        storage.addRepository(repository3);
 
         Configuration configuration = new Configuration();
         configuration.addStorage(storage);

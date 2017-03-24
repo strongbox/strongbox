@@ -6,9 +6,14 @@ import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.io.RepositoryPath;
 import org.carlspring.strongbox.io.filters.NuspecFilenameFilter;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
+import org.carlspring.strongbox.repository.NugetRepositoryManagementStrategy;
+import org.carlspring.strongbox.repository.RepositoryFeatures;
+import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -39,17 +44,27 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
-public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<NugetHierarchicalArtifactCoordinates>
+public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<NugetHierarchicalArtifactCoordinates,
+                                                                            NugetRepositoryFeatures,
+                                                                            NugetRepositoryManagementStrategy>
 {
     private static final Logger logger = LoggerFactory.getLogger(NugetHierarchicalLayoutProvider.class);
 
     public static final String ALIAS = "Nuget Hierarchical";
+
+    @Inject
+    private NugetRepositoryFeatures nugetRepositoryFeatures;
+
+    @Inject
+    private NugetRepositoryManagementStrategy nugetRepositoryManagementStrategy;
+
 
     @Override
     @PostConstruct
     public void register()
     {
         layoutProviderRegistry.addProvider(ALIAS, this);
+
         logger.info("Registered layout provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
     }
 
@@ -184,6 +199,18 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
     public FilenameFilter getMetadataFilenameFilter()
     {
         return new NuspecFilenameFilter();
+    }
+
+    @Override
+    public NugetRepositoryFeatures getRepositoryFeatures()
+    {
+        return nugetRepositoryFeatures;
+    }
+
+    @Override
+    public NugetRepositoryManagementStrategy getRepositoryManagementStrategy()
+    {
+        return nugetRepositoryManagementStrategy;
     }
 
 }

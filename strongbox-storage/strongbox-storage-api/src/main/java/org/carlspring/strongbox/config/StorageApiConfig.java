@@ -30,7 +30,6 @@ import org.springframework.data.orient.commons.repository.config.EnableOrientRep
                  "org.carlspring.strongbox.providers",
                  "org.carlspring.strongbox.services",
                  "org.carlspring.strongbox.storage",
-                 "org.carlspring.strongbox.storage.resolvers",
                  "org.carlspring.strongbox.xml"
                })
 @EnableOrientRepositories(basePackages = { "org.carlspring.strongbox.storage.repository",
@@ -41,15 +40,6 @@ public class StorageApiConfig
 
     @Inject
     private List<VersionValidator> versionValidators;
-
-    @Inject
-    private StorageProviderRegistry storageProviderRegistry;
-
-    @Inject
-    private RepositoryProviderRegistry repositoryProviderRegistry;
-
-    @Inject
-    private LayoutProviderRegistry layoutProviderRegistry;
 
     @Inject
     private ArtifactResolutionServiceImpl artifactResolutionService;

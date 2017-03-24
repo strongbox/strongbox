@@ -8,7 +8,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RuleSet;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -38,7 +38,7 @@ import static org.junit.Assert.*;
 @Transactional
 @Commit
 public class ConfigurationManagementServiceImplTest
-        extends TestCaseWithArtifactGenerationAndIndexing
+        extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationManagementServiceImplTest.class);

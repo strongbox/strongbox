@@ -5,6 +5,8 @@ import org.carlspring.strongbox.artifact.coordinates.P2ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.p2.P2ArtifactReader;
+import org.carlspring.strongbox.repository.P2RepositoryFeatures;
+import org.carlspring.strongbox.repository.P2RepositoryManagementStrategy;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
@@ -20,7 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class P2LayoutProvider
-        extends AbstractLayoutProvider<P2ArtifactCoordinates>
+        extends AbstractLayoutProvider<P2ArtifactCoordinates,
+                                       P2RepositoryFeatures,
+                                       P2RepositoryManagementStrategy>
 {
 
     private static final Logger logger = LoggerFactory.getLogger(P2LayoutProvider.class);
@@ -29,6 +33,13 @@ public class P2LayoutProvider
 
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
+
+    @Inject
+    private P2RepositoryFeatures p2RepositoryFeatures;
+
+    @Inject
+    private P2RepositoryManagementStrategy p2RepositoryManagementStrategy;
+
 
     @Override
     public void register()
@@ -144,6 +155,18 @@ public class P2LayoutProvider
     public FilenameFilter getMetadataFilenameFilter()
     {
         throw new UnsupportedOperationException("Not yet implemented!");
+    }
+
+    @Override
+    public P2RepositoryFeatures getRepositoryFeatures()
+    {
+        return p2RepositoryFeatures;
+    }
+
+    @Override
+    public P2RepositoryManagementStrategy getRepositoryManagementStrategy()
+    {
+        return p2RepositoryManagementStrategy;
     }
 
 }

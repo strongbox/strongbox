@@ -14,7 +14,7 @@ import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGeneration;
 import org.carlspring.strongbox.util.FileUtils;
 
 import javax.inject.Inject;
@@ -34,7 +34,7 @@ import static org.junit.Assert.*;
 @CronTaskTest
 @RunWith(SpringJUnit4ClassRunner.class)
 public class RegenerateMavenChecksumCronJobTest
-        extends TestCaseWithArtifactGeneration
+        extends TestCaseWithMavenArtifactGeneration
 {
 
     @Inject
@@ -104,7 +104,7 @@ public class RegenerateMavenChecksumCronJobTest
             repository.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
             repository.setStorage(storage);
             configurationManagementService.saveStorage(storage);
-            storage.saveRepository(repository);
+            storage.addRepository(repository);
             repositoryManagementService.createRepository("storage1", "releases");
 
             //Create released artifact
