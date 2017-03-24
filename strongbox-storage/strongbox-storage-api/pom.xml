@@ -169,6 +169,12 @@
     </build>
 
     <dependencies>
+    
+        <dependency>
+            <groupId>com.orientechnologies</groupId>
+            <artifactId>orientdb-object</artifactId>
+        </dependency>
+    
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-configuration</artifactId>

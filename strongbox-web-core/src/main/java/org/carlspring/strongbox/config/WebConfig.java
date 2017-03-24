@@ -41,7 +41,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
           UsersConfig.class,
           SecurityConfig.class,
           ClientConfig.class })
-@EnableCaching
+@EnableCaching(order = 105)
 @EnableWebMvc
 public class WebConfig
         extends WebMvcConfigurerAdapter

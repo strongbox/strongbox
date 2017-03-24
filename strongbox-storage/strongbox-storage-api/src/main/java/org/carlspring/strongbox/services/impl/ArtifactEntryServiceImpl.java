@@ -1,26 +1,20 @@
 package org.carlspring.strongbox.services.impl;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.repository.ArtifactRepository;
-import org.carlspring.strongbox.services.ArtifactEntryService;
-
-import javax.inject.Inject;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.orientechnologies.orient.core.query.OQueryAbstract;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.data.service.CommonCrudService;
+import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
 /**
  * DAO implementation for {@link ArtifactEntry} entities.
@@ -29,8 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @Transactional
-class ArtifactEntryServiceImpl
-        implements ArtifactEntryService
+class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry> implements ArtifactEntryService
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactEntryService.class);
@@ -38,23 +31,17 @@ class ArtifactEntryServiceImpl
     // will help us avoid to have hardcoded name of this class
     private static final String ARTIFACT_ENTRY_CLASS_NAME = ArtifactEntry.class.getSimpleName();
 
-    @Inject
-    ArtifactRepository artifactRepository;
-
-    @Inject
-    CacheManager cacheManager;
-
-    @Inject
-    OObjectDatabaseTx databaseTx;
+    @Override
+    public Class<ArtifactEntry> getEntityClass()
+    {
+        return ArtifactEntry.class;
+    }
 
     @Override
-    @SuppressWarnings("unchecked")
-    // don't try to use second level cache here until you make all coordinates properly serializable
-    public List<ArtifactEntry> findByCoordinates(ArtifactCoordinates coordinates)
+    @Transactional
+    public List<ArtifactEntry> findByCoordinates(Map<String, String> coordinates)
     {
-        // if search query is null or empty delegate to #findAll
-        if (coordinates == null || coordinates.getCoordinates()
-                                              .keySet()
+        if (coordinates == null || coordinates.keySet()
                                               .isEmpty())
         {
             return findAll().orElse(Collections.EMPTY_LIST);
@@ -62,29 +49,27 @@ class ArtifactEntryServiceImpl
 
         // prepare custom query based on all non-null coordinates that were joined by logical AND
         // read more about fetching strategies here: http://orientdb.com/docs/2.2/Fetching-Strategies.html
-        String nativeQuery = buildQueryFrom(coordinates);
-        OQueryAbstract query = new OSQLSynchQuery<>(nativeQuery).setFetchPlan("*:-1");
 
+        String nativeQuery = buildQuery(coordinates);
+        OSQLSynchQuery<ArtifactEntry> query = new OSQLSynchQuery<>(nativeQuery);
         logger.info("[findByCoordinates] SQL -> \n\t" + nativeQuery);
 
-        databaseTx.activateOnCurrentThread();
-        List<ArtifactEntry> resultList = databaseTx.query(query);
-
-        // still have to detach everything manually until we fully migrate to OrientDB 2.2.X
-        // where fetching strategies will be fully supported
-        List<ArtifactEntry> detachedList = new LinkedList<>();
-        resultList.forEach(artifactEntry -> detachedList.add(databaseTx.detachAll(artifactEntry, true)));
-
-        return detachedList;
+        return getDelegate().query(query);
     }
 
-    private String buildQueryFrom(ArtifactCoordinates coordinates)
+    @Override
+    @SuppressWarnings("unchecked")
+    // don't try to use second level cache here until you make all coordinates properly serializable
+    public List<ArtifactEntry> findByCoordinates(ArtifactCoordinates coordinates)
+    {
+        return findByCoordinates(coordinates == null ? null : coordinates.getCoordinates());
+    }
+
+    private String buildQuery(Map<String, String> map)
     {
         StringBuilder sb = new StringBuilder();
         sb.append("select * from ")
           .append(ARTIFACT_ENTRY_CLASS_NAME);
-
-        Map<String, String> map = coordinates.getCoordinates();
 
         if (map == null || map.isEmpty())
         {
@@ -114,99 +99,11 @@ class ArtifactEntryServiceImpl
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public <S extends ArtifactEntry> S save(S var1)
+    public Optional<ArtifactEntry> findOne(ArtifactCoordinates artifactCoordinates)
     {
-        return artifactRepository.save(var1);
+        List<ArtifactEntry> artifactEntryList = findByCoordinates(artifactCoordinates);
+        return Optional.ofNullable(artifactEntryList == null || artifactEntryList.isEmpty() ? null
+                : artifactEntryList.iterator().next());
     }
 
-    @Override
-    public <S extends ArtifactEntry> Iterable<S> save(Iterable<S> var1)
-    {
-        return artifactRepository.save(var1);
-    }
-
-    @Override
-    @Transactional
-    public Optional<ArtifactEntry> findOne(String var1)
-    {
-        if (var1 == null)
-        {
-            return Optional.empty();
-        }
-
-        return Optional.ofNullable(artifactRepository.findOne(var1));
-    }
-
-    @Override
-    @Transactional
-    public boolean exists(String var1)
-    {
-        return artifactRepository.exists(var1);
-    }
-
-    @Override
-    @Transactional
-    public Optional<List<ArtifactEntry>> findAll()
-    {
-        try
-        {
-            return Optional.ofNullable(artifactRepository.findAll());
-        }
-        catch (Exception e)
-        {
-            logger.warn("Internal spring-data-orientdb exception.", e);
-            return Optional.empty();
-        }
-    }
-
-    @Override
-    @Transactional
-    public Optional<List<ArtifactEntry>> findAll(List<String> var1)
-    {
-        try
-        {
-            return Optional.ofNullable(artifactRepository.findAll(var1));
-        }
-        catch (Exception e)
-        {
-            logger.warn("Internal spring-data-orientdb exception.", e);
-            return Optional.empty();
-        }
-    }
-
-    @Override
-    @Transactional
-    public long count()
-    {
-        return artifactRepository.count();
-    }
-
-    @Override
-    @Transactional
-    public void delete(String var1)
-    {
-        artifactRepository.delete(var1);
-    }
-
-    @Override
-    @Transactional
-    public void delete(ArtifactEntry var1)
-    {
-        artifactRepository.delete(var1);
-    }
-
-    @Override
-    @Transactional
-    public void delete(Iterable<? extends ArtifactEntry> var1)
-    {
-        artifactRepository.delete(var1);
-    }
-
-    @Override
-    @Transactional
-    public void deleteAll()
-    {
-        artifactRepository.deleteAll();
-    }
 }

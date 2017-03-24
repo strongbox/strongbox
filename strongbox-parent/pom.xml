@@ -63,7 +63,7 @@
         <version.spring>4.3.6.RELEASE</version.spring>
         <version.spring.security>4.2.1.RELEASE</version.spring.security>
         <version.spring.data>0.10.0-SNAPSHOT</version.spring.data>
-        <version.orientdb>2.2.16</version.orientdb>
+        <version.orientdb>2.2.18-SNAPSHOT</version.orientdb>
         <version.guava>19.0</version.guava>
         <version.jetty.maven.plugin>9.3.12.v20160915</version.jetty.maven.plugin>
         <version.junit>4.12</version.junit>
@@ -71,6 +71,7 @@
 
     <build>
         <pluginManagement>
+        
             <plugins>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -241,11 +242,6 @@
                 <groupId>com.orientechnologies</groupId>
                 <artifactId>orientdb-client</artifactId>
                 <version>${version.orientdb}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.orientechnologies</groupId>
-                <artifactId>orientdb-enterprise</artifactId>
-                <version>2.2.0-beta</version>
             </dependency>
             <dependency>
                 <groupId>com.orientechnologies</groupId>
@@ -506,10 +502,26 @@
             </dependency>
 
             <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjrt</artifactId>
+                <version>1.8.10</version>
+            </dependency>
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjweaver</artifactId>
+                <version>1.8.10</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-aop</artifactId>
                 <version>${version.spring}</version>
             </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-aspects</artifactId>
+                <version>${version.spring}</version>
+            </dependency>            
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-beans</artifactId>
@@ -518,6 +530,11 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context-support</artifactId>
+                <version>${version.spring}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-tx</artifactId>
                 <version>${version.spring}</version>
             </dependency>
             <dependency>
@@ -561,27 +578,6 @@
                 <version>${version.spring}</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.springframework.data</groupId>
-                <artifactId>spring-data-orientdb-document</artifactId>
-                <version>${version.spring.data}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.data</groupId>
-                <artifactId>spring-data-orientdb-object</artifactId>
-                <version>${version.spring.data}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.data</groupId>
-                <artifactId>spring-data-orientdb-graph</artifactId>
-                <version>${version.spring.data}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.codehaus.groovy</groupId>
-                        <artifactId>groovy</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
 	        <dependency>
 	            <groupId>ru.aristar.nuget</groupId>
 	            <artifactId>jnuget-core</artifactId>

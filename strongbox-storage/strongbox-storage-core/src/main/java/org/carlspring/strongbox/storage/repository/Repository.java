@@ -1,7 +1,11 @@
 package org.carlspring.strongbox.storage.repository;
 
-import org.carlspring.strongbox.configuration.ProxyConfiguration;
-import org.carlspring.strongbox.storage.Storage;
+import java.io.File;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -11,14 +15,9 @@ import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
-import java.io.File;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.carlspring.strongbox.configuration.ProxyConfiguration;
+import org.carlspring.strongbox.storage.Storage;
 
 /**
  * @author mtodorov
@@ -29,12 +28,6 @@ public class Repository
         implements Serializable
 {
 
-    /**
-     * Added to avoid a runtime error whereby the detachAll property is checked for existence but not actually used.
-     */
-    @JsonIgnore
-    protected String detachAll;
-    
     @XmlAttribute
     private String id;
     
@@ -366,16 +359,6 @@ public class Repository
     public void setHttpConnectionPool(HttpConnectionPool httpConnectionPool)
     {
         this.httpConnectionPool = httpConnectionPool;
-    }
-
-    public String getDetachAll()
-    {
-        return detachAll;
-    }
-
-    public void setDetachAll(String detachAll)
-    {
-        this.detachAll = detachAll;
     }
 
     public List<CustomConfiguration> getCustomConfigurations()

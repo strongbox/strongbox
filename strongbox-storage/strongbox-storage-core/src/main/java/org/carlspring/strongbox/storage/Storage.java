@@ -1,8 +1,9 @@
 package org.carlspring.strongbox.storage;
 
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.xml.RepositoryMapAdapter;
+import java.io.File;
+import java.io.Serializable;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -10,12 +11,10 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.io.File;
-import java.io.Serializable;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.xml.RepositoryMapAdapter;
 
 /**
  * @author mtodorov
@@ -26,12 +25,6 @@ public class Storage
         implements Serializable
 {
 
-    /**
-     * Added to avoid a runtime error whereby the detachAll property is checked for existence but not actually used.
-     */
-    @JsonIgnore
-    protected String detachAll;
-    
     @XmlAttribute
     private String id;
     
@@ -152,16 +145,6 @@ public class Storage
         File storageDirectory = new File(storagesBasedir, id);
 
         return storageDirectory.exists();
-    }
-
-    public String getDetachAll()
-    {
-        return detachAll;
-    }
-
-    public void setDetachAll(String detachAll)
-    {
-        this.detachAll = detachAll;
     }
 
     @Override

@@ -1,8 +1,13 @@
 package org.carlspring.strongbox.config;
 
+import java.util.LinkedHashSet;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.data.service.NoProxyOrientRepositoryFactoryBean;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
@@ -10,18 +15,11 @@ import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.services.impl.ArtifactResolutionServiceImpl;
 import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import java.util.LinkedHashSet;
-import java.util.List;
-
-import com.orientechnologies.orient.core.entity.OEntityManager;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.orient.commons.repository.config.EnableOrientRepositories;
+
+import com.orientechnologies.orient.core.entity.OEntityManager;
 
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.artifact",
@@ -32,9 +30,6 @@ import org.springframework.data.orient.commons.repository.config.EnableOrientRep
                  "org.carlspring.strongbox.storage",
                  "org.carlspring.strongbox.xml"
                })
-@EnableOrientRepositories(basePackages = { "org.carlspring.strongbox.storage.repository",
-                                           "org.carlspring.strongbox.repository" },
-                          repositoryFactoryBeanClass = NoProxyOrientRepositoryFactoryBean.class)
 public class StorageApiConfig
 {
 
@@ -48,14 +43,11 @@ public class StorageApiConfig
     private ConfigurationManager configurationManager;
 
     @Inject
-    private OObjectDatabaseTx databaseTx;
-
+    private OEntityManager entityManager;
+    
     @PostConstruct
     public void init()
     {
-        databaseTx.activateOnCurrentThread();
-        OEntityManager entityManager = databaseTx.getEntityManager();
-
         // register all domain entities
         entityManager.registerEntityClasses(ArtifactEntry.class.getPackage()
                                                                .getName());

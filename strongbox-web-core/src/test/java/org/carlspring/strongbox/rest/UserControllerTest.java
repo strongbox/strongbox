@@ -1,25 +1,32 @@
 package org.carlspring.strongbox.rest;
 
+import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.hamcrest.Matchers.containsString;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+import java.util.List;
+
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.rest.context.IntegrationTest;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.service.UserService;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.util.List;
-
-import com.jayway.restassured.http.ContentType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.web.util.NestedServletException;
-import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.*;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.jayway.restassured.http.ContentType;
 
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
+@Transactional
 public class UserControllerTest
         extends RestAssuredBaseTest
 {
@@ -100,7 +107,7 @@ public class UserControllerTest
         users.forEach(user -> logger.debug("Retrieved " + user));
     }
 
-    @Test(expected = NestedServletException.class)
+    @Test
     // com.orientechnologies.orient.core.storage.ORecordDuplicatedException
     public void testUpdateUser()
             throws Exception
@@ -164,12 +171,13 @@ public class UserControllerTest
                               });
     }
 
-    @Test(expected = NestedServletException.class)
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     // com.orientechnologies.orient.core.storage.ORecordDuplicatedException
     public void testGenerateSecurityToken()
             throws Exception
     {
-        User user = buildUser("test-update", "password-update");
+        User user = buildUser("test-jwt", "password-update");
 
         //1. Create user
         given().contentType("application/json")
@@ -201,22 +209,22 @@ public class UserControllerTest
 
         //3. Generate token
         response = given().when()
-                          .get("/users/user/test-update/generate-security-token")
+                          .get("/users/user/test-jwt/generate-security-token")
                           .peek() // Use peek() to print the output
                           .then()
                           .statusCode(200) // check http status code
                           .extract()
                           .asString();
-        assertEquals(200, response.length());
+        assertTrue(response.startsWith("eyJhbGciOiJIUzI1NiJ9"));
     }
 
-    @Test(expected = NestedServletException.class)
+    @Test
     // com.orientechnologies.orient.core.storage.ORecordDuplicatedException
     public void testDeleteUser()
             throws Exception
     {
         // create new user
-        User test = buildUser("test-update", "password-update");
+        User test = buildUser("test-delete", "password-update");
 
         given().contentType("application/json")
                .param("juser", test)

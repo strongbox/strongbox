@@ -1,9 +1,9 @@
 package org.carlspring.strongbox.domain;
 
+import java.io.Serializable;
+
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.domain.GenericEntity;
-
-import java.io.Serializable;
 
 /**
  * @author carlspring

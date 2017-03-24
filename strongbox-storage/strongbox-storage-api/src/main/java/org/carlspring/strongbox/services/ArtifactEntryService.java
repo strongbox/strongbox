@@ -1,11 +1,12 @@
 package org.carlspring.strongbox.services;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.service.CrudService;
 import org.carlspring.strongbox.domain.ArtifactEntry;
-
-import java.util.List;
-
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -28,4 +29,8 @@ public interface ArtifactEntryService
      * @return list of artifacts or empty list if nothing was found
      */
     List<ArtifactEntry> findByCoordinates(ArtifactCoordinates coordinates);
+    
+    List<ArtifactEntry> findByCoordinates(Map<String, String> coordinates);
+    
+    Optional<ArtifactEntry> findOne(ArtifactCoordinates artifactCoordinates);
 }

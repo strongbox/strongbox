@@ -1,16 +1,33 @@
 package org.carlspring.strongbox.services.impl;
 
+import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.handlers.RemoveTimestampedSnapshotOperation;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.services.VersionValidatorService;
@@ -27,23 +44,10 @@ import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsVa
 import org.carlspring.strongbox.storage.validation.version.VersionValidationException;
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
 import org.carlspring.strongbox.util.ArtifactFileUtils;
-
-import javax.inject.Inject;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.NoSuchAlgorithmException;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.maven.artifact.Artifact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author mtodorov
@@ -79,8 +83,11 @@ public class ArtifactManagementServiceImpl
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
-
+    @Inject
+    private ArtifactEntryService artifactEntryService;
+    
     @Override
+    @Transactional
     public void store(String storageId,
                       String repositoryId,
                       String path,
@@ -117,6 +124,7 @@ public class ArtifactManagementServiceImpl
                 // Store artifact Digests in cache if we have them.
                 addChecksumsToCacheManager(os.getDigestMap(), artifactPath);
                 addArtifactToIndex(storageId, repositoryId, path);
+                storeArtifact(storageId, repositoryId, path);
             }
             else
             {
@@ -133,24 +141,54 @@ public class ArtifactManagementServiceImpl
         }
     }
 
-    private void addArtifactToIndex(String storageId, String repositoryId, String path)
-            throws IOException
+    private void storeArtifact(String storageId,
+                               String repositoryId,
+                               String path)
     {
-        if (ArtifactFileUtils.isArtifactFile(path))
-        {
-            final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(storageId + ":" + repositoryId);
-            if (indexer != null)
-            {
-                final Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
-                final Storage storage = getStorage(storageId);
-                final File storageBasedir = new File(storage.getBasedir());
-                final File artifactFile = new File(new File(storageBasedir, repositoryId), path).getCanonicalFile();
+        ArtifactCoordinates artifactCoordinates = artifactResolutionService.getArtifactCoordinates(storageId,
+                                                                                                   repositoryId, path);
 
-                if (!artifactFile.getName().endsWith(".pom"))
-                {
-                    indexer.addArtifactToIndex(repositoryId, artifactFile, artifact);
-                }
-            }
+        ArtifactEntry artifactEntry = artifactEntryService.findOne(artifactCoordinates)
+                                                          .orElse(createArtifactEntry(artifactCoordinates, storageId,
+                                                                                      repositoryId));
+        artifactEntryService.save(artifactEntry);
+    }
+
+    private ArtifactEntry createArtifactEntry(ArtifactCoordinates artifactCoordinates,
+                                              String storageId,
+                                              String repositoryId)
+    {
+        ArtifactEntry artifactEntry = new ArtifactEntry();
+        artifactEntry.setStorageId(storageId);
+        artifactEntry.setRepositoryId(repositoryId);
+        artifactEntry.setArtifactCoordinates(artifactCoordinates);
+        return artifactEntry;
+    }
+
+    private void addArtifactToIndex(String storageId,
+                                    String repositoryId,
+                                    String path)
+        throws IOException
+    {
+        if (!ArtifactFileUtils.isArtifactFile(path))
+        {
+            return;
+        }
+        
+        RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(storageId + ":" + repositoryId);
+        if (indexer == null)
+        {
+            return;
+        }
+        
+        Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
+        Storage storage = getStorage(storageId);
+        File storageBasedir = new File(storage.getBasedir());
+        File artifactFile = new File(new File(storageBasedir, repositoryId), path).getCanonicalFile();
+        
+        if (!artifactFile.getName().endsWith(".pom"))
+        {
+            indexer.addArtifactToIndex(repositoryId, artifactFile, artifact);
         }
     }
 

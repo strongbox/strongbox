@@ -13,7 +13,16 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+
 import org.apache.maven.index.ArtifactInfo;
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.services.RepositoryManagementService;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -113,12 +122,13 @@ public class RepositoryIndexerTest
         Collection<ArtifactInfo> artifactInfos = new LinkedHashSet<>();
         for (SearchResult result : results)
         {
+            MavenArtifactCoordinates mavenArtifactCoordinates = (MavenArtifactCoordinates) result.getArtifactCoordinates();
             artifactInfos.add(new ArtifactInfo(result.getRepositoryId(),
-                                               result.getGroupId(),
-                                               result.getArtifactId(),
-                                               result.getVersion(),
-                                               result.getClassifier(),
-                                               result.getExtension()));
+                    mavenArtifactCoordinates.getGroupId(),
+                    mavenArtifactCoordinates.getArtifactId(),
+                    mavenArtifactCoordinates.getVersion(),
+                    mavenArtifactCoordinates.getClassifier(),
+                    mavenArtifactCoordinates.getExtension()));
         }
 
         return artifactInfos;

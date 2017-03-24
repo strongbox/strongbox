@@ -1,19 +1,18 @@
 package org.carlspring.strongbox.users.service.impl;
 
-import org.carlspring.strongbox.users.domain.User;
-import org.carlspring.strongbox.users.repository.UserRepository;
-import org.carlspring.strongbox.users.security.SecurityTokenProvider;
-import org.carlspring.strongbox.users.service.UserService;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
 import org.apache.commons.lang.StringUtils;
+import org.carlspring.strongbox.data.service.CommonCrudService;
+import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.security.SecurityTokenProvider;
+import org.carlspring.strongbox.users.service.UserService;
 import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +21,9 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
 /**
  * DAO implementation for {@link User} entities.
@@ -32,26 +32,18 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @Transactional
-public class UserServiceImpl
+public class UserServiceImpl extends CommonCrudService<User>
         implements UserService
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+    public static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     public static final String USERS_CACHE = "users";
 
     @Inject
-    UserRepository repository;
-
-    @Inject
     CacheManager cacheManager;
-
     @Inject
     SecurityTokenProvider tokenProvider;
-
-    @Inject
-    OObjectDatabaseTx databaseTx;
-
     Cache usersCache;
 
     @PostConstruct
@@ -65,141 +57,73 @@ public class UserServiceImpl
     }
 
     @Override
-    @Cacheable(value = USERS_CACHE,
-               key = "#name",
-               sync = true)
-    public User findByUserName(String name)
+    public Class<User> getEntityClass()
     {
-        try
-        {
-            // TODO find more appropriate place for detaching in some place
-            // where actual generated query will be executed
-            return databaseTx.detachAll(repository.findByUsername(name), true);
-        }
-        catch (Exception e)
-        {
-            logger.warn("Internal spring-data-orientdb exception: " + e.getLocalizedMessage());
-            logger.trace("Exception details: ", e);
-
-            usersCache.evict(name);
-
-            return null;
-        }
+        return User.class;
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Cacheable(value = USERS_CACHE, key = "#name", sync = true)
+    public User findByUserName(String name)
+    {
+        String sQuery = String.format("select * from %s where userName=:userName", getEntityClass().getSimpleName());
+        OSQLSynchQuery<Long> oQuery = new OSQLSynchQuery<Long>(sQuery);
+        oQuery.setLimit(1);
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put("userName", name);
+
+        List<User> resultList = getDelegate().command(oQuery).execute(params);
+        return !resultList.isEmpty() ? resultList.iterator().next() : null;
+    }
+
+    @Override
     public <S extends User> S save(S newUser)
     {
-        S user = repository.save(newUser);
-        usersCache.put(user.getUsername(), user);
-
+        S user = super.save(newUser);
+        usersCache.put(user.getUsername(), getDelegate().detachAll(user, true));
         return user;
     }
 
     @Override
-    public <S extends User> Iterable<S> save(Iterable<S> var1)
+    public Optional<User> findOne(String id)
     {
-        return repository.save(var1);
-    }
-
-    @Override
-    public Optional<User> findOne(String var1)
-    {
-        if (var1 == null)
+        if (id == null)
         {
             return Optional.empty();
         }
-
-        User user = repository.findOne(var1);
-        if (user != null)
-        {
-            usersCache.put(user.getUsername(), user);
-            return Optional.of(user);
-        }
-        else
-        {
-            return Optional.empty();
-        }
+        Optional<User> optionalUser = super.findOne(id);
+        return optionalUser.map(u -> {
+            usersCache.put(u.getUsername(), getDelegate().detachAll(u, true));
+            return Optional.ofNullable(u);
+        }).orElse(optionalUser);
     }
 
     @Override
-    public boolean exists(String var1)
-    {
-        return repository.exists(var1);
-    }
-
-    @Override
-    public Optional<List<User>> findAll()
-    {
-        try
-        {
-            return Optional.ofNullable(repository.findAll());
-        }
-        catch (Exception e)
-        {
-            logger.warn("Internal spring-data-orientdb exception.", e);
-            return Optional.empty();
-        }
-    }
-
-    @Override
-    public Optional<List<User>> findAll(List<String> var1)
-    {
-        try
-        {
-            return Optional.ofNullable(repository.findAll(var1));
-        }
-        catch (Exception e)
-        {
-            logger.warn("Internal spring-data-orientdb exception.", e);
-            return Optional.empty();
-        }
-    }
-
-    @Override
-    public long count()
-    {
-        return repository.count();
-    }
-
-    @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void delete(String objectId)
     {
-        findOne(objectId).ifPresent(user ->
-                                    {
-                                        usersCache.evict(user.getUsername());
-                                    });
-
-        repository.delete(objectId);
+        findOne(objectId).ifPresent(user -> {
+            usersCache.evict(user.getUsername());
+        });
+        super.delete(objectId);
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void delete(User user)
     {
         usersCache.evict(user.getUsername());
-        repository.delete(user);
+        super.delete(user);
     }
 
     @Override
-    public void delete(Iterable<? extends User> var1)
-    {
-        repository.delete(var1);
-    }
-
-    @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteAll()
     {
         usersCache.clear();
-        repository.deleteAll();
+        super.deleteAll();
     }
 
     @Override
     public String generateSecurityToken(String userName)
-            throws JoseException
+        throws JoseException
     {
         User user = findByUserName(userName);
 
@@ -217,7 +141,7 @@ public class UserServiceImpl
     @Override
     public String generateAuthenticationToken(String userName,
                                               Integer expireMinutes)
-            throws JoseException
+        throws JoseException
     {
         User user = findByUserName(userName);
 
