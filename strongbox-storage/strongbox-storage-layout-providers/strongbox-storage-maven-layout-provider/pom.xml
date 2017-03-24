@@ -9,14 +9,14 @@
         <groupId>org.carlspring.strongbox</groupId>
         <artifactId>strongbox-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
-        <relativePath>../../strongbox-parent</relativePath>
+        <relativePath>../../../strongbox-parent</relativePath>
     </parent>
 
-    <artifactId>strongbox-storage-p2-layout-provider</artifactId>
+    <artifactId>strongbox-storage-maven-layout-provider</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>Strongbox: Storage [P2 Layout Provider]</name>
+    <name>Strongbox: Storage [Maven Layout Provider]</name>
 
     <licenses>
         <license>

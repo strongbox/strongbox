@@ -9,14 +9,14 @@
         <groupId>org.carlspring.strongbox</groupId>
         <artifactId>strongbox-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
-        <relativePath>../strongbox-parent</relativePath>
+        <relativePath>../../strongbox-parent</relativePath>
     </parent>
 
-    <artifactId>strongbox-storage</artifactId>
+    <artifactId>strongbox-storage-layout-providers</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>Strongbox: Storage</name>
+    <name>Strongbox: Storage Layout Providers</name>
 
     <licenses>
         <license>
@@ -35,9 +35,9 @@
     <inceptionYear>2014</inceptionYear>
 
     <modules>
-        <module>strongbox-storage-core</module>
-        <module>strongbox-storage-api</module>
-        <module>strongbox-storage-layout-providers</module>
+        <module>strongbox-storage-maven-layout-provider</module>
+        <module>strongbox-storage-nuget-layout-provider</module>
+        <module>strongbox-storage-p2-layout-provider</module>
     </modules>
 
 </project>
