@@ -53,6 +53,7 @@ public class ClearRepositoryTrashCronJob
         catch (IOException e)
         {
             logger.error(e.getMessage(), e);
+            manager.addExecutedJob(config.getName(), true);
         }
 
         manager.addExecutedJob(config.getName(), true);

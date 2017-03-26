@@ -79,6 +79,7 @@ public class RemoveTimestampedMavenSnapshotCronJob
         catch (IOException | XmlPullParserException | NoSuchAlgorithmException e)
         {
             logger.error(e.getMessage(), e);
+            manager.addExecutedJob(config.getName(), true);
         }
 
         manager.addExecutedJob(config.getName(), true);
