@@ -98,10 +98,10 @@ public class SearchControllerTest
 
         // testSearchXML
         // TODO: https://youtrack.carlspring.org/issue/SB-761
-        // response = client.search(q, MediaType.APPLICATION_XML_VALUE);
-        //
-        // assertTrue("Received unexpected response! \n" + response + "\n",
-        // response.contains(">1.0.11.3<") && response.contains(">1.0.11.3.1<"));
+         response = client.search(q, MediaType.APPLICATION_XML_VALUE);
+        
+         assertTrue("Received unexpected response! \n" + response + "\n",
+         response.contains(">1.0.11.3<") && response.contains(">1.0.11.3.1<"));
     }
 
 }

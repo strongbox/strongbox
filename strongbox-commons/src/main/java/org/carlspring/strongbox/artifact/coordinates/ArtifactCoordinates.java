@@ -3,9 +3,12 @@ package org.carlspring.strongbox.artifact.coordinates;
 import java.io.Serializable;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * @author carlspring
  */
+@XmlRootElement(name = "artifactCoordinates")
 public interface ArtifactCoordinates
         extends Serializable
 {

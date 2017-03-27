@@ -2,6 +2,11 @@ package org.carlspring.strongbox.artifact.coordinates;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
@@ -9,6 +14,8 @@ import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 /**
  * @author carlspring
  */
+@XmlRootElement(name = "mavenArtifactCoordinates")
+@XmlAccessorType(XmlAccessType.NONE)
 public class MavenArtifactCoordinates extends AbstractArtifactCoordinates
 {
 
@@ -124,6 +131,7 @@ public class MavenArtifactCoordinates extends AbstractArtifactCoordinates
                                    new DefaultArtifactHandler(getExtension()));
     }
 
+    @XmlAttribute(name = "groupId")
     public String getGroupId()
     {
         return groupId;
@@ -135,6 +143,7 @@ public class MavenArtifactCoordinates extends AbstractArtifactCoordinates
         setCoordinate(GROUPID, this.groupId);
     }
 
+    @XmlAttribute(name = "artifactId")
     public String getArtifactId()
     {
         return artifactId;
@@ -159,6 +168,7 @@ public class MavenArtifactCoordinates extends AbstractArtifactCoordinates
     }
 
     @Override
+    @XmlAttribute(name = "version")
     public String getVersion()
     {
         return version;
@@ -171,6 +181,7 @@ public class MavenArtifactCoordinates extends AbstractArtifactCoordinates
         setCoordinate(VERSION, this.version);
     }
 
+    @XmlAttribute(name = "classifier")
     public String getClassifier()
     {
         return classifier;
@@ -182,6 +193,7 @@ public class MavenArtifactCoordinates extends AbstractArtifactCoordinates
         setCoordinate(CLASSIFIER, this.classifier);
     }
 
+    @XmlAttribute(name = "extension")
     public String getExtension()
     {
         return extension;

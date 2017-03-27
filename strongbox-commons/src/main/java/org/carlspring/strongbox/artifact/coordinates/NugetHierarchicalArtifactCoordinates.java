@@ -3,14 +3,25 @@ package org.carlspring.strongbox.artifact.coordinates;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * @author Sergey Bespalov
  *
  */
+@XmlRootElement(name = "nugetHierarchicalArtifactCoordinates")
+@XmlAccessorType(XmlAccessType.NONE)
 public class NugetHierarchicalArtifactCoordinates extends NugetArtifactCoordinates
 {
 
     private static final String NUGET_PACKAGE_REGEXP_PATTERN = "([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_.-]+).(nupkg|nuspec|nupkg\\.sha512)";
+
+    
+    public NugetHierarchicalArtifactCoordinates()
+    {
+    }
 
     public NugetHierarchicalArtifactCoordinates(String path)
     {
