@@ -16,6 +16,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -80,28 +82,32 @@ public class SearchControllerTest
     public void testSearches()
             throws Exception
     {
-        final String q = "g:org.carlspring.strongbox.searches a:test-project";
+        String indexQuery = "g:org.carlspring.strongbox.searches a:test-project";
+        String dbQuery = "groupId=org.carlspring.strongbox.searches;artifactId=test-project;";
 
         // testSearchPlainText
-        String response = client.search(q, MediaType.TEXT_PLAIN_VALUE);
+        String response = client.search(indexQuery, MediaType.TEXT_PLAIN_VALUE);
 
         assertTrue("Received unexpected response! \n" + response + "\n",
                    response.contains("test-project-1.0.11.3.jar") &&
                            response.contains("test-project-1.0.11.3.1.jar"));
+        assertEquals("DB search response don't match!", response, client.search(dbQuery, MediaType.TEXT_PLAIN_VALUE));
+
 
         // testSearchJSON
-        response = client.search(q, MediaType.APPLICATION_JSON_VALUE);
+        response = client.search(indexQuery, MediaType.APPLICATION_JSON_VALUE);
 
         assertTrue("Received unexpected response! \n" + response + "\n",
                    response.contains("\"version\" : \"1.0.11.3\"") &&
                            response.contains("\"version\" : \"1.0.11.3.1\""));
-
+        assertEquals("DB search response don't match!", response, client.search(dbQuery, MediaType.APPLICATION_JSON_VALUE));
+        
         // testSearchXML
-        // TODO: https://youtrack.carlspring.org/issue/SB-761
-         response = client.search(q, MediaType.APPLICATION_XML_VALUE);
+         response = client.search(indexQuery, MediaType.APPLICATION_XML_VALUE);
         
          assertTrue("Received unexpected response! \n" + response + "\n",
          response.contains(">1.0.11.3<") && response.contains(">1.0.11.3.1<"));
+         assertEquals("DB search response don't match!", response, client.search(dbQuery, MediaType.APPLICATION_XML_VALUE));
     }
 
 }
