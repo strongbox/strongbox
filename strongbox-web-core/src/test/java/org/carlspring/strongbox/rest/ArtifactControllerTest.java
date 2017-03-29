@@ -603,7 +603,7 @@ public class ArtifactControllerTest
     }
 
     @Test
-    public void updateMetadataOndeleteReleaseVersionDirectoryTest()
+    public void testUpdateMetadataOnDeleteReleaseVersionDirectory()
             throws NoSuchAlgorithmException,
                    XmlPullParserException,
                    IOException,
@@ -628,14 +628,14 @@ public class ArtifactControllerTest
         String path = "org/carlspring/strongbox/delete-metadata/metadata-foo/1.2.2";
         client.delete(STORAGE0, REPOSITORY_RELEASES2, path);
 
-        //Aca deberiamos mirar el FS y a la mierda
+        // Then
         Metadata metadata = client.retrieveMetadata("storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES2 + "/" +
                                                     ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
         assertTrue(!metadata.getVersioning().getVersions().contains("1.2.2"));
     }
 
     @Test
-    public void updateMetadataOnDeleteSnapshotVersionDirectoryTest()
+    public void testUpdateMetadataOnDeleteSnapshotVersionDirectory()
             throws NoSuchAlgorithmException,
                    XmlPullParserException,
                    IOException,
@@ -666,7 +666,8 @@ public class ArtifactControllerTest
         // Then
         Metadata metadata = client.retrieveMetadata("storages/" + STORAGE0 + "/" + REPOSITORY_SNAPSHOTS + "/" +
                                                     ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
-        assertTrue(!metadata.getVersioning().getVersions().contains("3.1-SNAPSHOT"));
+
+        assertFalse(metadata.getVersioning().getVersions().contains("3.1-SNAPSHOT"));
     }
 
     private boolean checkSnapshotVersionExistsInMetadata(Metadata versionLevelMetadata,

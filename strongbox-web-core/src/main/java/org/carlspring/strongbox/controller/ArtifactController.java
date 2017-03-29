@@ -449,7 +449,6 @@ public class ArtifactController
             }
 
             getArtifactManagementService().delete(storageId, repositoryId, path, force);
-            deleteMetadataFromFS(storageId, repositoryId, path);
         }
         catch (ArtifactStorageException e)
         {
@@ -459,40 +458,6 @@ public class ArtifactController
         }
 
         return ResponseEntity.ok("The artifact was deleted.");
-    }
-
-    private void deleteMetadataFromFS(String storageId,
-                                      String repositoryId,
-                                      String metadataPath)
-    {
-        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
-        final File repoPath = new File(repository.getBasedir());
-
-        try
-        {
-            File artifactFile = new File(repoPath, metadataPath).getCanonicalFile();
-            if (!artifactFile.isFile())
-            {
-                String version = artifactFile.getPath()
-                                             .substring(artifactFile.getPath().lastIndexOf(File.separatorChar) + 1);
-                Path path = Paths.get(artifactFile.getPath()
-                                                  .substring(0, artifactFile.getPath()
-                                                                            .lastIndexOf(File.separatorChar)));
-
-                Metadata metadata = mavenMetadataManager.readMetadata(path);
-                if (metadata != null && metadata.getVersioning() != null
-                    && metadata.getVersioning().getVersions().contains(version))
-                {
-                    metadata.getVersioning().getVersions().remove(version);
-                    mavenMetadataManager.storeMetadata(path, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
-                }
-            }
-        }
-        catch (IOException | XmlPullParserException | NoSuchAlgorithmException e)
-        {
-            // We won't do anything in this case because it doesn't have an impact to the deletion
-        }
     }
 
 }

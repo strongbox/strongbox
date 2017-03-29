@@ -12,6 +12,7 @@ import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.checksum.MavenChecksumManager;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
+import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
@@ -21,6 +22,7 @@ import javax.inject.Inject;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
@@ -97,55 +99,154 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
     }
 
     @Override
+    public void delete(String storageId,
+                       String repositoryId,
+                       String path,
+                       boolean force)
+            throws IOException
+    {
+        super.delete(storageId, repositoryId, path, force);
+
+        logger.debug("Removing metadata for " + storageId + ":" + repositoryId + ":" + path + "...");
+
+        deleteMetadata(storageId, repositoryId, path);
+    }
+
+    @Override
     protected void doDeletePath(RepositoryPath repositoryPath,
                                 boolean force,
                                 boolean deleteChecksum)
             throws IOException
     {
-        RepositoryPath md5Path = repositoryPath.resolveSibling(repositoryPath.getFileName() + ".md5");
-        RepositoryPath sha1Path = repositoryPath.resolveSibling(repositoryPath.getFileName() + ".sha1");
+        // Delete the path
         super.doDeletePath(repositoryPath, force, deleteChecksum);
-        if (deleteChecksum)
+
+        if (deleteChecksum && !ArtifactUtils.isChecksum(repositoryPath.getTarget().getFileName().toString()))
         {
-            super.doDeletePath(md5Path, force, deleteChecksum);
-            super.doDeletePath(sha1Path, force, deleteChecksum);
+            // Delete the checksums
+            // TODO: Add check, if the paths exist
+
+            RepositoryPath md5Path = repositoryPath.resolveSibling(repositoryPath.getFileName() + ".md5");
+            if (Files.exists(md5Path))
+            {
+                super.doDeletePath(md5Path, force, deleteChecksum);
+            }
+
+            RepositoryPath sha1Path = repositoryPath.resolveSibling(repositoryPath.getFileName() + ".sha1");
+            if (Files.exists(sha1Path))
+            {
+                super.doDeletePath(sha1Path, force, deleteChecksum);
+            }
         }
     }
 
     @Override
     public void deleteMetadata(String storageId,
                                String repositoryId,
-                               String metadataPath)
+                               String path)
             throws IOException
     {
-        // TODO: Further untangle the relationships of this so that the code below can be uncommented:
-
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
-        RepositoryPath repositoryPath = resolve(repository);
-        if (!Files.isDirectory(repositoryPath))
-        {
-            return;
-        }
 
         try
         {
-            String version = repositoryPath.getFileName()
-                                           .toString();
-            java.nio.file.Path path = repositoryPath.getParent();
-            Metadata metadata = mavenMetadataManager.readMetadata(path);
-            if (metadata != null && metadata.getVersioning() != null
-                    && metadata.getVersioning().getVersions().contains(version))
+            RepositoryPath artifactVersionPath = resolve(repository, path);
+
+            if (Files.exists(artifactVersionPath))
             {
-                metadata.getVersioning()
-                        .getVersions()
-                        .remove(version);
-                mavenMetadataManager.storeMetadata(path, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
+                // This is at the version level
+                Path pomPath = Files.list(artifactVersionPath.getTarget())
+                                    .filter(p -> p.getFileName().endsWith(".pom"))
+                                    .findFirst()
+                                    .orElse(null);
+
+                String version = ArtifactUtils.convertPathToArtifact(path).getVersion() != null ?
+                                 ArtifactUtils.convertPathToArtifact(path).getVersion() :
+                                 pomPath.getParent().getFileName().toString();
+
+                deleteMetadataAtVersionLevel(artifactVersionPath, version);
+            }
+            else
+            {
+                // This is at the artifact level
+                Path mavenMetadataPath = Files.list(artifactVersionPath.getTarget().getParent())
+                                              .filter(p -> p.getFileName().endsWith("maven-metadata.xml"))
+                                              .findFirst()
+                                              .orElse(null);
+
+                if (mavenMetadataPath != null)
+                {
+                    String version = path.substring(path.lastIndexOf('/') + 1, path.length());
+
+                    deleteMetadataAtArtifactLevel(resolve(repository, mavenMetadataPath.getParent().toString()), version);
+                }
             }
         }
         catch (IOException | NoSuchAlgorithmException | XmlPullParserException e)
         {
             // We won't do anything in this case because it doesn't have an impact to the deletion
+            logger.error(e.getMessage(), e);
+        }
+    }
+
+    public void deleteMetadataAtVersionLevel(RepositoryPath artifactVersionPath, String version)
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   XmlPullParserException
+    {
+        if (ArtifactUtils.isSnapshot(version) && Files.exists(artifactVersionPath))
+        {
+            Metadata metadataVersionLevel = mavenMetadataManager.readMetadata(artifactVersionPath);
+            if (metadataVersionLevel != null && metadataVersionLevel.getVersioning() != null &&
+                metadataVersionLevel.getVersioning().getVersions().contains(version))
+            {
+                metadataVersionLevel.getVersioning().getVersions().remove(version);
+
+                MetadataHelper.setLastUpdated(metadataVersionLevel.getVersioning());
+
+                mavenMetadataManager.storeMetadata(artifactVersionPath,
+                                                   null,
+                                                   metadataVersionLevel,
+                                                   MetadataType.SNAPSHOT_VERSION_LEVEL);
+            }
+        }
+    }
+
+    public void deleteMetadataAtArtifactLevel(RepositoryPath artifactPath, String version)
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   XmlPullParserException
+    {
+        Metadata metadataVersionLevel = mavenMetadataManager.readMetadata(artifactPath);
+        if (metadataVersionLevel != null && metadataVersionLevel.getVersioning() != null)
+        {
+            if (metadataVersionLevel.getVersioning().getVersions().contains(version))
+            {
+                metadataVersionLevel.getVersioning().getVersions().remove(version);
+                MetadataHelper.setLastUpdated(metadataVersionLevel.getVersioning());
+            }
+
+            if (metadataVersionLevel.getVersioning().getLatest() != null &&
+                metadataVersionLevel.getVersioning().getLatest().equals(version))
+            {
+                if (metadataVersionLevel.getVersioning().getVersions() != null &&
+                    metadataVersionLevel.getVersioning().getVersions().isEmpty())
+                {
+                    metadataVersionLevel.getVersioning().setLatest(null);
+                }
+                else
+                {
+                    MetadataHelper.setLatest(metadataVersionLevel);
+                }
+
+                MetadataHelper.setLastUpdated(metadataVersionLevel.getVersioning());
+            }
+
+            mavenMetadataManager.storeMetadata(artifactPath,
+                                               null,
+                                               metadataVersionLevel,
+                                               MetadataType.ARTIFACT_ROOT_LEVEL);
         }
     }
 
@@ -180,23 +281,23 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
                    UnknownRepositoryTypeException,
                    ArtifactTransportException
     {
-            /**
-             * In the repository we need to generate checksum for files in the artifactBasePath and
-             * for each version directory.
-             */
+        /**
+         * In the repository we need to generate checksum for files in the artifactBasePath and
+         * for each version directory.
+         */
         if (!versionDirectories.isEmpty())
             {
                 RepositoryPath basePath = resolve(repository, versionDirectories.get(0)).getParent();
 
                 logger.debug("Artifact checksum generation triggered for " + basePath + " in '" +
-                             repository.getStorage()
-                                       .getId() + ":" + repository.getId() + "'" +
+                             repository.getStorage().getId() + ":" + repository.getId() + "'" +
                              " [policy: " + repository.getPolicy() + "].");
                 versionDirectories.forEach(path ->
                                            {
                                                try
                                                {
-                                                   storeChecksum(repository, resolve(repository, path),
+                                                   storeChecksum(repository,
+                                                                 resolve(repository, path),
                                                                  forceRegeneration);
                                                }
                                                catch (IOException |
