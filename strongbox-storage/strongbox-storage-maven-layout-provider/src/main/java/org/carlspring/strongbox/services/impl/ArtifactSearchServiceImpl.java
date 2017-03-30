@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.services.impl;
 
+import static org.mockito.Matchers.anyString;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -12,8 +14,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.lucene.queryparser.classic.ParseException;
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.services.ConfigurationService;
@@ -73,7 +77,7 @@ public class ArtifactSearchServiceImpl
                 coordinates.put(matcher.group(1), matcher.group(2));
             } while (matcher.find());
             searchResults.getResults()
-                         .addAll(dbSearch(coordinates, storageId, repositoryId));
+                         .addAll(dbSearch(coordinates));
             return searchResults;
         }
 
@@ -99,20 +103,36 @@ public class ArtifactSearchServiceImpl
         return searchResults;
     }
 
-    private List<SearchResult> dbSearch(Map<String, String> coordinates,
-                                        String storageId,
-                                        String repositoryId)
+    private List<SearchResult> dbSearch(Map<String, String> coordinates)
     {
         List<SearchResult> result = new LinkedList<>();
-
         result.addAll(artifactEntryService.findByCoordinates(coordinates)
                                           .stream()
-                                          .map(a -> new SearchResult(a.getStorageId(), a.getRepositoryId(),
-                                                  a.getArtifactCoordinates(), ""))
+                                          .map(a -> createSearchResult(a))
                                           .collect(Collectors.toList()));
         return result;
     }
 
+    protected SearchResult createSearchResult(ArtifactEntry a)
+    {
+        String storageId = a.getStorageId() + ":" + a.getRepositoryId() + ":" + IndexTypeEnum.LOCAL.getType();
+        String url = getURLForArtifact(storageId, a.getRepositoryId(), a.getArtifactCoordinates().toPath());
+
+        return new SearchResult(storageId, a.getRepositoryId(),
+                a.getArtifactCoordinates(), url);
+    }
+
+    // TODO: [sbespalov] extract this logic into some common utility class
+    public String getURLForArtifact(String storageId,
+                                    String repositoryId,
+                                    String pathToArtifactFile)
+    {
+        String baseUrl = getConfiguration().getBaseUrl();
+        baseUrl = (baseUrl.endsWith("/") ? baseUrl : baseUrl + "/");
+
+        return baseUrl + "storages/" + storageId + "/" + repositoryId + "/" + pathToArtifactFile;
+    }
+    
     private List<SearchResult> indexSearch(String query,
                                            Collection<Storage> storages)
         throws ParseException,

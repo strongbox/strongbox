@@ -1,13 +1,16 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import org.carlspring.strongbox.data.domain.GenericEntity;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.carlspring.strongbox.data.domain.GenericEntity;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * @author carlspring
  */
+@JsonIgnoreProperties("objectId")
 public abstract class AbstractArtifactCoordinates
         extends GenericEntity
         implements ArtifactCoordinates
@@ -24,7 +27,7 @@ public abstract class AbstractArtifactCoordinates
     {
         this.coordinates = coordinates;
     }
-
+    
     public void defineCoordinates(String... coordinates)
     {
         for (String coordinate : coordinates)

@@ -187,7 +187,12 @@ public class RepositoryIndexer
                                        indexingContext.getId(),
                                        indexingContext.getIndexDirectory().toString() });
 
-            final FlatSearchResponse response = getIndexer().searchFlat(new FlatSearchRequest(query, indexingContext));
+            FlatSearchRequest searchRequest = new FlatSearchRequest(query, (a1,
+                                                                            a2) -> calculateArtifactInfo(a1).compareTo(calculateArtifactInfo(a2)),
+                    indexingContext);
+            
+            //FlatSearchRequest searchRequest = new FlatSearchRequest(query, indexingContext);
+            final FlatSearchResponse response = getIndexer().searchFlat(searchRequest);
 
             logger.debug("Hit count: {}", response.getReturnedHitsCount());
 
@@ -208,6 +213,11 @@ public class RepositoryIndexer
             logger.warn("Unable execute search query", e);
             return new HashSet<>();
         }
+    }
+
+    protected String calculateArtifactInfo(ArtifactInfo a1)
+    {
+        return a1.getGroupId()+a1.getArtifactId()+a1.getVersion();
     }
 
     public Set<SearchResult> searchBySHA1(final String checksum)
