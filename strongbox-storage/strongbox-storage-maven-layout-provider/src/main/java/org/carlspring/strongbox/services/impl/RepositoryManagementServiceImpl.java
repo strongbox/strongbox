@@ -100,7 +100,7 @@ public class RepositoryManagementServiceImpl
 
         String contextId = storageId + ":" + repositoryId + ":" + indexType;
 
-        RepositoryIndexer repositoryIndexer = repositoryIndexerFactory.createRepositoryIndexer(contextId,
+        RepositoryIndexer repositoryIndexer = repositoryIndexerFactory.createRepositoryIndexer(storageId,
                                                                                                repositoryId,
                                                                                                indexType,
                                                                                                repositoryBasedir,

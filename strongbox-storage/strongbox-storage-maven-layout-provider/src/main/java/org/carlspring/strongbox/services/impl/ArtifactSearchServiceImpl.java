@@ -115,7 +115,7 @@ public class ArtifactSearchServiceImpl
 
     protected SearchResult createSearchResult(ArtifactEntry a)
     {
-        String storageId = a.getStorageId() + ":" + a.getRepositoryId() + ":" + IndexTypeEnum.LOCAL.getType();
+        String storageId = a.getStorageId();
         String url = getURLForArtifact(storageId, a.getRepositoryId(), a.getArtifactCoordinates().toPath());
 
         return new SearchResult(storageId, a.getRepositoryId(),
