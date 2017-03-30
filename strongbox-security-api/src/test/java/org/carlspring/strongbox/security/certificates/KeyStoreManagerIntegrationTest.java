@@ -20,6 +20,7 @@ import java.security.cert.X509Certificate;
 import java.util.Map;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.context.annotation.ComponentScan;
@@ -154,7 +155,7 @@ public class KeyStoreManagerIntegrationTest
         assertTrue(certs.isEmpty());
     }
 
-    // @Ignore
+    @Ignore
     @Test
     public void testHttpProxy()
             throws IOException,
