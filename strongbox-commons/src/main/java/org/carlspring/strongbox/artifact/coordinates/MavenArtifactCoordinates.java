@@ -1,16 +1,14 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
+import org.carlspring.maven.commons.util.ArtifactUtils;
 
 /**
  * @author carlspring

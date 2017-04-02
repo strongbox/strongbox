@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.services.impl;
 
-import static org.mockito.Matchers.anyString;
-
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -14,7 +12,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.ArtifactEntry;
@@ -128,7 +125,7 @@ public class ArtifactSearchServiceImpl
                                     String pathToArtifactFile)
     {
         String baseUrl = getConfiguration().getBaseUrl();
-        baseUrl = (baseUrl.endsWith("/") ? baseUrl : baseUrl + "/");
+        baseUrl = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
 
         return baseUrl + "storages/" + storageId + "/" + repositoryId + "/" + pathToArtifactFile;
     }
@@ -144,7 +141,7 @@ public class ArtifactSearchServiceImpl
             for (Repository r : storage.getRepositories().values())
             {
                 logger.debug("Repository: {}", r.getId());
-                final RepositoryIndexer repositoryIndex = repositoryIndexManager.getRepositoryIndexer(getIndexId(storage, r));
+                final RepositoryIndexer repositoryIndex = repositoryIndexManager.getRepositoryIndexer(getContextId(storage, r));
                 if (repositoryIndex != null)
                 {
                     final Set<SearchResult> sr = repositoryIndex.search(query);
@@ -165,7 +162,7 @@ public class ArtifactSearchServiceImpl
         IOException
     {
         Repository repository = storage.getRepository(repositoryId);
-        String storageAndRepositoryId = getIndexId(storage, repository);
+        String storageAndRepositoryId = getContextId(storage, repository);
         List<SearchResult> result = new LinkedList<>();
         final Set<SearchResult> sr = repositoryIndexManager.getRepositoryIndexer(storageAndRepositoryId)
                                                            .search(query);
@@ -176,7 +173,7 @@ public class ArtifactSearchServiceImpl
         return result;
     }
 
-    protected String getIndexId(Storage storage,
+    protected String getContextId(Storage storage,
                                 Repository repository)
     {
         return storage.getId() + ":" + repository.getId() + ":"
@@ -194,7 +191,7 @@ public class ArtifactSearchServiceImpl
         {
             if (storage.containsRepository(repositoryId))
             {
-                final String storageAndRepositoryId = getIndexId(storage, storage.getRepository(repositoryId));
+                final String storageAndRepositoryId = getContextId(storage, storage.getRepository(repositoryId));
                 final Set<SearchResult> sr = repositoryIndexManager.getRepositoryIndexer(storageAndRepositoryId)
                                                                    .search(query);
 
@@ -230,21 +227,6 @@ public class ArtifactSearchServiceImpl
     public Configuration getConfiguration()
     {
         return configurationManager.getConfiguration();
-    }
-    
-    public static void main(String args[])
-        throws Exception
-    {
-        Pattern pattern = Pattern.compile(QUERY_PATTERN_DB);
-        Matcher matcher = pattern.matcher("groupId=org.carlspring.strongbox.searches;artifactId=test-project;");
-        // If query matches then we have a DataBase search request
-        //System.out.println(matcher.matches());
-        Map<String, String> coordinates = new HashMap<>();
-        while (matcher.find())
-        {
-            coordinates.put(matcher.group(1), matcher.group(2));
-        }
-        System.out.println(coordinates);
     }
 
 }

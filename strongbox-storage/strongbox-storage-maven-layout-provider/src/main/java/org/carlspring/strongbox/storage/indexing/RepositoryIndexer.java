@@ -191,7 +191,6 @@ public class RepositoryIndexer
                                                                             a2) -> calculateArtifactInfo(a1).compareTo(calculateArtifactInfo(a2)),
                     indexingContext);
             
-            //FlatSearchRequest searchRequest = new FlatSearchRequest(query, indexingContext);
             final FlatSearchResponse response = getIndexer().searchFlat(searchRequest);
 
             logger.debug("Hit count: {}", response.getReturnedHitsCount());
