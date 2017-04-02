@@ -37,7 +37,7 @@ public abstract class CommonCrudService<T extends GenericEntity> implements Crud
             params.put("uuid", entity.getUuid());
 
             List<ODocument> resultList = getDelegate().command(oQuery).execute(params);
-            if (resultList.size() > 0){
+            if (!resultList.isEmpty()){
                 ODocument record = (ODocument)resultList.iterator().next();
                 ODocument value = record.field("objectId");
                 entity.setObjectId(value.getIdentity().toString());

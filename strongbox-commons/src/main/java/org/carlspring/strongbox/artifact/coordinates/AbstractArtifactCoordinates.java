@@ -3,8 +3,6 @@ package org.carlspring.strongbox.artifact.coordinates;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import javax.xml.bind.annotation.XmlAttribute;
-
 import org.carlspring.strongbox.data.domain.GenericEntity;
 
 /**
