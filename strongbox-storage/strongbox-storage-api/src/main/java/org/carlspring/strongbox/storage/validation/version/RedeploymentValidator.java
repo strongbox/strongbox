@@ -33,7 +33,7 @@ public class RedeploymentValidator
     {
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
 
-        if (repository.getPolicy().equals(RepositoryPolicyEnum.RELEASE.getPolicy()) &&
+        if (RepositoryPolicyEnum.RELEASE.getPolicy().equals(repository.getPolicy()) &&
             (!repository.allowsRedeployment() && layoutProvider.containsArtifact(repository, coordinates)))
         {
             throw new VersionValidationException("The " + repository.getStorage().getId() + ":" +

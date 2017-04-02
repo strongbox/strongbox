@@ -5,6 +5,7 @@ import java.io.Serializable;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.MappedSuperclass;
+import javax.xml.bind.annotation.XmlTransient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.orientechnologies.orient.core.annotation.OVersion;
@@ -22,16 +23,18 @@ import com.orientechnologies.orient.core.annotation.OVersion;
 public abstract class GenericEntity
         implements Serializable
 {
-
-    // TODO: objectId may differ's because of internal OrientDB layout
-    // at the first time it will be something like #-1:-2
-    // and then this object will be placed in some cluster in async way
-    // and it will have different objectId
-    // https://youtrack.carlspring.org/issue/SB-762
+    /**
+     * This is internal `OrientDB` object identifier which may differ's because of internal OrientDB layout. At the first
+     * time it will be something like #-1:-2 and then this object will be placed in some cluster in async way and it
+     * will have different objectId.
+     */
     @Id
-    //@JsonIgnore
+    @JsonIgnore
+    @XmlTransient
     protected String objectId;
-
+    
+    protected String uuid;
+    
     @OVersion
     @JsonIgnore
     protected Long entityVersion;
@@ -40,6 +43,7 @@ public abstract class GenericEntity
     {
     }
 
+    @XmlTransient
     public final String getObjectId()
     {
         return objectId;
@@ -48,6 +52,16 @@ public abstract class GenericEntity
     public final void setObjectId(String objectId)
     {
         this.objectId = objectId;
+    }
+
+    public String getUuid()
+    {
+        return uuid;
+    }
+
+    public void setUuid(String uuid)
+    {
+        this.uuid = uuid;
     }
 
 }

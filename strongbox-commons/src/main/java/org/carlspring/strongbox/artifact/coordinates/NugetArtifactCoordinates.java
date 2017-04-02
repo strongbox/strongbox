@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
+import javax.xml.bind.annotation.XmlAttribute;
+
 /**
  * @author Sergey Bespalov
  *
@@ -17,6 +19,7 @@ public abstract class NugetArtifactCoordinates extends AbstractArtifactCoordinat
     }
 
     @Override
+    @XmlAttribute(name="id")
     public String getId()
     {
         return getCoordinate(ID);
@@ -29,6 +32,7 @@ public abstract class NugetArtifactCoordinates extends AbstractArtifactCoordinat
     }
 
     @Override
+    @XmlAttribute(name="version")
     public String getVersion()
     {
         return getCoordinate(VERSION);
@@ -40,6 +44,7 @@ public abstract class NugetArtifactCoordinates extends AbstractArtifactCoordinat
         setCoordinate(VERSION, version);
     }
 
+    @XmlAttribute(name="type")
     public String getType()
     {
         return getCoordinate(EXTENSION);

@@ -15,6 +15,7 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 public class SearchResult
 {
 
+    @XmlElement(type=Object.class)
     private ArtifactCoordinates artifactCoordinates;
 
     @XmlElement
