@@ -37,10 +37,6 @@ public class SearchControllerTest
 
     private static final String REPOSITORY_RELEASES = "sc-releases-search";
 
-    private static final File REPOSITORY_RELEASES_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                     "/storages/" + STORAGE_SC_TEST + "/" +
-                                                                     REPOSITORY_RELEASES);
-    
     private static final File GENERATOR_BASEDIR = new File(
             ConfigurationResourceResolver.getVaultDirectory() + "/local");
     
@@ -116,12 +112,12 @@ public class SearchControllerTest
         assertEquals("DB search response don't match!", response, client.search(dbQuery, MediaType.APPLICATION_JSON_VALUE));
         
         // testSearchXML
-         response = client.search(indexQuery, MediaType.APPLICATION_XML_VALUE);
-        
-         assertTrue("Received unexpected response! \n" + response + "\n",
-         response.contains(">1.0.11.3<") && response.contains(">1.0.11.3.1<"));
-         //TODO: ArticatCoordinates.objectId should be @XmlTranstient
-         //assertEquals("DB search response don't match!", response, client.search(dbQuery, MediaType.APPLICATION_XML_VALUE));
+        response = client.search(indexQuery, MediaType.APPLICATION_XML_VALUE);
+
+        assertTrue("Received unexpected response! \n" + response + "\n",
+                   response.contains(">1.0.11.3<") && response.contains(">1.0.11.3.1<"));
+        dbResponse = client.search(dbQuery, MediaType.APPLICATION_XML_VALUE);
+        assertEquals("DB search response don't match!", response, dbResponse);
     }
 
 }
