@@ -1,20 +1,5 @@
 package org.carlspring.strongbox.services.impl;
 
-import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.NoSuchAlgorithmException;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
@@ -35,19 +20,34 @@ import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.checksum.ArtifactChecksum;
 import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
+import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
+import org.carlspring.strongbox.storage.metadata.MavenSnapshotManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.storage.metadata.MavenSnapshotManager;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
 import org.carlspring.strongbox.storage.validation.version.VersionValidationException;
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
 import org.carlspring.strongbox.util.ArtifactFileUtils;
+
+import javax.inject.Inject;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.maven.artifact.Artifact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
 /**
  * @author mtodorov
@@ -85,7 +85,8 @@ public class ArtifactManagementServiceImpl
 
     @Inject
     private ArtifactEntryService artifactEntryService;
-    
+
+
     @Override
     @Transactional
     public void store(String storageId,
@@ -99,12 +100,10 @@ public class ArtifactManagementServiceImpl
         String artifactPath = storageId + "/" + repositoryId + "/" + path;
         performRepositoryAcceptanceValidation(storageId, repositoryId, path);
 
-
         try (ArtifactOutputStream os = artifactResolutionService.getOutputStream(storageId, repositoryId, path))
         {
             //If we have no Digests then we have a Checksum to store.
-            if (os.getDigests()
-                  .isEmpty())
+            if (os.getDigests().isEmpty())
             {
                 os.setCacheOutputStream(new ByteArrayOutputStream());
             }
@@ -118,8 +117,7 @@ public class ArtifactManagementServiceImpl
                 os.flush();
             }
 
-            if (!os.getDigestMap()
-                   .isEmpty())
+            if (!os.getDigestMap().isEmpty())
             {
                 // Store artifact Digests in cache if we have them.
                 addChecksumsToCacheManager(os.getDigestMap(), artifactPath);
@@ -130,8 +128,7 @@ public class ArtifactManagementServiceImpl
             {
                 // Validate checksum with Artifact Digest cache.
                 byte[] checksum = ((ByteArrayOutputStream) os.getCacheOutputStream()).toByteArray();
-                validateUploadedChecksumAgainstCache(checksum,
-                                                     artifactPath);
+                validateUploadedChecksumAgainstCache(checksum, artifactPath);
 
             }
         }
@@ -146,10 +143,12 @@ public class ArtifactManagementServiceImpl
                                String path)
     {
         ArtifactCoordinates artifactCoordinates = artifactResolutionService.getArtifactCoordinates(storageId,
-                                                                                                   repositoryId, path);
+                                                                                                   repositoryId,
+                                                                                                   path);
 
         ArtifactEntry artifactEntry = artifactEntryService.findOne(artifactCoordinates)
-                                                          .orElse(createArtifactEntry(artifactCoordinates, storageId,
+                                                          .orElse(createArtifactEntry(artifactCoordinates,
+                                                                                      storageId,
                                                                                       repositoryId));
         artifactEntryService.save(artifactEntry);
     }
@@ -162,6 +161,7 @@ public class ArtifactManagementServiceImpl
         artifactEntry.setStorageId(storageId);
         artifactEntry.setRepositoryId(repositoryId);
         artifactEntry.setArtifactCoordinates(artifactCoordinates);
+
         return artifactEntry;
     }
 
@@ -175,7 +175,9 @@ public class ArtifactManagementServiceImpl
             return;
         }
         
-        RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(storageId + ":" + repositoryId);
+        RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(storageId + ":" +
+                                                                                repositoryId + ":" +
+                                                                                IndexTypeEnum.LOCAL.getType());
         if (indexer == null)
         {
             return;
@@ -183,13 +185,11 @@ public class ArtifactManagementServiceImpl
         
         Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
         Storage storage = getStorage(storageId);
+
         File storageBasedir = new File(storage.getBasedir());
         File artifactFile = new File(new File(storageBasedir, repositoryId), path).getCanonicalFile();
-        
-        if (!artifactFile.getName().endsWith(".pom"))
-        {
-            indexer.addArtifactToIndex(repositoryId, artifactFile, artifact);
-        }
+
+        indexer.addArtifactToIndex(repositoryId, artifactFile, artifact);
     }
 
     @Override
@@ -271,23 +271,6 @@ public class ArtifactManagementServiceImpl
         {
             LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
             layoutProvider.delete(storageId, repositoryId, artifactPath, force);
-
-            final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(storageId + ":" + repositoryId);
-            if (indexer != null)
-            {
-                String extension = artifactPath.substring(artifactPath.lastIndexOf('.') + 1, artifactPath.length());
-
-                final Artifact a = ArtifactUtils.convertPathToArtifact(artifactPath);
-
-                /* TODO: This needs to be properly fixed:
-                indexer.delete(Collections.singletonList(new ArtifactInfo(repositoryId,
-                                                                          a.getGroupId(),
-                                                                          a.getArtifactId(),
-                                                                          a.getVersion(),
-                                                                          a.getClassifier(),
-                                                                          extension)));
-                */
-            }
         }
         catch (IOException | ProviderImplementationException e)
         {
@@ -299,7 +282,19 @@ public class ArtifactManagementServiceImpl
     public boolean contains(String storageId, String repositoryId, String artifactPath)
             throws IOException
     {
-        return false;
+        final Storage storage = getStorage(storageId);
+        final Repository repository = storage.getRepository(repositoryId);
+
+        try
+        {
+            LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
+
+            return layoutProvider.contains(storageId, repositoryId, artifactPath);
+        }
+        catch (IOException | ProviderImplementationException e)
+        {
+            throw new ArtifactStorageException(e.getMessage(), e);
+        }
     }
 
     @Override
@@ -376,10 +371,14 @@ public class ArtifactManagementServiceImpl
 
         Set<String> matched = matchingMap.get(Boolean.TRUE);
         Set<String> unmatched = matchingMap.get(Boolean.FALSE);
-        logger.debug(String.format(
-                "Artifact checksum matchings: artifact-[%s]; ext-[%s]; matched-[%s]; unmatched-[%s]; checksum-[%s]",
-                artifactBasePath, checksumExtension, matched, unmatched,
-                new String(checksum)));
+
+        logger.debug(String.format("Artifact checksum matchings: artifact-[%s]; ext-[%s]; matched-[%s];" +
+                                   " unmatched-[%s]; checksum-[%s]",
+                                   artifactBasePath,
+                                   checksumExtension,
+                                   matched,
+                                   unmatched,
+                                   new String(checksum)));
 
         return matched != null && !matched.isEmpty();
     }

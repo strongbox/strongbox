@@ -1,16 +1,11 @@
 package org.carlspring.strongbox.storage.indexing;
 
-import static java.util.Arrays.asList;
-import static org.apache.lucene.search.BooleanClause.Occur.MUST;
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.configuration.Configuration;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
@@ -21,20 +16,14 @@ import org.apache.lucene.util.Version;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
-import org.apache.maven.index.ArtifactContext;
-import org.apache.maven.index.ArtifactInfo;
-import org.apache.maven.index.FlatSearchRequest;
-import org.apache.maven.index.FlatSearchResponse;
-import org.apache.maven.index.Indexer;
-import org.apache.maven.index.MAVEN;
+import org.apache.maven.index.*;
 import org.apache.maven.index.Scanner;
 import org.apache.maven.index.context.IndexCreator;
 import org.apache.maven.index.context.IndexingContext;
 import org.apache.maven.index.expr.SourcedSearchExpression;
-import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
-import org.carlspring.strongbox.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static org.apache.lucene.search.BooleanClause.Occur.MUST;
 
 public class RepositoryIndexer
 {
@@ -67,6 +56,8 @@ public class RepositoryIndexer
 
     private File indexDir;
 
+    private ArtifactContextProducer artifactContextProducer;
+
     private IndexerConfiguration indexerConfiguration;
 
     private Configuration configuration;
@@ -79,16 +70,29 @@ public class RepositoryIndexer
         this.contextId = contextId;
     }
 
-    public void close()
+    public void addArtifactToIndex(String repositoryId,
+                                   File artifactFile,
+                                   Artifact artifact)
             throws IOException
     {
-        indexer.closeIndexingContext(indexingContext, false);
-    }
+        try
+        {
+            logger.debug("Adding artifact: {} to {}:{}...", artifact.getGroupId() + ":" +
+                                                            artifact.getArtifactId() + ":" +
+                                                            artifact.getVersion() + ":" +
+                                                            artifact.getType() + ":" +
+                                                            artifact.getClassifier() + ":",
+                         storageId,
+                         repositoryId);
 
-    public void close(boolean deleteFiles)
-            throws IOException
-    {
-        indexingContext.close(deleteFiles);
+            ArtifactContext artifactContext = artifactContextProducer.getArtifactContext(indexingContext, artifactFile);
+
+            getIndexer().addArtifactsToIndex(Collections.singletonList(artifactContext), indexingContext);
+        }
+        catch (Exception e) // it's not really a critical problem, artifacts could be added to index later
+        {
+            logger.warn("Unable to add artifacts to index", e);
+        }
     }
 
     public void delete(final Collection<ArtifactInfo> artifactInfos)
@@ -97,15 +101,6 @@ public class RepositoryIndexer
         final List<ArtifactContext> delete = new ArrayList<>();
         for (final ArtifactInfo artifactInfo : artifactInfos)
         {
-            logger.debug("Deleting artifact: {}; ctx id: {}; idx dir: {}",
-                         new String[]{ artifactInfo.getGroupId() + ":" +
-                                       artifactInfo.getArtifactId() + ":" +
-                                       artifactInfo.getVersion() + ":" +
-                                       artifactInfo.getClassifier() + ":" +
-                                       artifactInfo.getFileExtension(),
-                                       indexingContext.getId(),
-                                       indexingContext.getIndexDirectory().toString() });
-
             delete.add(new ArtifactContext(null, null, null, artifactInfo, null));
         }
 
@@ -206,6 +201,7 @@ public class RepositoryIndexer
         catch (Exception e)
         {
             logger.warn("Unable execute search query", e);
+
             return new HashSet<>();
         }
     }
@@ -275,53 +271,6 @@ public class RepositoryIndexer
         return baseUrl + "storages/" + storageId + "/" + repositoryId + "/" + pathToArtifactFile;
     }
 
-    public void addArtifactToIndex(String repositoryId,
-                                   File artifactFile,
-                                   Artifact artifact)
-            throws IOException
-    {
-        try
-        {
-            String extension = artifactFile.getName().substring(artifactFile.getName().lastIndexOf(".") + 1,
-                                                                artifactFile.getName().length());
-
-            ArtifactInfo artifactInfo = new ArtifactInfo(repositoryId,
-                                                         artifact.getGroupId(),
-                                                         artifact.getArtifactId(),
-                                                         artifact.getVersion(),
-                                                         obtainClassifier(artifact),
-                                                         extension);
-
-            if (artifact.getType() != null)
-            {
-                artifactInfo.setFieldValue(MAVEN.PACKAGING, artifact.getType());
-            }
-
-            logger.debug("Adding artifact: {}; repo: {}; type: {}", new String[]{ artifact.getGroupId() + ":" +
-                                                                                  artifact.getArtifactId() + ":" +
-                                                                                  artifact.getVersion() + ":" +
-                                                                                  artifactInfo.getClassifier() + ":" +
-                                                                                  extension,
-                                                                                  repositoryId,
-                                                                                  artifact.getType() });
-
-            File pomFile = new File(artifactFile.getAbsolutePath() + ".pom");
-            // TODO: Improve this to support timestamped SNAPSHOT-s:
-            File metadataFile = new File(artifactFile.getParentFile().getParentFile(), "maven-metadata.xml");
-
-            getIndexer().addArtifactsToIndex(asList(new ArtifactContext(pomFile.exists() ? pomFile : null,
-                                                                        artifactFile,
-                                                                        metadataFile.exists() ? metadataFile : null,
-                                                                        artifactInfo,
-                                                                        artifactInfo.calculateGav())),
-                                             indexingContext);
-        }
-        catch (Exception e) // it's not really a critical problem, artifacts could be added to index later
-        {
-            logger.warn("Unable to add artifacts to index", e);
-        }
-    }
-
     private String obtainClassifier(Artifact artifactInfo)
     {
         String classifier = artifactInfo.getClassifier();
@@ -329,7 +278,30 @@ public class RepositoryIndexer
         {
             return null;
         }
+
         return classifier;
+    }
+
+    public void close()
+            throws IOException
+    {
+        indexer.closeIndexingContext(indexingContext, false);
+    }
+
+    public void close(boolean deleteFiles)
+            throws IOException
+    {
+        indexingContext.close(deleteFiles);
+    }
+
+    public ArtifactContextProducer getArtifactContextProducer()
+    {
+        return artifactContextProducer;
+    }
+
+    public void setArtifactContextProducer(ArtifactContextProducer artifactContextProducer)
+    {
+        this.artifactContextProducer = artifactContextProducer;
     }
 
     public IndexerConfiguration getIndexerConfiguration()

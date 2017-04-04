@@ -9,8 +9,10 @@ import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.MavenRepositoryManagementStrategy;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
+import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.checksum.MavenChecksumManager;
+import org.carlspring.strongbox.storage.indexing.*;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
@@ -24,10 +26,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
 import java.util.List;
 
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.index.ArtifactInfo;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,10 +61,16 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
     private ArtifactMetadataService artifactMetadataService;
 
     @Inject
+    private ArtifactSearchService artifactSearchService;
+
+    @Inject
     private MavenRepositoryFeatures mavenRepositoryFeatures;
 
     @Inject
     private MavenRepositoryManagementStrategy mavenRepositoryManagementStrategy;
+
+    @Inject
+    private RepositoryIndexManager repositoryIndexManager;
 
 
     @PostConstruct
@@ -90,6 +101,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         {
             coordinates = new MavenArtifactCoordinates(path);
         }
+
         return coordinates;
     }
 
@@ -105,9 +117,63 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
                        boolean force)
             throws IOException
     {
-        super.delete(storageId, repositoryId, path, force);
+        logger.debug("Removing " + storageId + ":" + repositoryId + ":" + path + "...");
 
-        logger.debug("Removing metadata for " + storageId + ":" + repositoryId + ":" + path + "...");
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+        RepositoryPath repositoryPath = resolve(repository, path);
+
+        if (!Files.isDirectory(repositoryPath))
+        {
+            deleteFromIndex(storageId, repositoryId, path);
+        }
+        else
+        {
+            String[] artifactCoordinateElements = path.split("/");
+            StringBuilder groupId = new StringBuilder();
+            for (int i = 0; i < artifactCoordinateElements.length - 2; i++)
+            {
+                String element = artifactCoordinateElements[i];
+                groupId.append((groupId.length() == 0) ? element : "." + element);
+            }
+
+            String artifactId = artifactCoordinateElements[artifactCoordinateElements.length - 2];
+            String version = artifactCoordinateElements[artifactCoordinateElements.length - 1];
+
+            String pomFilePath = path + "/" + artifactId + "-" + version + ".pom";
+
+            // If there is a pom file, read it.
+            if (Files.exists(resolve(repository, pomFilePath)))
+            {
+                // Run a search against the index and get a list of all the artifacts matching this exact GAV
+                SearchRequest request = new SearchRequest(storageId,
+                                                          repositoryId,
+                                                          "+g:" + groupId + " " +
+                                                          "+a:" + artifactId + " " +
+                                                          "+v:" + version);
+
+                try
+                {
+                    SearchResults results = artifactSearchService.search(request);
+
+                    for (SearchResult result : results.getResults())
+                    {
+                        String artifactPath = result.getArtifactCoordinates().toPath();
+
+                        logger.debug("Removing " + artifactPath + " from index...");
+
+                        deleteFromIndex(storageId, repositoryId, artifactPath);
+                    }
+                }
+                catch (ParseException e)
+                {
+                    logger.error(e.getMessage(), e);
+                }
+            }
+            // Otherwise, this is either not an artifact directory, or not a valid Maven artifact
+        }
+
+        super.delete(storageId, repositoryId, path, force);
 
         deleteMetadata(storageId, repositoryId, path);
     }
@@ -137,6 +203,35 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
             {
                 super.doDeletePath(sha1Path, force, deleteChecksum);
             }
+        }
+    }
+
+    public void deleteFromIndex(String storageId,
+                                String repositoryId,
+                                String path)
+            throws IOException
+    {
+        if (isMetadata(path))
+        {
+            return;
+        }
+
+
+        final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(storageId + ":" +
+                                                                                      repositoryId + ":" +
+                                                                                      IndexTypeEnum.LOCAL.getType());
+        if (indexer != null)
+        {
+            String extension = path.substring(path.lastIndexOf('.') + 1, path.length());
+
+            final Artifact a = ArtifactUtils.convertPathToArtifact(path);
+
+            indexer.delete(Collections.singletonList(new ArtifactInfo(repositoryId,
+                                                                      a.getGroupId(),
+                                                                      a.getArtifactId(),
+                                                                      a.getVersion(),
+                                                                      a.getClassifier(),
+                                                                      extension)));
         }
     }
 
@@ -292,6 +387,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
                 logger.debug("Artifact checksum generation triggered for " + basePath + " in '" +
                              repository.getStorage().getId() + ":" + repository.getId() + "'" +
                              " [policy: " + repository.getPolicy() + "].");
+
                 versionDirectories.forEach(path ->
                                            {
                                                try

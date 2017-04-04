@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
+import org.apache.maven.index.ArtifactContextProducer;
 import org.apache.maven.index.Indexer;
 import org.apache.maven.index.Scanner;
 import org.apache.maven.index.context.IndexCreator;
@@ -31,6 +32,9 @@ public class RepositoryIndexerFactory
 
     @Inject
     private ArtifactIndexesService artifactIndexesService;
+
+    @Inject
+    private ArtifactContextProducer artifactContextProducer;
 
     private Configuration configuration;
 
@@ -71,6 +75,7 @@ public class RepositoryIndexerFactory
         repositoryIndexer.setIndexer(indexerConfiguration.getIndexer());
         repositoryIndexer.setScanner(indexerConfiguration.getScanner());
         repositoryIndexer.setConfiguration(configuration);
+        repositoryIndexer.setArtifactContextProducer(artifactContextProducer);
 
         return repositoryIndexer;
     }
