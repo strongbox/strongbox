@@ -129,7 +129,6 @@ public class ArtifactManagementServiceImpl
                 // Validate checksum with Artifact Digest cache.
                 byte[] checksum = ((ByteArrayOutputStream) os.getCacheOutputStream()).toByteArray();
                 validateUploadedChecksumAgainstCache(checksum, artifactPath);
-
             }
         }
         catch (IOException e)

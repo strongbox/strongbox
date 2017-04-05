@@ -63,8 +63,9 @@ public class Maven2LayoutProviderTest
         Repository repository = new Repository(REPOSITORY_RELEASES);
         repository.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
         repository.setAllowsForceDeletion(true);
+        repository.setIndexingEnabled(true);
 
-        createRepository(STORAGE0, REPOSITORY_RELEASES, RepositoryPolicyEnum.RELEASE.getPolicy(), false);
+        createRepository(repository);
 
         generateArtifact(REPOSITORY_RELEASES_BASEDIR.getAbsolutePath(),
                          "com.artifacts.to.delete.releases:delete-foo",
@@ -128,4 +129,5 @@ public class Maven2LayoutProviderTest
 
         assertFalse("Failed to delete artifact file " + artifactFile.getAbsolutePath(), artifactFile.exists());
     }
+
 }
