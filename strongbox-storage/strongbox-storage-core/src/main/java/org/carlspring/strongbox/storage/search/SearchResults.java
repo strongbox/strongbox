@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.storage.indexing;
+package org.carlspring.strongbox.storage.search;
 
 import java.util.LinkedHashSet;
 import java.util.Set;

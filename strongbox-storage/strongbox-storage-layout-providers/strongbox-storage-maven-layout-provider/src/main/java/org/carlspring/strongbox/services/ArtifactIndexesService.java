@@ -16,9 +16,9 @@ public interface ArtifactIndexesService
      * @param repositoryId String
      * @param artifactPath String
      */
-    void rebuildIndexes(String storageId,
-                        String repositoryId,
-                        String artifactPath)
+    void rebuildIndex(String storageId,
+                      String repositoryId,
+                      String artifactPath)
             throws IOException;
 
     /**

@@ -2,6 +2,8 @@ package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
+import org.carlspring.strongbox.providers.search.OrientDbSearchProvider;
+import org.carlspring.strongbox.providers.search.SearchProviderRegistry;
 import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 
 import javax.inject.Inject;
@@ -29,5 +31,11 @@ public class StorageCoreConfig
 
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
+
+    @Inject
+    private SearchProviderRegistry searchProviderRegistry;
+
+    @Inject
+    private OrientDbSearchProvider orientDbSearchProvider;
 
 }

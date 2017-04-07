@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
+import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
 
 /**
  * @author mtodorov
@@ -173,10 +174,10 @@ public class ArtifactManagementServiceImpl
         {
             return;
         }
-        
-        RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(storageId + ":" +
-                                                                                repositoryId + ":" +
-                                                                                IndexTypeEnum.LOCAL.getType());
+
+        String contextId = getContextId(storageId, repositoryId, IndexTypeEnum.LOCAL.getType());
+
+        RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(contextId);
         if (indexer == null)
         {
             return;
@@ -336,14 +337,15 @@ public class ArtifactManagementServiceImpl
         logger.debug("Received checksum: " + new String(checksum));
 
         String artifactBasePath = artifactPath.substring(0, artifactPath.lastIndexOf('.'));
-        String checksumExtension = artifactPath.substring(artifactPath.lastIndexOf('.') + 1,
-                                                          artifactPath.length());
+        String checksumExtension = artifactPath.substring(artifactPath.lastIndexOf('.') + 1, artifactPath.length());
+
         if (!matchesChecksum(checksum, artifactBasePath, checksumExtension))
         {
             logger.error(String.format("Artifact checksum is invalid: path-[%s]; ext-[%s]; checksum-[%s]", artifactPath,
                                        checksumExtension,
                                        new String(checksum)));
         }
+
         checksumCacheManager.removeArtifactChecksum(artifactBasePath);
     }
 
@@ -514,8 +516,7 @@ public class ArtifactManagementServiceImpl
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        if (repository.getPolicy()
-                      .equals(RepositoryPolicyEnum.SNAPSHOT.getPolicy()))
+        if (repository.getPolicy().equals(RepositoryPolicyEnum.SNAPSHOT.getPolicy()))
         {
             RemoveTimestampedSnapshotOperation operation = new RemoveTimestampedSnapshotOperation(mavenSnapshotManager);
             operation.setStorage(storage);

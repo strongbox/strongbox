@@ -115,7 +115,8 @@ public class ArtifactMetadataServiceImpl
                               Metadata mergeMetadata)
             throws IOException,
                    XmlPullParserException,
-                   NoSuchAlgorithmException, ProviderImplementationException
+                   NoSuchAlgorithmException,
+                   ProviderImplementationException
     {
         Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
 
@@ -318,12 +319,12 @@ public class ArtifactMetadataServiceImpl
                                String metadataPath)
             throws IOException
     {
-        // TODO: Further untangle the relationships of this so that the code below can be uncommented:
-
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
+
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
         RepositoryPath repositoryPath = storageProvider.resolve(repository);
+
         if (!Files.isDirectory(repositoryPath))
         {
             return;
@@ -331,18 +332,14 @@ public class ArtifactMetadataServiceImpl
         
         try
         {
-            String version = repositoryPath.getFileName()
-                                           .toString();
-            java.nio.file.Path path = repositoryPath.getParent();
+            String version = repositoryPath.getFileName().toString();
+            Path path = repositoryPath.getParent();
+
             Metadata metadata = mavenMetadataManager.readMetadata(path);
-            if (metadata != null && metadata.getVersioning() != null
-                && metadata.getVersioning()
-                           .getVersions()
-                           .contains(version))
+            if (metadata != null && metadata.getVersioning() != null &&
+                metadata.getVersioning().getVersions().contains(version))
             {
-                metadata.getVersioning()
-                        .getVersions()
-                        .remove(version);
+                metadata.getVersioning().getVersions().remove(version);
                 mavenMetadataManager.storeMetadata(path, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
             }
         }

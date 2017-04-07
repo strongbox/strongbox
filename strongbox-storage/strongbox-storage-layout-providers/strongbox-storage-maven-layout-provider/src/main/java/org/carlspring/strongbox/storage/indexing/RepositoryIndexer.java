@@ -2,6 +2,7 @@ package org.carlspring.strongbox.storage.indexing;
 
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.storage.search.SearchResult;
 
 import java.io.File;
 import java.io.IOException;
@@ -81,7 +82,7 @@ public class RepositoryIndexer
                                                             artifact.getArtifactId() + ":" +
                                                             artifact.getVersion() + ":" +
                                                             artifact.getType() + ":" +
-                                                            artifact.getClassifier() + ":",
+                                                            artifact.getClassifier(),
                          storageId,
                          repositoryId);
 

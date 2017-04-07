@@ -16,6 +16,7 @@ import java.io.IOException;
 
 import org.apache.maven.index.packer.IndexPacker;
 import org.springframework.stereotype.Component;
+import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
 
 /**
  * @author carlspring
@@ -158,8 +159,9 @@ public class MavenRepositoryManagementStrategy extends AbstractRepositoryManagem
                                                                                                repositoryBasedir,
                                                                                                indexDir);
 
-        repositoryIndexManager.addRepositoryIndexer(storage.getId() + ":" + repositoryId + ":" + indexType,
-                                                    repositoryIndexer);
+        String contextId = getContextId(storage.getId(), repositoryId, IndexTypeEnum.LOCAL.getType());
+
+        repositoryIndexManager.addRepositoryIndexer(contextId, repositoryIndexer);
     }
 
     public Configuration getConfiguration()

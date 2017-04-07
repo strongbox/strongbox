@@ -8,6 +8,9 @@ import org.carlspring.strongbox.io.RepositoryPath;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.MavenRepositoryManagementStrategy;
+import org.carlspring.strongbox.storage.search.SearchRequest;
+import org.carlspring.strongbox.storage.search.SearchResult;
+import org.carlspring.strongbox.storage.search.SearchResults;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.Storage;
@@ -91,7 +94,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
     @Override
     public MavenArtifactCoordinates getArtifactCoordinates(String path)
     {
-        MavenArtifactCoordinates coordinates = null;
+        MavenArtifactCoordinates coordinates;
         if (isMetadata(path))
         {
             Artifact artifact = ArtifactUtils.convertPathToArtifact(path);

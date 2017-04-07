@@ -7,7 +7,6 @@ import org.carlspring.strongbox.handlers.ArtifactLocationGenerateMavenIndexOpera
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
-import org.carlspring.strongbox.repository.RepositoryFeatures;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.Storage;
@@ -46,26 +45,27 @@ public class ArtifactIndexesServiceImpl
 
 
     @Override
-    public void rebuildIndexes(String storageId,
-                               String repositoryId,
-                               String artifactPath)
+    public void rebuildIndex(String storageId,
+                             String repositoryId,
+                             String artifactPath)
             throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        ArtifactLocationGenerateMavenIndexOperation operation = new ArtifactLocationGenerateMavenIndexOperation(repositoryIndexManager);
-
-        operation.setStorage(storage);
-        operation.setRepository(repository);
-        operation.setBasePath(artifactPath);
-
-        ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
-        locator.setOperation(operation);
-        locator.locateArtifactDirectories();
-
-        if (artifactPath == null && repository.isIndexingEnabled())
+        if (repository.isIndexingEnabled())
         {
+            ArtifactLocationGenerateMavenIndexOperation operation = new ArtifactLocationGenerateMavenIndexOperation(repositoryIndexManager);
+
+            operation.setStorage(storage);
+            operation.setRepository(repository);
+            //noinspection ConstantConditions
+            operation.setBasePath(artifactPath);
+
+            ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
+            locator.setOperation(operation);
+            locator.locateArtifactDirectories();
+
             LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
             MavenRepositoryFeatures features = (MavenRepositoryFeatures) layoutProvider.getRepositoryFeatures();
 
@@ -78,11 +78,12 @@ public class ArtifactIndexesServiceImpl
             throws IOException
     {
         Map<String, Repository> repositories = getRepositories(storageId);
+
         logger.debug("Rebuilding indexes for repositories " + repositories.keySet());
 
         for (String repository : repositories.keySet())
         {
-            rebuildIndexes(storageId, repository, null);
+            rebuildIndex(storageId, repository, null);
         }
     }
 
@@ -109,8 +110,7 @@ public class ArtifactIndexesServiceImpl
 
     private Map<String, Repository> getRepositories(String storageId)
     {
-        return getStorages().get(storageId)
-                            .getRepositories();
+        return getStorages().get(storageId).getRepositories();
     }
 
 }

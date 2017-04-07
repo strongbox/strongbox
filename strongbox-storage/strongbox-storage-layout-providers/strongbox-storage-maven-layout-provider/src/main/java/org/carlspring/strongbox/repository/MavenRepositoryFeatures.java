@@ -28,6 +28,7 @@ import org.codehaus.plexus.component.repository.exception.ComponentLookupExcepti
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
 
 /**
  * @author carlspring
@@ -100,7 +101,7 @@ public class MavenRepositoryFeatures implements RepositoryFeatures
                        String path)
             throws IOException
     {
-        String contextId = storageId + ":" + repositoryId + ":" + IndexTypeEnum.LOCAL.getType();
+        String contextId = getContextId(storageId, repositoryId, IndexTypeEnum.LOCAL.getType());
 
         logger.info("Re-indexing " + contextId + (path != null ? ":" + path : "") + "...");
 
@@ -114,33 +115,28 @@ public class MavenRepositoryFeatures implements RepositoryFeatures
                                                               new ReindexArtifactScanningListener(repositoryIndexer.getIndexer()),
                                                               startingPath.getPath());
 
-        ScanningResult scan = repositoryIndexer.getScanner()
-                                               .scan(scanningRequest);
+        ScanningResult scan = repositoryIndexer.getScanner().scan(scanningRequest);
 
         return scan.getTotalFiles();
     }
 
-    public void mergeIndexes(String sourceStorage,
+    public void mergeIndexes(String sourceStorageId,
                              String sourceRepositoryId,
-                             String targetStorage,
+                             String targetStorageId,
                              String targetRepositoryId)
             throws ArtifactStorageException
     {
         try
         {
-            final RepositoryIndexer sourceIndex = repositoryIndexManager.getRepositoryIndexer(sourceStorage + ":" +
-                                                                                              sourceRepositoryId + ":" +
-                                                                                              IndexTypeEnum.LOCAL
-                                                                                                           .getType());
+            String sourceContextId = getContextId(sourceStorageId, sourceRepositoryId, IndexTypeEnum.LOCAL.getType());
+            final RepositoryIndexer sourceIndex = repositoryIndexManager.getRepositoryIndexer(sourceContextId);
             if (sourceIndex == null)
             {
                 throw new ArtifactStorageException("Source repository not found!");
             }
 
-            final RepositoryIndexer targetIndex = repositoryIndexManager.getRepositoryIndexer(targetStorage + ":" +
-                                                                                              targetRepositoryId + ":" +
-                                                                                              IndexTypeEnum.LOCAL
-                                                                                                           .getType());
+            String targetContextId = getContextId(targetStorageId, targetRepositoryId, IndexTypeEnum.LOCAL.getType());
+            final RepositoryIndexer targetIndex = repositoryIndexManager.getRepositoryIndexer(targetContextId);
             if (targetIndex == null)
             {
                 throw new ArtifactStorageException("Target repository not found!");
@@ -158,7 +154,7 @@ public class MavenRepositoryFeatures implements RepositoryFeatures
                      String repositoryId)
             throws IOException
     {
-        String contextId = storageId + ":" + repositoryId + ":" + IndexTypeEnum.LOCAL.getType();
+        String contextId = getContextId(storageId, repositoryId, IndexTypeEnum.LOCAL.getType());
 
         logger.info("Packing index for " + contextId + " ...");
 

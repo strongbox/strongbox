@@ -7,6 +7,7 @@ import org.carlspring.strongbox.artifact.locator.handlers.AbstractArtifactLocati
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
+import org.carlspring.strongbox.util.IndexContextHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +20,7 @@ import java.util.List;
 import org.apache.maven.artifact.Artifact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
 
 /**
  * @author Kate Novik.
@@ -112,11 +114,8 @@ public class ArtifactLocationGenerateMavenIndexOperation
                         String repositoryId = getRepository().getId();
                         String storageId = getStorage().getId();
 
-                        RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(
-                                storageId.concat(":")
-                                         .concat(repositoryId)
-                                         .concat(":")
-                                         .concat(IndexTypeEnum.LOCAL.getType()));
+                        String contextId = getContextId(storageId, repositoryId, IndexTypeEnum.LOCAL.getType());
+                        RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(contextId);
 
                         if (indexer != null)
                         {
@@ -148,3 +147,4 @@ public class ArtifactLocationGenerateMavenIndexOperation
         this.repositoryIndexManager = repositoryIndexManager;
     }
 }
+

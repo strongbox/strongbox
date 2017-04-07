@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.storage.indexing;
+package org.carlspring.strongbox.storage.search;
 
 /**
  * @author mtodorov

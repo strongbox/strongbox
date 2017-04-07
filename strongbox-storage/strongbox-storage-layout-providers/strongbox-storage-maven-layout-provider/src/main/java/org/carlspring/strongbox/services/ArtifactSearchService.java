@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.services;
 
-import org.carlspring.strongbox.storage.indexing.SearchRequest;
-import org.carlspring.strongbox.storage.indexing.SearchResults;
+import org.carlspring.strongbox.storage.search.SearchRequest;
+import org.carlspring.strongbox.storage.search.SearchResults;
 
 import java.io.IOException;
 

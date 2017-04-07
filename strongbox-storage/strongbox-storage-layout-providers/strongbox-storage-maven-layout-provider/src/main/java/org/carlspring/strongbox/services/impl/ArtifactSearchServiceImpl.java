@@ -13,14 +13,15 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
-import org.carlspring.strongbox.storage.indexing.SearchRequest;
-import org.carlspring.strongbox.storage.indexing.SearchResult;
-import org.carlspring.strongbox.storage.indexing.SearchResults;
+import org.carlspring.strongbox.storage.search.SearchRequest;
+import org.carlspring.strongbox.storage.search.SearchResult;
+import org.carlspring.strongbox.storage.search.SearchResults;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
 
 /**
  * @author mtodorov
@@ -59,9 +60,10 @@ public class ArtifactSearchServiceImpl
                 {
                     if (storage.containsRepository(repositoryId))
                     {
-                        final String contextId = storage.getId() + ":" +
-                                                 repositoryId + ":" +
-                                                 IndexTypeEnum.LOCAL.getType();
+                        final String contextId = getContextId(storage.getId(),
+                                                              repositoryId,
+                                                              IndexTypeEnum.LOCAL.getType());
+
                         final Set<SearchResult> sr = repositoryIndexManager.getRepositoryIndexer(contextId)
                                                                            .search(searchRequest.getQuery());
 
@@ -78,9 +80,9 @@ public class ArtifactSearchServiceImpl
             }
             else
             {
-                String contextId = searchRequest.getStorageId() + ":" +
-                                   searchRequest.getRepositoryId() + ":" +
-                                   IndexTypeEnum.LOCAL.getType();
+                final String contextId = getContextId(searchRequest.getStorageId(),
+                                                      searchRequest.getRepositoryId(),
+                                                      IndexTypeEnum.LOCAL.getType());
 
                 final Set<SearchResult> sr = repositoryIndexManager.getRepositoryIndexer(contextId)
                                                                    .search(searchRequest.getQuery());
@@ -103,7 +105,8 @@ public class ArtifactSearchServiceImpl
                 {
                     logger.debug("Repository: {}", r.getId());
 
-                    String contextId = storage.getId() + ":" + r.getId() + ":" + IndexTypeEnum.LOCAL.getType();
+                    final String contextId = getContextId(storage.getId(), r.getId(), IndexTypeEnum.LOCAL.getType());
+
                     final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer(contextId);
                     if (repositoryIndexer != null)
                     {

@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.controller;
 
 import org.carlspring.strongbox.services.ArtifactSearchService;
-import org.carlspring.strongbox.storage.indexing.SearchRequest;
-import org.carlspring.strongbox.storage.indexing.SearchResults;
+import org.carlspring.strongbox.storage.search.SearchRequest;
+import org.carlspring.strongbox.storage.search.SearchResults;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;

@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.MavenRepositoryManagementStrategy;
 
@@ -81,6 +82,12 @@ public class Maven2LayoutProviderConfig
     QueryCreator queryCreator()
     {
         return new DefaultQueryCreator();
+    }
+
+    @Bean(name = "mavenIndexerSearchProvider")
+    MavenIndexerSearchProvider mavenIndexerSearchProvider()
+    {
+        return new MavenIndexerSearchProvider();
     }
 
     @Bean(name = "maven2LayoutProvider")
