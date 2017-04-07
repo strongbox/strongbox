@@ -3,18 +3,15 @@ package org.carlspring.strongbox.rest;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.rest.context.IntegrationTest;
 import org.carlspring.strongbox.services.ArtifactSearchService;
-import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.search.SearchRequest;
 
-import javax.annotation.PreDestroy;
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -23,7 +20,6 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Kate Novik
  */
-@Ignore
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ArtifactIndexesControllerTest
@@ -49,8 +45,8 @@ public class ArtifactIndexesControllerTest
         cleanUp(getRepositoriesToClean());
     }
 
-    @Override
-    public void init()
+    @PostConstruct
+    public void initialize()
             throws Exception
     {
         super.init();
@@ -73,13 +69,6 @@ public class ArtifactIndexesControllerTest
 
         generateArtifact(getRepositoryBasedir(STORAGE_ID, REPOSITORY_RELEASES_2).getAbsolutePath(),
                          "org.carlspring.strongbox.indexes:strongbox-test-two:1.0");
-    }
-
-    @PreDestroy
-    public void removeRepositories()
-            throws IOException, JAXBException
-    {
-        removeRepositories(getRepositoriesToClean());
     }
 
     public static Set<Repository> getRepositoriesToClean()
