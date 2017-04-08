@@ -7,7 +7,6 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,7 +15,8 @@ import java.util.Set;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class User implements Serializable
+public class User
+        implements Serializable
 {
 
     @XmlElement
@@ -38,6 +38,8 @@ public class User implements Serializable
     @XmlTransient
     private long seed;
 
+    @XmlElement
+    private Features features;
 
     public User()
     {
@@ -135,15 +137,38 @@ public class User implements Serializable
         return roles.contains(role);
     }
 
+    public Features getFeatures()
+    {
+        return features;
+    }
+
+    public void setFeatures(Features features)
+    {
+        this.features = features;
+    }
+
     @Override
     public String toString()
     {
-        return "User{" +
-               "fullName=" + fullName +
-               ", username='" + getUsername() + '\'' +
-               ", password='" + getPassword() + '\'' +
-               (roles != null ? ", roles=" + Arrays.toString(roles.toArray()) : "") +
-               '}';
+        final StringBuilder sb = new StringBuilder("User{");
+        sb.append("username='")
+          .append(username)
+          .append('\'');
+        sb.append(", credentials=")
+          .append(credentials);
+        sb.append(", roles=")
+          .append(roles);
+        sb.append(", fullName='")
+          .append(fullName)
+          .append('\'');
+        sb.append(", email='")
+          .append(email)
+          .append('\'');
+        sb.append(", seed=")
+          .append(seed);
+        sb.append(", features=")
+          .append(features);
+        sb.append('}');
+        return sb.toString();
     }
-
 }

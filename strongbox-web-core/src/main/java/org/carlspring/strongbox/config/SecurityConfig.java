@@ -4,15 +4,23 @@ import org.carlspring.strongbox.security.authentication.CustomAnonymousAuthentic
 import org.carlspring.strongbox.security.authentication.Http401AuthenticationEntryPoint;
 import org.carlspring.strongbox.security.authentication.JWTAuthenticationFilter;
 import org.carlspring.strongbox.security.authentication.JWTAuthenticationProvider;
+import org.carlspring.strongbox.security.vote.CustomAccessDecisionVoter;
 import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import java.util.Arrays;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.access.AccessDecisionManager;
+import org.springframework.security.access.AccessDecisionVoter;
+import org.springframework.security.access.vote.AuthenticatedVoter;
+import org.springframework.security.access.vote.RoleVoter;
+import org.springframework.security.access.vote.UnanimousBased;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -24,6 +32,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -69,6 +78,9 @@ public class SecurityConfig
             extends WebSecurityConfigurerAdapter
     {
 
+        @Inject
+        AccessDecisionManager accessDecisionManager;
+
         @Override
         protected void configure(HttpSecurity http)
                 throws Exception
@@ -82,6 +94,7 @@ public class SecurityConfig
                 .authorizeRequests()
                 .anyRequest()
                 .authenticated()
+                .accessDecisionManager(accessDecisionManager)
                 .and()
                 .httpBasic()
                 .and()
@@ -107,6 +120,9 @@ public class SecurityConfig
         private AuthorizationConfigProvider authorizationConfigProvider;
 
         private AnonymousAuthenticationFilter anonymousAuthenticationFilter;
+
+        @Inject
+        AccessDecisionManager accessDecisionManager;
 
         public JwtSecurityConfig()
         {
@@ -148,6 +164,7 @@ public class SecurityConfig
                 .permitAll()
                 .anyRequest()
                 .authenticated()
+                .accessDecisionManager(accessDecisionManager)
                 .and()
                 //.addFilterAfter(jwtFilter, BasicAuthenticationFilter.class)
                 .logout()
@@ -178,5 +195,18 @@ public class SecurityConfig
     public AuthenticationProvider jwtAuthenticationProvider()
     {
         return new JWTAuthenticationProvider();
+    }
+
+    @Bean
+    @SuppressWarnings("unchecked")
+    public AccessDecisionManager accessDecisionManager()
+    {
+        List<AccessDecisionVoter<? extends Object>> decisionVoters
+                = Arrays.asList(
+                new WebExpressionVoter(),
+                new RoleVoter(),
+                new AuthenticatedVoter(),
+                new CustomAccessDecisionVoter());
+        return new UnanimousBased(decisionVoters);
     }
 }

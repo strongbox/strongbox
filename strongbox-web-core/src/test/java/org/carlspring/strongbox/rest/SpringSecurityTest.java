@@ -41,7 +41,8 @@ public class SpringSecurityTest
     @Ignore
     public void testThatAnonymousUserHasFullAccessAccordingToAuthorities()
     {
-        anonymousAuthenticationFilter.getAuthorities().add(new SimpleGrantedAuthority("VIEW_USER"));
+        anonymousAuthenticationFilter.getAuthorities()
+                                     .add(new SimpleGrantedAuthority("VIEW_USER"));
 
         String url = getContextBaseUrl() + "/users/user/anyName";
 
@@ -76,7 +77,8 @@ public class SpringSecurityTest
     {
         // clear default anonymous authorization context and disable it's population
         ((CustomAnonymousAuthenticationFilter) anonymousAuthenticationFilter).setContextAutoCreationEnabled(false);
-        SecurityContextHolder.getContext().setAuthentication(null);
+        SecurityContextHolder.getContext()
+                             .setAuthentication(null);
 
         RestAssuredMockMvc.given()
                           .contentType(MediaType.TEXT_PLAIN_VALUE)
@@ -129,7 +131,7 @@ public class SpringSecurityTest
     @Test
     @Ignore
     public void testJWTExpire()
-        throws InterruptedException
+            throws InterruptedException
     {
         String url = getContextBaseUrl() + "/users/user/authenticate";
 
@@ -165,9 +167,9 @@ public class SpringSecurityTest
                .then()
                .statusCode(401);
     }
-    
+
     @Test
-    @WithUserDetails("user")
+    @WithUserDetails()
     public void testAuthorities()
     {
         String userName = "user";
@@ -188,5 +190,17 @@ public class SpringSecurityTest
                .then()
                .statusCode(403);
 
+    }
+
+    @Test
+    @WithUserDetails("deployer")
+    public void testPerRepositoryAccess()
+    {
+        given().contentType("application/json")
+               .when()
+               .get("/storages/storage0/releases")
+               .peek()
+               .then()
+               .statusCode(200);
     }
 }

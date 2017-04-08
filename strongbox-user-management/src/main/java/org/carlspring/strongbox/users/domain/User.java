@@ -1,13 +1,11 @@
 package org.carlspring.strongbox.users.domain;
 
+import org.carlspring.strongbox.data.domain.GenericEntity;
+
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-import org.carlspring.strongbox.data.domain.GenericEntity;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 /**
@@ -30,6 +28,8 @@ public class User
 
     private String securityTokenKey;
 
+    private Features features;
+
     public User()
     {
         roles = new HashSet<>();
@@ -48,6 +48,27 @@ public class User
         this.enabled = enabled;
         this.salt = salt;
         this.roles = roles;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return enabled == user.enabled &&
+               Objects.equal(username, user.username) &&
+               Objects.equal(password, user.password) &&
+               Objects.equal(salt, user.salt) &&
+               Objects.equal(roles, user.roles) &&
+               Objects.equal(securityTokenKey, user.securityTokenKey) &&
+               Objects.equal(features, user.features);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hashCode(username, password, enabled, salt, roles, securityTokenKey, features);
     }
 
     public String getUsername()
@@ -110,46 +131,40 @@ public class User
         this.securityTokenKey = securityTokenKey;
     }
 
-    @Override
-    public boolean equals(Object o)
+    public Features getFeatures()
     {
-        if (this == o)
-        {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass())
-        {
-            return false;
-        }
-
-        User user = (User) o;
-
-        return enabled == user.enabled &&
-               Objects.equal(objectId, user.objectId) &&
-               Objects.equal(username, user.username) &&
-               Objects.equal(password, user.password) &&
-               Objects.equal(salt, user.salt) &&
-               Objects.equal(roles, user.roles);
+        return features;
     }
 
-    @Override
-    public int hashCode()
+    public void setFeatures(Features features)
     {
-        return Objects.hashCode(objectId, username, password, enabled, salt, roles);
+        this.features = features;
     }
+
 
     @Override
     public String toString()
     {
-        return MoreObjects.toStringHelper(this)
-                          .add("objectId", getObjectId())
-                          .add("username", getUsername())
-                          .add("password", getPassword())
-                          .add("enabled", isEnabled())
-                          .add("salt", getSalt())
-                          .add("roles", getRoles())
-                          .add("securityToken", StringUtils.isEmpty(getSecurityTokenKey()) ? "[EMPTY]" : "[SEECRET]")
-                          .toString();
+        final StringBuilder sb = new StringBuilder("User{");
+        sb.append("username='")
+          .append(username)
+          .append('\'');
+        sb.append(", password='")
+          .append(password)
+          .append('\'');
+        sb.append(", enabled=")
+          .append(enabled);
+        sb.append(", salt='")
+          .append(salt)
+          .append('\'');
+        sb.append(", roles=")
+          .append(roles);
+        sb.append(", securityTokenKey='")
+          .append(securityTokenKey)
+          .append('\'');
+        sb.append(", features=")
+          .append(features);
+        sb.append('}');
+        return sb.toString();
     }
-
 }

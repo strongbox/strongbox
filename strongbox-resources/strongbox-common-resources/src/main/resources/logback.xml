@@ -35,6 +35,8 @@
     -->
 
     <logger name="ch.qos.logback" level="ERROR"/>
+    <logger name="com.orientechnologies.orient" level="ERROR"/>
+
 
     <logger name="org.springframework" level="ERROR"/>
     <!--<logger name="org.springframework.core" level="WARN"/>
@@ -55,12 +57,13 @@
 
     <logger name="org.carlspring.strongbox" level="DEBUG"/>
     <logger name="org.carlspring.strongbox.security.authentication" level="ERROR"/>
+    <logger name="org.carlspring.strongbox.security.vote" level="DEBUG"/>
     <logger name="org.carlspring.strongbox.data" level="WARN"/>
     <logger name="org.carlspring.strongbox.data.tx" level="WARN"/>
 
     <logger name="net.sf.ehcache" level="ERROR"/>
 
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
     </root>

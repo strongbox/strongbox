@@ -11,7 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 /**
  * A wrapper of {@link User} that is used by Spring Security
  */
-class SpringSecurityUser
+public class SpringSecurityUser
         implements UserDetails
 {
 

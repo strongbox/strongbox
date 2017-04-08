@@ -1,13 +1,13 @@
 package org.carlspring.strongbox.security;
 
-import com.google.common.base.Objects;
-
 import org.carlspring.strongbox.data.domain.GenericEntity;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import com.google.common.base.Objects;
 
 /**
  * @author mtodorov
@@ -18,7 +18,7 @@ public class Privilege
         extends GenericEntity
 {
 
-    @XmlElement
+    @XmlElement(required = true)
     private String name;
 
     @XmlElement
@@ -74,12 +74,16 @@ public class Privilege
     @Override
     public String toString()
     {
-        final StringBuilder sb = new StringBuilder("\n\t\tPrivilege{");
-        sb.append("name='").append(name).append('\'');
-        sb.append(", description='").append(description).append('\'');
+        final StringBuilder sb = new StringBuilder("Privilege{");
+        sb.append("name='")
+          .append(name)
+          .append('\'');
+        sb.append(", description='")
+          .append(description)
+          .append('\'');
         sb.append('}');
-        
+
         return sb.toString();
     }
-    
+
 }

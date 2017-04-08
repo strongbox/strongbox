@@ -27,7 +27,62 @@
             <encryption-algorithm>plain</encryption-algorithm>
         </credentials>
         <roles>
-            <role>USER_ROLE</role>
+            <role>ADMIN</role>
         </roles>
-    </user>    
+    </user>
+    <user>
+        <username>deployer</username>
+        <credentials>
+            <password>password</password>
+            <encryption-algorithm>plain</encryption-algorithm>
+        </credentials>
+        <roles>
+            <role>UI_MANAGER</role>
+        </roles>
+
+        <features>
+            <storages>
+                <storage id="storage0">
+                    <repositories>
+                        <repository id="releases">
+                            <privileges>
+                                <privilege>
+                                    <name>ARTIFACTS_DEPLOY</name>
+                                </privilege>
+                                <privilege>
+                                    <name>ARTIFACTS_RESOLVE</name>
+                                </privilege>
+                            </privileges>
+                        </repository>
+                    </repositories>
+                </storage>
+            </storages>
+        </features>
+    </user>
+    <user>
+        <username>developer01</username>
+        <credentials>
+            <password>password</password>
+            <encryption-algorithm>plain</encryption-algorithm>
+        </credentials>
+        <roles>
+            <role>UI_MANAGER</role>
+        </roles>
+
+        <features>
+            <storages>
+                <storage id="storage0">
+                    <repositories>
+                        <repository id="releases">
+                            <privileges>
+                                <privilege>
+                                    <name>ARTIFACTS_RESOLVE</name>
+                                </privilege>
+                            </privileges>
+                        </repository>
+                    </repositories>
+                </storage>
+            </storages>
+        </features>
+    </user>
 </users>
