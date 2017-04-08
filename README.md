@@ -1,5 +1,7 @@
 Welcome to the Strongbox Maven artifact repository manager's home.
 
+Not important change.
+
 # What's implemented:
 * [Repositories](https://github.com/strongbox/strongbox/wiki/Repositories):
   * Hosted
