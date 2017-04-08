@@ -8,8 +8,6 @@ import org.carlspring.strongbox.io.filters.NuspecFilenameFilter;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
 import org.carlspring.strongbox.repository.NugetRepositoryManagementStrategy;
-import org.carlspring.strongbox.repository.RepositoryFeatures;
-import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.annotation.PostConstruct;

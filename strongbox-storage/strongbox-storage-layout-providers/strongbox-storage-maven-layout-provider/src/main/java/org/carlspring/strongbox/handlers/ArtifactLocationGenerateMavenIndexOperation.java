@@ -7,7 +7,6 @@ import org.carlspring.strongbox.artifact.locator.handlers.AbstractArtifactLocati
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
-import org.carlspring.strongbox.util.IndexContextHelper;
 
 import java.io.File;
 import java.io.IOException;
