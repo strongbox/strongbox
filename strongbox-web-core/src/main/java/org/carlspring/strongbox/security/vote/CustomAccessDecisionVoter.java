@@ -46,6 +46,7 @@ public class CustomAccessDecisionVoter
                     Collection collection)
     {
         int vote = ACCESS_ABSTAIN;
+        this.authentication = authentication;
 
         SpringSecurityUser user = (SpringSecurityUser) authentication.getPrincipal();
         Features features = user.getFeatures();
