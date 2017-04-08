@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.security.user;
 
+import org.carlspring.strongbox.users.domain.Features;
 import org.carlspring.strongbox.users.domain.User;
 
 import java.util.Collection;
@@ -24,6 +25,10 @@ public class SpringSecurityUser
     private String salt;
 
     private Collection<? extends GrantedAuthority> authorities;
+
+    private Features features;
+
+    private String url;
 
     SpringSecurityUser()
     {
@@ -101,30 +106,52 @@ public class SpringSecurityUser
         this.authorities = authorities;
     }
 
+    public Features getFeatures()
+    {
+        return features;
+    }
+
+    public void setFeatures(Features features)
+    {
+        this.features = features;
+    }
+
+    public String getUrl()
+    {
+        return url;
+    }
+
+    public void setUrl(String url)
+    {
+        this.url = url;
+    }
+
     @Override
     public boolean equals(Object o)
     {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        SpringSecurityUser that = (SpringSecurityUser) o;
-        return enabled == that.enabled &&
-               Objects.equal(username, that.username) &&
-               Objects.equal(password, that.password) &&
-               Objects.equal(salt, that.salt) &&
-               Objects.equal(authorities, that.authorities);
+        SpringSecurityUser user = (SpringSecurityUser) o;
+        return enabled == user.enabled &&
+               Objects.equal(username, user.username) &&
+               Objects.equal(password, user.password) &&
+               Objects.equal(salt, user.salt) &&
+               Objects.equal(authorities, user.authorities) &&
+               Objects.equal(features, user.features) &&
+               Objects.equal(url, user.url);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hashCode(username, password, enabled, salt, authorities);
+        return Objects.hashCode(username, password, enabled, salt, authorities, features, url);
     }
 
     @Override
     public String toString()
     {
-        final StringBuilder sb = new StringBuilder("SpringSecurityUser {");
-        sb.append(" username='")
+        final StringBuilder sb = new StringBuilder("SpringSecurityUser{");
+        sb.append("username='")
           .append(username)
           .append('\'');
         sb.append(", password='")
@@ -135,8 +162,13 @@ public class SpringSecurityUser
         sb.append(", salt='")
           .append(salt)
           .append('\'');
-        sb.append(", authorities (size)=")
-          .append(authorities.size());
+        sb.append(", authorities=")
+          .append(authorities);
+        sb.append(", features=")
+          .append(features);
+        sb.append(", url='")
+          .append(url)
+          .append('\'');
         sb.append('}');
         return sb.toString();
     }

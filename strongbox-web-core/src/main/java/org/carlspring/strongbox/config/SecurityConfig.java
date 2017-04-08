@@ -4,23 +4,18 @@ import org.carlspring.strongbox.security.authentication.CustomAnonymousAuthentic
 import org.carlspring.strongbox.security.authentication.Http401AuthenticationEntryPoint;
 import org.carlspring.strongbox.security.authentication.JWTAuthenticationFilter;
 import org.carlspring.strongbox.security.authentication.JWTAuthenticationProvider;
-import org.carlspring.strongbox.security.vote.CustomAccessDecisionVoter;
+import org.carlspring.strongbox.security.vote.FilterAccessDecisionManager;
+import org.carlspring.strongbox.security.vote.MethodAccessDecisionManager;
 import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import java.util.Arrays;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.access.AccessDecisionManager;
-import org.springframework.security.access.AccessDecisionVoter;
-import org.springframework.security.access.vote.AuthenticatedVoter;
-import org.springframework.security.access.vote.RoleVoter;
-import org.springframework.security.access.vote.UnanimousBased;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -32,7 +27,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -41,24 +35,33 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 public class SecurityConfig
         extends WebSecurityConfigurerAdapter
 {
-
     /**
      * This Configuration enables @PreAuthorize annotations
-     * 
-     * @author Sergey Bespalov
      *
+     * @author Sergey Bespalov
      */
     @Configuration
     @EnableGlobalMethodSecurity(prePostEnabled = true)
-    public static class MethodSecurityConfig extends GlobalMethodSecurityConfiguration
+    public static class MethodSecurityConfig
+            extends GlobalMethodSecurityConfiguration
     {
 
+        @Inject
+        MethodAccessDecisionManager methodAccessDecisionManager;
+
+        @Override
+        protected AccessDecisionManager accessDecisionManager()
+        {
+            return methodAccessDecisionManager;
+        }
     }
 
     @Inject
     public void configureGlobal(AuthenticationManagerBuilder auth,
-                                @Qualifier("userDetailsAuthenticationProvider") AuthenticationProvider userDetailsAuthenticationProvider,
-                                @Qualifier("jwtAuthenticationProvider") AuthenticationProvider jwtAuthenticationProvider)
+                                @Qualifier("userDetailsAuthenticationProvider")
+                                        AuthenticationProvider userDetailsAuthenticationProvider,
+                                @Qualifier("jwtAuthenticationProvider")
+                                        AuthenticationProvider jwtAuthenticationProvider)
     {
         auth.authenticationProvider(userDetailsAuthenticationProvider)
             .authenticationProvider(jwtAuthenticationProvider)
@@ -79,7 +82,7 @@ public class SecurityConfig
     {
 
         @Inject
-        AccessDecisionManager accessDecisionManager;
+        FilterAccessDecisionManager filterAccessDecisionManager;
 
         @Override
         protected void configure(HttpSecurity http)
@@ -94,7 +97,7 @@ public class SecurityConfig
                 .authorizeRequests()
                 .anyRequest()
                 .authenticated()
-                .accessDecisionManager(accessDecisionManager)
+                .accessDecisionManager(filterAccessDecisionManager)
                 .and()
                 .httpBasic()
                 .and()
@@ -108,7 +111,6 @@ public class SecurityConfig
      * {@link BasicSecurityConfig} and authenticate unauthorized requests if needed.
      *
      * @author Sergey Bespalov
-     *
      */
     @Configuration
     @Order(2)
@@ -122,7 +124,7 @@ public class SecurityConfig
         private AnonymousAuthenticationFilter anonymousAuthenticationFilter;
 
         @Inject
-        AccessDecisionManager accessDecisionManager;
+        FilterAccessDecisionManager filterAccessDecisionManager;
 
         public JwtSecurityConfig()
         {
@@ -137,10 +139,8 @@ public class SecurityConfig
         {
             authorizationConfigProvider.getConfig()
                                        .ifPresent((config) ->
-                                                  {
-                                                      anonymousAuthenticationFilter.getAuthorities()
-                                                                                   .addAll(config.getAnonymousAuthorities());
-                                                  });
+                                                          anonymousAuthenticationFilter.getAuthorities()
+                                                                                       .addAll(config.getAnonymousAuthorities()));
         }
 
         @Bean
@@ -164,7 +164,7 @@ public class SecurityConfig
                 .permitAll()
                 .anyRequest()
                 .authenticated()
-                .accessDecisionManager(accessDecisionManager)
+                .accessDecisionManager(filterAccessDecisionManager)
                 .and()
                 //.addFilterAfter(jwtFilter, BasicAuthenticationFilter.class)
                 .logout()
@@ -195,18 +195,5 @@ public class SecurityConfig
     public AuthenticationProvider jwtAuthenticationProvider()
     {
         return new JWTAuthenticationProvider();
-    }
-
-    @Bean
-    @SuppressWarnings("unchecked")
-    public AccessDecisionManager accessDecisionManager()
-    {
-        List<AccessDecisionVoter<? extends Object>> decisionVoters
-                = Arrays.asList(
-                new WebExpressionVoter(),
-                new RoleVoter(),
-                new AuthenticatedVoter(),
-                new CustomAccessDecisionVoter());
-        return new UnanimousBased(decisionVoters);
     }
 }

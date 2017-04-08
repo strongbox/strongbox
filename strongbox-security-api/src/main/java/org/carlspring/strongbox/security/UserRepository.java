@@ -15,7 +15,7 @@ import com.google.common.base.Objects;
  */
 @XmlRootElement(name = "repository")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Repository
+public class UserRepository
         extends GenericEntity
 {
 
@@ -26,7 +26,7 @@ public class Repository
                   required = true)
     private String repositoryId;
 
-    public Repository()
+    public UserRepository()
     {
     }
 
@@ -35,7 +35,7 @@ public class Repository
     {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Repository that = (Repository) o;
+        UserRepository that = (UserRepository) o;
         return Objects.equal(privileges, that.privileges) &&
                Objects.equal(repositoryId, that.repositoryId);
     }

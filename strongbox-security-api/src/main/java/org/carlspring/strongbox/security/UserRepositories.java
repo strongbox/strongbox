@@ -14,17 +14,17 @@ import com.google.common.base.Objects;
 /**
  * @author Alex Oreshkevich
  */
-@XmlRootElement(name = "storages")
+@XmlRootElement(name = "repositories")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Storages
+public class UserRepositories
         extends GenericEntity
 {
 
-    @XmlElement(name = "storage")
-    private Set<Storage> storages = new LinkedHashSet<>();
+    @XmlElement(name = "repository")
+    private Set<UserRepository> repositories = new LinkedHashSet<>();
 
 
-    public Storages()
+    public UserRepositories()
     {
     }
 
@@ -33,33 +33,33 @@ public class Storages
     {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Storages storages1 = (Storages) o;
-        return Objects.equal(storages, storages1.storages);
+        UserRepositories that = (UserRepositories) o;
+        return Objects.equal(repositories, that.repositories);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hashCode(storages);
+        return Objects.hashCode(repositories);
     }
 
-    public Set<Storage> getStorages()
+    public Set<UserRepository> getRepositories()
     {
-        return storages;
+        return repositories;
     }
 
-    public void setStorages(Set<Storage> storages)
+    public void setRepositories(Set<UserRepository> repositories)
     {
-        this.storages = storages;
+        this.repositories = repositories;
     }
 
 
     @Override
     public String toString()
     {
-        final StringBuilder sb = new StringBuilder("Storages{");
-        sb.append("storages=")
-          .append(storages);
+        final StringBuilder sb = new StringBuilder("Repositories{");
+        sb.append("repositories=")
+          .append(repositories);
         sb.append('}');
         return sb.toString();
     }

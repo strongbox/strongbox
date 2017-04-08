@@ -191,16 +191,4 @@ public class SpringSecurityTest
                .statusCode(403);
 
     }
-
-    @Test
-    @WithUserDetails("deployer")
-    public void testPerRepositoryAccess()
-    {
-        given().contentType("application/json")
-               .when()
-               .get("/storages/storage0/releases")
-               .peek()
-               .then()
-               .statusCode(200);
-    }
 }

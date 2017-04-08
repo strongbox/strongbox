@@ -19,7 +19,7 @@ public class Features
 {
 
     @XmlElement
-    private Storages storages;
+    private UserStorages storages;
 
     public Features()
     {
@@ -40,12 +40,12 @@ public class Features
         return Objects.hashCode(storages);
     }
 
-    public Storages getStorages()
+    public UserStorages getStorages()
     {
         return storages;
     }
 
-    public void setStorages(Storages storages)
+    public void setStorages(UserStorages storages)
     {
         this.storages = storages;
     }

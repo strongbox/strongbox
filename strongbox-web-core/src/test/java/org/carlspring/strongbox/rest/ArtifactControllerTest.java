@@ -35,7 +35,10 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.maven.commons.util.ArtifactUtils.getArtifactFromGAVTC;
 import static org.junit.Assert.*;
 
@@ -675,11 +678,33 @@ public class ArtifactControllerTest
                                                          String extension)
     {
         return versionLevelMetadata.getVersioning().getSnapshotVersions().stream()
-                                   .filter(snapshotVersion ->
+                                   .anyMatch(snapshotVersion ->
                                                    snapshotVersion.getVersion().equals(version) &&
                                                    snapshotVersion.getClassifier().equals(classifier) &&
                                                    snapshotVersion.getExtension().equals(extension)
-                                   ).findAny().isPresent();
+                                   );
+    }
+
+    /**
+     * User developer01 do not have general ARTIFACTS_RESOLVE permission, but it's defined for single 'act-releases-1'
+     * repository. So because of dynamic privileges assignment he will be able to get access to artifacts in that
+     * repository.
+     */
+    @Test
+    @WithUserDetails("developer01")
+    public void testDynamicPrivilegeAssignmentForRepository()
+    {
+        String url = getContextBaseUrl() + "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES1;
+        String pathToJar = "/org/carlspring/strongbox/partial/partial-foo/3.1/partial-foo-3.1.jar";
+        String artifactPath = url + pathToJar;
+
+        int statusCode = given().header("user-agent", "Maven/*")
+                                .contentType(MediaType.TEXT_PLAIN_VALUE)
+                                .when()
+                                .get(artifactPath)
+                                .getStatusCode();
+
+        assertEquals(200, statusCode);
     }
 
 }

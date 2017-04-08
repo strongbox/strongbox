@@ -38,18 +38,20 @@
     <logger name="com.orientechnologies.orient" level="ERROR"/>
 
 
-    <logger name="org.springframework" level="ERROR"/>
-    <!--<logger name="org.springframework.core" level="WARN"/>
+    <!-- <logger name="org.springframework" level="ERROR"/> -->
+    <logger name="org.springframework.core" level="WARN"/>
     <logger name="org.springframework.web" level="WARN"/>
     <logger name="org.springframework.beans" level="WARN"/>
     <logger name="org.springframework.context" level="WARN"/>
     <logger name="org.springframework.data" level="WARN"/>
-    <logger name="org.springframework.security" level="WARN"/>
+    <logger name="org.springframework.security" level="DEBUG"/>
     <logger name="org.springframework.transaction" level="WARN"/>
     <logger name="org.springframework.test" level="WARN"/>
     <logger name="org.springframework.aop" level="WARN"/>
     <logger name="org.springframework.cache" level="WARN"/>
-    <logger name="org.springframework.test" level="WARN"/> -->
+    <logger name="org.springframework.test" level="WARN"/>
+    <!--<logger name=" org.springframework.security.access.vote" level="TRACE"/> -->
+
 
     <logger name="org.jooq" level="ERROR"/>
     <logger name="org.apache.http" level="ERROR"/>
@@ -63,7 +65,7 @@
 
     <logger name="net.sf.ehcache" level="ERROR"/>
 
-    <root level="INFO">
+    <root level="DEBUG">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
     </root>

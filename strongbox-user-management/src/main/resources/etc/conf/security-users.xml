@@ -44,7 +44,7 @@
             <storages>
                 <storage id="storage0">
                     <repositories>
-                        <repository id="releases">
+                        <repository id="act-releases-1">
                             <privileges>
                                 <privilege>
                                     <name>ARTIFACTS_DEPLOY</name>
@@ -73,7 +73,7 @@
             <storages>
                 <storage id="storage0">
                     <repositories>
-                        <repository id="releases">
+                        <repository id="act-releases-1">
                             <privileges>
                                 <privilege>
                                     <name>ARTIFACTS_RESOLVE</name>

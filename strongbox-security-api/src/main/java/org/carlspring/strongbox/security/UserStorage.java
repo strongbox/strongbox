@@ -15,17 +15,17 @@ import com.google.common.base.Objects;
  */
 @XmlRootElement(name = "storage")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Storage
+public class UserStorage
         extends GenericEntity
 {
 
     @XmlElement(name = "repositories")
-    private Repositories repositories;
+    private UserRepositories repositories;
 
     @XmlAttribute(name = "id")
     private String storageId;
 
-    public Storage()
+    public UserStorage()
     {
     }
 
@@ -34,7 +34,7 @@ public class Storage
     {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Storage storage = (Storage) o;
+        UserStorage storage = (UserStorage) o;
         return Objects.equal(repositories, storage.repositories) &&
                Objects.equal(storageId, storage.storageId);
     }
@@ -45,12 +45,12 @@ public class Storage
         return Objects.hashCode(repositories, storageId);
     }
 
-    public Repositories getRepositories()
+    public UserRepositories getRepositories()
     {
         return repositories;
     }
 
-    public void setRepositories(Repositories repositories)
+    public void setRepositories(UserRepositories repositories)
     {
         this.repositories = repositories;
     }
