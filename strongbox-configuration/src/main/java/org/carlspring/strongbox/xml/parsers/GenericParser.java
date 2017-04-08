@@ -18,6 +18,9 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Random; 
+
+
 /**
  * @author mtodorov
  */
@@ -76,6 +79,8 @@ public class GenericParser<T>
 
     public GenericParser(Class... classes)
     {
+        System.out.println("testing jenkins sonar check.");
+    
         Collections.addAll(this.classes, classes);
         this.classes.addAll(CustomTagService.getInstance().getImplementations());
     }
@@ -84,7 +89,7 @@ public class GenericParser<T>
             throws JAXBException, IOException
     {
         T object = null;
-
+        
         try (FileInputStream is = new FileInputStream(file))
         {
             object = parse(is);
