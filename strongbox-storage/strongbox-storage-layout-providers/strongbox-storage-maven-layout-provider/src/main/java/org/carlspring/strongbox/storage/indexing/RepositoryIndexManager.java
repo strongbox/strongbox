@@ -108,7 +108,6 @@ public class RepositoryIndexManager
                              boolean remove)
             throws IOException
     {
-
         logger.debug("Indexes size:" + indexes.size());
 
         if (repositoryIndexer != null)

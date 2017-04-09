@@ -97,6 +97,7 @@ public class ArtifactIndexesController
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The specified storageId does not exist!");
         }
+
         try
         {
             artifactIndexesService.rebuildIndexes(storageId);
