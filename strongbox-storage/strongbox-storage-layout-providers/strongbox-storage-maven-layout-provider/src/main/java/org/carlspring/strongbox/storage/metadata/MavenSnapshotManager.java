@@ -4,6 +4,7 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.storage.repository.Repository;
 
@@ -74,19 +75,17 @@ public class MavenSnapshotManager
         if (layoutProvider.containsPath(repository, artifactPath))
         {
             logger.debug("Removal of timestamped Maven snapshot artifact " + artifactPath +
-                         " in '" + repository.getStorage()
-                                             .getId() + ":" + repository.getId() + "'.");
+                         " in '" + repository.getStorage().getId() + ":" + repository.getId() + "'.");
+
             Versioning versioning = request.getVersioning();
             Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
 
-            if (!versioning.getVersions()
-                           .isEmpty())
+            if (!versioning.getVersions().isEmpty())
             {
                 for (String version : versioning.getVersions())
                 {
 
-                    Path versionBasePath = Paths.get(request.getArtifactBasePath()
-                                                            .toString(),
+                    Path versionBasePath = Paths.get(request.getArtifactBasePath().toString(),
                                                      ArtifactUtils.getSnapshotBaseVersion(version));
 
                     if (removeTimestampedSnapshot(versionBasePath.toString(), repository, numberToKeep, keepPeriod))
@@ -94,7 +93,9 @@ public class MavenSnapshotManager
 
                         logger.debug("Generate snapshot versioning metadata for " + versionBasePath + ".");
 
-                        mavenMetadataManager.generateSnapshotVersioningMetadata(versionBasePath, artifact, version,
+                        mavenMetadataManager.generateSnapshotVersioningMetadata(versionBasePath,
+                                                                                artifact,
+                                                                                version,
                                                                                 true);
                     }
                 }
@@ -105,7 +106,6 @@ public class MavenSnapshotManager
         {
             logger.error("Removal of timestamped Maven snapshot artifact: " + artifactPath + ".");
         }
-
     }
 
     private boolean removeTimestampedSnapshot(String basePath,
@@ -117,8 +117,7 @@ public class MavenSnapshotManager
                    XmlPullParserException,
                    ParseException
     {
-        String storageId = repository.getStorage()
-                                     .getId();
+        String storageId = repository.getStorage().getId();
         File file = new File(basePath);
 
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
@@ -140,11 +139,9 @@ public class MavenSnapshotManager
                 new ArrayList<>(mapToRemove.values()).forEach(e -> removingSnapshots.add(metadata.getArtifactId()
                                                                                                  .concat("-")
                                                                                                  .concat(e)
-                                                                                                 .concat(".jar"))
-                );
+                                                                                                 .concat(".jar")));
 
-                List<File> list =
-                        Arrays.asList(file.listFiles());
+                List<File> list = Arrays.asList(file.listFiles());
 
                 list.stream()
                     .filter(File::isFile)
@@ -164,17 +161,21 @@ public class MavenSnapshotManager
 
                                      layoutProvider.delete(storageId, repository.getId(), pomPath, true);
                                  }
-                                 catch (IOException e1)
+                                 catch (IOException ex)
                                  {
-                                     logger.error(e1.getMessage(), e1);
+                                     logger.error(ex.getMessage(), ex);
+                                 }
+                                 catch (SearchException ex)
+                                 {
+                                     logger.error(ex.getMessage(), ex);
                                  }
 
                              });
                 return true;
             }
         }
-        return false;
 
+        return false;
     }
 
     /**
@@ -259,10 +260,14 @@ public class MavenSnapshotManager
     {
         DateFormat formatter = new SimpleDateFormat(TIMESTAMP_FORMAT);
         Calendar calendar = Calendar.getInstance();
+
         String currentDate = formatter.format(calendar.getTime());
+
         Date d2 = formatter.parse(currentDate);
         Date d1 = formatter.parse(buildTimestamp);
+
         long diff = d2.getTime() - d1.getTime();
+
         return (int) diff / (24 * 60 * 60 * 1000);
     }
 

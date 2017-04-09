@@ -12,6 +12,7 @@ import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
@@ -272,7 +273,7 @@ public class ArtifactManagementServiceImpl
             LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
             layoutProvider.delete(storageId, repositoryId, artifactPath, force);
         }
-        catch (IOException | ProviderImplementationException e)
+        catch (IOException | ProviderImplementationException | SearchException e)
         {
             throw new ArtifactStorageException(e.getMessage(), e);
         }

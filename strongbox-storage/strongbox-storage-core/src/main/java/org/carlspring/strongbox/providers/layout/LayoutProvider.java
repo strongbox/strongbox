@@ -5,6 +5,7 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.repository.RepositoryFeatures;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -62,7 +63,7 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
             throws IOException;
 
     void delete(String storageId, String repositoryId, String path, boolean force)
-            throws IOException;
+            throws IOException, SearchException;
 
     void deleteMetadata(String storageId, String repositoryId, String metadataPath)
             throws IOException;

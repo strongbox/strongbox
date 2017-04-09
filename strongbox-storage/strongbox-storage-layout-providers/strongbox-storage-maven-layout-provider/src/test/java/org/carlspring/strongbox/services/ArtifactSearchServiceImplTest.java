@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.services;
 
+import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -79,7 +80,8 @@ public class ArtifactSearchServiceImplTest
 
         SearchRequest request = new SearchRequest(STORAGE0,
                                                   REPOSITORYID,
-                                                  "+g:org.carlspring.strongbox +a:strongbox-utils +v:1.0.1 +p:jar");
+                                                  "+g:org.carlspring.strongbox +a:strongbox-utils +v:1.0.1 +p:jar",
+                                                  MavenIndexerSearchProvider.ALIAS);
 
         artifactSearchService.contains(request);
     }

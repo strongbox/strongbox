@@ -8,15 +8,16 @@ import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.controller.ArtifactController;
+import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.rest.context.IntegrationTest;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.storage.search.SearchResults;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import javax.annotation.PostConstruct;
@@ -27,7 +28,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.jayway.restassured.response.ExtractableResponse;
-import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.model.Plugin;
@@ -607,8 +607,7 @@ public class ArtifactControllerTest
 
     @Test
     public void testUpdateMetadataOnDeleteReleaseVersionDirectory()
-            throws NoSuchAlgorithmException, XmlPullParserException, IOException, ArtifactOperationException,
-                   ArtifactTransportException, ParseException
+            throws Exception
     {
         // Given
         String groupId = "org.carlspring.strongbox.delete-metadata";
@@ -631,7 +630,8 @@ public class ArtifactControllerTest
                                                   REPOSITORY_RELEASES2,
                                                   "+g:" + groupId + " " +
                                                   "+a:" + artifactId + " " +
-                                                  "+v:" + "1.2.2");
+                                                  "+v:" + "1.2.2",
+                                                  MavenIndexerSearchProvider.ALIAS);
 
         SearchResults results = artifactSearchService.search(request);
 

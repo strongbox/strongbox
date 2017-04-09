@@ -6,6 +6,8 @@ import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.RepositoryPath;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
+import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.MavenRepositoryManagementStrategy;
 import org.carlspring.strongbox.storage.search.SearchRequest;
@@ -118,7 +120,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
                        String repositoryId,
                        String path,
                        boolean force)
-            throws IOException
+            throws IOException, SearchException
     {
         logger.debug("Removing " + storageId + ":" + repositoryId + ":" + path + "...");
 
@@ -153,7 +155,8 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
                                                           repositoryId,
                                                           "+g:" + groupId + " " +
                                                           "+a:" + artifactId + " " +
-                                                          "+v:" + version);
+                                                          "+v:" + version,
+                                                          MavenIndexerSearchProvider.ALIAS);
 
                 try
                 {
@@ -168,7 +171,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
                         deleteFromIndex(storageId, repositoryId, artifactPath);
                     }
                 }
-                catch (ParseException e)
+                catch (SearchException e)
                 {
                     logger.error(e.getMessage(), e);
                 }

@@ -39,7 +39,7 @@ public class StorageBooter
     @Inject
     private ConfigurationManager configurationManager;
 
-    @Autowired
+    @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
     @Inject

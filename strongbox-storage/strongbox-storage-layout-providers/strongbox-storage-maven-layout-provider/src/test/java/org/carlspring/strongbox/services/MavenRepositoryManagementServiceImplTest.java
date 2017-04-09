@@ -3,11 +3,12 @@ package org.carlspring.strongbox.services;
 import org.carlspring.strongbox.config.CommonConfig;
 import org.carlspring.strongbox.config.Maven2LayoutProviderConfig;
 import org.carlspring.strongbox.config.StorageCoreConfig;
+import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
-import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.annotation.PostConstruct;
@@ -130,7 +131,8 @@ public class MavenRepositoryManagementServiceImplTest
         // 1) Check that an exists in the first repository
         SearchRequest request = new SearchRequest(STORAGE0,
                                                   REPOSITORY_RELEASES_MERGE_1,
-                                                  "+g:org.carlspring.strongbox +a:strongbox-utils +v:6.2.2 +p:jar");
+                                                  "+g:org.carlspring.strongbox +a:strongbox-utils +v:6.2.2 +p:jar",
+                                                  MavenIndexerSearchProvider.ALIAS);
 
         artifactSearchService.search(request);
 
@@ -140,7 +142,8 @@ public class MavenRepositoryManagementServiceImplTest
         //    in the index of the first repository.
         request = new SearchRequest(STORAGE0,
                                     REPOSITORY_RELEASES_MERGE_1,
-                                    "+g:org.carlspring.strongbox +a:strongbox-utils +v:6.2.3 +p:jar");
+                                    "+g:org.carlspring.strongbox +a:strongbox-utils +v:6.2.3 +p:jar",
+                                    MavenIndexerSearchProvider.ALIAS);
 
         assertFalse(artifactSearchService.contains(request));
 
@@ -155,7 +158,8 @@ public class MavenRepositoryManagementServiceImplTest
         // 4) Check that the merged repository now has both artifacts
         request = new SearchRequest(STORAGE0,
                                     REPOSITORY_RELEASES_MERGE_1,
-                                    "+g:org.carlspring.strongbox +a:strongbox-utils +v:6.2.3 +p:jar");
+                                    "+g:org.carlspring.strongbox +a:strongbox-utils +v:6.2.3 +p:jar",
+                                    MavenIndexerSearchProvider.ALIAS);
 
         assertTrue("Failed to merge!", artifactSearchService.contains(request));
     }

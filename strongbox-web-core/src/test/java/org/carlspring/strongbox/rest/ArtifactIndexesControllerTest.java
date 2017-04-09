@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.rest;
 
+import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.rest.context.IntegrationTest;
 import org.carlspring.strongbox.services.ArtifactSearchService;
@@ -88,7 +89,8 @@ public class ArtifactIndexesControllerTest
 
         SearchRequest request = new SearchRequest(STORAGE_ID,
                                                   REPOSITORY_RELEASES_1,
-                                                  "+g:org.carlspring.strongbox.indexes +a:strongbox-test-one +v:1.0 +p:jar");
+                                                  "+g:org.carlspring.strongbox.indexes +a:strongbox-test-one +v:1.0 +p:jar",
+                                                  MavenIndexerSearchProvider.ALIAS);
 
         assertTrue(artifactSearchService.contains(request));
     }
@@ -101,13 +103,15 @@ public class ArtifactIndexesControllerTest
 
         SearchRequest request1 = new SearchRequest(STORAGE_ID,
                                                    REPOSITORY_RELEASES_1,
-                                                   "+g:org.carlspring.strongbox.indexes +a:strongbox-test-one +v:1.0 +p:jar");
+                                                   "+g:org.carlspring.strongbox.indexes +a:strongbox-test-one +v:1.0 +p:jar",
+                                                   MavenIndexerSearchProvider.ALIAS);
 
         assertTrue(artifactSearchService.contains(request1));
 
         SearchRequest request2 = new SearchRequest(STORAGE_ID,
                                                    REPOSITORY_RELEASES_1,
-                                                   "+g:org.carlspring.strongbox.indexes +a:strongbox-test-two +v:1.0 +p:jar");
+                                                   "+g:org.carlspring.strongbox.indexes +a:strongbox-test-two +v:1.0 +p:jar",
+                                                   MavenIndexerSearchProvider.ALIAS);
 
         assertTrue(artifactSearchService.contains(request2));
     }
@@ -120,13 +124,15 @@ public class ArtifactIndexesControllerTest
 
         SearchRequest request1 = new SearchRequest(STORAGE_ID,
                                                    REPOSITORY_RELEASES_1,
-                                                   "+g:org.carlspring.strongbox.indexes +a:strongbox-test-two +v:1.0 +p:jar");
+                                                   "+g:org.carlspring.strongbox.indexes +a:strongbox-test-two +v:1.0 +p:jar",
+                                                   MavenIndexerSearchProvider.ALIAS);
 
         assertTrue(artifactSearchService.contains(request1));
 
         SearchRequest request2 = new SearchRequest(STORAGE_ID,
                                                    REPOSITORY_RELEASES_2,
-                                                   "+g:org.carlspring.strongbox.indexes +a:strongbox-test-one +v:1.0 +p:jar");
+                                                   "+g:org.carlspring.strongbox.indexes +a:strongbox-test-one +v:1.0 +p:jar",
+                                                   MavenIndexerSearchProvider.ALIAS);
 
         assertTrue(artifactSearchService.contains(request2));
     }

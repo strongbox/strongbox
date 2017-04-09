@@ -6,6 +6,7 @@ import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.io.*;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.providers.storage.StorageProvider;
 import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.repository.RepositoryFeatures;
@@ -401,7 +402,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                        String repositoryId,
                        String path,
                        boolean force)
-            throws IOException
+            throws IOException, SearchException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);

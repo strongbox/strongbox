@@ -33,6 +33,18 @@ public class SearchRequest
         this.query = query;
     }
 
+    public SearchRequest(String storageId,
+                         String repositoryId,
+                         String query,
+                         String implementation)
+    {
+        this.storageId = storageId;
+        this.repositoryId = repositoryId;
+        this.query = query;
+        this.implementation = implementation;
+    }
+
+
     public String getStorageId()
     {
         return storageId;

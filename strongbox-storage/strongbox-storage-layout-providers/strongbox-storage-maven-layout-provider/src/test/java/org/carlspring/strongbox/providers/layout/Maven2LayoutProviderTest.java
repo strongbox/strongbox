@@ -1,10 +1,10 @@
 package org.carlspring.strongbox.providers.layout;
 
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.annotation.PostConstruct;
@@ -92,7 +92,7 @@ public class Maven2LayoutProviderTest
 
     @Test
     public void testDeleteArtifact()
-            throws IOException, NoSuchAlgorithmException
+            throws IOException, NoSuchAlgorithmException, SearchException
     {
         Repository repository = configurationManager.getConfiguration()
                                                     .getStorage(STORAGE0)
@@ -112,7 +112,7 @@ public class Maven2LayoutProviderTest
 
     @Test
     public void testDeleteArtifactDirectory()
-            throws IOException, NoSuchAlgorithmException
+            throws IOException, NoSuchAlgorithmException, SearchException
     {
         Repository repository = configurationManager.getConfiguration()
                                                     .getStorage(STORAGE0)
