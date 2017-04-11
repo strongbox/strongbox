@@ -22,16 +22,17 @@ import com.orientechnologies.orient.object.jpa.parsing.PersistenceXmlUtil;
  * @author Sergey Bespalov
  *
  */
-public class OJPAObjectDatabaseTxPresistence implements PersistenceProvider
+public class OJPAObjectDatabaseTxPersistence
+        implements PersistenceProvider
 {
 
     /** the log used by this class. */
-    private static Logger logger = Logger.getLogger(OJPAObjectDatabaseTxPresistence.class.getName());
+    private static Logger logger = Logger.getLogger(OJPAObjectDatabaseTxPersistence.class.getName());
     private static OJPAProviderUtil providerUtil = new OJPAProviderUtil();
 
     private Collection<? extends PersistenceUnitInfo> persistenceUnits = null;
 
-    public OJPAObjectDatabaseTxPresistence()
+    public OJPAObjectDatabaseTxPersistence()
     {
         URL persistenceXml = Thread.currentThread().getContextClassLoader().getResource(PERSISTENCE_XML);
         try
