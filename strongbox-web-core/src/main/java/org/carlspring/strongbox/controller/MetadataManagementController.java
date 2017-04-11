@@ -11,11 +11,7 @@ import javax.ws.rs.QueryParam;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -61,7 +57,14 @@ public class MetadataManagementController
     {
         try
         {
-            artifactMetadataService.rebuildMetadata(storageId, repositoryId, path);
+            if (storageId != null && repositoryId != null)
+            {
+                artifactMetadataService.rebuildMetadata(storageId, repositoryId, path);
+            }
+            else if (storageId != null && repositoryId == null)
+            {
+                artifactMetadataService.rebuildMetadata(storageId, path);
+            }
 
             return ResponseEntity.ok("The metadata was successfully rebuilt!");
         }

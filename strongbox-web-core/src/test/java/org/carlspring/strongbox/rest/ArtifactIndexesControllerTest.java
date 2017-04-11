@@ -11,7 +11,6 @@ import javax.inject.Inject;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -94,11 +93,11 @@ public class ArtifactIndexesControllerTest
         generateArtifact(getRepositoryBasedir(STORAGE_ID, REPOSITORY_RELEASES_1).getAbsolutePath(),
                          "org.carlspring.strongbox.indexes:strongbox-test:1.0:sources");
         generateArtifact(getRepositoryBasedir(STORAGE_ID, REPOSITORY_RELEASES_1).getAbsolutePath(),
-                         "org.carlspring.strongbox.indexes:strongbox-test:1.0.1");
+                         "org.carlspring.strongbox.indexes:strongbox-test:1.1");
         generateArtifact(getRepositoryBasedir(STORAGE_ID, REPOSITORY_RELEASES_1).getAbsolutePath(),
-                         "org.carlspring.strongbox.indexes:strongbox-test:1.0.1:jar:javadoc");
+                         "org.carlspring.strongbox.indexes:strongbox-test:1.1:jar:javadoc");
         generateArtifact(getRepositoryBasedir(STORAGE_ID, REPOSITORY_RELEASES_1).getAbsolutePath(),
-                         "org.carlspring.strongbox.indexes:strongbox-test:1.0.1:jar:sources");
+                         "org.carlspring.strongbox.indexes:strongbox-test:1.1:jar:sources");
 
         final String artifactPath = "org/carlspring/strongbox/indexes/strongbox-test";
 
@@ -119,36 +118,36 @@ public class ArtifactIndexesControllerTest
 
         assertIndexContainsArtifact(STORAGE_ID,
                                     REPOSITORY_RELEASES_1,
-                                    "+g:org.carlspring.strongbox.indexes +a:strongbox-test +v:1.0.1 +p:jar");
+                                    "+g:org.carlspring.strongbox.indexes +a:strongbox-test +v:1.1 +p:jar");
 
         assertIndexContainsArtifact(STORAGE_ID,
                                     REPOSITORY_RELEASES_1,
-                                    "+g:org.carlspring.strongbox.indexes +a:strongbox-test +v:1.0.1 c:javadoc +p:jar");
+                                    "+g:org.carlspring.strongbox.indexes +a:strongbox-test +v:1.1 c:javadoc +p:jar");
 
         assertIndexContainsArtifact(STORAGE_ID,
                                     REPOSITORY_RELEASES_1,
-                                    "+g:org.carlspring.strongbox.indexes +a:strongbox-test +v:1.0.1 c:sources +p:jar");
+                                    "+g:org.carlspring.strongbox.indexes +a:strongbox-test +v:1.1 c:sources +p:jar");
     }
 
     @Test
     public void testRebuildIndexForRepository()
             throws Exception
     {
-        generateArtifact(getRepositoryBasedir(STORAGE_ID, REPOSITORY_RELEASES_1).getAbsolutePath(),
-                         "org.carlspring.strongbox.indexes:strongbox-test:1.1");
-        generateArtifact(getRepositoryBasedir(STORAGE_ID, REPOSITORY_RELEASES_1).getAbsolutePath(),
-                         "org.carlspring.strongbox.indexes:strongbox-test:1.2");
+        generateArtifact(getRepositoryBasedir(STORAGE_ID, REPOSITORY_RELEASES_2).getAbsolutePath(),
+                         "org.carlspring.strongbox.indexes:strongbox-test:2.0");
+        generateArtifact(getRepositoryBasedir(STORAGE_ID, REPOSITORY_RELEASES_2).getAbsolutePath(),
+                         "org.carlspring.strongbox.indexes:strongbox-test:2.1");
 
-        client.rebuildMetadata(STORAGE_ID, REPOSITORY_RELEASES_1, null);
-        client.rebuildIndexes(STORAGE_ID, REPOSITORY_RELEASES_1, null);
-
-        assertIndexContainsArtifact(STORAGE_ID,
-                                    REPOSITORY_RELEASES_1,
-                                    "+g:org.carlspring.strongbox.indexes +a:strongbox-test +v:1.1 +p:jar");
+        client.rebuildMetadata(STORAGE_ID, REPOSITORY_RELEASES_2, null);
+        client.rebuildIndexes(STORAGE_ID, REPOSITORY_RELEASES_2, null);
 
         assertIndexContainsArtifact(STORAGE_ID,
-                                    REPOSITORY_RELEASES_1,
-                                    "+g:org.carlspring.strongbox.indexes +a:strongbox-test +v:1.2 +p:jar");
+                                    REPOSITORY_RELEASES_2,
+                                    "+g:org.carlspring.strongbox.indexes +a:strongbox-test +v:2.0 +p:jar");
+
+        assertIndexContainsArtifact(STORAGE_ID,
+                                    REPOSITORY_RELEASES_2,
+                                    "+g:org.carlspring.strongbox.indexes +a:strongbox-test +v:2.1 +p:jar");
     }
 
     @Test
@@ -158,7 +157,7 @@ public class ArtifactIndexesControllerTest
         generateArtifact(getRepositoryBasedir(STORAGE_ID, REPOSITORY_RELEASES_1).getAbsolutePath(),
                          "org.carlspring.strongbox.indexes:strongbox-test:1.3");
         generateArtifact(getRepositoryBasedir(STORAGE_ID, REPOSITORY_RELEASES_2).getAbsolutePath(),
-                         "org.carlspring.strongbox.indexes:strongbox-test:1.4");
+                         "org.carlspring.strongbox.indexes:strongbox-test:2.3");
 
         client.rebuildMetadata(STORAGE_ID, null, null);
         client.rebuildIndexes(STORAGE_ID, null, null);
@@ -169,7 +168,7 @@ public class ArtifactIndexesControllerTest
 
         assertIndexContainsArtifact(STORAGE_ID,
                                     REPOSITORY_RELEASES_2,
-                                    "+g:org.carlspring.strongbox.indexes +a:strongbox-test +v:1.4 +p:jar");
+                                    "+g:org.carlspring.strongbox.indexes +a:strongbox-test +v:2.3 +p:jar");
     }
 
 }

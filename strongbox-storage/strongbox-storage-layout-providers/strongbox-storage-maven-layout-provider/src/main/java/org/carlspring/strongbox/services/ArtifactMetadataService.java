@@ -70,6 +70,18 @@ public interface ArtifactMetadataService extends ConfigurationService
             throws IOException, XmlPullParserException, NoSuchAlgorithmException;
 
     /**
+     * Rebuild metadata for all repositories in the storage
+     *
+     * @param storageId     String
+     * @param artifactPath  String
+     *
+     * @throws IOException
+     * @throws XmlPullParserException
+     */
+    void rebuildMetadata(String storageId, String artifactPath)
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException;
+
+    /**
      * Merge existing artifact metadata with mergeMetadata.
      *
      * @param storageId     String

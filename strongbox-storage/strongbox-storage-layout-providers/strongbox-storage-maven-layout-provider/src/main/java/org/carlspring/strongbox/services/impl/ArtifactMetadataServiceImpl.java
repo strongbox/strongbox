@@ -90,6 +90,21 @@ public class ArtifactMetadataServiceImpl
         return mavenMetadataManager.readMetadata(is);
     }
 
+    @Override
+    public void rebuildMetadata(String storageId, String basePath)
+            throws IOException,
+                   XmlPullParserException,
+                   NoSuchAlgorithmException
+    {
+        Storage storage = getConfiguration().getStorage(storageId);
+
+        for (Repository repository : storage.getRepositories().values())
+        {
+            rebuildMetadata(storageId, repository.getId(), basePath);
+        }
+    }
+
+    @Override
     public void rebuildMetadata(String storageId, String repositoryId, String basePath)
             throws IOException,
                    XmlPullParserException,
@@ -98,7 +113,7 @@ public class ArtifactMetadataServiceImpl
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        basePath = basePath == null ? "." : basePath;
+        basePath = basePath == null ? "/" : basePath;
 
         GenerateMavenMetadataOperation operation = new GenerateMavenMetadataOperation(mavenMetadataManager);
         operation.setStorage(storage);

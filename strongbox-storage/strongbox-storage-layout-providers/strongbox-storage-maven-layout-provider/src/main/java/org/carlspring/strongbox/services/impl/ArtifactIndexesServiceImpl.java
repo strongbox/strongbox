@@ -53,7 +53,7 @@ public class ArtifactIndexesServiceImpl
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        artifactPath = artifactPath == null ? "." : artifactPath;
+        artifactPath = artifactPath == null ? "/" : artifactPath;
 
         if (repository.isIndexingEnabled())
         {
