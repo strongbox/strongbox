@@ -65,6 +65,7 @@ public class ReindexArtifactScanningListener
                          new String[]{ ac.getGav().getGroupId() + ":" +
                                        ac.getGav().getArtifactId() + ":" +
                                        ac.getGav().getVersion() + ":" +
+                                       ac.getGav().getVersion() + ":" +
                                        ac.getGav().getClassifier() + ":" +
                                        ac.getGav().getExtension(),
                                        context.getId(),

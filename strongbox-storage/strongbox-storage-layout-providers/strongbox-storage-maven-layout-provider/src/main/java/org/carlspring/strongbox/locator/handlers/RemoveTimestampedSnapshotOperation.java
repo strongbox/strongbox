@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.handlers;
+package org.carlspring.strongbox.locator.handlers;
 
 import org.carlspring.maven.commons.io.filters.PomFilenameFilter;
 import org.carlspring.strongbox.artifact.locator.handlers.AbstractArtifactLocationHandler;

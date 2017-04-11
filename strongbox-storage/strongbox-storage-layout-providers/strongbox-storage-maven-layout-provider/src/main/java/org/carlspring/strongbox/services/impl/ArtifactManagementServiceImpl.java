@@ -7,7 +7,7 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.handlers.RemoveTimestampedSnapshotOperation;
+import org.carlspring.strongbox.locator.handlers.RemoveTimestampedSnapshotOperation;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;

@@ -263,21 +263,22 @@ public class RestAssuredArtifactClient
             url += "/" + pathVar;
         }
 
-        return (ExtractableResponse) givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
-                                            .when()
-                                            .get(url)
-                                            .peek()
-                                            .then()
-                                            .extract();
+        return givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
+                           .when()
+                           .get(url)
+                           .peek()
+                           .then()
+                           .extract();
     }
 
     public void rebuildMetadata(String storageId,
                                 String repositoryId,
-                                String basePath)
+                                String path)
             throws IOException, JAXBException
     {
-        String url = getContextBaseUrl() + "/metadata/" + storageId + "/" + repositoryId + "/" +
-                     (basePath != null ? basePath : "");
+        String url = getContextBaseUrl() + "/metadata?" + (storageId != null ? "storageId=" + storageId : "") +
+                     (repositoryId != null ? (storageId != null ? "&" : "") + "repositoryId=" + repositoryId : "") +
+                     (path != null ? (storageId != null || repositoryId != null ? "&" : "") + "path=" + path : "" );
 
         givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
                     .when()
@@ -289,37 +290,12 @@ public class RestAssuredArtifactClient
 
     public void rebuildIndexes(String storageId,
                                String repositoryId,
-                               String basePath)
+                               String path)
             throws IOException
     {
-        String url = getContextBaseUrl() + "/index/" + storageId + "/" + repositoryId + "/" +
-                     (basePath != null ? basePath : "");
-
-        givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
-                    .when()
-                    .post(url)
-                    .peek()
-                    .then()
-                    .statusCode(OK);
-    }
-
-    public void rebuildIndexes(String storageId)
-            throws IOException
-    {
-        String url = getContextBaseUrl() + "/index/" + storageId;
-
-        givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
-                    .when()
-                    .post(url)
-                    .peek()
-                    .then()
-                    .statusCode(OK);
-    }
-
-    public void rebuildIndexes()
-            throws IOException
-    {
-        String url = getContextBaseUrl() + "/index";
+        String url = getContextBaseUrl() + "/index?" + (storageId != null ? "storageId=" + storageId : "") +
+                     (repositoryId != null ? (storageId != null ? "&" : "") + "repositoryId=" + repositoryId : "") +
+                     (path != null ? (storageId != null || repositoryId != null ? "&" : "") + "path=" + path : "" );
 
         givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
                     .when()

@@ -5,26 +5,22 @@ import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 
 import javax.inject.Inject;
-import java.io.File;
+import javax.ws.rs.QueryParam;
 import java.io.IOException;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
 
 /**
- * @author Kate Novik.
+ * @author Kate Novik
+ * @author carlspring
  */
 @RestController
 @RequestMapping("/index")
@@ -38,94 +34,50 @@ public class ArtifactIndexesController
 
 
     @ApiOperation(value = "Used to rebuild the indexes in repository or for artifact.", position = 0)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The indexes was successfully rebuilt!"),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The indexes were successfully rebuilt!"),
                             @ApiResponse(code = 500, message = "An error occurred."),
                             @ApiResponse(code = 404, message = "The specified (storageId/repositoryId/path) does not exist!") })
     @PreAuthorize("hasAuthority('MANAGEMENT_REBUILD_INDEXES')")
-    @RequestMapping(value = "{storageId}/{repositoryId}/{path:.+}",
-                    method = RequestMethod.POST,
+    @RequestMapping(method = RequestMethod.POST,
                     produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity rebuild(@ApiParam(value = "The storageId", required = true)
-                                  @PathVariable String storageId,
+                                  @QueryParam("storageId") String storageId,
                                   @ApiParam(value = "The repositoryId", required = true)
-                                  @PathVariable String repositoryId,
-                                  @ApiParam(value = "The artifactPath")
-                                  @PathVariable String path)
+                                  @QueryParam("repositoryId") String repositoryId,
+                                  @ApiParam(value = "The path")
+                                  @QueryParam("path") String path)
             throws IOException
     {
-        if (getStorage(storageId) == null)
+        if (storageId != null && getStorage(storageId) == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The specified storageId does not exist!");
         }
-        if (getRepository(storageId, repositoryId) == null)
+        if (repositoryId != null && getRepository(storageId, repositoryId) == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The specified repositoryId does not exist!");
         }
-        if (path != null && !new File(getRepository(storageId, repositoryId).getBasedir(), path).exists())
-        {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The specified path does not exist!");
-        }
+
         try
         {
-            artifactIndexesService.rebuildIndex(storageId, repositoryId, path);
+            if (storageId != null && repositoryId != null)
+            {
+                // Rebuild the index for a path under in a repository under a specified storage
+                artifactIndexesService.rebuildIndex(storageId, repositoryId, path);
+            }
+            if (storageId != null && repositoryId == null)
+            {
+                // Rebuild all the indexes in a storage
+                artifactIndexesService.rebuildIndexes(storageId);
+            }
+            if (storageId == null && repositoryId == null)
+            {
+                // Rebuild all the indexes in all storages
+                artifactIndexesService.rebuildIndexes();
+            }
 
             return ResponseEntity.ok("The index for " +
                                      getContextId(storageId, repositoryId, IndexTypeEnum.LOCAL.getType()) +
                                      " was successfully re-built!");
-        }
-        catch (ArtifactStorageException e)
-        {
-            logger.error(e.getMessage(), e);
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-    }
-
-    @ApiOperation(value = "Used to rebuild the indexes in storage.", position = 1)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The indexes was successfully rebuilt!"),
-                            @ApiResponse(code = 500, message = "An error occurred."),
-                            @ApiResponse(code = 404, message = "The specified storageId does not exist!") })
-    @PreAuthorize("hasAuthority('MANAGEMENT_REBUILD_INDEXES')")
-    @RequestMapping(value = "{storageId}",
-                    method = RequestMethod.POST,
-                    produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity rebuild(@ApiParam(value = "The storageId", required = true)
-                                  @PathVariable String storageId)
-            throws IOException
-    {
-        if (getStorage(storageId) == null)
-        {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The specified storageId does not exist!");
-        }
-
-        try
-        {
-            artifactIndexesService.rebuildIndexes(storageId);
-
-            return ResponseEntity.ok("The indexes for " + storageId + ":*:local were successfully re-built!");
-        }
-        catch (ArtifactStorageException e)
-        {
-            logger.error(e.getMessage(), e);
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-    }
-
-    @ApiOperation(value = "Used to rebuild the indexes in storage.", position = 3)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The indexes was successfully rebuilt!"),
-                            @ApiResponse(code = 500, message = "An error occurred.") })
-    @PreAuthorize("hasAuthority('MANAGEMENT_REBUILD_INDEXES')")
-    @RequestMapping(method = RequestMethod.POST,
-                    produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity rebuild()
-            throws IOException
-    {
-        try
-        {
-            artifactIndexesService.rebuildIndexes();
-
-            return ResponseEntity.ok("The indexes for all repositories were successfully re-built!");
         }
         catch (ArtifactStorageException e)
         {

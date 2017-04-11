@@ -3,7 +3,7 @@ package org.carlspring.strongbox.services.impl;
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.handlers.ArtifactLocationGenerateMavenIndexOperation;
+import org.carlspring.strongbox.locator.handlers.MavenIndexerManagementOperation;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
@@ -53,9 +53,11 @@ public class ArtifactIndexesServiceImpl
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
+        artifactPath = artifactPath == null ? "." : artifactPath;
+
         if (repository.isIndexingEnabled())
         {
-            ArtifactLocationGenerateMavenIndexOperation operation = new ArtifactLocationGenerateMavenIndexOperation(repositoryIndexManager);
+            MavenIndexerManagementOperation operation = new MavenIndexerManagementOperation(repositoryIndexManager);
 
             operation.setStorage(storage);
             operation.setRepository(repository);

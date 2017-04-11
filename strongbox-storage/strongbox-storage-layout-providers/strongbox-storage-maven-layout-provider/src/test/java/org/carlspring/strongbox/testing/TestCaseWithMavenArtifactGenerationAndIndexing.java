@@ -1,13 +1,11 @@
 package org.carlspring.strongbox.testing;
 
-import org.carlspring.strongbox.config.ClientConfig;
-import org.carlspring.strongbox.config.CommonConfig;
-import org.carlspring.strongbox.config.DataServiceConfig;
-import org.carlspring.strongbox.config.Maven2LayoutProviderConfig;
-import org.carlspring.strongbox.config.StorageCoreConfig;
+import org.carlspring.strongbox.config.*;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
+import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactSearchService;
@@ -21,16 +19,13 @@ import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.RuleSet;
+import org.carlspring.strongbox.storage.search.SearchRequest;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
@@ -46,6 +41,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author carlspring
@@ -281,6 +277,17 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         {
             indexingContext.releaseIndexSearcher(searcher);
         }
+    }
+
+    public void assertIndexContainsArtifact(String storageId, String repositoryId, String query)
+            throws SearchException
+    {
+        SearchRequest request = new SearchRequest(storageId,
+                                                  repositoryId,
+                                                  query,
+                                                  MavenIndexerSearchProvider.ALIAS);
+
+        assertTrue(artifactSearchService.contains(request));
     }
 
     public RepositoryIndexManager getRepositoryIndexManager()

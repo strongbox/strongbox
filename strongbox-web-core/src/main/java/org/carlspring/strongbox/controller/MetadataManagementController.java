@@ -7,6 +7,7 @@ import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 
 import javax.inject.Inject;
+import javax.ws.rs.QueryParam;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
@@ -37,26 +38,22 @@ public class MetadataManagementController
         extends BaseArtifactController
 {
 
-    public final static String ROOT_CONTEXT = "/metadata";
 
     @Inject
     private ArtifactMetadataService artifactMetadataService;
 
     @ApiOperation(value = "Used to rebuild the metadata for a given path.",
                   position = 0)
-    @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "The metadata was successfully rebuilt!"),
-                            @ApiResponse(code = 500,
-                                         message = "An error occurred.") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The metadata was successfully rebuilt!"),
+                            @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('MANAGEMENT_REBUILD_METADATA')")
-    @RequestMapping(value = "{storageId}/{repositoryId}/{path:.+}",
-                    method = RequestMethod.POST,
+    @RequestMapping(method = RequestMethod.POST,
                     produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity rebuild(@ApiParam(value = "The storageId", required = true)
-                                  @PathVariable String storageId,
+                                  @QueryParam("storageId") String storageId,
                                   @ApiParam(value = "The repositoryId", required = true)
-                                  @PathVariable String repositoryId,
-                                  @PathVariable String path)
+                                  @QueryParam("repositoryId") String repositoryId,
+                                  @QueryParam("path") String path)
             throws IOException,
                    AuthenticationException,
                    NoSuchAlgorithmException,
