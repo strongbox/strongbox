@@ -77,7 +77,7 @@ public class MetadataManagementController
     }
 
     @ApiOperation(value = "Used to delete metadata entries for an artifact",
-                  position = 0)
+                  position = 1)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully removed metadata entry."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('MANAGEMENT_DELETE_METADATA')")
