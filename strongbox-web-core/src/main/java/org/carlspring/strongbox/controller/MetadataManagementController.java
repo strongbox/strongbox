@@ -71,13 +71,12 @@ public class MetadataManagementController
         catch (ArtifactStorageException e)
         {
             logger.error(e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .body(e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
-    @ApiOperation(value = "Used to delete metadata entries for an artifact",
-                  position = 1)
+    @ApiOperation(value = "Used to delete metadata entries for an artifact", position = 1)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully removed metadata entry."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('MANAGEMENT_DELETE_METADATA')")
@@ -100,7 +99,7 @@ public class MetadataManagementController
                    NoSuchAlgorithmException,
                    XmlPullParserException
     {
-        logger.debug("[delete] storageId " + storageId + " repositoryId " + repositoryId + " version " + version);
+        logger.debug("Deleting metadata for " + storageId + ":" + repositoryId + ":" + path + ":" + version + "...");
 
         try
         {
@@ -126,8 +125,8 @@ public class MetadataManagementController
         catch (ArtifactStorageException e)
         {
             logger.error(e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .body(e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
