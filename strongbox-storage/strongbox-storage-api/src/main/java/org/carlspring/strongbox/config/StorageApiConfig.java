@@ -1,25 +1,23 @@
 package org.carlspring.strongbox.config;
 
-import java.util.LinkedHashSet;
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
-import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
-import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
+import org.carlspring.strongbox.providers.search.OrientDbSearchProvider;
+import org.carlspring.strongbox.providers.search.SearchProviderRegistry;
 import org.carlspring.strongbox.services.impl.ArtifactResolutionServiceImpl;
 import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import java.util.LinkedHashSet;
+import java.util.List;
+
+import com.orientechnologies.orient.core.entity.OEntityManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-
-import com.orientechnologies.orient.core.entity.OEntityManager;
 
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.artifact",
@@ -44,18 +42,22 @@ public class StorageApiConfig
 
     @Inject
     private OEntityManager entityManager;
-    
+
+    @Inject
+    private LayoutProviderRegistry layoutProviderRegistry;
+
+    @Inject
+    private SearchProviderRegistry searchProviderRegistry;
+
+    @Inject
+    private OrientDbSearchProvider orientDbSearchProvider;
+
+
     @PostConstruct
     public void init()
     {
         // register all domain entities
-        entityManager.registerEntityClasses(ArtifactEntry.class.getPackage()
-                                                               .getName());
-
-        // unable to replace with more generic one (ArtifactCoordinates) because of
-        // internal OrientDB exception: MavenArtifactCoordinates will not be serializable because
-        // it was not registered using registerEntityClass()
-        entityManager.registerEntityClass(MavenArtifactCoordinates.class);
+        entityManager.registerEntityClasses(ArtifactEntry.class.getPackage().getName());
     }
 
     @Bean(name = "checksumCacheManager")

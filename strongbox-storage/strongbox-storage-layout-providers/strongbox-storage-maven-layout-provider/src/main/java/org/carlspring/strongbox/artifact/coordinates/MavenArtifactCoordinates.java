@@ -13,7 +13,7 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 /**
  * @author carlspring
  */
-@XmlRootElement(name = "mavenArtifactCoordinates")
+@XmlRootElement(name = "maven-artifact-coordinates")
 @XmlAccessorType(XmlAccessType.NONE)
 public class MavenArtifactCoordinates extends AbstractArtifactCoordinates
 {

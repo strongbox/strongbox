@@ -1,13 +1,15 @@
 package org.carlspring.strongbox.services;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.MockedMavenArtifactCoordinates;
 import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 
 import javax.inject.Inject;
 import java.util.List;
 
+import com.orientechnologies.orient.core.entity.OEntityManager;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -32,16 +34,29 @@ public class ArtifactEntryServiceTest
     @Inject
     ArtifactEntryService artifactEntryService;
 
+    @Inject
+    OEntityManager entityManager;
+
+
     final String storageId = "storage0";
     final String repositoryId = "release";
 
     final String groupId = "org.carlspring.strongbox";
     final String artifactId = "coordinates-test";
 
+    @Before
+    public void setUp()
+            throws Exception
+    {
+        // unable to replace with more generic one (ArtifactCoordinates) because of
+        // internal OrientDB exception: MavenArtifactCoordinates will not be serializable because
+        // it was not registered using registerEntityClass()
+        entityManager.registerEntityClass(MockedMavenArtifactCoordinates.class);
+    }
+
     /**
      * Make sure that we are able to search artifacts by single coordinate.
      *
-     * @param groupId
      * @throws Exception
      */
     @Test
@@ -58,7 +73,7 @@ public class ArtifactEntryServiceTest
         logger.info("\n\n\tThere is totally " + artifactEntryService.count() + " artifacts...\n");
 
         // prepare search query key (coordinates)
-        MavenArtifactCoordinates query = new MavenArtifactCoordinates();
+        MockedMavenArtifactCoordinates query = new MockedMavenArtifactCoordinates();
         query.setVersion("1.2.3");
 
         List<ArtifactEntry> result = artifactEntryService.findByCoordinates(query);
@@ -79,7 +94,6 @@ public class ArtifactEntryServiceTest
     /**
      * Make sure that we are able to search artifacts by two coordinates that need to be joined with logical AND operator.
      *
-     * @param groupId
      * @param artifactId
      */
     @Test
@@ -96,7 +110,7 @@ public class ArtifactEntryServiceTest
         logger.info("There is totally " + artifactEntryService.count() + " artifacts...");
 
         // prepare search query key (coordinates)
-        MavenArtifactCoordinates query = new MavenArtifactCoordinates();
+        MockedMavenArtifactCoordinates query = new MockedMavenArtifactCoordinates();
         query.setGroupId(groupId);
         query.setArtifactId(artifactId);
 
@@ -139,23 +153,23 @@ public class ArtifactEntryServiceTest
     {
         // create 3 artifacts, one will have coordinates that matches our query, one - not
 
-        ArtifactCoordinates coordinates1 = new MavenArtifactCoordinates(groupId,
-                                                                        artifactId + "123",
-                                                                        "1.2.3",
-                                                                        null,
-                                                                        "jar");
+        ArtifactCoordinates coordinates1 = new MockedMavenArtifactCoordinates(groupId,
+                                                                              artifactId + "123",
+                                                                              "1.2.3",
+                                                                              null,
+                                                                              "jar");
 
-        ArtifactCoordinates coordinates2 = new MavenArtifactCoordinates(groupId,
-                                                                        artifactId,
-                                                                        "1.2.3",
-                                                                        null,
-                                                                        "jar");
+        ArtifactCoordinates coordinates2 = new MockedMavenArtifactCoordinates(groupId,
+                                                                              artifactId,
+                                                                              "1.2.3",
+                                                                              null,
+                                                                              "jar");
 
-        ArtifactCoordinates coordinates3 = new MavenArtifactCoordinates(groupId + "myId",
-                                                                        artifactId + "321",
-                                                                        "1.2.3.4",
-                                                                        null,
-                                                                        "jar");
+        ArtifactCoordinates coordinates3 = new MockedMavenArtifactCoordinates(groupId + "myId",
+                                                                              artifactId + "321",
+                                                                              "1.2.3.4",
+                                                                              null,
+                                                                              "jar");
 
         createArtifactEntry(coordinates1, storageId, repositoryId);
         createArtifactEntry(coordinates2, storageId, repositoryId);
@@ -180,10 +194,10 @@ public class ArtifactEntryServiceTest
     public ArtifactCoordinates createMavenArtifactCoordinates()
     {
 
-        return new MavenArtifactCoordinates("org.carlspring.strongbox.another.package",
-                                            "coordinates-test-super-test",
-                                            "1.2.3",
-                                            null,
-                                            "jar");
+        return new MockedMavenArtifactCoordinates("org.carlspring.strongbox.another.package",
+                                                  "coordinates-test-super-test",
+                                                  "1.2.3",
+                                                  null,
+                                                  "jar");
     }
 }

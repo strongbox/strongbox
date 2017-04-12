@@ -1,11 +1,11 @@
 package org.carlspring.strongbox.storage.validation.resource;
 
+import org.carlspring.commons.io.RandomInputStream;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGeneration;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -13,8 +13,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -30,7 +30,6 @@ import static org.junit.Assert.fail;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ArtifactOperationsValidatorTest
-        extends TestCaseWithMavenArtifactGeneration
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactOperationsValidatorTest.class);
@@ -38,9 +37,9 @@ public class ArtifactOperationsValidatorTest
     private static final File REPOSITORY_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                             "/storages/storage0/releases");
 
-    private static final String storageId = "storage0";
+    private static final String STORAGE_ID = "storage0";
 
-    private static final String repositoryId = "releases";
+    private static final String REPOSITORY_ID = "releases";
 
     private static MockMultipartFile multipartFile;
 
@@ -50,7 +49,6 @@ public class ArtifactOperationsValidatorTest
     @ComponentScan(basePackages = { "org.carlspring.strongbox" })
     public static class SpringConfig
     {
-
     }
 
     @Inject
@@ -59,15 +57,32 @@ public class ArtifactOperationsValidatorTest
     @Inject
     private ConfigurationManager configurationManager;
 
+
     @Before
     public void setUp()
             throws Exception
     {
-        String gavtc = "org.carlspring.strongbox:strongbox-validate:8.1:jar";
-        is = generateArtifactInputStream(REPOSITORY_BASEDIR.getAbsolutePath(), repositoryId, gavtc, true);
+        File baseDir = new File(REPOSITORY_BASEDIR + "/" + REPOSITORY_ID);
+        if (!baseDir.exists())
+        {
+            //noinspection ResultOfMethodCallIgnored
+            baseDir.mkdirs();
+        }
 
-        multipartFile = new MockMultipartFile("artifact", "strongbox-validate-8.1.jar", "application/octet-stream", is);
+        is = new RandomInputStream(20480000);
 
+        multipartFile = new MockMultipartFile("artifact",
+                                              "strongbox-validate-8.1.jar",
+                                              "application/octet-stream",
+                                              is);
+    }
+
+    @After
+    public void tearDown()
+            throws Exception
+    {
+        Repository repository = getConfiguration().getStorage(STORAGE_ID).getRepository(REPOSITORY_ID);
+        repository.setArtifactMaxSize(0L);
     }
 
     @Test
@@ -75,8 +90,8 @@ public class ArtifactOperationsValidatorTest
             throws IOException
     {
         long size = multipartFile.getSize();
-        Repository repository = getConfiguration().getStorage(storageId)
-                                                  .getRepository(repositoryId);
+
+        Repository repository = getConfiguration().getStorage(STORAGE_ID).getRepository(REPOSITORY_ID);
         repository.setArtifactMaxSize(size + 1000L);
 
         logger.debug("Size of repository is " + repository.getArtifactMaxSize());
@@ -84,7 +99,7 @@ public class ArtifactOperationsValidatorTest
 
         try
         {
-            artifactOperationsValidator.checkArtifactSize(storageId, repositoryId, multipartFile);
+            artifactOperationsValidator.checkArtifactSize(STORAGE_ID, REPOSITORY_ID, multipartFile);
         }
         catch (ArtifactResolutionException e)
         {
@@ -98,7 +113,8 @@ public class ArtifactOperationsValidatorTest
 
         try
         {
-            artifactOperationsValidator.checkArtifactSize(storageId, repositoryId, multipartFile);
+            artifactOperationsValidator.checkArtifactSize(STORAGE_ID, REPOSITORY_ID, multipartFile);
+
             fail("Should have thrown an ArtifactResolutionException.");
         }
         catch (ArtifactResolutionException e)
@@ -107,11 +123,13 @@ public class ArtifactOperationsValidatorTest
         }
 
         repository.setArtifactMaxSize(0L);
+
         logger.debug("Size of repository is " + repository.getArtifactMaxSize());
         logger.debug("Size of uploaded file is " + size);
+
         try
         {
-            artifactOperationsValidator.checkArtifactSize(storageId, repositoryId, multipartFile);
+            artifactOperationsValidator.checkArtifactSize(STORAGE_ID, REPOSITORY_ID, multipartFile);
         }
         catch (ArtifactResolutionException e)
         {
@@ -119,18 +137,25 @@ public class ArtifactOperationsValidatorTest
         }
 
         File file = new File(REPOSITORY_BASEDIR.getAbsolutePath() + "validate-test.jar");
-        file.getParentFile()
-            .mkdirs();
+        //noinspection ResultOfMethodCallIgnored
+        file.getParentFile().mkdirs();
+        //noinspection ResultOfMethodCallIgnored
         file.createNewFile();
 
-        MockMultipartFile emptyFile = new MockMultipartFile("artifact", "strongbox-validate-empty.jar",
-                                                            "application/octet-stream", new FileInputStream(file));
+        MockMultipartFile emptyFile = new MockMultipartFile("artifact",
+                                                            "strongbox-validate-empty.jar",
+                                                            "application/octet-stream",
+                                                            new FileInputStream(file));
+
         size = emptyFile.getSize();
+
         logger.debug("Size of repository is " + repository.getArtifactMaxSize());
         logger.debug("Size of uploaded file is " + size);
+
         try
         {
-            artifactOperationsValidator.checkArtifactSize(storageId, repositoryId, emptyFile);
+            artifactOperationsValidator.checkArtifactSize(STORAGE_ID, REPOSITORY_ID, emptyFile);
+
             fail("Should have thrown an ArtifactResolutionException.");
         }
         catch (ArtifactResolutionException e)
@@ -143,6 +168,5 @@ public class ArtifactOperationsValidatorTest
     {
         return configurationManager.getConfiguration();
     }
-
 
 }

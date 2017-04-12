@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.artifact.generator;
+package org.carlspring.strongbox.artifact.generation;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;

@@ -31,6 +31,7 @@ public class NugetHierarchicalArtifactCoordinates extends NugetArtifactCoordinat
         {
             return;
         }
+
         String packageId = matcher.group(1);
         String version = matcher.group(2);
         String packageArtifactName = matcher.group(3);
@@ -40,6 +41,7 @@ public class NugetHierarchicalArtifactCoordinates extends NugetArtifactCoordinat
         {
             return;
         }
+
         setId(packageId);
         setVersion(version);
         setType(packageArtifactType);
@@ -54,18 +56,10 @@ public class NugetHierarchicalArtifactCoordinates extends NugetArtifactCoordinat
 
         if (typeLocal.equals("nuspec"))
         {
-            return String.format("%s/%s/%s.%s",
-                                 idLocal,
-                                 versionLocal,
-                                 idLocal,
-                                 typeLocal);
+            return String.format("%s/%s/%s.%s", idLocal, versionLocal, idLocal, typeLocal);
         }
-        return String.format("%s/%s/%s.%s.%s",
-                             idLocal,
-                             versionLocal,
-                             idLocal,
-                             versionLocal,
-                             typeLocal);
+
+        return String.format("%s/%s/%s.%s.%s", idLocal, versionLocal, idLocal, versionLocal, typeLocal);
     }
 
 }

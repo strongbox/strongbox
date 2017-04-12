@@ -97,11 +97,11 @@ public class SearchControllerTest
         String response = client.search(indexQuery, MediaType.TEXT_PLAIN_VALUE);
 
         assertTrue("Received unexpected response! \n" + response + "\n",
-                   response.contains("test-project-1.0.11.3.jar") &&
-                           response.contains("test-project-1.0.11.3.1.jar"));
-        String dbResponse = client.search(dbQuery, MediaType.TEXT_PLAIN_VALUE);
-        assertEquals("DB search response don't match!", response, dbResponse);
+                   response.contains("test-project-1.0.11.3.jar") && response.contains("test-project-1.0.11.3.1.jar"));
 
+        String dbResponse = client.search(dbQuery, MediaType.TEXT_PLAIN_VALUE);
+
+        assertEquals("DB search response don't match!", response, dbResponse);
 
         // testSearchJSON
         response = client.search(indexQuery, MediaType.APPLICATION_JSON_VALUE);
@@ -116,7 +116,9 @@ public class SearchControllerTest
 
         assertTrue("Received unexpected response! \n" + response + "\n",
                    response.contains(">1.0.11.3<") && response.contains(">1.0.11.3.1<"));
+
         dbResponse = client.search(dbQuery, MediaType.APPLICATION_XML_VALUE);
+
         assertEquals("DB search response don't match!", response, dbResponse);
     }
 

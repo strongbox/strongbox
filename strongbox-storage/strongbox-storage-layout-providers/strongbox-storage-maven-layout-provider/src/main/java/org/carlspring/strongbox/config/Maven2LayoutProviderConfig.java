@@ -1,13 +1,18 @@
 package org.carlspring.strongbox.config;
 
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.MavenRepositoryManagementStrategy;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.orientechnologies.orient.core.entity.OEntityManager;
 import org.apache.maven.index.ArtifactContextProducer;
 import org.apache.maven.index.DefaultArtifactContextProducer;
 import org.apache.maven.index.DefaultIndexer;
@@ -99,6 +104,19 @@ public class Maven2LayoutProviderConfig
     MavenRepositoryFeatures mavenRepositoryFeatures()
     {
         return new MavenRepositoryFeatures();
+    }
+
+    @Inject
+    OEntityManager entityManager;
+
+
+    @PostConstruct
+    public void init()
+    {
+        // unable to replace with more generic one (ArtifactCoordinates) because of
+        // internal OrientDB exception: MavenArtifactCoordinates will not be serializable because
+        // it was not registered using registerEntityClass()
+        entityManager.registerEntityClass(MavenArtifactCoordinates.class);
     }
 
     @Bean(name = "mavenRepositoryManagementStrategy")

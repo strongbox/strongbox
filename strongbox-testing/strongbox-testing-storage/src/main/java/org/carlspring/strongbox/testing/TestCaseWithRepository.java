@@ -77,6 +77,25 @@ public class TestCaseWithRepository
         return repository;
     }
 
+    public void generateArtifact(String artifactPath)
+            throws IOException
+    {
+        File f = new File(artifactPath);
+
+        if (!f.exists())
+        {
+            if (!f.getParentFile().exists())
+            {
+                //noinspection ResultOfMethodCallIgnored
+                f.getParentFile().mkdirs();
+            }
+
+            //noinspection ResultOfMethodCallIgnored
+            f.createNewFile();
+        }
+    }
+
+
     public Configuration getConfiguration()
     {
         return configurationManagementService.getConfiguration();
