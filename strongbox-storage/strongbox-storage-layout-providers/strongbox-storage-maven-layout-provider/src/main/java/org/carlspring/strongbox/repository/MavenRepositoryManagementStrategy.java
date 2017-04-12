@@ -15,6 +15,8 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.maven.index.packer.IndexPacker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
 
@@ -24,6 +26,8 @@ import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
 @Component
 public class MavenRepositoryManagementStrategy extends AbstractRepositoryManagementStrategy
 {
+
+    private static final Logger logger = LoggerFactory.getLogger(MavenRepositoryManagementStrategy.class);
 
     @Inject
     private IndexDownloader downloader;
@@ -141,7 +145,7 @@ public class MavenRepositoryManagementStrategy extends AbstractRepositoryManagem
         }
         catch (RepositoryInitializationException e)
         {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
     }
 

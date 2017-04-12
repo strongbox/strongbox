@@ -312,7 +312,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         }
         if (exists && Files.isDirectory(artifactPath))
         {
-            throw new FileNotFoundException(String.format("The artifact path is a directory: path-[%s]",
+            throw new FileNotFoundException(String.format("The artifact path is a directory: [%s]",
                                                           artifactPath.toString()));
         }
 

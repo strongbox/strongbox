@@ -81,7 +81,7 @@ public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<Nuge
     @Override
     protected boolean isMetadata(String path)
     {
-        return path.endsWith("nuspec");
+        return path.endsWith(".nuspec");
     }
 
     @Override
