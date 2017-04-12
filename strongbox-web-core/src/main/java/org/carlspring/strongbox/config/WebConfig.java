@@ -1,14 +1,15 @@
 package org.carlspring.strongbox.config;
 
-import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
-import org.carlspring.strongbox.mapper.CustomJaxb2RootElementHttpMessageConverter;
-import org.carlspring.strongbox.utils.CustomAntPathMatcher;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.List;
+import javax.xml.bind.Marshaller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
+import org.carlspring.strongbox.utils.CustomAntPathMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.EnableCaching;
@@ -22,9 +23,13 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.ResourceHttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.http.converter.xml.MarshallingHttpMessageConverter;
+import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.controller",
@@ -50,9 +55,6 @@ public class WebConfig
     private static final Logger logger = LoggerFactory.getLogger(WebConfig.class);
 
     @Inject
-    CustomJaxb2RootElementHttpMessageConverter jaxb2RootElementHttpMessageConverter;
-
-    @Inject
     @Named("customAntPathMatcher")
     CustomAntPathMatcher antPathMatcher;
 
@@ -74,10 +76,41 @@ public class WebConfig
         converters.add(stringConverter);
         converters.add(new FormHttpMessageConverter());
         converters.add(jackson2Converter());
-        converters.add(jaxb2RootElementHttpMessageConverter);
+        converters.add(marshallingMessageConverter());
         converters.add(new ResourceHttpMessageConverter());
     }
 
+    @Bean
+    public MarshallingHttpMessageConverter marshallingMessageConverter()
+    {
+        MarshallingHttpMessageConverter converter = new MarshallingHttpMessageConverter();
+        converter.setMarshaller(marshaller());
+        converter.setUnmarshaller(marshaller());
+        return converter;
+    }
+
+    @Bean
+    public Jaxb2Marshaller marshaller()
+    {
+        Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
+        marshaller.setPackagesToScan("org.carlspring.strongbox.artifact.coordinates",
+                                     "org.carlspring.strongbox.configuration",
+                                     "org.carlspring.strongbox.providers.layout.p2",
+                                     "org.carlspring.strongbox.security", 
+                                     "org.carlspring.strongbox.storage",
+                                     "org.carlspring.strongbox.storage.indexing",
+                                     "org.carlspring.strongbox.storage.repository",
+                                     "org.carlspring.strongbox.storage.repository.aws",
+                                     "org.carlspring.strongbox.storage.repository.gcs",
+                                     "org.carlspring.strongbox.storage.routing",
+                                     "org.carlspring.strongbox.users.security", 
+                                     "org.carlspring.strongbox.xml");
+        Map<String, Object> props = new HashMap<>();
+        props.put(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        marshaller.setMarshallerProperties(props);
+        return marshaller;
+    }
+    
     @Bean
     public MappingJackson2HttpMessageConverter jackson2Converter()
     {

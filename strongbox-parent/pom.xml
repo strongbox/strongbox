@@ -577,7 +577,12 @@
                 <artifactId>spring-webmvc</artifactId>
                 <version>${version.spring}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-oxm</artifactId>
+                <version>${version.spring}</version>
+            </dependency>
+            
 	        <dependency>
 	            <groupId>ru.aristar.nuget</groupId>
 	            <artifactId>jnuget-core</artifactId>

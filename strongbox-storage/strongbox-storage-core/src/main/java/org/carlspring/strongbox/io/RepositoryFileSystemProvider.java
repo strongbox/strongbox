@@ -323,8 +323,7 @@ public class RepositoryFileSystemProvider
         // Note that this is only draft implementation, and probably in the future we will need something like separate
         // `FileSystemPathConverter` to convert Paths from one FileSystem to another. Such `FileSystemPathConverter` can
         // be provided by the `ReposytoryFileSystem` instance.
-        String sTargetPath = sourceRelative.replaceAll(sourceFileSystem.getSeparator(),
-                                                       targetFileSystem.getSeparator());
+        String sTargetPath = sourceRelative;
 
         return targetBase.resolve(sTargetPath);
     }
