@@ -1,21 +1,13 @@
 package org.carlspring.strongbox.config;
 
-import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
-import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
-import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
-import org.carlspring.strongbox.repository.MavenRepositoryManagementStrategy;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.orientechnologies.orient.core.entity.OEntityManager;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
 import org.apache.maven.index.ArtifactContextProducer;
 import org.apache.maven.index.DefaultArtifactContextProducer;
-import org.apache.maven.index.DefaultIndexer;
 import org.apache.maven.index.DefaultIndexerEngine;
 import org.apache.maven.index.DefaultQueryCreator;
 import org.apache.maven.index.DefaultScanner;
@@ -36,9 +28,17 @@ import org.apache.maven.index.packer.DefaultIndexPacker;
 import org.apache.maven.index.packer.IndexPacker;
 import org.apache.maven.index.updater.DefaultIndexUpdater;
 import org.apache.maven.index.updater.IndexUpdater;
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
+import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
+import org.carlspring.strongbox.repository.MavenRepositoryManagementStrategy;
+import org.carlspring.strongbox.storage.indexing.StrongboxIndexer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+
+import com.orientechnologies.orient.core.entity.OEntityManager;
 
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.repository",
@@ -52,7 +52,7 @@ public class Maven2LayoutProviderConfig
     @Bean(name = "indexer")
     Indexer indexer()
     {
-        return new DefaultIndexer(searchEngine(), indexerEngine(), queryCreator());
+        return new StrongboxIndexer(searchEngine(), indexerEngine(), queryCreator());
     }
 
     @Bean(name = "scanner")

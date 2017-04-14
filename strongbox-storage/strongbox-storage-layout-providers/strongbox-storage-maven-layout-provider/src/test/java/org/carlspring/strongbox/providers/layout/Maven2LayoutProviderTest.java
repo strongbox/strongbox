@@ -33,6 +33,7 @@ import static org.junit.Assert.assertTrue;
 public class Maven2LayoutProviderTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
+    private static boolean initialized = false;
 
     private static final String REPOSITORY_RELEASES = "m2lp-releases";
 
@@ -60,6 +61,11 @@ public class Maven2LayoutProviderTest
     public void initialize()
             throws Exception
     {
+        if (initialized)
+        {
+            return;
+        }
+        initialized = true;
         Repository repository = new Repository(REPOSITORY_RELEASES);
         repository.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
         repository.setAllowsForceDeletion(true);
