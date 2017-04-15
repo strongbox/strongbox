@@ -1,9 +1,5 @@
 package org.carlspring.strongbox.artifact.locator.handlers;
 
-import org.carlspring.strongbox.io.filters.ArtifactVersionDirectoryFilter;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
-
 import java.io.File;
 import java.io.FilenameFilter;
 import java.nio.file.Path;
@@ -11,6 +7,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+
+import org.carlspring.strongbox.io.RepositoryFileSystem;
+import org.carlspring.strongbox.io.RepositoryPath;
+import org.carlspring.strongbox.io.filters.ArtifactVersionDirectoryFilter;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 /**
  * @author mtodorov
@@ -21,25 +23,22 @@ public abstract class AbstractArtifactLocationHandler
 {
 
     private Storage storage;
-
-    private Repository repository;
-
     private FilenameFilter filter;
-
-    private LinkedHashMap<String, List<File>> visitedRootPaths = new LinkedHashMap<>();
+    private LinkedHashMap<RepositoryPath, List<RepositoryPath>> visitedRootPaths = new LinkedHashMap<>();
+    private RepositoryFileSystem repositoryFileSystem;
 
     /**
      * The base path within the repository from where to start scanning for artifacts.
      */
-    private String basePath;
+    private RepositoryPath basePath;
 
 
-    public LinkedHashMap<String, List<File>> getVisitedRootPaths()
+    public LinkedHashMap<RepositoryPath, List<RepositoryPath>> getVisitedRootPaths()
     {
         return visitedRootPaths;
     }
 
-    public List<File> getVersionDirectories(Path basePath)
+    public List<RepositoryPath> getVersionDirectories(Path basePath)
     {
         File basedir = basePath.toFile();
         File[] versionDirectories = basedir.listFiles(new ArtifactVersionDirectoryFilter(filter));
@@ -72,21 +71,16 @@ public abstract class AbstractArtifactLocationHandler
     @Override
     public Repository getRepository()
     {
-        return repository;
-    }
-
-    public void setRepository(Repository repository)
-    {
-        this.repository = repository;
+        return basePath.getFileSystem().getRepository();
     }
 
     @Override
-    public String getBasePath()
+    public RepositoryPath getBasePath()
     {
         return basePath;
     }
 
-    public void setBasePath(String basePath)
+    public void setBasePath(RepositoryPath basePath)
     {
         this.basePath = basePath;
     }
@@ -101,4 +95,14 @@ public abstract class AbstractArtifactLocationHandler
         this.filter = filter;
     }
 
+    public RepositoryFileSystem getFileSystem()
+    {
+        return repositoryFileSystem;
+    }
+
+    public void setFileSystem(RepositoryFileSystem repositoryFileSystem)
+    {
+        this.repositoryFileSystem = repositoryFileSystem;
+    }
+    
 }

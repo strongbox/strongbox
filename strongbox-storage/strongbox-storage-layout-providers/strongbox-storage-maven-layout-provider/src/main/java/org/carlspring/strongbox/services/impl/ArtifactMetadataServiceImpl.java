@@ -48,10 +48,10 @@ public class ArtifactMetadataServiceImpl
 
     @Inject
     private ConfigurationManager configurationManager;
-
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
-    
+    @Inject
+    private StorageProviderRegistry storageProviderRegistry;
     @Inject
     private MavenMetadataManager mavenMetadataManager;
 
@@ -117,10 +117,12 @@ public class ArtifactMetadataServiceImpl
 
         basePath = basePath == null ? "/" : basePath;
 
+        StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
+        RepositoryPath repositoryBasePath = storageProvider.resolve(repository, basePath);
+        
         GenerateMavenMetadataOperation operation = new GenerateMavenMetadataOperation(mavenMetadataManager);
         operation.setStorage(storage);
-        operation.setRepository(repository);
-        operation.setBasePath(basePath);
+        operation.setBasePath(repositoryBasePath);
 
         ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
         locator.setOperation(operation);

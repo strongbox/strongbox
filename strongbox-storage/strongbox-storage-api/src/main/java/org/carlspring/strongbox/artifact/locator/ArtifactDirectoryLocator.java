@@ -1,15 +1,13 @@
 package org.carlspring.strongbox.artifact.locator;
 
-import org.carlspring.strongbox.artifact.locator.handlers.ArtifactDirectoryOperation;
-
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
+import org.carlspring.strongbox.artifact.locator.handlers.ArtifactDirectoryOperation;
+import org.carlspring.strongbox.io.RepositoryPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
-import static org.carlspring.strongbox.util.FileUtils.normalizePath;
 
 /**
  * @author mtodorov
@@ -22,51 +20,43 @@ public class ArtifactDirectoryLocator
     private ArtifactDirectoryOperation operation;
 
     /**
-     * The basedir to start analyzing from. Define this only,
-     * if you need to pass null values for operation.storage and operation.repository.
+     * The basedir to start analyzing from. Define this only, if you need to pass null values for operation.storage and
+     * operation.repository.
      */
-    private String basedir;
-
+    private RepositoryPath basedir;
 
     public void locateArtifactDirectories()
-            throws IOException
+        throws IOException
     {
         long startTime = System.currentTimeMillis();
 
-        Files.walk(Paths.get(getStartingPath()))
+        Files.walk(getStartingPath())
              .filter(Files::isDirectory)
              // Skip directories which start with a dot (like, for example: .index)
              .filter(path -> !path.getFileName().startsWith("."))
              // Note: Sorting can be expensive:
              .sorted()
-             .forEach(operation::execute);
+             .forEach(this::execute);
 
         long endTime = System.currentTimeMillis();
 
         logger.debug("Executed (cache: " + operation.getVisitedRootPaths().size() + ")" +
-                     " visits in " + (endTime - startTime) + " ms.");
+                " visits in " + (endTime - startTime) + " ms.");
 
         getOperation().getVisitedRootPaths().clear();
     }
 
-    public String getStartingPath()
+    public RepositoryPath getStartingPath()
     {
         // The root path
-        String rootPath = basedir != null ? basedir : getOperation().getRepository().getBasedir();
-        rootPath = normalizePath(rootPath);
+        RepositoryPath rootPath = basedir != null ? basedir : getOperation().getFileSystem().getRootDirectory();
 
-        // The base path to be appended to the root path
-        String basePath = getOperation().getBasePath() != null ? getOperation().getBasePath() : "";
-        if (!StringUtils.isEmpty(basePath) && !basePath.startsWith("/"))
-        {
-            basePath = "/" + basePath;
-        }
+        rootPath = rootPath.resolve(operation.getBasePath());
+        rootPath = rootPath.normalize();
 
-        basePath = normalizePath(basePath);
+        logger.debug(String.format("ArtifactDirectoryLocator started in: path-[%s]", rootPath));
 
-        System.out.println("basePath = " + rootPath + basePath);
-
-        return rootPath + basePath;
+        return rootPath;
     }
 
     public ArtifactDirectoryOperation getOperation()
@@ -79,14 +69,17 @@ public class ArtifactDirectoryLocator
         this.operation = operation;
     }
 
-    public String getBasedir()
+    public RepositoryPath getBasedir()
     {
         return basedir;
     }
 
-    public void setBasedir(String basedir)
+    public void setBasedir(RepositoryPath basedir)
     {
         this.basedir = basedir;
     }
 
+    void execute(Path path){
+        operation.execute((RepositoryPath) path);
+    }
 }
