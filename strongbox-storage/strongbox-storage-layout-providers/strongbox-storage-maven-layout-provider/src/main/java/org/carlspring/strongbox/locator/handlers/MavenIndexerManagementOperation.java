@@ -2,16 +2,12 @@ package org.carlspring.strongbox.locator.handlers;
 
 import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.carlspring.maven.commons.DetachedArtifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.io.ArtifactFilenameFilter;
 import org.carlspring.strongbox.io.RepositoryPath;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
@@ -46,7 +42,7 @@ public class MavenIndexerManagementOperation
     @Override
     public void executeOperation(VersionCollectionRequest request,
                                  RepositoryPath artifactPath,
-                                 List<RepositoryPath> versionDirectories)
+                                 List<RepositoryPath> versionDirectories) throws IOException
     {
         String repositoryId = getRepository().getId();
         String storageId = getStorage().getId();
@@ -58,12 +54,12 @@ public class MavenIndexerManagementOperation
         {
             return;
         }
-        for (RepositoryPath versionDirectory : versionDirectories)
+        for (RepositoryPath versionDirectoryAbs : versionDirectories)
         {
             // We're using System.out.println() here for clarity and due to the length of the lines
             // System.out.println(" " + versionDirectory.getAbsolutePath());
 
-            RepositoryPath artifactVersionDirectoryRelative  = versionDirectory.relativize(getFileSystem().getRootDirectory());
+            RepositoryPath artifactVersionDirectoryRelative  = versionDirectoryAbs.relativize(getFileSystem().getRootDirectory());
             
 //            String artifactVersionDirectory = versionDirectory.getPath();
 //            String artifactVersionDirectoryRelative = artifactVersionDirectory.substring(getStorage().getRepository(repositoryId)
@@ -71,16 +67,28 @@ public class MavenIndexerManagementOperation
 //                                                                                                     .length()
 //                    + 1,
 //                                                                                         artifactVersionDirectory.length());
-            String[] artifactCoordinateElements = artifactVersionDirectoryRelative.split("/");
+            int pathElementCount = artifactVersionDirectoryRelative.getNameCount();
+            
             StringBuilder groupId = new StringBuilder();
-            for (int i = 0; i < artifactCoordinateElements.length - 2; i++)
+            for (int i = 0; i < pathElementCount - 2; i++)
             {
-                String element = artifactCoordinateElements[i];
+                String element = artifactVersionDirectoryRelative.getName(i).toString();
                 groupId.append((groupId.length() == 0) ? element : "." + element);
             }
+            
+//            String[] artifactCoordinateElements = artifactVersionDirectoryRelative.split("/");
+//            
+//            for (int i = 0; i < artifactCoordinateElements.length - 2; i++)
+//            {
+//                String element = artifactCoordinateElements[i];
+//                groupId.append((groupId.length() == 0) ? element : "." + element);
+//            }
 
-            String artifactId = artifactCoordinateElements[artifactCoordinateElements.length - 2];
-            String version = artifactCoordinateElements[artifactCoordinateElements.length - 1];
+            String artifactId = artifactVersionDirectoryRelative.getName(pathElementCount - 2).toString();
+            String version = artifactVersionDirectoryRelative.getName(pathElementCount - 1).toString();           
+            
+//            String artifactId = artifactCoordinateElements[artifactCoordinateElements.length - 2];
+//            String version = artifactCoordinateElements[artifactCoordinateElements.length - 1];
 
                 String[] artifactCoordinateElements = artifactVersionDirectoryRelative.split(
                         Pattern.quote(String.valueOf(File.separatorChar)));
@@ -93,7 +101,7 @@ public class MavenIndexerManagementOperation
 
             // TODO: @Sergey:
             // TODO: Could you please replace this with a fully Path-based implementation?
-            Files.walk(versionDirectory)
+            Files.walk(versionDirectoryAbs)
                  .filter(Files::isRegularFile)
                  .forEach(f -> {
                      String fileName = f.getFileName().toString();

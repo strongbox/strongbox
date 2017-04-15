@@ -105,6 +105,6 @@ public abstract class AbstractMavenArtifactLocatorOperation
 
     public abstract void executeOperation(VersionCollectionRequest request,
                                           RepositoryPath artifactPath,
-                                          List<RepositoryPath> versionDirectories);
+                                          List<RepositoryPath> versionDirectories) throws IOException;
 
 }

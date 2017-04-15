@@ -56,10 +56,8 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
 
     @Inject
     protected LayoutProviderRegistry layoutProviderRegistry;
-
     @Inject
     protected StorageProviderRegistry storageProviderRegistry;
-
     @Inject
     private ConfigurationManager configurationManager;
 

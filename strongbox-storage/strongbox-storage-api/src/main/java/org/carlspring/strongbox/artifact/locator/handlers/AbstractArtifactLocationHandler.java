@@ -2,11 +2,13 @@ package org.carlspring.strongbox.artifact.locator.handlers;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.carlspring.strongbox.io.RepositoryFileSystem;
 import org.carlspring.strongbox.io.RepositoryPath;
@@ -38,23 +40,26 @@ public abstract class AbstractArtifactLocationHandler
         return visitedRootPaths;
     }
 
-    public List<RepositoryPath> getVersionDirectories(Path basePath)
+    public List<RepositoryPath> getVersionDirectories(RepositoryPath basePath)
     {
+        List<Path> filePathList = Files.walk(basePath)
+                                       .filter(p -> !p.getFileName().startsWith(".pom"))
+                                       .sorted()
+                                       .collect(Collectors.toList());
+        
         File basedir = basePath.toFile();
         File[] versionDirectories = basedir.listFiles(new ArtifactVersionDirectoryFilter(filter));
 
-        if (versionDirectories != null)
-        {
-            List<File> directories = Arrays.asList(versionDirectories);
-
-            Collections.sort(directories);
-
-            return directories;
-        }
-        else
+        if (versionDirectories == null)
         {
             return null;
         }
+        
+        List<File> directories = Arrays.asList(versionDirectories);
+
+        Collections.sort(directories);
+
+        return directories;
     }
 
     @Override

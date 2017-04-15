@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.artifact.locator.handlers;
 
 import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.io.RepositoryPath;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
@@ -40,7 +41,7 @@ public class ArtifactLocationGenerateChecksumOperation
         this.layoutProviderRegistry = layoutProviderRegistry;
     }
 
-    public void execute(Path path)
+    public void execute(RepositoryPath path)
     {
         File f = path.toAbsolutePath()
                      .toFile();
@@ -59,9 +60,8 @@ public class ArtifactLocationGenerateChecksumOperation
         String[] list = f.list(getFilenameFilter());
         List<String> filePaths = list != null ? Arrays.asList(list) : new ArrayList<>();
 
-        String parentPath = path.getParent()
-                                .toAbsolutePath()
-                                .toString();
+        RepositoryPath parentPath = path.getParent()
+                                        .toAbsolutePath();
 
         if (!filePaths.isEmpty())
         {
