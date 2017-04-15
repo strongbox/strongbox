@@ -79,7 +79,7 @@ public class ArtifactDirectoryLocator
         this.basedir = basedir;
     }
 
-    void execute(Path path){
+    void execute(Path path) {
         operation.execute((RepositoryPath) path);
     }
 }

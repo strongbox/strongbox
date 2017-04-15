@@ -63,13 +63,14 @@ public class MavenIndexerManagementOperation
             // We're using System.out.println() here for clarity and due to the length of the lines
             // System.out.println(" " + versionDirectory.getAbsolutePath());
 
-            String artifactVersionDirectory = versionDirectory.getPath();
-            String artifactVersionDirectoryRelative = artifactVersionDirectory.substring(getStorage().getRepository(repositoryId)
-                                                                                                     .getBasedir()
-                                                                                                     .length()
-                    + 1,
-                                                                                         artifactVersionDirectory.length());
-
+            RepositoryPath artifactVersionDirectoryRelative  = versionDirectory.relativize(getFileSystem().getRootDirectory());
+            
+//            String artifactVersionDirectory = versionDirectory.getPath();
+//            String artifactVersionDirectoryRelative = artifactVersionDirectory.substring(getStorage().getRepository(repositoryId)
+//                                                                                                     .getBasedir()
+//                                                                                                     .length()
+//                    + 1,
+//                                                                                         artifactVersionDirectory.length());
             String[] artifactCoordinateElements = artifactVersionDirectoryRelative.split("/");
             StringBuilder groupId = new StringBuilder();
             for (int i = 0; i < artifactCoordinateElements.length - 2; i++)
