@@ -37,7 +37,7 @@ public class RepositoryIndexer
                                                                "a",
                                                                "v",
                                                                "p",
-                                                               "c" };
+                                                               "l" };
 
     private static final WhitespaceAnalyzer luceneAnalyzer = new WhitespaceAnalyzer(luceneVersion);
 
@@ -213,7 +213,7 @@ public class RepositoryIndexer
 
     protected String calculateArtifactInfo(ArtifactInfo a1)
     {
-        return a1.getGroupId()+a1.getArtifactId()+a1.getVersion();
+        return a1.getGroupId() + a1.getArtifactId() + a1.getVersion() + a1.getPackaging() + a1.getClassifier();
     }
 
     public Set<SearchResult> searchBySHA1(final String checksum)
