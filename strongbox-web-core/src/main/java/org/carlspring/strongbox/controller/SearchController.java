@@ -63,6 +63,8 @@ public class SearchController
                                  @RequestParam(name = "repositoryId") final String repositoryId,
                                  @ApiParam(value = "The search query", required = true)
                                  @RequestParam(name = "q") final String query,
+                                 @ApiParam(value = "The search query", required = false)
+                                 @RequestParam(name = "searchProvider") final String searchProvider,
                                  HttpServletRequest request)
             throws IOException, ParseException, JAXBException, SearchException
     {
@@ -74,7 +76,7 @@ public class SearchController
 
         if (accept.equalsIgnoreCase(MediaType.TEXT_PLAIN_VALUE))
         {
-            final SearchResults artifacts = getSearchResults(storageId, repositoryId, q);
+            final SearchResults artifacts = getSearchResults(storageId, repositoryId, q, searchProvider);
             return ResponseEntity.ok(artifacts.toString());
         }
         else
@@ -82,20 +84,21 @@ public class SearchController
             // Apparently, the JSON root tag's name is based on the name of the object
             // which the Jersey method returns, hence this is "artifacts".
             @SuppressWarnings("UnnecessaryLocalVariable")
-            final SearchResults artifacts = getSearchResults(storageId, repositoryId, q);
+            final SearchResults artifacts = getSearchResults(storageId, repositoryId, q, searchProvider);
             return ResponseEntity.ok(artifacts);
         }
     }
 
     private SearchResults getSearchResults(String storageId,
                                            String repositoryId,
-                                           String query)
+                                           String query,
+                                           String searchProvider)
             throws SearchException
     {
         return artifactSearchService.search(new SearchRequest(storageId,
                                                               repositoryId,
                                                               query,
-                                                              MavenIndexerSearchProvider.ALIAS));
+                                                              searchProvider));
     }
 
 }

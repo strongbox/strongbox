@@ -328,15 +328,17 @@ public class RestAssuredArtifactClient
     }
 
     public String search(String query,
-                         String mediaType)
-            throws UnsupportedEncodingException
+                         String mediaType,
+                         String searchProvider)
+        throws UnsupportedEncodingException
     {
-        return search(null, query, mediaType);
+        return search(null, query, mediaType, searchProvider);
     }
 
     public String search(String repositoryId,
                          String query,
-                         String mediaType)
+                         String mediaType,
+                         String searchProvider)
             throws UnsupportedEncodingException
     {
         String url = getContextBaseUrl() + "/search";
@@ -352,7 +354,7 @@ public class RestAssuredArtifactClient
 
         query = URLEncoder.encode(query, "UTF-8");
 
-        return givenLocal().params("repositoryId", repositoryId, "q", query)
+        return givenLocal().params("repositoryId", repositoryId, "q", query, "searchProvider", searchProvider)
                            .header("accept", mediaType)
                            .when()
                            .get(url)
