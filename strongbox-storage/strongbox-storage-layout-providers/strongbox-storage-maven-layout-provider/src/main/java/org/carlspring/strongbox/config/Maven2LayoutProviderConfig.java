@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
-import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
@@ -13,18 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.orientechnologies.orient.core.entity.OEntityManager;
-import org.apache.maven.index.ArtifactContextProducer;
-import org.apache.maven.index.DefaultArtifactContextProducer;
-import org.apache.maven.index.DefaultIndexer;
-import org.apache.maven.index.DefaultIndexerEngine;
-import org.apache.maven.index.DefaultQueryCreator;
-import org.apache.maven.index.DefaultScanner;
-import org.apache.maven.index.DefaultSearchEngine;
-import org.apache.maven.index.Indexer;
-import org.apache.maven.index.IndexerEngine;
-import org.apache.maven.index.QueryCreator;
-import org.apache.maven.index.Scanner;
-import org.apache.maven.index.SearchEngine;
+import org.apache.maven.index.*;
 import org.apache.maven.index.artifact.ArtifactPackagingMapper;
 import org.apache.maven.index.artifact.DefaultArtifactPackagingMapper;
 import org.apache.maven.index.creator.AbstractIndexCreator;
