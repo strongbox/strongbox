@@ -1,9 +1,9 @@
-package org.carlspring.strongbox.rest;
+package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.rest.context.IntegrationTest;
+import org.carlspring.strongbox.controllers.context.IntegrationTest;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.routing.RoutingRule;

@@ -1,5 +1,6 @@
-package org.carlspring.strongbox.controllers;
+package org.carlspring.strongbox.controllers.maven;
 
+import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
@@ -25,7 +26,7 @@ import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
 @RestController
 @RequestMapping("/index")
 @Api(value = "/index")
-public class ArtifactIndexesController
+public class MavenIndexController
         extends BaseArtifactController
 {
 

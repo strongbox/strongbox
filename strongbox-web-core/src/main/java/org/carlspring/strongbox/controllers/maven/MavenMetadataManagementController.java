@@ -1,6 +1,7 @@
-package org.carlspring.strongbox.controllers;
+package org.carlspring.strongbox.controllers.maven;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.security.exceptions.AuthenticationException;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
@@ -30,7 +31,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/metadata")
 @Api(value = "/metadata")
 @PreAuthorize("hasAuthority('ROOT')")
-public class MetadataManagementController
+public class MavenMetadataManagementController
         extends BaseArtifactController
 {
 

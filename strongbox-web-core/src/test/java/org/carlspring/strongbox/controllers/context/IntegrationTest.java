@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.rest.context;
+package org.carlspring.strongbox.controllers.context;
 
 import org.carlspring.strongbox.config.WebConfig;
 

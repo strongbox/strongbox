@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.rest;
+package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;

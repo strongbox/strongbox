@@ -1,7 +1,8 @@
-package org.carlspring.strongbox.controllers;
+package org.carlspring.strongbox.controllers.maven;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
@@ -51,13 +52,13 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
  * @see {@linkplain http://docs.spring.io/spring/docs/current/spring-framework-reference/html/mvc.html#mvc-config-path-matching}
  */
 @RestController
-@RequestMapping(path = ArtifactController.ROOT_CONTEXT,
+@RequestMapping(path = MavenArtifactController.ROOT_CONTEXT,
                 headers = "user-agent=Maven/*")
-public class ArtifactController
+public class MavenArtifactController
         extends BaseArtifactController
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(ArtifactController.class);
+    private static final Logger logger = LoggerFactory.getLogger(MavenArtifactController.class);
 
     // must be the same as @RequestMapping value on the class definition
     public final static String ROOT_CONTEXT = "/storages";

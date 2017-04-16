@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.rest;
+package org.carlspring.strongbox.controllers;
 
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.containsString;
@@ -13,7 +13,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.rest.context.IntegrationTest;
+import org.carlspring.strongbox.controllers.context.IntegrationTest;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.service.UserService;
 import org.junit.Test;
