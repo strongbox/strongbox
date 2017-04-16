@@ -43,11 +43,11 @@ public class ClearRepositoryTrashCronJob
 
             if (storageId == null && repositoryId == null)
             {
-                artifactManagementService.deleteTrash();
+                getArtifactManagementService().deleteTrash();
             }
             else
             {
-                artifactManagementService.deleteTrash(storageId, repositoryId);
+                getArtifactManagementService().deleteTrash(storageId, repositoryId);
             }
         }
         catch (IOException e)

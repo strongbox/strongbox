@@ -112,8 +112,7 @@ public class MavenArtifactController
                          @RequestHeader HttpHeaders httpHeaders,
                          @PathVariable String path,
                          HttpServletRequest request,
-                         HttpServletResponse response
-    )
+                         HttpServletResponse response)
             throws Exception
     {
         logger.debug(" repository = " + repositoryId + "\n\tpath = " + path);

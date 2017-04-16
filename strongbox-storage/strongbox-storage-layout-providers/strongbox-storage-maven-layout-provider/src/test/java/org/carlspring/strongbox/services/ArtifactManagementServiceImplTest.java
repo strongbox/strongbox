@@ -8,6 +8,7 @@ import org.carlspring.strongbox.config.StorageCoreConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.resource.ResourceCloser;
+import org.carlspring.strongbox.services.impl.MavenArtifactManagementServiceImpl;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -66,7 +67,7 @@ public class ArtifactManagementServiceImplTest
     private DateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
 
     @Inject
-    private ArtifactManagementService artifactManagementService;
+    private MavenArtifactManagementServiceImpl mavenArtifactManagementService;
 
     @Inject
     private ArtifactMetadataService artifactMetadataService;
@@ -193,10 +194,10 @@ public class ArtifactManagementServiceImplTest
                                              true);
 
             Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
-            artifactManagementService.store(STORAGE0,
-                                            REPOSITORY_RELEASES_WITHOUT_DELETE,
-                                            ArtifactUtils.convertArtifactToPath(artifact),
-                                            is);
+            mavenArtifactManagementService.store(STORAGE0,
+                                                 REPOSITORY_RELEASES_WITHOUT_DELETE,
+                                                 ArtifactUtils.convertArtifactToPath(artifact),
+                                                 is);
 
             fail("Failed to deny artifact operation for repository with disallowed deployments.");
         }
@@ -233,10 +234,10 @@ public class ArtifactManagementServiceImplTest
                                              true);
 
             Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
-            artifactManagementService.store(STORAGE0,
-                                            REPOSITORY_RELEASES_WITHOUT_REDEPLOYMENT,
-                                            ArtifactUtils.convertArtifactToPath(artifact),
-                                            is);
+            mavenArtifactManagementService.store(STORAGE0,
+                                                 REPOSITORY_RELEASES_WITHOUT_REDEPLOYMENT,
+                                                 ArtifactUtils.convertArtifactToPath(artifact),
+                                                 is);
 
             fail("Failed to deny artifact operation for repository with disallowed re-deployments.");
         }
@@ -262,10 +263,10 @@ public class ArtifactManagementServiceImplTest
             String gavtc = "org.carlspring.strongbox:strongbox-utils:8.2:jar";
 
             Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
-            artifactManagementService.delete(STORAGE0,
-                                             REPOSITORY_RELEASES_WITHOUT_DELETE,
-                                             ArtifactUtils.convertArtifactToPath(artifact),
-                                             false);
+            mavenArtifactManagementService.delete(STORAGE0,
+                                                  REPOSITORY_RELEASES_WITHOUT_DELETE,
+                                                  ArtifactUtils.convertArtifactToPath(artifact),
+                                                  false);
 
             fail("Failed to deny artifact operation for repository with disallowed deletions.");
         }
@@ -293,10 +294,10 @@ public class ArtifactManagementServiceImplTest
             File repositoryDir = getRepositoryBasedir(STORAGE0, REPOSITORY_GROUP);
             is = generateArtifactInputStream(repositoryDir.getAbsolutePath(), REPOSITORY_GROUP, gavtc, true);
 
-            artifactManagementService.store(STORAGE0,
-                                            REPOSITORY_GROUP,
-                                            ArtifactUtils.convertArtifactToPath(artifact),
-                                            is);
+            mavenArtifactManagementService.store(STORAGE0,
+                                                 REPOSITORY_GROUP,
+                                                 ArtifactUtils.convertArtifactToPath(artifact),
+                                                 is);
 
             fail("Failed to deny artifact operation for repository with disallowed deployments.");
         }
@@ -315,10 +316,10 @@ public class ArtifactManagementServiceImplTest
             // Generate the artifact on the file-system anyway so that we could achieve
             // the state of having it there before attempting a re-deployment
             generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES).getAbsolutePath(), gavtc);
-            artifactManagementService.store(STORAGE0,
-                                            REPOSITORY_GROUP,
-                                            ArtifactUtils.convertArtifactToPath(artifact),
-                                            is);
+            mavenArtifactManagementService.store(STORAGE0,
+                                                 REPOSITORY_GROUP,
+                                                 ArtifactUtils.convertArtifactToPath(artifact),
+                                                 is);
 
             fail("Failed to deny artifact operation for repository with disallowed re-deployments.");
         }
@@ -335,10 +336,10 @@ public class ArtifactManagementServiceImplTest
         //noinspection EmptyCatchBlock
         try
         {
-            artifactManagementService.delete(STORAGE0,
-                                             REPOSITORY_GROUP,
-                                             ArtifactUtils.convertArtifactToPath(artifact),
-                                             false);
+            mavenArtifactManagementService.delete(STORAGE0,
+                                                  REPOSITORY_GROUP,
+                                                  ArtifactUtils.convertArtifactToPath(artifact),
+                                                  false);
 
             fail("Failed to deny artifact operation for repository with disallowed deletions (non-forced test).");
         }
@@ -355,10 +356,10 @@ public class ArtifactManagementServiceImplTest
         //noinspection EmptyCatchBlock
         try
         {
-            artifactManagementService.delete(STORAGE0,
-                                             REPOSITORY_GROUP,
-                                             ArtifactUtils.convertArtifactToPath(artifact),
-                                             true);
+            mavenArtifactManagementService.delete(STORAGE0,
+                                                  REPOSITORY_GROUP,
+                                                  ArtifactUtils.convertArtifactToPath(artifact),
+                                                  true);
 
             fail("Failed to deny artifact operation for repository with disallowed deletions (forced test).");
         }
@@ -379,9 +380,9 @@ public class ArtifactManagementServiceImplTest
                    ArtifactTransportException,
                    ProviderImplementationException
     {
-        InputStream is = artifactManagementService.resolve(STORAGE0,
-                                                           REPOSITORY_GROUP,
-                                                           "org/carlspring/strongbox/strongbox-utils/7.3/strongbox-utils-7.3.jar");
+        InputStream is = mavenArtifactManagementService.resolve(STORAGE0,
+                                                                REPOSITORY_GROUP,
+                                                                "org/carlspring/strongbox/strongbox-utils/7.3/strongbox-utils-7.3.jar");
 
         assertFalse("Failed to resolve artifact from group repository!", is == null);
         assertTrue("Failed to resolve artifact from group repository!", is.available() > 0);
@@ -394,16 +395,18 @@ public class ArtifactManagementServiceImplTest
             throws IOException
     {
         final String artifactPath = "org/carlspring/strongbox/strongbox-utils/7.0/strongbox-utils-7.0.jar";
-        artifactManagementService.delete(STORAGE0, REPOSITORY_RELEASES, artifactPath, true);
+
+        mavenArtifactManagementService.delete(STORAGE0, REPOSITORY_RELEASES, artifactPath, true);
 
         assertFalse("Failed to delete artifact during a force delete operation!",
                     new File(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES), artifactPath).exists());
 
         final String artifactPath2 = "org/carlspring/strongbox/strongbox-utils/7.2/strongbox-utils-7.2.jar";
-        artifactManagementService.delete(STORAGE0,
-                                         REPOSITORY_RELEASES_WITH_TRASH,
-                                         artifactPath2,
-                                         true);
+
+        mavenArtifactManagementService.delete(STORAGE0,
+                                              REPOSITORY_RELEASES_WITH_TRASH,
+                                              artifactPath2,
+                                              true);
 
         final File repositoryDir = new File(getStorageBasedir(STORAGE0), REPOSITORY_RELEASES_WITH_TRASH + "/.trash");
 
@@ -440,9 +443,11 @@ public class ArtifactManagementServiceImplTest
         artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS, "org/carlspring/strongbox/timestamped");
 
         //To check removing timestamped snapshot with numberToKeep = 1
-        artifactManagementService.removeTimestampedSnapshots(STORAGE0,
-                                                             REPOSITORY_SNAPSHOTS,
-                                                             "org/carlspring/strongbox/timestamped", 1, 0);
+        mavenArtifactManagementService.removeTimestampedSnapshots(STORAGE0,
+                                                                  REPOSITORY_SNAPSHOTS,
+                                                                  "org/carlspring/strongbox/timestamped",
+                                                                  1,
+                                                                  0);
 
         File[] files = artifactVersionBaseDir.listFiles(new JarFilenameFilter());
         Artifact artifact = ArtifactUtils.convertPathToArtifact(files[0].getPath());
@@ -471,10 +476,12 @@ public class ArtifactManagementServiceImplTest
         assertEquals("Amount of timestamped snapshots doesn't equal 2.", 2,
                      artifactVersionBaseDir.listFiles(new JarFilenameFilter()).length);
 
-        //To check removing timestamped snapshot with keepPeriod = 3 and numberToKeep = 0
-        artifactManagementService.removeTimestampedSnapshots(STORAGE0,
-                                                             REPOSITORY_SNAPSHOTS,
-                                                             "org/carlspring/strongbox/timestamped", 0, 3);
+        // To check removing timestamped snapshot with keepPeriod = 3 and numberToKeep = 0
+        mavenArtifactManagementService.removeTimestampedSnapshots(STORAGE0,
+                                                                  REPOSITORY_SNAPSHOTS,
+                                                                  "org/carlspring/strongbox/timestamped",
+                                                                  0,
+                                                                  3);
 
         files = artifactVersionBaseDir.listFiles(new JarFilenameFilter());
         artifact = ArtifactUtils.convertPathToArtifact(files[0].getPath());
