@@ -71,9 +71,11 @@ public class RemoveTimestampedMavenSnapshotCronJob
             }
             else
             {
-                artifactManagementService.removeTimestampedSnapshots(storageId, repositoryId,
-                                                                     basePath, numberToKeep,
-                                                                     keepPeriod);
+                getArtifactManagementService().removeTimestampedSnapshots(storageId,
+                                                                          repositoryId,
+                                                                          basePath,
+                                                                          numberToKeep,
+                                                                          keepPeriod);
             }
         }
         catch (IOException | XmlPullParserException | NoSuchAlgorithmException e)
@@ -107,8 +109,11 @@ public class RemoveTimestampedMavenSnapshotCronJob
             if (repository.getPolicy()
                           .equals(RepositoryPolicyEnum.SNAPSHOT.getPolicy()))
             {
-                artifactManagementService.removeTimestampedSnapshots(storageId, repositoryId, null,
-                                                                     numberToKeep, keepPeriod);
+                getArtifactManagementService().removeTimestampedSnapshots(storageId,
+                                                                          repositoryId,
+                                                                          null,
+                                                                          numberToKeep,
+                                                                          keepPeriod);
             }
         }
     }
