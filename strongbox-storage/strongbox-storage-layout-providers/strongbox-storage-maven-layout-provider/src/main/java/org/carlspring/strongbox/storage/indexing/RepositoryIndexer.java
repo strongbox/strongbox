@@ -213,7 +213,7 @@ public class RepositoryIndexer
 
     protected String calculateArtifactInfo(ArtifactInfo a1)
     {
-        return a1.getGroupId() + a1.getArtifactId() + a1.getVersion() + a1.getPackaging() + a1.getClassifier();
+        return a1.toString();
     }
 
     public Set<SearchResult> searchBySHA1(final String checksum)
