@@ -120,7 +120,7 @@ public class MavenRepositoryManagementStrategy extends AbstractRepositoryManagem
     public void initializeRepository(String storageId, String repositoryId)
             throws RepositoryInitializationException
     {
-        initializeRepositoryIndexes(storageId, repositoryId);
+        // initializeRepositoryIndexes(storageId, repositoryId);
     }
 
     public void initializeRepositoryIndexes(String storageId,
