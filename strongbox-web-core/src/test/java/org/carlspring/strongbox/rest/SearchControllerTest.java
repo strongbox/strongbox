@@ -10,6 +10,8 @@ import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
+import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
+import org.carlspring.strongbox.providers.search.OrientDbSearchProvider;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.rest.context.IntegrationTest;
@@ -94,30 +96,30 @@ public class SearchControllerTest
         String dbQuery = "groupId=org.carlspring.strongbox.searches;artifactId=test-project;";
 
         // testSearchPlainText
-        String response = client.search(indexQuery, MediaType.TEXT_PLAIN_VALUE);
+        String response = client.search(indexQuery, MediaType.TEXT_PLAIN_VALUE, MavenIndexerSearchProvider.ALIAS);
 
         assertTrue("Received unexpected response! \n" + response + "\n",
                    response.contains("test-project-1.0.11.3.jar") && response.contains("test-project-1.0.11.3.1.jar"));
 
-        String dbResponse = client.search(dbQuery, MediaType.TEXT_PLAIN_VALUE);
+        String dbResponse = client.search(dbQuery, MediaType.TEXT_PLAIN_VALUE, OrientDbSearchProvider.ALIAS);
 
         assertEquals("DB search response don't match!", response, dbResponse);
 
         // testSearchJSON
-        response = client.search(indexQuery, MediaType.APPLICATION_JSON_VALUE);
+        response = client.search(indexQuery, MediaType.APPLICATION_JSON_VALUE, MavenIndexerSearchProvider.ALIAS);
 
         assertTrue("Received unexpected response! \n" + response + "\n",
                    response.contains("\"version\" : \"1.0.11.3\"") &&
                            response.contains("\"version\" : \"1.0.11.3.1\""));
-        assertEquals("DB search response don't match!", response, client.search(dbQuery, MediaType.APPLICATION_JSON_VALUE));
+        assertEquals("DB search response don't match!", response, client.search(dbQuery, MediaType.APPLICATION_JSON_VALUE, OrientDbSearchProvider.ALIAS));
         
         // testSearchXML
-        response = client.search(indexQuery, MediaType.APPLICATION_XML_VALUE);
+        response = client.search(indexQuery, MediaType.APPLICATION_XML_VALUE, MavenIndexerSearchProvider.ALIAS);
 
         assertTrue("Received unexpected response! \n" + response + "\n",
                    response.contains(">1.0.11.3<") && response.contains(">1.0.11.3.1<"));
 
-        dbResponse = client.search(dbQuery, MediaType.APPLICATION_XML_VALUE);
+        dbResponse = client.search(dbQuery, MediaType.APPLICATION_XML_VALUE, OrientDbSearchProvider.ALIAS);
 
         assertEquals("DB search response don't match!", response, dbResponse);
     }
