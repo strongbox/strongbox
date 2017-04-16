@@ -34,6 +34,7 @@ import static org.junit.Assert.assertTrue;
 public class MavenRepositoryManagementServiceImplTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
+    private static boolean initialized = false;
 
     private static final String STORAGES_BASEDIR = ConfigurationResourceResolver.getVaultDirectory() + "/storages";
 
@@ -62,6 +63,11 @@ public class MavenRepositoryManagementServiceImplTest
     public void initialize()
             throws Exception
     {
+        if (initialized)
+        {
+            return;
+        }
+        initialized = true;
         createRepository(STORAGE0, REPOSITORY_RELEASES_1, true);
 
         createRepository(STORAGE0, REPOSITORY_RELEASES_2, true);
