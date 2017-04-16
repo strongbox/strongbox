@@ -3,8 +3,7 @@ package org.carlspring.strongbox.providers.layout.p2;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-//TODO: resolve @XmlRootElement(name = "repository") conflict with  org.carlspring.strongbox.storage.repository.Repository
-//@XmlRootElement(name = "repository")
+@XmlRootElement(name = "repository")
 public class P2Repository
 {
 
