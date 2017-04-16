@@ -8,20 +8,21 @@ import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.controller.ArtifactController;
+import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.rest.context.IntegrationTest;
+import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.storage.search.SearchRequest;
+import org.carlspring.strongbox.storage.search.SearchResult;
+import org.carlspring.strongbox.storage.search.SearchResults;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -81,6 +82,7 @@ public class ArtifactControllerTest
         Repository repository1 = new Repository(REPOSITORY_RELEASES1);
         repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
         repository1.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
+        repository1.setIndexingEnabled(true);
 
         createRepository(repository1);
 
@@ -126,6 +128,7 @@ public class ArtifactControllerTest
         Repository repository2 = new Repository(REPOSITORY_RELEASES2);
         repository2.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
         repository2.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
+        repository2.setIndexingEnabled(true);
         repository2.setAllowsRedeployment(true);
 
         createRepository(repository2);
@@ -603,12 +606,8 @@ public class ArtifactControllerTest
     }
 
     @Test
-    public void updateMetadataOndeleteReleaseVersionDirectoryTest()
-            throws NoSuchAlgorithmException,
-                   XmlPullParserException,
-                   IOException,
-                   ArtifactOperationException,
-                   ArtifactTransportException
+    public void testUpdateMetadataOnDeleteReleaseVersionDirectory()
+            throws Exception
     {
         // Given
         String groupId = "org.carlspring.strongbox.delete-metadata";
@@ -618,24 +617,58 @@ public class ArtifactControllerTest
 
         Artifact artifact1 = getArtifactFromGAVTC(groupId + ":" + artifactId + ":" + version1);
         Artifact artifact2 = getArtifactFromGAVTC(groupId + ":" + artifactId + ":" + version2);
+        Artifact artifact3 = getArtifactFromGAVTC(groupId + ":" + artifactId + ":" + version2 + ":jar:javadoc");
 
         MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(GENERATOR_BASEDIR);
 
         artifactDeployer.generateAndDeployArtifact(artifact1, STORAGE0, REPOSITORY_RELEASES2);
         artifactDeployer.generateAndDeployArtifact(artifact2, STORAGE0, REPOSITORY_RELEASES2);
+        artifactDeployer.generateAndDeployArtifact(artifact3, STORAGE0, REPOSITORY_RELEASES2);
+
+        // Run a search against the index and get a list of all the artifacts matching this exact GAV
+        SearchRequest request = new SearchRequest(STORAGE0,
+                                                  REPOSITORY_RELEASES2,
+                                                  "+g:" + groupId + " " +
+                                                  "+a:" + artifactId + " " +
+                                                  "+v:" + "1.2.2",
+                                                  MavenIndexerSearchProvider.ALIAS);
+
+        SearchResults results = artifactSearchService.search(request);
+
+        if (!results.getResults().isEmpty())
+        {
+            logger.debug("Found " + results.getResults().size() + " results in index of " +
+                         STORAGE0 + ":" + REPOSITORY_RELEASES2 + IndexTypeEnum.LOCAL.getType() + ".");
+        }
+
+        for (SearchResult result : results.getResults())
+        {
+            String artifactPath = result.getArtifactCoordinates().toPath();
+
+            logger.debug(result.getArtifactCoordinates() + "(" + artifactPath + ")");
+        }
+
+        assertEquals("Incorrect number of results yielded from search against Maven Index!",
+                     2,
+                     results.getResults().size());
 
         // When
         String path = "org/carlspring/strongbox/delete-metadata/metadata-foo/1.2.2";
         client.delete(STORAGE0, REPOSITORY_RELEASES2, path);
 
-        //Aca deberiamos mirar el FS y a la mierda
+        // Then
         Metadata metadata = client.retrieveMetadata("storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES2 + "/" +
                                                     ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
+
+        // Re-run the search and check, if the results are now different
+        results = artifactSearchService.search(request);
+
+        assertTrue("Failed to delete artifacts from Maven Index!!", results.getResults().isEmpty());
         assertTrue(!metadata.getVersioning().getVersions().contains("1.2.2"));
     }
 
     @Test
-    public void updateMetadataOnDeleteSnapshotVersionDirectoryTest()
+    public void testUpdateMetadataOnDeleteSnapshotVersionDirectory()
             throws NoSuchAlgorithmException,
                    XmlPullParserException,
                    IOException,
@@ -666,7 +699,8 @@ public class ArtifactControllerTest
         // Then
         Metadata metadata = client.retrieveMetadata("storages/" + STORAGE0 + "/" + REPOSITORY_SNAPSHOTS + "/" +
                                                     ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
-        assertTrue(!metadata.getVersioning().getVersions().contains("3.1-SNAPSHOT"));
+
+        assertFalse(metadata.getVersioning().getVersions().contains("3.1-SNAPSHOT"));
     }
 
     private boolean checkSnapshotVersionExistsInMetadata(Metadata versionLevelMetadata,

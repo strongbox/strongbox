@@ -1,8 +1,10 @@
 package org.carlspring.strongbox.controller;
 
+import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
+import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.services.ArtifactSearchService;
-import org.carlspring.strongbox.storage.indexing.SearchRequest;
-import org.carlspring.strongbox.storage.indexing.SearchResults;
+import org.carlspring.strongbox.storage.search.SearchRequest;
+import org.carlspring.strongbox.storage.search.SearchResults;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -10,18 +12,12 @@ import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.net.URLDecoder;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -52,8 +48,7 @@ public class SearchController
      */
     @ApiOperation(value = "Used to search for artifacts.",
                   response = SearchResults.class)
-    @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "") })
     @PreAuthorize("hasAuthority('SEARCH_ARTIFACTS')")
     @RequestMapping(value = "",
                     method = RequestMethod.GET,
@@ -63,17 +58,15 @@ public class SearchController
                                  MediaType.APPLICATION_JSON_VALUE,
                                  MediaType.TEXT_PLAIN_VALUE })
     public ResponseEntity search(@ApiParam(value = "The storageId")
-                                 @RequestParam(name = "storageId",
-                                               required = false) final String storageId,
-                                 @ApiParam(value = "The repositoryId",
-                                           required = true)
+                                 @RequestParam(name = "storageId", required = false) final String storageId,
+                                 @ApiParam(value = "The repositoryId", required = true)
                                  @RequestParam(name = "repositoryId") final String repositoryId,
-                                 @ApiParam(value = "The search query",
-                                           required = true)
+                                 @ApiParam(value = "The search query", required = true)
                                  @RequestParam(name = "q") final String query,
-                                 @RequestHeader HttpHeaders headers,
+                                 @ApiParam(value = "The search query", required = false)
+                                 @RequestParam(name = "searchProvider") final String searchProvider,
                                  HttpServletRequest request)
-            throws IOException, ParseException, JAXBException
+            throws IOException, ParseException, JAXBException, SearchException
     {
         String accept = request.getHeader("accept");
         String q = URLDecoder.decode(query, "UTF-8");
@@ -83,7 +76,7 @@ public class SearchController
 
         if (accept.equalsIgnoreCase(MediaType.TEXT_PLAIN_VALUE))
         {
-            final SearchResults artifacts = getSearchResults(storageId, repositoryId, q);
+            final SearchResults artifacts = getSearchResults(storageId, repositoryId, q, searchProvider);
             return ResponseEntity.ok(artifacts.toString());
         }
         else
@@ -91,17 +84,21 @@ public class SearchController
             // Apparently, the JSON root tag's name is based on the name of the object
             // which the Jersey method returns, hence this is "artifacts".
             @SuppressWarnings("UnnecessaryLocalVariable")
-            final SearchResults artifacts = getSearchResults(storageId, repositoryId, q);
+            final SearchResults artifacts = getSearchResults(storageId, repositoryId, q, searchProvider);
             return ResponseEntity.ok(artifacts);
         }
     }
 
     private SearchResults getSearchResults(String storageId,
                                            String repositoryId,
-                                           String query)
-            throws IOException, ParseException
+                                           String query,
+                                           String searchProvider)
+            throws SearchException
     {
-        return artifactSearchService.search(new SearchRequest(storageId, repositoryId, query));
+        return artifactSearchService.search(new SearchRequest(storageId,
+                                                              repositoryId,
+                                                              query,
+                                                              searchProvider));
     }
 
 }

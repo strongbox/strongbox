@@ -7,14 +7,11 @@ import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 
 import javax.inject.Inject;
+import javax.ws.rs.QueryParam;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -37,26 +34,22 @@ public class MetadataManagementController
         extends BaseArtifactController
 {
 
-    public final static String ROOT_CONTEXT = "/metadata";
 
     @Inject
     private ArtifactMetadataService artifactMetadataService;
 
     @ApiOperation(value = "Used to rebuild the metadata for a given path.",
                   position = 0)
-    @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "The metadata was successfully rebuilt!"),
-                            @ApiResponse(code = 500,
-                                         message = "An error occurred.") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The metadata was successfully rebuilt!"),
+                            @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('MANAGEMENT_REBUILD_METADATA')")
-    @RequestMapping(value = "{storageId}/{repositoryId}/{path:.+}",
-                    method = RequestMethod.POST,
+    @RequestMapping(method = RequestMethod.POST,
                     produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity rebuild(@ApiParam(value = "The storageId", required = true)
-                                  @PathVariable String storageId,
+                                  @QueryParam("storageId") String storageId,
                                   @ApiParam(value = "The repositoryId", required = true)
-                                  @PathVariable String repositoryId,
-                                  @PathVariable String path)
+                                  @QueryParam("repositoryId") String repositoryId,
+                                  @QueryParam("path") String path)
             throws IOException,
                    AuthenticationException,
                    NoSuchAlgorithmException,
@@ -64,20 +57,26 @@ public class MetadataManagementController
     {
         try
         {
-            artifactMetadataService.rebuildMetadata(storageId, repositoryId, path);
+            if (storageId != null && repositoryId != null)
+            {
+                artifactMetadataService.rebuildMetadata(storageId, repositoryId, path);
+            }
+            else if (storageId != null && repositoryId == null)
+            {
+                artifactMetadataService.rebuildMetadata(storageId, path);
+            }
 
             return ResponseEntity.ok("The metadata was successfully rebuilt!");
         }
         catch (ArtifactStorageException e)
         {
             logger.error(e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .body(e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
-    @ApiOperation(value = "Used to delete metadata entries for an artifact",
-                  position = 0)
+    @ApiOperation(value = "Used to delete metadata entries for an artifact", position = 1)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully removed metadata entry."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('MANAGEMENT_DELETE_METADATA')")
@@ -100,7 +99,7 @@ public class MetadataManagementController
                    NoSuchAlgorithmException,
                    XmlPullParserException
     {
-        logger.debug("[delete] storageId " + storageId + " repositoryId " + repositoryId + " version " + version);
+        logger.debug("Deleting metadata for " + storageId + ":" + repositoryId + ":" + path + ":" + version + "...");
 
         try
         {
@@ -126,8 +125,8 @@ public class MetadataManagementController
         catch (ArtifactStorageException e)
         {
             logger.error(e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .body(e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 

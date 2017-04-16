@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.storage.validation.version;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.MockedMavenArtifactCoordinates;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
@@ -40,8 +40,8 @@ public class ReleaseVersionValidatorTest
         Artifact validArtifact1 = generateArtifact("1");
         Artifact validArtifact2 = generateArtifact("1.0");
 
-        ArtifactCoordinates coordinates1 = new MavenArtifactCoordinates(validArtifact1);
-        ArtifactCoordinates coordinates2 = new MavenArtifactCoordinates(validArtifact2);
+        ArtifactCoordinates coordinates1 = new MockedMavenArtifactCoordinates(validArtifact1);
+        ArtifactCoordinates coordinates2 = new MockedMavenArtifactCoordinates(validArtifact2);
 
         validator.validate(repository, coordinates1);
         validator.validate(repository, coordinates2);
@@ -60,10 +60,10 @@ public class ReleaseVersionValidatorTest
         Artifact invalidArtifact3 = generateArtifact("1.0-20131004.115330");
         Artifact invalidArtifact4 = generateArtifact("1.0-20131004.115330-1");
 
-        ArtifactCoordinates coordinates1 = new MavenArtifactCoordinates(invalidArtifact1);
-        ArtifactCoordinates coordinates2 = new MavenArtifactCoordinates(invalidArtifact2);
-        ArtifactCoordinates coordinates3 = new MavenArtifactCoordinates(invalidArtifact3);
-        ArtifactCoordinates coordinates4 = new MavenArtifactCoordinates(invalidArtifact4);
+        ArtifactCoordinates coordinates1 = new MockedMavenArtifactCoordinates(invalidArtifact1);
+        ArtifactCoordinates coordinates2 = new MockedMavenArtifactCoordinates(invalidArtifact2);
+        ArtifactCoordinates coordinates3 = new MockedMavenArtifactCoordinates(invalidArtifact3);
+        ArtifactCoordinates coordinates4 = new MockedMavenArtifactCoordinates(invalidArtifact4);
 
         try
         {

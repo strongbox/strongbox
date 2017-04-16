@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.artifact.locator.handlers;
 
 import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.io.RepositoryPath;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;

@@ -185,7 +185,7 @@ public class ConfigurationManagementController
                             @ApiResponse(code = 500,
                                          message = "An error occurred.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_SET_PORT')")
-    @RequestMapping(value = "port/{port}",
+    @RequestMapping(value = "/port/{port}",
                     method = RequestMethod.PUT,
                     produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity setPort(@ApiParam(value = "The port of the service",

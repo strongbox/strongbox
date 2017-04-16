@@ -3,7 +3,7 @@ package org.carlspring.strongbox.storage.repository.artifact.locator;
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.artifact.locator.handlers.ArtifactLocationReportOperation;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
+import org.carlspring.strongbox.testing.TestCaseWithRepository;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -23,10 +23,11 @@ import static org.junit.Assert.assertFalse;
  * @author mtodorov
  */
 public class ArtifactDirectoryLocatorTest
-        extends TestCaseWithArtifactGeneration
+        extends TestCaseWithRepository
 {
 
-    private static final File REPOSITORY_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/releases");
+    private static final File REPOSITORY_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                            "/storages/storage0/releases");
 
     private ByteArrayOutputStream os;
 
@@ -39,18 +40,55 @@ public class ArtifactDirectoryLocatorTest
     public void setUp()
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
-        if (!new File(REPOSITORY_BASEDIR, "org/carlspring/strongbox/locator").exists())
-        {
-            //noinspection ResultOfMethodCallIgnored
-            REPOSITORY_BASEDIR.mkdirs();
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/apache/maven/location-utils/1.0.1/location-utils-1.0.1.jar");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/apache/maven/location-utils/1.0.1/location-utils-1.0.1.pom");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/apache/maven/location-utils/1.0.2/location-utils-1.0.2.jar");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/apache/maven/location-utils/1.0.2/location-utils-1.0.2.pom");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/apache/maven/location-utils/1.1/location-utils-1.1.jar");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/apache/maven/location-utils/1.1/location-utils-1.1.pom");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/apache/maven/location-utils/1.2/location-utils-1.2.jar");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/apache/maven/location-utils/1.2/location-utils-1.2.pom");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/apache/maven/location-utils/1.2.1/location-utils-1.2.1.jar");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/apache/maven/location-utils/1.2.1/location-utils-1.2.1.pom");
 
-            generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), "org.apache.maven:location-utils", new String[] { "1.0.1", "1.0.2", "1.1", "1.2", "1.2.1" });
-            generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), "com.carlspring.strongbox:foo", new String[] { "5.1", "5.2", "5.3" });
-            generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), "org.carlspring.maven:locator-testing", new String[] { "2.1", "2.2", "2.3", "2.4", "2.5", "3.0" });
-            generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), "org.carlspring.strongbox:locator", new String[] { "5.2.1", "5.2.2", "5.2.2" });
-            generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), "org.carlspring.strongbox.locator:foo-locator", new String[] { "1.0", "1.1", "1.2" });
-            generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), "org.carlspring.strongbox.locator:utils", new String[] { "2.1", "2.2", "2.3" });
-        }
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/com/carlspring/strongbox/foo/5.1/foo-5.1.jar");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/com/carlspring/strongbox/foo/5.1/foo-5.1.pom");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/com/carlspring/strongbox/foo/5.2/foo-5.2.jar");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/com/carlspring/strongbox/foo/5.2/foo-5.2.pom");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/com/carlspring/strongbox/foo/5.3/foo-5.3.jar");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/com/carlspring/strongbox/foo/5.3/foo-5.3.pom");
+
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/carlspring/maven/locator-testing/2.1/locator-testing-2.1.jar");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/carlspring/maven/locator-testing/2.1/locator-testing-2.1.pom");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/carlspring/maven/locator-testing/2.2/locator-testing-2.2.jar");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/carlspring/maven/locator-testing/2.2/locator-testing-2.2.pom");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/carlspring/maven/locator-testing/2.3/locator-testing-2.3.jar");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/carlspring/maven/locator-testing/2.3/locator-testing-2.3.pom");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/carlspring/maven/locator-testing/2.4/locator-testing-2.4.jar");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/carlspring/maven/locator-testing/2.4/locator-testing-2.4.pom");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/carlspring/maven/locator-testing/2.5/locator-testing-2.5.jar");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/carlspring/maven/locator-testing/2.5/locator-testing-2.5.pom");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/carlspring/maven/locator-testing/3.0/locator-testing-3.0.jar");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/carlspring/maven/locator-testing/3.0/locator-testing-3.0.pom");
+
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/carlspring/strongbox/locator/5.2.1/locator-5.2.1.jar");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/carlspring/strongbox/locator/5.2.1/locator-5.2.1.pom");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/carlspring/strongbox/locator/5.2.2/locator-5.2.2.jar");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/carlspring/strongbox/locator/5.2.2/locator-5.2.2.pom");
+
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/carlspring/strongbox/locator/foo-locator/1.0/foo-locator-1.0.jar");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/carlspring/strongbox/locator/foo-locator/1.0/foo-locator-1.0.pom");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/carlspring/strongbox/locator/foo-locator/1.1/foo-locator-1.1.jar");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/carlspring/strongbox/locator/foo-locator/1.1/foo-locator-1.1.pom");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/carlspring/strongbox/locator/foo-locator/1.2/foo-locator-1.2.jar");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/carlspring/strongbox/locator/foo-locator/1.2/foo-locator-1.2.pom");
+
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/carlspring/strongbox/locator/utils/2.1/utils-2.1.jar");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/carlspring/strongbox/locator/utils/2.1/utils-2.1.pom");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/carlspring/strongbox/locator/utils/2.2/utils-2.2.jar");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/carlspring/strongbox/locator/utils/2.2/utils-2.2.pom");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/carlspring/strongbox/locator/utils/2.3/utils-2.3.jar");
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() + "/org/carlspring/strongbox/locator/utils/2.3/utils-2.3.pom");
 
         if (!INITIALIZED)
         {
@@ -83,7 +121,6 @@ public class ArtifactDirectoryLocatorTest
         ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
         locator.setBasedir(REPOSITORY_BASEDIR.getAbsolutePath());
         locator.setOperation(new ArtifactLocationReportOperation());
-        //! locator.locateArtifactDirectories("/java/nexus/sonatype-work/nexus/storage");
         locator.locateArtifactDirectories();
 
         os.flush();
@@ -113,12 +150,15 @@ public class ArtifactDirectoryLocatorTest
 
         String output = new String(os.toByteArray());
 
+        System.out.println(output);
+
         assertFalse(output.contains(normalize("org/apache/maven/location-utils")));
         assertTrue(output.contains(normalize("org/carlspring/maven/locator-testing")));
         assertTrue(output.contains(normalize("org/carlspring/strongbox/locator/foo-locator")));
         assertTrue(output.contains(normalize("org/carlspring/strongbox/locator/utils")));
 
         resetOutput();
+
         System.out.println(output);
     }
 

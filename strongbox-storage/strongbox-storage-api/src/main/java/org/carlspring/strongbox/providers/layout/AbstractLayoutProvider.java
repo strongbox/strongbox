@@ -4,25 +4,20 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.io.ArtifactOutputStream;
-import org.carlspring.strongbox.io.ArtifactPath;
-import org.carlspring.strongbox.io.RepositoryFileSystemProvider;
-import org.carlspring.strongbox.io.RepositoryPath;
+import org.carlspring.strongbox.io.*;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.providers.storage.StorageProvider;
 import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
+import org.carlspring.strongbox.repository.RepositoryFeatures;
+import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.ArtifactFileUtils;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import javax.inject.Inject;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -43,7 +38,9 @@ import org.slf4j.LoggerFactory;
 /**
  * @author mtodorov
  */
-public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
+public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
+                                             U extends RepositoryFeatures,
+                                             V extends RepositoryManagementStrategy>
         implements LayoutProvider<T>
 {
 
@@ -315,7 +312,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
         }
         if (exists && Files.isDirectory(artifactPath))
         {
-            throw new FileNotFoundException(String.format("The artifact path is a directory: path-[%s]",
+            throw new FileNotFoundException(String.format("The artifact path is a directory: [%s]",
                                                           artifactPath.toString()));
         }
 
@@ -405,7 +402,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
                        String repositoryId,
                        String path,
                        boolean force)
-            throws IOException
+            throws IOException, SearchException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
@@ -458,8 +455,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
     {
         Files.delete(repositoryPath);
 
-        Repository repository = repositoryPath.getFileSystem()
-                                              .getRepository();
+        Repository repository = repositoryPath.getFileSystem().getRepository();
         RepositoryFileSystemProvider provider = getProvider(repositoryPath);
         if (force && repository.allowsForceDeletion())
         {
@@ -473,6 +469,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
             throws IOException
     {
         logger.debug("Emptying trash for repositoryId " + repositoryId + "...");
+
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
         RepositoryPath path = resolve(repository);
