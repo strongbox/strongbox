@@ -32,7 +32,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Configuration
-@ComponentScan({ "org.carlspring.strongbox.controller",
+@ComponentScan({ "org.carlspring.strongbox.controllers",
                  "org.carlspring.strongbox.mapper",
                  "org.carlspring.strongbox.security",
                  "org.carlspring.strongbox.authentication",

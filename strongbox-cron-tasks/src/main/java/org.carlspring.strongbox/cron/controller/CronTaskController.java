@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.cron.controller;
 
-import org.carlspring.strongbox.controller.BaseController;
+import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.cron.api.jobs.GroovyCronJob;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.exceptions.CronTaskException;

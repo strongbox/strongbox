@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.controller;
+package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;

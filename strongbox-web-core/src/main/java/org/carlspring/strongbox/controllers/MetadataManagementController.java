@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.controller;
+package org.carlspring.strongbox.controllers;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.security.exceptions.AuthenticationException;

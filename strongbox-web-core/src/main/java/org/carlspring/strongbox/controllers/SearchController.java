@@ -1,6 +1,5 @@
-package org.carlspring.strongbox.controller;
+package org.carlspring.strongbox.controllers;
 
-import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.search.SearchRequest;

@@ -29,8 +29,8 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpUpgradeHandler;
 import javax.servlet.http.Part;
 
-import org.carlspring.strongbox.controller.ArtifactController;
-import org.carlspring.strongbox.controller.NugetPackageController;
+import org.carlspring.strongbox.controllers.ArtifactController;
+import org.carlspring.strongbox.controllers.NugetPackageController;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
 import edu.emory.mathcs.backport.java.util.Collections;
