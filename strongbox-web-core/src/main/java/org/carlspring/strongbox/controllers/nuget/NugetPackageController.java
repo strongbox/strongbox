@@ -1,5 +1,6 @@
-package org.carlspring.strongbox.controller;
+package org.carlspring.strongbox.controllers.nuget;
 
+import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.security.exceptions.SecurityTokenException;
 import org.carlspring.strongbox.storage.Storage;

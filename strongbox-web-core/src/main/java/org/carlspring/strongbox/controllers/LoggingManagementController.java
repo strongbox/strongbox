@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.controller;
+package org.carlspring.strongbox.controllers;
 
 import org.carlspring.logging.exceptions.AppenderNotFoundException;
 import org.carlspring.logging.exceptions.LoggerNotFoundException;
@@ -27,7 +27,7 @@ import static org.springframework.http.MediaType.APPLICATION_XML_VALUE;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 
 /**
- * This controller provides a simple wrapper over REST API for the LoggingManagementService.
+ * This controllers provides a simple wrapper over REST API for the LoggingManagementService.
  *
  * @author Martin Todorov
  */

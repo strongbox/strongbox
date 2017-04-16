@@ -1,6 +1,6 @@
-package org.carlspring.strongbox.rest;
+package org.carlspring.strongbox.controllers;
 
-import org.carlspring.strongbox.rest.context.IntegrationTest;
+import org.carlspring.strongbox.controllers.context.IntegrationTest;
 import org.carlspring.strongbox.utils.CustomAntPathMatcher;
 
 import javax.inject.Inject;

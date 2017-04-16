@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.rest;
+package org.carlspring.strongbox.controllers.maven;
 
 import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
@@ -7,11 +7,11 @@ import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.controller.ArtifactController;
+import org.carlspring.strongbox.controllers.maven.MavenArtifactController;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.rest.context.IntegrationTest;
+import org.carlspring.strongbox.controllers.context.IntegrationTest;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -41,14 +41,14 @@ import static org.carlspring.maven.commons.util.ArtifactUtils.getArtifactFromGAV
 import static org.junit.Assert.*;
 
 /**
- * Test cases for {@link ArtifactController}.
+ * Test cases for {@link MavenArtifactController}.
  *
  * @author Alex Oreshkevich
  * @author Martin Todorov
  */
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
-public class ArtifactControllerTest
+public class MavenArtifactControllerTest
         extends RestAssuredBaseTest
 {
 

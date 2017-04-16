@@ -1,9 +1,9 @@
-package org.carlspring.strongbox.rest;
+package org.carlspring.strongbox.controllers.maven;
 
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.controllers.context.IntegrationTest;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.rest.context.IntegrationTest;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
@@ -36,7 +36,7 @@ import static org.junit.Assert.*;
 
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
-public class MetadataManagementControllerTest
+public class MavenMetadataManagementControllerTest
         extends RestAssuredBaseTest
 {
 

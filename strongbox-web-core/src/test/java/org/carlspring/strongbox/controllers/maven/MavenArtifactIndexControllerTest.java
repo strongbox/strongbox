@@ -1,7 +1,7 @@
-package org.carlspring.strongbox.rest;
+package org.carlspring.strongbox.controllers.maven;
 
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.rest.context.IntegrationTest;
+import org.carlspring.strongbox.controllers.context.IntegrationTest;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -22,7 +22,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
-public class ArtifactIndexesControllerTest
+public class MavenArtifactIndexControllerTest
         extends RestAssuredBaseTest
 {
 
