@@ -3,6 +3,6 @@
     version="2.0">
 
     <persistence-unit name="persistenceUnit">
-        <provider>com.orientechnologies.orient.object.jpa.OJPAObjectDatabaseTxPresistence</provider>
+        <provider>com.orientechnologies.orient.object.jpa.OJPAObjectDatabaseTxPersistence</provider>
     </persistence-unit>
 </persistence>

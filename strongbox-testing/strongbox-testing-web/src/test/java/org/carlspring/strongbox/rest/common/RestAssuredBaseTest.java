@@ -5,8 +5,8 @@ import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGeneration;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGeneration;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.users.domain.Roles;
 
 import javax.inject.Inject;
@@ -38,7 +38,7 @@ import static org.junit.Assert.assertTrue;
  * @author Alex Oreshkevich
  */
 public abstract class RestAssuredBaseTest
-        extends TestCaseWithArtifactGenerationAndIndexing
+        extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     public final static int DEFAULT_PORT = 48080;
@@ -74,7 +74,7 @@ public abstract class RestAssuredBaseTest
 
     private String contextBaseUrl;
 
-    private TestCaseWithArtifactGeneration generator = new TestCaseWithArtifactGeneration();
+    private TestCaseWithMavenArtifactGeneration generator = new TestCaseWithMavenArtifactGeneration();
 
 
     public RestAssuredBaseTest()
@@ -109,11 +109,10 @@ public abstract class RestAssuredBaseTest
 
         RestAssuredMockMvc.webAppContextSetup(context);
 
-        // security settings for tests
-        // by default all operations incl. deletion etc. are allowed (careful)
-        // override #provideAuthorities if you wanna be more specific
-        anonymousAuthenticationFilter.getAuthorities()
-                                     .addAll(provideAuthorities());
+        // Security settings for tests:
+        // By default all operations incl. deletion, etc. are allowed (be careful)!
+        // Override #provideAuthorities, if you want be more specific.
+        anonymousAuthenticationFilter.getAuthorities().addAll(provideAuthorities());
 
         setContextBaseUrl(contextBaseUrl);
     }
@@ -178,6 +177,7 @@ public abstract class RestAssuredBaseTest
     protected boolean pathExists(String url)
     {
         logger.trace("[pathExists] URL -> " + url);
+
         return given().header("user-agent", "Maven/*")
                       .contentType(MediaType.TEXT_PLAIN_VALUE)
                       .when()
@@ -194,6 +194,7 @@ public abstract class RestAssuredBaseTest
     {
         MavenArtifactDeployer artifactDeployer = new MavenArtifactDeployer(file.getAbsolutePath());
         artifactDeployer.setClient(client);
+
         return artifactDeployer;
     }
 
@@ -233,4 +234,5 @@ public abstract class RestAssuredBaseTest
         configurationManagementService.saveStorage(storage);
         storageManagementService.createStorage(storage);
     }
+
 }

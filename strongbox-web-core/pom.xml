@@ -344,6 +344,16 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-storage-nuget-layout-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-storage-p2-layout-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-client</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -378,6 +388,12 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-testing-storage</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-common-resources</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
@@ -396,7 +412,6 @@
             <groupId>org.carlspring.logging</groupId>
             <artifactId>logback-configuration-rest</artifactId>
         </dependency>
-
 
         <!-- Maven artifact management -->
         <dependency>

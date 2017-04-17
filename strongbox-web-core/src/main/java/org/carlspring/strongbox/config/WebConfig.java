@@ -31,7 +31,7 @@ import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 @Configuration
-@ComponentScan({ "org.carlspring.strongbox.controller",
+@ComponentScan({ "org.carlspring.strongbox.controllers",
                  "org.carlspring.strongbox.mapper",
                  "org.carlspring.strongbox.security",
                  "org.carlspring.strongbox.authentication",
@@ -40,8 +40,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
                  "org.carlspring.logging" })
 @Import({ CommonConfig.class,
           StrongboxSecurityConfig.class,
-          StorageIndexingConfig.class,
-          StorageApiConfig.class,
+          Maven2LayoutProviderConfig.class,
+          StorageCoreConfig.class,
           UsersConfig.class,
           SecurityConfig.class,
           ClientConfig.class })
@@ -94,7 +94,8 @@ public class WebConfig
         Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
         marshaller.setPackagesToScan("org.carlspring.strongbox.artifact.coordinates",
                                      "org.carlspring.strongbox.configuration",
-                                     "org.carlspring.strongbox.providers.layout.p2",
+                                     //TODO: resolve @XmlRootElement(name = "repository") conflict with  org.carlspring.strongbox.storage.repository.Repository
+                                     //"org.carlspring.strongbox.providers.layout.p2",
                                      "org.carlspring.strongbox.storage",
                                      "org.carlspring.strongbox.storage.indexing",
                                      "org.carlspring.strongbox.storage.repository",

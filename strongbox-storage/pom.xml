@@ -35,10 +35,9 @@
     <inceptionYear>2014</inceptionYear>
 
     <modules>
+        <module>strongbox-storage-core</module>
         <module>strongbox-storage-api</module>
-        <module>strongbox-storage-maven-layout-provider</module>
-        <module>strongbox-storage-nuget-layout-provider</module>
-        <module>strongbox-storage-p2-layout-provider</module>
+        <module>strongbox-storage-layout-providers</module>
     </modules>
 
 </project>

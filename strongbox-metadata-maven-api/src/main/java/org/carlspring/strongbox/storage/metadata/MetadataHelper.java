@@ -25,7 +25,8 @@ import org.springframework.util.StringUtils;
 public class MetadataHelper
 {
 
-    private static final String MAVEN_METADATA_XML = "maven-metadata.xml";
+    public static final String MAVEN_METADATA_XML = "maven-metadata.xml";
+
     private static SimpleDateFormat LAST_UPDATED_FIELD_FORMATTER;
 
 
