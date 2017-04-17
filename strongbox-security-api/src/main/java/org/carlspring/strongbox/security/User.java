@@ -38,8 +38,8 @@ public class User
     @XmlTransient
     private long seed;
 
-    @XmlElement
-    private Features features;
+    @XmlElement(name = "access-model")
+    private UserAccessModel userAccessModel;
 
     public User()
     {
@@ -137,14 +137,14 @@ public class User
         return roles.contains(role);
     }
 
-    public Features getFeatures()
+    public UserAccessModel getUserAccessModel()
     {
-        return features;
+        return userAccessModel;
     }
 
-    public void setFeatures(Features features)
+    public void setUserAccessModel(UserAccessModel userAccessModel)
     {
-        this.features = features;
+        this.userAccessModel = userAccessModel;
     }
 
     @Override
@@ -166,8 +166,8 @@ public class User
           .append('\'');
         sb.append(", seed=")
           .append(seed);
-        sb.append(", features=")
-          .append(features);
+        sb.append(", userAccessModel=")
+          .append(userAccessModel);
         sb.append('}');
         return sb.toString();
     }

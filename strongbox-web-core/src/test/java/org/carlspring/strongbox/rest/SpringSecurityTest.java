@@ -169,8 +169,8 @@ public class SpringSecurityTest
     }
 
     @Test
-    @WithUserDetails()
-    public void testAuthorities()
+    @WithUserDetails("user")
+    public void testThatUserHasViewUsersPrivilege()
     {
         String userName = "user";
         given().contentType("application/json")
@@ -178,17 +178,21 @@ public class SpringSecurityTest
                .get("/users/user/" + userName)
                .peek()
                .then()
-               .statusCode(200);
+               .statusCode(HttpStatus.OK.value());
+    }
 
+    @Test
+    @WithUserDetails("deployer")
+    public void testThatNewUserCreationIsForbiddenForCertainUser()
+    {
         User user = new User();
-        user.setUsername(userName);
+        user.setUsername("someNewUserName");
         given().contentType("application/json")
                .param("juser", user)
                .when()
                .put("/users/user")
                .peek()
                .then()
-               .statusCode(403);
-
+               .statusCode(HttpStatus.FORBIDDEN.value());
     }
 }

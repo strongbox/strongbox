@@ -13,13 +13,15 @@ import com.google.common.base.Objects;
  *
  * @author Alex Oreshkevich
  */
-public class Features
+public class AccessModel
         extends GenericEntity
 {
 
     private Map<String, Collection<String>> perRepositoryAuthorities;
 
-    public Features()
+    private Map<String, Collection<String>> perRepositoryPaths;
+
+    public AccessModel()
     {
         perRepositoryAuthorities = new HashMap<>();
     }
@@ -29,14 +31,15 @@ public class Features
     {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Features features = (Features) o;
-        return Objects.equal(perRepositoryAuthorities, features.perRepositoryAuthorities);
+        AccessModel that = (AccessModel) o;
+        return Objects.equal(perRepositoryAuthorities, that.perRepositoryAuthorities) &&
+               Objects.equal(perRepositoryPaths, that.perRepositoryPaths);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hashCode(perRepositoryAuthorities);
+        return Objects.hashCode(perRepositoryAuthorities, perRepositoryPaths);
     }
 
     public Map<String, Collection<String>> getPerRepositoryAuthorities()
@@ -49,13 +52,24 @@ public class Features
         this.perRepositoryAuthorities = perRepositoryAuthorities;
     }
 
+    public Map<String, Collection<String>> getPerRepositoryPaths()
+    {
+        return perRepositoryPaths;
+    }
+
+    public void setPerRepositoryPaths(Map<String, Collection<String>> perRepositoryPaths)
+    {
+        this.perRepositoryPaths = perRepositoryPaths;
+    }
 
     @Override
     public String toString()
     {
-        final StringBuilder sb = new StringBuilder("Features{");
+        final StringBuilder sb = new StringBuilder("AccessModel{");
         sb.append("perRepositoryAuthorities=")
           .append(perRepositoryAuthorities);
+        sb.append(", perRepositoryPaths=")
+          .append(perRepositoryPaths);
         sb.append('}');
         return sb.toString();
     }

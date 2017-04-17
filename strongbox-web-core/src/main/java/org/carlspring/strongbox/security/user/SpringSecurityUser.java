@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.security.user;
 
-import org.carlspring.strongbox.users.domain.Features;
+import org.carlspring.strongbox.users.domain.AccessModel;
 import org.carlspring.strongbox.users.domain.User;
 
 import java.util.Collection;
@@ -26,7 +26,7 @@ public class SpringSecurityUser
 
     private Collection<? extends GrantedAuthority> authorities;
 
-    private Features features;
+    private AccessModel accessModel;
 
     private String url;
 
@@ -106,14 +106,14 @@ public class SpringSecurityUser
         this.authorities = authorities;
     }
 
-    public Features getFeatures()
+    public AccessModel getAccessModel()
     {
-        return features;
+        return accessModel;
     }
 
-    public void setFeatures(Features features)
+    public void setAccessModel(AccessModel accessModel)
     {
-        this.features = features;
+        this.accessModel = accessModel;
     }
 
     public String getUrl()
@@ -137,14 +137,14 @@ public class SpringSecurityUser
                Objects.equal(password, user.password) &&
                Objects.equal(salt, user.salt) &&
                Objects.equal(authorities, user.authorities) &&
-               Objects.equal(features, user.features) &&
+               Objects.equal(accessModel, user.accessModel) &&
                Objects.equal(url, user.url);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hashCode(username, password, enabled, salt, authorities, features, url);
+        return Objects.hashCode(username, password, enabled, salt, authorities, accessModel, url);
     }
 
     @Override
@@ -164,8 +164,8 @@ public class SpringSecurityUser
           .append('\'');
         sb.append(", authorities=")
           .append(authorities);
-        sb.append(", features=")
-          .append(features);
+        sb.append(", accessModel=")
+          .append(accessModel);
         sb.append(", url='")
           .append(url)
           .append('\'');

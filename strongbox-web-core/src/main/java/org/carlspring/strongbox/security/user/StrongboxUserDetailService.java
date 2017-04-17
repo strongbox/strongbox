@@ -109,7 +109,7 @@ public class StrongboxUserDetailService
         springUser.setSalt(user.getSalt());
         springUser.setUsername(user.getUsername());
         springUser.setAuthorities(authorities);
-        springUser.setFeatures(user.getFeatures());
+        springUser.setAccessModel(user.getAccessModel());
 
         logger.info("Authorise under " + springUser);
 

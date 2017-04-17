@@ -28,7 +28,7 @@ public class User
 
     private String securityTokenKey;
 
-    private Features features;
+    private AccessModel accessModel;
 
     public User()
     {
@@ -62,13 +62,13 @@ public class User
                Objects.equal(salt, user.salt) &&
                Objects.equal(roles, user.roles) &&
                Objects.equal(securityTokenKey, user.securityTokenKey) &&
-               Objects.equal(features, user.features);
+               Objects.equal(accessModel, user.accessModel);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hashCode(username, password, enabled, salt, roles, securityTokenKey, features);
+        return Objects.hashCode(username, password, enabled, salt, roles, securityTokenKey, accessModel);
     }
 
     public String getUsername()
@@ -131,14 +131,14 @@ public class User
         this.securityTokenKey = securityTokenKey;
     }
 
-    public Features getFeatures()
+    public AccessModel getAccessModel()
     {
-        return features;
+        return accessModel;
     }
 
-    public void setFeatures(Features features)
+    public void setAccessModel(AccessModel accessModel)
     {
-        this.features = features;
+        this.accessModel = accessModel;
     }
 
 
@@ -162,8 +162,8 @@ public class User
         sb.append(", securityTokenKey='")
           .append(securityTokenKey)
           .append('\'');
-        sb.append(", features=")
-          .append(features);
+        sb.append(", accessModel=")
+          .append(accessModel);
         sb.append('}');
         return sb.toString();
     }

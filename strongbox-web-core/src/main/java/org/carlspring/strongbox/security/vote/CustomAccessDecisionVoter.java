@@ -1,7 +1,9 @@
 package org.carlspring.strongbox.security.vote;
 
+import org.carlspring.strongbox.controller.ArtifactController;
 import org.carlspring.strongbox.security.user.SpringSecurityUser;
-import org.carlspring.strongbox.users.domain.Features;
+import org.carlspring.strongbox.users.domain.AccessModel;
+import org.carlspring.strongbox.utils.UrlUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,7 +18,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.web.FilterInvocation;
 
 /**
  * Customization of {@link AccessDecisionVoter} according to custom access strategies for users
@@ -49,25 +50,23 @@ public class CustomAccessDecisionVoter
         this.authentication = authentication;
 
         SpringSecurityUser user = (SpringSecurityUser) authentication.getPrincipal();
-        Features features = user.getFeatures();
-        if (features == null)
+        AccessModel accessModel = user.getAccessModel();
+        if (accessModel == null)
         {
             return vote;
         }
 
-        // save request url during first authentication phase
-        // parse repositoryId from pre-saved during second authentication phase
-        if (object instanceof FilterInvocation)
+        String requestUri = UrlUtils.getRequestUri();
+        if (!requestUri.startsWith(ArtifactController.ROOT_CONTEXT))
         {
-            user.setUrl(((FilterInvocation) object).getRequestUrl());
+            return vote;
         }
-        else if (object instanceof ProxyMethodInvocation)
+
+        String repositoryId;
+        if (object instanceof ProxyMethodInvocation && (repositoryId = UrlUtils.getCurrentRepositoryId()) != null)
         {
-
-            String repositoryId = getRepositoryIdFromUrl(user.getUrl());
-            logger.debug("Load additional repository privileges by ID " + repositoryId);
-
-            Collection<String> privilegeNames = user.getFeatures()
+            logger.debug("Load additional privileges by repository ID " + repositoryId);
+            Collection<String> privilegeNames = user.getAccessModel()
                                                     .getPerRepositoryAuthorities()
                                                     .get(repositoryId);
             if (privilegeNames != null)
@@ -88,25 +87,6 @@ public class CustomAccessDecisionVoter
 
         // do not participate in voting directly
         return vote;
-    }
-
-    @SuppressWarnings("unused")
-    private String getStorageIdFromUrl(String url)
-    {
-        if (!url.startsWith("/"))
-        {
-            url = "/" + url;
-        }
-        return url.split("/")[2];
-    }
-
-    private String getRepositoryIdFromUrl(String url)
-    {
-        if (!url.startsWith("/"))
-        {
-            url = "/" + url;
-        }
-        return url.split("/")[3];
     }
 
     @Override

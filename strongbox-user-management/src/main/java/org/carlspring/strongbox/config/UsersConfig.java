@@ -2,9 +2,11 @@ package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.security.Credentials;
+import org.carlspring.strongbox.security.UserAccessModel;
+import org.carlspring.strongbox.security.UserRepository;
 import org.carlspring.strongbox.security.Users;
 import org.carlspring.strongbox.security.encryption.EncryptionAlgorithms;
-import org.carlspring.strongbox.users.domain.Features;
+import org.carlspring.strongbox.users.domain.AccessModel;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
@@ -170,35 +172,49 @@ public class UsersConfig
         internalUser.setRoles(user.getRoles());
         internalUser.setSalt(user.getSeed() + "");
 
-        // load features
-        org.carlspring.strongbox.security.Features features = user.getFeatures();
-        if (features != null)
+        // load userAccessModel
+        UserAccessModel userAccessModel = user.getUserAccessModel();
+        if (userAccessModel != null)
         {
-            Features internalFeatures = new Features();
-            internalFeatures.setPerRepositoryAuthorities(new HashMap<>());
-            features.getStorages()
-                    .getStorages()
-                    .forEach(
-                            storage -> storage.getRepositories()
-                                              .getRepositories()
-                                              .forEach(
-                                                      repository ->
-                                                      {
-                                                          Set<String> privileges = new HashSet<>();
-                                                          repository.getPrivileges()
-                                                                    .getPrivileges()
-                                                                    .forEach(privilege ->
-                                                                                     privileges.add(privilege.getName()
-                                                                                                             .toUpperCase()));
+            AccessModel internalAccessModel = new AccessModel();
+            internalAccessModel.setPerRepositoryAuthorities(new HashMap<>());
+            internalAccessModel.setPerRepositoryPaths(new HashMap<>());
 
-                                                          internalFeatures.getPerRepositoryAuthorities()
-                                                                          .put(repository.getRepositoryId(),
-                                                                               privileges);
-                                                      }));
-            internalUser.setFeatures(internalFeatures);
+            userAccessModel.getStorages()
+                           .getStorages()
+                           .forEach(storage ->
+                                            storage.getRepositories()
+                                                   .getRepositories()
+                                                   .forEach(repository ->
+                                                                    processRepository(internalAccessModel,
+                                                                                      repository)));
+            internalUser.setAccessModel(internalAccessModel);
         }
 
         return internalUser;
+    }
+
+    private void processRepository(AccessModel internalAccessModel,
+                                   UserRepository repository)
+    {
+        Set<String> privileges = new HashSet<>();
+        repository.getPrivileges()
+                  .getPrivileges()
+                  .forEach(privilege ->
+                                   privileges.add(
+                                           privilege.getName()
+                                                    .toUpperCase()));
+
+        internalAccessModel.getPerRepositoryAuthorities()
+                           .put(repository.getRepositoryId(),
+                                privileges);
+
+        Set<String> grantedPaths = repository.getGrantedPaths();
+        if (grantedPaths != null && !grantedPaths.isEmpty())
+        {
+            internalAccessModel.getPerRepositoryPaths()
+                               .put(repository.getRepositoryId(), grantedPaths);
+        }
     }
 
     private Resource getUsersConfigurationResource()

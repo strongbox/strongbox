@@ -14,14 +14,14 @@ import com.google.common.base.Objects;
  */
 @XmlRootElement(name = "features")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Features
+public class UserAccessModel
         extends GenericEntity
 {
 
     @XmlElement
     private UserStorages storages;
 
-    public Features()
+    public UserAccessModel()
     {
     }
 
@@ -30,8 +30,8 @@ public class Features
     {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Features features = (Features) o;
-        return Objects.equal(storages, features.storages);
+        UserAccessModel userAccessModel = (UserAccessModel) o;
+        return Objects.equal(storages, userAccessModel.storages);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class Features
     @Override
     public String toString()
     {
-        final StringBuilder sb = new StringBuilder("Features{");
+        final StringBuilder sb = new StringBuilder("UserAccessModel{");
         sb.append("storages=")
           .append(storages);
         sb.append('}');

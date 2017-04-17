@@ -12,7 +12,11 @@ import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -144,10 +148,14 @@ public class ConfigurationManagementControllerTest
 
         String url = getContextBaseUrl() + "/configuration/strongbox/storages";
 
+        logger.debug("Using storage class " + storage1.getClass()
+                                                      .getName());
+
         given().contentType(MediaType.APPLICATION_XML_VALUE)
                .body(storage1)
                .when()
                .put(url)
+               .prettyPeek()
                .then()
                .statusCode(200);
 

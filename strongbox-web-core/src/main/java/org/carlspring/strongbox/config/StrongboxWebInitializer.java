@@ -1,17 +1,18 @@
 package org.carlspring.strongbox.config;
 
-import java.util.EnumSet;
+import org.carlspring.strongbox.web.HeaderMappingFilter;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.FilterRegistration.Dynamic;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import java.util.EnumSet;
 
-import org.carlspring.strongbox.web.HeaderMappingFilter;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 import org.springframework.web.filter.DelegatingFilterProxy;
+import org.springframework.web.filter.RequestContextFilter;
 import org.springframework.web.servlet.support.AbstractDispatcherServletInitializer;
 
 public class StrongboxWebInitializer extends AbstractDispatcherServletInitializer
@@ -50,6 +51,8 @@ public class StrongboxWebInitializer extends AbstractDispatcherServletInitialize
         String filterName = "springSecurityFilterChain";
         DelegatingFilterProxy springSecurityFilterChain = new DelegatingFilterProxy(filterName);
         registerFilter(servletContext, false, filterName, springSecurityFilterChain);
+
+        registerFilter(servletContext, false, RequestContextFilter.class.getSimpleName(), new RequestContextFilter());
     }
 
     private final void registerFilter(ServletContext servletContext,

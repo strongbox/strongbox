@@ -40,7 +40,7 @@
             <role>UI_MANAGER</role>
         </roles>
 
-        <features>
+        <access-model>
             <storages>
                 <storage id="storage0">
                     <repositories>
@@ -57,7 +57,7 @@
                     </repositories>
                 </storage>
             </storages>
-        </features>
+        </access-model>
     </user>
     <user>
         <username>developer01</username>
@@ -69,7 +69,7 @@
             <role>UI_MANAGER</role>
         </roles>
 
-        <features>
+        <access-model>
             <storages>
                 <storage id="storage0">
                     <repositories>
@@ -79,10 +79,18 @@
                                     <name>ARTIFACTS_RESOLVE</name>
                                 </privilege>
                             </privileges>
+                            <path-permission>
+                                <permission>r</permission>
+                                <path>com/carlspring/foo/.*</path>
+                            </path-permission>
+                            <path-permission>
+                                <permission>rw</permission>
+                                <path>org/carlspring/foo/.*</path>
+                            </path-permission>
                         </repository>
                     </repositories>
                 </storage>
             </storages>
-        </features>
+        </access-model>
     </user>
 </users>

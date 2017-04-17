@@ -1,15 +1,16 @@
 package org.carlspring.strongbox.config;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
+import org.carlspring.strongbox.utils.CustomAntPathMatcher;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.xml.bind.Marshaller;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
-import org.carlspring.strongbox.utils.CustomAntPathMatcher;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.EnableCaching;
@@ -28,8 +29,6 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.controller",
@@ -96,7 +95,6 @@ public class WebConfig
         marshaller.setPackagesToScan("org.carlspring.strongbox.artifact.coordinates",
                                      "org.carlspring.strongbox.configuration",
                                      "org.carlspring.strongbox.providers.layout.p2",
-                                     "org.carlspring.strongbox.security", 
                                      "org.carlspring.strongbox.storage",
                                      "org.carlspring.strongbox.storage.indexing",
                                      "org.carlspring.strongbox.storage.repository",
