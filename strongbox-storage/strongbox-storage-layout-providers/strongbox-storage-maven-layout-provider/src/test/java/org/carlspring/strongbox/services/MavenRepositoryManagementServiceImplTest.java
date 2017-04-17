@@ -34,6 +34,7 @@ import static org.junit.Assert.assertTrue;
 public class MavenRepositoryManagementServiceImplTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
+
     private static boolean initialized = false;
 
     private static final String STORAGES_BASEDIR = ConfigurationResourceResolver.getVaultDirectory() + "/storages";
@@ -50,7 +51,10 @@ public class MavenRepositoryManagementServiceImplTest
     @Import({ CommonConfig.class,
               StorageCoreConfig.class,
               Maven2LayoutProviderConfig.class })
-    public static class SpringConfig { }
+    public static class SpringConfig
+    {
+
+    }
 
     @BeforeClass
     public static void cleanUp()

@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class P2ArtifactReaderTest

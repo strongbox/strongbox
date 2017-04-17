@@ -34,8 +34,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @ComponentScan({ "org.carlspring.strongbox.controllers",
                  "org.carlspring.strongbox.mapper",
                  "org.carlspring.strongbox.security",
-                 "org.carlspring.strongbox.authentication",
-                 "org.carlspring.strongbox.user",
+                 "org.carlspring.strongbox.users",
                  "org.carlspring.strongbox.utils",
                  "org.carlspring.logging" })
 @Import({ CommonConfig.class,
@@ -102,7 +101,7 @@ public class WebConfig
                                      "org.carlspring.strongbox.storage.repository.aws",
                                      "org.carlspring.strongbox.storage.repository.gcs",
                                      "org.carlspring.strongbox.storage.routing",
-                                     "org.carlspring.strongbox.users.security", 
+                                     "org.carlspring.strongbox.users.security",
                                      "org.carlspring.strongbox.xml");
         Map<String, Object> props = new HashMap<>();
         props.put(Marshaller.JAXB_FORMATTED_OUTPUT, true);

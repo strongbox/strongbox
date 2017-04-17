@@ -9,7 +9,11 @@ import javax.inject.Inject;
 import javax.ws.rs.QueryParam;
 import java.io.IOException;
 
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -34,16 +38,22 @@ public class MavenIndexController
     private ArtifactIndexesService artifactIndexesService;
 
 
-    @ApiOperation(value = "Used to rebuild the indexes in repository or for artifact.", position = 0)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The indexes were successfully rebuilt!"),
-                            @ApiResponse(code = 500, message = "An error occurred."),
-                            @ApiResponse(code = 404, message = "The specified (storageId/repositoryId/path) does not exist!") })
+    @ApiOperation(value = "Used to rebuild the indexes in repository or for artifact.",
+                  position = 0)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "The indexes were successfully rebuilt!"),
+                            @ApiResponse(code = 500,
+                                         message = "An error occurred."),
+                            @ApiResponse(code = 404,
+                                         message = "The specified (storageId/repositoryId/path) does not exist!") })
     @PreAuthorize("hasAuthority('MANAGEMENT_REBUILD_INDEXES')")
     @RequestMapping(method = RequestMethod.POST,
                     produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity rebuild(@ApiParam(value = "The storageId", required = true)
+    public ResponseEntity rebuild(@ApiParam(value = "The storageId",
+                                            required = true)
                                   @QueryParam("storageId") String storageId,
-                                  @ApiParam(value = "The repositoryId", required = true)
+                                  @ApiParam(value = "The repositoryId",
+                                            required = true)
                                   @QueryParam("repositoryId") String repositoryId,
                                   @ApiParam(value = "The path")
                                   @QueryParam("path") String path)
@@ -51,11 +61,13 @@ public class MavenIndexController
     {
         if (storageId != null && getStorage(storageId) == null)
         {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The specified storageId does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                 .body("The specified storageId does not exist!");
         }
         if (repositoryId != null && getRepository(storageId, repositoryId) == null)
         {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The specified repositoryId does not exist!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                 .body("The specified repositoryId does not exist!");
         }
 
         try
@@ -84,7 +96,8 @@ public class MavenIndexController
         {
             logger.error(e.getMessage(), e);
 
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(e.getMessage());
         }
     }
 

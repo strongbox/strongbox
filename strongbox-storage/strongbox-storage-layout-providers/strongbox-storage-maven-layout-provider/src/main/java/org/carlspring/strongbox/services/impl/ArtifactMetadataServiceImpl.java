@@ -91,14 +91,16 @@ public class ArtifactMetadataServiceImpl
     }
 
     @Override
-    public void rebuildMetadata(String storageId, String basePath)
+    public void rebuildMetadata(String storageId,
+                                String basePath)
             throws IOException,
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
         Storage storage = getConfiguration().getStorage(storageId);
 
-        for (Repository repository : storage.getRepositories().values())
+        for (Repository repository : storage.getRepositories()
+                                            .values())
         {
             rebuildMetadata(storageId, repository.getId(), basePath);
         }
@@ -349,14 +351,19 @@ public class ArtifactMetadataServiceImpl
         
         try
         {
-            String version = repositoryPath.getFileName().toString();
+            String version = repositoryPath.getFileName()
+                                           .toString();
             Path path = repositoryPath.getParent();
 
             Metadata metadata = mavenMetadataManager.readMetadata(path);
             if (metadata != null && metadata.getVersioning() != null &&
-                metadata.getVersioning().getVersions().contains(version))
+                metadata.getVersioning()
+                        .getVersions()
+                        .contains(version))
             {
-                metadata.getVersioning().getVersions().remove(version);
+                metadata.getVersioning()
+                        .getVersions()
+                        .remove(version);
                 mavenMetadataManager.storeMetadata(path, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
             }
         }

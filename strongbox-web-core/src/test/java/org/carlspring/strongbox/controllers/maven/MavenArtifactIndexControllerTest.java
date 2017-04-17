@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.controllers.maven;
 
-import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.controllers.context.IntegrationTest;
+import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -59,7 +59,8 @@ public class MavenArtifactIndexControllerTest
         // - testRebuildIndexesInStorage()
         Repository repository1 = new Repository(REPOSITORY_RELEASES_1);
         repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
-        repository1.setStorage(configurationManager.getConfiguration().getStorage(STORAGE_ID));
+        repository1.setStorage(configurationManager.getConfiguration()
+                                                   .getStorage(STORAGE_ID));
         repository1.setIndexingEnabled(true);
 
         createRepository(repository1);
@@ -67,7 +68,8 @@ public class MavenArtifactIndexControllerTest
         // Used by testRebuildIndexesInStorage()
         Repository repository2 = new Repository(REPOSITORY_RELEASES_2);
         repository2.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
-        repository2.setStorage(configurationManager.getConfiguration().getStorage(STORAGE_ID));
+        repository2.setStorage(configurationManager.getConfiguration()
+                                                   .getStorage(STORAGE_ID));
         repository2.setIndexingEnabled(true);
 
         createRepository(repository2);

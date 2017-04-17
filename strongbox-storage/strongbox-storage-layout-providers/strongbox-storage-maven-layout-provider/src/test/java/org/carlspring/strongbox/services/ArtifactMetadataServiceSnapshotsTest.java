@@ -50,7 +50,8 @@ public class ArtifactMetadataServiceSnapshotsTest
 
     @ComponentScan(basePackages = {"org.carlspring.strongbox"})
     @org.springframework.context.annotation.Configuration
-    @Import({ CommonConfig.class, StorageCoreConfig.class })
+    @Import({ CommonConfig.class,
+              StorageCoreConfig.class })
     public static class SpringConfig { }
 
     private static final String REPOSITORY_SNAPSHOTS = "amss-snapshots";

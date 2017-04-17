@@ -3,7 +3,8 @@ package org.carlspring.strongbox.providers.search;
 /**
  * @author carlspring
  */
-public class SearchException extends Exception
+public class SearchException
+        extends Exception
 {
 
 

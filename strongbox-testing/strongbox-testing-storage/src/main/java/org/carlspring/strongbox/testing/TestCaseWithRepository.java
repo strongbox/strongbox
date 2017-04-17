@@ -33,7 +33,8 @@ public class TestCaseWithRepository
         {
             for (Repository repository : repositoriesToClean)
             {
-                removeRepositoryDirectory(repository.getStorage().getId(), repository.getId());
+                removeRepositoryDirectory(repository.getStorage()
+                                                    .getId(), repository.getId());
             }
         }
     }
@@ -56,7 +57,8 @@ public class TestCaseWithRepository
     {
         for (Repository repository : repositoriesToClean)
         {
-            configurationManagementService.removeRepository(repository.getStorage().getId(), repository.getId());
+            configurationManagementService.removeRepository(repository.getStorage()
+                                                                      .getId(), repository.getId());
             if (repository.isIndexingEnabled())
             {
                 // repositoryIndexManager.closeIndexersForRepository(repository.getStorage().getId(), repository.getId());
@@ -84,10 +86,12 @@ public class TestCaseWithRepository
 
         if (!f.exists())
         {
-            if (!f.getParentFile().exists())
+            if (!f.getParentFile()
+                  .exists())
             {
                 //noinspection ResultOfMethodCallIgnored
-                f.getParentFile().mkdirs();
+                f.getParentFile()
+                 .mkdirs();
             }
 
             //noinspection ResultOfMethodCallIgnored

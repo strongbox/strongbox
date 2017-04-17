@@ -319,7 +319,7 @@
 
                                 <port.littleproxy>${port.littleproxy.listen}</port.littleproxy>
                                 <port.unboundid>${port.unboundid}</port.unboundid>
-                                
+
                                 <!-- override jre/lib/net.properties -->
                                 <jdk.http.auth.tunneling.disabledSchemes>none</jdk.http.auth.tunneling.disabledSchemes>
                             </systemPropertyVariables>

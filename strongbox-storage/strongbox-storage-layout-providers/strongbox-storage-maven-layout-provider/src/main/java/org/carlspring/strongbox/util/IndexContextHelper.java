@@ -8,12 +8,16 @@ import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 public class IndexContextHelper
 {
 
-    public static String getContextId(String storageId, String repositoryId, IndexTypeEnum indexType)
+    public static String getContextId(String storageId,
+                                      String repositoryId,
+                                      IndexTypeEnum indexType)
     {
         return getContextId(storageId, repositoryId, indexType.getType());
     }
 
-    public static String getContextId(String storageId, String repositoryId, String indexType)
+    public static String getContextId(String storageId,
+                                      String repositoryId,
+                                      String indexType)
     {
         return storageId + ":" + repositoryId + ":" + indexType;
     }

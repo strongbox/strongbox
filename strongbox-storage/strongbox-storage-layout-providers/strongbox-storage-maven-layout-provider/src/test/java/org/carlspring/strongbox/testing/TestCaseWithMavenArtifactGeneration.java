@@ -30,7 +30,8 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 /**
  * @author mtodorov
  */
-public class TestCaseWithMavenArtifactGeneration extends TestCaseWithRepository
+public class TestCaseWithMavenArtifactGeneration
+        extends TestCaseWithRepository
 {
 
     @Inject
@@ -363,7 +364,8 @@ public class TestCaseWithMavenArtifactGeneration extends TestCaseWithRepository
         return new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/" + storageId + "/" + repositoryId);
     }
 
-    public RepositoryFeatures getFeatures(String storageId, String repositoryId)
+    public RepositoryFeatures getFeatures(String storageId,
+                                          String repositoryId)
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
@@ -373,7 +375,8 @@ public class TestCaseWithMavenArtifactGeneration extends TestCaseWithRepository
         return layoutProvider.getRepositoryFeatures();
     }
 
-    public RepositoryManagementStrategy getManagementStrategy(String storageId, String repositoryId)
+    public RepositoryManagementStrategy getManagementStrategy(String storageId,
+                                                              String repositoryId)
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);

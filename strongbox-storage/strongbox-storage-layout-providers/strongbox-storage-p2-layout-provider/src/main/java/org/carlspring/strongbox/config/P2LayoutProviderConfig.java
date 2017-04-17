@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
                  "org.carlspring.strongbox.providers",
                  "org.carlspring.strongbox.services",
                  "org.carlspring.strongbox.storage",
-})
+               })
 public class P2LayoutProviderConfig
 {
 

@@ -1,28 +1,23 @@
 package org.carlspring.strongbox.controllers;
 
-import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.carlspring.strongbox.controllers.context.IntegrationTest;
+import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.service.UserService;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.List;
 
-import javax.inject.Inject;
-
-import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.controllers.context.IntegrationTest;
-import org.carlspring.strongbox.users.domain.User;
-import org.carlspring.strongbox.users.service.UserService;
+import com.jayway.restassured.http.ContentType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.jayway.restassured.http.ContentType;
+import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.hamcrest.Matchers.containsString;
+import static org.junit.Assert.*;
 
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)

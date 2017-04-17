@@ -9,7 +9,6 @@ import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -75,17 +74,20 @@ public class MavenSnapshotManager
         if (layoutProvider.containsPath(repository, artifactPath))
         {
             logger.debug("Removal of timestamped Maven snapshot artifact " + artifactPath +
-                         " in '" + repository.getStorage().getId() + ":" + repository.getId() + "'.");
+                         " in '" + repository.getStorage()
+                                             .getId() + ":" + repository.getId() + "'.");
 
             Versioning versioning = request.getVersioning();
             Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
 
-            if (!versioning.getVersions().isEmpty())
+            if (!versioning.getVersions()
+                           .isEmpty())
             {
                 for (String version : versioning.getVersions())
                 {
 
-                    Path versionBasePath = Paths.get(request.getArtifactBasePath().toString(),
+                    Path versionBasePath = Paths.get(request.getArtifactBasePath()
+                                                            .toString(),
                                                      ArtifactUtils.getSnapshotBaseVersion(version));
 
                     if (removeTimestampedSnapshot(versionBasePath.toString(), repository, numberToKeep, keepPeriod))
@@ -117,7 +119,8 @@ public class MavenSnapshotManager
                    XmlPullParserException,
                    ParseException
     {
-        String storageId = repository.getStorage().getId();
+        String storageId = repository.getStorage()
+                                     .getId();
         File file = new File(basePath);
 
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);

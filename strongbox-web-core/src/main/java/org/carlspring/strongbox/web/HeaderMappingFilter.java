@@ -1,15 +1,7 @@
 package org.carlspring.strongbox.web;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.Principal;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
+import org.carlspring.strongbox.controllers.maven.MavenArtifactController;
+import org.carlspring.strongbox.controllers.nuget.NugetPackageController;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.DispatcherType;
@@ -28,9 +20,16 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpUpgradeHandler;
 import javax.servlet.http.Part;
-
-import org.carlspring.strongbox.controllers.maven.MavenArtifactController;
-import org.carlspring.strongbox.controllers.nuget.NugetPackageController;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.Principal;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
 import edu.emory.mathcs.backport.java.util.Collections;
@@ -41,7 +40,7 @@ import edu.emory.mathcs.backport.java.util.Collections;
  * &emsp;'user-agent = NuGet Command Line/2.8.60717.93 (Unix 4.4.0.45)'->'NuGet/*'<br>
  * 
  * Such type of mapping is used in storage controllers to map requests according 'user-agent' header type.
- * 
+ *
  * @see {@link MavenArtifactController} {@link NugetPackageController}
  * 
  * @author Sergey Bespalov

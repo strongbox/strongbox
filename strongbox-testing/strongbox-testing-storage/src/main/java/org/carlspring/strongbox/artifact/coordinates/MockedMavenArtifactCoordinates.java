@@ -16,7 +16,8 @@ import org.apache.maven.artifact.handler.DefaultArtifactHandler;
  */
 @XmlRootElement(name = "maven-artifact-coordinates")
 @XmlAccessorType(XmlAccessType.NONE)
-public class MockedMavenArtifactCoordinates extends AbstractArtifactCoordinates
+public class MockedMavenArtifactCoordinates
+        extends AbstractArtifactCoordinates
 {
 
 
@@ -96,7 +97,8 @@ public class MockedMavenArtifactCoordinates extends AbstractArtifactCoordinates
 
         if (artifact.getFile() != null)
         {
-            String extension = artifact.getFile().getAbsolutePath();
+            String extension = artifact.getFile()
+                                       .getAbsolutePath();
             extension = extension.substring(extension.lastIndexOf('.'), extension.length());
 
             setExtension(extension);

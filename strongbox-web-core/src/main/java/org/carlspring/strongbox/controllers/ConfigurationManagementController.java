@@ -12,8 +12,6 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RuleSet;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -26,6 +24,8 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.apache.lucene.queryparser.classic.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

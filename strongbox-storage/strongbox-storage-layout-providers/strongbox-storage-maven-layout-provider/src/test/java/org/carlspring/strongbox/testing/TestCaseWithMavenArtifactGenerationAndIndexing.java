@@ -1,6 +1,10 @@
 package org.carlspring.strongbox.testing;
 
-import org.carlspring.strongbox.config.*;
+import org.carlspring.strongbox.config.ClientConfig;
+import org.carlspring.strongbox.config.CommonConfig;
+import org.carlspring.strongbox.config.DataServiceConfig;
+import org.carlspring.strongbox.config.Maven2LayoutProviderConfig;
+import org.carlspring.strongbox.config.StorageCoreConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
@@ -25,7 +29,11 @@ import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
@@ -180,13 +188,15 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                                           .getRepository(repositoryId)
                                           .isIndexingEnabled())
         {
-            Storage storage = configurationManager.getConfiguration().getStorage(storageId);
+            Storage storage = configurationManager.getConfiguration()
+                                                  .getStorage(storageId);
             Repository repository = storage.getRepository(repositoryId);
 
             LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
             MavenRepositoryFeatures features = (MavenRepositoryFeatures) layoutProvider.getRepositoryFeatures();
 
-            features.reIndex(storageId, repositoryId, ga.replaceAll("\\.", "/").replaceAll("\\:", "\\/"));
+            features.reIndex(storageId, repositoryId, ga.replaceAll("\\.", "/")
+                                                        .replaceAll("\\:", "\\/"));
             features.pack(storageId, repositoryId);
         }
     }
@@ -201,7 +211,8 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                                           .getRepository(repositoryId)
                                           .isIndexingEnabled())
         {
-            Storage storage = configurationManager.getConfiguration().getStorage(storageId);
+            Storage storage = configurationManager.getConfiguration()
+                                                  .getStorage(storageId);
             Repository repository = storage.getRepository(repositoryId);
 
             LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
@@ -243,7 +254,9 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         }
     }
 
-    public void dumpIndex(String storageId, String repositoryId, String indexType)
+    public void dumpIndex(String storageId,
+                          String repositoryId,
+                          String indexType)
             throws IOException
     {
         IndexingContext indexingContext = repositoryIndexManager.getRepositoryIndexer(storageId + ":" +
@@ -279,7 +292,9 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         }
     }
 
-    public void assertIndexContainsArtifact(String storageId, String repositoryId, String query)
+    public void assertIndexContainsArtifact(String storageId,
+                                            String repositoryId,
+                                            String query)
             throws SearchException
     {
         SearchRequest request = new SearchRequest(storageId,

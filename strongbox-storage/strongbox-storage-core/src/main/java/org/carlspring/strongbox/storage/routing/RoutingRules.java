@@ -1,16 +1,15 @@
 package org.carlspring.strongbox.storage.routing;
 
-import java.io.Serializable;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import org.carlspring.strongbox.xml.RuleSetMapAdapter;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
-import org.carlspring.strongbox.xml.RuleSetMapAdapter;
+import java.io.Serializable;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author mtodorov

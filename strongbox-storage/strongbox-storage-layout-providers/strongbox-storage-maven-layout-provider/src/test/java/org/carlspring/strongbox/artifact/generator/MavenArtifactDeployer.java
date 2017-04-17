@@ -4,14 +4,18 @@ import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.client.ArtifactClient;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.client.IArtifactClient;
-import org.carlspring.strongbox.client.ArtifactClient;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.storage.metadata.MetadataMerger;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 

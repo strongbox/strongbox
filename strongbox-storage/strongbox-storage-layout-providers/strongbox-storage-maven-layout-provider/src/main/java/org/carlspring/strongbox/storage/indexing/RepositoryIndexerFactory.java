@@ -2,8 +2,8 @@ package org.carlspring.strongbox.storage.indexing;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.repository.RepositoryInitializationException;
+import org.carlspring.strongbox.services.ArtifactIndexesService;
 
 import javax.inject.Inject;
 import java.io.File;

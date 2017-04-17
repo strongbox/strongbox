@@ -80,8 +80,11 @@ public class MavenIndexerManagementOperation
                 {
                     for (File artifactFile : artifactFiles)
                     {
-                        String extension = artifactFile.getName().substring(artifactFile.getName().lastIndexOf('.') + 1,
-                                                                            artifactFile.getName().length());
+                        String extension = artifactFile.getName()
+                                                       .substring(artifactFile.getName()
+                                                                              .lastIndexOf('.') + 1,
+                                                                  artifactFile.getName()
+                                                                              .length());
 
                         artifact.setFile(artifactFile);
 

@@ -1,29 +1,27 @@
 package org.carlspring.strongbox.controllers;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
+import org.carlspring.strongbox.controllers.context.IntegrationTest;
+import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
+import org.carlspring.strongbox.providers.search.OrientDbSearchProvider;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
 import java.io.File;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
-import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
-import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
-import org.carlspring.strongbox.providers.search.OrientDbSearchProvider;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.controllers.context.IntegrationTest;
-import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Alex Oreshkevich
@@ -91,19 +89,23 @@ public class SearchControllerTest
 
     @Test
     public void testIndexSearches()
-        throws Exception
+            throws Exception
     {
         testSearches("g:org.carlspring.strongbox.searches a:test-project", MavenIndexerSearchProvider.ALIAS);
     }
-    
+
     @Test
     public void testDbSearches()
-        throws Exception
+            throws Exception
     {
-        testSearches("groupId=org.carlspring.strongbox.searches;artifactId=test-project;", OrientDbSearchProvider.ALIAS);
+        testSearches("groupId=org.carlspring.strongbox.searches;artifactId=test-project;",
+                     OrientDbSearchProvider.ALIAS);
     }
-    
-    private void testSearches(String query, String searchProvider) throws Exception {
+
+    private void testSearches(String query,
+                              String searchProvider)
+            throws Exception
+    {
 
         // testSearchPlainText
         String response = client.search(query, MediaType.TEXT_PLAIN_VALUE, searchProvider);

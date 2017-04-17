@@ -8,7 +8,8 @@ import java.io.IOException;
 public interface RepositoryManagementService
 {
 
-    void createRepository(String storageId, String repositoryId)
+    void createRepository(String storageId,
+                          String repositoryId)
             throws IOException;
 
     void removeRepository(String storageId,
