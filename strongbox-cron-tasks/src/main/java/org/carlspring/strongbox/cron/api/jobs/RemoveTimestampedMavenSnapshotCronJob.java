@@ -44,8 +44,8 @@ public class RemoveTimestampedMavenSnapshotCronJob
     {
         logger.debug("Executed RemoveTimestampedMavenSnapshotCronJob.");
 
-        CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap()
-                                                                                  .get("config");
+        CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap().get("config");
+        
         try
         {
             String storageId = config.getProperty("storageId");
@@ -71,15 +71,16 @@ public class RemoveTimestampedMavenSnapshotCronJob
             }
             else
             {
-                artifactManagementService.removeTimestampedSnapshots(storageId, repositoryId,
-                                                                     basePath, numberToKeep,
+                artifactManagementService.removeTimestampedSnapshots(storageId,
+                                                                     repositoryId,
+                                                                     basePath,
+                                                                     numberToKeep,
                                                                      keepPeriod);
             }
         }
         catch (IOException | XmlPullParserException | NoSuchAlgorithmException e)
         {
             logger.error(e.getMessage(), e);
-            manager.addExecutedJob(config.getName(), true);
         }
 
         manager.addExecutedJob(config.getName(), true);
@@ -93,23 +94,28 @@ public class RemoveTimestampedMavenSnapshotCronJob
      * @param keepPeriod   the period to keep artifacts (the number of days)
      * @throws NoSuchAlgorithmException
      * @throws XmlPullParserException
+     * @throws IOException
      */
     private void removeTimestampedSnapshotArtifacts(String storageId,
                                                     int numberToKeep,
                                                     int keepPeriod)
-            throws NoSuchAlgorithmException, XmlPullParserException
+            throws NoSuchAlgorithmException,
+                   XmlPullParserException,
+                   IOException
     {
         Map<String, Repository> repositories = getRepositories(storageId);
 
-        repositories.forEach((k, v) ->
+        repositories.forEach((repositoryId, repository) ->
                              {
-                                 if (v.getPolicy()
-                                      .equals(RepositoryPolicyEnum.SNAPSHOT.getPolicy()))
+                                 if (repository.getPolicy().equals(RepositoryPolicyEnum.SNAPSHOT.getPolicy()))
                                  {
                                      try
                                      {
-                                         artifactManagementService.removeTimestampedSnapshots(storageId, k, null,
-                                                                                              numberToKeep, keepPeriod);
+                                         artifactManagementService.removeTimestampedSnapshots(storageId,
+                                                                                              repositoryId,
+                                                                                              null,
+                                                                                              numberToKeep,
+                                                                                              keepPeriod);
                                      }
                                      catch (IOException e)
                                      {
@@ -117,19 +123,16 @@ public class RemoveTimestampedMavenSnapshotCronJob
                                      }
                                  }
                              });
-
     }
 
     private Map<String, Storage> getStorages()
     {
-        return configurationManager.getConfiguration()
-                                   .getStorages();
+        return configurationManager.getConfiguration().getStorages();
     }
 
     private Map<String, Repository> getRepositories(String storageId)
     {
-        return getStorages().get(storageId)
-                            .getRepositories();
+        return getStorages().get(storageId).getRepositories();
     }
 
 }

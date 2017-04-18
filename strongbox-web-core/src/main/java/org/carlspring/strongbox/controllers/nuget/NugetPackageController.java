@@ -12,12 +12,7 @@ import javax.inject.Inject;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.util.regex.Matcher;
@@ -27,9 +22,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.apache.commons.fileupload.FileUploadBase.FileUploadIOException;
 import org.apache.commons.fileupload.MultipartStream;
-import org.apache.commons.fileupload.MultipartStream.MalformedStreamException;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,11 +35,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.aristar.jnuget.files.TempNupkgFile;
 
 /**
@@ -111,8 +100,10 @@ public class NugetPackageController extends BaseArtifactController
 
             if (packagePartInputStream == null)
             {
-                logger.error(String.format("Failed to extract Nuget package from request: storageId-[%s]; repositoryId-[%s]",
-                                           storageId, repositoryId));
+                logger.error(String.format("Failed to extract Nuget package from request: [%s]:[%s]",
+                                           storageId,
+                                           repositoryId));
+
                 return ResponseEntity.badRequest().build();
             }
 
@@ -120,9 +111,8 @@ public class NugetPackageController extends BaseArtifactController
         }
         catch (Exception e)
         {
-            logger.error(String.format("Failed to process Nuget push request: storageId-[%s]; repositoryId-[%s]",
-                                       storageId, repositoryId),
-                         e);
+            logger.error(String.format("Failed to process Nuget push request: %s:%s", storageId, repositoryId), e);
+
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
 
@@ -182,10 +172,13 @@ public class NugetPackageController extends BaseArtifactController
         }
         catch (Exception e)
         {
-            logger.error(String.format(
-                    "Failed to process Nuget get request: storageId-[%s]; repositoryId-[%s]; packageId-[%s]; version-[%s]",
-                    storageId, repositoryId, packageId, packageVersion),
+            logger.error(String.format("Failed to process Nuget get request: %s:%s:%s:%s",
+                                       storageId,
+                                       repositoryId,
+                                       packageId,
+                                       packageVersion),
                          e);
+
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
@@ -204,12 +197,8 @@ public class NugetPackageController extends BaseArtifactController
 
     private FileInputStream extractPackageMultipartStream(String boundaryString,
                                                           ServletInputStream is)
-        throws IOException,
-        FileNotFoundException,
-        FileUploadIOException,
-        MalformedStreamException
+            throws IOException
     {
-
         if (StringUtils.isEmpty(boundaryString))
         {
             return null;
@@ -228,8 +217,7 @@ public class NugetPackageController extends BaseArtifactController
     private void writePackagePart(String boundaryString,
                                   ServletInputStream is,
                                   FileOutputStream packagePartOutputStream)
-        throws FileUploadIOException,
-        IOException
+        throws IOException
     {
         byte[] boundary = boundaryString.getBytes();
         MultipartStream multipartStream = new MultipartStream(is, boundary);
@@ -261,7 +249,6 @@ public class NugetPackageController extends BaseArtifactController
                              InputStream is)
         throws Exception
     {
-
         try (TempNupkgFile nupkgFile = new TempNupkgFile(is))
         {
             if (nupkgFile.getNuspecFile() == null)
@@ -269,9 +256,13 @@ public class NugetPackageController extends BaseArtifactController
                 return null;
             }
 
-            String path = String.format("%s/%s/%s.%s.nupkg", nupkgFile.getId(), nupkgFile.getVersion(),
-                                        nupkgFile.getId(), nupkgFile.getVersion());
-            artifactManagementService.store(storageId, repositoryId, path, nupkgFile.getStream());
+            String path = String.format("%s/%s/%s.%s.nupkg",
+                                        nupkgFile.getId(),
+                                        nupkgFile.getVersion(),
+                                        nupkgFile.getId(),
+                                        nupkgFile.getVersion());
+
+            getArtifactManagementService().store(storageId, repositoryId, path, nupkgFile.getStream());
 
             File nuspecFile = File.createTempFile(nupkgFile.getId(), "nuspec");
             try (FileOutputStream fileOutputStream = new FileOutputStream(nuspecFile))
@@ -279,15 +270,20 @@ public class NugetPackageController extends BaseArtifactController
                 nupkgFile.getNuspecFile().saveTo(fileOutputStream);
             }
             path = String.format("%s/%s/%s.nuspec", nupkgFile.getId(), nupkgFile.getVersion(), nupkgFile.getId());
-            artifactManagementService.store(storageId, repositoryId, path, new FileInputStream(nuspecFile));
+
+            getArtifactManagementService().store(storageId, repositoryId, path, new FileInputStream(nuspecFile));
 
             File hashFile = File.createTempFile(String.format("%s.%s", nupkgFile.getId(), nupkgFile.getVersion()),
                                                 "nupkg.sha512");
             nupkgFile.getHash().saveTo(hashFile);
 
-            path = String.format("%s/%s/%s.%s.nupkg.sha512", nupkgFile.getId(), nupkgFile.getVersion(),
-                                 nupkgFile.getId(), nupkgFile.getVersion());
-            artifactManagementService.store(storageId, repositoryId, path, new FileInputStream(hashFile));
+            path = String.format("%s/%s/%s.%s.nupkg.sha512",
+                                 nupkgFile.getId(),
+                                 nupkgFile.getVersion(),
+                                 nupkgFile.getId(),
+                                 nupkgFile.getVersion());
+
+            getArtifactManagementService().store(storageId, repositoryId, path, new FileInputStream(hashFile));
         }
 
         return new URI("");
@@ -318,6 +314,7 @@ public class NugetPackageController extends BaseArtifactController
     {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         Authentication authentication = securityContext == null ? null : securityContext.getAuthentication();
+
         return authentication == null ? null : authentication.getName();
     }
 
