@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.aop.ProxyMethodInvocation;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -46,7 +45,9 @@ public class CustomAccessDecisionVoter
                     Object object,
                     Collection collection)
     {
+        // do not participate in voting directly by default
         int vote = ACCESS_ABSTAIN;
+
         this.authentication = authentication;
 
         SpringSecurityUser user = (SpringSecurityUser) authentication.getPrincipal();
@@ -62,30 +63,38 @@ public class CustomAccessDecisionVoter
             return vote;
         }
 
-        String repositoryId;
-        if (object instanceof ProxyMethodInvocation && (repositoryId = UrlUtils.getCurrentRepositoryId()) != null)
+        if (!(object instanceof ProxyMethodInvocation))
         {
-            logger.debug("Load additional privileges by repository ID " + repositoryId);
-            Collection<String> privilegeNames = user.getAccessModel()
-                                                    .getPerRepositoryAuthorities()
-                                                    .get(repositoryId);
-            if (privilegeNames != null)
-            {
-                List<GrantedAuthority> updatedAuthorities = new ArrayList<>(authentication.getAuthorities());
-                privilegeNames.forEach(name ->
-                                       {
-                                           SimpleGrantedAuthority authority = new SimpleGrantedAuthority(name);
-                                           updatedAuthorities.add(authority);
-                                           logger.debug("\tAdd " + name + " privilege...");
-                                       });
-                user.setAuthorities(updatedAuthorities);
-                this.authentication = new UsernamePasswordAuthenticationToken(user,
-                                                                              authentication.getCredentials(),
-                                                                              updatedAuthorities);
-            }
+            return vote;
         }
 
-        // do not participate in voting directly
+        String storageId = UrlUtils.getCurrentStorageId();
+        String repositoryId = UrlUtils.getCurrentRepositoryId();
+        if (storageId == null || repositoryId == null)
+        {
+            return vote;
+        }
+
+        List<GrantedAuthority> authorities = new ArrayList<>(authentication.getAuthorities());
+
+        // assign default repository privileges
+        Collection<String> defaultPrivileges = accessModel.getUrlToPrivilegesMap()
+                                                          .get(storageId + "/" + repositoryId);
+        if (defaultPrivileges != null)
+        {
+            defaultPrivileges.forEach(privilege -> authorities.add(new SimpleGrantedAuthority(privilege)));
+        }
+
+        // assign exact path matching privileges
+        Collection<String> exactPathMatchPrivileges = accessModel.getUrlToPrivilegesMap()
+                                                                 .get(UrlUtils.getRequestUri());
+        if (exactPathMatchPrivileges != null)
+        {
+            exactPathMatchPrivileges.forEach(privilege -> authorities.add(new SimpleGrantedAuthority(privilege)));
+        }
+
+        // TODO assign path-specific privileges (using wildcards like .*)
+
         return vote;
     }
 

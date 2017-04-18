@@ -68,7 +68,6 @@
         <roles>
             <role>UI_MANAGER</role>
         </roles>
-
         <access-model>
             <storages>
                 <storage id="storage0">
@@ -79,14 +78,11 @@
                                     <name>ARTIFACTS_RESOLVE</name>
                                 </privilege>
                             </privileges>
-                            <path-permission>
-                                <permission>r</permission>
-                                <path>com/carlspring/foo/.*</path>
-                            </path-permission>
-                            <path-permission>
-                                <permission>rw</permission>
-                                <path>org/carlspring/foo/.*</path>
-                            </path-permission>
+                            <path-permissions>
+                                <path>pro/redsoft/bar/.*</path>
+                                <path permission="r">com/carlspring/foo/.*</path>
+                                <path permission="rw">org/carlspring/foo/.*</path>
+                            </path-permissions>
                         </repository>
                     </repositories>
                 </storage>

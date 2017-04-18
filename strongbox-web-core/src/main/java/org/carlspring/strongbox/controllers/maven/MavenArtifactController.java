@@ -7,11 +7,9 @@ import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.utils.ArtifactControllerHelper;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBException;
@@ -67,10 +65,6 @@ public class MavenArtifactController
 
     // must be the same as @RequestMapping value on the class definition
     public final static String ROOT_CONTEXT = "/storages";
-
-    @Inject
-    protected MavenMetadataManager mavenMetadataManager;
-
 
     @PreAuthorize("authenticated")
     @RequestMapping(value = "greet",

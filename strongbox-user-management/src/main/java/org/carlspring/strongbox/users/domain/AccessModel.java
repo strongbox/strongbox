@@ -17,13 +17,15 @@ public class AccessModel
         extends GenericEntity
 {
 
-    private Map<String, Collection<String>> perRepositoryAuthorities;
-
-    private Map<String, Collection<String>> perRepositoryPaths;
+    // maps URL tails including wildcards for regular expressions on set of privileges that was assigned
+    // example:
+    //      key:    storage0/act-releases-1/pro/redsoft/bar/.*
+    //      value:  {ARTIFACTS_VIEW, ARTIFACTS_RESOLVE, ARTIFACTS_DEPLOY}
+    private Map<String, Collection<String>> urlToPrivilegesMap;
 
     public AccessModel()
     {
-        perRepositoryAuthorities = new HashMap<>();
+        urlToPrivilegesMap = new HashMap<>();
     }
 
     @Override
@@ -32,44 +34,31 @@ public class AccessModel
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AccessModel that = (AccessModel) o;
-        return Objects.equal(perRepositoryAuthorities, that.perRepositoryAuthorities) &&
-               Objects.equal(perRepositoryPaths, that.perRepositoryPaths);
+        return Objects.equal(urlToPrivilegesMap, that.urlToPrivilegesMap);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hashCode(perRepositoryAuthorities, perRepositoryPaths);
+        return Objects.hashCode(urlToPrivilegesMap);
     }
 
-    public Map<String, Collection<String>> getPerRepositoryAuthorities()
+    public Map<String, Collection<String>> getUrlToPrivilegesMap()
     {
-        return perRepositoryAuthorities;
+        return urlToPrivilegesMap;
     }
 
-    public void setPerRepositoryAuthorities(Map<String, Collection<String>> perRepositoryAuthorities)
+    public void setUrlToPrivilegesMap(Map<String, Collection<String>> urlToPrivilegesMap)
     {
-        this.perRepositoryAuthorities = perRepositoryAuthorities;
-    }
-
-    public Map<String, Collection<String>> getPerRepositoryPaths()
-    {
-        return perRepositoryPaths;
-    }
-
-    public void setPerRepositoryPaths(Map<String, Collection<String>> perRepositoryPaths)
-    {
-        this.perRepositoryPaths = perRepositoryPaths;
+        this.urlToPrivilegesMap = urlToPrivilegesMap;
     }
 
     @Override
     public String toString()
     {
         final StringBuilder sb = new StringBuilder("AccessModel{");
-        sb.append("perRepositoryAuthorities=")
-          .append(perRepositoryAuthorities);
-        sb.append(", perRepositoryPaths=")
-          .append(perRepositoryPaths);
+        sb.append("urlToPrivilegesMap=")
+          .append(urlToPrivilegesMap);
         sb.append('}');
         return sb.toString();
     }

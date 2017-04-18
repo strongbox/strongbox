@@ -6,10 +6,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.HashSet;
-import java.util.Set;
 
 import com.google.common.base.Objects;
 
@@ -29,9 +26,8 @@ public class UserRepository
                   required = true)
     private String repositoryId;
 
-    @XmlElement(name = "path")
-    @XmlElementWrapper(name = "granted-paths")
-    private Set<String> grantedPaths = new HashSet<>();
+    @XmlElement(name = "path-permissions")
+    private UserPathPermissions pathPermissions;
 
     public UserRepository()
     {
@@ -45,13 +41,13 @@ public class UserRepository
         UserRepository that = (UserRepository) o;
         return Objects.equal(privileges, that.privileges) &&
                Objects.equal(repositoryId, that.repositoryId) &&
-               Objects.equal(grantedPaths, that.grantedPaths);
+               Objects.equal(pathPermissions, that.pathPermissions);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hashCode(privileges, repositoryId, grantedPaths);
+        return Objects.hashCode(privileges, repositoryId, pathPermissions);
     }
 
     public Privileges getPrivileges()
@@ -64,6 +60,16 @@ public class UserRepository
         this.privileges = privileges;
     }
 
+    public UserPathPermissions getPathPermissions()
+    {
+        return pathPermissions;
+    }
+
+    public void setPathPermissions(UserPathPermissions pathPermissions)
+    {
+        this.pathPermissions = pathPermissions;
+    }
+
     public String getRepositoryId()
     {
         return repositoryId;
@@ -72,16 +78,6 @@ public class UserRepository
     public void setRepositoryId(String repositoryId)
     {
         this.repositoryId = repositoryId;
-    }
-
-    public Set<String> getGrantedPaths()
-    {
-        return grantedPaths;
-    }
-
-    public void setGrantedPaths(Set<String> grantedPaths)
-    {
-        this.grantedPaths = grantedPaths;
     }
 
     @Override
@@ -93,8 +89,8 @@ public class UserRepository
         sb.append(", repositoryId='")
           .append(repositoryId)
           .append('\'');
-        sb.append(", grantedPaths=")
-          .append(grantedPaths);
+        sb.append(", pathPermissions=")
+          .append(pathPermissions);
         sb.append('}');
         return sb.toString();
     }

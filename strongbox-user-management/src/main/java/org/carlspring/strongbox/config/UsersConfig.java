@@ -3,10 +3,12 @@ package org.carlspring.strongbox.config;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.security.Credentials;
 import org.carlspring.strongbox.security.UserAccessModel;
+import org.carlspring.strongbox.security.UserPathPermissions;
 import org.carlspring.strongbox.security.UserRepository;
 import org.carlspring.strongbox.security.Users;
 import org.carlspring.strongbox.security.encryption.EncryptionAlgorithms;
 import org.carlspring.strongbox.users.domain.AccessModel;
+import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
@@ -16,7 +18,6 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -177,9 +178,6 @@ public class UsersConfig
         if (userAccessModel != null)
         {
             AccessModel internalAccessModel = new AccessModel();
-            internalAccessModel.setPerRepositoryAuthorities(new HashMap<>());
-            internalAccessModel.setPerRepositoryPaths(new HashMap<>());
-
             userAccessModel.getStorages()
                            .getStorages()
                            .forEach(storage ->
@@ -187,6 +185,7 @@ public class UsersConfig
                                                    .getRepositories()
                                                    .forEach(repository ->
                                                                     processRepository(internalAccessModel,
+                                                                                      storage.getStorageId(),
                                                                                       repository)));
             internalUser.setAccessModel(internalAccessModel);
         }
@@ -195,25 +194,44 @@ public class UsersConfig
     }
 
     private void processRepository(AccessModel internalAccessModel,
+                                   String storageId,
                                    UserRepository repository)
     {
-        Set<String> privileges = new HashSet<>();
+        // assign default repository-level privileges set
+        Set<String> defaultPrivileges = new HashSet<>();
+        String key = storageId + "/" + repository.getRepositoryId();
         repository.getPrivileges()
                   .getPrivileges()
-                  .forEach(privilege ->
-                                   privileges.add(
-                                           privilege.getName()
-                                                    .toUpperCase()));
+                  .forEach(privilege -> defaultPrivileges.add(privilege.getName()
+                                                                       .toUpperCase()));
+        internalAccessModel.getUrlToPrivilegesMap()
+                           .put(key, defaultPrivileges);
 
-        internalAccessModel.getPerRepositoryAuthorities()
-                           .put(repository.getRepositoryId(),
-                                privileges);
-
-        Set<String> grantedPaths = repository.getGrantedPaths();
-        if (grantedPaths != null && !grantedPaths.isEmpty())
+        // assign path-specific privileges
+        UserPathPermissions userPathPermissions = repository.getPathPermissions();
+        if (userPathPermissions != null)
         {
-            internalAccessModel.getPerRepositoryPaths()
-                               .put(repository.getRepositoryId(), grantedPaths);
+
+            userPathPermissions
+                    .getPathPermissions()
+                    .forEach(pathPermission ->
+                             {
+                                 Set<String> privileges = translateToPrivileges(pathPermission.getPermission());
+                                 internalAccessModel.getUrlToPrivilegesMap()
+                                                    .put(key + "/" + pathPermission.getPath(), privileges);
+                             });
+        }
+    }
+
+    private Set<String> translateToPrivileges(String permission)
+    {
+        if (permission == null || permission.equalsIgnoreCase("rw"))
+        {
+            return Privileges.rw();
+        }
+        else
+        {
+            return Privileges.r();
         }
     }
 
