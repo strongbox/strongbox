@@ -4,7 +4,7 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.cron.config.JobManager;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.services.RepositoryManagementService;
-import org.carlspring.strongbox.storage.RepositoryInitializationException;
+import org.carlspring.strongbox.repository.RepositoryInitializationException;
 
 import javax.inject.Inject;
 

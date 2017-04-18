@@ -11,7 +11,8 @@ import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -36,7 +37,7 @@ import static org.junit.Assert.*;
 @CronTaskTest
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ClearRepositoryTrashCronJobTest
-        extends TestCaseWithArtifactGenerationAndIndexing
+        extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     private static final String STORAGE1 = "storage1";
@@ -142,6 +143,7 @@ public class ClearRepositoryTrashCronJobTest
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2));
         repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_RELEASES_1));
+
         return repositories;
     }
 
@@ -158,7 +160,9 @@ public class ClearRepositoryTrashCronJobTest
         cronTaskConfiguration.addProperty("repositoryId", repositoryId);
 
         cronTaskConfigurationService.saveConfiguration(cronTaskConfiguration);
+
         CronTaskConfiguration obj = cronTaskConfigurationService.findOne(name);
+
         assertNotNull(obj);
     }
 
@@ -200,8 +204,7 @@ public class ClearRepositoryTrashCronJobTest
         addRebuildCronJobConfig(jobName, STORAGE0, REPOSITORY_RELEASES_1);
 
         //Checking if job was executed
-        while (!jobManager.getExecutedJobs()
-                          .containsKey(jobName))
+        while (!jobManager.getExecutedJobs().containsKey(jobName))
         {
             Thread.sleep(8000);
         }
@@ -251,8 +254,7 @@ public class ClearRepositoryTrashCronJobTest
         addRebuildCronJobConfig(jobName, null, null);
 
         //Checking if job was executed
-        while (!jobManager.getExecutedJobs()
-                          .containsKey(jobName))
+        while (!jobManager.getExecutedJobs().containsKey(jobName))
         {
             Thread.sleep(8000);
         }

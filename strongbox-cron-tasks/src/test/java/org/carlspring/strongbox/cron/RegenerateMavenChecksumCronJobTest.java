@@ -11,7 +11,7 @@ import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.util.FileUtils;
 
 import javax.annotation.PostConstruct;
@@ -37,7 +37,7 @@ import static org.junit.Assert.*;
 @CronTaskTest
 @RunWith(SpringJUnit4ClassRunner.class)
 public class RegenerateMavenChecksumCronJobTest
-        extends TestCaseWithArtifactGenerationAndIndexing
+        extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     private static final String STORAGE1 = "storage1";
@@ -208,11 +208,9 @@ public class RegenerateMavenChecksumCronJobTest
                                      .toString());
 
         assertTrue("The checksum file for artifact doesn't exist!",
-                   new File(snapshotArtifact_1.getFile()
-                                              .getAbsolutePath() + ".sha1").exists());
+                   new File(snapshotArtifact_1.getFile().getAbsolutePath() + ".sha1").exists());
         assertTrue("The checksum file for artifact is empty!",
-                   new File(snapshotArtifact_1.getFile()
-                                              .getAbsolutePath() + ".sha1").length() > 0);
+                   new File(snapshotArtifact_1.getFile().getAbsolutePath() + ".sha1").length() > 0);
 
         assertTrue("The checksum file for artifact doesn't exist!",
                    new File(snapshotArtifact_1.getFile()
@@ -279,18 +277,14 @@ public class RegenerateMavenChecksumCronJobTest
                                      .toString());
 
         assertTrue("The checksum file for artifact doesn't exist!",
-                   new File(snapshotArtifact_2.getFile()
-                                              .getAbsolutePath() + ".sha1").exists());
+                   new File(snapshotArtifact_2.getFile().getAbsolutePath() + ".sha1").exists());
         assertTrue("The checksum file for artifact is empty!",
-                   new File(snapshotArtifact_2.getFile()
-                                              .getAbsolutePath() + ".sha1").length() > 0);
+                   new File(snapshotArtifact_2.getFile().getAbsolutePath() + ".sha1").length() > 0);
 
         assertTrue("The checksum file for artifact doesn't exist!",
-                   new File(snapshotArtifact_2.getFile()
-                                              .getAbsolutePath() + ".md5").exists());
+                   new File(snapshotArtifact_2.getFile().getAbsolutePath() + ".md5").exists());
         assertTrue("The checksum file for artifact is empty!",
-                   new File(snapshotArtifact_2.getFile()
-                                              .getAbsolutePath() + ".md5").length() > 0);
+                   new File(snapshotArtifact_2.getFile().getAbsolutePath() + ".md5").length() > 0);
 
         assertTrue("The checksum file for pom file doesn't exist!",
                    new File(snapshotArtifact_2.getFile()
@@ -334,8 +328,7 @@ public class RegenerateMavenChecksumCronJobTest
         addRegenerateCronJobConfig(jobName, STORAGE0, null, null, false);
 
         //Checking if job was executed
-        while (!jobManager.getExecutedJobs()
-                          .containsKey(jobName))
+        while (!jobManager.getExecutedJobs().containsKey(jobName))
         {
             Thread.sleep(8000);
         }

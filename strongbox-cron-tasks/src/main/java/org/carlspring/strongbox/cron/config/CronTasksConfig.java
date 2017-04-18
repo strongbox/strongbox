@@ -6,7 +6,7 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.config.DataServiceConfig;
-import org.carlspring.strongbox.config.StorageApiConfig;
+import org.carlspring.strongbox.config.StorageCoreConfig;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -30,10 +30,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 @Configuration
-@ComponentScan({ "org.carlspring.strongbox.cron"
-               })
+@ComponentScan({ "org.carlspring.strongbox.cron" })
 @Import({ DataServiceConfig.class,
-          StorageApiConfig.class
+          StorageCoreConfig.class
         })
 @EnableWebMvc
 public class CronTasksConfig
@@ -54,7 +53,6 @@ public class CronTasksConfig
         return schedulerFactoryBean;
     }
 
-    // Custom job factory of spring with DI support for @Autowired
     @Bean
     public SpringBeanJobFactory springBeanJobFactory()
     {

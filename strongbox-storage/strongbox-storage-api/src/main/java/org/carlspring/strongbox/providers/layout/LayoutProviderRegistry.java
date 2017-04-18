@@ -1,9 +1,9 @@
 package org.carlspring.strongbox.providers.layout;
 
 import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.AbstractMappedProviderRegistry;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
@@ -28,7 +28,7 @@ public class LayoutProviderRegistry extends AbstractMappedProviderRegistry<Layou
     private static final Logger logger = LoggerFactory.getLogger(LayoutProviderRegistry.class);
 
     @Inject
-    private ConfigurationManager configurationManager;
+    private ConfigurationManagementService configurationManagementService;
 
 
     public LayoutProviderRegistry()
@@ -140,24 +140,14 @@ public class LayoutProviderRegistry extends AbstractMappedProviderRegistry<Layou
         return layoutProviderRegistry.getProvider(repository.getLayout());
     }
 
-    public ConfigurationManager getConfigurationManager()
-    {
-        return configurationManager;
-    }
-
-    public void setConfigurationManager(ConfigurationManager configurationManager)
-    {
-        this.configurationManager = configurationManager;
-    }
-
     public Configuration getConfiguration()
     {
-        return configurationManager.getConfiguration();
+        return configurationManagementService.getConfiguration();
     }
 
     public Storage getStorage(String storageId)
     {
-        return configurationManager.getConfiguration().getStorage(storageId);
+        return configurationManagementService.getConfiguration().getStorage(storageId);
     }
 
 }

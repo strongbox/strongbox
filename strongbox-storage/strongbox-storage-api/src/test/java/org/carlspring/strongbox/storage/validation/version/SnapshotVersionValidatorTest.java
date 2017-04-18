@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.storage.validation.version;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.MockedMavenArtifactCoordinates;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
@@ -42,12 +42,12 @@ public class SnapshotVersionValidatorTest
         Artifact validArtifact5 = generateArtifact("1.0.8-20151025.032208-1");
         Artifact validArtifact6 = generateArtifact("1.0.8-alpha-1-20151025.032208-1");
 
-        ArtifactCoordinates coordinates1 = new MavenArtifactCoordinates(validArtifact1);
-        ArtifactCoordinates coordinates2 = new MavenArtifactCoordinates(validArtifact2);
-        ArtifactCoordinates coordinates3 = new MavenArtifactCoordinates(validArtifact3);
-        ArtifactCoordinates coordinates4 = new MavenArtifactCoordinates(validArtifact4);
-        ArtifactCoordinates coordinates5 = new MavenArtifactCoordinates(validArtifact5);
-        ArtifactCoordinates coordinates6 = new MavenArtifactCoordinates(validArtifact6);
+        ArtifactCoordinates coordinates1 = new MockedMavenArtifactCoordinates(validArtifact1);
+        ArtifactCoordinates coordinates2 = new MockedMavenArtifactCoordinates(validArtifact2);
+        ArtifactCoordinates coordinates3 = new MockedMavenArtifactCoordinates(validArtifact3);
+        ArtifactCoordinates coordinates4 = new MockedMavenArtifactCoordinates(validArtifact4);
+        ArtifactCoordinates coordinates5 = new MockedMavenArtifactCoordinates(validArtifact5);
+        ArtifactCoordinates coordinates6 = new MockedMavenArtifactCoordinates(validArtifact6);
 
         validator.validate(repository, coordinates1);
         validator.validate(repository, coordinates2);
@@ -67,14 +67,15 @@ public class SnapshotVersionValidatorTest
         Artifact invalidArtifact3 = generateArtifact("1.0.1");
         Artifact invalidArtifact4 = generateArtifact("1.0.1-alpha");
 
-        ArtifactCoordinates coordinates1 = new MavenArtifactCoordinates(invalidArtifact1);
-        ArtifactCoordinates coordinates2 = new MavenArtifactCoordinates(invalidArtifact2);
-        ArtifactCoordinates coordinates3 = new MavenArtifactCoordinates(invalidArtifact3);
-        ArtifactCoordinates coordinates4 = new MavenArtifactCoordinates(invalidArtifact4);
+        ArtifactCoordinates coordinates1 = new MockedMavenArtifactCoordinates(invalidArtifact1);
+        ArtifactCoordinates coordinates2 = new MockedMavenArtifactCoordinates(invalidArtifact2);
+        ArtifactCoordinates coordinates3 = new MockedMavenArtifactCoordinates(invalidArtifact3);
+        ArtifactCoordinates coordinates4 = new MockedMavenArtifactCoordinates(invalidArtifact4);
 
         try
         {
             validator.validate(repository, coordinates1);
+
             fail("Incorrectly validated artifact with version 1!");
         }
         catch (VersionValidationException e)
@@ -84,6 +85,7 @@ public class SnapshotVersionValidatorTest
         try
         {
             validator.validate(repository, coordinates2);
+
             fail("Incorrectly validated artifact with version 1.0!");
         }
         catch (VersionValidationException e)
@@ -93,6 +95,7 @@ public class SnapshotVersionValidatorTest
         try
         {
             validator.validate(repository, coordinates3);
+
             fail("Incorrectly validated artifact with version 1.0.1!");
         }
         catch (VersionValidationException e)
@@ -102,6 +105,7 @@ public class SnapshotVersionValidatorTest
         try
         {
             validator.validate(repository, coordinates4);
+
             fail("Incorrectly validated artifact with version 1.0.1!");
         }
         catch (VersionValidationException e)

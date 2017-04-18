@@ -33,3 +33,4 @@ To accept, please:
 | Sergey Bespalov              |                                          | Novosibirsk, Russia                     | 2016-11-02 |
 | Sergey Panov                 |                                          | Kiev, Ukraine                           | 2016-11-02 |
 | Nenko Tabakov                |                                          | Sofia, Bulgaria                         | 2016-11-07 |
+| Przemyslaw Fusik             | SensiLabs                                | Maszewo, Poland                         | 2017-04-09 |

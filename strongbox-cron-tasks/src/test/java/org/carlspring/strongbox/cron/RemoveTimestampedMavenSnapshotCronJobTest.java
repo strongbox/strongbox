@@ -11,7 +11,7 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -39,7 +39,7 @@ import static org.junit.Assert.*;
 @CronTaskTest
 @RunWith(SpringJUnit4ClassRunner.class)
 public class RemoveTimestampedMavenSnapshotCronJobTest
-        extends TestCaseWithArtifactGenerationAndIndexing
+        extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     private static final String STORAGE1 = "storage1";
@@ -144,6 +144,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTest
                                       null,
                                       2,
                                       timestamp);
+
             initialized = true;
         }
     }
@@ -215,7 +216,11 @@ public class RemoveTimestampedMavenSnapshotCronJobTest
                                                 ARTIFACT_BASE_PATH_STRONGBOX_TIMESTAMPED);
 
 
-        addRemoveCronJobConfig(jobName, STORAGE0, REPOSITORY_SNAPSHOTS_1, ARTIFACT_BASE_PATH_STRONGBOX_TIMESTAMPED, 1,
+        addRemoveCronJobConfig(jobName,
+                               STORAGE0,
+                               REPOSITORY_SNAPSHOTS_1,
+                               ARTIFACT_BASE_PATH_STRONGBOX_TIMESTAMPED,
+                               1,
                                0);
 
         //Checking if job was executed
@@ -251,14 +256,12 @@ public class RemoveTimestampedMavenSnapshotCronJobTest
         addRemoveCronJobConfig(jobName, STORAGE0, REPOSITORY_SNAPSHOTS_1, null, 1, 0);
 
         //Checking if job was executed
-        while (!jobManager.getExecutedJobs()
-                          .containsKey(jobName))
+        while (!jobManager.getExecutedJobs().containsKey(jobName))
         {
             Thread.sleep(8000);
         }
 
-        System.out.println(jobManager.getExecutedJobs()
-                                     .toString());
+        System.out.println(jobManager.getExecutedJobs().toString());
 
         assertEquals("Amount of timestamped snapshots doesn't equal 1.", 1,
                      file.listFiles(new JarFilenameFilter()).length);

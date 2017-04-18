@@ -9,7 +9,7 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.testing.TestCaseWithArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -38,7 +38,7 @@ import static org.junit.Assert.assertNull;
 @CronTaskTest
 @RunWith(SpringJUnit4ClassRunner.class)
 public class RebuildMavenMetadataCronJobTest
-        extends TestCaseWithArtifactGenerationAndIndexing
+        extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     private static final String STORAGE1 = "storage1";
@@ -137,6 +137,7 @@ public class RebuildMavenMetadataCronJobTest
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS));
         repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_RELEASES));
+
         return repositories;
     }
 
@@ -324,4 +325,5 @@ public class RebuildMavenMetadataCronJobTest
 
         deleteRebuildCronJobConfig(jobName);
     }
+
 }

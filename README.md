@@ -58,7 +58,7 @@ Welcome to the Strongbox Maven artifact repository manager's home.
 * Event handling
 
 # Requirements:
-* Java 1.8.x (<=1.8.0_102)
+* Java 1.8.x
 * Maven 3.3.9 (or higher)
 
 # Download

@@ -1,9 +1,9 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import org.carlspring.strongbox.data.domain.GenericEntity;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.carlspring.strongbox.data.domain.GenericEntity;
 
 /**
  * @author carlspring
@@ -23,6 +23,12 @@ public abstract class AbstractArtifactCoordinates
     public AbstractArtifactCoordinates(Map<String, String> coordinates)
     {
         this.coordinates = coordinates;
+    }
+    
+    @Override
+    public String getUuid()
+    {
+        return toPath();
     }
 
     public void defineCoordinates(String... coordinates)
