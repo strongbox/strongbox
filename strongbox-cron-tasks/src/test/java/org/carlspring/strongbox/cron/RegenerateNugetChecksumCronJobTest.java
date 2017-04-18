@@ -400,7 +400,7 @@ public class RegenerateNugetChecksumCronJobTest
         }
     }
 
-    private void removeRepositories(Set<Repository> repositoriesToClean)
+    public void removeRepositories(Set<Repository> repositoriesToClean)
             throws IOException, JAXBException
     {
         for (Repository repository : repositoriesToClean)
@@ -415,7 +415,7 @@ public class RegenerateNugetChecksumCronJobTest
         }
     }
 
-    private static Repository createRepositoryMock(String storageId,
+    public static Repository createRepositoryMock(String storageId,
                                                    String repositoryId)
     {
         // This is no the real storage, but has a matching ID.

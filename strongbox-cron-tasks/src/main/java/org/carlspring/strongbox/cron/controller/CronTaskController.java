@@ -53,14 +53,14 @@ public class CronTaskController
     @Inject
     OObjectDatabaseTx databaseTx;
 
+
     @ApiOperation(value = "Used to save the configuration", position = 0)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The configuration was saved successfully."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
-    @RequestMapping(
-            value = "/cron",
-            method = RequestMethod.PUT,
-            consumes = { MediaType.APPLICATION_JSON,
-                         MediaType.APPLICATION_XML }
+    @RequestMapping(value = "/cron",
+                    method = RequestMethod.PUT,
+                    consumes = { MediaType.APPLICATION_JSON,
+                                 MediaType.APPLICATION_XML }
     )
     public ResponseEntity saveConfiguration(@RequestBody CronTaskConfiguration cronTaskConfiguration)
     {
@@ -127,15 +127,16 @@ public class CronTaskController
     @ApiOperation(value = "Used to get the configuration on given cron task name", position = 2)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The configuration retrieved successfully."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
-    @RequestMapping(value = "/cron", method = RequestMethod.GET, produces = { MediaType.APPLICATION_JSON,
-                                                                              MediaType.APPLICATION_XML })
+    @RequestMapping(value = "/cron",
+                    method = RequestMethod.GET,
+                    produces = { MediaType.APPLICATION_JSON,
+                                 MediaType.APPLICATION_XML })
     public ResponseEntity getConfiguration(@RequestParam("name") String name)
     {
         CronTaskConfiguration config = cronTaskConfigurationService.findOne(name);
         if (config == null)
         {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                 .body("Cron task config not found by this name!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cron task config not found by this name!");
         }
 
         try
@@ -152,15 +153,16 @@ public class CronTaskController
     @ApiOperation(value = "Used to get list of all the configurations", position = 3)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The all configurations retrieved successfully."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
-    @RequestMapping(value = "/", method = RequestMethod.GET, produces = { MediaType.APPLICATION_JSON,
-                                                                          MediaType.APPLICATION_XML })
+    @RequestMapping(value = "/",
+                    method = RequestMethod.GET,
+                    produces = { MediaType.APPLICATION_JSON,
+                                 MediaType.APPLICATION_XML })
     public ResponseEntity getConfigurations()
     {
         List<CronTaskConfiguration> configList = cronTaskConfigurationService.getConfigurations();
         if (configList == null || configList.isEmpty())
         {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                 .body("There are no cron task configs");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("There are no cron task configs");
         }
 
         return ResponseEntity.ok(configList);
@@ -177,18 +179,18 @@ public class CronTaskController
         String fileName = request.getHeader("fileName");
         if (!fileName.endsWith(".groovy"))
         {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                 .body("Uploaded file must be groovy");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The uploaded file must be a Groovy one!");
         }
 
         CronTaskConfiguration cronTaskConfiguration = cronTaskConfigurationService.findOne(cronName);
         if (cronTaskConfiguration == null)
         {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                 .body("Configuration not found by this name!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Configuration not found by this name!");
         }
+
         logger.info(">> CRON NAME: " + cronTaskConfiguration.getName());
         logger.info(">> Properties: " + cronTaskConfiguration.getProperties());
+
         String path = ConfigurationResourceResolver.getVaultDirectory() + "/etc/conf/cron/groovy";
 
         cronTaskConfiguration.addProperty("fileName", fileName);
@@ -203,6 +205,7 @@ public class CronTaskController
         catch (Exception e)
         {
             logger.error(e.getMessage(), e);
+
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
 
@@ -212,8 +215,10 @@ public class CronTaskController
     @ApiOperation(value = "Used to get all groovy scripts names", position = 5)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The groovy scripts named retrieved successfully."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
-    @RequestMapping(value = "/groovy/names", method = RequestMethod.GET, produces = { MediaType.APPLICATION_JSON,
-                                                                                      MediaType.APPLICATION_XML })
+    @RequestMapping(value = "/groovy/names",
+                    method = RequestMethod.GET,
+                    produces = { MediaType.APPLICATION_JSON,
+                                 MediaType.APPLICATION_XML })
     public ResponseEntity getGroovyScriptsName()
     {
         GroovyScriptNames groovyScriptNames = cronTaskConfigurationService.getGroovyScriptsName();
@@ -252,4 +257,5 @@ public class CronTaskController
             throw new CronTaskException(e);
         }
     }
+
 }

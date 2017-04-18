@@ -92,19 +92,18 @@ public class ClearRepositoryTrashCronJobTest
         if (!initialized)
         {
             repository1 = new Repository(REPOSITORY_RELEASES_1);
-            repository1.setStorage(configurationManager.getConfiguration()
-                                                       .getStorage(STORAGE0));
+            repository1.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
             repository1.setAllowsForceDeletion(false);
             repository1.setTrashEnabled(true);
             repository1.setIndexingEnabled(false);
+
             createRepository(repository1);
 
             generateArtifact(REPOSITORY_RELEASES_BASEDIR_1.getAbsolutePath(),
                              "org.carlspring.strongbox.clear:strongbox-test-one:1.0:jar");
 
             repository2 = new Repository(REPOSITORY_RELEASES_2);
-            repository2.setStorage(configurationManager.getConfiguration()
-                                                       .getStorage(STORAGE0));
+            repository2.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
             repository2.setAllowsForceDeletion(false);
             repository2.setTrashEnabled(true);
             repository2.setIndexingEnabled(false);
@@ -116,8 +115,7 @@ public class ClearRepositoryTrashCronJobTest
             createStorage(new Storage(STORAGE1));
 
             repository3 = new Repository(REPOSITORY_RELEASES_1);
-            repository3.setStorage(configurationManager.getConfiguration()
-                                                       .getStorage(STORAGE1));
+            repository3.setStorage(configurationManager.getConfiguration().getStorage(STORAGE1));
             repository3.setAllowsForceDeletion(false);
             repository3.setTrashEnabled(true);
             repository3.setIndexingEnabled(false);

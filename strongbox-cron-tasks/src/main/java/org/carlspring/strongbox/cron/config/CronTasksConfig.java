@@ -45,6 +45,7 @@ public class CronTasksConfig
     @Inject
     ApplicationContext applicationContext;
 
+
     @Bean
     public SchedulerFactoryBean schedulerFactoryBean()
     {
@@ -58,6 +59,7 @@ public class CronTasksConfig
     {
         AutowiringSpringBeanJobFactory jobFactory = new AutowiringSpringBeanJobFactory();
         jobFactory.setApplicationContext(applicationContext);
+
         return jobFactory;
     }
 
@@ -67,9 +69,7 @@ public class CronTasksConfig
     {
         // register all domain entities
         databaseTx.activateOnCurrentThread();
-        databaseTx.getEntityManager()
-                  .registerEntityClasses(CronTaskConfiguration.class.getPackage()
-                                                                    .getName());
+        databaseTx.getEntityManager().registerEntityClasses(CronTaskConfiguration.class.getPackage().getName());
     }
 
     @Override

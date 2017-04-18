@@ -8,10 +8,10 @@ import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.services.ArtifactSearchService;
-import org.carlspring.strongbox.storage.indexing.SearchRequest;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGeneration;
+import org.carlspring.strongbox.storage.search.SearchRequest;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -35,7 +35,7 @@ import static org.junit.Assert.*;
 @CronTaskTest
 @RunWith(SpringJUnit4ClassRunner.class)
 public class RebuildMavenIndexesCronJobTest
-        extends TestCaseWithMavenArtifactGeneration
+        extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     private static final String STORAGE1 = "storage1";
@@ -58,7 +58,7 @@ public class RebuildMavenIndexesCronJobTest
 
     private static final String ARTIFACT_BASE_PATH_STRONGBOX_INDEXES = "org/carlspring/strongbox/indexes/strongbox-test-one";
 
-    private static boolean initialized;
+    private static boolean INITIALIZED;
 
     @Inject
     private CronTaskConfigurationService cronTaskConfigurationService;
@@ -83,7 +83,7 @@ public class RebuildMavenIndexesCronJobTest
     public void initialize()
             throws Exception
     {
-        if (!initialized)
+        if (!INITIALIZED)
         {
             createRepository(STORAGE0, REPOSITORY_RELEASES_1, RepositoryPolicyEnum.RELEASE.getPolicy(), true);
 
@@ -104,7 +104,8 @@ public class RebuildMavenIndexesCronJobTest
 
             generateArtifact(REPOSITORY_RELEASES_BASEDIR_3.getAbsolutePath(),
                              "org.carlspring.strongbox.indexes:strongbox-test-one:1.0:jar");
-            initialized = true;
+
+            INITIALIZED = true;
         }
     }
 
@@ -121,6 +122,7 @@ public class RebuildMavenIndexesCronJobTest
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2));
         repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_RELEASES_1));
+
         return repositories;
     }
 

@@ -4,13 +4,11 @@ import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
 import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
-import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGeneration;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.users.domain.Roles;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -220,19 +218,6 @@ public abstract class RestAssuredBaseTest
                                                            packaging,
                                                            classifiers,
                                                            numberOfBuilds);
-    }
-
-    protected void createStorage(String storageId)
-            throws IOException, JAXBException
-    {
-        createStorage(new Storage(storageId));
-    }
-
-    protected void createStorage(Storage storage)
-            throws IOException, JAXBException
-    {
-        configurationManagementService.saveStorage(storage);
-        storageManagementService.createStorage(storage);
     }
 
 }

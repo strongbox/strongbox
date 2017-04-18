@@ -3,8 +3,13 @@ package org.carlspring.strongbox.cron.api.jobs;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.cron.config.JobManager;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
-import org.carlspring.strongbox.services.RepositoryManagementService;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.RepositoryInitializationException;
+import org.carlspring.strongbox.services.ConfigurationManagementService;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 
@@ -23,10 +28,14 @@ public class DownloadRemoteIndexCronJob
     private final Logger logger = LoggerFactory.getLogger(DownloadRemoteIndexCronJob.class);
 
     @Inject
-    private RepositoryManagementService repositoryManagementService;
+    private ConfigurationManagementService configurationManagementService;
+
+    @Inject
+    private LayoutProviderRegistry layoutProviderRegistry;
 
     @Inject
     private JobManager manager;
+
 
     @Override
     protected void executeInternal(JobExecutionContext jobExecutionContext)
@@ -34,15 +43,20 @@ public class DownloadRemoteIndexCronJob
     {
         logger.debug("Executed DownloadRemoteIndexCronJob.");
 
-        CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap()
-                                                                                  .get("config");
+        CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap().get("config");
+
         try
         {
             String storageId = config.getProperty("storageId");
             String repositoryId = config.getProperty("repositoryId");
 
-            repositoryManagementService.downloadRemoteIndex(storageId, repositoryId);
+            Storage storage = configurationManagementService.getConfiguration().getStorage(storageId);
+            Repository repository = storage.getRepository(repositoryId);
 
+            LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+            MavenRepositoryFeatures features = (MavenRepositoryFeatures) layoutProvider.getRepositoryFeatures();
+
+            features.downloadRemoteIndex(storageId, repositoryId);
         }
         catch (ArtifactTransportException | RepositoryInitializationException e)
         {

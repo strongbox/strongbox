@@ -27,6 +27,7 @@ public class RebuildMavenIndexesCronJob
     @Inject
     private JobManager manager;
 
+
     @Override
     protected void executeInternal(JobExecutionContext jobExecutionContext)
             throws JobExecutionException
@@ -50,7 +51,7 @@ public class RebuildMavenIndexesCronJob
             }
             else
             {
-                artifactIndexesService.rebuildIndexes(storageId, repositoryId, basePath);
+                artifactIndexesService.rebuildIndex(storageId, repositoryId, basePath);
             }
         }
         catch (IOException e)
@@ -61,4 +62,5 @@ public class RebuildMavenIndexesCronJob
 
         manager.addExecutedJob(config.getName(), true);
     }
+
 }
