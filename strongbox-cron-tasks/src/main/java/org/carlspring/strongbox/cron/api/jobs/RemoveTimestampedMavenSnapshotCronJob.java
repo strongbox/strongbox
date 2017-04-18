@@ -9,6 +9,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
@@ -28,6 +29,7 @@ public class RemoveTimestampedMavenSnapshotCronJob
 
     private final Logger logger = LoggerFactory.getLogger(RemoveTimestampedMavenSnapshotCronJob.class);
 
+    @Named("mavenArtifactManagementService")
     @Inject
     private ArtifactManagementService artifactManagementService;
 
@@ -45,7 +47,7 @@ public class RemoveTimestampedMavenSnapshotCronJob
         logger.debug("Executed RemoveTimestampedMavenSnapshotCronJob.");
 
         CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap().get("config");
-        
+
         try
         {
             String storageId = config.getProperty("storageId");

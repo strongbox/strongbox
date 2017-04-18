@@ -5,6 +5,7 @@ import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.IOException;
 
 import org.quartz.JobExecutionContext;
@@ -21,6 +22,7 @@ public class ClearRepositoryTrashCronJob
 
     private final Logger logger = LoggerFactory.getLogger(ClearRepositoryTrashCronJob.class);
 
+    @Named("mavenArtifactManagementService")
     @Inject
     private ArtifactManagementService artifactManagementService;
 
@@ -33,8 +35,7 @@ public class ClearRepositoryTrashCronJob
     {
         logger.debug("Executed ClearRepositoryTrashCronJob.");
 
-        CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap()
-                                                                                  .get("config");
+        CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap().get("config");
 
         try
         {
@@ -43,11 +44,11 @@ public class ClearRepositoryTrashCronJob
 
             if (storageId == null && repositoryId == null)
             {
-                getArtifactManagementService().deleteTrash();
+                artifactManagementService.deleteTrash();
             }
             else
             {
-                getArtifactManagementService().deleteTrash(storageId, repositoryId);
+                artifactManagementService.deleteTrash(storageId, repositoryId);
             }
         }
         catch (IOException e)
