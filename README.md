@@ -38,7 +38,6 @@ Welcome to the Strongbox Maven artifact repository manager's home.
 # What's in the works:
 * [Proxy repositories](https://github.com/strongbox/strongbox/wiki/Repositories#proxy)
 * [Maven Metadata](https://github.com/strongbox/strongbox/wiki/Maven-Metadata)
-* OSGI repository layouts (P2, OBR)
 * NuGet repository layout
 * Cron tasks for core functionality
 * Security
@@ -48,6 +47,8 @@ Welcome to the Strongbox Maven artifact repository manager's home.
   * Log tailing over HTTP
 * Deploy as transaction
 * Maven settings.xml generator over REST API
+* ~~OSGI repository layouts (P2, OBR)~~ [on hold]
+
 
 # Upcoming:
 * RPM distribution
