@@ -1,5 +1,29 @@
 package org.carlspring.strongbox.controllers.maven;
 
+import static org.carlspring.maven.commons.util.ArtifactUtils.getArtifactFromGAVTC;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
+import org.apache.commons.lang.SystemUtils;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.model.Plugin;
+import org.apache.maven.project.artifact.PluginArtifact;
 import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
@@ -7,11 +31,10 @@ import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.controllers.maven.MavenArtifactController;
+import org.carlspring.strongbox.controllers.context.IntegrationTest;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.controllers.context.IntegrationTest;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -19,26 +42,15 @@ import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.storage.search.SearchResults;
 import org.carlspring.strongbox.util.MessageDigestUtils;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import java.io.*;
-import java.security.NoSuchAlgorithmException;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-import com.jayway.restassured.response.ExtractableResponse;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.model.Plugin;
-import org.apache.maven.project.artifact.PluginArtifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.junit.Assume;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.carlspring.maven.commons.util.ArtifactUtils.getArtifactFromGAVTC;
-import static org.junit.Assert.*;
+
+import com.jayway.restassured.response.ExtractableResponse;
 
 /**
  * Test cases for {@link MavenArtifactController}.
@@ -62,6 +74,8 @@ public class MavenArtifactControllerTest
 
     private static final String REPOSITORY_SNAPSHOTS = "act-snapshots";
 
+    private static boolean initialized = false;
+
     @Inject
     private ConfigurationManager configurationManager;
 
@@ -77,6 +91,11 @@ public class MavenArtifactControllerTest
     public void initialize()
             throws Exception
     {
+        if (initialized)
+        {
+            return;
+        }
+        initialized = true;
         GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/local");
 
         Repository repository1 = new Repository(REPOSITORY_RELEASES1);
@@ -609,6 +628,9 @@ public class MavenArtifactControllerTest
     public void testUpdateMetadataOnDeleteReleaseVersionDirectory()
             throws Exception
     {
+        // https://youtrack.carlspring.org/issue/SB-757#comment=84-648
+        Assume.assumeTrue(!SystemUtils.IS_OS_WINDOWS);
+
         // Given
         String groupId = "org.carlspring.strongbox.delete-metadata";
         String artifactId = "metadata-foo";
