@@ -888,6 +888,10 @@
                                     <name>logback.configurationFile</name>
                                     <value>${dir.strongbox.home}/etc/logback.xml</value>
                                 </systemProperty>
+                                <systemProperty>
+                                    <name>jwt.disabled</name>
+                                    <value>${jwt.disabled}</value>
+                                </systemProperty>
                             </systemProperties>
 
                             <useTestScope>true</useTestScope>
@@ -911,6 +915,12 @@
                     </plugin>
                 </plugins>
             </build>
+        </profile>
+        <profile>
+            <id>disable-jwt</id>
+            <properties>
+                <jwt.disabled>true</jwt.disabled>
+            </properties>
         </profile>
     </profiles>
 
