@@ -216,11 +216,11 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
                                 String path)
             throws IOException
     {
-        if (isMetadata(path))
+        Repository repository = getStorage(storageId).getRepository(repositoryId);
+        if (!repository.isIndexingEnabled() || isMetadata(path))
         {
             return;
         }
-
 
         final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(storageId + ":" +
                                                                                       repositoryId + ":" +
@@ -418,6 +418,25 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         {
             logger.error("Artifact checksum generation failed.");
         }
+    }
+
+    @Override
+    public void undelete(String storageId,
+                         String repositoryId,
+                         String path)
+            throws IOException
+    {
+        super.undelete(storageId, repositoryId, path);
+
+
+    }
+
+    @Override
+    public void undeleteTrash(String storageId,
+                              String repositoryId)
+            throws IOException
+    {
+        super.undeleteTrash(storageId, repositoryId);
     }
 
     @Override
