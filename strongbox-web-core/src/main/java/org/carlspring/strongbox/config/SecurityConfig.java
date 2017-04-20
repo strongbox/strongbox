@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.config;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.PostConstruct;
@@ -25,6 +26,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
@@ -78,10 +80,10 @@ public class SecurityConfig
 
         public BasicSecurityConfig()
         {
+            List<GrantedAuthority> anonymousRole = AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS");
             anonymousAuthenticationFilter = new CustomAnonymousAuthenticationFilter("strongbox-unique-key",
-                    "anonymousUser",
-                    AuthorityUtils.createAuthorityList(
-                                                       "ROLE_ANONYMOUS"));
+                                                                                    "anonymousUser",
+                                                                                    anonymousRole);
         }
 
         @PostConstruct
@@ -102,7 +104,7 @@ public class SecurityConfig
 
         @Override
         protected void configure(HttpSecurity http)
-                                                    throws Exception
+                throws Exception
         {
             http.sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -143,7 +145,6 @@ public class SecurityConfig
         protected void configure(HttpSecurity http)
                                                     throws Exception
         {
-
             JWTAuthenticationFilter jwtFilter = new JWTAuthenticationFilter(authenticationManager());
 
             http.sessionManagement()
@@ -177,6 +178,7 @@ public class SecurityConfig
     {
         DaoAuthenticationProvider result = new DaoAuthenticationProvider();
         result.setUserDetailsService(userDetailsService);
+
         return result;
     }
 

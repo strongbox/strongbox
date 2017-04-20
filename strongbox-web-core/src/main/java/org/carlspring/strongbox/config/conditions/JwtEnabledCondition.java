@@ -15,8 +15,11 @@ public class JwtEnabledCondition implements Condition
     public boolean matches(ConditionContext context,
                            AnnotatedTypeMetadata metadata)
     {
-        final boolean jwtEnabled = !Boolean.parseBoolean(context.getEnvironment().getProperty("jwt.disabled"));
+        final boolean jwtEnabled = !Boolean.parseBoolean(context.getEnvironment()
+                                                                .getProperty("strongbox.security.jwt.disabled"));
+
         logger.debug("JWT enabled ? {}", jwtEnabled);
+
         return jwtEnabled;
     }
 

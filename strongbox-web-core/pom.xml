@@ -889,8 +889,8 @@
                                     <value>${dir.strongbox.home}/etc/logback.xml</value>
                                 </systemProperty>
                                 <systemProperty>
-                                    <name>jwt.disabled</name>
-                                    <value>${jwt.disabled}</value>
+                                    <name>strongbox.security.jwt.disabled</name>
+                                    <value>${strongbox.security.jwt.disabled}</value>
                                 </systemProperty>
                             </systemProperties>
 
