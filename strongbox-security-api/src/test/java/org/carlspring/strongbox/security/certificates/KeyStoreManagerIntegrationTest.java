@@ -113,7 +113,7 @@ public class KeyStoreManagerIntegrationTest
         keyStoreManager.removeCertificates(f, newPassword.toCharArray(), InetAddress.getLocalHost(), LDAPS_PORT);
         certs = keyStoreManager.listCertificates(f, newPassword.toCharArray());
 
-        assertTrue(certs.isEmpty());
+        assertEquals("Expected empty certs.", 0, certs.size());
     }
 
     @Test
