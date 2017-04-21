@@ -62,10 +62,7 @@
         <module>strongbox-data-service</module>
         <module>strongbox-user-management</module>
         <module>strongbox-web-core</module>
-        <!--
-        Disabling this, because in order to fix it, I will need to introduce much more merge conflicts than I already have.
         <module>strongbox-cron-tasks</module>
-        -->
     </modules>
 
     <profiles>

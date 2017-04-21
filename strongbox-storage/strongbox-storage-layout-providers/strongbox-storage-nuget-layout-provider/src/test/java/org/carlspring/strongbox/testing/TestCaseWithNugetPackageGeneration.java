@@ -15,7 +15,7 @@ public class TestCaseWithNugetPackageGeneration
         extends TestCaseWithRepository
 {
 
-    public void generateNugetPackage(String basedir,
+    public void generateNugetPackage(String repositoryDir,
                                      String id,
                                      String... versions)
             throws IOException,
@@ -23,16 +23,18 @@ public class TestCaseWithNugetPackageGeneration
                    NugetFormatException,
                    JAXBException
     {
-        NugetPackageGenerator generator = new NugetPackageGenerator(basedir);
+        NugetPackageGenerator generator = new NugetPackageGenerator(repositoryDir.concat("/")
+                                                                                 .concat(id));
         generator.generateNugetPackage(id, versions);
     }
 
-    public void generateAlphaNugetPackage(String basedir,
+    public void generateAlphaNugetPackage(String repositoryDir,
                                           String id,
                                           String... versions)
             throws IOException, NoSuchAlgorithmException, NugetFormatException, JAXBException
     {
-        NugetPackageGenerator generator = new NugetPackageGenerator(basedir);
+        NugetPackageGenerator generator = new NugetPackageGenerator(repositoryDir.concat("/")
+                                                                                 .concat(id));
 
         for (String version : versions)
         {

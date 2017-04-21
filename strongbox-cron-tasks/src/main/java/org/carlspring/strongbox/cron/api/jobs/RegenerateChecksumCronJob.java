@@ -3,10 +3,9 @@ package org.carlspring.strongbox.cron.api.jobs;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.cron.config.JobManager;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
-import org.carlspring.strongbox.services.ArtifactManagementService;
+import org.carlspring.strongbox.services.ChecksumService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -22,14 +21,14 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Kate Novik.
  */
-public class RemoveTimestampedMavenSnapshotCronJob
+public class RegenerateChecksumCronJob
         extends JavaCronJob
 {
 
-    private final Logger logger = LoggerFactory.getLogger(RemoveTimestampedMavenSnapshotCronJob.class);
+    private final Logger logger = LoggerFactory.getLogger(RegenerateChecksumCronJob.class);
 
     @Inject
-    private ArtifactManagementService artifactManagementService;
+    private ChecksumService checksumService;
 
     @Inject
     private ConfigurationManager configurationManager;
@@ -42,7 +41,7 @@ public class RemoveTimestampedMavenSnapshotCronJob
     protected void executeInternal(JobExecutionContext jobExecutionContext)
             throws JobExecutionException
     {
-        logger.debug("Executed RemoveTimestampedMavenSnapshotCronJob.");
+        logger.debug("Executed RegenerateChecksumCronJob.");
 
         CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap()
                                                                                   .get("config");
@@ -52,69 +51,55 @@ public class RemoveTimestampedMavenSnapshotCronJob
             String repositoryId = config.getProperty("repositoryId");
             String basePath = config.getProperty("basePath");
 
-            //the number of artifacts to keep
-            int numberToKeep = Integer.valueOf(config.getProperty("numberToKeep"));
-            //the period to keep artifacts (the number of days)
-            int keepPeriod = Integer.valueOf(config.getProperty("keepPeriod"));
+            /**Values of forceRegeneration are true - to re-write existing checksum and to regenerate missing checksum,
+             false - to regenerate missing checksum only*/
+            boolean forceRegeneration = Boolean.valueOf(config.getProperty("forceRegeneration"));
 
             if (storageId == null)
             {
                 Map<String, Storage> storages = getStorages();
                 for (String storage : storages.keySet())
                 {
-                    removeTimestampedSnapshotArtifacts(storage, numberToKeep, keepPeriod);
+                    regenerateRepositoriesChecksum(storage, forceRegeneration);
                 }
             }
             else if (repositoryId == null)
             {
-                removeTimestampedSnapshotArtifacts(storageId, numberToKeep, keepPeriod);
+                regenerateRepositoriesChecksum(storageId, forceRegeneration);
             }
             else
             {
-                getArtifactManagementService().removeTimestampedSnapshots(storageId,
-                                                                          repositoryId,
-                                                                          basePath,
-                                                                          numberToKeep,
-                                                                          keepPeriod);
+                checksumService.regenerateChecksum(storageId, repositoryId, basePath, forceRegeneration);
             }
         }
         catch (IOException | XmlPullParserException | NoSuchAlgorithmException e)
         {
             logger.error(e.getMessage(), e);
+            manager.addExecutedJob(config.getName(), true);
         }
 
         manager.addExecutedJob(config.getName(), true);
     }
 
     /**
-     * To remove timestamped snapshot artifacts in repositories
+     * To regenerate artifact's checksum in repositories
      *
-     * @param storageId    path of storage
-     * @param numberToKeep the number of artifacts to keep
-     * @param keepPeriod   the period to keep artifacts (the number of days)
+     * @param storageId         path of storage
+     * @param forceRegeneration true - to re-write existing checksum and to regenerate missing checksum,
+     *                          false - to regenerate missing checksum only
      * @throws NoSuchAlgorithmException
      * @throws XmlPullParserException
      * @throws IOException
      */
-    private void removeTimestampedSnapshotArtifacts(String storageId,
-                                                    int numberToKeep,
-                                                    int keepPeriod)
+    private void regenerateRepositoriesChecksum(String storageId,
+                                                boolean forceRegeneration)
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
         Map<String, Repository> repositories = getRepositories(storageId);
 
-        for (String repositoryId : repositories.keySet())
+        for (String repository : repositories.keySet())
         {
-            Repository repository = repositories.get(repositoryId);
-            if (repository.getPolicy()
-                          .equals(RepositoryPolicyEnum.SNAPSHOT.getPolicy()))
-            {
-                getArtifactManagementService().removeTimestampedSnapshots(storageId,
-                                                                          repositoryId,
-                                                                          null,
-                                                                          numberToKeep,
-                                                                          keepPeriod);
-            }
+            checksumService.regenerateChecksum(storageId, repository, null, forceRegeneration);
         }
     }
 
@@ -129,5 +114,6 @@ public class RemoveTimestampedMavenSnapshotCronJob
         return getStorages().get(storageId)
                             .getRepositories();
     }
+
 
 }

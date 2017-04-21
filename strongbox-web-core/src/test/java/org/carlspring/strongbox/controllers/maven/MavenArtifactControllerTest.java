@@ -1,5 +1,29 @@
 package org.carlspring.strongbox.controllers.maven;
 
+import static org.carlspring.maven.commons.util.ArtifactUtils.getArtifactFromGAVTC;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
+import org.apache.commons.lang.SystemUtils;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.model.Plugin;
+import org.apache.maven.project.artifact.PluginArtifact;
 import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
@@ -18,33 +42,21 @@ import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.storage.search.SearchResults;
 import org.carlspring.strongbox.util.MessageDigestUtils;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.NoSuchAlgorithmException;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-import com.jayway.restassured.response.ExtractableResponse;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.model.Plugin;
-import org.apache.maven.project.artifact.PluginArtifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.junit.Assume;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.jayway.restassured.response.ExtractableResponse;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.maven.commons.util.ArtifactUtils.getArtifactFromGAVTC;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test cases for {@link MavenArtifactController}.
@@ -68,6 +80,8 @@ public class MavenArtifactControllerTest
 
     private static final String REPOSITORY_SNAPSHOTS = "act-snapshots";
 
+    private static boolean initialized = false;
+
     @Inject
     private ConfigurationManager configurationManager;
 
@@ -83,6 +97,11 @@ public class MavenArtifactControllerTest
     public void initialize()
             throws Exception
     {
+        if (initialized)
+        {
+            return;
+        }
+        initialized = true;
         GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/local");
 
         Repository repository1 = new Repository(REPOSITORY_RELEASES1);
@@ -615,6 +634,9 @@ public class MavenArtifactControllerTest
     public void testUpdateMetadataOnDeleteReleaseVersionDirectory()
             throws Exception
     {
+        // https://youtrack.carlspring.org/issue/SB-757#comment=84-648
+        Assume.assumeTrue(!SystemUtils.IS_OS_WINDOWS);
+
         // Given
         String groupId = "org.carlspring.strongbox.delete-metadata";
         String artifactId = "metadata-foo";
@@ -641,26 +663,22 @@ public class MavenArtifactControllerTest
 
         SearchResults results = artifactSearchService.search(request);
 
-        if (!results.getResults()
-                    .isEmpty())
+        if (!results.getResults().isEmpty())
         {
-            logger.debug("Found " + results.getResults()
-                                           .size() + " results in index of " +
+            logger.debug("Found " + results.getResults().size() + " results in index of " +
                          STORAGE0 + ":" + REPOSITORY_RELEASES2 + IndexTypeEnum.LOCAL.getType() + ".");
         }
 
         for (SearchResult result : results.getResults())
         {
-            String artifactPath = result.getArtifactCoordinates()
-                                        .toPath();
+            String artifactPath = result.getArtifactCoordinates().toPath();
 
             logger.debug(result.getArtifactCoordinates() + "(" + artifactPath + ")");
         }
 
         assertEquals("Incorrect number of results yielded from search against Maven Index!",
                      2,
-                     results.getResults()
-                            .size());
+                     results.getResults().size());
 
         // When
         String path = "org/carlspring/strongbox/delete-metadata/metadata-foo/1.2.2";
@@ -673,8 +691,7 @@ public class MavenArtifactControllerTest
         // Re-run the search and check, if the results are now different
         results = artifactSearchService.search(request);
 
-        assertTrue("Failed to delete artifacts from Maven Index!!", results.getResults()
-                                                                           .isEmpty());
+        assertTrue("Failed to delete artifacts from Maven Index!!", results.getResults().isEmpty());
         assertTrue(!metadata.getVersioning().getVersions().contains("1.2.2"));
     }
 
@@ -711,9 +728,7 @@ public class MavenArtifactControllerTest
         Metadata metadata = client.retrieveMetadata("storages/" + STORAGE0 + "/" + REPOSITORY_SNAPSHOTS + "/" +
                                                     ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
 
-        assertFalse(metadata.getVersioning()
-                            .getVersions()
-                            .contains("3.1-SNAPSHOT"));
+        assertFalse(metadata.getVersioning().getVersions().contains("3.1-SNAPSHOT"));
     }
 
     private boolean checkSnapshotVersionExistsInMetadata(Metadata versionLevelMetadata,
@@ -722,11 +737,11 @@ public class MavenArtifactControllerTest
                                                          String extension)
     {
         return versionLevelMetadata.getVersioning().getSnapshotVersions().stream()
-                                   .anyMatch(snapshotVersion ->
+                                   .filter(snapshotVersion ->
                                                    snapshotVersion.getVersion().equals(version) &&
                                                    snapshotVersion.getClassifier().equals(classifier) &&
                                                    snapshotVersion.getExtension().equals(extension)
-                                   );
+                                   ).findAny().isPresent();
     }
 
     /**

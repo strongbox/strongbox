@@ -20,6 +20,7 @@ import java.security.cert.X509Certificate;
 import java.util.Map;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.context.annotation.ComponentScan;
@@ -112,7 +113,7 @@ public class KeyStoreManagerIntegrationTest
         keyStoreManager.removeCertificates(f, newPassword.toCharArray(), InetAddress.getLocalHost(), LDAPS_PORT);
         certs = keyStoreManager.listCertificates(f, newPassword.toCharArray());
 
-        assertTrue(certs.isEmpty());
+        assertEquals("Expected empty certs.", 0, certs.size());
     }
 
     @Test
@@ -154,7 +155,7 @@ public class KeyStoreManagerIntegrationTest
         assertTrue(certs.isEmpty());
     }
 
-    // @Ignore
+    @Ignore
     @Test
     public void testHttpProxy()
             throws IOException,

@@ -2,6 +2,7 @@ package org.carlspring.strongbox.io;
 
 import org.carlspring.strongbox.storage.repository.Repository;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -30,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -242,32 +244,15 @@ public class RepositoryFileSystemProvider
         {
             return;
         }
-        if (!Files.isDirectory(trashPath.getTarget()))
-        {
-            Files.delete(trashPath.getTarget());
-        }
         else
         {
-            Files.walkFileTree(trashPath.getTarget(), new SimpleFileVisitor<Path>()
-            {
-                @Override
-                public FileVisitResult visitFile(Path file,
-                                                 BasicFileAttributes attrs)
-                        throws IOException
-                {
-                    Files.delete(file);
-                    return FileVisitResult.CONTINUE;
-                }
+            File trashFile = trashPath.getTarget()
+                                      .toFile();
 
-                @Override
-                public FileVisitResult postVisitDirectory(Path dir,
-                                                          IOException exc)
-                        throws IOException
-                {
-                    Files.delete(dir);
-                    return FileVisitResult.CONTINUE;
-                }
-            });
+            FileUtils.deleteDirectory(trashFile);
+
+            //noinspection ResultOfMethodCallIgnored
+            trashFile.mkdirs();
         }
     }
 

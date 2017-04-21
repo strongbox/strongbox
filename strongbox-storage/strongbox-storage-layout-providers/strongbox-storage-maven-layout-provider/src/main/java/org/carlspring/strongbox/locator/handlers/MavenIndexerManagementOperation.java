@@ -11,6 +11,7 @@ import org.carlspring.strongbox.storage.metadata.VersionCollectionRequest;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +59,7 @@ public class MavenIndexerManagementOperation
                                                                                          .length() + 1,
                                                                              artifactVersionDirectory.length());
 
-                String[] artifactCoordinateElements = artifactVersionDirectoryRelative.split("/");
+                String[] artifactCoordinateElements = artifactVersionDirectoryRelative.split(Pattern.quote(String.valueOf(File.separatorChar)));
                 StringBuilder groupId = new StringBuilder();
                 for (int i = 0; i < artifactCoordinateElements.length - 2; i++)
                 {

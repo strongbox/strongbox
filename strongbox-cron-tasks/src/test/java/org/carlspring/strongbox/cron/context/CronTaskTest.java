@@ -24,7 +24,8 @@ import org.springframework.test.context.web.WebAppConfiguration;
                                   WebConfig.class })
 @WebAppConfiguration
 @WithUserDetails(value = "admin")
-@IfProfileValue(name = "spring.profiles.active", values = { "quartz-integration-test" })
+@IfProfileValue(name = "spring.profiles.active",
+                values = { "quartz-integration-tests" })
 public @interface CronTaskTest
 {
 

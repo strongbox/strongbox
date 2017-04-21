@@ -173,21 +173,18 @@ public class MavenArtifactManagementServiceImpl
                                     String path)
         throws IOException
     {
-        if (!ArtifactFileUtils.isArtifactFile(path))
-        {
-            return;
-        }
+        Storage storage = getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
 
         String contextId = getContextId(storageId, repositoryId, IndexTypeEnum.LOCAL.getType());
-
         RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(contextId);
-        if (indexer == null)
+
+        if (!repository.isIndexingEnabled() || !ArtifactFileUtils.isArtifactFile(path) || indexer == null)
         {
             return;
         }
-        
+
         Artifact artifact = ArtifactUtils.convertPathToArtifact(path);
-        Storage storage = getStorage(storageId);
 
         File storageBasedir = new File(storage.getBasedir());
         File artifactFile = new File(new File(storageBasedir, repositoryId), path).getCanonicalFile();
@@ -449,18 +446,6 @@ public class MavenArtifactManagementServiceImpl
         {
             LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
             layoutProvider.undelete(storageId, repositoryId, artifactPath);
-
-            /*
-            // TODO: This will need further fixing:
-            final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(storageId + ":" + repositoryId);
-            if (indexer != null)
-            {
-                final Artifact artifact = ArtifactUtils.convertPathToArtifact(artifactPath);
-                final File artifactFile = new File(repository.getBasedir(), artifactPath);
-
-                indexer.addArtifactToIndex(repositoryId, artifactFile, artifact);
-            }
-            */
         }
         catch (IOException | ProviderImplementationException e)
         {

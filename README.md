@@ -38,7 +38,6 @@ Welcome to the Strongbox Maven artifact repository manager's home.
 # What's in the works:
 * [Proxy repositories](https://github.com/strongbox/strongbox/wiki/Repositories#proxy)
 * [Maven Metadata](https://github.com/strongbox/strongbox/wiki/Maven-Metadata)
-* OSGI repository layouts (P2, OBR)
 * NuGet repository layout
 * Cron tasks for core functionality
 * Security
@@ -48,6 +47,8 @@ Welcome to the Strongbox Maven artifact repository manager's home.
   * Log tailing over HTTP
 * Deploy as transaction
 * Maven settings.xml generator over REST API
+* ~~OSGI repository layouts (P2, OBR)~~ [on hold]
+
 
 # Upcoming:
 * RPM distribution
@@ -78,7 +79,7 @@ Instructions on how to build the code, can be found [here](https://github.com/st
 # Contributing
 Contributions and contributors are always welcome! For more details, please check [here](https://github.com/strongbox/strongbox/blob/master/CONTRIBUTING.md).
 
-[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/strongbox/strongbox?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/strongbox/strongbox?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 # Build Status
 

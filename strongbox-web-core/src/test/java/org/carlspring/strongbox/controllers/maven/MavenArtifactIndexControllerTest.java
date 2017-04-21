@@ -32,6 +32,8 @@ public class MavenArtifactIndexControllerTest
 
     private static final String REPOSITORY_RELEASES_2 = "aict-releases-2";
 
+    private static boolean initialized = false;
+
     @Inject
     private ArtifactSearchService artifactSearchService;
 
@@ -48,6 +50,12 @@ public class MavenArtifactIndexControllerTest
             throws Exception
     {
         super.init();
+
+        if (initialized)
+        {
+            return;
+        }
+        initialized = true;
 
         // prepare storage: create it from Java code instead of putting <storage/> in strongbox.xml
         createStorage(STORAGE_ID);

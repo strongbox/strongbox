@@ -40,6 +40,7 @@ public class SearchControllerTest
     private static final File GENERATOR_BASEDIR = new File(
             ConfigurationResourceResolver.getVaultDirectory() + "/local");
     
+    private static boolean initialized = false;
 
     public static void cleanUp()
             throws Exception
@@ -52,6 +53,12 @@ public class SearchControllerTest
             throws Exception
     {
         super.init();
+
+        if (initialized)
+        {
+            return;
+        }
+        initialized = true;
 
         cleanUp();
         

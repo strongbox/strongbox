@@ -8,6 +8,7 @@ import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.io.RepositoryPath;
 import org.carlspring.strongbox.providers.storage.StorageProvider;
+import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.RemoteRepository;
@@ -23,7 +24,6 @@ import java.security.NoSuchAlgorithmException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 /**
@@ -44,8 +44,8 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
 
     @Inject
-    @Qualifier("filesystemStorageProvider")
-    private StorageProvider filesystemStorageProvider;
+    private StorageProviderRegistry storageProviderRegistry;
+
 
     @PostConstruct
     @Override
@@ -53,7 +53,8 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
     {
         repositoryProviderRegistry.addProvider(ALIAS, this);
 
-        logger.info("Registered repository provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
+        logger.info("Registered repository provider '" + getClass().getCanonicalName() +
+                    "' with alias '" + ALIAS + "'.");
     }
 
     @Override
@@ -71,13 +72,15 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
                    ArtifactTransportException
     {
         Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
 
         logger.debug("Checking in " + storage.getId() + ":" + repositoryId + "...");
 
-        Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
+        StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
 
-        RepositoryPath reposytoryPath = filesystemStorageProvider.resolve(repository);
+        RepositoryPath reposytoryPath = storageProvider.resolve(repository);
         RepositoryPath artifactPath = reposytoryPath.resolve(path);
+
         RepositoryFileSystemProvider fileSystemProvider = (RepositoryFileSystemProvider) artifactPath.getFileSystem()
                                                                                                      .provider();
 
