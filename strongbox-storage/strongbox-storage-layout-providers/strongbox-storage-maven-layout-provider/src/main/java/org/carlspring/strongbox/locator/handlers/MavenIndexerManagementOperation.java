@@ -59,7 +59,8 @@ public class MavenIndexerManagementOperation
                                                                                          .length() + 1,
                                                                              artifactVersionDirectory.length());
 
-                String[] artifactCoordinateElements = artifactVersionDirectoryRelative.split(Pattern.quote(String.valueOf(File.separatorChar)));
+                String[] artifactCoordinateElements = artifactVersionDirectoryRelative.split(
+                        Pattern.quote(String.valueOf(File.separatorChar)));
                 StringBuilder groupId = new StringBuilder();
                 for (int i = 0; i < artifactCoordinateElements.length - 2; i++)
                 {

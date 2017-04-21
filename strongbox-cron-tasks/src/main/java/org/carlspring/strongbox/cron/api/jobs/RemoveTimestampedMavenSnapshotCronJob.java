@@ -46,7 +46,8 @@ public class RemoveTimestampedMavenSnapshotCronJob
     {
         logger.debug("Executed RemoveTimestampedMavenSnapshotCronJob.");
 
-        CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap().get("config");
+        CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap()
+                                                                                  .get("config");
 
         try
         {
@@ -109,7 +110,8 @@ public class RemoveTimestampedMavenSnapshotCronJob
 
         repositories.forEach((repositoryId, repository) ->
                              {
-                                 if (repository.getPolicy().equals(RepositoryPolicyEnum.SNAPSHOT.getPolicy()))
+                                 if (repository.getPolicy()
+                                               .equals(RepositoryPolicyEnum.SNAPSHOT.getPolicy()))
                                  {
                                      try
                                      {
@@ -129,12 +131,14 @@ public class RemoveTimestampedMavenSnapshotCronJob
 
     private Map<String, Storage> getStorages()
     {
-        return configurationManager.getConfiguration().getStorages();
+        return configurationManager.getConfiguration()
+                                   .getStorages();
     }
 
     private Map<String, Repository> getRepositories(String storageId)
     {
-        return getStorages().get(storageId).getRepositories();
+        return getStorages().get(storageId)
+                            .getRepositories();
     }
 
 }

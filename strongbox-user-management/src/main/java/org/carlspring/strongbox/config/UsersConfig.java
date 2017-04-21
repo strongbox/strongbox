@@ -199,12 +199,12 @@ public class UsersConfig
     {
         // assign default repository-level privileges set
         Set<String> defaultPrivileges = new HashSet<>();
-        String key = storageId + "/" + repository.getRepositoryId();
+        String key = "/storages/" + storageId + "/" + repository.getRepositoryId();
         repository.getPrivileges()
                   .getPrivileges()
                   .forEach(privilege -> defaultPrivileges.add(privilege.getName()
                                                                        .toUpperCase()));
-        internalAccessModel.getUrlToPrivilegesMap()
+        internalAccessModel.getRepositoryPrivileges()
                            .put(key, defaultPrivileges);
 
         // assign path-specific privileges
@@ -220,6 +220,7 @@ public class UsersConfig
                                  internalAccessModel.getUrlToPrivilegesMap()
                                                     .put(key + "/" + pathPermission.getPath(), privileges);
                              });
+            internalAccessModel.obtainPrivileges();
         }
     }
 

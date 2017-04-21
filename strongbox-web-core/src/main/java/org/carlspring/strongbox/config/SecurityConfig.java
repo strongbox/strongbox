@@ -1,11 +1,5 @@
 package org.carlspring.strongbox.config;
 
-import java.util.List;
-import java.util.Optional;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.config.conditions.JwtEnabledCondition;
 import org.carlspring.strongbox.security.authentication.CustomAnonymousAuthenticationFilter;
 import org.carlspring.strongbox.security.authentication.Http401AuthenticationEntryPoint;
@@ -14,6 +8,12 @@ import org.carlspring.strongbox.security.authentication.JWTAuthenticationProvide
 import org.carlspring.strongbox.security.vote.FilterAccessDecisionManager;
 import org.carlspring.strongbox.security.vote.MethodAccessDecisionManager;
 import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
@@ -49,7 +49,8 @@ public class SecurityConfig
      */
     @Configuration
     @EnableGlobalMethodSecurity(prePostEnabled = true)
-    public static class MethodSecurityConfig extends GlobalMethodSecurityConfiguration
+    public static class MethodSecurityConfig
+            extends GlobalMethodSecurityConfiguration
     {
 
         @Inject
@@ -64,10 +65,13 @@ public class SecurityConfig
 
     @Inject
     public void configureGlobal(AuthenticationManagerBuilder auth,
-                                @Qualifier("userDetailsAuthenticationProvider") AuthenticationProvider userDetailsAuthenticationProvider,
-                                @Qualifier("jwtAuthenticationProvider") Optional<AuthenticationProvider> jwtAuthenticationProvider)
+                                @Qualifier("userDetailsAuthenticationProvider")
+                                        AuthenticationProvider userDetailsAuthenticationProvider,
+                                @Qualifier("jwtAuthenticationProvider")
+                                        Optional<AuthenticationProvider> jwtAuthenticationProvider)
     {
-        auth.authenticationProvider(userDetailsAuthenticationProvider).eraseCredentials(false);
+        auth.authenticationProvider(userDetailsAuthenticationProvider)
+            .eraseCredentials(false);
         jwtAuthenticationProvider.ifPresent(auth::authenticationProvider);
     }
 
@@ -101,10 +105,11 @@ public class SecurityConfig
         public void init()
         {
             authorizationConfigProvider.getConfig()
-                                       .ifPresent((config) -> {
-                                           anonymousAuthenticationFilter.getAuthorities()
-                                                                        .addAll(config.getAnonymousAuthorities());
-                                       });
+                                       .ifPresent((config) ->
+                                                  {
+                                                      anonymousAuthenticationFilter.getAuthorities()
+                                                                                   .addAll(config.getAnonymousAuthorities());
+                                                  });
         }
 
         @Bean
@@ -148,7 +153,8 @@ public class SecurityConfig
     @Configuration
     @Order(2)
     @Conditional(JwtEnabledCondition.class)
-    public static class JwtSecurityConfig extends
+    public static class JwtSecurityConfig
+            extends
             WebSecurityConfigurerAdapter
     {
 
@@ -160,7 +166,7 @@ public class SecurityConfig
 
         @Override
         protected void configure(HttpSecurity http)
-                                                    throws Exception
+                throws Exception
         {
             JWTAuthenticationFilter jwtFilter = new JWTAuthenticationFilter(authenticationManager());
 

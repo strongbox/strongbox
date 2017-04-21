@@ -39,7 +39,7 @@ public class SearchControllerTest
 
     private static final File GENERATOR_BASEDIR = new File(
             ConfigurationResourceResolver.getVaultDirectory() + "/local");
-    
+
     private static boolean initialized = false;
 
     public static void cleanUp()

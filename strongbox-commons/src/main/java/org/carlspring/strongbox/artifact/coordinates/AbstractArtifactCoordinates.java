@@ -1,9 +1,9 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
+import org.carlspring.strongbox.data.domain.GenericEntity;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import org.carlspring.strongbox.data.domain.GenericEntity;
 
 /**
  * @author carlspring

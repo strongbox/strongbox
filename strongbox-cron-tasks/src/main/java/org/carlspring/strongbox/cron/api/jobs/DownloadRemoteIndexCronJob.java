@@ -43,14 +43,16 @@ public class DownloadRemoteIndexCronJob
     {
         logger.debug("Executed DownloadRemoteIndexCronJob.");
 
-        CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap().get("config");
+        CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap()
+                                                                                  .get("config");
 
         try
         {
             String storageId = config.getProperty("storageId");
             String repositoryId = config.getProperty("repositoryId");
 
-            Storage storage = configurationManagementService.getConfiguration().getStorage(storageId);
+            Storage storage = configurationManagementService.getConfiguration()
+                                                            .getStorage(storageId);
             Repository repository = storage.getRepository(repositoryId);
 
             LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());

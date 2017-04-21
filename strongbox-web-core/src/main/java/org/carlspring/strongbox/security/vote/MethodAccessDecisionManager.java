@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.expression.method.ExpressionBasedPreInvocationAdvice;
+import org.springframework.security.access.prepost.PreInvocationAuthorizationAdviceVoter;
 import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.access.vote.AuthenticatedVoter;
 import org.springframework.security.access.vote.RoleVoter;
@@ -18,14 +19,11 @@ public class MethodAccessDecisionManager
         implements AccessDecisionManager
 {
 
-    private static CustomAccessDecisionVoter accessDecisionVoter = new CustomAccessDecisionVoter();
-
     @SuppressWarnings("unchecked")
     public MethodAccessDecisionManager()
     {
-        super(Arrays.asList(accessDecisionVoter,
-                            new CustomPreInvocationAuthorizationAdviceVoter(new ExpressionBasedPreInvocationAdvice(),
-                                                                            accessDecisionVoter),
+        super(Arrays.asList(new CustomAccessDecisionVoter(),
+                            new PreInvocationAuthorizationAdviceVoter(new ExpressionBasedPreInvocationAdvice()),
                             new RoleVoter(),
                             new AuthenticatedVoter()
         ));
