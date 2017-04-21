@@ -1,7 +1,7 @@
 
 # Code Style
 
-While we appreciate all the help we can get, here are some more details on the [coding conventions](https://github.com/strongbox/strongbox/wiki/Coding-Convention). Please, follow these guidelines and set up your IDE to use the respective code style configuration file.
+While we appreciate all the help we can get, here are some more details on the [coding convention](https://github.com/strongbox/strongbox/wiki/Coding-Convention). Please, follow these guidelines and set up your IDE to use the respective code style configuration file.
 
 # Pull Requests
 
