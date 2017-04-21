@@ -3,7 +3,16 @@
 
 While we appreciate all the help we can get, here are some more details on the [coding conventions](https://github.com/strongbox/strongbox/wiki/Coding-Convention). Please, follow these guidelines and set up your IDE to use the respective code style configuration file.
 
-Pull requests should not change the existing formatting of code, unless this is really required, especially of files that have no other changes, or are not related to the pull request.
+# Pull Requests
+
+Please, follow the following basic rules when creating pull requests. Pull requests:
+* Should:
+  * Be tidy
+  * Easy to read
+* Should not:
+  * Change the existing formatting of code, unless this is really required, especially of files that have no other changes, or are not related to the pull request at all
+  * Have failing tests
+  * Contain unaddressed **critical** issues reported by Sonar
 
 # Legal
 
