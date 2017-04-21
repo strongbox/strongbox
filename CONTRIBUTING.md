@@ -5,7 +5,7 @@ While we appreciate all the help we can get, here are some more details on the [
 
 # Pull Requests
 
-Please, follow the following basic rules when creating pull requests. Pull requests:
+Please, follow these basic rules when creating pull requests. Pull requests:
 * Should:
   * Be tidy
   * Easy to read
