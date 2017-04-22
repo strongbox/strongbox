@@ -57,8 +57,6 @@ import edu.emory.mathcs.backport.java.util.Collections;
 public class HeaderMappingFilter implements Filter
 {
 
-    private static final String URL_PATTERN = "^((http[s]?):/)?/?([^:/s]+)((/w+)*/)([w-.]+[^#?s]+)(.*)?(#[w-]+)?$";
-
     private static final String USER_AGENT_UNKNOWN = "unknown";
     private static final String USER_AGENT_NUGET = "NuGet";
     private static final String USER_AGENT_MAVEN = "Maven";
@@ -69,19 +67,11 @@ public class HeaderMappingFilter implements Filter
     @Inject
     private ConfigurationManager configurationManager;
 
-    public static final void main(String[] args)
-        throws Exception
-    {
-        // Pattern pattern = Pattern.compile(URL_PATTERN);
-        // Matcher matcher = pattern.matcher("http://localhost:48080/storages/storage0/releases/aaa/bbb/ccc");
-        // System.out.println(matcher.matches());
-    }
-
     @Override
     public void init(FilterConfig filterConfig)
         throws ServletException
     {
-
+        //Do nothing
     }
 
     @PostConstruct
