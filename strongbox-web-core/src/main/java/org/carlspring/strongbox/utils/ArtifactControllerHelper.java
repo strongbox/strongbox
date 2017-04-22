@@ -2,6 +2,7 @@ package org.carlspring.strongbox.utils;
 
 import org.carlspring.commons.http.range.ByteRange;
 import org.carlspring.commons.http.range.ByteRangeHeaderParser;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.StreamUtils;
 
@@ -150,6 +151,9 @@ public class ArtifactControllerHelper
                                                      k.toUpperCase()
                                                       .replaceAll("-", "")),
                                        v));
-
+        ArtifactCoordinates artifactCoordinates = ais.getArtifactCoordinates();
+        if (artifactCoordinates != null){
+            headers.add("strongbox-layout", artifactCoordinates.getClass().getSimpleName());
+        }
     }
 }
