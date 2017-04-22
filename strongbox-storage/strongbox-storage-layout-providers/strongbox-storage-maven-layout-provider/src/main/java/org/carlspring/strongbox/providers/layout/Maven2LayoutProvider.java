@@ -10,19 +10,22 @@ import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.MavenRepositoryManagementStrategy;
-import org.carlspring.strongbox.storage.search.SearchRequest;
-import org.carlspring.strongbox.storage.search.SearchResult;
-import org.carlspring.strongbox.storage.search.SearchResults;
+import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.checksum.MavenChecksumManager;
-import org.carlspring.strongbox.storage.indexing.*;
+import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
+import org.carlspring.strongbox.storage.search.SearchRequest;
+import org.carlspring.strongbox.storage.search.SearchResult;
+import org.carlspring.strongbox.storage.search.SearchResults;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -76,6 +79,8 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
     @Inject
     private RepositoryIndexManager repositoryIndexManager;
 
+    @Inject
+    private ArtifactIndexesService artifactIndexesService;
 
     @PostConstruct
     @Override
@@ -428,7 +433,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
     {
         super.undelete(storageId, repositoryId, path);
 
-
+        artifactIndexesService.rebuildIndex(storageId, repositoryId, path);
     }
 
     @Override
@@ -437,6 +442,8 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
             throws IOException
     {
         super.undeleteTrash(storageId, repositoryId);
+
+        artifactIndexesService.rebuildIndex(storageId, repositoryId, "/");
     }
 
     @Override

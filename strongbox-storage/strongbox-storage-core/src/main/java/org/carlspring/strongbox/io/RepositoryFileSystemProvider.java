@@ -95,7 +95,9 @@ public class RepositoryFileSystemProvider
         {
             return ds;
         }
+
         RepositoryPath repositoryDir = (RepositoryPath) dir;
+
         return new DirectoryStream<Path>()
         {
 
@@ -171,13 +173,13 @@ public class RepositoryFileSystemProvider
             throw new NoSuchFileException(getTargetPath(repositoryPath).toString());
         }
 
-        Repository repository = repositoryPath.getFileSystem()
-                                              .getRepository();
+        Repository repository = repositoryPath.getFileSystem().getRepository();
         if (!repository.isTrashEnabled())
         {
             Files.deleteIfExists(repositoryPath.getTarget());
             return;
         }
+
         RepositoryPath trashPath = getTrashPath(repositoryPath);
 
         Files.move(repositoryPath.getTarget(),
@@ -185,11 +187,10 @@ public class RepositoryFileSystemProvider
                    StandardCopyOption.REPLACE_EXISTING);
     }
 
-    public void restoreTrash(RepositoryPath path)
+    public void undelete(RepositoryPath path)
             throws IOException
     {
-        Repository repository = path.getFileSystem()
-                                    .getRepository();
+        Repository repository = path.getFileSystem().getRepository();
         if (!repository.isTrashEnabled())
         {
             return;
@@ -232,8 +233,7 @@ public class RepositoryFileSystemProvider
     public void deleteTrash(RepositoryPath path)
             throws IOException
     {
-        Repository repository = path.getFileSystem()
-                                    .getRepository();
+        Repository repository = path.getFileSystem().getRepository();
         if (!repository.isTrashEnabled())
         {
             return;
@@ -246,8 +246,7 @@ public class RepositoryFileSystemProvider
         }
         else
         {
-            File trashFile = trashPath.getTarget()
-                                      .toFile();
+            File trashFile = trashPath.getTarget().toFile();
 
             FileUtils.deleteDirectory(trashFile);
 
@@ -259,16 +258,14 @@ public class RepositoryFileSystemProvider
     public RepositoryPath getTempPath(RepositoryPath path)
             throws IOException
     {
-        RepositoryPath tempPathBase = path.getFileSystem()
-                                          .getTempPath();
+        RepositoryPath tempPathBase = path.getFileSystem().getTempPath();
         RepositoryPath tempPath = rebase(path, tempPathBase);
-        if (!Files.exists(tempPath.getParent()
-                                  .getTarget()))
+
+        if (!Files.exists(tempPath.getParent().getTarget()))
         {
             logger.debug(String.format("Creating: dir-[%s]", tempPath.getParent()));
 
-            Files.createDirectories(tempPath.getParent()
-                                            .getTarget());
+            Files.createDirectories(tempPath.getParent().getTarget());
         }
 
         return tempPath;
@@ -277,15 +274,14 @@ public class RepositoryFileSystemProvider
     public RepositoryPath getTrashPath(RepositoryPath path)
             throws IOException
     {
-        RepositoryPath trashBasePath = path.getFileSystem()
-                                           .getTrashPath();
+        RepositoryPath trashBasePath = path.getFileSystem().getTrashPath();
         RepositoryPath trashPath = rebase(path, trashBasePath);
-        if (!Files.exists(trashPath.getParent()
-                                   .getTarget()))
+
+        if (!Files.exists(trashPath.getParent().getTarget()))
         {
             logger.debug(String.format("Creating: dir-[%s]", trashPath.getParent()));
-            Files.createDirectories(trashPath.getParent()
-                                             .getTarget());
+
+            Files.createDirectories(trashPath.getParent().getTarget());
         }
 
         return trashPath;
@@ -294,20 +290,14 @@ public class RepositoryFileSystemProvider
     private static RepositoryPath rebase(RepositoryPath source,
                                          RepositoryPath targetBase)
     {
-        FileSystem sourceFileSystem = source.getTarget()
-                                            .getFileSystem();
-        FileSystem targetFileSystem = targetBase.getTarget()
-                                                .getFileSystem();
+        String sourceRelative = source.getRoot().relativize(source.getTarget()).toString();
 
-        String sourceRelative = source.getRoot()
-                                      .relativize(source.getTarget())
-                                      .toString();
-
-        // XXX[SBESPALOV]: We try to convert path form source to target FileSystem and need to check this on different
+        // XXX[SBESPALOV]: We try to convert path from source to target FileSystem and need to check this on different
         // Storage types.
         // Note that this is only draft implementation, and probably in the future we will need something like separate
-        // `FileSystemPathConverter` to convert Paths from one FileSystem to another. Such `FileSystemPathConverter` can
-        // be provided by the `ReposytoryFileSystem` instance.
+        // `FileSystemPathConverter` to convert Paths from one FileSystem to another. Such a `FileSystemPathConverter`
+        // can be provided by the `RepositoryFileSystem` instance.
+
         String sTargetPath = sourceRelative;
 
         return targetBase.resolve(sTargetPath);
@@ -445,6 +435,7 @@ public class RepositoryFileSystemProvider
                 throws IOException
         {
             Files.move(file, toPath.resolve(fromPath.relativize(file)), copyOption);
+
             return FileVisitResult.CONTINUE;
         }
     }

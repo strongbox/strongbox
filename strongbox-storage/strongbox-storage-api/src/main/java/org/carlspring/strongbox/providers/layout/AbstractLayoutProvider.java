@@ -475,8 +475,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
         RepositoryPath path = resolve(repository);
-        RepositoryFileSystemProvider provider = (RepositoryFileSystemProvider) path.getFileSystem()
-                                                                                   .provider();
+        RepositoryFileSystemProvider provider = (RepositoryFileSystemProvider) path.getFileSystem().provider();
 
         provider.deleteTrash(path);
     }
@@ -485,8 +484,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     public void deleteTrash()
             throws IOException
     {
-        for (Map.Entry entry : getConfiguration().getStorages()
-                                                 .entrySet())
+        for (Map.Entry entry : getConfiguration().getStorages().entrySet())
         {
             Storage storage = (Storage) entry.getValue();
 
@@ -497,6 +495,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                 {
                     logger.warn("Repository " + repository.getId() + " does not support removal of trash.");
                 }
+
                 deleteTrash(storage.getId(), repository.getId());
             }
         }
@@ -508,15 +507,12 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                          String path)
             throws IOException
     {
-        logger.debug(String.format("Attempting to restore: storageId-[%s]; repoId-[%s]; path-[%s]; ",
-                                   storageId,
-                                   repositoryId,
-                                   path));
+        logger.debug(String.format("Attempting to restore: %s:%s:%s...", storageId, repositoryId, path));
 
         ArtifactPath artifactPath = resolve(storageId, repositoryId, path);
 
         RepositoryFileSystemProvider provider = getProvider(artifactPath);
-        provider.restoreTrash(artifactPath);
+        provider.undelete(artifactPath);
     }
 
     @Override
@@ -531,11 +527,11 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
 
         if (!repository.isTrashEnabled())
         {
-            logger.warn("Repository " + repository.getId() + " does not support removal of trash.");
+            logger.warn("Repository " + storageId + ":" + repository.getId() + " does not support removal of trash.");
         }
 
         RepositoryPath path = resolve(repository);
-        getProvider(path).restoreTrash(path);
+        getProvider(path).undelete(path);
     }
 
     @Override
