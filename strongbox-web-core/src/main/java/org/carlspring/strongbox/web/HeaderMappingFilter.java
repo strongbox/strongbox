@@ -3,6 +3,7 @@ package org.carlspring.strongbox.web;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -10,6 +11,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -34,6 +37,10 @@ import javax.servlet.http.Part;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.controllers.maven.MavenArtifactController;
 import org.carlspring.strongbox.controllers.nuget.NugetPackageController;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.providers.layout.NugetHierarchicalLayoutProvider;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.springframework.stereotype.Component;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
@@ -54,20 +61,31 @@ import edu.emory.mathcs.backport.java.util.Collections;
 public class HeaderMappingFilter implements Filter
 {
 
+    private static final String URL_PATTERN = "^((http[s]?):/)?/?([^:/s]+)((/w+)*/)([w-.]+[^#?s]+)(.*)?(#[w-]+)?$";
+
     private static final String USER_AGENT_UNKNOWN = "unknown";
     private static final String USER_AGENT_NUGET = "NuGet";
     private static final String USER_AGENT_MAVEN = "Maven";
 
     private Map<String, String> userAgentMap = new HashMap<>();
+    private Map<String, String> layoutMap = new HashMap<>();
 
     @Inject
     private ConfigurationManager configurationManager;
-    
+
+    public static final void main(String[] args)
+        throws Exception
+    {
+        // Pattern pattern = Pattern.compile(URL_PATTERN);
+        // Matcher matcher = pattern.matcher("http://localhost:48080/storages/storage0/releases/aaa/bbb/ccc");
+        // System.out.println(matcher.matches());
+    }
+
     @Override
     public void init(FilterConfig filterConfig)
         throws ServletException
     {
-        
+
     }
 
     @PostConstruct
@@ -76,6 +94,9 @@ public class HeaderMappingFilter implements Filter
         String format = "%s/*";
         userAgentMap.put(USER_AGENT_NUGET, String.format(format, USER_AGENT_NUGET));
         userAgentMap.put(USER_AGENT_MAVEN, String.format(format, USER_AGENT_MAVEN));
+
+        layoutMap.put(NugetHierarchicalLayoutProvider.ALIAS, String.format(format, USER_AGENT_NUGET));
+        layoutMap.put(Maven2LayoutProvider.ALIAS, String.format(format, USER_AGENT_MAVEN));
     }
 
     @Override
@@ -85,10 +106,32 @@ public class HeaderMappingFilter implements Filter
         throws IOException,
         ServletException
     {
+        String layout = getRequestedLayout(((HttpServletRequest) request).getPathInfo());
+
         ServletRequest targetRequest = request instanceof HttpServletRequest
-                ? new ServletRequestDecorator((HttpServletRequest) request)
+                ? new ServletRequestDecorator((HttpServletRequest) request, layout)
                 : request;
         chain.doFilter(targetRequest, response);
+    }
+
+    private String getRequestedLayout(String pathInfo)
+    {
+        if (!pathInfo.startsWith("/storages"))
+        {
+            return null;
+        }
+        String[] pathParts = pathInfo.split("/");
+        if (pathParts.length < 4)
+        {
+            return null;
+        }
+        String storageId = pathParts[2];
+        String repositoryId = pathParts[3];
+
+        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+
+        return repository.getLayout();
     }
 
     @Override
@@ -101,15 +144,18 @@ public class HeaderMappingFilter implements Filter
 
         private static final String HEADER_NAME_USER_AGENT = "user-agent";
         private HttpServletRequest target;
+        private String layout;
 
-        public ServletRequestDecorator(HttpServletRequest request)
+        public ServletRequestDecorator(HttpServletRequest target,
+                                       String layout)
         {
-            this.target = request;
+            super();
+            this.target = target;
+            this.layout = layout;
         }
 
         @Override
-        public String getHeader(
-                                String name)
+        public String getHeader(String name)
         {
             String headerValue = target.getHeader(name);
             if (!HEADER_NAME_USER_AGENT.equals(name))
@@ -125,10 +171,11 @@ public class HeaderMappingFilter implements Filter
                                                            })
                                                            .findFirst();
 
-            Optional<String> result = targetUserAgent.map((k) -> {
+            String result = targetUserAgent.map((k) -> {
                 return userAgentMap.get(k);
-            });
-            return result.orElse(String.format("%s/*", USER_AGENT_UNKNOWN));
+            }).orElseGet(() -> layoutMap.get(layout));
+
+            return Optional.of(result).orElse(String.format("%s/*", USER_AGENT_UNKNOWN));
         }
 
         public Object getAttribute(String name)
