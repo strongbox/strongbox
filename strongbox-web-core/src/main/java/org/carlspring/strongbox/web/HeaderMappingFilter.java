@@ -11,6 +11,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.servlet.AsyncContext;
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
@@ -29,8 +31,10 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpUpgradeHandler;
 import javax.servlet.http.Part;
 
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.controllers.maven.MavenArtifactController;
 import org.carlspring.strongbox.controllers.nuget.NugetPackageController;
+import org.springframework.stereotype.Component;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
 import edu.emory.mathcs.backport.java.util.Collections;
@@ -56,9 +60,18 @@ public class HeaderMappingFilter implements Filter
 
     private Map<String, String> userAgentMap = new HashMap<>();
 
+    @Inject
+    private ConfigurationManager configurationManager;
+    
     @Override
     public void init(FilterConfig filterConfig)
         throws ServletException
+    {
+        
+    }
+
+    @PostConstruct
+    public void postConstruct()
     {
         String format = "%s/*";
         userAgentMap.put(USER_AGENT_NUGET, String.format(format, USER_AGENT_NUGET));
@@ -112,9 +125,10 @@ public class HeaderMappingFilter implements Filter
                                                            })
                                                            .findFirst();
 
-            return targetUserAgent.map((k) -> {
+            Optional<String> result = targetUserAgent.map((k) -> {
                 return userAgentMap.get(k);
-            }).orElse(String.format("%s/*", USER_AGENT_UNKNOWN));
+            });
+            return result.orElse(String.format("%s/*", USER_AGENT_UNKNOWN));
         }
 
         public Object getAttribute(String name)
