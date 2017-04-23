@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Locale;
@@ -39,9 +41,6 @@ import org.carlspring.strongbox.providers.layout.NugetHierarchicalLayoutProvider
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
-import edu.emory.mathcs.backport.java.util.Collections;
-
 /**
  * This filter used to map HTTP header values from one to another.<br>
  * Mapping example:<br>
@@ -71,12 +70,14 @@ public class HeaderMappingFilter implements Filter
     public void init(FilterConfig filterConfig)
         throws ServletException
     {
-        //Do nothing
+        // Do nothing
     }
 
     @PostConstruct
     public void postConstruct()
     {
+        // TODO: we need auto configuration for this, maybe thru `LayoutProviderRegistry`
+
         String format = "%s/*";
         userAgentMap.put(USER_AGENT_NUGET, String.format(format, USER_AGENT_NUGET));
         userAgentMap.put(USER_AGENT_MAVEN, String.format(format, USER_AGENT_MAVEN));
