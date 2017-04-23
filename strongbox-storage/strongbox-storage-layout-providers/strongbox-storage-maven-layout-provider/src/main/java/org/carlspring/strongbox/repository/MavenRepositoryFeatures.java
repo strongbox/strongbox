@@ -142,7 +142,7 @@ public class MavenRepositoryFeatures implements RepositoryFeatures
                 throw new ArtifactStorageException("Target repository not found!");
             }
 
-            targetIndex.getIndexingContext().merge(FSDirectory.open(sourceIndex.getIndexDir()));
+            targetIndex.getIndexingContext().merge(FSDirectory.open(sourceIndex.getIndexDir().toPath()));
         }
         catch (IOException e)
         {
