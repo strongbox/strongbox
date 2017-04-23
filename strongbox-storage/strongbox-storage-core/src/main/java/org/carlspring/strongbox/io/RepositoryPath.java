@@ -106,6 +106,7 @@ public class RepositoryPath
 
     public RepositoryPath resolve(Path other)
     {
+        other = getTarget(other);
         return createByTemplate(getTarget().resolve(other));
     }
 
@@ -116,7 +117,14 @@ public class RepositoryPath
 
     public RepositoryPath resolveSibling(Path other)
     {
+        other = getTarget(other);
         return createByTemplate(getTarget().resolveSibling(other));
+    }
+
+    protected Path getTarget(Path other)
+    {
+        other = other instanceof RepositoryPath ? ((RepositoryPath)other).getTarget() : other;
+        return other;
     }
 
     public RepositoryPath resolveSibling(String other)
@@ -126,6 +134,7 @@ public class RepositoryPath
 
     public Path relativize(Path other)
     {
+        other = getTarget(other);
         return getTarget().relativize(other);
     }
 

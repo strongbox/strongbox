@@ -3,9 +3,12 @@ package org.carlspring.strongbox.services.impl;
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.io.RepositoryPath;
 import org.carlspring.strongbox.locator.handlers.MavenIndexerManagementOperation;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.providers.storage.StorageProvider;
+import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
@@ -15,6 +18,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -43,6 +47,8 @@ public class ArtifactIndexesServiceImpl
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
+    @Inject
+    private StorageProviderRegistry storageProviderRegistry;
 
     @Override
     public void rebuildIndex(String storageId,
@@ -55,24 +61,34 @@ public class ArtifactIndexesServiceImpl
 
         artifactPath = artifactPath == null ? "/" : artifactPath;
 
-        if (repository.isIndexingEnabled())
+        if (!repository.isIndexingEnabled())
         {
-            MavenIndexerManagementOperation operation = new MavenIndexerManagementOperation(repositoryIndexManager);
-
-            operation.setStorage(storage);
-            operation.setRepository(repository);
-            //noinspection ConstantConditions
-            operation.setBasePath(artifactPath);
-
-            ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
-            locator.setOperation(operation);
-            locator.locateArtifactDirectories();
-
-            LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-            MavenRepositoryFeatures features = (MavenRepositoryFeatures) layoutProvider.getRepositoryFeatures();
-
-            features.pack(storageId, repositoryId);
+            return;
         }
+        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
+        RepositoryPath repostitoryPath = storageProvider.resolve(repository, artifactPath);
+        
+        MavenIndexerManagementOperation operation = new MavenIndexerManagementOperation(repositoryIndexManager);
+
+        operation.setStorage(storage);
+        operation.setRepository(repository);
+        //noinspection ConstantConditions
+        
+        
+        //TODO: move this into RepositoryPath metod (there also can be issues under Windows with replaceAll(..))
+        String basePath = Files.isDirectory(repostitoryPath) ? artifactPath
+                : repostitoryPath.getParent()
+                                 .toString().replaceAll(repostitoryPath.getFileSystem().getRootDirectory().toString(), "");
+        operation.setBasePath(basePath);
+
+        ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
+        locator.setOperation(operation);
+        locator.locateArtifactDirectories();
+
+        MavenRepositoryFeatures features = (MavenRepositoryFeatures) layoutProvider.getRepositoryFeatures();
+
+        features.pack(storageId, repositoryId);
     }
 
     @Override
