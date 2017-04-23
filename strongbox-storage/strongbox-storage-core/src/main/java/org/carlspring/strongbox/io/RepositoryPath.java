@@ -141,7 +141,9 @@ public class RepositoryPath
     public Path getRepositoryRelative()
     {
         //TODO: there can be issues under Windows with replaceAll(..)
-        return getFileSystem().getPath(toString().replaceAll(getFileSystem().getRootDirectory().toString(), ""));
+        String resultString = toString().replaceAll(getFileSystem().getRootDirectory().toString(), "");
+        resultString = resultString.startsWith(getFileSystem().getSeparator()) ? resultString.substring(1) : resultString;
+        return getFileSystem().getPath(resultString);
     }
 
     public URI toUri()
