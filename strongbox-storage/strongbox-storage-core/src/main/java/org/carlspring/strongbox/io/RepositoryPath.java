@@ -137,6 +137,12 @@ public class RepositoryPath
         other = getTarget(other);
         return getTarget().relativize(other);
     }
+    
+    public Path getRepositoryRelative()
+    {
+        //TODO: there can be issues under Windows with replaceAll(..)
+        return getFileSystem().getPath(toString().replaceAll(getFileSystem().getRootDirectory().toString(), ""));
+    }
 
     public URI toUri()
     {

@@ -75,11 +75,8 @@ public class ArtifactIndexesServiceImpl
         operation.setRepository(repository);
         //noinspection ConstantConditions
         
-        
-        //TODO: move this into RepositoryPath metod (there also can be issues under Windows with replaceAll(..))
         String basePath = Files.isDirectory(repostitoryPath) ? artifactPath
-                : repostitoryPath.getParent()
-                                 .toString().replaceAll(repostitoryPath.getFileSystem().getRootDirectory().toString(), "");
+                : repostitoryPath.getParent().getRepositoryRelative().toString();
         operation.setBasePath(basePath);
 
         ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
