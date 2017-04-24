@@ -48,6 +48,8 @@ public class TrashControllerUndeleteTest
     @Inject
     private ConfigurationManager configurationManager;
 
+    private static boolean initialized = false;
+
 
     @BeforeClass
     public static void cleanUp()
@@ -61,6 +63,12 @@ public class TrashControllerUndeleteTest
             throws Exception
     {
         super.init();
+
+        if (initialized)
+        {
+            return;
+        }
+        initialized = true;
 
         Storage storage = configurationManager.getConfiguration().getStorage(STORAGE0);
 
