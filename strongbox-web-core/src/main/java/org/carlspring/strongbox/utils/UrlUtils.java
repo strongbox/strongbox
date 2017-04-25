@@ -11,6 +11,10 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public class UrlUtils
 {
 
+    private UrlUtils()
+    {
+    }
+
     public static String getRequestUri()
     {
         HttpServletRequest servletRequest = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();

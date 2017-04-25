@@ -30,6 +30,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 public class CustomAccessDecisionVoter
         implements AccessDecisionVoter
 {
+
     private static final Logger logger = LoggerFactory.getLogger(CustomAccessDecisionVoter.class);
 
 
@@ -74,17 +75,20 @@ public class CustomAccessDecisionVoter
         }
 
         // assign privileges based on custom user access model
-        List<GrantedAuthority> authorities = new ArrayList<>(authentication.getAuthorities());
-        accessModel.getPathPrivileges(UrlUtils.getRequestUri())
-                   .forEach(privilege -> authorities.add(new SimpleGrantedAuthority(privilege)));
+        final Collection<String> customAuthorities = accessModel.getPathPrivileges(UrlUtils.getRequestUri());
+        if (customAuthorities != null && !customAuthorities.isEmpty())
+        {
+            List<GrantedAuthority> authorities = new ArrayList<>(authentication.getAuthorities());
+            customAuthorities.forEach(privilege -> authorities.add(new SimpleGrantedAuthority(privilege)));
 
-        logger.debug("Obtained authorities " + authorities);
+            logger.debug("Privileges was extended to " + authorities);
 
+            SecurityContextHolder.getContext()
+                                 .setAuthentication(new UsernamePasswordAuthenticationToken(user,
+                                                                                            authentication.getCredentials(),
+                                                                                            authorities));
+        }
 
-        SecurityContextHolder.getContext()
-                             .setAuthentication(new UsernamePasswordAuthenticationToken(user,
-                                                                                        authentication.getCredentials(),
-                                                                                        authorities));
         return vote;
     }
 
