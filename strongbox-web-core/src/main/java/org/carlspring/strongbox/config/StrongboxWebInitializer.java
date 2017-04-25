@@ -46,8 +46,9 @@ public class StrongboxWebInitializer extends AbstractDispatcherServletInitialize
     {
         super.onStartup(servletContext);
 
-        registerFilter(servletContext, true, HeaderMappingFilter.class.getSimpleName(), new HeaderMappingFilter());
-
+        DelegatingFilterProxy headerMappingFilterDelegate = new DelegatingFilterProxy("headerMappingFilter");
+        registerFilter(servletContext, false, HeaderMappingFilter.class.getSimpleName(), headerMappingFilterDelegate);
+        
         String filterName = "springSecurityFilterChain";
         DelegatingFilterProxy springSecurityFilterChain = new DelegatingFilterProxy(filterName);
         registerFilter(servletContext, false, filterName, springSecurityFilterChain);

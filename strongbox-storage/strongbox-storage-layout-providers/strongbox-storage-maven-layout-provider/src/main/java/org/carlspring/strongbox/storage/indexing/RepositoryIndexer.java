@@ -43,7 +43,7 @@ public class RepositoryIndexer
 
     private static final Logger logger = LoggerFactory.getLogger(RepositoryIndexer.class);
 
-    private static final Version luceneVersion = Version.LUCENE_48;
+    private static final Version luceneVersion = Version.LATEST;
 
     private static final String[] luceneFields = new String[]{ "g",
                                                                "a",
@@ -51,7 +51,7 @@ public class RepositoryIndexer
                                                                "p",
                                                                "l" };
 
-    private static final WhitespaceAnalyzer luceneAnalyzer = new WhitespaceAnalyzer(luceneVersion);
+    private static final WhitespaceAnalyzer luceneAnalyzer = new WhitespaceAnalyzer();
 
     private Indexer indexer;
 
@@ -187,7 +187,7 @@ public class RepositoryIndexer
     {
         try
         {
-            final Query query = new MultiFieldQueryParser(luceneVersion, luceneFields, luceneAnalyzer).parse(queryText);
+            final Query query = new MultiFieldQueryParser(luceneFields, luceneAnalyzer).parse(queryText);
 
             logger.debug("Text of the query: {}", queryText);
             logger.debug("Executing search query: {}; ctx id: {}; idx dir: {}",
