@@ -150,51 +150,30 @@ public class AccessModel
     public String toString()
     {
         final StringBuilder sb = new StringBuilder("\nAccessModel {");
-        if (urlToPrivilegesMap != null && !urlToPrivilegesMap.isEmpty())
-        {
-            sb.append("\n\turlToPrivilegesMap = {");
-            urlToPrivilegesMap.entrySet()
-                              .forEach(entry ->
-                                       {
-                                           sb.append("\n\t\t")
-                                             .append(entry.getKey())
-                                             .append("\t\t-> ")
-                                             .append(entry.getValue());
-                                       });
-            sb.append("\n\t}");
-        }
-
-        if (repositoryPrivileges != null && !repositoryPrivileges.isEmpty())
-        {
-            sb.append("\n\trepositoryPrivileges = {");
-
-            repositoryPrivileges.entrySet()
-                                .forEach(entry ->
-                                         {
-                                             sb.append("\n\t\t")
-                                               .append(entry.getKey())
-                                               .append("\t\t-> ")
-                                               .append(entry.getValue());
-                                         });
-            sb.append("\n\t}");
-        }
-
-
-        if (wildCardPrivilegesMap != null && !wildCardPrivilegesMap.isEmpty())
-        {
-            sb.append("\n\twildCardPrivilegesMap = {");
-
-            wildCardPrivilegesMap.entrySet()
-                                 .forEach(entry ->
-                                          {
-                                              sb.append("\n\t\t")
-                                                .append(entry.getKey())
-                                                .append("\t\t-> ")
-                                                .append(entry.getValue());
-                                          });
-            sb.append("\n\t}");
-        }
+        prettyPrintMap(sb, "urlToPrivilegesMap", urlToPrivilegesMap);
+        prettyPrintMap(sb, "repositoryPrivileges", repositoryPrivileges);
+        prettyPrintMap(sb, "wildCardPrivilegesMap", wildCardPrivilegesMap);
         sb.append("\n}");
         return sb.toString();
+    }
+
+    private void prettyPrintMap(StringBuilder sb,
+                                String name,
+                                Map<?, ?> map)
+    {
+        if (map != null && !map.isEmpty())
+        {
+            sb.append("\n\t")
+              .append(name)
+              .append(" = {");
+
+            map.entrySet()
+               .forEach(entry ->
+                                sb.append("\n\t\t")
+                                  .append(entry.getKey())
+                                  .append("\t\t-> ")
+                                  .append(entry.getValue()));
+            sb.append("\n\t}");
+        }
     }
 }

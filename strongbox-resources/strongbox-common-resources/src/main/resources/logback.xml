@@ -50,7 +50,6 @@
     <logger name="org.springframework.aop" level="WARN"/>
     <logger name="org.springframework.cache" level="WARN"/>
     <logger name="org.springframework.test" level="WARN"/>
-    <!--<logger name=" org.springframework.security.access.vote" level="TRACE"/> -->
 
 
     <logger name="org.jooq" level="ERROR"/>
@@ -65,7 +64,7 @@
 
     <logger name="net.sf.ehcache" level="ERROR"/>
 
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
     </root>
