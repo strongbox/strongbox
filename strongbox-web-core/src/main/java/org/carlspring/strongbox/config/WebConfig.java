@@ -2,6 +2,7 @@ package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
 import org.carlspring.strongbox.utils.CustomAntPathMatcher;
+import org.carlspring.strongbox.web.HeaderMappingFilter;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -11,9 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
-import org.carlspring.strongbox.utils.CustomAntPathMatcher;
-import org.carlspring.strongbox.web.HeaderMappingFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.EnableCaching;
@@ -70,7 +68,8 @@ public class WebConfig
     }
 
     @Bean
-    public HeaderMappingFilter headerMappingFilter(){
+    public HeaderMappingFilter headerMappingFilter()
+    {
         return new HeaderMappingFilter();
     }
 
@@ -118,7 +117,7 @@ public class WebConfig
         marshaller.setMarshallerProperties(props);
         return marshaller;
     }
-    
+
     @Bean
     public MappingJackson2HttpMessageConverter jackson2Converter()
     {

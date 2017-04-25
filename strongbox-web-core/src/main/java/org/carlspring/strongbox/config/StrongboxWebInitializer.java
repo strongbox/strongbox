@@ -15,7 +15,8 @@ import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.filter.RequestContextFilter;
 import org.springframework.web.servlet.support.AbstractDispatcherServletInitializer;
 
-public class StrongboxWebInitializer extends AbstractDispatcherServletInitializer
+public class StrongboxWebInitializer
+        extends AbstractDispatcherServletInitializer
 {
 
     @Override
@@ -29,7 +30,7 @@ public class StrongboxWebInitializer extends AbstractDispatcherServletInitialize
     @Override
     protected String[] getServletMappings()
     {
-        return new String[] { "/*" };
+        return new String[]{ "/*" };
     }
 
     @Override
@@ -48,7 +49,7 @@ public class StrongboxWebInitializer extends AbstractDispatcherServletInitialize
 
         DelegatingFilterProxy headerMappingFilterDelegate = new DelegatingFilterProxy("headerMappingFilter");
         registerFilter(servletContext, false, HeaderMappingFilter.class.getSimpleName(), headerMappingFilterDelegate);
-        
+
         String filterName = "springSecurityFilterChain";
         DelegatingFilterProxy springSecurityFilterChain = new DelegatingFilterProxy(filterName);
         registerFilter(servletContext, false, filterName, springSecurityFilterChain);

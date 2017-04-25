@@ -40,7 +40,7 @@ import static org.apache.lucene.search.BooleanClause.Occur.MUST;
 
 public class RepositoryIndexer
 {
-
+git statu
     private static final Logger logger = LoggerFactory.getLogger(RepositoryIndexer.class);
 
     private static final Version luceneVersion = Version.LATEST;
