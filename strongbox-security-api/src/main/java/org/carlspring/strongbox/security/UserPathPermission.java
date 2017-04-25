@@ -4,6 +4,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlValue;
+import java.io.Serializable;
 
 import com.google.common.base.Objects;
 
@@ -12,6 +13,7 @@ import com.google.common.base.Objects;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 public class UserPathPermission
+        implements Serializable
 {
 
     @XmlValue
@@ -22,7 +24,8 @@ public class UserPathPermission
 
     public UserPathPermission()
     {
-        permission = "rw";  // assign default attribute value
+        // assign default attribute value
+        permission = "rw";
     }
 
     @Override
