@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.security.certificates;
 
+import org.apache.commons.lang3.StringUtils;
 import org.carlspring.commons.io.resource.ResourceCloser;
 
 import javax.annotation.PostConstruct;
@@ -161,7 +162,7 @@ public class KeyStoreManager
         while (aliases.hasMoreElements())
         {
             String alias = aliases.nextElement();
-            if (alias.startsWith(prefix))
+            if (StringUtils.startsWithIgnoreCase(alias, prefix))
             {
                 keyStore.deleteEntry(alias);
             }

@@ -10,6 +10,7 @@ import javax.xml.bind.Marshaller;
 
 import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
 import org.carlspring.strongbox.utils.CustomAntPathMatcher;
+import org.carlspring.strongbox.web.HeaderMappingFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.EnableCaching;
@@ -41,7 +42,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
                  "org.carlspring.logging" })
 @Import({ CommonConfig.class,
           StrongboxSecurityConfig.class,
+          StorageApiConfig.class,
           Maven2LayoutProviderConfig.class,
+          NugetLayoutProviderConfig.class,
           StorageCoreConfig.class,
           UsersConfig.class,
           SecurityConfig.class,
@@ -66,6 +69,11 @@ public class WebConfig
         logger.debug("Initialized web configuration.");
     }
 
+    @Bean
+    public HeaderMappingFilter headerMappingFilter(){
+        return new HeaderMappingFilter();
+    }
+    
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters)
     {
