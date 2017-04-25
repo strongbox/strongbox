@@ -327,11 +327,6 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         }
     }
 
-    private void displayArtifactInfo(ArtifactInfo artifactInfo)
-    {
-
-    }
-
     public void assertIndexContainsArtifact(String storageId,
                                             String repositoryId,
                                             String query)
