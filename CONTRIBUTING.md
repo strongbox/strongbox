@@ -18,7 +18,7 @@ Please, follow these basic rules when creating pull requests. Pull requests:
   * Have failing tests
   * Contain unaddressed **critical** issues reported by Sonar
   * Have commented out dead code. (Commented out code is fine, just not blocks and blocks of it).
-  * 
+  * Contain `public static void(String[] args])` methods (as those would clearly have been used for the sake of quick testing without an actual test case)
 
 Once you've created a new pull request, kindly first review the diff thoroughly yourselves, before requesting it to be reviewed by others and merged.
 
