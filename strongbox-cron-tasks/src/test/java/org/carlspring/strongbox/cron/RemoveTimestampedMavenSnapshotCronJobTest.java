@@ -224,14 +224,12 @@ public class RemoveTimestampedMavenSnapshotCronJobTest
                                0);
 
         //Checking if job was executed
-        while (!jobManager.getExecutedJobs()
-                          .containsKey(jobName))
+        while (!jobManager.getExecutedJobs().containsKey(jobName))
         {
             Thread.sleep(8000);
         }
 
-        System.out.println(jobManager.getExecutedJobs()
-                                     .toString());
+        System.out.println(jobManager.getExecutedJobs().toString());
 
         assertEquals("Amount of timestamped snapshots doesn't equal 1.", 1,
                      file.listFiles(new JarFilenameFilter()).length);
