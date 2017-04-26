@@ -35,8 +35,7 @@ public class ClearRepositoryTrashCronJob
     {
         logger.debug("Executed ClearRepositoryTrashCronJob.");
 
-        CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap()
-                                                                                  .get("config");
+        CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap().get("config");
 
         try
         {
