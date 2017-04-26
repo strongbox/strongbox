@@ -48,8 +48,8 @@ import org.slf4j.LoggerFactory;
  * @author mtodorov
  */
 public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
-                                                    U extends RepositoryFeatures,
-                                                    V extends RepositoryManagementStrategy>
+                                             U extends RepositoryFeatures,
+                                             V extends RepositoryManagementStrategy>
         implements LayoutProvider<T>
 {
 
@@ -101,8 +101,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
 
     public Storage getStorage(String storageId)
     {
-        return configurationManager.getConfiguration()
-                                   .getStorage(storageId);
+        return configurationManager.getConfiguration().getStorage(storageId);
     }
 
     @Override
@@ -188,6 +187,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                                 {
                                     logger.error(e.getMessage());
                                 }
+                                
                                 return checksum;
                             })
                        .allMatch(checksum -> Files.exists(checksum));
@@ -240,8 +240,8 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                                                 {
                                                     return;
                                                 }
-                                                result.getHexDigests()
-                                                      .put(a, checksum);
+                                                
+                                                result.getHexDigests().put(a, checksum);
                                             });
         }
         return result;
@@ -256,8 +256,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        String checksumExtension = ".".concat(digestAlgorithm.toLowerCase()
-                                                             .replaceAll("-", ""));
+        String checksumExtension = ".".concat(digestAlgorithm.toLowerCase().replaceAll("-", ""));
         String checksumPath = path.concat(checksumExtension);
         String checksum = null;
 
@@ -381,8 +380,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
 
     protected RepositoryFileSystemProvider getProvider(RepositoryPath artifactPath)
     {
-        return (RepositoryFileSystemProvider) artifactPath.getFileSystem()
-                                                          .provider();
+        return (RepositoryFileSystemProvider) artifactPath.getFileSystem().provider();
     }
 
     @Override
@@ -465,8 +463,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     {
         Files.delete(repositoryPath);
 
-        Repository repository = repositoryPath.getFileSystem()
-                                              .getRepository();
+        Repository repository = repositoryPath.getFileSystem().getRepository();
         RepositoryFileSystemProvider provider = getProvider(repositoryPath);
         if (force && repository.allowsForceDeletion())
         {
@@ -484,8 +481,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
         RepositoryPath path = resolve(repository);
-        RepositoryFileSystemProvider provider = (RepositoryFileSystemProvider) path.getFileSystem()
-                                                                                   .provider();
+        RepositoryFileSystemProvider provider = (RepositoryFileSystemProvider) path.getFileSystem().provider();
 
         provider.deleteTrash(path);
     }
@@ -494,8 +490,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     public void deleteTrash()
             throws IOException
     {
-        for (Map.Entry entry : getConfiguration().getStorages()
-                                                 .entrySet())
+        for (Map.Entry entry : getConfiguration().getStorages().entrySet())
         {
             Storage storage = (Storage) entry.getValue();
 
@@ -506,6 +501,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                 {
                     logger.warn("Repository " + repository.getId() + " does not support removal of trash.");
                 }
+                
                 deleteTrash(storage.getId(), repository.getId());
             }
         }
@@ -551,8 +547,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     public void undeleteTrash()
             throws IOException
     {
-        for (Map.Entry entry : getConfiguration().getStorages()
-                                                 .entrySet())
+        for (Map.Entry entry : getConfiguration().getStorages().entrySet())
         {
             Storage storage = (Storage) entry.getValue();
 
@@ -602,8 +597,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                    ProviderImplementationException
 
     {
-        File[] files = basePath.toFile()
-                               .listFiles();
+        File[] files = basePath.toFile().listFiles();
 
         if (files != null)
         {
@@ -620,8 +614,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                                  try
                                  {
                                      String artifactPath = e.getPath()
-                                                            .substring(repository.getBasedir()
-                                                                                 .length() + 1);
+                                                            .substring(repository.getBasedir().length() + 1);
                                      is = getInputStream(repository.getStorage()
                                                                    .getId(), repository.getId(), artifactPath);
                                  }
@@ -645,8 +638,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                                         {
                                             String checksum = is.getHexDigests()
                                                                 .get(e);
-                                            String checksumExtension = ".".concat(e.toLowerCase()
-                                                                                   .replaceAll("-", ""));
+                                            String checksumExtension = ".".concat(e.toLowerCase().replaceAll("-", ""));
 
                                             try
                                             {
