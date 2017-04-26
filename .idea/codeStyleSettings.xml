@@ -17,6 +17,7 @@
             <package name="" withSubpackages="true" static="true" />
           </value>
         </option>
+        <option name="FORMATTER_TAGS_ENABLED" value="true" />
         <option name="BLANK_LINES_BEFORE_PACKAGE" value="1" />
         <option name="BLANK_LINES_AFTER_CLASS_HEADER" value="1" />
         <option name="BRACE_STYLE" value="2" />
@@ -351,6 +352,6 @@
         </codeStyleSettings>
       </value>
     </option>
-    <option name="USE_PER_PROJECT_SETTINGS" value="true" />
+    <option name="PREFERRED_PROJECT_CODE_STYLE" value="carlspring" />
   </component>
 </project>

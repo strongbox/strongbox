@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.security.vote;
 
+import org.carlspring.strongbox.authentication.api.impl.userdetails.SpringSecurityUser;
 import org.carlspring.strongbox.controllers.maven.MavenArtifactController;
-import org.carlspring.strongbox.security.user.SpringSecurityUser;
 import org.carlspring.strongbox.users.domain.AccessModel;
 import org.carlspring.strongbox.utils.UrlUtils;
 

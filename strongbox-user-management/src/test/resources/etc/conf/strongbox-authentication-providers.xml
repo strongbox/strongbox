@@ -1,0 +1,10 @@
+<?xml version="1.0" standalone="yes"?>
+<authenticators>
+
+    <authenticator class="org.carlspring.strongbox.authentication.api.impl.StrongboxBuiltinAuthenticator"
+                   component-scan-base-packages="org.carlspring.strongbox.authentication.api.impl"/>
+
+    <authenticator class="org.carlspring.strongbox.authentication.impl.example.EmptyAuthenticator"
+                   component-scan-base-packages="org.carlspring.strongbox.authentication.impl.example"/>
+
+</authenticators>

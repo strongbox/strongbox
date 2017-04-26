@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.security.user;
+package org.carlspring.strongbox.authentication.api.impl.userdetails;
 
 import org.carlspring.strongbox.users.domain.AccessModel;
 import org.carlspring.strongbox.users.domain.User;

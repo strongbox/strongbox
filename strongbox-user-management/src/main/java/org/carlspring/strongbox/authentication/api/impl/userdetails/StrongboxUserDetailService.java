@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.security.user;
+package org.carlspring.strongbox.authentication.api.impl.userdetails;
 
 import org.carlspring.strongbox.security.Role;
 import org.carlspring.strongbox.users.domain.Roles;
@@ -8,6 +8,9 @@ import org.carlspring.strongbox.users.service.UserService;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import javax.inject.Qualifier;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,7 +24,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
+@StrongboxUserDetailService.StrongboxUserDetailServiceQ
 @Component
 public class StrongboxUserDetailService
         implements UserDetailsService
@@ -151,5 +156,14 @@ public class StrongboxUserDetailService
 
         return authorities;
     }
+
+    @Documented
+    @Retention(RUNTIME)
+    @Qualifier
+    public @interface StrongboxUserDetailServiceQ
+    {
+
+    }
+
 
 }

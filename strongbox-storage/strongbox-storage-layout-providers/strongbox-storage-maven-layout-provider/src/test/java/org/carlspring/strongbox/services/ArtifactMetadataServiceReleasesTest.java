@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.services;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.authentication.config.AuthenticationConfig;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
@@ -25,6 +26,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static junit.framework.TestCase.assertTrue;
@@ -48,7 +50,7 @@ public class ArtifactMetadataServiceReleasesTest
     private static Artifact artifact;
 
     @org.springframework.context.annotation.Configuration
-    @ComponentScan(basePackages = {"org.carlspring.strongbox" })
+    @ComponentScan(basePackages = { "org.carlspring.strongbox" }, excludeFilters = { @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = AuthenticationConfig.class) })
     public static class SpringConfig { }
 
     @Inject

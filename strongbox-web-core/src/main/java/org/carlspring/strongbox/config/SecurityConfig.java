@@ -1,10 +1,9 @@
 package org.carlspring.strongbox.config;
 
-import org.carlspring.strongbox.config.conditions.JwtEnabledCondition;
+import org.carlspring.strongbox.authentication.config.AuthenticationConfig;
+import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
 import org.carlspring.strongbox.security.authentication.CustomAnonymousAuthenticationFilter;
-import org.carlspring.strongbox.security.authentication.Http401AuthenticationEntryPoint;
-import org.carlspring.strongbox.security.authentication.JWTAuthenticationFilter;
-import org.carlspring.strongbox.security.authentication.JWTAuthenticationProvider;
+import org.carlspring.strongbox.security.authentication.StrongboxAuthenticationFilter;
 import org.carlspring.strongbox.security.vote.FilterAccessDecisionManager;
 import org.carlspring.strongbox.security.vote.MethodAccessDecisionManager;
 import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
@@ -12,17 +11,11 @@ import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.util.List;
-import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.access.AccessDecisionManager;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -31,19 +24,18 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
+@Import(AuthenticationConfig.class)
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig
         extends WebSecurityConfigurerAdapter
 {
-
     /**
      * This Configuration enables @PreAuthorize annotations
-     * 
+     *
      * @author Sergey Bespalov
      *
      */
@@ -63,154 +55,63 @@ public class SecurityConfig
         }
     }
 
+
     @Inject
-    public void configureGlobal(AuthenticationManagerBuilder auth,
-                                @Qualifier("userDetailsAuthenticationProvider")
-                                        AuthenticationProvider userDetailsAuthenticationProvider,
-                                @Qualifier("jwtAuthenticationProvider")
-                                        Optional<AuthenticationProvider> jwtAuthenticationProvider)
+    private AuthorizationConfigProvider authorizationConfigProvider;
+
+    @Inject
+    private AuthenticatorsRegistry authenticatorsRegistry;
+
+    @Inject
+    FilterAccessDecisionManager filterAccessDecisionManager;
+
+    @PostConstruct
+    public void init()
     {
-        auth.authenticationProvider(userDetailsAuthenticationProvider)
-            .eraseCredentials(false);
-        jwtAuthenticationProvider.ifPresent(auth::authenticationProvider);
+        authorizationConfigProvider.getConfig()
+                                   .ifPresent((config) ->
+                                              {
+                                                  anonymousAuthenticationFilter().getAuthorities()
+                                                                                 .addAll(config.getAnonymousAuthorities());
+                                              });
     }
 
-    /**
-     * This configuration specifies BasicAuthentication rules. Such
-     * authentication triggered first and only for concrete set of URL patterns.
-     * All the other authentication configured in {@link JwtSecurityConfig}
-     *
-     * @author Sergey Bespalov
-     */
-    @Configuration
-    @Order(1)
-    public static class BasicSecurityConfig
-            extends WebSecurityConfigurerAdapter
+    @Override
+    protected void configure(HttpSecurity http)
+            throws Exception
     {
+        http.sessionManagement()
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .and()
+            .authorizeRequests()
+            .anyRequest()
+            .authenticated()
+            .accessDecisionManager(filterAccessDecisionManager)
+            .and()
+            .anonymous()
+            .authenticationFilter(anonymousAuthenticationFilter())
+            .and()
+            .csrf()
+            .disable();
 
-        @Inject
-        private AuthorizationConfigProvider authorizationConfigProvider;
-
-        private AnonymousAuthenticationFilter anonymousAuthenticationFilter;
-
-        public BasicSecurityConfig()
-        {
-            List<GrantedAuthority> anonymousRole = AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS");
-            anonymousAuthenticationFilter = new CustomAnonymousAuthenticationFilter("strongbox-unique-key",
-                                                                                    "anonymousUser",
-                                                                                    anonymousRole);
-        }
-
-        @PostConstruct
-        public void init()
-        {
-            authorizationConfigProvider.getConfig()
-                                       .ifPresent((config) ->
-                                                  {
-                                                      anonymousAuthenticationFilter.getAuthorities()
-                                                                                   .addAll(config.getAnonymousAuthorities());
-                                                  });
-        }
-
-        @Bean
-        public AnonymousAuthenticationFilter anonymousAuthenticationFilter()
-        {
-            return anonymousAuthenticationFilter;
-        }
-
-        @Inject
-        FilterAccessDecisionManager filterAccessDecisionManager;
-
-        @Override
-        protected void configure(HttpSecurity http)
-                throws Exception
-        {
-            http.sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .requestMatchers()
-                .antMatchers("/users/user/authenticate", "/storages/**/*", "/trash/**/*")
-                .and()
-                .authorizeRequests()
-                .anyRequest()
-                .authenticated()
-                .accessDecisionManager(filterAccessDecisionManager)
-                .and()
-                .httpBasic()
-                .and()
-                .csrf()
-                .disable();
-        }
-    }
-
-    /**
-     * This configuration specifies JWTAuthentication and Anonymous access
-     * rules. It triggered after {@link BasicSecurityConfig} and authenticate
-     * unauthorized requests if needed.
-     *
-     * @author Sergey Bespalov
-     */
-    @Configuration
-    @Order(2)
-    @Conditional(JwtEnabledCondition.class)
-    public static class JwtSecurityConfig
-            extends
-            WebSecurityConfigurerAdapter
-    {
-
-        @Inject
-        private AnonymousAuthenticationFilter anonymousAuthenticationFilter;
-
-        @Inject
-        FilterAccessDecisionManager filterAccessDecisionManager;
-
-        @Override
-        protected void configure(HttpSecurity http)
-                throws Exception
-        {
-            JWTAuthenticationFilter jwtFilter = new JWTAuthenticationFilter(authenticationManager());
-
-            http.sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .authorizeRequests()
-                .antMatchers("/docs/**", "/assets/**")
-                .permitAll()
-                .anyRequest()
-                .authenticated()
-                .accessDecisionManager(filterAccessDecisionManager)
-                .and()
-                // .addFilterAfter(jwtFilter,BasicAuthenticationFilter.class)
-                .logout()
-                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                .logoutSuccessUrl("/")
-                .and()
-                .anonymous()
-                .authenticationFilter(anonymousAuthenticationFilter)
-                .and()
-                .exceptionHandling()
-                .authenticationEntryPoint(new Http401AuthenticationEntryPoint("Bearer"))
-                .and()
-                .csrf()
-                .disable();
-        }
-
+        http.addFilterBefore(strongboxAuthenticationFilter(),
+                             BasicAuthenticationFilter.class);
     }
 
     @Bean
-    public AuthenticationProvider userDetailsAuthenticationProvider(UserDetailsService userDetailsService)
+    StrongboxAuthenticationFilter strongboxAuthenticationFilter()
     {
-        DaoAuthenticationProvider result = new DaoAuthenticationProvider();
-        result.setUserDetailsService(userDetailsService);
-
-        return result;
+        return new StrongboxAuthenticationFilter(authenticatorsRegistry);
     }
 
     @Bean
-    @Conditional(JwtEnabledCondition.class)
-    public AuthenticationProvider jwtAuthenticationProvider()
+    AnonymousAuthenticationFilter anonymousAuthenticationFilter()
     {
-        return new JWTAuthenticationProvider();
+        List<GrantedAuthority> anonymousRole = AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS");
+        return new CustomAnonymousAuthenticationFilter("strongbox-unique-key",
+                                                       "anonymousUser",
+                                                       anonymousRole);
     }
+
 
 }
