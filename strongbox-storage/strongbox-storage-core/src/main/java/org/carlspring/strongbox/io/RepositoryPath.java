@@ -10,6 +10,7 @@ import java.nio.file.WatchEvent.Modifier;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.Iterator;
+import java.util.regex.Pattern;
 
 /**
  * This implementation wraps target {@link Path} implementation, which can be an "CloudPath" or common
@@ -141,7 +142,7 @@ public class RepositoryPath
     public Path getRepositoryRelative()
     {
         //TODO: there can be issues under Windows with replaceAll(..)
-        String resultString = toString().replaceAll(getFileSystem().getRootDirectory().toString(), "");
+        String resultString = toString().replaceAll(Pattern.quote(getFileSystem().getRootDirectory().toString()), "");
         resultString = resultString.startsWith(getFileSystem().getSeparator()) ? resultString.substring(1) : resultString;
         return getFileSystem().getPath(resultString);
     }

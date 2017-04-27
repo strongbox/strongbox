@@ -84,10 +84,6 @@ public class TrashControllerUndeleteTest
 
         createRepository(repositoryWithTrash);
 
-        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_TRASH).getAbsolutePath(),
-                         "org.carlspring.strongbox.undelete:test-artifact-undelete",
-                         new String[] { "1.0", "1.1" });
-
         // Notes:
         // - Used by testForceDeleteArtifactAllowed()
         // - Forced deletions are allowed
@@ -97,16 +93,20 @@ public class TrashControllerUndeleteTest
         repositoryReleases.setIndexingEnabled(true);
 
         createRepository(repositoryReleases);
-
-        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES).getAbsolutePath(),
-                         "org.carlspring.strongbox.undelete:test-artifact-undelete",
-                         new String[] { "2.0" });
     }
 
     @Before
     public void setUp()
             throws Exception
     {
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_TRASH).getAbsolutePath(),
+                         "org.carlspring.strongbox.undelete:test-artifact-undelete",
+                         new String[] { "1.0", "1.1" });
+
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES).getAbsolutePath(),
+                         "org.carlspring.strongbox.undelete:test-artifact-undelete",
+                         new String[] { "2.0" });
+
         // Delete the artifact (this one should get placed under the .trash)
         client.delete(STORAGE0,
                       REPOSITORY_WITH_TRASH,
