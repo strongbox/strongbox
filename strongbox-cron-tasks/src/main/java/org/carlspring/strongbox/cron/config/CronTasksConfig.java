@@ -1,13 +1,15 @@
 package org.carlspring.strongbox.cron.config;
 
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.config.StorageCoreConfig;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import java.util.List;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.orientechnologies.orient.core.entity.OEntityManager;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -26,9 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
-
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.cron" })
 @Import({ DataServiceConfig.class,
@@ -40,11 +39,10 @@ public class CronTasksConfig
 {
 
     @Inject
-    private OObjectDatabaseTx databaseTx;
+    private OEntityManager oEntityManager;
 
     @Inject
     ApplicationContext applicationContext;
-
 
     @Bean
     public SchedulerFactoryBean schedulerFactoryBean()
@@ -68,8 +66,8 @@ public class CronTasksConfig
     public void init()
     {
         // register all domain entities
-        databaseTx.activateOnCurrentThread();
-        databaseTx.getEntityManager().registerEntityClasses(CronTaskConfiguration.class.getPackage().getName());
+        oEntityManager.registerEntityClasses(CronTaskConfiguration.class.getPackage()
+                                                                        .getName());
     }
 
     @Override

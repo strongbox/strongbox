@@ -1,9 +1,5 @@
 package com.orientechnologies.orient.object.jpa;
 
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
@@ -14,6 +10,9 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.metamodel.Metamodel;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -46,7 +45,7 @@ public class OJPAObjectDatabaseTxEntityManager implements EntityManager
 
         if (logger.isLoggable(Level.INFO))
         {
-            logger.info("EntityManager created for persistence unit : " + entityManagerFactory.toString());
+            logger.fine("EntityManager created for persistence unit : " + entityManagerFactory.toString());
         }
     }
 
@@ -117,7 +116,7 @@ public class OJPAObjectDatabaseTxEntityManager implements EntityManager
             database.commit();
             if (logger.isLoggable(Level.FINEST))
             {
-                logger.info("EntityManager flushed. " + toString());
+                logger.fine("EntityManager flushed. " + toString());
             }
         }
     }
@@ -147,7 +146,7 @@ public class OJPAObjectDatabaseTxEntityManager implements EntityManager
         database.load(entity);
         if (logger.isLoggable(Level.FINEST))
         {
-            logger.info("EntityManager refreshed. " + toString());
+            logger.fine("EntityManager refreshed. " + toString());
         }
     }
 
@@ -159,7 +158,7 @@ public class OJPAObjectDatabaseTxEntityManager implements EntityManager
             database.rollback();
             if (logger.isLoggable(Level.FINEST))
             {
-                logger.info("EntityManager cleared. " + toString());
+                logger.fine("EntityManager cleared. " + toString());
             }
         }
     }
@@ -355,7 +354,7 @@ public class OJPAObjectDatabaseTxEntityManager implements EntityManager
         database.close();
         if (logger.isLoggable(Level.INFO))
         {
-            logger.info("EntityManager closed. " + toString());
+            logger.fine("EntityManager closed. " + toString());
         }
     }
 

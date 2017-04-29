@@ -18,7 +18,7 @@ public class JwtEnabledCondition implements Condition
         final boolean jwtEnabled = !Boolean.parseBoolean(context.getEnvironment()
                                                                 .getProperty("strongbox.security.jwt.disabled"));
 
-        logger.debug("JWT enabled ? {}", jwtEnabled);
+        logger.trace("JWT enabled ? {}", jwtEnabled);
 
         return jwtEnabled;
     }

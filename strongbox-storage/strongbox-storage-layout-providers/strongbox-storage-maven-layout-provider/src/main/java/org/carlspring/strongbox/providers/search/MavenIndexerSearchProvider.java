@@ -103,12 +103,15 @@ public class MavenIndexerSearchProvider implements SearchProvider
                                        searchRequest.getRepositoryId() + ":" +
                                        IndexTypeEnum.LOCAL.getType();
 
-                    final Set<SearchResult> sr = repositoryIndexManager.getRepositoryIndexer(contextId)
-                                                                       .search(searchRequest.getQuery());
-
-                    if (!sr.isEmpty())
-                    {
-                        searchResults.getResults().addAll(sr);
+                    RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer(contextId);
+                    if (repositoryIndexer == null) {
+                        logger.warn("Unable to find repositoryIndexer for " + contextId);
+                    }
+                    else {
+                        final Set<SearchResult> sr = repositoryIndexer.search(searchRequest.getQuery());
+                        if (!sr.isEmpty()) {
+                            searchResults.getResults().addAll(sr);
+                        }
                     }
 
                     logger.debug("Results: {}", searchResults.getResults().size());

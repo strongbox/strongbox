@@ -1,8 +1,9 @@
 package com.orientechnologies.orient.object.jpa;
 
-import static com.orientechnologies.orient.core.entity.OEntityManager.getEntityManagerByDatabaseURL;
-import static com.orientechnologies.orient.object.jpa.parsing.PersistenceXmlUtil.PERSISTENCE_XML;
-
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.spi.PersistenceProvider;
+import javax.persistence.spi.PersistenceUnitInfo;
+import javax.persistence.spi.ProviderUtil;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Map;
@@ -10,13 +11,10 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.spi.PersistenceProvider;
-import javax.persistence.spi.PersistenceUnitInfo;
-import javax.persistence.spi.ProviderUtil;
-
 import com.orientechnologies.orient.core.entity.OEntityManager;
 import com.orientechnologies.orient.object.jpa.parsing.PersistenceXmlUtil;
+import static com.orientechnologies.orient.core.entity.OEntityManager.getEntityManagerByDatabaseURL;
+import static com.orientechnologies.orient.object.jpa.parsing.PersistenceXmlUtil.PERSISTENCE_XML;
 
 /**
  * @author Sergey Bespalov
@@ -41,7 +39,7 @@ public class OJPAObjectDatabaseTxPersistence
         }
         catch (Exception e)
         {
-            logger.log(Level.INFO, "Cannot parse '" + PERSISTENCE_XML + "' :" + e.getMessage(), e);
+            logger.log(Level.SEVERE, "Cannot parse '" + PERSISTENCE_XML + "' :" + e.getMessage(), e);
         }
     }
 

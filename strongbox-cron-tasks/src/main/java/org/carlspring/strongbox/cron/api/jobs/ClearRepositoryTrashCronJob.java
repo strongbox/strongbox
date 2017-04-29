@@ -6,7 +6,6 @@ import org.carlspring.strongbox.services.ArtifactManagementService;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.io.IOException;
 
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -33,9 +32,11 @@ public class ClearRepositoryTrashCronJob
     protected void executeInternal(JobExecutionContext jobExecutionContext)
             throws JobExecutionException
     {
-        logger.debug("Executed ClearRepositoryTrashCronJob.");
+        final String jobClassName = getClass().getName();
+        logger.debug("Execute " + jobClassName);
 
-        CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap().get("config");
+        CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap()
+                                                                                  .get("config");
 
         try
         {
@@ -51,12 +52,12 @@ public class ClearRepositoryTrashCronJob
                 artifactManagementService.deleteTrash(storageId, repositoryId);
             }
         }
-        catch (IOException e)
+        catch (Exception e)
         {
-            logger.error(e.getMessage(), e);
-            manager.addExecutedJob(config.getName(), true);
+            logger.error("Unable to execute " + jobClassName + ". " + e.getMessage(), e);
         }
 
+        // notify about job execution in any case
         manager.addExecutedJob(config.getName(), true);
     }
 }

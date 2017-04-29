@@ -11,7 +11,6 @@ import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.annotation.PostConstruct;
@@ -27,6 +26,8 @@ import java.util.Set;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.*;
@@ -39,6 +40,7 @@ import static org.junit.Assert.*;
 public class ClearRepositoryTrashCronJobTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
+    private final Logger logger = LoggerFactory.getLogger(ClearRepositoryTrashCronJobTest.class);
 
     private static final String STORAGE1 = "storage1";
 
@@ -182,8 +184,7 @@ public class ClearRepositoryTrashCronJobTest
     public void testRemoveTrashInRepository()
             throws Exception
     {
-        File basedirTrash = repository1.getTrashDir();
-        File[] dirs = basedirTrash.listFiles();
+        File[] dirs = getDirs();
 
         assertTrue("There is no path to the repository trash!", dirs != null);
         assertEquals("The repository trash isn't empty!", 0, dirs.length);
@@ -192,27 +193,31 @@ public class ClearRepositoryTrashCronJobTest
         String path = "org/carlspring/strongbox/clear/strongbox-test-one/1.0";
         layoutProvider.delete(STORAGE0, REPOSITORY_RELEASES_1, path, false);
 
-        dirs = basedirTrash.listFiles();
+        dirs = getDirs();
 
         assertTrue("There is no path to the repository trash!", dirs != null);
         assertEquals("The repository trash is empty!", 1, dirs.length);
 
-        String jobName = "RemoveTrash-1";
+        final String jobName = "RemoveTrash-1";
+        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) -> {
+            File[] dirs1 = getDirs();
+
+            assertTrue("There is no path to the repository trash!", dirs1 != null);
+            assertEquals("The repository trash isn't empty!", 0, dirs1.length);
+
+            try {
+                deleteRebuildCronJobConfig(jobName);
+            }
+            catch (Exception e){
+                logger.error("Unable to deleteRebuildCronJobConfig", e);
+            }
+        });
 
         addRebuildCronJobConfig(jobName, STORAGE0, REPOSITORY_RELEASES_1);
+    }
 
-        //Checking if job was executed
-        while (!jobManager.getExecutedJobs().containsKey(jobName))
-        {
-            Thread.sleep(8000);
-        }
-
-        dirs = basedirTrash.listFiles();
-
-        assertTrue("There is no path to the repository trash!", dirs != null);
-        assertEquals("The repository trash isn't empty!", 0, dirs.length);
-
-        deleteRebuildCronJobConfig(jobName);
+    private File[] getDirs(){
+        return repository1.getTrashDir().listFiles();
     }
 
     @Test
@@ -247,25 +252,28 @@ public class ClearRepositoryTrashCronJobTest
         assertTrue("There is no path to the repository trash!", dirs2 != null);
         assertEquals("The repository trash is empty!", 1, dirs2.length);
 
+        // Checking if job was executed
         String jobName = "RemoveTrash-2";
+        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) -> {
+            File[] dirs11 = basedirTrash1.listFiles();
+            File[] dirs22 = basedirTrash2.listFiles();
 
+            assertTrue("There is no path to the repository trash!", dirs11 != null);
+            assertEquals("The repository trash isn't empty!", 0, dirs11.length);
+            assertTrue("There is no path to the repository trash!", dirs22 != null);
+            assertEquals("The repository trash isn't empty!", 0, dirs22.length);
+
+            try
+            {
+                deleteRebuildCronJobConfig(jobName);
+            }
+            catch (Exception e)
+            {
+                logger.error("Unable to deleteRebuildCronJobConfig", e);
+            }
+        });
+
+        // schedule the job
         addRebuildCronJobConfig(jobName, null, null);
-
-        //Checking if job was executed
-        while (!jobManager.getExecutedJobs().containsKey(jobName))
-        {
-            Thread.sleep(8000);
-        }
-
-        dirs1 = basedirTrash1.listFiles();
-        dirs2 = basedirTrash2.listFiles();
-
-        assertTrue("There is no path to the repository trash!", dirs1 != null);
-        assertEquals("The repository trash isn't empty!", 0, dirs1.length);
-        assertTrue("There is no path to the repository trash!", dirs2 != null);
-        assertEquals("The repository trash isn't empty!", 0, dirs2.length);
-
-        deleteRebuildCronJobConfig(jobName);
     }
-
 }
