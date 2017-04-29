@@ -226,7 +226,7 @@ public class UsersConfig
 
     private Set<String> translateToPrivileges(String permission)
     {
-        if (permission == null || permission.equalsIgnoreCase("rw"))
+        if (permission == null || permission.equalsIgnoreCase(Privileges.DEFAULT))
         {
             return Privileges.rw();
         }
@@ -240,7 +240,7 @@ public class UsersConfig
             throws IOException
     {
         return ConfigurationResourceResolver.getConfigurationResource("users.config.xml",
-                                                                      "etc/conf/security-users.xml");
+                                                                      "etc/conf/strongbox-security-users.xml");
     }
 
 }

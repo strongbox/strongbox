@@ -68,6 +68,8 @@ public enum Privileges
     UI_LOGIN,
     UI_BROWSE;
 
+    public final static String DEFAULT = "rw";
+
     /**
      * Helper method for accessing all roles.
      *
