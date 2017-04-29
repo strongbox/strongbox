@@ -165,22 +165,27 @@ public class RebuildMavenIndexesCronJobTest
     {
         String jobName = "RebuildIndex-1";
 
-        addRebuildCronJobConfig(jobName, STORAGE0, REPOSITORY_RELEASES_1, ARTIFACT_BASE_PATH_STRONGBOX_INDEXES);
-
-        //Checking if job was executed
-        while (!jobManager.getExecutedJobs().containsKey(jobName))
+        // Checking if job was executed
+        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
-            Thread.sleep(8000);
-        }
+            if (jobName1.equals(jobName) && statusExecuted)
+            {
+                SearchRequest request = new SearchRequest(STORAGE0, REPOSITORY_RELEASES_1,
+                                                          "+g:org.carlspring.strongbox.indexes +a:strongbox-test-one +v:1.0 +p:jar");
 
-        System.out.println(jobManager.getExecutedJobs().toString());
+                try
+                {
+                    assertTrue(artifactSearchService.contains(request));
+                    deleteRebuildCronJobConfig(jobName);
+                }
+                catch (Exception e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
 
-        SearchRequest request = new SearchRequest(STORAGE0, REPOSITORY_RELEASES_1,
-                                                  "+g:org.carlspring.strongbox.indexes +a:strongbox-test-one +v:1.0 +p:jar");
-
-        assertTrue(artifactSearchService.contains(request));
-
-        deleteRebuildCronJobConfig(jobName);
+        addRebuildCronJobConfig(jobName, STORAGE0, REPOSITORY_RELEASES_1, ARTIFACT_BASE_PATH_STRONGBOX_INDEXES);
     }
 
     @Test
@@ -188,26 +193,32 @@ public class RebuildMavenIndexesCronJobTest
             throws Exception
     {
         String jobName = "RebuildIndex-2";
+        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
+        {
+            if (jobName1.equals(jobName) && statusExecuted)
+            {
+                try
+                {
+                    SearchRequest request1 = new SearchRequest(STORAGE0, REPOSITORY_RELEASES_1,
+                                                               "+g:org.carlspring.strongbox.indexes +a:strongbox-test-one +v:1.0 +p:jar");
+
+                    assertTrue(artifactSearchService.contains(request1));
+
+                    SearchRequest request2 = new SearchRequest(STORAGE0, REPOSITORY_RELEASES_1,
+                                                               "+g:org.carlspring.strongbox.indexes +a:strongbox-test-two +v:1.0 +p:jar");
+
+                    assertTrue(artifactSearchService.contains(request2));
+
+                    deleteRebuildCronJobConfig(jobName);
+                }
+                catch (Exception e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
 
         addRebuildCronJobConfig(jobName, STORAGE0, REPOSITORY_RELEASES_1, null);
-
-        //Checking if job was executed
-        while (!jobManager.getExecutedJobs().containsKey(jobName))
-        {
-            Thread.sleep(8000);
-        }
-
-        SearchRequest request1 = new SearchRequest(STORAGE0, REPOSITORY_RELEASES_1,
-                                                   "+g:org.carlspring.strongbox.indexes +a:strongbox-test-one +v:1.0 +p:jar");
-
-        assertTrue(artifactSearchService.contains(request1));
-
-        SearchRequest request2 = new SearchRequest(STORAGE0, REPOSITORY_RELEASES_1,
-                                                   "+g:org.carlspring.strongbox.indexes +a:strongbox-test-two +v:1.0 +p:jar");
-
-        assertTrue(artifactSearchService.contains(request2));
-
-        deleteRebuildCronJobConfig(jobName);
     }
 
     @Test
@@ -215,26 +226,32 @@ public class RebuildMavenIndexesCronJobTest
             throws Exception
     {
         String jobName = "RebuildIndex-3";
+        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
+        {
+            if (jobName1.equals(jobName) && statusExecuted)
+            {
+                try
+                {
+                    SearchRequest request1 = new SearchRequest(STORAGE0, REPOSITORY_RELEASES_1,
+                                                               "+g:org.carlspring.strongbox.indexes +a:strongbox-test-two +v:1.0 +p:jar");
+
+                    assertTrue(artifactSearchService.contains(request1));
+
+                    SearchRequest request2 = new SearchRequest(STORAGE0, REPOSITORY_RELEASES_2,
+                                                               "+g:org.carlspring.strongbox.indexes +a:strongbox-test-one +v:1.0 +p:jar");
+
+                    assertTrue(artifactSearchService.contains(request2));
+
+                    deleteRebuildCronJobConfig(jobName);
+                }
+                catch (Exception e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
 
         addRebuildCronJobConfig(jobName, STORAGE0, null, null);
-
-        //Checking if job was executed
-        while (!jobManager.getExecutedJobs().containsKey(jobName))
-        {
-            Thread.sleep(8000);
-        }
-
-        SearchRequest request1 = new SearchRequest(STORAGE0, REPOSITORY_RELEASES_1,
-                                                   "+g:org.carlspring.strongbox.indexes +a:strongbox-test-two +v:1.0 +p:jar");
-
-        assertTrue(artifactSearchService.contains(request1));
-
-        SearchRequest request2 = new SearchRequest(STORAGE0, REPOSITORY_RELEASES_2,
-                                                   "+g:org.carlspring.strongbox.indexes +a:strongbox-test-one +v:1.0 +p:jar");
-
-        assertTrue(artifactSearchService.contains(request2));
-
-        deleteRebuildCronJobConfig(jobName);
     }
 
     @Test
@@ -242,25 +259,32 @@ public class RebuildMavenIndexesCronJobTest
             throws Exception
     {
         String jobName = "RebuildIndex-4";
+        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
+        {
+            if (jobName1.equals(jobName) && statusExecuted)
+            {
+                try
+                {
+                    SearchRequest request1 = new SearchRequest(STORAGE0, REPOSITORY_RELEASES_2,
+                                                               "+g:org.carlspring.strongbox.indexes +a:strongbox-test-one +v:1.0 +p:jar");
+
+                    assertTrue(artifactSearchService.contains(request1));
+
+                    SearchRequest request2 = new SearchRequest(STORAGE1, REPOSITORY_RELEASES_1,
+                                                               "+g:org.carlspring.strongbox.indexes +a:strongbox-test-one +v:1.0 +p:jar");
+
+                    assertTrue(artifactSearchService.contains(request2));
+
+                    deleteRebuildCronJobConfig(jobName);
+                }
+                catch (Exception e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
 
         addRebuildCronJobConfig(jobName, null, null, null);
-
-        //Checking if job was executed
-        while (!jobManager.getExecutedJobs().containsKey(jobName))
-        {
-            Thread.sleep(8000);
-        }
-
-        SearchRequest request1 = new SearchRequest(STORAGE0, REPOSITORY_RELEASES_2,
-                                                   "+g:org.carlspring.strongbox.indexes +a:strongbox-test-one +v:1.0 +p:jar");
-
-        assertTrue(artifactSearchService.contains(request1));
-
-        SearchRequest request2 = new SearchRequest(STORAGE1, REPOSITORY_RELEASES_1,
-                                                   "+g:org.carlspring.strongbox.indexes +a:strongbox-test-one +v:1.0 +p:jar");
-
-        assertTrue(artifactSearchService.contains(request2));
-
-        deleteRebuildCronJobConfig(jobName);
     }
 }

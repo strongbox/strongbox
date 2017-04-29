@@ -215,6 +215,24 @@ public class RemoveTimestampedMavenSnapshotCronJobTest
         artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS_1,
                                                 ARTIFACT_BASE_PATH_STRONGBOX_TIMESTAMPED);
 
+        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
+        {
+            try
+            {
+                if (jobName.equals(jobName1) && statusExecuted)
+                {
+                    assertEquals("Amount of timestamped snapshots doesn't equal 1.", 1,
+                                 file.listFiles(new JarFilenameFilter()).length);
+                    assertTrue(getSnapshotArtifactVersion(file).endsWith("-3"));
+
+                    deleteRemoveCronJobConfig(jobName);
+                }
+            }
+            catch (Exception e)
+            {
+                throw new RuntimeException(e);
+            }
+        });
 
         addRemoveCronJobConfig(jobName,
                                STORAGE0,
@@ -223,19 +241,6 @@ public class RemoveTimestampedMavenSnapshotCronJobTest
                                1,
                                0);
 
-        //Checking if job was executed
-        while (!jobManager.getExecutedJobs().containsKey(jobName))
-        {
-            Thread.sleep(8000);
-        }
-
-        System.out.println(jobManager.getExecutedJobs().toString());
-
-        assertEquals("Amount of timestamped snapshots doesn't equal 1.", 1,
-                     file.listFiles(new JarFilenameFilter()).length);
-        assertTrue(getSnapshotArtifactVersion(file).endsWith("-3"));
-
-        deleteRemoveCronJobConfig(jobName);
     }
 
     @Test
@@ -251,23 +256,26 @@ public class RemoveTimestampedMavenSnapshotCronJobTest
         artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS_1,
                                                 "org/carlspring/strongbox/strongbox-timestamped-second");
 
-        addRemoveCronJobConfig(jobName, STORAGE0, REPOSITORY_SNAPSHOTS_1, null, 1, 0);
-
-        //Checking if job was executed
-        while (!jobManager.getExecutedJobs()
-                          .containsKey(jobName))
+        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
-            Thread.sleep(8000);
-        }
+            try
+            {
+                if (jobName.equals(jobName1) && statusExecuted)
+                {
+                    assertEquals("Amount of timestamped snapshots doesn't equal 1.", 1,
+                                 file.listFiles(new JarFilenameFilter()).length);
+                    assertTrue(getSnapshotArtifactVersion(file).endsWith("-2"));
 
-        System.out.println(jobManager.getExecutedJobs()
-                                     .toString());
+                    deleteRemoveCronJobConfig(jobName);
+                }
+            }
+            catch (Exception e)
+            {
+                throw new RuntimeException(e);
+            }
+        });
 
-        assertEquals("Amount of timestamped snapshots doesn't equal 1.", 1,
-                     file.listFiles(new JarFilenameFilter()).length);
-        assertTrue(getSnapshotArtifactVersion(file).endsWith("-2"));
-
-        deleteRemoveCronJobConfig(jobName);
+        addRemoveCronJobConfig(jobName, STORAGE0, REPOSITORY_SNAPSHOTS_1, null, 1, 0);
     }
 
     @Test
@@ -283,20 +291,26 @@ public class RemoveTimestampedMavenSnapshotCronJobTest
         artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS_2,
                                                 "org/carlspring/strongbox/strongbox-timestamped-first");
 
-        addRemoveCronJobConfig(jobName, STORAGE0, null, null, 1, 0);
-
-        //Checking if job was executed
-        while (!jobManager.getExecutedJobs()
-                          .containsKey(jobName))
+        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
-            Thread.sleep(8000);
-        }
+            try
+            {
+                if (jobName.equals(jobName1) && statusExecuted)
+                {
+                    assertEquals("Amount of timestamped snapshots doesn't equal 1.", 1,
+                                 file.listFiles(new JarFilenameFilter()).length);
+                    assertTrue(getSnapshotArtifactVersion(file).endsWith("-5"));
 
-        assertEquals("Amount of timestamped snapshots doesn't equal 1.", 1,
-                     file.listFiles(new JarFilenameFilter()).length);
-        assertTrue(getSnapshotArtifactVersion(file).endsWith("-5"));
+                    deleteRemoveCronJobConfig(jobName);
+                }
+            }
+            catch (Exception e)
+            {
+                throw new RuntimeException(e);
+            }
+        });
 
-        deleteRemoveCronJobConfig(jobName);
+        addRemoveCronJobConfig(jobName, STORAGE0, null, null, 1, 0);
     }
 
     @Test
@@ -312,20 +326,26 @@ public class RemoveTimestampedMavenSnapshotCronJobTest
         artifactMetadataService.rebuildMetadata(STORAGE1, REPOSITORY_SNAPSHOTS_1,
                                                 "org/carlspring/strongbox/strongbox-timestamped-first");
 
-        addRemoveCronJobConfig(jobName, null, null, null, 0, 3);
-
-        //Checking if job was executed
-        while (!jobManager.getExecutedJobs()
-                          .containsKey(jobName))
+        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
-            Thread.sleep(8000);
-        }
+            try
+            {
+                if (jobName.equals(jobName1) && statusExecuted)
+                {
+                    assertEquals("Amount of timestamped snapshots doesn't equal 1.", 1,
+                                 file.listFiles(new JarFilenameFilter()).length);
+                    assertTrue(getSnapshotArtifactVersion(file).endsWith("-1"));
 
-        assertEquals("Amount of timestamped snapshots doesn't equal 1.", 1,
-                     file.listFiles(new JarFilenameFilter()).length);
-        assertTrue(getSnapshotArtifactVersion(file).endsWith("-1"));
+                    deleteRemoveCronJobConfig(jobName);
+                }
+            }
+            catch (Exception e)
+            {
+                throw new RuntimeException(e);
+            }
+        });
 
-        deleteRemoveCronJobConfig(jobName);
+        addRemoveCronJobConfig(jobName, null, null, null, 0, 3);
     }
 
     private String getSnapshotArtifactVersion(File artifactFile)

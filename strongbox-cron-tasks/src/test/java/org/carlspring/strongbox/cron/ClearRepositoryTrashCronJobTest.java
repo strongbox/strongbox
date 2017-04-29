@@ -1,10 +1,9 @@
 package org.carlspring.strongbox.cron;
 
-import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.cron.api.jobs.ClearRepositoryTrashCronJob;
-import org.carlspring.strongbox.cron.config.CronTasksConfig;
 import org.carlspring.strongbox.cron.config.JobManager;
+import org.carlspring.strongbox.cron.context.CronTaskTest;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
@@ -29,20 +28,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.*;
 
 /**
  * @author Kate Novik.
  */
-@ContextConfiguration(classes = { CronTasksConfig.class,
-                                  WebConfig.class })
-@WebAppConfiguration
-@WithUserDetails(value = "admin")
+@CronTaskTest
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ClearRepositoryTrashCronJobTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
@@ -212,18 +205,22 @@ public class ClearRepositoryTrashCronJobTest
         final String jobName = "RemoveTrash-1";
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
-            File[] dirs1 = getDirs();
-
-            assertTrue("There is no path to the repository trash!", dirs1 != null);
-            assertEquals("The repository trash isn't empty!", 0, dirs1.length);
-
-            try
+            if (jobName1.equals(jobName) && statusExecuted)
             {
-                deleteRebuildCronJobConfig(jobName);
-            }
-            catch (Exception e)
-            {
-                logger.error("Unable to deleteRebuildCronJobConfig", e);
+
+                File[] dirs1 = getDirs();
+
+                assertTrue("There is no path to the repository trash!", dirs1 != null);
+                assertEquals("The repository trash isn't empty!", 0, dirs1.length);
+
+                try
+                {
+                    deleteRebuildCronJobConfig(jobName);
+                }
+                catch (Exception e)
+                {
+                    throw new RuntimeException(e);
+                }
             }
         });
 
@@ -286,7 +283,7 @@ public class ClearRepositoryTrashCronJobTest
             }
             catch (Exception e)
             {
-                logger.error("Unable to deleteRebuildCronJobConfig", e);
+                throw new RuntimeException(e);
             }
         });
 

@@ -181,31 +181,38 @@ public class RegenerateNugetChecksumCronJobTest
         assertTrue("The checksum file for artifact exist!",
                    !new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512").exists());
 
+        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
+        {
+            if (jobName1.equals(jobName) && statusExecuted)
+            {
+                try
+                {
+                    assertTrue("The checksum file for artifact doesn't exist!",
+                               new File(artifactPath,
+                                        "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512").exists());
+                    assertTrue("The checksum file for artifact is empty!",
+                               new File(artifactPath,
+                                        "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512").length() >
+                               0);
+
+                    assertTrue("The checksum file for metadata file doesn't exist!",
+                               new File(artifactPath,
+                                        "/1.0/org.carlspring.strongbox.checksum-second.nuspec.sha512").exists());
+                    assertTrue("The checksum file for metadata file is empty!",
+                               new File(artifactPath,
+                                        "/1.0/org.carlspring.strongbox.checksum-second.nuspec.sha512").length() > 0);
+
+                    deleteRegenerateCronJobConfig(jobName);
+                }
+                catch (Exception e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
         addRegenerateCronJobConfig(jobName, STORAGE1, REPOSITORY_RELEASES, "org.carlspring.strongbox.checksum-second",
                                    false);
-
-        //Checking if job was executed
-        while (!jobManager.getExecutedJobs()
-                          .containsKey(jobName))
-        {
-            Thread.sleep(8000);
-        }
-
-        System.out.println(jobManager.getExecutedJobs()
-                                     .toString());
-
-        assertTrue("The checksum file for artifact doesn't exist!",
-                   new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512").exists());
-        assertTrue("The checksum file for artifact is empty!",
-                   new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512").length() >
-                   0);
-
-        assertTrue("The checksum file for metadata file doesn't exist!",
-                   new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.nuspec.sha512").exists());
-        assertTrue("The checksum file for metadata file is empty!",
-                   new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.nuspec.sha512").length() > 0);
-
-        deleteRegenerateCronJobConfig(jobName);
     }
 
     @Test
@@ -225,33 +232,40 @@ public class RegenerateNugetChecksumCronJobTest
                    !new File(artifactPath,
                              "/1.0.1-alpha/org.carlspring.strongbox.checksum-one.1.0.1-alpha.nupkg.sha512").exists());
 
+        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
+        {
+            if (jobName1.equals(jobName) && statusExecuted)
+            {
+                try
+                {
+                    assertTrue("The checksum file for artifact doesn't exist!",
+                               new File(artifactPath,
+                                        "/1.0.1-alpha/org.carlspring.strongbox.checksum-one.1.0.1-alpha.nupkg.sha512").exists());
+                    assertTrue("The checksum file for artifact is empty!",
+                               new File(artifactPath,
+                                        "/1.0.1-alpha/org.carlspring.strongbox.checksum-one.1.0.1-alpha.nupkg.sha512").length() >
+                               0);
+
+                    assertTrue("The checksum file for metadata file doesn't exist!",
+                               new File(artifactPath,
+                                        "/1.0.1-alpha/org.carlspring.strongbox.checksum-one.nuspec.sha512").exists());
+                    assertTrue("The checksum file for metadata file is empty!",
+                               new File(artifactPath,
+                                        "/1.0.1-alpha/org.carlspring.strongbox.checksum-one.nuspec.sha512").length() >
+                               0);
+
+                    deleteRegenerateCronJobConfig(jobName);
+                }
+                catch (Exception e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
         addRegenerateCronJobConfig(jobName, STORAGE1, REPOSITORY_ALPHA, null, false);
 
-        //Checking if job was executed
-        while (!jobManager.getExecutedJobs()
-                          .containsKey(jobName))
-        {
-            Thread.sleep(8000);
-        }
 
-        System.out.println(jobManager.getExecutedJobs()
-                                     .toString());
-
-        assertTrue("The checksum file for artifact doesn't exist!",
-                   new File(artifactPath,
-                            "/1.0.1-alpha/org.carlspring.strongbox.checksum-one.1.0.1-alpha.nupkg.sha512").exists());
-        assertTrue("The checksum file for artifact is empty!",
-                   new File(artifactPath,
-                            "/1.0.1-alpha/org.carlspring.strongbox.checksum-one.1.0.1-alpha.nupkg.sha512").length() >
-                   0);
-
-        assertTrue("The checksum file for metadata file doesn't exist!",
-                   new File(artifactPath, "/1.0.1-alpha/org.carlspring.strongbox.checksum-one.nuspec.sha512").exists());
-        assertTrue("The checksum file for metadata file is empty!",
-                   new File(artifactPath, "/1.0.1-alpha/org.carlspring.strongbox.checksum-one.nuspec.sha512").length() >
-                   0);
-
-        deleteRegenerateCronJobConfig(jobName);
     }
 
     @Test
@@ -269,30 +283,37 @@ public class RegenerateNugetChecksumCronJobTest
         assertTrue("The checksum file for artifact exist!",
                    !new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512").exists());
 
-        addRegenerateCronJobConfig(jobName, STORAGE1, null, null, false);
-
-        //Checking if job was executed
-        while (!jobManager.getExecutedJobs()
-                          .containsKey(jobName))
+        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
-            Thread.sleep(8000);
-        }
+            if (jobName1.equals(jobName) && statusExecuted)
+            {
+                try
+                {
+                    assertTrue("The checksum file for artifact doesn't exist!",
+                               new File(artifactPath,
+                                        "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512").exists());
+                    assertTrue("The checksum file for artifact is empty!",
+                               new File(artifactPath,
+                                        "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512").length() >
+                               0);
 
-        System.out.println(jobManager.getExecutedJobs()
-                                     .toString());
+                    assertTrue("The checksum file for metadata file doesn't exist!",
+                               new File(artifactPath,
+                                        "/1.0/org.carlspring.strongbox.checksum-second.nuspec.sha512").exists());
+                    assertTrue("The checksum file for metadata file is empty!",
+                               new File(artifactPath,
+                                        "/1.0/org.carlspring.strongbox.checksum-second.nuspec.sha512").length() > 0);
 
-        assertTrue("The checksum file for artifact doesn't exist!",
-                   new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512").exists());
-        assertTrue("The checksum file for artifact is empty!",
-                   new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512").length() >
-                   0);
+                    deleteRegenerateCronJobConfig(jobName);
+                }
+                catch (Exception e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
 
-        assertTrue("The checksum file for metadata file doesn't exist!",
-                   new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.nuspec.sha512").exists());
-        assertTrue("The checksum file for metadata file is empty!",
-                   new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.nuspec.sha512").length() > 0);
-
-        deleteRegenerateCronJobConfig(jobName);
+        addRegenerateCronJobConfig(jobName, STORAGE1, null, null, false);
     }
 
     @Test
@@ -309,29 +330,37 @@ public class RegenerateNugetChecksumCronJobTest
         assertTrue("The checksum file for artifact exist!",
                    !new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-one.1.0.nupkg.sha512").exists());
 
-        addRegenerateCronJobConfig(jobName, null, null, null, false);
 
-        //Checking if job was executed
-        while (!jobManager.getExecutedJobs()
-                          .containsKey(jobName))
+        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
-            Thread.sleep(8000);
-        }
+            if (jobName1.equals(jobName) && statusExecuted)
+            {
+                try
+                {
+                    assertTrue("The checksum file for artifact doesn't exist!",
+                               new File(artifactPath,
+                                        "/1.0/org.carlspring.strongbox.checksum-one.1.0.nupkg.sha512").exists());
+                    assertTrue("The checksum file for artifact is empty!",
+                               new File(artifactPath,
+                                        "/1.0/org.carlspring.strongbox.checksum-one.1.0.nupkg.sha512").length() > 0);
 
-        System.out.println(jobManager.getExecutedJobs()
-                                     .toString());
+                    assertTrue("The checksum file for metadata file doesn't exist!",
+                               new File(artifactPath,
+                                        "/1.0/org.carlspring.strongbox.checksum-one.nuspec.sha512").exists());
+                    assertTrue("The checksum file for metadata file is empty!",
+                               new File(artifactPath,
+                                        "/1.0/org.carlspring.strongbox.checksum-one.nuspec.sha512").length() > 0);
 
-        assertTrue("The checksum file for artifact doesn't exist!",
-                   new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-one.1.0.nupkg.sha512").exists());
-        assertTrue("The checksum file for artifact is empty!",
-                   new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-one.1.0.nupkg.sha512").length() > 0);
+                    deleteRegenerateCronJobConfig(jobName);
+                }
+                catch (Exception e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
 
-        assertTrue("The checksum file for metadata file doesn't exist!",
-                   new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-one.nuspec.sha512").exists());
-        assertTrue("The checksum file for metadata file is empty!",
-                   new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-one.nuspec.sha512").length() > 0);
-
-        deleteRegenerateCronJobConfig(jobName);
+        addRegenerateCronJobConfig(jobName, null, null, null, false);
     }
 
     private void createRepository(String storageId,

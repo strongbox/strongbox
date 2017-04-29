@@ -162,8 +162,11 @@ public class SpringSecurityUser
         sb.append(", salt='")
           .append(salt)
           .append('\'');
-        sb.append(", authorities=")
-          .append(authorities);
+        if (authorities != null)
+        {
+            sb.append(", authorities (count) = ")
+              .append(authorities.size());
+        }
         sb.append(", accessModel=")
           .append(accessModel);
         sb.append(", url='")
