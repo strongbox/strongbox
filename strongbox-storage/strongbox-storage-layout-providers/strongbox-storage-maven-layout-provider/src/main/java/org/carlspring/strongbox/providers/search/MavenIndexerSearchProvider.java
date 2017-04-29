@@ -107,13 +107,17 @@ public class MavenIndexerSearchProvider
                                        searchRequest.getRepositoryId() + ":" +
                                        IndexTypeEnum.LOCAL.getType();
 
-                    final Set<SearchResult> sr = repositoryIndexManager.getRepositoryIndexer(contextId)
-                                                                       .search(searchRequest.getQuery());
-
-                    if (!sr.isEmpty())
+                    RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(contextId);
+                    if (indexer != null)
                     {
-                        searchResults.getResults()
-                                     .addAll(sr);
+                        final Set<SearchResult> sr = repositoryIndexManager.getRepositoryIndexer(contextId)
+                                                                           .search(searchRequest.getQuery());
+
+                        if (!sr.isEmpty())
+                        {
+                            searchResults.getResults()
+                                         .addAll(sr);
+                        }
                     }
 
                     logger.debug("Results: {}", searchResults.getResults()

@@ -1,9 +1,10 @@
 package org.carlspring.strongbox.cron;
 
+import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.cron.api.jobs.ClearRepositoryTrashCronJob;
+import org.carlspring.strongbox.cron.config.CronTasksConfig;
 import org.carlspring.strongbox.cron.config.JobManager;
-import org.carlspring.strongbox.cron.context.CronTaskTest;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
@@ -28,18 +29,25 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.*;
 
 /**
  * @author Kate Novik.
  */
-@CronTaskTest
+@ContextConfiguration(classes = { CronTasksConfig.class,
+                                  WebConfig.class })
+@WebAppConfiguration
+@WithUserDetails(value = "admin")
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ClearRepositoryTrashCronJobTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
+
     private final Logger logger = LoggerFactory.getLogger(ClearRepositoryTrashCronJobTest.class);
 
     private static final String STORAGE1 = "storage1";
@@ -94,7 +102,8 @@ public class ClearRepositoryTrashCronJobTest
         if (!initialized)
         {
             repository1 = new Repository(REPOSITORY_RELEASES_1);
-            repository1.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
+            repository1.setStorage(configurationManager.getConfiguration()
+                                                       .getStorage(STORAGE0));
             repository1.setAllowsForceDeletion(false);
             repository1.setTrashEnabled(true);
             repository1.setIndexingEnabled(false);
@@ -105,7 +114,8 @@ public class ClearRepositoryTrashCronJobTest
                              "org.carlspring.strongbox.clear:strongbox-test-one:1.0:jar");
 
             repository2 = new Repository(REPOSITORY_RELEASES_2);
-            repository2.setStorage(configurationManager.getConfiguration().getStorage(STORAGE0));
+            repository2.setStorage(configurationManager.getConfiguration()
+                                                       .getStorage(STORAGE0));
             repository2.setAllowsForceDeletion(false);
             repository2.setTrashEnabled(true);
             repository2.setIndexingEnabled(false);
@@ -117,7 +127,8 @@ public class ClearRepositoryTrashCronJobTest
             createStorage(new Storage(STORAGE1));
 
             repository3 = new Repository(REPOSITORY_RELEASES_1);
-            repository3.setStorage(configurationManager.getConfiguration().getStorage(STORAGE1));
+            repository3.setStorage(configurationManager.getConfiguration()
+                                                       .getStorage(STORAGE1));
             repository3.setAllowsForceDeletion(false);
             repository3.setTrashEnabled(true);
             repository3.setIndexingEnabled(false);
@@ -199,16 +210,19 @@ public class ClearRepositoryTrashCronJobTest
         assertEquals("The repository trash is empty!", 1, dirs.length);
 
         final String jobName = "RemoveTrash-1";
-        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) -> {
+        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
+        {
             File[] dirs1 = getDirs();
 
             assertTrue("There is no path to the repository trash!", dirs1 != null);
             assertEquals("The repository trash isn't empty!", 0, dirs1.length);
 
-            try {
+            try
+            {
                 deleteRebuildCronJobConfig(jobName);
             }
-            catch (Exception e){
+            catch (Exception e)
+            {
                 logger.error("Unable to deleteRebuildCronJobConfig", e);
             }
         });
@@ -216,8 +230,10 @@ public class ClearRepositoryTrashCronJobTest
         addRebuildCronJobConfig(jobName, STORAGE0, REPOSITORY_RELEASES_1);
     }
 
-    private File[] getDirs(){
-        return repository1.getTrashDir().listFiles();
+    private File[] getDirs()
+    {
+        return repository1.getTrashDir()
+                          .listFiles();
     }
 
     @Test
@@ -254,7 +270,8 @@ public class ClearRepositoryTrashCronJobTest
 
         // Checking if job was executed
         String jobName = "RemoveTrash-2";
-        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) -> {
+        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
+        {
             File[] dirs11 = basedirTrash1.listFiles();
             File[] dirs22 = basedirTrash2.listFiles();
 
