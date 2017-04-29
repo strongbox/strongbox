@@ -11,7 +11,11 @@ import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.net.URLDecoder;
 
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -47,7 +51,8 @@ public class SearchController
      */
     @ApiOperation(value = "Used to search for artifacts.",
                   response = SearchResults.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "") })
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "") })
     @PreAuthorize("hasAuthority('SEARCH_ARTIFACTS')")
     @RequestMapping(value = "",
                     method = RequestMethod.GET,
@@ -57,12 +62,16 @@ public class SearchController
                                  MediaType.APPLICATION_JSON_VALUE,
                                  MediaType.TEXT_PLAIN_VALUE })
     public ResponseEntity search(@ApiParam(value = "The storageId")
-                                 @RequestParam(name = "storageId", required = false) final String storageId,
-                                 @ApiParam(value = "The repositoryId", required = true)
+                                 @RequestParam(name = "storageId",
+                                               required = false) final String storageId,
+                                 @ApiParam(value = "The repositoryId",
+                                           required = true)
                                  @RequestParam(name = "repositoryId") final String repositoryId,
-                                 @ApiParam(value = "The search query", required = true)
+                                 @ApiParam(value = "The search query",
+                                           required = true)
                                  @RequestParam(name = "q") final String query,
-                                 @ApiParam(value = "The search query", required = false)
+                                 @ApiParam(value = "The search query",
+                                           required = false)
                                  @RequestParam(name = "searchProvider") final String searchProvider,
                                  HttpServletRequest request)
             throws IOException, ParseException, JAXBException, SearchException
@@ -82,8 +91,10 @@ public class SearchController
         {
             // Apparently, the JSON root tag's name is based on the name of the object
             // which the Jersey method returns, hence this is "artifacts".
-            @SuppressWarnings("UnnecessaryLocalVariable")
-            final SearchResults artifacts = getSearchResults(storageId, repositoryId, q, searchProvider);
+            @SuppressWarnings("UnnecessaryLocalVariable") final SearchResults artifacts = getSearchResults(storageId,
+                                                                                                           repositoryId,
+                                                                                                           q,
+                                                                                                           searchProvider);
             return ResponseEntity.ok(artifacts);
         }
     }

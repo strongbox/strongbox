@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.security.user;
 
+import org.carlspring.strongbox.users.domain.AccessModel;
 import org.carlspring.strongbox.users.domain.User;
 
 import java.util.Collection;
@@ -11,7 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 /**
  * A wrapper of {@link User} that is used by Spring Security
  */
-class SpringSecurityUser
+public class SpringSecurityUser
         implements UserDetails
 {
 
@@ -24,6 +25,10 @@ class SpringSecurityUser
     private String salt;
 
     private Collection<? extends GrantedAuthority> authorities;
+
+    private AccessModel accessModel;
+
+    private String url;
 
     SpringSecurityUser()
     {
@@ -101,30 +106,52 @@ class SpringSecurityUser
         this.authorities = authorities;
     }
 
+    public AccessModel getAccessModel()
+    {
+        return accessModel;
+    }
+
+    public void setAccessModel(AccessModel accessModel)
+    {
+        this.accessModel = accessModel;
+    }
+
+    public String getUrl()
+    {
+        return url;
+    }
+
+    public void setUrl(String url)
+    {
+        this.url = url;
+    }
+
     @Override
     public boolean equals(Object o)
     {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        SpringSecurityUser that = (SpringSecurityUser) o;
-        return enabled == that.enabled &&
-               Objects.equal(username, that.username) &&
-               Objects.equal(password, that.password) &&
-               Objects.equal(salt, that.salt) &&
-               Objects.equal(authorities, that.authorities);
+        SpringSecurityUser user = (SpringSecurityUser) o;
+        return enabled == user.enabled &&
+               Objects.equal(username, user.username) &&
+               Objects.equal(password, user.password) &&
+               Objects.equal(salt, user.salt) &&
+               Objects.equal(authorities, user.authorities) &&
+               Objects.equal(accessModel, user.accessModel) &&
+               Objects.equal(url, user.url);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hashCode(username, password, enabled, salt, authorities);
+        return Objects.hashCode(username, password, enabled, salt, authorities, accessModel, url);
     }
 
     @Override
     public String toString()
     {
-        final StringBuilder sb = new StringBuilder("SpringSecurityUser {");
-        sb.append(" username='")
+        final StringBuilder sb = new StringBuilder("SpringSecurityUser{");
+        sb.append("username='")
           .append(username)
           .append('\'');
         sb.append(", password='")
@@ -135,8 +162,13 @@ class SpringSecurityUser
         sb.append(", salt='")
           .append(salt)
           .append('\'');
-        sb.append(", authorities (size)=")
-          .append(authorities.size());
+        sb.append(", authorities=")
+          .append(authorities);
+        sb.append(", accessModel=")
+          .append(accessModel);
+        sb.append(", url='")
+          .append(url)
+          .append('\'');
         sb.append('}');
         return sb.toString();
     }

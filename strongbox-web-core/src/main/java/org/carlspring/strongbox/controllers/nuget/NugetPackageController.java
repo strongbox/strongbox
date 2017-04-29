@@ -12,7 +12,11 @@ import javax.inject.Inject;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.util.regex.Matcher;
@@ -35,7 +39,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 import ru.aristar.jnuget.files.TempNupkgFile;
 
 /**
@@ -217,7 +225,7 @@ public class NugetPackageController extends BaseArtifactController
     private void writePackagePart(String boundaryString,
                                   ServletInputStream is,
                                   FileOutputStream packagePartOutputStream)
-        throws IOException
+            throws IOException
     {
         byte[] boundary = boundaryString.getBytes();
         MultipartStream multipartStream = new MultipartStream(is, boundary);

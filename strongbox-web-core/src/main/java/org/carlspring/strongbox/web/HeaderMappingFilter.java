@@ -1,17 +1,12 @@
 package org.carlspring.strongbox.web;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.Principal;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.controllers.maven.MavenArtifactController;
+import org.carlspring.strongbox.controllers.nuget.NugetPackageController;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.providers.layout.NugetHierarchicalLayoutProvider;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -32,28 +27,31 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpUpgradeHandler;
 import javax.servlet.http.Part;
-
-import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.controllers.maven.MavenArtifactController;
-import org.carlspring.strongbox.controllers.nuget.NugetPackageController;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.providers.layout.NugetHierarchicalLayoutProvider;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.Principal;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * This filter used to map HTTP header values from one to another.<br>
  * Mapping example:<br>
  * &emsp;'user-agent = NuGet Command Line/2.8.60717.93 (Unix 4.4.0.45)'->'NuGet/*'<br>
- * 
+ * <p>
  * Such type of mapping is used in storage controllers to map requests according 'user-agent' header type.
- * 
- * @see {@link MavenArtifactController} {@link NugetPackageController}
- * 
- * @author Sergey Bespalov
  *
+ * @author Sergey Bespalov
+ * @see {@link MavenArtifactController} {@link NugetPackageController}
  */
-public class HeaderMappingFilter implements Filter
+public class HeaderMappingFilter
+        implements Filter
 {
 
     private static final String USER_AGENT_UNKNOWN = "unknown";
@@ -68,7 +66,7 @@ public class HeaderMappingFilter implements Filter
 
     @Override
     public void init(FilterConfig filterConfig)
-        throws ServletException
+            throws ServletException
     {
         // Do nothing
     }
@@ -90,14 +88,14 @@ public class HeaderMappingFilter implements Filter
     public void doFilter(ServletRequest request,
                          ServletResponse response,
                          FilterChain chain)
-        throws IOException,
-        ServletException
+            throws IOException,
+                   ServletException
     {
         String layout = getRequestedLayout(((HttpServletRequest) request).getPathInfo());
 
         ServletRequest targetRequest = request instanceof HttpServletRequest
-                ? new ServletRequestDecorator((HttpServletRequest) request, layout)
-                : request;
+                                       ? new ServletRequestDecorator((HttpServletRequest) request, layout)
+                                       : request;
         chain.doFilter(targetRequest, response);
     }
 
@@ -115,7 +113,8 @@ public class HeaderMappingFilter implements Filter
         String storageId = pathParts[2];
         String repositoryId = pathParts[3];
 
-        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
+        Storage storage = configurationManager.getConfiguration()
+                                              .getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
         return repository.getLayout();
@@ -126,7 +125,8 @@ public class HeaderMappingFilter implements Filter
     {
     }
 
-    private class ServletRequestDecorator implements HttpServletRequest
+    private class ServletRequestDecorator
+            implements HttpServletRequest
     {
 
         private static final String HEADER_NAME_USER_AGENT = "user-agent";
@@ -152,17 +152,21 @@ public class HeaderMappingFilter implements Filter
 
             Optional<String> targetUserAgent = userAgentMap.keySet()
                                                            .stream()
-                                                           .filter((k) -> {
-                                                               return headerValue.toUpperCase()
-                                                                                 .contains(k.toUpperCase());
-                                                           })
+                                                           .filter((k) ->
+                                                                   {
+                                                                       return headerValue.toUpperCase()
+                                                                                         .contains(k.toUpperCase());
+                                                                   })
                                                            .findFirst();
 
-            String result = targetUserAgent.map((k) -> {
-                return userAgentMap.get(k);
-            }).orElseGet(() -> layoutMap.get(layout));
+            String result = targetUserAgent.map((k) ->
+                                                {
+                                                    return userAgentMap.get(k);
+                                                })
+                                           .orElseGet(() -> layoutMap.get(layout));
 
-            return Optional.of(result).orElse(String.format("%s/*", USER_AGENT_UNKNOWN));
+            return Optional.of(result)
+                           .orElse(String.format("%s/*", USER_AGENT_UNKNOWN));
         }
 
         public Object getAttribute(String name)
@@ -196,7 +200,7 @@ public class HeaderMappingFilter implements Filter
         }
 
         public void setCharacterEncoding(String env)
-            throws UnsupportedEncodingException
+                throws UnsupportedEncodingException
         {
             target.setCharacterEncoding(env);
         }
@@ -217,7 +221,7 @@ public class HeaderMappingFilter implements Filter
             {
                 return target.getHeaders(name);
             }
-            Enumeration<String> result = Collections.enumeration(Arrays.asList(new String[] { getHeader(name) }));
+            Enumeration<String> result = Collections.enumeration(Arrays.asList(new String[]{ getHeader(name) }));
             return result;
         }
 
@@ -227,7 +231,7 @@ public class HeaderMappingFilter implements Filter
         }
 
         public ServletInputStream getInputStream()
-            throws IOException
+                throws IOException
         {
             return target.getInputStream();
         }
@@ -303,7 +307,7 @@ public class HeaderMappingFilter implements Filter
         }
 
         public BufferedReader getReader()
-            throws IOException
+                throws IOException
         {
             return target.getReader();
         }
@@ -460,8 +464,8 @@ public class HeaderMappingFilter implements Filter
         }
 
         public boolean authenticate(HttpServletResponse response)
-            throws IOException,
-            ServletException
+                throws IOException,
+                       ServletException
         {
             return target.authenticate(response);
         }
@@ -474,20 +478,20 @@ public class HeaderMappingFilter implements Filter
 
         public void login(String username,
                           String password)
-            throws ServletException
+                throws ServletException
         {
             target.login(username, password);
         }
 
         public void logout()
-            throws ServletException
+                throws ServletException
         {
             target.logout();
         }
 
         public Collection<Part> getParts()
-            throws IOException,
-            ServletException
+                throws IOException,
+                       ServletException
         {
             return target.getParts();
         }
@@ -503,8 +507,8 @@ public class HeaderMappingFilter implements Filter
         }
 
         public Part getPart(String name)
-            throws IOException,
-            ServletException
+                throws IOException,
+                       ServletException
         {
             return target.getPart(name);
         }
@@ -520,8 +524,8 @@ public class HeaderMappingFilter implements Filter
         }
 
         public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass)
-            throws IOException,
-            ServletException
+                throws IOException,
+                       ServletException
         {
             return target.upgrade(handlerClass);
         }

@@ -1,18 +1,18 @@
 package org.carlspring.strongbox.cron.services.impl;
 
+import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
+import org.carlspring.strongbox.cron.services.CronTaskDataService;
+import org.carlspring.strongbox.data.service.CommonCrudService;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
-import org.carlspring.strongbox.cron.services.CronTaskDataService;
-import org.carlspring.strongbox.data.service.CommonCrudService;
+import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
 /**
  * @author Yougeshwar
@@ -21,19 +21,18 @@ import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 @Service
 @Transactional
 public class CronTaskDataServiceImpl
-        extends CommonCrudService<CronTaskConfiguration> implements CronTaskDataService
+        extends CommonCrudService<CronTaskConfiguration>
+        implements CronTaskDataService
 {
 
     private static final Logger logger = LoggerFactory.getLogger(CronTaskDataService.class);
 
-    
-    
+
     @Override
     public Class<CronTaskConfiguration> getEntityClass()
     {
         return CronTaskConfiguration.class;
     }
-
 
 
     @Transactional
@@ -45,7 +44,8 @@ public class CronTaskDataServiceImpl
             OSQLSynchQuery<CronTaskConfiguration> oQuery = new OSQLSynchQuery<CronTaskConfiguration>(sQuery);
             HashMap<String, String> params = new HashMap<String, String>();
             params.put("name", name);
-            return getDelegate().command(oQuery).execute(params);
+            return getDelegate().command(oQuery)
+                                .execute(params);
         }
         catch (Exception e)
         {
@@ -53,7 +53,6 @@ public class CronTaskDataServiceImpl
             return new LinkedList<>();
         }
     }
-    
-    
+
 
 }

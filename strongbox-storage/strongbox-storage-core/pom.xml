@@ -56,8 +56,10 @@
                     <systemPropertyVariables>
                         <strongbox.home>${project.build.directory}/strongbox</strongbox.home>
                         <strongbox.vault>${project.build.directory}/strongbox-vault</strongbox.vault>
-                        <strongbox.storage.booter.basedir>${project.build.directory}/strongbox-vault/storages</strongbox.storage.booter.basedir>
-                        <repository.config.xml>${project.build.directory}/strongbox/etc/conf/strongbox.xml</repository.config.xml>
+                        <strongbox.storage.booter.basedir>${project.build.directory}/strongbox-vault/storages
+                        </strongbox.storage.booter.basedir>
+                        <repository.config.xml>${project.build.directory}/strongbox/etc/conf/strongbox.xml
+                        </repository.config.xml>
                         <java.io.tmpdir>${dir.strongbox.vault}/tmp</java.io.tmpdir>
                         <ehcache.disk.store.dir>${project.build.directory}/strongbox/cache</ehcache.disk.store.dir>
                     </systemPropertyVariables>
@@ -228,11 +230,11 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
             <exclusions>
-              <!-- Exclude Commons Logging -->
-              <exclusion>
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-              </exclusion>
+                <!-- Exclude Commons Logging -->
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -262,7 +264,7 @@
         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
-        </dependency>		
+        </dependency>
     </dependencies>
 
 </project>

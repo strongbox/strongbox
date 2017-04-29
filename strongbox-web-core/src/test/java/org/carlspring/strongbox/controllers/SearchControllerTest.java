@@ -39,7 +39,7 @@ public class SearchControllerTest
 
     private static final File GENERATOR_BASEDIR = new File(
             ConfigurationResourceResolver.getVaultDirectory() + "/local");
-    
+
     private static boolean initialized = false;
 
     public static void cleanUp()
@@ -96,19 +96,23 @@ public class SearchControllerTest
 
     @Test
     public void testIndexSearches()
-        throws Exception
+            throws Exception
     {
         testSearches("g:org.carlspring.strongbox.searches a:test-project", MavenIndexerSearchProvider.ALIAS);
     }
-    
+
     @Test
     public void testDbSearches()
-        throws Exception
+            throws Exception
     {
-        testSearches("groupId=org.carlspring.strongbox.searches;artifactId=test-project;", OrientDbSearchProvider.ALIAS);
+        testSearches("groupId=org.carlspring.strongbox.searches;artifactId=test-project;",
+                     OrientDbSearchProvider.ALIAS);
     }
-    
-    private void testSearches(String query, String searchProvider) throws Exception {
+
+    private void testSearches(String query,
+                              String searchProvider)
+            throws Exception
+    {
 
         // testSearchPlainText
         String response = client.search(query, MediaType.TEXT_PLAIN_VALUE, searchProvider);

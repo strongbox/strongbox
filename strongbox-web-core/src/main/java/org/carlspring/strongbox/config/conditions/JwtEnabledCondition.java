@@ -6,7 +6,8 @@ import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
-public class JwtEnabledCondition implements Condition
+public class JwtEnabledCondition
+        implements Condition
 {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtEnabledCondition.class);
@@ -18,7 +19,7 @@ public class JwtEnabledCondition implements Condition
         final boolean jwtEnabled = !Boolean.parseBoolean(context.getEnvironment()
                                                                 .getProperty("strongbox.security.jwt.disabled"));
 
-        logger.debug("JWT enabled ? {}", jwtEnabled);
+        logger.trace("JWT enabled ? {}", jwtEnabled);
 
         return jwtEnabled;
     }

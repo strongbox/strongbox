@@ -8,20 +8,27 @@ import org.apache.maven.index.context.DefaultIndexingContext;
 import org.apache.maven.index.context.ExistingLuceneIndexMismatchException;
 import org.apache.maven.index.context.IndexCreator;
 
-public class StrongboxIndexingContext extends DefaultIndexingContext
+public class StrongboxIndexingContext
+        extends DefaultIndexingContext
 {
 
-    public StrongboxIndexingContext(String id, String repositoryId, File repository, File indexDirectoryFile,
-            String repositoryUrl, String indexUpdateUrl, List<? extends IndexCreator> indexCreators,
-            boolean reclaimIndex) throws IOException, ExistingLuceneIndexMismatchException
+    public StrongboxIndexingContext(String id,
+                                    String repositoryId,
+                                    File repository,
+                                    File indexDirectoryFile,
+                                    String repositoryUrl,
+                                    String indexUpdateUrl,
+                                    List<? extends IndexCreator> indexCreators,
+                                    boolean reclaimIndex)
+            throws IOException, ExistingLuceneIndexMismatchException
     {
         super(id, repositoryId, repository, indexDirectoryFile, repositoryUrl, indexUpdateUrl, indexCreators,
-                reclaimIndex);
+              reclaimIndex);
     }
 
     @Override
     protected void setIndexDirectoryFile(File dir)
-                                                   throws IOException
+            throws IOException
     {
         if (dir == null)
         {

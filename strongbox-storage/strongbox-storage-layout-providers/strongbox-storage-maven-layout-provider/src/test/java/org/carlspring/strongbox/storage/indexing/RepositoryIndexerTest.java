@@ -2,8 +2,8 @@ package org.carlspring.strongbox.storage.indexing;
 
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
-import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.annotation.PostConstruct;

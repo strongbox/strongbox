@@ -28,14 +28,14 @@ public abstract class AbstractRepositoryManagementStrategy
     @Override
     public void removeRepository(String storageId,
                                  String repositoryId)
-    throws IOException
+            throws IOException
     {
         removeDirectoryStructure(storageId, repositoryId);
     }
 
     @Override
     public void removeDirectoryStructure(String storageId,
-                                          String repositoryId)
+                                         String repositoryId)
             throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);

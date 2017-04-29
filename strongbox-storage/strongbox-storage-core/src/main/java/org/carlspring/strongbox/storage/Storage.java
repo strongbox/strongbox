@@ -1,9 +1,8 @@
 package org.carlspring.strongbox.storage;
 
-import java.io.File;
-import java.io.Serializable;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.xml.RepositoryMapAdapter;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -11,10 +10,10 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.xml.RepositoryMapAdapter;
+import java.io.File;
+import java.io.Serializable;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author mtodorov

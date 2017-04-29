@@ -61,7 +61,8 @@ public class ArtifactManagementServiceImplTest
     private static final String REPOSITORY_GROUP = "amsi-group";
 
     @org.springframework.context.annotation.Configuration
-    @Import({ CommonConfig.class, StorageCoreConfig.class })
+    @Import({ CommonConfig.class,
+              StorageCoreConfig.class })
     public static class SpringConfig { }
 
     private DateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss");

@@ -1,12 +1,11 @@
 package org.carlspring.strongbox.storage.search;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * @author mtodorov

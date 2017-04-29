@@ -42,9 +42,10 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
-public class NugetHierarchicalLayoutProvider extends AbstractLayoutProvider<NugetHierarchicalArtifactCoordinates,
-                                                                            NugetRepositoryFeatures,
-                                                                            NugetRepositoryManagementStrategy>
+public class NugetHierarchicalLayoutProvider
+        extends AbstractLayoutProvider<NugetHierarchicalArtifactCoordinates,
+                                              NugetRepositoryFeatures,
+                                              NugetRepositoryManagementStrategy>
 {
     private static final Logger logger = LoggerFactory.getLogger(NugetHierarchicalLayoutProvider.class);
 

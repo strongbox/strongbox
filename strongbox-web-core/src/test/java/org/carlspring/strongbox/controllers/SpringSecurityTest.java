@@ -41,7 +41,8 @@ public class SpringSecurityTest
     @Ignore
     public void testThatAnonymousUserHasFullAccessAccordingToAuthorities()
     {
-        anonymousAuthenticationFilter.getAuthorities().add(new SimpleGrantedAuthority("VIEW_USER"));
+        anonymousAuthenticationFilter.getAuthorities()
+                                     .add(new SimpleGrantedAuthority("VIEW_USER"));
 
         String url = getContextBaseUrl() + "/users/user/anyName";
 
@@ -76,7 +77,8 @@ public class SpringSecurityTest
     {
         // clear default anonymous authorization context and disable it's population
         ((CustomAnonymousAuthenticationFilter) anonymousAuthenticationFilter).setContextAutoCreationEnabled(false);
-        SecurityContextHolder.getContext().setAuthentication(null);
+        SecurityContextHolder.getContext()
+                             .setAuthentication(null);
 
         RestAssuredMockMvc.given()
                           .contentType(MediaType.TEXT_PLAIN_VALUE)
@@ -129,7 +131,7 @@ public class SpringSecurityTest
     @Test
     @Ignore
     public void testJWTExpire()
-        throws InterruptedException
+            throws InterruptedException
     {
         String url = getContextBaseUrl() + "/users/user/authenticate";
 
@@ -165,10 +167,10 @@ public class SpringSecurityTest
                .then()
                .statusCode(401);
     }
-    
+
     @Test
     @WithUserDetails("user")
-    public void testAuthorities()
+    public void testThatUserHasViewUsersPrivilege()
     {
         String userName = "user";
         given().contentType("application/json")
@@ -176,17 +178,21 @@ public class SpringSecurityTest
                .get("/users/user/" + userName)
                .peek()
                .then()
-               .statusCode(200);
+               .statusCode(HttpStatus.OK.value());
+    }
 
+    @Test
+    @WithUserDetails("deployer")
+    public void testThatNewUserCreationIsForbiddenForCertainUser()
+    {
         User user = new User();
-        user.setUsername(userName);
+        user.setUsername("someNewUserName");
         given().contentType("application/json")
                .param("juser", user)
                .when()
                .put("/users/user")
                .peek()
                .then()
-               .statusCode(403);
-
+               .statusCode(HttpStatus.FORBIDDEN.value());
     }
 }

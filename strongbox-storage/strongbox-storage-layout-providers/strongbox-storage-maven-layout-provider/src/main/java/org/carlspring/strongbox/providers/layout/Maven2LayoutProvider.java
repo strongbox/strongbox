@@ -10,19 +10,21 @@ import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.MavenRepositoryManagementStrategy;
-import org.carlspring.strongbox.storage.search.SearchRequest;
-import org.carlspring.strongbox.storage.search.SearchResult;
-import org.carlspring.strongbox.storage.search.SearchResults;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.checksum.MavenChecksumManager;
-import org.carlspring.strongbox.storage.indexing.*;
+import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
+import org.carlspring.strongbox.storage.search.SearchRequest;
+import org.carlspring.strongbox.storage.search.SearchResult;
+import org.carlspring.strongbox.storage.search.SearchResults;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -46,9 +48,10 @@ import org.springframework.stereotype.Component;
  * @author carlspring
  */
 @Component("maven2LayoutProvider")
-public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCoordinates,
-                                                                 MavenRepositoryFeatures,
-                                                                 MavenRepositoryManagementStrategy>
+public class Maven2LayoutProvider
+        extends AbstractLayoutProvider<MavenArtifactCoordinates,
+                                              MavenRepositoryFeatures,
+                                              MavenRepositoryManagementStrategy>
 {
 
     private static final Logger logger = LoggerFactory.getLogger(Maven2LayoutProvider.class);
@@ -163,7 +166,8 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
 
                     for (SearchResult result : results.getResults())
                     {
-                        String artifactPath = result.getArtifactCoordinates().toPath();
+                        String artifactPath = result.getArtifactCoordinates()
+                                                    .toPath();
 
                         logger.debug("Removing " + artifactPath + " from index...");
 
@@ -192,7 +196,9 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         // Delete the path
         super.doDeletePath(repositoryPath, force, deleteChecksum);
 
-        if (deleteChecksum && !ArtifactUtils.isChecksum(repositoryPath.getTarget().getFileName().toString()))
+        if (deleteChecksum && !ArtifactUtils.isChecksum(repositoryPath.getTarget()
+                                                                      .getFileName()
+                                                                      .toString()))
         {
             // Delete the checksums
             // TODO: Add check, if the paths exist
@@ -257,21 +263,28 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
             {
                 // This is at the version level
                 Path pomPath = Files.list(artifactVersionPath.getTarget())
-                                    .filter(p -> p.getFileName().endsWith(".pom"))
+                                    .filter(p -> p.getFileName()
+                                                  .endsWith(".pom"))
                                     .findFirst()
                                     .orElse(null);
 
-                String version = ArtifactUtils.convertPathToArtifact(path).getVersion() != null ?
-                                 ArtifactUtils.convertPathToArtifact(path).getVersion() :
-                                 pomPath.getParent().getFileName().toString();
+                String version = ArtifactUtils.convertPathToArtifact(path)
+                                              .getVersion() != null ?
+                                 ArtifactUtils.convertPathToArtifact(path)
+                                              .getVersion() :
+                                 pomPath.getParent()
+                                        .getFileName()
+                                        .toString();
 
                 deleteMetadataAtVersionLevel(artifactVersionPath, version);
             }
             else
             {
                 // This is at the artifact level
-                Path mavenMetadataPath = Files.list(artifactVersionPath.getTarget().getParent())
-                                              .filter(p -> p.getFileName().endsWith("maven-metadata.xml"))
+                Path mavenMetadataPath = Files.list(artifactVersionPath.getTarget()
+                                                                       .getParent())
+                                              .filter(p -> p.getFileName()
+                                                            .endsWith("maven-metadata.xml"))
                                               .findFirst()
                                               .orElse(null);
 
@@ -279,7 +292,8 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
                 {
                     String version = path.substring(path.lastIndexOf('/') + 1, path.length());
 
-                    deleteMetadataAtArtifactLevel(resolve(repository, mavenMetadataPath.getParent().toString()), version);
+                    deleteMetadataAtArtifactLevel(resolve(repository, mavenMetadataPath.getParent()
+                                                                                       .toString()), version);
                 }
             }
         }
@@ -290,7 +304,8 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         }
     }
 
-    public void deleteMetadataAtVersionLevel(RepositoryPath artifactVersionPath, String version)
+    public void deleteMetadataAtVersionLevel(RepositoryPath artifactVersionPath,
+                                             String version)
             throws IOException,
                    NoSuchAlgorithmException,
                    XmlPullParserException
@@ -299,9 +314,13 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         {
             Metadata metadataVersionLevel = mavenMetadataManager.readMetadata(artifactVersionPath);
             if (metadataVersionLevel != null && metadataVersionLevel.getVersioning() != null &&
-                metadataVersionLevel.getVersioning().getVersions().contains(version))
+                metadataVersionLevel.getVersioning()
+                                    .getVersions()
+                                    .contains(version))
             {
-                metadataVersionLevel.getVersioning().getVersions().remove(version);
+                metadataVersionLevel.getVersioning()
+                                    .getVersions()
+                                    .remove(version);
 
                 MetadataHelper.setLastUpdated(metadataVersionLevel.getVersioning());
 
@@ -313,7 +332,8 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         }
     }
 
-    public void deleteMetadataAtArtifactLevel(RepositoryPath artifactPath, String version)
+    public void deleteMetadataAtArtifactLevel(RepositoryPath artifactPath,
+                                              String version)
             throws IOException,
                    NoSuchAlgorithmException,
                    XmlPullParserException
@@ -321,19 +341,30 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         Metadata metadataVersionLevel = mavenMetadataManager.readMetadata(artifactPath);
         if (metadataVersionLevel != null && metadataVersionLevel.getVersioning() != null)
         {
-            if (metadataVersionLevel.getVersioning().getVersions().contains(version))
+            if (metadataVersionLevel.getVersioning()
+                                    .getVersions()
+                                    .contains(version))
             {
-                metadataVersionLevel.getVersioning().getVersions().remove(version);
+                metadataVersionLevel.getVersioning()
+                                    .getVersions()
+                                    .remove(version);
                 MetadataHelper.setLastUpdated(metadataVersionLevel.getVersioning());
             }
 
-            if (metadataVersionLevel.getVersioning().getLatest() != null &&
-                metadataVersionLevel.getVersioning().getLatest().equals(version))
+            if (metadataVersionLevel.getVersioning()
+                                    .getLatest() != null &&
+                metadataVersionLevel.getVersioning()
+                                    .getLatest()
+                                    .equals(version))
             {
-                if (metadataVersionLevel.getVersioning().getVersions() != null &&
-                    metadataVersionLevel.getVersioning().getVersions().isEmpty())
+                if (metadataVersionLevel.getVersioning()
+                                        .getVersions() != null &&
+                    metadataVersionLevel.getVersioning()
+                                        .getVersions()
+                                        .isEmpty())
                 {
-                    metadataVersionLevel.getVersioning().setLatest(null);
+                    metadataVersionLevel.getVersioning()
+                                        .setLatest(null);
                 }
                 else
                 {
@@ -386,33 +417,34 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
          * for each version directory.
          */
         if (!versionDirectories.isEmpty())
-            {
-                RepositoryPath basePath = resolve(repository, versionDirectories.get(0)).getParent();
+        {
+            RepositoryPath basePath = resolve(repository, versionDirectories.get(0)).getParent();
 
-                logger.debug("Artifact checksum generation triggered for " + basePath + " in '" +
-                             repository.getStorage().getId() + ":" + repository.getId() + "'" +
-                             " [policy: " + repository.getPolicy() + "].");
+            logger.debug("Artifact checksum generation triggered for " + basePath + " in '" +
+                         repository.getStorage()
+                                   .getId() + ":" + repository.getId() + "'" +
+                         " [policy: " + repository.getPolicy() + "].");
 
-                versionDirectories.forEach(path ->
+            versionDirectories.forEach(path ->
+                                       {
+                                           try
                                            {
-                                               try
-                                               {
-                                                   storeChecksum(repository,
-                                                                 resolve(repository, path),
-                                                                 forceRegeneration);
-                                               }
-                                               catch (IOException |
-                                                      NoSuchAlgorithmException |
-                                                      ArtifactTransportException |
-                                                      ProviderImplementationException e)
-                                               {
-                                                   logger.error(e.getMessage(), e);
-                                               }
+                                               storeChecksum(repository,
+                                                             resolve(repository, path),
+                                                             forceRegeneration);
+                                           }
+                                           catch (IOException |
+                                                          NoSuchAlgorithmException |
+                                                          ArtifactTransportException |
+                                                          ProviderImplementationException e)
+                                           {
+                                               logger.error(e.getMessage(), e);
+                                           }
 
-                                               logger.debug("Generated Maven checksum for " + path + ".");
-                                           });
+                                           logger.debug("Generated Maven checksum for " + path + ".");
+                                       });
 
-                storeChecksum(repository, basePath, forceRegeneration);
+            storeChecksum(repository, basePath, forceRegeneration);
         }
         else
         {

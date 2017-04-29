@@ -7,8 +7,8 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.locator.handlers.RemoveTimestampedSnapshotOperation;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
+import org.carlspring.strongbox.locator.handlers.RemoveTimestampedSnapshotOperation;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
@@ -105,7 +105,8 @@ public class MavenArtifactManagementServiceImpl
         try (ArtifactOutputStream os = artifactResolutionService.getOutputStream(storageId, repositoryId, path))
         {
             //If we have no Digests then we have a Checksum to store.
-            if (os.getDigests().isEmpty())
+            if (os.getDigests()
+                  .isEmpty())
             {
                 os.setCacheOutputStream(new ByteArrayOutputStream());
             }
@@ -119,7 +120,8 @@ public class MavenArtifactManagementServiceImpl
                 os.flush();
             }
 
-            if (!os.getDigestMap().isEmpty())
+            if (!os.getDigestMap()
+                   .isEmpty())
             {
                 // Store artifact Digests in cache if we have them.
                 addChecksumsToCacheManager(os.getDigestMap(), artifactPath);
@@ -502,7 +504,8 @@ public class MavenArtifactManagementServiceImpl
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        if (repository.getPolicy().equals(RepositoryPolicyEnum.SNAPSHOT.getPolicy()))
+        if (repository.getPolicy()
+                      .equals(RepositoryPolicyEnum.SNAPSHOT.getPolicy()))
         {
             RemoveTimestampedSnapshotOperation operation = new RemoveTimestampedSnapshotOperation(mavenSnapshotManager);
             operation.setStorage(storage);
