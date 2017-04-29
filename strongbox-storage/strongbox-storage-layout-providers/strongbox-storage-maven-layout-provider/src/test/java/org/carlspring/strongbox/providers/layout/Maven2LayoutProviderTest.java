@@ -33,6 +33,7 @@ import static org.junit.Assert.assertTrue;
 public class Maven2LayoutProviderTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
+
     private static boolean initialized = false;
 
     private static final String REPOSITORY_RELEASES = "m2lp-releases";

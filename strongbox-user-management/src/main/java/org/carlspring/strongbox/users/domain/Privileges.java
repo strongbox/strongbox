@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.users.domain;
 
 import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
 
@@ -66,6 +68,8 @@ public enum Privileges
     UI_LOGIN,
     UI_BROWSE;
 
+    public final static String DEFAULT = "rw";
+
     /**
      * Helper method for accessing all roles.
      *
@@ -104,6 +108,24 @@ public enum Privileges
     public static EnumSet<Privileges> uiAll()
     {
         return EnumSet.of(UI_LOGIN, UI_BROWSE);
+    }
+
+    public static Set<String> r()
+    {
+        Set<String> set = new HashSet<>();
+        set.add(ARTIFACTS_VIEW.name());
+        set.add(ARTIFACTS_RESOLVE.name());
+        return set;
+    }
+
+    public static Set<String> rw()
+    {
+        Set<String> set = new HashSet<>();
+        set.addAll(r());
+        set.add(ARTIFACTS_DEPLOY.name());
+        set.add(ARTIFACTS_DELETE.name());
+        set.add(ARTIFACTS_COPY.name());
+        return set;
     }
 
     @Override

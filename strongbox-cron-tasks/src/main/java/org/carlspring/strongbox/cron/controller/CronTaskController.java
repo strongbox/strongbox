@@ -131,7 +131,8 @@ public class CronTaskController
         CronTaskConfiguration config = cronTaskConfigurationService.findOne(name);
         if (config == null)
         {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cron task config not found by this name!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body("Cron task config not found by this name!");
         }
 
         try
@@ -157,7 +158,8 @@ public class CronTaskController
         List<CronTaskConfiguration> configList = cronTaskConfigurationService.getConfigurations();
         if (configList == null || configList.isEmpty())
         {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("There are no cron task configs");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body("There are no cron task configs");
         }
 
         return ResponseEntity.ok(configList);
@@ -174,13 +176,15 @@ public class CronTaskController
         String fileName = request.getHeader("fileName");
         if (!fileName.endsWith(".groovy"))
         {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The uploaded file must be a Groovy one!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body("The uploaded file must be a Groovy one!");
         }
 
         CronTaskConfiguration cronTaskConfiguration = cronTaskConfigurationService.findOne(cronName);
         if (cronTaskConfiguration == null)
         {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Configuration not found by this name!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body("Configuration not found by this name!");
         }
 
         logger.info(">> CRON NAME: " + cronTaskConfiguration.getName());

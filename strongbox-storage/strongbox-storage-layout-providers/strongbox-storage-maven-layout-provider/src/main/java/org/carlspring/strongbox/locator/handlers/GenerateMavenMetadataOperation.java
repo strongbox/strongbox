@@ -40,10 +40,10 @@ public class GenerateMavenMetadataOperation
             mavenMetadataManager.generateMetadata(getRepository(), artifactPath, request);
         }
         catch (IOException |
-               XmlPullParserException |
-               NoSuchAlgorithmException |
-               ProviderImplementationException |
-               UnknownRepositoryTypeException e)
+                       XmlPullParserException |
+                       NoSuchAlgorithmException |
+                       ProviderImplementationException |
+                       UnknownRepositoryTypeException e)
         {
             logger.error("Failed to generate metadata for " + artifactPath, e);
         }

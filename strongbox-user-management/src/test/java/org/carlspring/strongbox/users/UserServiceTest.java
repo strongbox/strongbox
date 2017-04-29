@@ -2,10 +2,12 @@ package org.carlspring.strongbox.users;
 
 import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.config.UsersConfig;
+import org.carlspring.strongbox.users.domain.AccessModel;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.service.UserService;
 
 import javax.inject.Inject;
+import java.util.Collection;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -83,4 +85,34 @@ public class UserServiceTest
                    .ifPresent(strongboxUsers -> strongboxUsers.forEach(user -> logger.debug(user.toString())));
     }
 
+    @Test
+    public void testPrivilegesProcessingForAccessModel()
+    {
+
+        // load user
+        User user = userService.findByUserName("developer01");
+        assertNotNull("Unable to find user by name developer01", user);
+
+        // display access model
+        AccessModel accessModel = user.getAccessModel();
+        logger.debug(accessModel.toString());
+        assertNotNull(accessModel.getWildCardPrivilegesMap());
+        assertFalse(accessModel.getWildCardPrivilegesMap()
+                               .isEmpty());
+
+        // make sure that privileges was correctly assigned for example paths
+        Collection<String> privileges;
+
+        privileges = accessModel.getPathPrivileges(
+                "/storages/storage0/act-releases-1/org/carlspring/strongbox/partial/partial-foo/3.1/partial-foo-3.1.jar");
+        assertNotNull(privileges);
+        assertTrue(privileges.contains("ARTIFACTS_RESOLVE"));
+        assertTrue(privileges.size() == 1);
+
+        privileges = accessModel.getPathPrivileges("/storages/storage0/act-releases-1/com/carlspring/foo/someJar.jar");
+        assertNotNull(privileges);
+        assertTrue(privileges.contains("ARTIFACTS_RESOLVE"));
+        assertTrue(privileges.contains("ARTIFACTS_VIEW"));
+        assertTrue(privileges.size() == 2);
+    }
 }

@@ -1,22 +1,25 @@
 package org.carlspring.strongbox.config;
 
-import java.util.List;
-import java.util.Optional;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.config.conditions.JwtEnabledCondition;
 import org.carlspring.strongbox.security.authentication.CustomAnonymousAuthenticationFilter;
 import org.carlspring.strongbox.security.authentication.Http401AuthenticationEntryPoint;
 import org.carlspring.strongbox.security.authentication.JWTAuthenticationFilter;
 import org.carlspring.strongbox.security.authentication.JWTAuthenticationProvider;
+import org.carlspring.strongbox.security.vote.FilterAccessDecisionManager;
+import org.carlspring.strongbox.security.vote.MethodAccessDecisionManager;
 import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -46,17 +49,29 @@ public class SecurityConfig
      */
     @Configuration
     @EnableGlobalMethodSecurity(prePostEnabled = true)
-    public static class MethodSecurityConfig extends GlobalMethodSecurityConfiguration
+    public static class MethodSecurityConfig
+            extends GlobalMethodSecurityConfiguration
     {
 
+        @Inject
+        MethodAccessDecisionManager methodAccessDecisionManager;
+
+        @Override
+        protected AccessDecisionManager accessDecisionManager()
+        {
+            return methodAccessDecisionManager;
+        }
     }
 
     @Inject
     public void configureGlobal(AuthenticationManagerBuilder auth,
-                                @Qualifier("userDetailsAuthenticationProvider") AuthenticationProvider userDetailsAuthenticationProvider,
-                                @Qualifier("jwtAuthenticationProvider") Optional<AuthenticationProvider> jwtAuthenticationProvider)
+                                @Qualifier("userDetailsAuthenticationProvider")
+                                        AuthenticationProvider userDetailsAuthenticationProvider,
+                                @Qualifier("jwtAuthenticationProvider")
+                                        Optional<AuthenticationProvider> jwtAuthenticationProvider)
     {
-        auth.authenticationProvider(userDetailsAuthenticationProvider).eraseCredentials(false);
+        auth.authenticationProvider(userDetailsAuthenticationProvider)
+            .eraseCredentials(false);
         jwtAuthenticationProvider.ifPresent(auth::authenticationProvider);
     }
 
@@ -90,10 +105,11 @@ public class SecurityConfig
         public void init()
         {
             authorizationConfigProvider.getConfig()
-                                       .ifPresent((config) -> {
-                                           anonymousAuthenticationFilter.getAuthorities()
-                                                                        .addAll(config.getAnonymousAuthorities());
-                                       });
+                                       .ifPresent((config) ->
+                                                  {
+                                                      anonymousAuthenticationFilter.getAuthorities()
+                                                                                   .addAll(config.getAnonymousAuthorities());
+                                                  });
         }
 
         @Bean
@@ -101,6 +117,9 @@ public class SecurityConfig
         {
             return anonymousAuthenticationFilter;
         }
+
+        @Inject
+        FilterAccessDecisionManager filterAccessDecisionManager;
 
         @Override
         protected void configure(HttpSecurity http)
@@ -115,6 +134,7 @@ public class SecurityConfig
                 .authorizeRequests()
                 .anyRequest()
                 .authenticated()
+                .accessDecisionManager(filterAccessDecisionManager)
                 .and()
                 .httpBasic()
                 .and()
@@ -129,21 +149,24 @@ public class SecurityConfig
      * unauthorized requests if needed.
      *
      * @author Sergey Bespalov
-     *
      */
     @Configuration
     @Order(2)
     @Conditional(JwtEnabledCondition.class)
-    public static class JwtSecurityConfig extends
+    public static class JwtSecurityConfig
+            extends
             WebSecurityConfigurerAdapter
     {
 
         @Inject
         private AnonymousAuthenticationFilter anonymousAuthenticationFilter;
 
+        @Inject
+        FilterAccessDecisionManager filterAccessDecisionManager;
+
         @Override
         protected void configure(HttpSecurity http)
-                                                    throws Exception
+                throws Exception
         {
             JWTAuthenticationFilter jwtFilter = new JWTAuthenticationFilter(authenticationManager());
 
@@ -155,6 +178,7 @@ public class SecurityConfig
                 .permitAll()
                 .anyRequest()
                 .authenticated()
+                .accessDecisionManager(filterAccessDecisionManager)
                 .and()
                 // .addFilterAfter(jwtFilter,BasicAuthenticationFilter.class)
                 .logout()

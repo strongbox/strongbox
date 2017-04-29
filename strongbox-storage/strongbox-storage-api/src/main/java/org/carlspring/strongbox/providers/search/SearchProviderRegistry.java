@@ -74,7 +74,8 @@ public class SearchProviderRegistry
     }
 
     @Override
-    public SearchProvider addProvider(String alias, SearchProvider provider)
+    public SearchProvider addProvider(String alias,
+                                      SearchProvider provider)
     {
         return super.addProvider(alias, provider);
     }

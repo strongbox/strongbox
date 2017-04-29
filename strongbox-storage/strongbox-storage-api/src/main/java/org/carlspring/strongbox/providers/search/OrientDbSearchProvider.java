@@ -26,7 +26,8 @@ import org.springframework.stereotype.Component;
  * @author carlspring
  */
 @Component("orientDbSearchProvider")
-public class OrientDbSearchProvider implements SearchProvider
+public class OrientDbSearchProvider
+        implements SearchProvider
 {
 
     private static final Logger logger = LoggerFactory.getLogger(OrientDbSearchProvider.class);
@@ -82,7 +83,8 @@ public class OrientDbSearchProvider implements SearchProvider
             do
             {
                 coordinates.put(matcher.group(1), matcher.group(2));
-            } while (matcher.find());
+            }
+            while (matcher.find());
 
             List<SearchResult> results = new LinkedList<>();
             results.addAll(artifactEntryService.findByCoordinates(coordinates)
@@ -90,12 +92,14 @@ public class OrientDbSearchProvider implements SearchProvider
                                                .map(this::createSearchResult)
                                                .collect(Collectors.toList()));
 
-            searchResults.getResults().addAll(results);
+            searchResults.getResults()
+                         .addAll(results);
 
             return searchResults;
         }
 
-        logger.debug("Results: {}", searchResults.getResults().size());
+        logger.debug("Results: {}", searchResults.getResults()
+                                                 .size());
 
         return searchResults;
     }
@@ -104,13 +108,15 @@ public class OrientDbSearchProvider implements SearchProvider
     public boolean contains(SearchRequest searchRequest)
             throws SearchException
     {
-        return !search(searchRequest).getResults().isEmpty();
+        return !search(searchRequest).getResults()
+                                     .isEmpty();
     }
 
     protected SearchResult createSearchResult(ArtifactEntry a)
     {
         String storageId = a.getStorageId();
-        String url = getURLForArtifact(storageId, a.getRepositoryId(), a.getArtifactCoordinates().toPath());
+        String url = getURLForArtifact(storageId, a.getRepositoryId(), a.getArtifactCoordinates()
+                                                                        .toPath());
 
         return new SearchResult(storageId, a.getRepositoryId(),
                                 a.getArtifactCoordinates(), url);

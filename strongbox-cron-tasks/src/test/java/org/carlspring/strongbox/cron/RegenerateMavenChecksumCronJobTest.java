@@ -208,9 +208,11 @@ public class RegenerateMavenChecksumCronJobTest
                                      .toString());
 
         assertTrue("The checksum file for artifact doesn't exist!",
-                   new File(snapshotArtifact_1.getFile().getAbsolutePath() + ".sha1").exists());
+                   new File(snapshotArtifact_1.getFile()
+                                              .getAbsolutePath() + ".sha1").exists());
         assertTrue("The checksum file for artifact is empty!",
-                   new File(snapshotArtifact_1.getFile().getAbsolutePath() + ".sha1").length() > 0);
+                   new File(snapshotArtifact_1.getFile()
+                                              .getAbsolutePath() + ".sha1").length() > 0);
 
         assertTrue("The checksum file for artifact doesn't exist!",
                    new File(snapshotArtifact_1.getFile()
@@ -277,14 +279,18 @@ public class RegenerateMavenChecksumCronJobTest
                                      .toString());
 
         assertTrue("The checksum file for artifact doesn't exist!",
-                   new File(snapshotArtifact_2.getFile().getAbsolutePath() + ".sha1").exists());
+                   new File(snapshotArtifact_2.getFile()
+                                              .getAbsolutePath() + ".sha1").exists());
         assertTrue("The checksum file for artifact is empty!",
-                   new File(snapshotArtifact_2.getFile().getAbsolutePath() + ".sha1").length() > 0);
+                   new File(snapshotArtifact_2.getFile()
+                                              .getAbsolutePath() + ".sha1").length() > 0);
 
         assertTrue("The checksum file for artifact doesn't exist!",
-                   new File(snapshotArtifact_2.getFile().getAbsolutePath() + ".md5").exists());
+                   new File(snapshotArtifact_2.getFile()
+                                              .getAbsolutePath() + ".md5").exists());
         assertTrue("The checksum file for artifact is empty!",
-                   new File(snapshotArtifact_2.getFile().getAbsolutePath() + ".md5").length() > 0);
+                   new File(snapshotArtifact_2.getFile()
+                                              .getAbsolutePath() + ".md5").length() > 0);
 
         assertTrue("The checksum file for pom file doesn't exist!",
                    new File(snapshotArtifact_2.getFile()
@@ -328,7 +334,8 @@ public class RegenerateMavenChecksumCronJobTest
         addRegenerateCronJobConfig(jobName, STORAGE0, null, null, false);
 
         //Checking if job was executed
-        while (!jobManager.getExecutedJobs().containsKey(jobName))
+        while (!jobManager.getExecutedJobs()
+                          .containsKey(jobName))
         {
             Thread.sleep(8000);
         }

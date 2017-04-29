@@ -416,7 +416,7 @@ public class RegenerateNugetChecksumCronJobTest
     }
 
     public static Repository createRepositoryMock(String storageId,
-                                                   String repositoryId)
+                                                  String repositoryId)
     {
         // This is no the real storage, but has a matching ID.
         // We're mocking it, as the configurationManager is not available at the the static methods are invoked.

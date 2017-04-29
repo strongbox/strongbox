@@ -278,7 +278,7 @@ public class RestAssuredArtifactClient
     {
         String url = getContextBaseUrl() + "/metadata?" + (storageId != null ? "storageId=" + storageId : "") +
                      (repositoryId != null ? (storageId != null ? "&" : "") + "repositoryId=" + repositoryId : "") +
-                     (path != null ? (storageId != null || repositoryId != null ? "&" : "") + "path=" + path : "" );
+                     (path != null ? (storageId != null || repositoryId != null ? "&" : "") + "path=" + path : "");
 
         givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
                     .when()
@@ -295,7 +295,7 @@ public class RestAssuredArtifactClient
     {
         String url = getContextBaseUrl() + "/index?" + (storageId != null ? "storageId=" + storageId : "") +
                      (repositoryId != null ? (storageId != null ? "&" : "") + "repositoryId=" + repositoryId : "") +
-                     (path != null ? (storageId != null || repositoryId != null ? "&" : "") + "path=" + path : "" );
+                     (path != null ? (storageId != null || repositoryId != null ? "&" : "") + "path=" + path : "");
 
         givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
                     .when()
@@ -330,7 +330,7 @@ public class RestAssuredArtifactClient
     public String search(String query,
                          String mediaType,
                          String searchProvider)
-        throws UnsupportedEncodingException
+            throws UnsupportedEncodingException
     {
         return search(null, query, mediaType, searchProvider);
     }

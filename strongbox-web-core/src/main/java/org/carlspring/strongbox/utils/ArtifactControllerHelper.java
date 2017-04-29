@@ -146,13 +146,15 @@ public class ArtifactControllerHelper
                                               HttpHeaders headers)
     {
         ais.getHexDigests()
-           .forEach((k, v) -> headers.add(String.format("Checksum-%s", k.toUpperCase().replaceAll("-", "")), v));
-        
+           .forEach((k, v) -> headers.add(String.format("Checksum-%s", k.toUpperCase()
+                                                                        .replaceAll("-", "")), v));
+
         ArtifactCoordinates artifactCoordinates = ais.getArtifactCoordinates();
         if (artifactCoordinates != null)
         {
-            headers.add("strongbox-layout", artifactCoordinates.getClass().getSimpleName());
+            headers.add("strongbox-layout", artifactCoordinates.getClass()
+                                                               .getSimpleName());
         }
     }
-    
+
 }

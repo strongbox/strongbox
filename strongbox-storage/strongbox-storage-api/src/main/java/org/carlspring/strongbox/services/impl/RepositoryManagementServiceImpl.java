@@ -41,16 +41,19 @@ public class RepositoryManagementServiceImpl
         LayoutProvider provider = getLayoutProvider(storageId, repositoryId);
         if (provider != null)
         {
-            provider.getRepositoryManagementStrategy().createRepository(storageId, repositoryId);
+            provider.getRepositoryManagementStrategy()
+                    .createRepository(storageId, repositoryId);
         }
         else
         {
-            Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
+            Repository repository = getConfiguration().getStorage(storageId)
+                                                      .getRepository(repositoryId);
 
             logger.warn("Layout provider '" + repository.getLayout() + "' could not be resolved. " +
                         "Using generic implementation instead.");
 
-            File repositoryDir = new File(repository.getStorage().getBasedir(), repositoryId);
+            File repositoryDir = new File(repository.getStorage()
+                                                    .getBasedir(), repositoryId);
             if (!repositoryDir.exists())
             {
                 //noinspection ResultOfMethodCallIgnored
@@ -65,7 +68,8 @@ public class RepositoryManagementServiceImpl
             throws IOException
     {
         LayoutProvider provider = getLayoutProvider(storageId, repositoryId);
-        provider.getRepositoryManagementStrategy().removeRepository(storageId, repositoryId);
+        provider.getRepositoryManagementStrategy()
+                .removeRepository(storageId, repositoryId);
     }
 
     private LayoutProvider getLayoutProvider(String storageId,
