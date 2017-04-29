@@ -133,4 +133,21 @@ public class SearchControllerTest
         assertTrue("Received unexpected response! \n" + response + "\n",
                    response.contains(">1.0.11.3<") && response.contains(">1.0.11.3.1<"));
     }
+
+    @Test
+    public void testDumpIndex()
+            throws Exception
+    {
+
+        // /storages/storage0/releases/.index/local
+        // this index is present but artifacts are missing
+        dumpIndex("storage0", "releases");
+
+        // this index is not empty
+        dumpIndex(STORAGE_SC_TEST, REPOSITORY_RELEASES);
+
+        // this index is not present, and even storage is not present
+        // just to make sure that dump method will not produce any exceptions
+        dumpIndex("foo", "bar");
+    }
 }
