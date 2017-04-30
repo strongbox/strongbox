@@ -5,11 +5,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.FileSystem;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.spi.FileSystemProvider;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
@@ -382,7 +384,10 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         Path targetPath = storageProvider.resolve(repository, coordinates);
 
         // Override FileSystem root to Repository base directory
-        return new ArtifactPath(coordinates, targetPath, RepositoryFileSystem.getRepositoryFileSystem(repository));
+        FileSystem storageFileSystem = targetPath.getFileSystem();
+        return new ArtifactPath(coordinates, targetPath,
+                new RepositoryLayoutFileSystem(repository, storageFileSystem,
+                        new RepositoryFileSystemProvider(storageFileSystem.provider(), this)));
     }
 
     @Override
@@ -392,7 +397,10 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         StorageProvider storageProvider = getStorageProvider(repository);
         Path path = storageProvider.resolve(repository);
 
-        return new RepositoryPath(path, RepositoryFileSystem.getRepositoryFileSystem(repository));
+        FileSystem storageFileSystem = path.getFileSystem();
+        return new RepositoryPath(path,
+                new RepositoryLayoutFileSystem(repository, storageFileSystem,
+                        new RepositoryFileSystemProvider(storageFileSystem.provider(), this)));
     }
 
     @Override
@@ -690,6 +698,17 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                                                                       e, filePath + "." + checksumExtension), e1);
                                             }
                                         });
+    }
+    
+    private class RepositoryLayoutFileSystem extends RepositoryFileSystem {
+
+        public RepositoryLayoutFileSystem(Repository repository,
+                                          FileSystem storageFileSystem,
+                                          FileSystemProvider provider)
+        {
+            super(repository, storageFileSystem, provider);
+        }
+        
     }
 
 }

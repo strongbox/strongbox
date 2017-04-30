@@ -1,12 +1,10 @@
 package org.carlspring.strongbox.providers.io;
 
-import org.carlspring.strongbox.storage.repository.Repository;
-
 import java.nio.file.FileSystem;
-import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
 import java.nio.file.spi.FileSystemProvider;
+
+import org.carlspring.strongbox.storage.repository.Repository;
 
 /**
  * {@link RepositoryFileSystem} is a wrapper under concrete Storage {@link FileSystem}. <br>
@@ -30,12 +28,6 @@ public class RepositoryFileSystem
         this.fileSystemProvider = provider;
     }
 
-    public RepositoryFileSystem(Repository repository,
-                                FileSystem storageFileSystem)
-    {
-        this(repository, storageFileSystem, new RepositoryFileSystemProvider(storageFileSystem.provider()));
-    }
-
     public Repository getRepository()
     {
         return repository;
@@ -48,11 +40,7 @@ public class RepositoryFileSystem
 
     public RepositoryPath getRootDirectory()
     {
-        Path root = Paths.get(repository.getBasedir());
-        FileSystem rootFileSystem = root.getFileSystem();
-        return new RepositoryPath(root,
-                                  new RepositoryFileSystem(repository, rootFileSystem,
-                                                           new RepositoryFileSystemProvider(rootFileSystem.provider())));
+        return this.getPath(repository.getBasedir());
     }
 
     public RepositoryPath getTrashPath()
@@ -65,8 +53,8 @@ public class RepositoryFileSystem
         return getRootDirectory().resolve(".temp");
     }
 
-    public Path getPath(String first,
-                        String... more)
+    public RepositoryPath getPath(String first,
+                                  String... more)
     {
         return new RepositoryPath(getTarget().getPath(first, more), this);
     }
@@ -74,22 +62,6 @@ public class RepositoryFileSystem
     public PathMatcher getPathMatcher(String syntaxAndPattern)
     {
         throw new UnsupportedOperationException();
-    }
-
-    public static RepositoryFileSystem getRepositoryFileSystem(Repository repository)
-    {
-        FileSystem storageFileSystem = new FileSystemWrapper(Paths.get(repository.getBasedir())
-                                                                  .getFileSystem())
-        {
-
-            @Override
-            public Path getRootDirectory()
-            {
-                return Paths.get(repository.getBasedir());
-            }
-
-        };
-        return new RepositoryFileSystem(repository, storageFileSystem);
     }
 
 }
