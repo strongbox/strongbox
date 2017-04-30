@@ -133,20 +133,6 @@ import com.google.common.io.ByteStreams;
 public class ProxyRepositoryProviderTest extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
-//    @org.springframework.context.annotation.Configuration
-//    @ComponentScan(basePackages = { "org.carlspring.strongbox.artifact",
-//                                    "org.carlspring.strongbox.configuration",
-//                                    "org.carlspring.strongbox.io",
-//                                    "org.carlspring.strongbox.providers",
-//                                    "org.carlspring.strongbox.repository",
-//                                    "org.carlspring.strongbox.services",
-//                                    "org.carlspring.strongbox.storage",
-//                                    "org.carlspring.strongbox.xml" })
-//    public static class SpringConfig
-//    {
-//
-//    }
-
     @Inject
     private ArtifactResolutionService artifactResolutionService;
 
