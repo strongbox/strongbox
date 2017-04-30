@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.providers.io;
 
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import java.io.File;
@@ -49,11 +50,14 @@ public class RepositoryFileSystemProvider
     private static final Logger logger = LoggerFactory.getLogger(RepositoryFileSystemProvider.class);
 
     private FileSystemProvider storageFileSystemProvider;
+    private LayoutProvider layoutProvider;
 
-    public RepositoryFileSystemProvider(FileSystemProvider storageFileSystemProvider)
+    public RepositoryFileSystemProvider(FileSystemProvider storageFileSystemProvider,
+                                        LayoutProvider layoutProvider)
     {
         super();
         this.storageFileSystemProvider = storageFileSystemProvider;
+        this.layoutProvider = layoutProvider;
     }
 
     public String getScheme()

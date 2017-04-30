@@ -6,12 +6,15 @@ import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.ArtifactPath;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -22,6 +25,8 @@ import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.artifact.Artifact;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -39,16 +44,21 @@ public class ArtifactOutputStreamTest
 {
 
     public static final String REPOSITORY_RELEASES = "aos-releases";
+    @Inject
+    private LayoutProviderRegistry layoutProviderRegistry;
 
-
-    @PostConstruct
+    @Before
     public void initialize()
-            throws Exception
+        throws Exception
     {
         createRepository(STORAGE0, REPOSITORY_RELEASES, false);
+
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES).getAbsolutePath(),
+                         "org.carlspring.foo:temp-file-test:1.2.3:jar");
+
     }
 
-    @PreDestroy
+    @After
     public void removeRepositories()
             throws IOException, JAXBException
     {
@@ -73,7 +83,12 @@ public class ArtifactOutputStreamTest
 
         final Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.foo:temp-file-test:1.2.3:jar");
         final ArtifactCoordinates coordinates = new MavenArtifactCoordinates(artifact);
-        ArtifactPath artifactPath = ArtifactPath.getArtifactPath(repository, coordinates);
+        
+        //ArtifactPath artifactPath = ArtifactPath.getArtifactPath(repository, coordinates);
+        
+        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        ArtifactPath artifactPath = layoutProvider.resolve(repository, coordinates);
+        
         RepositoryFileSystemProvider provider = (RepositoryFileSystemProvider) artifactPath.getFileSystem()
                                                                                            .provider();
         RepositoryPath artifactPathTemp = provider.getTempPath(artifactPath);
@@ -102,8 +117,12 @@ public class ArtifactOutputStreamTest
         final Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.foo:temp-file-test:1.2.4:jar");
         final ArtifactCoordinates coordinates = new MavenArtifactCoordinates(artifact);
 
-        ArtifactPath artifactPath = ArtifactPath.getArtifactPath(repository, coordinates);
+        //ArtifactPath artifactPath = ArtifactPath.getArtifactPath(repository, coordinates);
 
+        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        ArtifactPath artifactPath = layoutProvider.resolve(repository, coordinates);
+
+        
         RepositoryFileSystemProvider provider = (RepositoryFileSystemProvider) artifactPath.getFileSystem()
                                                                                            .provider();
         RepositoryPath artifactPathTemp = provider.getTempPath(artifactPath);

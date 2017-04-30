@@ -1,14 +1,10 @@
 package org.carlspring.strongbox.providers.io;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.io.ArtifactFile;
-import org.carlspring.strongbox.providers.storage.FileSystemStorageProvider;
-import org.carlspring.strongbox.storage.repository.Repository;
-
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.io.ArtifactFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,16 +53,6 @@ public class ArtifactPath
             throw e;
         }
         return new ArtifactFile(getRoot().toString(), coordinatesLocal);
-    }
-
-    public static ArtifactPath getArtifactPath(Repository repository,
-                                               ArtifactCoordinates coordinates)
-            throws IOException
-    {
-        return new ArtifactPath(coordinates,
-                                FileSystemStorageProvider.getArtifactPath(repository.getBasedir(),
-                                                                          coordinates.toPath()),
-                                RepositoryFileSystem.getRepositoryFileSystem(repository));
     }
 
 }
