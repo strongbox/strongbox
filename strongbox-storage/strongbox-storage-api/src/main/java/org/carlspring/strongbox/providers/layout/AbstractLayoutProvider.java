@@ -1,5 +1,26 @@
 package org.carlspring.strongbox.providers.layout;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.inject.Inject;
+
+import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
@@ -9,7 +30,13 @@ import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.io.ArtifactPath;
 import org.carlspring.strongbox.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.io.RepositoryPath;
+import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.ArtifactPath;
+import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
+import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.providers.storage.StorageProvider;
 import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
@@ -111,12 +138,8 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
             throws IOException,
                    NoSuchAlgorithmException
     {
-        Storage storage = getConfiguration().getStorage(storageId);
-
-        logger.debug("Checking in " + storage.getId() + ":" + repositoryId + "...");
-
-        Repository repository = storage.getRepository(repositoryId);
-        StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
+        Repository repository = getRepository(storageId, repositoryId);
+        StorageProvider storageProvider = getStorageProvider(repository);
 
         InputStream is;
         T artifactCoordinates = null;
@@ -137,6 +160,23 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         return decorateStream(storageId, repositoryId, path, is, artifactCoordinates);
     }
 
+    protected StorageProvider getStorageProvider(Repository repository)
+    {
+        StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
+        return storageProvider;
+    }
+
+    protected Repository getRepository(String storageId,
+                                       String repositoryId)
+    {
+        Storage storage = getConfiguration().getStorage(storageId);
+
+        logger.debug("Checking in " + storage.getId() + ":" + repositoryId + "...");
+
+        Repository repository = storage.getRepository(repositoryId);
+        return repository;
+    }
+
     @Override
     public ArtifactOutputStream getOutputStream(String storageId,
                                                 String repositoryId,
@@ -146,7 +186,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
-        StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
+        StorageProvider storageProvider = getStorageProvider(repository);
 
         OutputStream os;
         T artifactCoordinates = null;
@@ -333,51 +373,54 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         return isTemp(path) || isTrash(path) || isIndex(path);
     }
 
-    protected RepositoryPath resolve(Repository repository)
+    @Override
+    public ArtifactPath resolve(Repository repository,
+                                ArtifactCoordinates coordinates)
             throws IOException
     {
-        StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
+        StorageProvider storageProvider = getStorageProvider(repository);
+        Path targetPath = storageProvider.resolve(repository, coordinates);
 
-        return storageProvider.resolve(repository);
+        // Override FileSystem root to Repository base directory
+        return new ArtifactPath(coordinates, targetPath, RepositoryFileSystem.getRepositoryFileSystem(repository));
     }
 
-    protected RepositoryPath resolve(Repository repository,
-                                     String path)
+    @Override
+    public RepositoryPath resolve(Repository repository)
             throws IOException
     {
-        StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
+        StorageProvider storageProvider = getStorageProvider(repository);
+        Path path = storageProvider.resolve(repository);
 
-        return storageProvider.resolve(repository, path);
+        return new RepositoryPath(path, RepositoryFileSystem.getRepositoryFileSystem(repository));
+    }
+
+    @Override
+    public RepositoryPath resolve(Repository repository,
+                                  String path)
+            throws IOException
+    {
+        return resolve(repository).resolve(path);
     }
 
     protected ArtifactPath resolve(String storageId,
+                                   String repositoryId,
+                                   ArtifactCoordinates coordinates)
+            throws IOException
+    {
+        Repository repository = getRepository(storageId, repositoryId);
+        return resolve(repository, coordinates);
+    }
+
+    protected RepositoryPath resolve(String storageId,
                                    String repositoryId,
                                    String path)
             throws IOException
     {
-        return resolve(storageId, repositoryId, getArtifactCoordinates(path));
+        Repository repository = getRepository(storageId, repositoryId);
+        return resolve(repository, path);
     }
-
-    protected ArtifactPath resolve(Repository repository,
-                                   ArtifactCoordinates coordinates)
-            throws IOException
-    {
-        StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
-
-        return storageProvider.resolve(repository, coordinates);
-    }
-
-    protected ArtifactPath resolve(String storageId,
-                                   String repositoryId,
-                                   ArtifactCoordinates coordinates)
-            throws IOException
-    {
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
-
-        return resolve(repository, coordinates);
-    }
-
+    
     protected RepositoryFileSystemProvider getProvider(RepositoryPath artifactPath)
     {
         return (RepositoryFileSystemProvider) artifactPath.getFileSystem().provider();
@@ -514,7 +557,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     {
         logger.debug(String.format("Attempting to restore: %s:%s:%s...", storageId, repositoryId, path));
 
-        ArtifactPath artifactPath = resolve(storageId, repositoryId, path);
+        RepositoryPath artifactPath = resolve(storageId, repositoryId, path);
 
         RepositoryFileSystemProvider provider = getProvider(artifactPath);
         provider.undelete(artifactPath);
@@ -561,7 +604,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                             String path)
             throws IOException
     {
-        ArtifactPath artifactPath = resolve(storageId, repositoryId, path);
+        RepositoryPath artifactPath = resolve(storageId, repositoryId, path);
         return Files.exists(artifactPath);
     }
 

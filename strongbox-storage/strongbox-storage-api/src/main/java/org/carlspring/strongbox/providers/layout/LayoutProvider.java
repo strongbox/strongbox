@@ -5,6 +5,8 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.ArtifactPath;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.repository.RepositoryFeatures;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
@@ -14,6 +16,7 @@ import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeExceptio
 
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Set;
@@ -40,6 +43,17 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
                                          String path)
             throws IOException, NoSuchAlgorithmException;
 
+    ArtifactPath resolve(Repository repository,
+                         ArtifactCoordinates coordinates)
+        throws IOException;
+
+    RepositoryPath resolve(Repository repository)
+        throws IOException;
+
+    RepositoryPath resolve(Repository repository,
+                           String path)
+        throws IOException;
+    
     boolean containsArtifact(Repository repository, ArtifactCoordinates coordinates)
             throws IOException;
 

@@ -1,6 +1,7 @@
-package org.carlspring.strongbox.io;
+package org.carlspring.strongbox.providers.io;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.io.ArtifactFile;
 import org.carlspring.strongbox.providers.storage.FileSystemStorageProvider;
 import org.carlspring.strongbox.storage.repository.Repository;
 

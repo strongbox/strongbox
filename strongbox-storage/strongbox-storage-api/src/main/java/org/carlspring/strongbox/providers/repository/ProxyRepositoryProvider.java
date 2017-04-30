@@ -1,5 +1,14 @@
 package org.carlspring.strongbox.providers.repository;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.security.NoSuchAlgorithmException;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.ws.rs.core.Response;
+
 import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactResolver;
@@ -49,7 +58,7 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
 
     @Inject
-    private StorageProviderRegistry storageProviderRegistry;
+    private LayoutProviderRegistry layoutProviderRegistry;
 
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
@@ -85,11 +94,9 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
 
         logger.debug("Checking in " + storage.getId() + ":" + repositoryId + "...");
 
-        StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-
-        RepositoryPath repositoryPath = storageProvider.resolve(repository);
-        RepositoryPath artifactPath = repositoryPath.resolve(path);
+        RepositoryPath reposytoryPath = layoutProvider.resolve(repository);
+        RepositoryPath artifactPath = reposytoryPath.resolve(path);
 
         RepositoryFileSystemProvider fileSystemProvider = (RepositoryFileSystemProvider) artifactPath.getFileSystem()
                                                                                                      .provider();

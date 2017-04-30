@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.providers.repository;
 
+<<<<<<< Upstream, based on upstream/master
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
@@ -103,6 +104,68 @@ public class ProxyRepositoryProviderTest extends TestCaseWithMavenArtifactGenera
         {
             System.out.println(ByteStreams.toByteArray(is));
         }
+=======
+import static org.junit.Assert.assertNotNull;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
+
+import javax.inject.Inject;
+
+import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.services.ArtifactResolutionService;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.google.common.io.ByteStreams;
+
+/**
+ * @author carlspring
+ */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration()
+public class ProxyRepositoryProviderTest extends TestCaseWithMavenArtifactGenerationAndIndexing
+{
+
+//    @org.springframework.context.annotation.Configuration
+//    @ComponentScan(basePackages = { "org.carlspring.strongbox.artifact",
+//                                    "org.carlspring.strongbox.configuration",
+//                                    "org.carlspring.strongbox.io",
+//                                    "org.carlspring.strongbox.providers",
+//                                    "org.carlspring.strongbox.repository",
+//                                    "org.carlspring.strongbox.services",
+//                                    "org.carlspring.strongbox.storage",
+//                                    "org.carlspring.strongbox.xml" })
+//    public static class SpringConfig
+//    {
+//
+//    }
+
+    @Inject
+    private ArtifactResolutionService artifactResolutionService;
+
+
+    @Test
+    public void testMavenCentral()
+            throws ProviderImplementationException,
+                   NoSuchAlgorithmException,
+                   ArtifactTransportException,
+                   IOException
+    {
+        InputStream is = artifactResolutionService.getInputStream("storage-common-proxies",
+                                                                  "maven-central",
+                                                                  "org/carlspring/maven/derby-maven-plugin/maven-metadata.xml");
+
+        assertNotNull("Failed to resolve org/carlspring/maven/derby-maven-plugin/maven-metadata.xml!", is);
+
+        System.out.println(ByteStreams.toByteArray(is));
+>>>>>>> 8fe634d SB-784: RepositoryPath moved into strongbox-storage-api
     }
 
     @Ignore // Broken while Docker is being worked on, as there is no running instance of the Strongbox service.

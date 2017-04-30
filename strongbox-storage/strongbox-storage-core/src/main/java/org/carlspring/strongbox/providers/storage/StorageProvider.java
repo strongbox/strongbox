@@ -1,14 +1,13 @@
 package org.carlspring.strongbox.providers.storage;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.io.ArtifactPath;
-import org.carlspring.strongbox.io.RepositoryPath;
-import org.carlspring.strongbox.storage.repository.Repository;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
+
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 /**
  * @author carlspring
@@ -20,29 +19,31 @@ public interface StorageProvider
 
     void register();
 
-    InputStream getInputStreamImplementation(ArtifactPath artifactPath)
-            throws IOException, NoSuchAlgorithmException;
+    InputStream getInputStreamImplementation(Path artifactPath)
+        throws IOException,
+        NoSuchAlgorithmException;
 
-    InputStream getInputStreamImplementation(RepositoryPath repositoryPath,
+    InputStream getInputStreamImplementation(Path repositoryPath,
                                              String path)
-            throws IOException, NoSuchAlgorithmException;
+        throws IOException,
+        NoSuchAlgorithmException;
 
+    OutputStream getOutputStreamImplementation(Path artifactPath)
+        throws IOException,
+        NoSuchAlgorithmException;
 
-    OutputStream getOutputStreamImplementation(ArtifactPath artifactPath)
-            throws IOException, NoSuchAlgorithmException;
-
-    OutputStream getOutputStreamImplementation(RepositoryPath repositoryPath,
+    OutputStream getOutputStreamImplementation(Path repositoryPath,
                                                String path)
-            throws IOException;
+        throws IOException;
 
-    ArtifactPath resolve(Repository repository,
-                         ArtifactCoordinates coordinates)
-            throws IOException;
+    Path resolve(Repository repository,
+                 ArtifactCoordinates coordinates)
+        throws IOException;
 
-    RepositoryPath resolve(Repository repository)
-            throws IOException;
+    Path resolve(Repository repository)
+        throws IOException;
 
-    RepositoryPath resolve(Repository repository,
-                           String path)
-            throws IOException;
+    Path resolve(Repository repository,
+                 String path)
+        throws IOException;
 }

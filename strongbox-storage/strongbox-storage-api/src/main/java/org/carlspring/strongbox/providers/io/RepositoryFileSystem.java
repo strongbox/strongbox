@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.io;
+package org.carlspring.strongbox.providers.io;
 
 import org.carlspring.strongbox.storage.repository.Repository;
 
