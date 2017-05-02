@@ -187,7 +187,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                                 {
                                     logger.error(e.getMessage());
                                 }
-                                
+
                                 return checksum;
                             })
                        .allMatch(checksum -> Files.exists(checksum));
@@ -240,7 +240,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                                                 {
                                                     return;
                                                 }
-                                                
+
                                                 result.getHexDigests().put(a, checksum);
                                             });
         }
@@ -501,7 +501,6 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                 {
                     logger.warn("Repository " + repository.getId() + " does not support removal of trash.");
                 }
-                
                 deleteTrash(storage.getId(), repository.getId());
             }
         }
@@ -513,15 +512,12 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                          String path)
             throws IOException
     {
-        logger.debug(String.format("Attempting to restore: storageId-[%s]; repoId-[%s]; path-[%s]; ",
-                                   storageId,
-                                   repositoryId,
-                                   path));
+        logger.debug(String.format("Attempting to restore: %s:%s:%s...", storageId, repositoryId, path));
 
         ArtifactPath artifactPath = resolve(storageId, repositoryId, path);
 
         RepositoryFileSystemProvider provider = getProvider(artifactPath);
-        provider.restoreTrash(artifactPath);
+        provider.undelete(artifactPath);
     }
 
     @Override
@@ -536,11 +532,11 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
 
         if (!repository.isTrashEnabled())
         {
-            logger.warn("Repository " + repository.getId() + " does not support removal of trash.");
+            logger.warn("Repository " + storageId + ":" + repository.getId() + " does not support removal of trash.");
         }
 
         RepositoryPath path = resolve(repository);
-        getProvider(path).restoreTrash(path);
+        getProvider(path).undelete(path);
     }
 
     @Override
@@ -613,10 +609,10 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                                  ArtifactInputStream is = null;
                                  try
                                  {
-                                     String artifactPath = e.getPath()
-                                                            .substring(repository.getBasedir().length() + 1);
-                                     is = getInputStream(repository.getStorage()
-                                                                   .getId(), repository.getId(), artifactPath);
+                                     String artifactPath = e.getPath().substring(repository.getBasedir().length() + 1);
+                                     is = getInputStream(repository.getStorage().getId(),
+                                                         repository.getId(),
+                                                         artifactPath);
                                  }
                                  catch (IOException | NoSuchAlgorithmException e1)
                                  {

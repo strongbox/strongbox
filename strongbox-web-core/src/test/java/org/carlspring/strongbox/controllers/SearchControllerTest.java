@@ -37,9 +37,9 @@ public class SearchControllerTest
 
     private static final String REPOSITORY_RELEASES = "sc-releases-search";
 
-    private static final File GENERATOR_BASEDIR = new File(
-            ConfigurationResourceResolver.getVaultDirectory() + "/local");
-
+    private static final File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
+                                                           "/local");
+    
     private static boolean initialized = false;
 
     public static void cleanUp()
@@ -58,7 +58,6 @@ public class SearchControllerTest
         {
             return;
         }
-        initialized = true;
 
         cleanUp();
         
@@ -84,6 +83,8 @@ public class SearchControllerTest
         assertNotNull(repositoryIndexer);
 
         reIndex(STORAGE_SC_TEST, REPOSITORY_RELEASES, "org/carlspring/strongbox/searches");
+
+        initialized = true;
     }
 
     public static Set<Repository> getRepositoriesToClean()
@@ -98,9 +99,10 @@ public class SearchControllerTest
     public void testIndexSearches()
             throws Exception
     {
-        testSearches("g:org.carlspring.strongbox.searches a:test-project", MavenIndexerSearchProvider.ALIAS);
+        testSearches("+g:org.carlspring.strongbox.searches +a:test-project",
+                     MavenIndexerSearchProvider.ALIAS);
     }
-
+    
     @Test
     public void testDbSearches()
             throws Exception
@@ -113,25 +115,26 @@ public class SearchControllerTest
                               String searchProvider)
             throws Exception
     {
-
         // testSearchPlainText
         String response = client.search(query, MediaType.TEXT_PLAIN_VALUE, searchProvider);
 
-        assertTrue("Received unexpected response! \n" + response + "\n",
-                   response.contains("test-project-1.0.11.3.jar") && response.contains("test-project-1.0.11.3.1.jar"));
+        assertTrue("Received unexpected search results! \n" + response + "\n",
+                   response.contains("test-project-1.0.11.3.jar") &&
+                   response.contains("test-project-1.0.11.3.1.jar"));
 
         // testSearchJSON
         response = client.search(query, MediaType.APPLICATION_JSON_VALUE, searchProvider);
 
-        assertTrue("Received unexpected response! \n" + response + "\n",
+        assertTrue("Received unexpected search results! \n" + response + "\n",
                    response.contains("\"version\" : \"1.0.11.3\"") &&
-                           response.contains("\"version\" : \"1.0.11.3.1\""));
+                   response.contains("\"version\" : \"1.0.11.3.1\""));
         
         // testSearchXML
         response = client.search(query, MediaType.APPLICATION_XML_VALUE, searchProvider);
 
-        assertTrue("Received unexpected response! \n" + response + "\n",
-                   response.contains(">1.0.11.3<") && response.contains(">1.0.11.3.1<"));
+        assertTrue("Received unexpected search results! \n" + response + "\n",
+                   response.contains(">1.0.11.3<") &&
+                   response.contains(">1.0.11.3.1<"));
     }
 
     @Test
@@ -150,4 +153,5 @@ public class SearchControllerTest
         // just to make sure that dump method will not produce any exceptions
         dumpIndex("foo", "bar");
     }
+
 }

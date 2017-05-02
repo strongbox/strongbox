@@ -45,12 +45,10 @@ public class TrashControllerUndeleteTest
     private static final String REPOSITORY_WITH_TRASH_BASEDIR = BASEDIR.getAbsolutePath() +
                                                                 "/storages/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH;
 
-    private static final File ARTIFACT_FILE_IN_TRASH = new File(REPOSITORY_WITH_TRASH_BASEDIR + "/.trash/" +
-                                                                "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/" +
-                                                                "test-artifact-undelete-1.0.jar").getAbsoluteFile();
-
     @Inject
     private ConfigurationManager configurationManager;
+
+    private static boolean initialized = false;
 
 
     @BeforeClass
@@ -66,6 +64,12 @@ public class TrashControllerUndeleteTest
     {
         super.init();
 
+        if (initialized)
+        {
+            return;
+        }
+        initialized = true;
+
         Storage storage = configurationManager.getConfiguration().getStorage(STORAGE0);
 
         // Notes:
@@ -76,13 +80,9 @@ public class TrashControllerUndeleteTest
         repositoryWithTrash.setStorage(storage);
         repositoryWithTrash.setAllowsForceDeletion(false);
         repositoryWithTrash.setTrashEnabled(true);
-        repositoryWithTrash.setIndexingEnabled(false);
+        repositoryWithTrash.setIndexingEnabled(true);
 
         createRepository(repositoryWithTrash);
-
-        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_TRASH).getAbsolutePath(),
-                         "org.carlspring.strongbox.undelete:test-artifact-undelete",
-                         new String[] { "1.0" });
 
         // Notes:
         // - Used by testForceDeleteArtifactAllowed()
@@ -90,28 +90,35 @@ public class TrashControllerUndeleteTest
         Repository repositoryReleases = new Repository(REPOSITORY_RELEASES);
         repositoryReleases.setStorage(storage);
         repositoryReleases.setAllowsForceDeletion(false);
-        repositoryReleases.setIndexingEnabled(false);
+        repositoryReleases.setIndexingEnabled(true);
 
         createRepository(repositoryReleases);
-
-        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES).getAbsolutePath(),
-                         "org.carlspring.strongbox.undelete:test-artifact-undelete",
-                         new String[] { "1.1" });
     }
 
     @Before
     public void setUp()
             throws Exception
     {
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_TRASH).getAbsolutePath(),
+                         "org.carlspring.strongbox.undelete:test-artifact-undelete",
+                         new String[] { "1.0", "1.1" });
+
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES).getAbsolutePath(),
+                         "org.carlspring.strongbox.undelete:test-artifact-undelete",
+                         new String[] { "2.0" });
+
         // Delete the artifact (this one should get placed under the .trash)
         client.delete(STORAGE0,
                       REPOSITORY_WITH_TRASH,
                       "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/test-artifact-undelete-1.0.jar");
+        client.delete(STORAGE0,
+                      REPOSITORY_WITH_TRASH,
+                      "org/carlspring/strongbox/undelete/test-artifact-undelete/1.1/test-artifact-undelete-1.1.jar");
 
         // Delete the artifact (this one shouldn't get placed under the .trash)
         client.delete(STORAGE0,
                       REPOSITORY_RELEASES,
-                      "org/carlspring/strongbox/undelete/test-artifact-undelete/1.1/test-artifact-undelete-1.1.jar");
+                      "org/carlspring/strongbox/undelete/test-artifact-undelete/2.0/test-artifact-undelete-2.0.jar");
     }
 
     @PreDestroy
@@ -134,8 +141,15 @@ public class TrashControllerUndeleteTest
     public void testUndeleteArtifactFromTrashForRepository()
             throws Exception
     {
-        String url = getContextBaseUrl() + "/trash/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH;
-        url += "/org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/test-artifact-undelete-1.0.jar";
+        assertFalse(indexContainsArtifact(STORAGE0,
+                                          REPOSITORY_WITH_TRASH,
+                                          "+g:org.carlspring.strongbox.undelete " +
+                                          "+a:test-artifact-undelete " +
+                                          "+v:1.0 " +
+                                          "+p:jar"));
+
+        String url = getContextBaseUrl() + "/trash/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH +
+                     "/org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/test-artifact-undelete-1.0.jar";
 
         given().contentType(MediaType.TEXT_PLAIN_VALUE)
                .when()
@@ -144,22 +158,41 @@ public class TrashControllerUndeleteTest
                .then()
                .statusCode(200);
 
-        File artifactFileRestoredFromTrash = new File(REPOSITORY_WITH_TRASH_BASEDIR + "/" +
-                                                      "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/" +
-                                                      "test-artifact-undelete-1.0.jar").getAbsoluteFile();
+        final File artifactFileRestoredFromTrash = new File(REPOSITORY_WITH_TRASH_BASEDIR + "/" +
+                                                            "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/" +
+                                                            "test-artifact-undelete-1.0.jar").getAbsoluteFile();
+
+        final File artifactFileInTrash = new File(REPOSITORY_WITH_TRASH_BASEDIR + "/.trash/" +
+                                                  "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/" +
+                                                  "test-artifact-undelete-1.0.jar").getAbsoluteFile();
 
         assertFalse("Failed to undelete trash for repository '" + REPOSITORY_WITH_TRASH + "'!",
-                    ARTIFACT_FILE_IN_TRASH.exists());
+                    artifactFileInTrash.exists());
         assertTrue("Failed to undelete trash for repository '" + REPOSITORY_WITH_TRASH + "'!",
                    artifactFileRestoredFromTrash.exists());
+
+        assertIndexContainsArtifact(STORAGE0,
+                                    REPOSITORY_WITH_TRASH,
+                                    "+g:org.carlspring.strongbox.undelete +a:test-artifact-undelete +v:1.0 +p:jar");
     }
 
     @Test
     public void testUndeleteArtifactsForAllRepositories()
             throws Exception
     {
+        assertFalse(indexContainsArtifact(STORAGE0,
+                                          REPOSITORY_WITH_TRASH,
+                                          "+g:org.carlspring.strongbox.undelete " +
+                                          "+a:test-artifact-undelete " +
+                                          "+v:1.1 " +
+                                          "+p:jar"));
+
+        final File artifactFileInTrash = new File(REPOSITORY_WITH_TRASH_BASEDIR + "/.trash/" +
+                                                  "org/carlspring/strongbox/undelete/test-artifact-undelete/1.1/" +
+                                                  "test-artifact-undelete-1.1.jar").getAbsoluteFile();
+
         assertTrue("Failed to undelete trash for repository '" + REPOSITORY_WITH_TRASH + "'!",
-                   ARTIFACT_FILE_IN_TRASH.getParentFile().exists());
+                   artifactFileInTrash.getParentFile().exists());
 
         String url = getContextBaseUrl() + "/trash";
 
@@ -170,15 +203,22 @@ public class TrashControllerUndeleteTest
                .then()
                .statusCode(200);
 
-        File artifactFileRestoredFromTrash = new File(REPOSITORY_WITH_TRASH_BASEDIR + "/" +
-                                                      "org/carlspring/strongbox/undelete/test-artifact-undelete/1.0/" +
-                                                      "test-artifact-undelete-1.0.jar").getAbsoluteFile();
+        final File artifactFileRestoredFromTrash = new File(REPOSITORY_WITH_TRASH_BASEDIR + "/" +
+                                                            "org/carlspring/strongbox/undelete/test-artifact-undelete/1.1/" +
+                                                            "test-artifact-undelete-1.1.jar").getAbsoluteFile();
 
         assertFalse("Failed to undelete trash for repository '" + REPOSITORY_WITH_TRASH + "'!",
-                    ARTIFACT_FILE_IN_TRASH.exists());
+                    artifactFileInTrash.exists());
         assertTrue("Failed to undelete trash for repository '" + REPOSITORY_WITH_TRASH +
                    "' (" + artifactFileRestoredFromTrash.getAbsolutePath() + " does not exist)!",
                    artifactFileRestoredFromTrash.exists());
+
+        assertIndexContainsArtifact(STORAGE0,
+                                    REPOSITORY_WITH_TRASH,
+                                    "+g:org.carlspring.strongbox.undelete " +
+                                    "+a:test-artifact-undelete " +
+                                    "+v:1.1 " +
+                                    "+p:jar");
     }
 
 }

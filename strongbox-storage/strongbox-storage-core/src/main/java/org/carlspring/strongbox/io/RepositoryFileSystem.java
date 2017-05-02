@@ -68,7 +68,7 @@ public class RepositoryFileSystem
     public Path getPath(String first,
                         String... more)
     {
-        throw new UnsupportedOperationException();
+        return new RepositoryPath(getTarget().getPath(first, more), this);
     }
 
     public PathMatcher getPathMatcher(String syntaxAndPattern)

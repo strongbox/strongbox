@@ -10,6 +10,7 @@ import java.nio.file.WatchEvent.Modifier;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.Iterator;
+import java.util.regex.Pattern;
 
 /**
  * This implementation wraps target {@link Path} implementation, which can be an "CloudPath" or common
@@ -106,6 +107,7 @@ public class RepositoryPath
 
     public RepositoryPath resolve(Path other)
     {
+        other = getTarget(other);
         return createByTemplate(getTarget().resolve(other));
     }
 
@@ -116,7 +118,14 @@ public class RepositoryPath
 
     public RepositoryPath resolveSibling(Path other)
     {
+        other = getTarget(other);
         return createByTemplate(getTarget().resolveSibling(other));
+    }
+
+    protected Path getTarget(Path other)
+    {
+        other = other instanceof RepositoryPath ? ((RepositoryPath)other).getTarget() : other;
+        return other;
     }
 
     public RepositoryPath resolveSibling(String other)
@@ -126,7 +135,16 @@ public class RepositoryPath
 
     public Path relativize(Path other)
     {
+        other = getTarget(other);
         return getTarget().relativize(other);
+    }
+    
+    public Path getRepositoryRelative()
+    {
+        //TODO: there can be issues under Windows with replaceAll(..)
+        String resultString = toString().replaceAll(Pattern.quote(getFileSystem().getRootDirectory().toString()), "");
+        resultString = resultString.startsWith(getFileSystem().getSeparator()) ? resultString.substring(1) : resultString;
+        return getFileSystem().getPath(resultString);
     }
 
     public URI toUri()

@@ -332,12 +332,22 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                                             String query)
             throws SearchException
     {
+        boolean isContained = indexContainsArtifact(storageId, repositoryId, query);
+
+        assertTrue(isContained);
+    }
+
+    public boolean indexContainsArtifact(String storageId,
+                                          String repositoryId,
+                                          String query)
+            throws SearchException
+    {
         SearchRequest request = new SearchRequest(storageId,
                                                   repositoryId,
                                                   query,
                                                   MavenIndexerSearchProvider.ALIAS);
 
-        assertTrue(artifactSearchService.contains(request));
+        return artifactSearchService.contains(request);
     }
 
     public RepositoryIndexManager getRepositoryIndexManager()

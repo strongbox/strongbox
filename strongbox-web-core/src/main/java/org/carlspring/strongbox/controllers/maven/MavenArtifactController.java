@@ -241,7 +241,7 @@ public class MavenArtifactController
 
         File file = new File(dir);
 
-        // Do not allow .index and .trash directories (or any other directory starting with ".") to be browsable.
+        // Do not allow .index and .trash directories (or any other directory starting with ".") to be browseable.
         // NB: Files will still be downloadable.
         if (!file.isHidden() && !path.startsWith(".") && !path.contains("/."))
         {
