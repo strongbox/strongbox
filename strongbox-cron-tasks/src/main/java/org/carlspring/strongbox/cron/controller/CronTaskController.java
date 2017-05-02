@@ -20,7 +20,6 @@ import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -48,11 +47,7 @@ public class CronTaskController
     private final GenericParser<CronTaskConfiguration> configParser = new GenericParser<>(CronTaskConfiguration.class);
 
     @Inject
-    private CronTaskConfigurationService cronTaskConfigurationService;
-
-    @Inject
-    OObjectDatabaseTx databaseTx;
-
+    CronTaskConfigurationService cronTaskConfigurationService;
 
     @ApiOperation(value = "Used to save the configuration", position = 0)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The configuration was saved successfully."),

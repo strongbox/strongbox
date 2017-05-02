@@ -179,31 +179,38 @@ public class RebuildMavenMetadataCronJobTest
             throws Exception
     {
         String jobName = "Rebuild-1";
+        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
+        {
+            if (jobName1.equals(jobName) && statusExecuted)
+            {
+                try
+                {
+                    Metadata metadata = artifactMetadataService.getMetadata(STORAGE0, REPOSITORY_SNAPSHOTS,
+                                                                            "org/carlspring/strongbox/strongbox-metadata-one");
+
+                    assertNotNull(metadata);
+
+                    Versioning versioning = metadata.getVersioning();
+
+                    assertEquals("Incorrect artifactId!", artifact1.getArtifactId(), metadata.getArtifactId());
+                    assertEquals("Incorrect groupId!", artifact1.getGroupId(), metadata.getGroupId());
+
+                    assertNotNull("No versioning information could be found in the metadata!", versioning.getVersions()
+                                                                                                         .size());
+                    assertEquals("Incorrect number of versions stored in metadata!", 1, versioning.getVersions()
+                                                                                                  .size());
+
+                    deleteRebuildCronJobConfig(jobName);
+                }
+                catch (Exception e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
 
         addRebuildCronJobConfig(jobName, STORAGE0, REPOSITORY_SNAPSHOTS, ARTIFACT_BASE_PATH_STRONGBOX_METADATA);
-
-        //Checking if job was executed
-        while (!jobManager.getExecutedJobs().containsKey(jobName))
-        {
-            Thread.sleep(8000);
-        }
-
-        System.out.println(jobManager.getExecutedJobs().toString());
-
-        Metadata metadata = artifactMetadataService.getMetadata(STORAGE0, REPOSITORY_SNAPSHOTS,
-                                                                "org/carlspring/strongbox/strongbox-metadata-one");
-
-        assertNotNull(metadata);
-
-        Versioning versioning = metadata.getVersioning();
-
-        assertEquals("Incorrect artifactId!", artifact1.getArtifactId(), metadata.getArtifactId());
-        assertEquals("Incorrect groupId!", artifact1.getGroupId(), metadata.getGroupId());
-
-        assertNotNull("No versioning information could be found in the metadata!", versioning.getVersions().size());
-        assertEquals("Incorrect number of versions stored in metadata!", 1, versioning.getVersions().size());
-
-        deleteRebuildCronJobConfig(jobName);
     }
 
     @Test
@@ -211,39 +218,49 @@ public class RebuildMavenMetadataCronJobTest
             throws Exception
     {
         String jobName = "Rebuild-2";
+        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
+        {
+            if (jobName1.equals(jobName) && statusExecuted)
+            {
+                try
+                {
+                    Metadata metadata1 = artifactMetadataService.getMetadata(STORAGE0, REPOSITORY_SNAPSHOTS,
+                                                                             "org/carlspring/strongbox/strongbox-metadata-one");
+                    Metadata metadata2 = artifactMetadataService.getMetadata(STORAGE0, REPOSITORY_SNAPSHOTS,
+                                                                             "org/carlspring/strongbox/strongbox-metadata-second");
+
+                    assertNotNull(metadata1);
+                    assertNotNull(metadata2);
+
+                    Versioning versioning1 = metadata1.getVersioning();
+                    Versioning versioning2 = metadata1.getVersioning();
+
+                    assertEquals("Incorrect artifactId!", artifact1.getArtifactId(), metadata1.getArtifactId());
+                    assertEquals("Incorrect groupId!", artifact1.getGroupId(), metadata1.getGroupId());
+
+                    assertEquals("Incorrect artifactId!", artifact2.getArtifactId(), metadata2.getArtifactId());
+                    assertEquals("Incorrect groupId!", artifact2.getGroupId(), metadata2.getGroupId());
+
+                    assertNotNull("No versioning information could be found in the metadata!", versioning1.getVersions()
+                                                                                                          .size());
+                    assertEquals("Incorrect number of versions stored in metadata!", 1, versioning1.getVersions()
+                                                                                                   .size());
+
+                    assertNotNull("No versioning information could be found in the metadata!", versioning2.getVersions()
+                                                                                                          .size());
+                    assertEquals("Incorrect number of versions stored in metadata!", 1, versioning2.getVersions()
+                                                                                                   .size());
+
+                    deleteRebuildCronJobConfig(jobName);
+                }
+                catch (Exception e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
 
         addRebuildCronJobConfig(jobName, STORAGE0, REPOSITORY_SNAPSHOTS, null);
-
-        //Checking if job was executed
-        while (!jobManager.getExecutedJobs().containsKey(jobName))
-        {
-            Thread.sleep(8000);
-        }
-
-        Metadata metadata1 = artifactMetadataService.getMetadata(STORAGE0, REPOSITORY_SNAPSHOTS,
-                                                                 "org/carlspring/strongbox/strongbox-metadata-one");
-        Metadata metadata2 = artifactMetadataService.getMetadata(STORAGE0, REPOSITORY_SNAPSHOTS,
-                                                                 "org/carlspring/strongbox/strongbox-metadata-second");
-
-        assertNotNull(metadata1);
-        assertNotNull(metadata2);
-
-        Versioning versioning1 = metadata1.getVersioning();
-        Versioning versioning2 = metadata1.getVersioning();
-
-        assertEquals("Incorrect artifactId!", artifact1.getArtifactId(), metadata1.getArtifactId());
-        assertEquals("Incorrect groupId!", artifact1.getGroupId(), metadata1.getGroupId());
-
-        assertEquals("Incorrect artifactId!", artifact2.getArtifactId(), metadata2.getArtifactId());
-        assertEquals("Incorrect groupId!", artifact2.getGroupId(), metadata2.getGroupId());
-
-        assertNotNull("No versioning information could be found in the metadata!", versioning1.getVersions().size());
-        assertEquals("Incorrect number of versions stored in metadata!", 1, versioning1.getVersions().size());
-
-        assertNotNull("No versioning information could be found in the metadata!", versioning2.getVersions().size());
-        assertEquals("Incorrect number of versions stored in metadata!", 1, versioning2.getVersions().size());
-
-        deleteRebuildCronJobConfig(jobName);
     }
 
     @Test
@@ -251,39 +268,49 @@ public class RebuildMavenMetadataCronJobTest
             throws Exception
     {
         String jobName = "Rebuild-3";
+        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
+        {
+            if (jobName1.equals(jobName) && statusExecuted)
+            {
+                try
+                {
+                    Metadata metadata1 = artifactMetadataService.getMetadata(STORAGE0, REPOSITORY_SNAPSHOTS,
+                                                                             "org/carlspring/strongbox/strongbox-metadata-one");
+                    Metadata metadata2 = artifactMetadataService.getMetadata(STORAGE0, REPOSITORY_RELEASES,
+                                                                             "org/carlspring/strongbox/metadata/strongbox-metadata");
+
+                    assertNotNull(metadata1);
+                    assertNotNull(metadata2);
+
+                    Versioning versioning1 = metadata1.getVersioning();
+                    Versioning versioning2 = metadata1.getVersioning();
+
+                    assertEquals("Incorrect artifactId!", artifact1.getArtifactId(), metadata1.getArtifactId());
+                    assertEquals("Incorrect groupId!", artifact1.getGroupId(), metadata1.getGroupId());
+
+                    assertEquals("Incorrect artifactId!", artifact3.getArtifactId(), metadata2.getArtifactId());
+                    assertEquals("Incorrect groupId!", artifact3.getGroupId(), metadata2.getGroupId());
+
+                    assertNotNull("No versioning information could be found in the metadata!", versioning1.getVersions()
+                                                                                                          .size());
+                    assertEquals("Incorrect number of versions stored in metadata!", 1, versioning1.getVersions()
+                                                                                                   .size());
+
+                    assertNotNull("No versioning information could be found in the metadata!", versioning2.getVersions()
+                                                                                                          .size());
+                    assertEquals("Incorrect number of versions stored in metadata!", 1, versioning2.getVersions()
+                                                                                                   .size());
+
+                    deleteRebuildCronJobConfig(jobName);
+                }
+                catch (Exception e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
 
         addRebuildCronJobConfig(jobName, STORAGE0, null, null);
-
-        //Checking if job was executed
-        while (!jobManager.getExecutedJobs().containsKey(jobName))
-        {
-            Thread.sleep(8000);
-        }
-
-        Metadata metadata1 = artifactMetadataService.getMetadata(STORAGE0, REPOSITORY_SNAPSHOTS,
-                                                                 "org/carlspring/strongbox/strongbox-metadata-one");
-        Metadata metadata2 = artifactMetadataService.getMetadata(STORAGE0, REPOSITORY_RELEASES,
-                                                                 "org/carlspring/strongbox/metadata/strongbox-metadata");
-
-        assertNotNull(metadata1);
-        assertNotNull(metadata2);
-
-        Versioning versioning1 = metadata1.getVersioning();
-        Versioning versioning2 = metadata1.getVersioning();
-
-        assertEquals("Incorrect artifactId!", artifact1.getArtifactId(), metadata1.getArtifactId());
-        assertEquals("Incorrect groupId!", artifact1.getGroupId(), metadata1.getGroupId());
-
-        assertEquals("Incorrect artifactId!", artifact3.getArtifactId(), metadata2.getArtifactId());
-        assertEquals("Incorrect groupId!", artifact3.getGroupId(), metadata2.getGroupId());
-
-        assertNotNull("No versioning information could be found in the metadata!", versioning1.getVersions().size());
-        assertEquals("Incorrect number of versions stored in metadata!", 1, versioning1.getVersions().size());
-
-        assertNotNull("No versioning information could be found in the metadata!", versioning2.getVersions().size());
-        assertEquals("Incorrect number of versions stored in metadata!", 1, versioning2.getVersions().size());
-
-        deleteRebuildCronJobConfig(jobName);
     }
 
     @Test
@@ -291,39 +318,48 @@ public class RebuildMavenMetadataCronJobTest
             throws Exception
     {
         String jobName = "Rebuild-4";
+        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
+        {
+            if (jobName1.equals(jobName) && statusExecuted)
+            {
+                try
+                {
+                    Metadata metadata1 = artifactMetadataService.getMetadata(STORAGE0, REPOSITORY_SNAPSHOTS,
+                                                                             "org/carlspring/strongbox/strongbox-metadata-one");
+                    Metadata metadata2 = artifactMetadataService.getMetadata(STORAGE1, REPOSITORY_RELEASES,
+                                                                             "org/carlspring/strongbox/metadata/strongbox-metadata");
+
+                    assertNotNull(metadata1);
+                    assertNotNull(metadata2);
+
+                    Versioning versioning1 = metadata1.getVersioning();
+                    Versioning versioning2 = metadata1.getVersioning();
+
+                    assertEquals("Incorrect artifactId!", artifact1.getArtifactId(), metadata1.getArtifactId());
+                    assertEquals("Incorrect groupId!", artifact1.getGroupId(), metadata1.getGroupId());
+
+                    assertEquals("Incorrect artifactId!", artifact4.getArtifactId(), metadata2.getArtifactId());
+                    assertEquals("Incorrect groupId!", artifact4.getGroupId(), metadata2.getGroupId());
+
+                    assertNotNull("No versioning information could be found in the metadata!", versioning1.getVersions()
+                                                                                                          .size());
+                    assertEquals("Incorrect number of versions stored in metadata!", 1, versioning1.getVersions()
+                                                                                                   .size());
+
+                    assertNotNull("No versioning information could be found in the metadata!", versioning2.getVersions()
+                                                                                                          .size());
+                    assertEquals("Incorrect number of versions stored in metadata!", 1, versioning2.getVersions()
+                                                                                                   .size());
+
+                    deleteRebuildCronJobConfig(jobName);
+                }
+                catch (Exception e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
 
         addRebuildCronJobConfig(jobName, null, null, null);
-
-        //Checking if job was executed
-        while (!jobManager.getExecutedJobs().containsKey(jobName))
-        {
-            Thread.sleep(8000);
-        }
-
-        Metadata metadata1 = artifactMetadataService.getMetadata(STORAGE0, REPOSITORY_SNAPSHOTS,
-                                                                 "org/carlspring/strongbox/strongbox-metadata-one");
-        Metadata metadata2 = artifactMetadataService.getMetadata(STORAGE1, REPOSITORY_RELEASES,
-                                                                 "org/carlspring/strongbox/metadata/strongbox-metadata");
-
-        assertNotNull(metadata1);
-        assertNotNull(metadata2);
-
-        Versioning versioning1 = metadata1.getVersioning();
-        Versioning versioning2 = metadata1.getVersioning();
-
-        assertEquals("Incorrect artifactId!", artifact1.getArtifactId(), metadata1.getArtifactId());
-        assertEquals("Incorrect groupId!", artifact1.getGroupId(), metadata1.getGroupId());
-
-        assertEquals("Incorrect artifactId!", artifact4.getArtifactId(), metadata2.getArtifactId());
-        assertEquals("Incorrect groupId!", artifact4.getGroupId(), metadata2.getGroupId());
-
-        assertNotNull("No versioning information could be found in the metadata!", versioning1.getVersions().size());
-        assertEquals("Incorrect number of versions stored in metadata!", 1, versioning1.getVersions().size());
-
-        assertNotNull("No versioning information could be found in the metadata!", versioning2.getVersions().size());
-        assertEquals("Incorrect number of versions stored in metadata!", 1, versioning2.getVersions().size());
-
-        deleteRebuildCronJobConfig(jobName);
     }
-
 }

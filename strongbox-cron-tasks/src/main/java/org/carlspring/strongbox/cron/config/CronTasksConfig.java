@@ -9,7 +9,7 @@ import javax.inject.Inject;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.orientechnologies.orient.core.entity.OEntityManager;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -39,11 +39,10 @@ public class CronTasksConfig
 {
 
     @Inject
-    private OObjectDatabaseTx databaseTx;
+    private OEntityManager oEntityManager;
 
     @Inject
     ApplicationContext applicationContext;
-
 
     @Bean
     public SchedulerFactoryBean schedulerFactoryBean()
@@ -67,10 +66,8 @@ public class CronTasksConfig
     public void init()
     {
         // register all domain entities
-        databaseTx.activateOnCurrentThread();
-        databaseTx.getEntityManager()
-                  .registerEntityClasses(CronTaskConfiguration.class.getPackage()
-                                                                    .getName());
+        oEntityManager.registerEntityClasses(CronTaskConfiguration.class.getPackage()
+                                                                        .getName());
     }
 
     @Override

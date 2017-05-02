@@ -2,10 +2,8 @@ package org.carlspring.strongbox.cron;
 
 import org.carlspring.strongbox.cron.context.CronTaskTest;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
-import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
-import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,9 +30,6 @@ public class CronTaskConfigurationControllerTest
 
     private final String cronName1 = "CRJ001";
     private final String cronName2 = "CRJG001";
-
-    @Inject
-    CronTaskConfigurationService cronTaskConfigurationService;
 
     @Override
     public void init()

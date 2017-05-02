@@ -39,7 +39,7 @@ public class OJPAObjectDatabaseTxPersistence
         }
         catch (Exception e)
         {
-            logger.log(Level.INFO, "Cannot parse '" + PERSISTENCE_XML + "' :" + e.getMessage(), e);
+            logger.log(Level.SEVERE, "Cannot parse '" + PERSISTENCE_XML + "' :" + e.getMessage(), e);
         }
     }
 

@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.cron.config;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author Kate Novik.
@@ -24,4 +25,8 @@ public interface JobManager
      */
     Map<String, Boolean> getExecutedJobs();
 
+    void registerExecutionListener(String jobName,
+                                   JobExecutionListener executionListener);
+
+    Optional<JobExecutionListener> getJobExecutionListener(String jobName);
 }
