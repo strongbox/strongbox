@@ -24,7 +24,8 @@ import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
  * @author carlspring
  */
 @Component
-public class MavenRepositoryManagementStrategy extends AbstractRepositoryManagementStrategy
+public class MavenRepositoryManagementStrategy
+        extends AbstractRepositoryManagementStrategy
 {
 
     private static final Logger logger = LoggerFactory.getLogger(MavenRepositoryManagementStrategy.class);
@@ -117,7 +118,8 @@ public class MavenRepositoryManagementStrategy extends AbstractRepositoryManagem
     }
 
     @Override
-    public void initializeRepository(String storageId, String repositoryId)
+    public void initializeRepository(String storageId,
+                                     String repositoryId)
             throws RepositoryInitializationException
     {
         // initializeRepositoryIndexes(storageId, repositoryId);
@@ -133,11 +135,13 @@ public class MavenRepositoryManagementStrategy extends AbstractRepositoryManagem
 
             final File repositoryBasedir = new File(storage.getBasedir(), repositoryId);
 
-            if (storage.getRepository(repositoryId).isIndexingEnabled())
+            if (storage.getRepository(repositoryId)
+                       .isIndexingEnabled())
             {
                 initializeRepositoryIndex(storage, repositoryId, IndexTypeEnum.LOCAL.getType(), repositoryBasedir);
 
-                if (storage.getRepository(repositoryId).isProxyRepository())
+                if (storage.getRepository(repositoryId)
+                           .isProxyRepository())
                 {
                     initializeRepositoryIndex(storage, repositoryId, IndexTypeEnum.REMOTE.getType(), repositoryBasedir);
                 }

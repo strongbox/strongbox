@@ -1,16 +1,17 @@
 package org.carlspring.strongbox.config;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
+import org.carlspring.strongbox.utils.CustomAntPathMatcher;
+import org.carlspring.strongbox.web.HeaderMappingFilter;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.xml.bind.Marshaller;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
-import org.carlspring.strongbox.utils.CustomAntPathMatcher;
-import org.carlspring.strongbox.web.HeaderMappingFilter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.EnableCaching;
@@ -30,14 +31,11 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.controllers",
                  "org.carlspring.strongbox.mapper",
                  "org.carlspring.strongbox.security",
-                 "org.carlspring.strongbox.authentication",
-                 "org.carlspring.strongbox.user",
+                 "org.carlspring.strongbox.users",
                  "org.carlspring.strongbox.utils",
                  "org.carlspring.logging" })
 @Import({ CommonConfig.class,
@@ -70,10 +68,11 @@ public class WebConfig
     }
 
     @Bean
-    public HeaderMappingFilter headerMappingFilter(){
+    public HeaderMappingFilter headerMappingFilter()
+    {
         return new HeaderMappingFilter();
     }
-    
+
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters)
     {
@@ -105,21 +104,20 @@ public class WebConfig
                                      "org.carlspring.strongbox.configuration",
                                      //TODO: resolve @XmlRootElement(name = "repository") conflict with  org.carlspring.strongbox.storage.repository.Repository
                                      //"org.carlspring.strongbox.providers.layout.p2",
-                                     "org.carlspring.strongbox.security", 
                                      "org.carlspring.strongbox.storage",
                                      "org.carlspring.strongbox.storage.indexing",
                                      "org.carlspring.strongbox.storage.repository",
                                      "org.carlspring.strongbox.storage.repository.aws",
                                      "org.carlspring.strongbox.storage.repository.gcs",
                                      "org.carlspring.strongbox.storage.routing",
-                                     "org.carlspring.strongbox.users.security", 
+                                     "org.carlspring.strongbox.users.security",
                                      "org.carlspring.strongbox.xml");
         Map<String, Object> props = new HashMap<>();
         props.put(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         marshaller.setMarshallerProperties(props);
         return marshaller;
     }
-    
+
     @Bean
     public MappingJackson2HttpMessageConverter jackson2Converter()
     {

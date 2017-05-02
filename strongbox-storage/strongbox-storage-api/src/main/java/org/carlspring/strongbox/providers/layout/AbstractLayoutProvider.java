@@ -4,7 +4,11 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.io.*;
+import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.io.ArtifactOutputStream;
+import org.carlspring.strongbox.io.ArtifactPath;
+import org.carlspring.strongbox.io.RepositoryFileSystemProvider;
+import org.carlspring.strongbox.io.RepositoryPath;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.providers.storage.StorageProvider;
@@ -18,7 +22,11 @@ import org.carlspring.strongbox.util.FileUtils;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import javax.inject.Inject;
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -93,8 +101,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
 
     public Storage getStorage(String storageId)
     {
-        return configurationManager.getConfiguration()
-                                   .getStorage(storageId);
+        return configurationManager.getConfiguration().getStorage(storageId);
     }
 
     @Override
@@ -180,6 +187,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                                 {
                                     logger.error(e.getMessage());
                                 }
+
                                 return checksum;
                             })
                        .allMatch(checksum -> Files.exists(checksum));
@@ -232,8 +240,8 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                                                 {
                                                     return;
                                                 }
-                                                result.getHexDigests()
-                                                      .put(a, checksum);
+
+                                                result.getHexDigests().put(a, checksum);
                                             });
         }
         return result;
@@ -248,8 +256,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        String checksumExtension = ".".concat(digestAlgorithm.toLowerCase()
-                                                             .replaceAll("-", ""));
+        String checksumExtension = ".".concat(digestAlgorithm.toLowerCase().replaceAll("-", ""));
         String checksumPath = path.concat(checksumExtension);
         String checksum = null;
 
@@ -373,8 +380,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
 
     protected RepositoryFileSystemProvider getProvider(RepositoryPath artifactPath)
     {
-        return (RepositoryFileSystemProvider) artifactPath.getFileSystem()
-                                                          .provider();
+        return (RepositoryFileSystemProvider) artifactPath.getFileSystem().provider();
     }
 
     @Override
@@ -495,7 +501,6 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                 {
                     logger.warn("Repository " + repository.getId() + " does not support removal of trash.");
                 }
-
                 deleteTrash(storage.getId(), repository.getId());
             }
         }
@@ -538,8 +543,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     public void undeleteTrash()
             throws IOException
     {
-        for (Map.Entry entry : getConfiguration().getStorages()
-                                                 .entrySet())
+        for (Map.Entry entry : getConfiguration().getStorages().entrySet())
         {
             Storage storage = (Storage) entry.getValue();
 
@@ -589,8 +593,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                    ProviderImplementationException
 
     {
-        File[] files = basePath.toFile()
-                               .listFiles();
+        File[] files = basePath.toFile().listFiles();
 
         if (files != null)
         {
@@ -606,11 +609,10 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                                  ArtifactInputStream is = null;
                                  try
                                  {
-                                     String artifactPath = e.getPath()
-                                                            .substring(repository.getBasedir()
-                                                                                 .length() + 1);
-                                     is = getInputStream(repository.getStorage()
-                                                                   .getId(), repository.getId(), artifactPath);
+                                     String artifactPath = e.getPath().substring(repository.getBasedir().length() + 1);
+                                     is = getInputStream(repository.getStorage().getId(),
+                                                         repository.getId(),
+                                                         artifactPath);
                                  }
                                  catch (IOException | NoSuchAlgorithmException e1)
                                  {
@@ -632,8 +634,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                                         {
                                             String checksum = is.getHexDigests()
                                                                 .get(e);
-                                            String checksumExtension = ".".concat(e.toLowerCase()
-                                                                                   .replaceAll("-", ""));
+                                            String checksumExtension = ".".concat(e.toLowerCase().replaceAll("-", ""));
 
                                             try
                                             {

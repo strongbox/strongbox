@@ -58,7 +58,6 @@ public class SearchControllerTest
         {
             return;
         }
-        initialized = true;
 
         cleanUp();
         
@@ -84,6 +83,8 @@ public class SearchControllerTest
         assertNotNull(repositoryIndexer);
 
         reIndex(STORAGE_SC_TEST, REPOSITORY_RELEASES, "org/carlspring/strongbox/searches");
+
+        initialized = true;
     }
 
     public static Set<Repository> getRepositoriesToClean()
@@ -96,7 +97,7 @@ public class SearchControllerTest
 
     @Test
     public void testIndexSearches()
-        throws Exception
+            throws Exception
     {
         testSearches("+g:org.carlspring.strongbox.searches +a:test-project",
                      MavenIndexerSearchProvider.ALIAS);
@@ -104,13 +105,14 @@ public class SearchControllerTest
     
     @Test
     public void testDbSearches()
-        throws Exception
+            throws Exception
     {
         testSearches("groupId=org.carlspring.strongbox.searches;artifactId=test-project;",
                      OrientDbSearchProvider.ALIAS);
     }
-    
-    private void testSearches(String query, String searchProvider)
+
+    private void testSearches(String query,
+                              String searchProvider)
             throws Exception
     {
         // testSearchPlainText
@@ -133,6 +135,23 @@ public class SearchControllerTest
         assertTrue("Received unexpected search results! \n" + response + "\n",
                    response.contains(">1.0.11.3<") &&
                    response.contains(">1.0.11.3.1<"));
+    }
+
+    @Test
+    public void testDumpIndex()
+            throws Exception
+    {
+
+        // /storages/storage0/releases/.index/local
+        // this index is present but artifacts are missing
+        dumpIndex("storage0", "releases");
+
+        // this index is not empty
+        dumpIndex(STORAGE_SC_TEST, REPOSITORY_RELEASES);
+
+        // this index is not present, and even storage is not present
+        // just to make sure that dump method will not produce any exceptions
+        dumpIndex("foo", "bar");
     }
 
 }

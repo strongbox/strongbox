@@ -1,28 +1,28 @@
 package org.carlspring.strongbox.controllers;
 
-import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-import java.util.List;
-
-import javax.inject.Inject;
-
-import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.controllers.context.IntegrationTest;
+import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import org.carlspring.strongbox.users.domain.AccessModel;
+import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.service.UserService;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
+import com.jayway.restassured.http.ContentType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.jayway.restassured.http.ContentType;
+import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.hamcrest.Matchers.containsString;
+import static org.junit.Assert.*;
 
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -248,6 +248,62 @@ public class UserControllerTest
 
     }
 
+    @Test
+    public void testUpdateAccessModel()
+            throws Exception
+    {
+
+        // load user with custom access model
+        User developer01 = getUser("developer01");
+        AccessModel accessModel = developer01.getAccessModel();
+        assertNotNull(accessModel);
+
+        logger.debug(accessModel.toString());
+        assertFalse(accessModel.getWildCardPrivilegesMap()
+                               .isEmpty());
+        assertFalse(accessModel.getRepositoryPrivileges()
+                               .isEmpty());
+
+        // modify access model and save it
+        final String mockUrl = "/storages/storage0/act-releases-1/pro/redsoft";
+        final String mockPrivilege = Privileges.ARTIFACTS_DELETE.toString();
+        accessModel.getUrlToPrivilegesMap()
+                   .put(mockUrl, Arrays.asList(mockPrivilege));
+
+        User updatedUser = given().contentType("application/json")
+                                  .body(accessModel)
+                                  .put("/users/user/developer01/access-model")
+                                  .peek() // Use peek() to print the output
+                                  .then()
+                                  .statusCode(200) // check http status code
+                                  .extract()
+                                  .as(User.class);
+
+        AccessModel updatedModel = updatedUser.getAccessModel();
+        assertNotNull(updatedModel);
+        logger.debug(updatedModel.toString());
+
+        Collection<String> privileges = updatedModel.getUrlToPrivilegesMap()
+                                                    .get(mockUrl);
+        assertNotNull(privileges);
+        assertTrue(privileges.contains(mockPrivilege));
+    }
+
+    // get user through REST API
+    private User getUser(String userName)
+    {
+
+        return given().contentType(ContentType.JSON)
+                      .param("The name of the user", userName)
+                      .when()
+                      .get("/users/user/" + userName)
+                      .then()
+                      .statusCode(HttpStatus.OK.value())
+                      .extract()
+                      .as(User.class);
+    }
+
+    // get user from DB/cache directly
     private User retrieveUserByName(String name)
             throws IOException
     {

@@ -16,7 +16,8 @@ import static org.junit.Assert.assertTrue;
  * @author mtodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-public class ResourcesBooterTest extends TestCaseWithMavenArtifactGenerationAndIndexing
+public class ResourcesBooterTest
+        extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     // This field is indeed used. It's execute() method is being invoked with a @PostConstruct.

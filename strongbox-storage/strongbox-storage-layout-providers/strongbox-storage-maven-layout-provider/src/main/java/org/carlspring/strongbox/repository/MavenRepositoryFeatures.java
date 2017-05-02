@@ -34,7 +34,8 @@ import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
  * @author carlspring
  */
 @Component
-public class MavenRepositoryFeatures implements RepositoryFeatures
+public class MavenRepositoryFeatures
+        implements RepositoryFeatures
 {
 
     private static final Logger logger = LoggerFactory.getLogger(MavenRepositoryFeatures.class);
@@ -115,7 +116,8 @@ public class MavenRepositoryFeatures implements RepositoryFeatures
                                                               new ReindexArtifactScanningListener(repositoryIndexer.getIndexer()),
                                                               startingPath.getPath());
 
-        ScanningResult scan = repositoryIndexer.getScanner().scan(scanningRequest);
+        ScanningResult scan = repositoryIndexer.getScanner()
+                                               .scan(scanningRequest);
 
         return scan.getTotalFiles();
     }
@@ -142,7 +144,9 @@ public class MavenRepositoryFeatures implements RepositoryFeatures
                 throw new ArtifactStorageException("Target repository not found!");
             }
 
-            targetIndex.getIndexingContext().merge(FSDirectory.open(sourceIndex.getIndexDir().toPath()));
+            targetIndex.getIndexingContext()
+                       .merge(FSDirectory.open(sourceIndex.getIndexDir()
+                                                          .toPath()));
         }
         catch (IOException e)
         {
@@ -162,7 +166,8 @@ public class MavenRepositoryFeatures implements RepositoryFeatures
         if (indexer == null)
         {
             throw new NullPointerException("Unable to find RepositoryIndexer by key " + contextId +
-                                           ". \nAvailable keys are " + repositoryIndexManager.getIndexes().keySet());
+                                           ". \nAvailable keys are " + repositoryIndexManager.getIndexes()
+                                                                                             .keySet());
         }
 
         IndexingContext context = indexer.getIndexingContext();

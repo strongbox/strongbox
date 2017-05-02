@@ -8,7 +8,8 @@ import java.io.IOException;
 /**
  * @author carlspring
  */
-public class NugetRepositoryManagementStrategy extends AbstractRepositoryManagementStrategy
+public class NugetRepositoryManagementStrategy
+        extends AbstractRepositoryManagementStrategy
 {
 
     @Override

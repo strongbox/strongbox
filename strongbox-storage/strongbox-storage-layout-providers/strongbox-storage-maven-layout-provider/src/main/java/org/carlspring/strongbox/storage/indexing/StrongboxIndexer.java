@@ -13,10 +13,13 @@ import org.apache.maven.index.context.IndexCreator;
 import org.apache.maven.index.context.IndexingContext;
 import org.apache.maven.index.util.IndexCreatorSorter;
 
-public class StrongboxIndexer extends DefaultIndexer
+public class StrongboxIndexer
+        extends DefaultIndexer
 {
 
-    public StrongboxIndexer(SearchEngine searcher, IndexerEngine indexerEngine, QueryCreator queryCreator)
+    public StrongboxIndexer(SearchEngine searcher,
+                            IndexerEngine indexerEngine,
+                            QueryCreator queryCreator)
     {
         super(searcher, indexerEngine, queryCreator);
     }
@@ -31,13 +34,13 @@ public class StrongboxIndexer extends DefaultIndexer
                                                  boolean searchable,
                                                  boolean reclaim,
                                                  List<? extends IndexCreator> indexers)
-                                                                                        throws IOException,
-                                                                                        ExistingLuceneIndexMismatchException,
-                                                                                        IllegalArgumentException
+            throws IOException,
+                   ExistingLuceneIndexMismatchException,
+                   IllegalArgumentException
     {
         final IndexingContext context = new StrongboxIndexingContext(id, repositoryId, repository, indexDirectory,
-                repositoryUrl, indexUpdateUrl,
-                IndexCreatorSorter.sort(indexers), reclaim);
+                                                                     repositoryUrl, indexUpdateUrl,
+                                                                     IndexCreatorSorter.sort(indexers), reclaim);
         context.setSearchable(searchable);
         return context;
     }

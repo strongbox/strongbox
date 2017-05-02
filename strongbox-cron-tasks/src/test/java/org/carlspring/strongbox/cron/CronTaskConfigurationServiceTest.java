@@ -2,17 +2,13 @@ package org.carlspring.strongbox.cron;
 
 import org.carlspring.strongbox.cron.context.CronTaskTest;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
-import org.carlspring.strongbox.cron.exceptions.CronTaskException;
-import org.carlspring.strongbox.cron.exceptions.CronTaskNotFoundException;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 
 import javax.inject.Inject;
-
 import java.util.List;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.quartz.SchedulerException;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;

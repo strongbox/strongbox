@@ -391,33 +391,33 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
          * for each version directory.
          */
         if (!versionDirectories.isEmpty())
-            {
-                RepositoryPath basePath = resolve(repository, versionDirectories.get(0)).getParent();
+        {
+            RepositoryPath basePath = resolve(repository, versionDirectories.get(0)).getParent();
 
-                logger.debug("Artifact checksum generation triggered for " + basePath + " in '" +
-                             repository.getStorage().getId() + ":" + repository.getId() + "'" +
-                             " [policy: " + repository.getPolicy() + "].");
+            logger.debug("Artifact checksum generation triggered for " + basePath + " in '" +
+                         repository.getStorage().getId() + ":" + repository.getId() + "'" +
+                         " [policy: " + repository.getPolicy() + "].");
 
-                versionDirectories.forEach(path ->
+            versionDirectories.forEach(path ->
+                                       {
+                                           try
                                            {
-                                               try
-                                               {
-                                                   storeChecksum(repository,
-                                                                 resolve(repository, path),
-                                                                 forceRegeneration);
-                                               }
-                                               catch (IOException |
-                                                      NoSuchAlgorithmException |
-                                                      ArtifactTransportException |
-                                                      ProviderImplementationException e)
-                                               {
-                                                   logger.error(e.getMessage(), e);
-                                               }
+                                               storeChecksum(repository,
+                                                             resolve(repository, path),
+                                                             forceRegeneration);
+                                           }
+                                           catch (IOException |
+                                                  NoSuchAlgorithmException |
+                                                  ArtifactTransportException |
+                                                  ProviderImplementationException e)
+                                           {
+                                               logger.error(e.getMessage(), e);
+                                           }
 
-                                               logger.debug("Generated Maven checksum for " + path + ".");
-                                           });
+                                           logger.debug("Generated Maven checksum for " + path + ".");
+                                       });
 
-                storeChecksum(repository, basePath, forceRegeneration);
+            storeChecksum(repository, basePath, forceRegeneration);
         }
         else
         {

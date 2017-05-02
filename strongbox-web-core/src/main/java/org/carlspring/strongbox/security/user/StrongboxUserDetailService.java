@@ -1,10 +1,5 @@
 package org.carlspring.strongbox.security.user;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.annotation.PostConstruct;
-
 import org.carlspring.strongbox.security.Role;
 import org.carlspring.strongbox.users.domain.Roles;
 import org.carlspring.strongbox.users.domain.User;
@@ -16,7 +11,6 @@ import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
@@ -115,6 +109,7 @@ public class StrongboxUserDetailService
         springUser.setSalt(user.getSalt());
         springUser.setUsername(user.getUsername());
         springUser.setAuthorities(authorities);
+        springUser.setAccessModel(user.getAccessModel());
 
         logger.info("Authorise under " + springUser);
 

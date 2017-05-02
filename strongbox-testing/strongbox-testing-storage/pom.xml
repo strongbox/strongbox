@@ -2,20 +2,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    
+
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.carlspring.strongbox</groupId>
         <artifactId>strongbox-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
         <relativePath>../../strongbox-parent</relativePath>
     </parent>
-    
+
     <artifactId>strongbox-testing-storage</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-    
+
     <name>Strongbox: Testing [Storage]</name>
 
     <licenses>
@@ -58,14 +58,15 @@
                     <systemPropertyVariables>
                         <strongbox.home>${basedir}/target/strongbox</strongbox.home>
                         <strongbox.vault>${basedir}/target/strongbox-vault</strongbox.vault>
-                        <strongbox.storage.booter.basedir>${basedir}/target/strongbox-vault/storages</strongbox.storage.booter.basedir>
+                        <strongbox.storage.booter.basedir>${basedir}/target/strongbox-vault/storages
+                        </strongbox.storage.booter.basedir>
                         <port.jetty.listen>${port.jetty.listen}</port.jetty.listen>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-    
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -128,8 +129,8 @@
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
-             <artifactId>jul-to-slf4j</artifactId>
-        </dependency>        
+            <artifactId>jul-to-slf4j</artifactId>
+        </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
@@ -169,7 +170,7 @@
             <artifactId>jnuget-core</artifactId>
         </dependency>
     </dependencies>
-    
+
     <profiles>
         <profile>
             <id>run-it-tests</id>

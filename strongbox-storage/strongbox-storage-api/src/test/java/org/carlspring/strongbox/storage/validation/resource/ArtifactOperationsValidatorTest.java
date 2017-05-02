@@ -81,7 +81,8 @@ public class ArtifactOperationsValidatorTest
     public void tearDown()
             throws Exception
     {
-        Repository repository = getConfiguration().getStorage(STORAGE_ID).getRepository(REPOSITORY_ID);
+        Repository repository = getConfiguration().getStorage(STORAGE_ID)
+                                                  .getRepository(REPOSITORY_ID);
         repository.setArtifactMaxSize(0L);
     }
 
@@ -91,7 +92,8 @@ public class ArtifactOperationsValidatorTest
     {
         long size = multipartFile.getSize();
 
-        Repository repository = getConfiguration().getStorage(STORAGE_ID).getRepository(REPOSITORY_ID);
+        Repository repository = getConfiguration().getStorage(STORAGE_ID)
+                                                  .getRepository(REPOSITORY_ID);
         repository.setArtifactMaxSize(size + 1000L);
 
         logger.debug("Size of repository is " + repository.getArtifactMaxSize());
@@ -138,7 +140,8 @@ public class ArtifactOperationsValidatorTest
 
         File file = new File(REPOSITORY_BASEDIR.getAbsolutePath() + "validate-test.jar");
         //noinspection ResultOfMethodCallIgnored
-        file.getParentFile().mkdirs();
+        file.getParentFile()
+            .mkdirs();
         //noinspection ResultOfMethodCallIgnored
         file.createNewFile();
 

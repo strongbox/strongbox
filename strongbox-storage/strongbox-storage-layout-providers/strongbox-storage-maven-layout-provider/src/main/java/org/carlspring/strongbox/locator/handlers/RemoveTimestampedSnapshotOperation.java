@@ -3,9 +3,9 @@ package org.carlspring.strongbox.locator.handlers;
 import org.carlspring.maven.commons.io.filters.PomFilenameFilter;
 import org.carlspring.strongbox.artifact.locator.handlers.AbstractArtifactLocationHandler;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.storage.metadata.MavenSnapshotManager;
 import org.carlspring.strongbox.storage.metadata.VersionCollectionRequest;
 import org.carlspring.strongbox.storage.metadata.VersionCollector;
-import org.carlspring.strongbox.storage.metadata.MavenSnapshotManager;
 
 import java.io.File;
 import java.io.IOException;

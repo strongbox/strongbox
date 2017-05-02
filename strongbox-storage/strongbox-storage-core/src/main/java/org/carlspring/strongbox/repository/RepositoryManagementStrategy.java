@@ -16,7 +16,8 @@ public interface RepositoryManagementStrategy
                                    String repositoryId)
             throws IOException;
 
-    void initializeRepository(String storageId, String repositoryId)
+    void initializeRepository(String storageId,
+                              String repositoryId)
             throws RepositoryInitializationException;
 
     void removeRepository(String storageId,

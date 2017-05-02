@@ -212,7 +212,8 @@ public class StorageBooter
         LayoutProvider provider = layoutProviderRegistry.getProvider(repository.getLayout());
         if (provider != null)
         {
-            provider.getRepositoryManagementStrategy().initializeRepository(storage.getId(), repositoryId);
+            provider.getRepositoryManagementStrategy()
+                    .initializeRepository(storage.getId(), repositoryId);
         }
         else /*if (ignoreMissingLayoutProviders)*/
         {

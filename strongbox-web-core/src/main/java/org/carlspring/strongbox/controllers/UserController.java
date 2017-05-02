@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.controllers;
 
+import org.carlspring.strongbox.users.domain.AccessModel;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.service.UserService;
 
@@ -13,12 +14,14 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.jose4j.lang.JoseException;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -95,14 +98,22 @@ public class UserController
                                          message = "An error occurred.") })
     @PreAuthorize("hasAuthority('VIEW_USER')")
     @RequestMapping(value = "user/{name}",
-                    method = RequestMethod.GET)
+                    method = RequestMethod.GET,
+                    produces = MediaType.APPLICATION_JSON_VALUE)
     public
     @ResponseBody
-    ResponseEntity getUser(@ApiParam(value = "The name of the user",
-                                     required = true)
+    ResponseEntity<User> getUser(@ApiParam(value = "The name of the user",
+                                           required = true)
                            @PathVariable String name)
     {
-        return toResponse(userService.findByUserName(name));
+        User user = userService.findByUserName(name);
+        if (user == null)
+        {
+            return ResponseEntity.notFound()
+                                 .build();
+        }
+
+        return ResponseEntity.ok(user);
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -222,6 +233,37 @@ public class UserController
 
         return ResponseEntity.ok(userService.generateAuthenticationToken(userName, expireSeconds));
     }
+
+
+    @ApiOperation(value = "Update custom access model for the user.",
+                  position = 3)
+    @ApiResponses(value = { @ApiResponse(code = 200,
+                                         message = "The custom access model was updated."),
+                            @ApiResponse(code = 403,
+                                         message = "Not enough access rights for this operation."),
+                            @ApiResponse(code = 500,
+                                         message = "An error occurred.") })
+    @PreAuthorize("hasAuthority('UPDATE_USER')")
+    @RequestMapping(value = "user/{userName}/access-model",
+                    method = RequestMethod.PUT)
+    public ResponseEntity<User> updateAccessModel(@ApiParam(value = "The name of the user") @PathVariable
+                                                          String userName,
+                                                  @RequestBody AccessModel accessModel)
+            throws JoseException
+    {
+        User user = userService.findByUserName(userName);
+        if (user == null || user.getObjectId() == null)
+        {
+            return ResponseEntity.notFound()
+                                 .build();   // "The specified user does not exist!"
+        }
+
+        user.setAccessModel(accessModel);
+        userService.save(user);
+
+        return ResponseEntity.ok(user);
+    }
+
 
     // ----------------------------------------------------------------------------------------------------------------
     // Common-purpose methods

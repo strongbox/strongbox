@@ -23,8 +23,8 @@ import org.slf4j.LoggerFactory;
 
 public class P2LayoutProvider
         extends AbstractLayoutProvider<P2ArtifactCoordinates,
-                                       P2RepositoryFeatures,
-                                       P2RepositoryManagementStrategy>
+                                              P2RepositoryFeatures,
+                                              P2RepositoryManagementStrategy>
 {
 
     private static final Logger logger = LoggerFactory.getLogger(P2LayoutProvider.class);

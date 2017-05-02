@@ -11,7 +11,8 @@ import ru.aristar.jnuget.files.NugetFormatException;
 /**
  * @author Kate Novik.
  */
-public class TestCaseWithNugetPackageGeneration extends TestCaseWithRepository
+public class TestCaseWithNugetPackageGeneration
+        extends TestCaseWithRepository
 {
 
     public void generateNugetPackage(String repositoryDir,

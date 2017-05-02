@@ -2,14 +2,14 @@ package org.carlspring.strongbox.providers.search;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.storage.search.SearchRequest;
-import org.carlspring.strongbox.storage.search.SearchResult;
-import org.carlspring.strongbox.storage.search.SearchResults;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.search.SearchRequest;
+import org.carlspring.strongbox.storage.search.SearchResult;
+import org.carlspring.strongbox.storage.search.SearchResults;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -26,7 +26,8 @@ import org.springframework.stereotype.Component;
  * @author carlspring
  */
 @Component("mavenIndexerSearchProvider")
-public class MavenIndexerSearchProvider implements SearchProvider
+public class MavenIndexerSearchProvider
+        implements SearchProvider
 {
 
     private static final Logger logger = LoggerFactory.getLogger(MavenIndexerSearchProvider.class);
@@ -68,7 +69,8 @@ public class MavenIndexerSearchProvider implements SearchProvider
 
         try
         {
-            final Collection<Storage> storages = getConfiguration().getStorages().values();
+            final Collection<Storage> storages = getConfiguration().getStorages()
+                                                                   .values();
             if (repositoryId != null && !repositoryId.isEmpty())
             {
                 logger.debug("Repository: {}", repositoryId);
@@ -88,12 +90,14 @@ public class MavenIndexerSearchProvider implements SearchProvider
 
                             if (sr != null && !sr.isEmpty())
                             {
-                                searchResults.getResults().addAll(sr);
+                                searchResults.getResults()
+                                             .addAll(sr);
                             }
                         }
                     }
 
-                    logger.debug("Results: {}", searchResults.getResults().size());
+                    logger.debug("Results: {}", searchResults.getResults()
+                                                             .size());
 
                     return searchResults;
                 }
@@ -108,10 +112,12 @@ public class MavenIndexerSearchProvider implements SearchProvider
 
                     if (!sr.isEmpty())
                     {
-                        searchResults.getResults().addAll(sr);
+                        searchResults.getResults()
+                                     .addAll(sr);
                     }
 
-                    logger.debug("Results: {}", searchResults.getResults().size());
+                    logger.debug("Results: {}", searchResults.getResults()
+                                                             .size());
 
                     return searchResults;
                 }
@@ -120,25 +126,29 @@ public class MavenIndexerSearchProvider implements SearchProvider
             {
                 for (Storage storage : storages)
                 {
-                    for (Repository r : storage.getRepositories().values())
+                    for (Repository r : storage.getRepositories()
+                                               .values())
                     {
                         logger.debug("Repository: {}", r.getId());
 
                         String contextId = storage.getId() + ":" + r.getId() + ":" + IndexTypeEnum.LOCAL.getType();
-                        final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer(contextId);
+                        final RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer(
+                                contextId);
                         if (repositoryIndexer != null)
                         {
                             final Set<SearchResult> sr = repositoryIndexer.search(searchRequest.getQuery());
 
                             if (sr != null && !sr.isEmpty())
                             {
-                                searchResults.getResults().addAll(sr);
+                                searchResults.getResults()
+                                             .addAll(sr);
                             }
                         }
                     }
                 }
 
-                logger.debug("Results: {}", searchResults.getResults().size());
+                logger.debug("Results: {}", searchResults.getResults()
+                                                         .size());
 
                 return searchResults;
             }
@@ -154,7 +164,8 @@ public class MavenIndexerSearchProvider implements SearchProvider
     public boolean contains(SearchRequest searchRequest)
             throws SearchException
     {
-        return !search(searchRequest).getResults().isEmpty();
+        return !search(searchRequest).getResults()
+                                     .isEmpty();
     }
 
     public RepositoryIndexManager getRepositoryIndexManager()
