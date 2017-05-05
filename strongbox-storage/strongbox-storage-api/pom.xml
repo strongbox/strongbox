@@ -169,12 +169,6 @@
     </build>
 
     <dependencies>
-    
-        <dependency>
-            <groupId>com.orientechnologies</groupId>
-            <artifactId>orientdb-object</artifactId>
-        </dependency>
-    
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-configuration</artifactId>
@@ -258,6 +252,11 @@
         </dependency>
 
         <dependency>
+            <groupId>com.orientechnologies</groupId>
+            <artifactId>orientdb-object</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.maven.indexer</groupId>
             <artifactId>indexer-core</artifactId>
         </dependency>
@@ -276,9 +275,10 @@
         </dependency>
 
         <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xercesImpl</artifactId>
-        </dependency>		
+            <groupId>com.fasterxml.jackson.jaxrs</groupId>
+            <artifactId>jackson-jaxrs-json-provider</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>

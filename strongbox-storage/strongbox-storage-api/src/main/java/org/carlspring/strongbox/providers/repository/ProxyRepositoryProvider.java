@@ -7,6 +7,8 @@ import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.io.RepositoryPath;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.storage.StorageProvider;
 import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
@@ -46,6 +48,9 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
     @Inject
     private StorageProviderRegistry storageProviderRegistry;
 
+    @Inject
+    private LayoutProviderRegistry layoutProviderRegistry;
+
 
     @PostConstruct
     @Override
@@ -77,16 +82,17 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
         logger.debug("Checking in " + storage.getId() + ":" + repositoryId + "...");
 
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
+        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
 
-        RepositoryPath reposytoryPath = storageProvider.resolve(repository);
-        RepositoryPath artifactPath = reposytoryPath.resolve(path);
+        RepositoryPath repositoryPath = storageProvider.resolve(repository);
+        RepositoryPath artifactPath = repositoryPath.resolve(path);
 
         RepositoryFileSystemProvider fileSystemProvider = (RepositoryFileSystemProvider) artifactPath.getFileSystem()
                                                                                                      .provider();
 
         logger.debug(" -> Checking for " + artifactPath + "...");
 
-        if (Files.exists(artifactPath))
+        if (layoutProvider.contains(storageId, repositoryId, path))
         {
             logger.debug("The artifact was found in the local cache.");
             logger.debug("Resolved " + artifactPath + "!");
@@ -98,7 +104,7 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
             logger.debug("The artifact was not found in the local cache.");
 
             RepositoryPath tempArtifact = fileSystemProvider.getTempPath(artifactPath);
-            
+
             RemoteRepository remoteRepository = repository.getRemoteRepository();
 
             ArtifactResolver client = new ArtifactResolver(proxyRepositoryConnectionPoolConfigurationService.getClient());
@@ -135,13 +141,12 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
                 mdos.flush();
             }
 
-
             // TODO: Add a policy for validating the checksums of downloaded artifacts
             // TODO: Validate the local checksum against the remote's checksums
             fileSystemProvider.restoreFromTemp(artifactPath);
 
             // 1 b) If it exists on the remote, serve the downloaded artifact
-            return new ArtifactInputStream(null, Files.newInputStream(artifactPath));
+            return new ArtifactInputStream(null, layoutProvider.getInputStream(storageId, repositoryId, path));
         }
     }
 

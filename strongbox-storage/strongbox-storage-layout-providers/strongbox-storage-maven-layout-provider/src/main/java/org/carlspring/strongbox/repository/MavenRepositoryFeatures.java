@@ -144,9 +144,7 @@ public class MavenRepositoryFeatures
                 throw new ArtifactStorageException("Target repository not found!");
             }
 
-            targetIndex.getIndexingContext()
-                       .merge(FSDirectory.open(sourceIndex.getIndexDir()
-                                                          .toPath()));
+            targetIndex.getIndexingContext().merge(FSDirectory.open(sourceIndex.getIndexDir().toPath()));
         }
         catch (IOException e)
         {
@@ -165,9 +163,9 @@ public class MavenRepositoryFeatures
         final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(contextId);
         if (indexer == null)
         {
-            throw new NullPointerException("Unable to find RepositoryIndexer by key " + contextId +
-                                           ". \nAvailable keys are " + repositoryIndexManager.getIndexes()
-                                                                                             .keySet());
+            throw new NullPointerException("Unable to find a repository indexer '" + contextId + "'.\n" +
+                                           "The available contextId-s are " +
+                                           repositoryIndexManager.getIndexes().keySet());
         }
 
         IndexingContext context = indexer.getIndexingContext();

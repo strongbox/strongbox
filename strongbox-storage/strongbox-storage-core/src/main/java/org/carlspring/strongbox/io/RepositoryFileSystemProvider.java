@@ -263,7 +263,7 @@ public class RepositoryFileSystemProvider
 
         if (!Files.exists(tempPath.getParent().getTarget()))
         {
-            logger.debug(String.format("Creating: dir-[%s]", tempPath.getParent()));
+            logger.debug(String.format("Creating %s...", tempPath.getParent()));
 
             Files.createDirectories(tempPath.getParent().getTarget());
         }
@@ -279,7 +279,7 @@ public class RepositoryFileSystemProvider
 
         if (!Files.exists(trashPath.getParent().getTarget()))
         {
-            logger.debug(String.format("Creating: dir-[%s]", trashPath.getParent()));
+            logger.debug(String.format("Creating %s...", trashPath.getParent()));
 
             Files.createDirectories(trashPath.getParent().getTarget());
         }
