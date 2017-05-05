@@ -92,12 +92,12 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
 
         logger.debug(" -> Checking for " + artifactPath + "...");
 
-        if (layoutProvider.contains(storageId, repositoryId, path))
+        if (layoutProvider.containsPath(repository, path))
         {
             logger.debug("The artifact was found in the local cache.");
             logger.debug("Resolved " + artifactPath + "!");
 
-            return new ArtifactInputStream(null, Files.newInputStream(artifactPath));
+            return new ArtifactInputStream(null, layoutProvider.getInputStream(storageId, repositoryId, path));
         }
         else
         {
