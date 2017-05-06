@@ -1,3 +1,7 @@
+# Strongbox
+[![Master Build Status](https://dev.carlspring.org/jenkins/buildStatus/icon?job=strongbox/strongbox/master)](https://dev.carlspring.org/jenkins/blue/organizations/jenkins/strongbox%2Fstrongbox/activity?branch=master)
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/strongbox/strongbox?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Welcome to the Strongbox Maven artifact repository manager's home.
 
 # What's implemented:
@@ -78,15 +82,3 @@ Instructions on how to build the code, can be found [here](https://github.com/st
 
 # Contributing
 Contributions and contributors are always welcome! For more details, please check [here](https://github.com/strongbox/strongbox/blob/master/CONTRIBUTING.md).
-
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/strongbox/strongbox?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-# Build Status
-
-| Operating System | Status | 
-| --- | ------ |
-| OpenSuse 13.2 | [![Build Status](https://dev.carlspring.org/jenkins/buildStatus/icon?job=strongbox/strongbox)](https://dev.carlspring.org/jenkins/job/strongbox/job/strongbox/) |
-| Debian 8.4 | [![Build Status](https://dev.carlspring.org/jenkins/buildStatus/icon?job=strongbox/strongbox-debian-x64)](https://dev.carlspring.org/jenkins/job/strongbox/view/debian-x64/job/strongbox-debian-x64/) |
-| Ubuntu 15.10 | [![Build Status](https://dev.carlspring.org/jenkins/buildStatus/icon?job=strongbox/strongbox-ubuntu-15.10)](https://dev.carlspring.org/jenkins/job/strongbox/view/ubuntu-x64/job/strongbox-ubuntu-15.10/) |
-| CentOS 7.2 | [![Build Status](https://dev.carlspring.org/jenkins/buildStatus/icon?job=strongbox/strongbox-centos-x64)](https://dev.carlspring.org/jenkins/job/strongbox/view/centos-x64/job/strongbox-centos-x64/) |
-| Windows x64 | [![Build Status](https://dev.carlspring.org/jenkins/buildStatus/icon?job=strongbox/strongbox-win64)](https://dev.carlspring.org/jenkins/job/strongbox/view/win-x64/job/strongbox-win64/) |
