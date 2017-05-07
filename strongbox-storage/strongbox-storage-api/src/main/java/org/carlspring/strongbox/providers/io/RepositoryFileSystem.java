@@ -4,6 +4,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.PathMatcher;
 import java.nio.file.spi.FileSystemProvider;
 
+import org.carlspring.strongbox.io.FileSystemWrapper;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 /**
@@ -17,11 +18,11 @@ public class RepositoryFileSystem
 {
 
     private Repository repository;
-    private FileSystemProvider fileSystemProvider;
+    private RepositoryFileSystemProvider fileSystemProvider;
 
     public RepositoryFileSystem(Repository repository,
                                 FileSystem storageFileSystem,
-                                FileSystemProvider provider)
+                                RepositoryFileSystemProvider provider)
     {
         super(storageFileSystem);
         this.repository = repository;
@@ -33,7 +34,7 @@ public class RepositoryFileSystem
         return repository;
     }
 
-    public FileSystemProvider provider()
+    public RepositoryFileSystemProvider provider()
     {
         return fileSystemProvider;
     }

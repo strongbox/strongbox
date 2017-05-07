@@ -4,10 +4,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.spi.FileSystemProvider;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -15,6 +19,7 @@ import javax.inject.Inject;
 import org.carlspring.commons.io.reloading.FSReloadableInputStreamHandler;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.io.ByteRangeInputStream;
+import org.carlspring.strongbox.io.FileSystemWrapper;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,14 +121,13 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
 
     @Override
     public Path resolve(Repository repository)
-        throws IOException
     {
         return Paths.get(repository.getBasedir());
     }
 
     @Override
     public Path resolve(Repository repository,
-                                  String path)
+                        String path)
         throws IOException
     {
         return resolve(repository).resolve(path);
@@ -141,6 +145,27 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
         }
 
         return path;
+    }
+
+    @Override
+    public FileSystem getFileSistem()
+    {
+        return FileSystems.getDefault();
+    }
+
+    @Override
+    public FileSystemProvider getFileSystemProvider()
+    {
+        List<FileSystemProvider> installedProviders = FileSystemProvider.installedProviders();
+        for (FileSystemProvider fileSystemProvider : installedProviders)
+        {
+            if (!"file".equals(fileSystemProvider.getScheme()))
+            {
+                continue;
+            }
+            return fileSystemProvider;
+        }
+        return null;
     }
 
 }
