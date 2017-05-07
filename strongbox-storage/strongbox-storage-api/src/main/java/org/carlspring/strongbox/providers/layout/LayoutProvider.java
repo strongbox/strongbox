@@ -13,6 +13,7 @@ import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.ArtifactPath;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
+import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.repository.RepositoryFeatures;
@@ -54,6 +55,8 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
         throws IOException;
 
     RepositoryFileSystem getRepositoryFileSystem(Repository repository);
+    
+    RepositoryFileSystemProvider getProvider(Repository repository);
     
     boolean containsArtifact(Repository repository, ArtifactCoordinates coordinates)
             throws IOException;
