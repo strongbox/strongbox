@@ -50,14 +50,11 @@ public class RepositoryFileSystemProvider
     private static final Logger logger = LoggerFactory.getLogger(RepositoryFileSystemProvider.class);
 
     private FileSystemProvider storageFileSystemProvider;
-    private LayoutProvider layoutProvider;
 
-    public RepositoryFileSystemProvider(FileSystemProvider storageFileSystemProvider,
-                                        LayoutProvider layoutProvider)
+    public RepositoryFileSystemProvider(FileSystemProvider storageFileSystemProvider)
     {
         super();
         this.storageFileSystemProvider = storageFileSystemProvider;
-        this.layoutProvider = layoutProvider;
     }
 
     public String getScheme()

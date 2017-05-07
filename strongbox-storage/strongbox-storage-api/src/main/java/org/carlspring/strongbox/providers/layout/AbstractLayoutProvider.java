@@ -47,7 +47,6 @@ import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.ArtifactFileUtils;
-import org.carlspring.strongbox.util.FileUtils;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import javax.inject.Inject;
@@ -76,9 +75,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author mtodorov
  */
-public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
-                                             U extends RepositoryFeatures,
-                                             V extends RepositoryManagementStrategy>
+public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates, U extends RepositoryFeatures, V extends RepositoryManagementStrategy>
         implements LayoutProvider<T>
 {
 
@@ -137,8 +134,8 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     public ArtifactInputStream getInputStream(String storageId,
                                               String repositoryId,
                                               String path)
-            throws IOException,
-                   NoSuchAlgorithmException
+        throws IOException,
+        NoSuchAlgorithmException
     {
         Repository repository = getRepository(storageId, repositoryId);
         StorageProvider storageProvider = getStorageProvider(repository);
@@ -183,8 +180,8 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     public ArtifactOutputStream getOutputStream(String storageId,
                                                 String repositoryId,
                                                 String path)
-            throws IOException,
-                   NoSuchAlgorithmException
+        throws IOException,
+        NoSuchAlgorithmException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
@@ -212,53 +209,51 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                                    String path)
     {
         return getDigestAlgorithmSet()
-                       .stream()
-                       .map(algorithm ->
-                            {
-                                String checksumPath = path.concat(".")
-                                                          .concat(algorithm.toLowerCase()
-                                                                           .replaceAll(
-                                                                                   "-",
-                                                                                   ""));
-                                RepositoryPath checksum = null;
-                                try
-                                {
-                                    checksum = resolve(repository, checksumPath);
-                                }
-                                catch (IOException e)
-                                {
-                                    logger.error(e.getMessage());
-                                }
-
-                                return checksum;
-                            })
-                       .allMatch(checksum -> Files.exists(checksum));
+                                      .stream()
+                                      .map(algorithm -> {
+                                          String checksumPath = path.concat(".")
+                                                                    .concat(algorithm.toLowerCase()
+                                                                                     .replaceAll(
+                                                                                                 "-",
+                                                                                                 ""));
+                                          RepositoryPath checksum = null;
+                                          try
+                                          {
+                                              checksum = resolve(repository, checksumPath);
+                                          }
+                                          catch (IOException e)
+                                          {
+                                              logger.error(e.getMessage());
+                                          }
+                                          return checksum;
+                                      })
+                                      .allMatch(checksum -> Files.exists(checksum));
 
     }
 
     protected ArtifactOutputStream decorateStream(String path,
                                                   OutputStream os,
                                                   T artifactCoordinates)
-            throws NoSuchAlgorithmException
+        throws NoSuchAlgorithmException
     {
         ArtifactOutputStream result = new ArtifactOutputStream(os, artifactCoordinates);
         // Add digest algorithm only if it is not a Checksum (we don't need a Checksum of Checksum).
         if (!ArtifactFileUtils.isChecksum(path))
         {
             getDigestAlgorithmSet().stream()
-                                   .forEach(e ->
-                                            {
-                                                try
-                                                {
-                                                    result.addAlgorithm(e);
-                                                }
-                                                catch (NoSuchAlgorithmException t)
-                                                {
-                                                    logger.error(
-                                                            String.format("Digest algorithm not supported: alg-[%s]",
-                                                                          e), t);
-                                                }
-                                            });
+                                   .forEach(e -> {
+                                       try
+                                       {
+                                           result.addAlgorithm(e);
+                                       }
+                                       catch (NoSuchAlgorithmException t)
+                                       {
+                                           logger.error(
+                                                        String.format("Digest algorithm not supported: alg-[%s]",
+                                                                      e),
+                                                        t);
+                                       }
+                                   });
         }
         return result;
     }
@@ -268,23 +263,22 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                                                  String path,
                                                  InputStream is,
                                                  T artifactCoordinates)
-            throws NoSuchAlgorithmException
+        throws NoSuchAlgorithmException
     {
         ArtifactInputStream result = new ArtifactInputStream(artifactCoordinates, is, getDigestAlgorithmSet());
         // Add digest algorithm only if it is not a Checksum (we don't need a Checksum of Checksum).
         if (!ArtifactFileUtils.isChecksum(path))
         {
             getDigestAlgorithmSet().stream()
-                                   .forEach(a ->
-                                            {
-                                                String checksum = getChecksum(storageId, repositoryId, path, result, a);
-                                                if (checksum == null)
-                                                {
-                                                    return;
-                                                }
-
-                                                result.getHexDigests().put(a, checksum);
-                                            });
+                                   .forEach(a -> {
+                                       String checksum = getChecksum(storageId, repositoryId, path, result, a);
+                                       if (checksum == null)
+                                       {
+                                           return;
+                                       }
+                                       result.getHexDigests()
+                                             .put(a, checksum);
+                                   });
         }
         return result;
     }
@@ -316,7 +310,8 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         catch (IOException | NoSuchAlgorithmException e)
         {
             logger.error(String.format("Failed to read checksum: alg-[%s]; path-[%s];",
-                                       digestAlgorithm, path + "." + checksumExtension), e);
+                                       digestAlgorithm, path + "." + checksumExtension),
+                         e);
         }
 
         return checksum;
@@ -353,7 +348,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     protected boolean isArtifact(Repository repository,
                                  String path,
                                  boolean strict)
-            throws IOException
+        throws IOException
     {
         RepositoryPath artifactPath = resolve(repository, path);
         boolean exists = Files.exists(artifactPath);
@@ -378,16 +373,14 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     @Override
     public ArtifactPath resolve(Repository repository,
                                 ArtifactCoordinates coordinates)
-            throws IOException
+        throws IOException
     {
         StorageProvider storageProvider = getStorageProvider(repository);
         Path targetPath = storageProvider.resolve(repository, coordinates);
 
         // Override FileSystem root to Repository base directory
-        FileSystem storageFileSystem = targetPath.getFileSystem();
-        return new ArtifactPath(coordinates, targetPath,
-                new RepositoryLayoutFileSystem(repository, storageFileSystem,
-                        new RepositoryFileSystemProvider(storageFileSystem.provider(), this)));
+        RepositoryFileSystem repositoryFileSystem = getRepositoryFileSystem(repository);
+        return new ArtifactPath(coordinates, targetPath, repositoryFileSystem);
     }
 
     @Override
@@ -397,41 +390,32 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         StorageProvider storageProvider = getStorageProvider(repository);
         Path path = storageProvider.resolve(repository);
 
-        FileSystem storageFileSystem = path.getFileSystem();
-        return new RepositoryPath(path,
-                new RepositoryLayoutFileSystem(repository, storageFileSystem,
-                        new RepositoryFileSystemProvider(storageFileSystem.provider(), this)));
+        RepositoryFileSystem repositoryFileSystem = getRepositoryFileSystem(repository);
+        return new RepositoryPath(path, repositoryFileSystem);
+    }
+    
+    public RepositoryFileSystem getRepositoryFileSystem(Repository repository)
+    {
+        FileSystem storageFileSystem = getStorageProvider(repository).getFileSistem();
+        RepositoryFileSystem repositoryFileSystem = new RepositoryFileSystem(repository, storageFileSystem,
+                getProvider(repository));
+        return repositoryFileSystem;
     }
 
     @Override
     public RepositoryPath resolve(Repository repository,
                                   String path)
-            throws IOException
+        throws IOException
     {
         return resolve(repository).resolve(path);
     }
 
-    protected ArtifactPath resolve(String storageId,
-                                   String repositoryId,
-                                   ArtifactCoordinates coordinates)
-            throws IOException
+    public RepositoryFileSystemProvider getProvider(Repository repository)
     {
-        Repository repository = getRepository(storageId, repositoryId);
-        return resolve(repository, coordinates);
-    }
-
-    protected RepositoryPath resolve(String storageId,
-                                   String repositoryId,
-                                   String path)
-            throws IOException
-    {
-        Repository repository = getRepository(storageId, repositoryId);
-        return resolve(repository, path);
-    }
-    
-    protected RepositoryFileSystemProvider getProvider(RepositoryPath artifactPath)
-    {
-        return (RepositoryFileSystemProvider) artifactPath.getFileSystem().provider();
+        FileSystemProvider storageFileSystemProvider = getStorageProvider(repository).getFileSystemProvider();
+        RepositoryFileSystemProvider repositoryFileSystemProvider = new RepositoryFileSystemProvider(
+                storageFileSystemProvider);
+        return repositoryFileSystemProvider;
     }
 
     @Override
@@ -440,7 +424,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                      String destStorageId,
                      String destRepositoryId,
                      String path)
-            throws IOException
+        throws IOException
     {
         // TODO: Implement
     }
@@ -451,7 +435,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                      String destStorageId,
                      String destRepositoryId,
                      String path)
-            throws IOException
+        throws IOException
     {
         // TODO: Implement
     }
@@ -461,13 +445,13 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                        String repositoryId,
                        String path,
                        boolean force)
-            throws IOException, SearchException
+        throws IOException,
+        SearchException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        RepositoryPath repositoryBasePath = resolve(repository);
-        RepositoryPath repositoryPath = repositoryBasePath.resolve(path);
+        RepositoryPath repositoryPath = resolve(repository, path);
 
         logger.debug("Checking in " + storageId + ":" + repositoryId + "(" + path + ")...");
         if (!Files.exists(repositoryPath))
@@ -487,7 +471,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                 @Override
                 public FileVisitResult visitFile(Path file,
                                                  BasicFileAttributes attrs)
-                        throws IOException
+                    throws IOException
                 {
                     doDeletePath((RepositoryPath) file, force, false);
                     return FileVisitResult.CONTINUE;
@@ -496,9 +480,9 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                 @Override
                 public FileVisitResult postVisitDirectory(Path dir,
                                                           IOException exc)
-                        throws IOException
+                    throws IOException
                 {
-                    FileUtils.deleteIfExists(dir.toFile());
+                    Files.deleteIfExists(dir);
                     return FileVisitResult.CONTINUE;
                 }
             });
@@ -510,12 +494,12 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     protected void doDeletePath(RepositoryPath repositoryPath,
                                 boolean force,
                                 boolean deleteChecksum)
-            throws IOException
+        throws IOException
     {
         Files.delete(repositoryPath);
 
         Repository repository = repositoryPath.getFileSystem().getRepository();
-        RepositoryFileSystemProvider provider = getProvider(repositoryPath);
+        RepositoryFileSystemProvider provider = getProvider(repository);
         if (force && repository.allowsForceDeletion())
         {
             provider.deleteTrash(repositoryPath);
@@ -525,7 +509,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     @Override
     public void deleteTrash(String storageId,
                             String repositoryId)
-            throws IOException
+        throws IOException
     {
         logger.debug("Emptying trash for repositoryId " + repositoryId + "...");
 
@@ -539,7 +523,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
 
     @Override
     public void deleteTrash()
-            throws IOException
+        throws IOException
     {
         for (Map.Entry entry : getConfiguration().getStorages().entrySet())
         {
@@ -561,20 +545,21 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     public void undelete(String storageId,
                          String repositoryId,
                          String path)
-            throws IOException
+        throws IOException
     {
         logger.debug(String.format("Attempting to restore: %s:%s:%s...", storageId, repositoryId, path));
 
-        RepositoryPath artifactPath = resolve(storageId, repositoryId, path);
-
-        RepositoryFileSystemProvider provider = getProvider(artifactPath);
+        Repository repository = getRepository(storageId, repositoryId);
+        RepositoryPath artifactPath = resolve(repository, path);
+        RepositoryFileSystemProvider provider = getProvider(repository);
+        
         provider.undelete(artifactPath);
     }
 
     @Override
     public void undeleteTrash(String storageId,
                               String repositoryId)
-            throws IOException
+        throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
@@ -587,12 +572,12 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         }
 
         RepositoryPath path = resolve(repository);
-        getProvider(path).undelete(path);
+        getProvider(repository).undelete(path);
     }
 
     @Override
     public void undeleteTrash()
-            throws IOException
+        throws IOException
     {
         for (Map.Entry entry : getConfiguration().getStorages().entrySet())
         {
@@ -610,7 +595,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     public boolean contains(String storageId,
                             String repositoryId,
                             String path)
-            throws IOException
+        throws IOException
     {
         RepositoryPath artifactPath = resolve(storageId, repositoryId, path);
         return Files.exists(artifactPath);
@@ -619,7 +604,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     @Override
     public boolean containsArtifact(Repository repository,
                                     ArtifactCoordinates coordinates)
-            throws IOException
+        throws IOException
     {
         ArtifactPath artifactPath = resolve(repository, coordinates);
         return Files.exists(artifactPath);
@@ -628,7 +613,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     @Override
     public boolean containsPath(Repository repository,
                                 String path)
-            throws IOException
+        throws IOException
     {
         RepositoryPath repositoryPath = resolve(repository);
 
@@ -638,10 +623,10 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     protected void storeChecksum(Repository repository,
                                  RepositoryPath basePath,
                                  boolean forceRegeneration)
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   ArtifactTransportException,
-                   ProviderImplementationException
+        throws IOException,
+        NoSuchAlgorithmException,
+        ArtifactTransportException,
+        ProviderImplementationException
 
     {
         File[] files = basePath.toFile().listFiles();
@@ -670,9 +655,9 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                                      logger.error(e1.getMessage(), e1);
                                  }
 
-                                 writeChecksum(is, e);
-                             }
-                         });
+                        writeChecksum(is, e);
+                    }
+                });
         }
     }
 
@@ -687,17 +672,6 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                                                                 .get(e);
                                             String checksumExtension = ".".concat(e.toLowerCase().replaceAll("-", ""));
 
-                                            try
-                                            {
-                                                MessageDigestUtils.writeChecksum(filePath, checksumExtension, checksum);
-                                            }
-                                            catch (IOException e1)
-                                            {
-                                                logger.error(
-                                                        String.format("Failed to write checksum: alg-[%s]; path-[%s];",
-                                                                      e, filePath + "." + checksumExtension), e1);
-                                            }
-                                        });
     }
     
     private class RepositoryLayoutFileSystem extends RepositoryFileSystem {

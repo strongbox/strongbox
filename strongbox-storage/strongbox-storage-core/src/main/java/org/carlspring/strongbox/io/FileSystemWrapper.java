@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.providers.io;
+package org.carlspring.strongbox.io;
 
 import java.io.IOException;
 import java.nio.file.FileStore;

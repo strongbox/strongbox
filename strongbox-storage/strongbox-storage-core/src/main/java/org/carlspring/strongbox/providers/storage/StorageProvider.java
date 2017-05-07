@@ -3,7 +3,9 @@ package org.carlspring.strongbox.providers.storage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.FileSystem;
 import java.nio.file.Path;
+import java.nio.file.spi.FileSystemProvider;
 import java.security.NoSuchAlgorithmException;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
@@ -40,10 +42,13 @@ public interface StorageProvider
                  ArtifactCoordinates coordinates)
         throws IOException;
 
-    Path resolve(Repository repository)
-        throws IOException;
+    Path resolve(Repository repository);
 
     Path resolve(Repository repository,
                  String path)
         throws IOException;
+    
+    FileSystem getFileSistem();
+    
+    FileSystemProvider getFileSystemProvider();
 }
