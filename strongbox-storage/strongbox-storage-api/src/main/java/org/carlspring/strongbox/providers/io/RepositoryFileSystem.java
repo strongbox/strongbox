@@ -3,6 +3,7 @@ package org.carlspring.strongbox.providers.io;
 import java.nio.file.FileSystem;
 import java.nio.file.PathMatcher;
 import java.nio.file.spi.FileSystemProvider;
+import java.util.Set;
 
 import org.carlspring.strongbox.io.FileSystemWrapper;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -13,7 +14,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
  *
  * @author Sergey Bespalov
  */
-public class RepositoryFileSystem
+public abstract class RepositoryFileSystem
         extends FileSystemWrapper
 {
 
@@ -65,4 +66,6 @@ public class RepositoryFileSystem
         throw new UnsupportedOperationException();
     }
 
+    
+    public abstract Set<String> getDigestAlgorithmSet();
 }
