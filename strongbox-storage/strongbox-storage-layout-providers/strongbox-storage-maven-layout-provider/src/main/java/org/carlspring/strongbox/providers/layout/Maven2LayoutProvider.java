@@ -198,34 +198,6 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         deleteMetadata(storageId, repositoryId, path);
     }
 
-    @Override
-    protected void doDeletePath(RepositoryPath repositoryPath,
-                                boolean force,
-                                boolean deleteChecksum)
-            throws IOException
-    {
-        // Delete the path
-        super.doDeletePath(repositoryPath, force, deleteChecksum);
-
-        if (deleteChecksum && !ArtifactUtils.isChecksum(repositoryPath.getTarget().getFileName().toString()))
-        {
-            // Delete the checksums
-            // TODO: Add check, if the paths exist
-
-            RepositoryPath md5Path = repositoryPath.resolveSibling(repositoryPath.getFileName() + ".md5");
-            if (Files.exists(md5Path))
-            {
-                super.doDeletePath(md5Path, force, deleteChecksum);
-            }
-
-            RepositoryPath sha1Path = repositoryPath.resolveSibling(repositoryPath.getFileName() + ".sha1");
-            if (Files.exists(sha1Path))
-            {
-                super.doDeletePath(sha1Path, force, deleteChecksum);
-            }
-        }
-    }
-
     public void deleteFromIndex(String storageId,
                                 String repositoryId,
                                 String path)

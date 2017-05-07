@@ -100,20 +100,6 @@ public class NugetHierarchicalLayoutProvider
     }
 
     @Override
-    protected void doDeletePath(RepositoryPath repositoryPath,
-                                boolean force,
-                                boolean deleteChecksum)
-        throws IOException
-    {
-        RepositoryPath sha512Path = repositoryPath.resolveSibling(repositoryPath.getFileName() + ".sha512");
-        super.doDeletePath(repositoryPath, force, deleteChecksum);
-        if (deleteChecksum)
-        {
-            super.doDeletePath(sha512Path, force, deleteChecksum);
-        }
-    }
-
-    @Override
     protected ArtifactOutputStream decorateStream(String path,
                                                   OutputStream os,
                                                   NugetHierarchicalArtifactCoordinates c)

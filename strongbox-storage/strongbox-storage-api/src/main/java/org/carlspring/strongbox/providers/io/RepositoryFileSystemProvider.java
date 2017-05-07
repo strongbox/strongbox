@@ -49,12 +49,25 @@ public class RepositoryFileSystemProvider
     private static final Logger logger = LoggerFactory.getLogger(RepositoryFileSystemProvider.class);
 
     private FileSystemProvider storageFileSystemProvider;
-
+    private boolean forceDelete;
+    
     public RepositoryFileSystemProvider(FileSystemProvider storageFileSystemProvider)
     {
         super();
         this.storageFileSystemProvider = storageFileSystemProvider;
     }
+
+    public boolean isForceDelete()
+    {
+        return forceDelete;
+    }
+
+    public void setForceDelete(boolean forceDelete)
+    {
+        this.forceDelete = forceDelete;
+    }
+
+
 
     public String getScheme()
     {
@@ -158,7 +171,11 @@ public class RepositoryFileSystemProvider
         storageFileSystemProvider.createDirectory(getTargetPath(dir), attrs);
     }
 
-    public void delete(Path path)
+    public void delete(Path path) throws IOException{
+        delete(path, isForceDelete());
+    }
+
+    public void delete(Path path, boolean force)
             throws IOException
     {
         if (!(path instanceof RepositoryPath))
@@ -173,6 +190,60 @@ public class RepositoryFileSystemProvider
             throw new NoSuchFileException(getTargetPath(repositoryPath).toString());
         }
 
+        if (!Files.isDirectory(repositoryPath))
+        {
+            doDeletePath(repositoryPath, force, true);
+        }
+        else
+        {
+            Files.walkFileTree(repositoryPath, new SimpleFileVisitor<Path>()
+            {
+                @Override
+                public FileVisitResult visitFile(Path file,
+                                                 BasicFileAttributes attrs)
+                        throws IOException
+                {
+                    //Checksum files will be deleted during directory walking
+                    doDeletePath((RepositoryPath) file, force, false);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir,
+                                                          IOException exc)
+                        throws IOException
+                {
+                    Files.delete(getTargetPath(dir));
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        }
+    }
+
+    protected void doDeletePath(RepositoryPath repositoryPath,
+                                boolean force,
+                                boolean deleteChacksum)
+            throws IOException
+    {
+        doDeletePath(repositoryPath, force);
+        if (!deleteChacksum){
+            return;
+        }
+        for (String digestAlgorithm : repositoryPath.getFileSystem().getDigestAlgorithmSet())
+        {
+            String extension = digestAlgorithm.replaceAll("-", "").toLowerCase();
+            RepositoryPath checksumPath = repositoryPath.resolveSibling(repositoryPath.getFileName() + "." + extension);
+            if (Files.exists(getTargetPath(checksumPath)))
+            {
+                doDeletePath(checksumPath, force);
+            }
+        }
+    }
+    
+    protected void doDeletePath(RepositoryPath repositoryPath,
+                                boolean force)
+            throws IOException
+    {
         Repository repository = repositoryPath.getFileSystem().getRepository();
         if (!repository.isTrashEnabled())
         {
@@ -185,8 +256,13 @@ public class RepositoryFileSystemProvider
         Files.move(repositoryPath.getTarget(),
                    trashPath.getTarget(),
                    StandardCopyOption.REPLACE_EXISTING);
-    }
-
+        
+        if (force && repository.allowsForceDeletion())
+        {
+            deleteTrash(repositoryPath);
+        }
+    }    
+    
     public void undelete(RepositoryPath path)
             throws IOException
     {

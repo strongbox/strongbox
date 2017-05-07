@@ -376,7 +376,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     public RepositoryFileSystem getRepositoryFileSystem(Repository repository)
     {
         FileSystem storageFileSystem = getStorageProvider(repository).getFileSistem();
-        RepositoryFileSystem repositoryFileSystem = new RepositoryFileSystem(repository, storageFileSystem,
+        RepositoryFileSystem repositoryFileSystem = new RepositoryLayoutFileSystem(repository, storageFileSystem,
                 getProvider(repository));
         return repositoryFileSystem;
     }
@@ -437,51 +437,12 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
             logger.warn(String.format("Path not found: path-[%s]", repositoryPath));
             return;
         }
-
-        if (!Files.isDirectory(repositoryPath))
-        {
-            doDeletePath(repositoryPath, force, true);
-        }
-        else
-        {
-            Files.walkFileTree(repositoryPath, new SimpleFileVisitor<Path>()
-            {
-                @Override
-                public FileVisitResult visitFile(Path file,
-                                                 BasicFileAttributes attrs)
-                        throws IOException
-                {
-                    doDeletePath((RepositoryPath) file, force, false);
-                    return FileVisitResult.CONTINUE;
-                }
-
-                @Override
-                public FileVisitResult postVisitDirectory(Path dir,
-                                                          IOException exc)
-                        throws IOException
-                {
-                    FileUtils.deleteIfExists(dir.toFile());
-                    return FileVisitResult.CONTINUE;
-                }
-            });
-        }
-
-        logger.debug("Removed /" + repositoryId + "/" + path);
-    }
-
-    protected void doDeletePath(RepositoryPath repositoryPath,
-                                boolean force,
-                                boolean deleteChecksum)
-            throws IOException
-    {
-        Files.delete(repositoryPath);
-
-        Repository repository = repositoryPath.getFileSystem().getRepository();
+        
         RepositoryFileSystemProvider provider = getProvider(repository);
-        if (force && repository.allowsForceDeletion())
-        {
-            provider.deleteTrash(repositoryPath);
-        }
+        provider.setForceDelete(force);
+        Files.delete(repositoryPath);
+        
+        logger.debug("Removed /" + repositoryId + "/" + path);
     }
 
     @Override
@@ -667,4 +628,22 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                                         });
     }
 
+    public class RepositoryLayoutFileSystem extends RepositoryFileSystem {
+
+        public RepositoryLayoutFileSystem(Repository repository,
+                                          FileSystem storageFileSystem,
+                                          RepositoryFileSystemProvider provider)
+        {
+            super(repository, storageFileSystem, provider);
+        }
+
+        @Override
+        public Set<String> getDigestAlgorithmSet()
+        {
+            return AbstractLayoutProvider.this.getDigestAlgorithmSet();
+        }
+        
+        
+    }
+    
 }
