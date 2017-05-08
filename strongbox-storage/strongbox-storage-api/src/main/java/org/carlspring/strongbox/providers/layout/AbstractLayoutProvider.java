@@ -404,7 +404,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         
         RepositoryFileSystemProvider provider = getProvider(repository);
         provider.setForceDelete(force);
-        Files.delete(repositoryPath);
+        provider.delete(repositoryPath);
         
         logger.debug("Removed /" + repositoryId + "/" + path);
     }
