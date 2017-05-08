@@ -3,6 +3,7 @@ package org.carlspring.strongbox.providers.io;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent.Kind;
@@ -10,6 +11,8 @@ import java.nio.file.WatchEvent.Modifier;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.Iterator;
+
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 
 /**
  * This implementation wraps target {@link Path} implementation, which can be an "CloudPath" or common
@@ -31,7 +34,7 @@ public class RepositoryPath
         this.fileSystem = fileSystem;
     }
 
-    public Path getTarget()
+    protected Path getTarget()
     {
         return target;
     }
@@ -138,7 +141,7 @@ public class RepositoryPath
         return getTarget().relativize(other);
     }
     
-    public Path getRepositoryRelative()
+    public RepositoryPath getRepositoryRelative()
     {
         //TODO: there can be issues under Windows with replaceAll(..)
         String resultString = toString().replaceAll(getFileSystem().getRootDirectory().toString(), "");
@@ -151,9 +154,9 @@ public class RepositoryPath
         throw new UnsupportedOperationException();
     }
 
-    public Path toAbsolutePath()
+    public RepositoryPath toAbsolutePath()
     {
-        throw new UnsupportedOperationException();
+        return createByTemplate(getTarget().toAbsolutePath());
     }
 
     public Path toRealPath(LinkOption... options)
@@ -194,9 +197,26 @@ public class RepositoryPath
 
     public RepositoryPath createByTemplate(Path path)
     {
-        return new RepositoryPath(path, fileSystem);
+        
+        RepositoryPath repositoryPath = new RepositoryPath(path, fileSystem);
+        if (!Files.isDirectory(path) && getFileSystem().isArtifact(repositoryPath.getRepositoryRelative().toString()))
+        {
+            return repositoryPath.toArtifactPath();
+        }
+        return repositoryPath;
     }
 
+    public ArtifactPath toArtifactPath()
+    {
+        ArtifactCoordinates coordinates = getFileSystem().getArtifactCoordinates(this);
+        return new ArtifactPath(coordinates, target, fileSystem);
+    }
+    
+    
+    public boolean isMetadata(){
+        return getFileSystem().isMetadata(getRepositoryRelative().toString());
+    }
+    
     public String toString()
     {
         return target.toString();

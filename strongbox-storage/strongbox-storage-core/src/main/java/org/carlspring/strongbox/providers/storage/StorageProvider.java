@@ -8,9 +8,6 @@ import java.nio.file.Path;
 import java.nio.file.spi.FileSystemProvider;
 import java.security.NoSuchAlgorithmException;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.storage.repository.Repository;
-
 /**
  * @author carlspring
  */
@@ -36,16 +33,6 @@ public interface StorageProvider
 
     OutputStream getOutputStreamImplementation(Path repositoryPath,
                                                String path)
-        throws IOException;
-
-    Path resolve(Repository repository,
-                 ArtifactCoordinates coordinates)
-        throws IOException;
-
-    Path resolve(Repository repository);
-
-    Path resolve(Repository repository,
-                 String path)
         throws IOException;
     
     FileSystem getFileSistem();
