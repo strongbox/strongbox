@@ -6,11 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.FileSystem;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.spi.FileSystemProvider;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -42,7 +38,6 @@ import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.ArtifactFileUtils;
-import org.carlspring.strongbox.util.FileUtils;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,17 +112,29 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         Repository repository = getRepository(storageId, repositoryId);
         StorageProvider storageProvider = getStorageProvider(repository);
 
+        RepositoryPath repositoryPath = resolve(repository, path);
+        if (!Files.exists(repositoryPath))
+        {
+            throw new FileNotFoundException(repositoryPath.toString());
+        }
+        if (Files.isDirectory(repositoryPath))
+        {
+            throw new FileNotFoundException(String.format("The artifact path is a directory: [%s]",
+                                                          repositoryPath.toString()));
+        }
+        
+        
+        ArtifactPath artifactPath = repositoryPath.toArtifactPath();
+        
         InputStream is;
         T artifactCoordinates = null;
-        if (isArtifact(repository, path, true))
+        if (artifactPath != null)
         {
-            artifactCoordinates = getArtifactCoordinates(path);
-            ArtifactPath artifactPath = resolve(repository, artifactCoordinates);
+            artifactCoordinates = (T) artifactPath.getCoordinates();
             is = storageProvider.getInputStreamImplementation(artifactPath);
         }
         else
         {
-            RepositoryPath repositoryPath = resolve(repository);
             is = storageProvider.getInputStreamImplementation(repositoryPath, path);
         }
 
@@ -164,20 +171,28 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         Repository repository = storage.getRepository(repositoryId);
         StorageProvider storageProvider = getStorageProvider(repository);
 
+        RepositoryPath repositoryPath = resolve(repository, path);
+        if (Files.exists(repositoryPath) && Files.isDirectory(repositoryPath))
+        {
+            throw new FileNotFoundException(String.format("The artifact path is a directory: [%s]",
+                                                          repositoryPath.toString()));
+        }
+        
+        Files.createDirectories(repositoryPath.getParent());
+        ArtifactPath artifactPath = repositoryPath.toArtifactPath();
+        
         OutputStream os;
         T artifactCoordinates = null;
-        if (isArtifact(repository, path, false))
+        if (artifactPath != null)
         {
-            artifactCoordinates = getArtifactCoordinates(path);
-            ArtifactPath artifactPath = resolve(repository, artifactCoordinates);
+            artifactCoordinates = (T) artifactPath.getCoordinates();
             os = storageProvider.getOutputStreamImplementation(artifactPath);
         }
         else
         {
-            RepositoryPath repositoryPath = resolve(repository);
             os = storageProvider.getOutputStreamImplementation(repositoryPath, path);
         }
-
+       
         return decorateStream(path, os, artifactCoordinates);
     }
 
@@ -304,73 +319,22 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
 
     protected abstract boolean isMetadata(String path);
 
-    protected boolean isChecksum(String path)
-    {
-        return ArtifactFileUtils.isChecksum(path);
-    }
-
-    protected boolean isTrash(String path)
-    {
-        return path.contains(".trash");
-    }
-
-    protected boolean isTemp(String path)
-    {
-        return path.contains(".temp");
-    }
-
-    protected boolean isIndex(String path)
-    {
-        return path.contains(".index");
-    }
-
-    protected boolean isArtifact(Repository repository,
-                                 String path,
-                                 boolean strict)
-            throws IOException
-    {
-        RepositoryPath artifactPath = resolve(repository, path);
-        boolean exists = Files.exists(artifactPath);
-        if (!exists && strict)
-        {
-            throw new FileNotFoundException(artifactPath.toString());
-        }
-        if (exists && Files.isDirectory(artifactPath))
-        {
-            throw new FileNotFoundException(String.format("The artifact path is a directory: [%s]",
-                                                          artifactPath.toString()));
-        }
-
-        return !isMetadata(path) && !isChecksum(path) && !isServiceFolder(path);
-    }
-
-    protected boolean isServiceFolder(String path)
-    {
-        return isTemp(path) || isTrash(path) || isIndex(path);
-    }
-
     @Override
     public ArtifactPath resolve(Repository repository,
                                 ArtifactCoordinates coordinates)
         throws IOException
     {
-        StorageProvider storageProvider = getStorageProvider(repository);
-        Path targetPath = storageProvider.resolve(repository, coordinates);
-
-        // Override FileSystem root to Repository base directory
         RepositoryFileSystem repositoryFileSystem = getRepositoryFileSystem(repository);
-        return new ArtifactPath(coordinates, targetPath, repositoryFileSystem);
+        RepositoryPath repositoryPath = repositoryFileSystem.getRootDirectory().resolve(coordinates.toPath());
+        return repositoryPath.toArtifactPath();
     }
 
     @Override
     public RepositoryPath resolve(Repository repository)
             throws IOException
     {
-        StorageProvider storageProvider = getStorageProvider(repository);
-        Path path = storageProvider.resolve(repository);
-
         RepositoryFileSystem repositoryFileSystem = getRepositoryFileSystem(repository);
-        return new RepositoryPath(path, repositoryFileSystem);
+        return repositoryFileSystem.getRootDirectory();
     }
     
     public RepositoryFileSystem getRepositoryFileSystem(Repository repository)
@@ -642,7 +606,18 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         {
             return AbstractLayoutProvider.this.getDigestAlgorithmSet();
         }
-        
+
+        @Override
+        public boolean isMetadata(String path)
+        {
+            return AbstractLayoutProvider.this.isMetadata(path);
+        }
+
+        @Override
+        public ArtifactCoordinates getArtifactCoordinates(RepositoryPath path)
+        {
+            return AbstractLayoutProvider.this.getArtifactCoordinates(path.getRepositoryRelative().toString());
+        }
         
     }
     

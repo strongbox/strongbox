@@ -1,10 +1,14 @@
 package org.carlspring.strongbox.providers.io;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.nio.file.spi.FileSystemProvider;
 import java.util.Set;
 
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.io.FileSystemWrapper;
 import org.carlspring.strongbox.storage.repository.Repository;
 
@@ -65,7 +69,47 @@ public abstract class RepositoryFileSystem
     {
         throw new UnsupportedOperationException();
     }
-
     
     public abstract Set<String> getDigestAlgorithmSet();
+    
+    public abstract boolean isMetadata(String path);
+    
+    protected boolean isChecksum(String path)
+    {
+        for (String e : getDigestAlgorithmSet())
+        {
+            if (path.endsWith("." + e.replaceAll("-", "").toLowerCase()))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected boolean isTrash(String path)
+    {
+        return path.startsWith(".trash");
+    }
+
+    protected boolean isTemp(String path)
+    {
+        return path.startsWith(".temp");
+    }
+
+    protected boolean isIndex(String path)
+    {
+        return path.startsWith(".index");
+    }
+
+    protected boolean isArtifact(String path)
+    {
+        return !isMetadata(path) && !isChecksum(path) && !isServiceFolder(path);
+    }
+
+    protected boolean isServiceFolder(String path)
+    {
+        return isTemp(path) || isTrash(path) || isIndex(path);
+    }
+
+    public abstract ArtifactCoordinates getArtifactCoordinates(RepositoryPath path);
 }
