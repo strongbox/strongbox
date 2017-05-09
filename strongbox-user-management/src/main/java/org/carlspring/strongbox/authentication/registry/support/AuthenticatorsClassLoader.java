@@ -27,8 +27,8 @@ public class AuthenticatorsClassLoader
         File authenticatorsDirectory = null;
         try
         {
-            authenticatorsDirectory = ConfigurationResourceResolver.getConfigurationResource("lib.authentication",
-                                                                                             "lib/authentication").getFile();
+            authenticatorsDirectory = ConfigurationResourceResolver.getConfigurationResource("authentication.lib",
+                                                                                             "authentication-lib").getFile();
         }
         catch (FileNotFoundException e)
         {
