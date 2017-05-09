@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.providers.io;
 
-import org.carlspring.strongbox.storage.repository.Repository;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,12 +24,14 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.FileAttributeView;
 import java.nio.file.spi.FileSystemProvider;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
 import org.apache.commons.io.FileUtils;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Sergey Bespalov
  */
-public class RepositoryFileSystemProvider
+public abstract class RepositoryFileSystemProvider
         extends FileSystemProvider
 {
 
@@ -66,8 +66,6 @@ public class RepositoryFileSystemProvider
     {
         this.forceDelete = forceDelete;
     }
-
-
 
     public String getScheme()
     {
@@ -449,17 +447,49 @@ public class RepositoryFileSystemProvider
     public <A extends BasicFileAttributes> A readAttributes(Path path,
                                                             Class<A> type,
                                                             LinkOption... options)
-            throws IOException
+        throws IOException
     {
-        return storageFileSystemProvider.readAttributes(getTargetPath(path), type, options);
+        A targetAttributes = storageFileSystemProvider.readAttributes(getTargetPath(path), type, options);
+        if (!(path instanceof RepositoryPath))
+        {
+            return targetAttributes;
+        }
+        RepositoryPath repositoryPath = (RepositoryPath) path;
+        RepositoryPath repositoryRelativePath = repositoryPath.getRepositoryRelative();
+        
+        RepositoryFileAttributes repositoryFileAttributes = new RepositoryFileAttributes(targetAttributes,
+                getRepositoryFileAttributes(repositoryRelativePath));
+        return (A) repositoryFileAttributes;
     }
 
+    protected abstract Map<String,Object> getRepositoryFileAttributes(RepositoryPath repositoryRelativePath);
+
+
+    public boolean isChecksum(RepositoryPath path)
+    {
+        for (String e : path.getFileSystem().getDigestAlgorithmSet())
+        {
+            if (path.endsWith("." + e.replaceAll("-", "").toLowerCase()))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     public Map<String, Object> readAttributes(Path path,
                                               String attributes,
                                               LinkOption... options)
             throws IOException
     {
-        return storageFileSystemProvider.readAttributes(getTargetPath(path), attributes, options);
+        if (!(path instanceof RepositoryPath))
+        {
+            return storageFileSystemProvider.readAttributes(getTargetPath(path), attributes, options);
+        }
+        //TODO: Make an implementation in accordance with the specification
+        RepositoryPath repositoryPath = (RepositoryPath) path;
+        RepositoryPath repositoryRelativePath = repositoryPath.getRepositoryRelative();
+        return getRepositoryFileAttributes(repositoryRelativePath);
     }
 
     public void setAttribute(Path path,

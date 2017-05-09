@@ -1,21 +1,8 @@
 package org.carlspring.strongbox.io;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
-import org.carlspring.strongbox.providers.io.ArtifactPath;
-import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
-import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,16 +10,27 @@ import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.artifact.Artifact;
+import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author mtodorov
@@ -87,7 +85,7 @@ public class ArtifactOutputStreamTest
         //ArtifactPath artifactPath = ArtifactPath.getArtifactPath(repository, coordinates);
         
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        ArtifactPath artifactPath = layoutProvider.resolve(repository, coordinates);
+        RepositoryPath artifactPath = layoutProvider.resolve(repository, coordinates);
         
         RepositoryFileSystemProvider provider = (RepositoryFileSystemProvider) artifactPath.getFileSystem()
                                                                                            .provider();
@@ -120,7 +118,7 @@ public class ArtifactOutputStreamTest
         //ArtifactPath artifactPath = ArtifactPath.getArtifactPath(repository, coordinates);
 
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        ArtifactPath artifactPath = layoutProvider.resolve(repository, coordinates);
+        RepositoryPath artifactPath = layoutProvider.resolve(repository, coordinates);
 
         
         RepositoryFileSystemProvider provider = (RepositoryFileSystemProvider) artifactPath.getFileSystem()
