@@ -39,7 +39,7 @@ public final class ClassLoaderUtils
             method.setAccessible(true);
             method.invoke(cl, urls);
         }
-        catch (Throwable t)
+        catch (Exception t)
         {
             Throwables.propagate(t);
         }

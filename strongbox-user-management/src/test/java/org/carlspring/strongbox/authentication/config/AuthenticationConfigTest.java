@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.authentication.config;
 
 import org.carlspring.strongbox.authentication.api.Authenticator;
-import org.carlspring.strongbox.authentication.api.impl.StrongboxBuiltinAuthenticator;
+import org.carlspring.strongbox.authentication.api.impl.DefaultAuthenticator;
 import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
 import org.carlspring.strongbox.config.UsersConfig;
 
@@ -49,7 +49,7 @@ public class AuthenticationConfigTest
                     public boolean matches(Object o)
                     {
                         return ((Authenticator) o).getName().equals(
-                                StrongboxBuiltinAuthenticator.class.getSimpleName());
+                                DefaultAuthenticator.class.getSimpleName());
                     }
                 }));
     }
@@ -57,7 +57,7 @@ public class AuthenticationConfigTest
     @Test
     public void applicationContextShouldContainStrongboxBuiltinAuthenticatorBean()
     {
-        assertNotNull(applicationContext.getBean(StrongboxBuiltinAuthenticator.class));
+        assertNotNull(applicationContext.getBean(DefaultAuthenticator.class));
     }
 
 

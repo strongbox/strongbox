@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-@StrongboxUserDetailService.StrongboxUserDetailServiceQ
+@StrongboxUserDetailService.StrongboxUserDetailServiceQualifier
 @Component
 public class StrongboxUserDetailService
         implements UserDetailsService
@@ -160,7 +160,7 @@ public class StrongboxUserDetailService
     @Documented
     @Retention(RUNTIME)
     @Qualifier
-    public @interface StrongboxUserDetailServiceQ
+    public @interface StrongboxUserDetailServiceQualifier
     {
 
     }

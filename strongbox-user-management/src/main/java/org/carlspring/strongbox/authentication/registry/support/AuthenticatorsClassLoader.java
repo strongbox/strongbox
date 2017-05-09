@@ -21,6 +21,11 @@ public class AuthenticatorsClassLoader
 
     private static final Logger logger = LoggerFactory.getLogger(AuthenticatorsClassLoader.class);
 
+    private AuthenticatorsClassLoader()
+    {
+
+    }
+
     public static void loadAuthenticatorsClasses()
     {
 

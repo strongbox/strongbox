@@ -40,7 +40,7 @@ public class StrongboxAuthenticationFilter
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException,
-                   IOException, AuthenticationException
+                   IOException
     {
         Authentication result = null;
 

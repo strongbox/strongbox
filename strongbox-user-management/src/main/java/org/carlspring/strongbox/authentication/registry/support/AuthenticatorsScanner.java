@@ -31,7 +31,7 @@ public class AuthenticatorsScanner
 
     private static final Logger logger = LoggerFactory.getLogger(AuthenticatorsScanner.class);
 
-    private final static GenericParser<XmlAuthenticators> parser = new GenericParser<>(XmlAuthenticators.class);
+    private static final GenericParser<XmlAuthenticators> parser = new GenericParser<>(XmlAuthenticators.class);
 
     private final AuthenticatorsRegistry registry;
 

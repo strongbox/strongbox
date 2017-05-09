@@ -16,12 +16,12 @@ import org.springframework.stereotype.Component;
  * @author Przemyslaw Fusik
  */
 @Component
-public class StrongboxBuiltinAuthenticator
+public class DefaultAuthenticator
         implements Authenticator
 {
 
     @Inject
-    @StrongboxUserDetailService.StrongboxUserDetailServiceQ
+    @StrongboxUserDetailService.StrongboxUserDetailServiceQualifier
     // in the future, there might be more than one UserDetailsService
     private UserDetailsService userDetailsService;
 
@@ -38,6 +38,6 @@ public class StrongboxBuiltinAuthenticator
     @Override
     public AuthenticationSupplier getAuthenticationSupplier()
     {
-        return new StrongboxBuiltinAuthenticationSupplier();
+        return new DefaultAuthenticationSupplier();
     }
 }

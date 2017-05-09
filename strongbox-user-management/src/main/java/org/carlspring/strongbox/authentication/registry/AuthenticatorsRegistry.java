@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
@@ -58,6 +59,7 @@ public class AuthenticatorsRegistry
     public void reload(Collection<Authenticator> authenticators)
     {
         Objects.requireNonNull(authenticators, () -> "Required non-null replacing authenticators.");
+        final Lock lock = this.lock;
         lock.lock();
         try
         {
@@ -82,6 +84,7 @@ public class AuthenticatorsRegistry
         {
             return;
         }
+        final Lock lock = this.lock;
         lock.lock();
         try
         {

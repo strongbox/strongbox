@@ -118,7 +118,7 @@ public class AuthenticatorsConfigControllerTest
                           .peek()
                           .then()
                           .body("[0].index", CoreMatchers.equalTo(0))
-                          .body("[0].name", CoreMatchers.equalTo("StrongboxBuiltinAuthenticator"))
+                          .body("[0].name", CoreMatchers.equalTo("DefaultAuthenticator"))
                           .body("size()", CoreMatchers.is(1))
                           .statusCode(200);
     }

@@ -4,8 +4,6 @@ import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
 import org.carlspring.strongbox.authentication.registry.support.AuthenticatorsClassLoader;
 import org.carlspring.strongbox.authentication.registry.support.AuthenticatorsScanner;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,9 +13,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AuthenticationConfig
 {
-
-    private static final Logger logger = LoggerFactory.getLogger(AuthenticationConfig.class);
-
     @Bean
     AuthenticatorsScanner authenticatorsScanner(AuthenticatorsRegistry authenticatorsRegistry)
     {
@@ -28,8 +23,8 @@ public class AuthenticationConfig
     AuthenticatorsRegistry authenticatorsRegistry()
     {
         AuthenticatorsClassLoader.loadAuthenticatorsClasses();
-        AuthenticatorsRegistry authenticatorsRegistry = new AuthenticatorsRegistry();
-        AuthenticatorsScanner authenticatorsScanner = authenticatorsScanner(authenticatorsRegistry);
+        final AuthenticatorsRegistry authenticatorsRegistry = new AuthenticatorsRegistry();
+        final AuthenticatorsScanner authenticatorsScanner = authenticatorsScanner(authenticatorsRegistry);
         authenticatorsScanner.scanAndReloadRegistry();
 
         return authenticatorsRegistry;

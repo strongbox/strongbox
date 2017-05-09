@@ -19,11 +19,11 @@ import org.springframework.util.Assert;
 /**
  * @author Przemyslaw Fusik
  */
-public class StrongboxBuiltinAuthenticationSupplier
+public class DefaultAuthenticationSupplier
         implements AuthenticationSupplier
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(StrongboxBuiltinAuthenticationSupplier.class);
+    private static final Logger logger = LoggerFactory.getLogger(DefaultAuthenticationSupplier.class);
 
     private String credentialsCharset = "UTF-8";
 
@@ -83,7 +83,7 @@ public class StrongboxBuiltinAuthenticationSupplier
 
         String token = new String(decoded, credentialsCharset);
 
-        int delim = token.indexOf(":");
+        int delim = token.indexOf(':');
 
         if (delim == -1)
         {
