@@ -1,12 +1,26 @@
 package org.carlspring.strongbox.providers.layout;
 
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.index.ArtifactInfo;
 import org.carlspring.maven.commons.io.filters.PomFilenameFilter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.providers.io.ArtifactPath;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
@@ -30,23 +44,6 @@ import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeExceptio
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.storage.search.SearchResults;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.index.ArtifactInfo;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -150,7 +147,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
 
         if (!Files.isDirectory(repositoryPath))
         {
-            deleteFromIndex(repositoryPath.toArtifactPath());
+            deleteFromIndex(repositoryPath);
         }
         else
         {
@@ -203,11 +200,13 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         deleteMetadata(storageId, repositoryId, path);
     }
 
-    public void deleteFromIndex(ArtifactPath path)
+    public void deleteFromIndex(RepositoryPath path)
             throws IOException
     {
         Repository repository = path.getFileSystem().getRepository();
-        if (!repository.isIndexingEnabled() || path.isMetadata())
+        RepositoryFileAttributes a = (RepositoryFileAttributes) Files.readAttributes(path, BasicFileAttributes.class);
+        
+        if (!repository.isIndexingEnabled() || a.getIsMetadata())
         {
             return;
         }
@@ -219,13 +218,13 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         {
             String extension = path.getFileName().toString().substring(path.getFileName().toString().lastIndexOf('.') + 1);
 
-            MavenArtifactCoordinates a = (MavenArtifactCoordinates) path.getCoordinates();
+            MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) a.getCoordinates();
             
             indexer.delete(Collections.singletonList(new ArtifactInfo(repository.getId(),
-                                                                      a.getGroupId(),
-                                                                      a.getArtifactId(),
-                                                                      a.getVersion(),
-                                                                      a.getClassifier(),
+                                                                      coordinates.getGroupId(),
+                                                                      coordinates.getArtifactId(),
+                                                                      coordinates.getVersion(),
+                                                                      coordinates.getClassifier(),
                                                                       extension)));
         }
     }

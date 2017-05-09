@@ -11,7 +11,6 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.providers.io.ArtifactPath;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -43,7 +42,7 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
                                          String path)
             throws IOException, NoSuchAlgorithmException;
 
-    ArtifactPath resolve(Repository repository,
+    RepositoryPath resolve(Repository repository,
                          ArtifactCoordinates coordinates)
         throws IOException;
 

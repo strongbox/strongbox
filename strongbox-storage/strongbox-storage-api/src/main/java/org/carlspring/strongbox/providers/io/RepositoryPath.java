@@ -197,24 +197,7 @@ public class RepositoryPath
 
     public RepositoryPath createByTemplate(Path path)
     {
-        
-        RepositoryPath repositoryPath = new RepositoryPath(path, fileSystem);
-        if (!Files.isDirectory(path) && getFileSystem().isArtifact(repositoryPath.getRepositoryRelative().toString()))
-        {
-            return repositoryPath.toArtifactPath();
-        }
-        return repositoryPath;
-    }
-
-    public ArtifactPath toArtifactPath()
-    {
-        ArtifactCoordinates coordinates = getFileSystem().getArtifactCoordinates(this);
-        return new ArtifactPath(coordinates, target, fileSystem);
-    }
-    
-    
-    public boolean isMetadata(){
-        return getFileSystem().isMetadata(getRepositoryRelative().toString());
+        return new RepositoryPath(path, fileSystem);
     }
     
     public String toString()
