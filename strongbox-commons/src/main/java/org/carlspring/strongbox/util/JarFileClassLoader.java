@@ -13,6 +13,10 @@ import java.util.jar.JarFile;
 public class JarFileClassLoader
 {
 
+    private JarFileClassLoader()
+    {
+    }
+
     public static void loadClasses(ClassLoader classLoader,
                                    String pathToJar)
             throws IOException, ClassNotFoundException
@@ -21,20 +25,22 @@ public class JarFileClassLoader
         final URLClassLoader cl = ClassLoaderUtils.getURLClassLoader(classLoader);
         ClassLoaderUtils.addURLToURLClassLoader(cl, new URL[]{ new URL("jar:file:" + pathToJar + "!/") });
 
-        final JarFile jarFile = new JarFile(pathToJar);
-        final Enumeration<JarEntry> e = jarFile.entries();
-        while (e.hasMoreElements())
+        try (final JarFile jarFile = new JarFile(pathToJar))
         {
-            final JarEntry je = e.nextElement();
-            if (je.isDirectory() || !je.getName().endsWith(".class"))
+            final Enumeration<JarEntry> e = jarFile.entries();
+            while (e.hasMoreElements())
             {
-                continue;
+                final JarEntry je = e.nextElement();
+                if (je.isDirectory() || !je.getName().endsWith(".class"))
+                {
+                    continue;
+                }
+
+                String className = je.getName().substring(0, je.getName().length() - 6); // .class
+                className = className.replace('/', '.');
+
+                cl.loadClass(className);
             }
-
-            String className = je.getName().substring(0, je.getName().length() - 6); // .class
-            className = className.replace('/', '.');
-
-            cl.loadClass(className);
         }
     }
 

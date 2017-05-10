@@ -2,8 +2,8 @@ package org.carlspring.strongbox.authentication.registry.support;
 
 import org.carlspring.strongbox.authentication.api.Authenticator;
 import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
-import org.carlspring.strongbox.authentication.registry.support.xml.XmlAuthenticator;
-import org.carlspring.strongbox.authentication.registry.support.xml.XmlAuthenticators;
+import org.carlspring.strongbox.authentication.registry.support.xml.in.XmlAuthenticator;
+import org.carlspring.strongbox.authentication.registry.support.xml.in.XmlAuthenticators;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 

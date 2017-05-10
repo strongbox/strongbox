@@ -42,7 +42,7 @@ public class AuthenticationConfigTest
     @Test
     public void registryShouldContainStrongboxBuiltinAuthenticator()
     {
-        assertThat(authenticatorsRegistry.get(), Matchers.hasItem(
+        assertThat(authenticatorsRegistry.getAuthenticators(), Matchers.hasItem(
                 new CustomMatcher<Authenticator>("registryShouldContainStrongboxBuiltinAuthenticator")
                 {
                     @Override
@@ -64,7 +64,7 @@ public class AuthenticationConfigTest
     @Test
     public void registryShouldContainEmptyAuthenticator()
     {
-        assertThat(authenticatorsRegistry.get(),
+        assertThat(authenticatorsRegistry.getAuthenticators(),
                    Matchers.hasItem(new CustomMatcher<Authenticator>("registryShouldContainEmptyAuthenticator")
                    {
                        @Override

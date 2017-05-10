@@ -3,12 +3,15 @@ package org.carlspring.strongbox.controllers;
 import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
 import org.carlspring.strongbox.authentication.registry.support.AuthenticatorsClassLoader;
 import org.carlspring.strongbox.authentication.registry.support.AuthenticatorsScanner;
+import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,21 +37,24 @@ public class AuthenticatorsConfigController
 
     @ApiOperation(value = "Enumerates ordered collection of authenticators with order number and name")
     @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "The list was returned successfully.") })
-    @RequestMapping(value = "/",
-                    method = RequestMethod.GET)
-    public ResponseEntity<AuthenticatorsRegistry> list()
+            message = "The list was returned successfully.") })
+    @RequestMapping(value = "/", method = RequestMethod.GET, produces = { MediaType.APPLICATION_XML_VALUE })
+    public ResponseEntity<String> list()
+            throws JAXBException
     {
-        return ResponseEntity.ok(authenticatorsRegistry);
+        final GenericParser<AuthenticatorsRegistry> parser = new GenericParser<>(AuthenticatorsRegistry.class);
+        final String result = parser.serialize(authenticatorsRegistry);
+
+        return ResponseEntity.ok(result);
     }
 
     @ApiOperation(value = "Reorders authenticators by their indexes")
     @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "Reorder succeeded"),
+            message = "Reorder succeeded"),
                             @ApiResponse(code = 500,
-                                         message = "Reorder failed") })
+                                    message = "Reorder failed") })
     @RequestMapping(value = "/reorder/{first}/{second}",
-                    method = RequestMethod.PUT)
+            method = RequestMethod.PUT)
     public ResponseEntity reorder(@PathVariable int first,
                                   @PathVariable int second)
     {
@@ -66,11 +72,11 @@ public class AuthenticatorsConfigController
 
     @ApiOperation(value = "Reloads authenticators registry")
     @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "Reload succeeded"),
+            message = "Reload succeeded"),
                             @ApiResponse(code = 500,
-                                         message = "Reload failed") })
+                                    message = "Reload failed") })
     @RequestMapping(value = "/reload",
-                    method = RequestMethod.PUT)
+            method = RequestMethod.PUT)
     public ResponseEntity reload()
     {
         try

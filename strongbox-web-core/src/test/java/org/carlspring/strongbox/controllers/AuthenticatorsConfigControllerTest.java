@@ -61,11 +61,11 @@ public class AuthenticatorsConfigControllerTest
                           .get("/configuration/authenticators/")
                           .peek()
                           .then()
-                          .body("[0].index", CoreMatchers.equalTo(0))
-                          .body("[0].name", CoreMatchers.equalTo("JwtAuthenticator"))
-                          .body("[1].index", CoreMatchers.equalTo(1))
-                          .body("[1].name", CoreMatchers.equalTo("LdapAuthenticator"))
-                          .body("size()", CoreMatchers.is(2))
+                          .body("authenticatorsRegistry.authenticators.authenticator[0].index", CoreMatchers.equalTo("0"))
+                          .body("authenticatorsRegistry.authenticators.authenticator[0].name", CoreMatchers.equalTo("JwtAuthenticator"))
+                          .body("authenticatorsRegistry.authenticators.authenticator[1].index", CoreMatchers.equalTo("1"))
+                          .body("authenticatorsRegistry.authenticators.authenticator[1].name", CoreMatchers.equalTo("LdapAuthenticator"))
+                          .body("authenticatorsRegistry.authenticators.authenticator.size()", CoreMatchers.is(2))
                           .statusCode(200);
     }
 
@@ -79,11 +79,11 @@ public class AuthenticatorsConfigControllerTest
                           .get("/configuration/authenticators/")
                           .peek()
                           .then()
-                          .body("[0].index", CoreMatchers.equalTo(0))
-                          .body("[0].name", CoreMatchers.equalTo("JwtAuthenticator"))
-                          .body("[1].index", CoreMatchers.equalTo(1))
-                          .body("[1].name", CoreMatchers.equalTo("LdapAuthenticator"))
-                          .body("size()", CoreMatchers.is(2))
+                          .body("authenticatorsRegistry.authenticators.authenticator[0].index", CoreMatchers.equalTo("0"))
+                          .body("authenticatorsRegistry.authenticators.authenticator[0].name", CoreMatchers.equalTo("JwtAuthenticator"))
+                          .body("authenticatorsRegistry.authenticators.authenticator[1].index", CoreMatchers.equalTo("1"))
+                          .body("authenticatorsRegistry.authenticators.authenticator[1].name", CoreMatchers.equalTo("LdapAuthenticator"))
+                          .body("authenticatorsRegistry.authenticators.authenticator.size()", CoreMatchers.is(2))
                           .statusCode(200);
 
         // Reorder elements
@@ -98,11 +98,11 @@ public class AuthenticatorsConfigControllerTest
                           .get("/configuration/authenticators/")
                           .peek()
                           .then()
-                          .body("[0].index", CoreMatchers.equalTo(0))
-                          .body("[0].name", CoreMatchers.equalTo("LdapAuthenticator"))
-                          .body("[1].index", CoreMatchers.equalTo(1))
-                          .body("[1].name", CoreMatchers.equalTo("JwtAuthenticator"))
-                          .body("size()", CoreMatchers.is(2))
+                          .body("authenticatorsRegistry.authenticators.authenticator[0].index", CoreMatchers.equalTo("0"))
+                          .body("authenticatorsRegistry.authenticators.authenticator[0].name", CoreMatchers.equalTo("LdapAuthenticator"))
+                          .body("authenticatorsRegistry.authenticators.authenticator[1].index", CoreMatchers.equalTo("1"))
+                          .body("authenticatorsRegistry.authenticators.authenticator[1].name", CoreMatchers.equalTo("JwtAuthenticator"))
+                          .body("authenticatorsRegistry.authenticators.authenticator.size()", CoreMatchers.is(2))
                           .statusCode(200);
 
         // Reload registry
@@ -117,9 +117,9 @@ public class AuthenticatorsConfigControllerTest
                           .get("/configuration/authenticators/")
                           .peek()
                           .then()
-                          .body("[0].index", CoreMatchers.equalTo(0))
-                          .body("[0].name", CoreMatchers.equalTo("DefaultAuthenticator"))
-                          .body("size()", CoreMatchers.is(1))
+                          .body("authenticatorsRegistry.authenticators.authenticator[0].index", CoreMatchers.equalTo("0"))
+                          .body("authenticatorsRegistry.authenticators.authenticator[0].name", CoreMatchers.equalTo("DefaultAuthenticator"))
+                          .body("authenticatorsRegistry.authenticators.authenticator.size()", CoreMatchers.is(1))
                           .statusCode(200);
     }
 
@@ -139,11 +139,11 @@ public class AuthenticatorsConfigControllerTest
                           .get("/configuration/authenticators/")
                           .peek()
                           .then()
-                          .body("[0].index", CoreMatchers.equalTo(0))
-                          .body("[0].name", CoreMatchers.equalTo("LdapAuthenticator"))
-                          .body("[1].index", CoreMatchers.equalTo(1))
-                          .body("[1].name", CoreMatchers.equalTo("JwtAuthenticator"))
-                          .body("size()", CoreMatchers.is(2))
+                          .body("authenticatorsRegistry.authenticators.authenticator[0].index", CoreMatchers.equalTo("0"))
+                          .body("authenticatorsRegistry.authenticators.authenticator[0].name", CoreMatchers.equalTo("LdapAuthenticator"))
+                          .body("authenticatorsRegistry.authenticators.authenticator[1].index", CoreMatchers.equalTo("1"))
+                          .body("authenticatorsRegistry.authenticators.authenticator[1].name", CoreMatchers.equalTo("JwtAuthenticator"))
+                          .body("authenticatorsRegistry.authenticators.authenticator.size()", CoreMatchers.is(2))
                           .statusCode(200);
     }
 

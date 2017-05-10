@@ -78,7 +78,7 @@ public class DefaultAuthenticationSupplier
         }
         catch (IllegalArgumentException e)
         {
-            throw new BadCredentialsException("Failed to decode basic authentication token");
+            throw new BadCredentialsException("Failed to decode basic authentication token", e);
         }
 
         String token = new String(decoded, credentialsCharset);

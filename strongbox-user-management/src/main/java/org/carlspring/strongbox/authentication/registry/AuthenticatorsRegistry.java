@@ -1,32 +1,24 @@
 package org.carlspring.strongbox.authentication.registry;
 
 import org.carlspring.strongbox.authentication.api.Authenticator;
-import org.carlspring.strongbox.authentication.registry.support.AuthenticatorsRegistrySerializer;
+import org.carlspring.strongbox.authentication.registry.support.xml.out.AuthenticatorsAdapter;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.locks.Lock;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Supplier;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.ImmutableList;
 
 /**
  * @author Przemyslaw Fusik
  */
-@JsonSerialize(using = AuthenticatorsRegistrySerializer.class)
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.PROPERTY)
 public class AuthenticatorsRegistry
-        implements Supplier<List<Authenticator>>
 {
 
     final transient ReentrantLock lock = new ReentrantLock();
@@ -34,9 +26,6 @@ public class AuthenticatorsRegistry
     private final List<Authenticator> authenticators;
 
     private List<Authenticator> lastSnapshot;
-
-    @Inject
-    private Optional<ObjectMapper> objectMapper;
 
     public AuthenticatorsRegistry()
     {
@@ -59,7 +48,6 @@ public class AuthenticatorsRegistry
     public void reload(Collection<Authenticator> authenticators)
     {
         Objects.requireNonNull(authenticators, () -> "Required non-null replacing authenticators.");
-        final Lock lock = this.lock;
         lock.lock();
         try
         {
@@ -84,7 +72,6 @@ public class AuthenticatorsRegistry
         {
             return;
         }
-        final Lock lock = this.lock;
         lock.lock();
         try
         {
@@ -109,8 +96,9 @@ public class AuthenticatorsRegistry
      * Copy list, once returned, never changes, those it may not be affected by internal list
      * modification methods.
      */
-    @Override
-    public List<Authenticator> get()
+    @XmlElement(name = "authenticators")
+    @XmlJavaTypeAdapter(AuthenticatorsAdapter.class)
+    public List<Authenticator> getAuthenticators()
     {
         // Don't lock this method as it is going to be heavily used
         return lock.isLocked() ? lastSnapshot : updateSnapshot();
@@ -120,7 +108,7 @@ public class AuthenticatorsRegistry
     public String toString()
     {
         final StringBuilder builder = new StringBuilder();
-        final List<Authenticator> view = get();
+        final List<Authenticator> view = getAuthenticators();
         for (int index = 0; index < view.size(); index++)
         {
             final Authenticator authenticator = view.get(index);
@@ -128,12 +116,5 @@ public class AuthenticatorsRegistry
                                                          authenticator.getName() }));
         }
         return builder.toString();
-    }
-
-    @PostConstruct
-    void registerSerializer()
-    {
-        objectMapper.ifPresent(
-                om -> om.registerModule(new SimpleModule().addSerializer(new AuthenticatorsRegistrySerializer())));
     }
 }
