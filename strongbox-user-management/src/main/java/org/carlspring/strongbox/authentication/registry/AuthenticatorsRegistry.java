@@ -8,113 +8,143 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.util.*;
-import java.util.concurrent.locks.ReentrantLock;
-
-import com.google.common.collect.ImmutableList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * @author Przemyslaw Fusik
  */
 @XmlRootElement
-@XmlAccessorType(XmlAccessType.PROPERTY)
+@XmlAccessorType(XmlAccessType.NONE)
 public class AuthenticatorsRegistry
+        implements Iterable<Authenticator>
 {
 
-    final transient ReentrantLock lock = new ReentrantLock();
+    @XmlElement(name = "authenticators")
+    @XmlJavaTypeAdapter(AuthenticatorsAdapter.class)
+    private volatile Authenticator[] array;
 
-    private final List<Authenticator> authenticators;
-
-    private List<Authenticator> lastSnapshot;
-
+    /**
+     * Creates an empty registry.
+     */
     public AuthenticatorsRegistry()
     {
-        this(Collections.emptyList());
+        setArray(new Authenticator[0]);
     }
 
-
-    public AuthenticatorsRegistry(List<Authenticator> authenticators)
+    /**
+     * Creates a registry containing the elements of the specified
+     * collection, in the order they are returned by the collection's
+     * iterator.
+     */
+    public AuthenticatorsRegistry(Collection<? extends Authenticator> c)
     {
-        this.authenticators = new ArrayList<>(authenticators);
-        updateSnapshot();
+        reloadInternally(c);
+    }
+
+    private Authenticator[] getArray()
+    {
+        return array;
+    }
+
+    private void setArray(Authenticator[] a)
+    {
+        array = a;
     }
 
     /**
      * Reloads the registry by replacing all authenticators using
      * given collection.
      *
-     * @param authenticators new collection of authenticators
+     * @param c new collection of authenticators
      */
-    public void reload(Collection<Authenticator> authenticators)
+    public synchronized void reload(Collection<? extends Authenticator> c)
     {
-        Objects.requireNonNull(authenticators, () -> "Required non-null replacing authenticators.");
-        lock.lock();
-        try
-        {
-            updateSnapshot();
-            this.authenticators.clear();
-            this.authenticators.addAll(authenticators);
-        }
-        finally
-        {
-            updateSnapshot();
-            lock.unlock();
-        }
+        reloadInternally(c);
     }
 
     /**
      * Reorders elements in the registry.
      */
-    public void reorder(int first,
-                        int second)
+    public synchronized void reorder(int first,
+                                     int second)
     {
-        if (first == second)
-        {
-            return;
-        }
-        lock.lock();
-        try
-        {
-            updateSnapshot();
-            Collections.swap(authenticators, first, second);
-        }
-        finally
-        {
-            updateSnapshot();
-            lock.unlock();
-        }
+        Authenticator[] elements = getArray();
+        elements = Arrays.copyOf(elements, elements.length);
+        final Authenticator firstA = elements[first];
+        final Authenticator secondA = elements[second];
+        elements[first] = secondA;
+        elements[second] = firstA;
+        setArray(elements);
     }
 
-    private List<Authenticator> updateSnapshot()
+    public int size()
     {
-        lastSnapshot = ImmutableList.copyOf(authenticators);
-        return lastSnapshot;
+        return getArray().length;
     }
 
-    /**
-     * Returns an immutable copy list containing the authenticators elements, in order.
-     * Copy list, once returned, never changes, those it may not be affected by internal list
-     * modification methods.
-     */
-    @XmlElement(name = "authenticators")
-    @XmlJavaTypeAdapter(AuthenticatorsAdapter.class)
-    public List<Authenticator> getAuthenticators()
+    public boolean isEmpty()
     {
-        // Don't lock this method as it is going to be heavily used
-        return lock.isLocked() ? lastSnapshot : updateSnapshot();
+        return size() == 0;
+    }
+
+    private void reloadInternally(Collection<? extends Authenticator> c)
+    {
+        final Authenticator[] elements = c.toArray(new Authenticator[0]);
+        setArray(elements);
     }
 
     @Override
     public String toString()
     {
         final StringBuilder builder = new StringBuilder();
-        final List<Authenticator> view = getAuthenticators();
-        for (int index = 0; index < view.size(); index++)
+        final Authenticator[] view = getArray();
+        for (int index = 0; index < view.length; index++)
         {
-            final Authenticator authenticator = view.get(index);
+            final Authenticator authenticator = view[index];
             builder.append(Arrays.toString(new Object[]{ index,
                                                          authenticator.getName() }));
         }
         return builder.toString();
+    }
+
+    @Override
+    public Iterator<Authenticator> iterator()
+    {
+        return new COWIterator(getArray(), 0);
+    }
+
+    static final class COWIterator
+            implements Iterator<Authenticator>
+    {
+
+        private final Authenticator[] snapshot;
+
+        private int cursor;
+
+        private COWIterator(Authenticator[] elements,
+                            int initialCursor)
+        {
+            cursor = initialCursor;
+            snapshot = elements;
+        }
+
+        @Override
+        public boolean hasNext()
+        {
+            return cursor < snapshot.length;
+        }
+
+        @Override
+        public Authenticator next()
+        {
+            if (!hasNext())
+            {
+                throw new NoSuchElementException();
+            }
+            return snapshot[cursor++];
+        }
     }
 }

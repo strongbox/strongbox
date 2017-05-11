@@ -44,7 +44,7 @@ public class StrongboxAuthenticationFilter
     {
         Authentication result = null;
 
-        for (final Authenticator authenticator : authenticatorsRegistry.getAuthenticators())
+        for (final Authenticator authenticator : authenticatorsRegistry)
         {
 
             final AuthenticationSupplier authenticationSupplier = authenticator.getAuthenticationSupplier();

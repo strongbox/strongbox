@@ -7,6 +7,7 @@ import org.carlspring.strongbox.config.UsersConfig;
 
 import javax.inject.Inject;
 
+import com.google.common.collect.Lists;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matchers;
@@ -42,7 +43,7 @@ public class AuthenticationConfigTest
     @Test
     public void registryShouldContainStrongboxBuiltinAuthenticator()
     {
-        assertThat(authenticatorsRegistry.getAuthenticators(), Matchers.hasItem(
+        assertThat(Lists.newArrayList(authenticatorsRegistry), Matchers.hasItem(
                 new CustomMatcher<Authenticator>("registryShouldContainStrongboxBuiltinAuthenticator")
                 {
                     @Override
@@ -64,7 +65,7 @@ public class AuthenticationConfigTest
     @Test
     public void registryShouldContainEmptyAuthenticator()
     {
-        assertThat(authenticatorsRegistry.getAuthenticators(),
+        assertThat(Lists.newArrayList(authenticatorsRegistry),
                    Matchers.hasItem(new CustomMatcher<Authenticator>("registryShouldContainEmptyAuthenticator")
                    {
                        @Override
