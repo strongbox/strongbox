@@ -52,9 +52,9 @@ pipeline {
             }
         }
     }
-    post
+    post {
         always {
-            cleanWs deleteDirs: true
+            deleteDir()
         }
     }
 }
