@@ -11,13 +11,13 @@ public class RepositoryFileAttributes implements BasicFileAttributes
 {
 
     public static final String COORDINATES = "coordinates";
-    public static final String IS_METEDATA = "isMetedata";
-    public static final String IS_CHECKSUM = "isChecksum";
-    public static final String IS_TRASH = "isTrash";
-    public static final String IS_TEMP = "isTemp";
-    public static final String IS_INDEX = "isIndex";
-    public static final String IS_ARTIFACT = "isArtifact";
-    public static final String IS_SERVICEFOLDER = "isServicefolder";
+    public static final String METEDATA = "metedata";
+    public static final String CHECKSUM = "checksum";
+    public static final String TRASH = "trash";
+    public static final String TEMP = "temp";
+    public static final String INDEX = "index";
+    public static final String ARTIFACT = "artifact";
+    public static final String SERVICEFOLDER = "servicefolder";
     
     private BasicFileAttributes basicAttributes;
     private Map<String, Object> attributes = new HashMap<>();
@@ -86,39 +86,39 @@ public class RepositoryFileAttributes implements BasicFileAttributes
         return (ArtifactCoordinates) attributes.get(COORDINATES);
     }
 
-    public boolean getIsMetadata()
+    public boolean isMetadata()
     {
-        return Boolean.TRUE.equals(attributes.get(IS_METEDATA));
+        return Boolean.TRUE.equals(attributes.get(METEDATA));
     }
 
-    public boolean getIsChecksum()
+    public boolean isChecksum()
     {
-        return Boolean.TRUE.equals(attributes.get(IS_CHECKSUM));
+        return Boolean.TRUE.equals(attributes.get(CHECKSUM));
     }
 
-    public boolean getIsTrash()
+    public boolean isTrash()
     {
-        return Boolean.TRUE.equals(attributes.get(IS_TRASH));
+        return Boolean.TRUE.equals(attributes.get(TRASH));
     }
 
-    public boolean getIsTemp()
+    public boolean isTemp()
     {
-        return Boolean.TRUE.equals(attributes.get(IS_TEMP));
+        return Boolean.TRUE.equals(attributes.get(TEMP));
     }
 
-    public boolean getIsIndex()
+    public boolean isIndex()
     {
-        return Boolean.TRUE.equals(attributes.get(IS_INDEX));
+        return Boolean.TRUE.equals(attributes.get(INDEX));
     }
 
-    public boolean getIsArtifact()
+    public boolean isArtifact()
     {
-        return Boolean.TRUE.equals(attributes.get(IS_ARTIFACT));
+        return Boolean.TRUE.equals(attributes.get(ARTIFACT));
     }
 
-    protected void setIsMetedata(boolean isMetedata)
+    protected void setMetedata(boolean isMetedata)
     {
-        attributes.put(IS_METEDATA, isMetedata);
+        attributes.put(METEDATA, isMetedata);
     }
 
     protected void setCoordinates(ArtifactCoordinates coordinates)
@@ -126,29 +126,29 @@ public class RepositoryFileAttributes implements BasicFileAttributes
         attributes.put(COORDINATES, coordinates);
     }
 
-    protected void setIsChecksum(boolean isChecksum)
+    protected void setChecksum(boolean isChecksum)
     {
-        attributes.put(IS_CHECKSUM, isChecksum);
+        attributes.put(CHECKSUM, isChecksum);
     }
 
-    protected void setIsTrash(boolean isTrash)
+    protected void setTrash(boolean isTrash)
     {
-        attributes.put(IS_TRASH, isTrash);
+        attributes.put(TRASH, isTrash);
     }
 
-    protected void setIsTemp(boolean isTemp)
+    protected void setTemp(boolean isTemp)
     {
-        attributes.put(IS_TEMP, isTemp);
+        attributes.put(TEMP, isTemp);
     }
 
-    protected void setIsIndex(boolean isIndex)
+    protected void setIndex(boolean isIndex)
     {
-        attributes.put(IS_INDEX, isIndex);
+        attributes.put(INDEX, isIndex);
     }
 
-    protected void setIsArtifact(boolean isArtifact)
+    protected void setArtifact(boolean isArtifact)
     {
-        attributes.put(IS_ARTIFACT, isArtifact);
+        attributes.put(ARTIFACT, isArtifact);
     }
 
 }

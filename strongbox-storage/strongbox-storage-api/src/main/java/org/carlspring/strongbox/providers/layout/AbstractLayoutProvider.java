@@ -591,18 +591,18 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         
         Map<String, Object> result = new HashMap<>();
         boolean isChecksum = provider.isChecksum(repositoryRelativePath);
-        result.put(RepositoryFileAttributes.IS_CHECKSUM, isChecksum);
+        result.put(RepositoryFileAttributes.CHECKSUM, isChecksum);
         boolean isIndex = repositoryRelativePath.startsWith(".index");
-        result.put(RepositoryFileAttributes.IS_INDEX, isIndex);
+        result.put(RepositoryFileAttributes.INDEX, isIndex);
         boolean isTemp = repositoryRelativePath.startsWith(".temp");
-        result.put(RepositoryFileAttributes.IS_TEMP, isTemp);
+        result.put(RepositoryFileAttributes.TEMP, isTemp);
         boolean isTrash = repositoryRelativePath.startsWith(".trash");
-        result.put(RepositoryFileAttributes.IS_TRASH, isTrash);
+        result.put(RepositoryFileAttributes.TRASH, isTrash);
         boolean isMetadata = isMetadata(repositoryRelativePath.toString());
-        result.put(RepositoryFileAttributes.IS_METEDATA, isMetadata);
+        result.put(RepositoryFileAttributes.METEDATA, isMetadata);
         
         Boolean isArtifact = !Files.isDirectory(repositoryRelativePath.getTarget()) && !isChecksum && !isIndex && !isTemp && !isTrash && !isMetadata;
-        result.put(RepositoryFileAttributes.IS_ARTIFACT, isArtifact);
+        result.put(RepositoryFileAttributes.ARTIFACT, isArtifact);
         if (isArtifact)
         {
             result.put(RepositoryFileAttributes.COORDINATES, getArtifactCoordinates(repositoryRelativePath.toString()));

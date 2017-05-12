@@ -68,7 +68,7 @@ public class RepositoryPath
 
     public RepositoryPath getParent()
     {
-        return createByTemplate(getTarget().getParent());
+        return wrap(getTarget().getParent());
     }
 
     public int getNameCount()
@@ -109,27 +109,27 @@ public class RepositoryPath
 
     public RepositoryPath normalize()
     {
-        return createByTemplate(getTarget().normalize());
+        return wrap(getTarget().normalize());
     }
 
     public RepositoryPath resolve(Path other)
     {
-        other = getTarget(other);
-        return createByTemplate(getTarget().resolve(other));
+        other = unwrap(other);
+        return wrap(getTarget().resolve(other));
     }
 
     public RepositoryPath resolve(String other)
     {
-        return createByTemplate(getTarget().resolve(other));
+        return wrap(getTarget().resolve(other));
     }
 
     public RepositoryPath resolveSibling(Path other)
     {
-        other = getTarget(other);
-        return createByTemplate(getTarget().resolveSibling(other));
+        other = unwrap(other);
+        return wrap(getTarget().resolveSibling(other));
     }
 
-    protected Path getTarget(Path other)
+    protected Path unwrap(Path other)
     {
         other = other instanceof RepositoryPath ? ((RepositoryPath)other).getTarget() : other;
         return other;
@@ -137,12 +137,12 @@ public class RepositoryPath
 
     public RepositoryPath resolveSibling(String other)
     {
-        return createByTemplate(getTarget().resolveSibling(other));
+        return wrap(getTarget().resolveSibling(other));
     }
 
     public Path relativize(Path other)
     {
-        other = getTarget(other);
+        other = unwrap(other);
         return getTarget().relativize(other);
     }
     
@@ -161,7 +161,7 @@ public class RepositoryPath
 
     public RepositoryPath toAbsolutePath()
     {
-        return createByTemplate(getTarget().toAbsolutePath());
+        return wrap(getTarget().toAbsolutePath());
     }
 
     public Path toRealPath(LinkOption... options)
@@ -200,7 +200,7 @@ public class RepositoryPath
         return getTarget().compareTo(other);
     }
 
-    public RepositoryPath createByTemplate(Path path)
+    public RepositoryPath wrap(Path path)
     {
         return new RepositoryPath(path, fileSystem);
     }
