@@ -207,4 +207,11 @@ public class RepositoryPath
         return target.toString();
     }
 
+    @Override
+    public boolean equals(Object obj)
+    {
+        return target.equals(obj);
+    }
+
+    
 }
