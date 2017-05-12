@@ -82,8 +82,6 @@ public class ArtifactOutputStreamTest
         final Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.foo:temp-file-test:1.2.3:jar");
         final ArtifactCoordinates coordinates = new MavenArtifactCoordinates(artifact);
         
-        //ArtifactPath artifactPath = ArtifactPath.getArtifactPath(repository, coordinates);
-        
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         RepositoryPath artifactPath = layoutProvider.resolve(repository, coordinates);
         
@@ -114,8 +112,6 @@ public class ArtifactOutputStreamTest
 
         final Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.foo:temp-file-test:1.2.4:jar");
         final ArtifactCoordinates coordinates = new MavenArtifactCoordinates(artifact);
-
-        //ArtifactPath artifactPath = ArtifactPath.getArtifactPath(repository, coordinates);
 
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         RepositoryPath artifactPath = layoutProvider.resolve(repository, coordinates);
