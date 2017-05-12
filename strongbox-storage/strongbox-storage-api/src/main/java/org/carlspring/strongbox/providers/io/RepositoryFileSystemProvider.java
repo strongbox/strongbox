@@ -49,7 +49,7 @@ public abstract class RepositoryFileSystemProvider
     private static final Logger logger = LoggerFactory.getLogger(RepositoryFileSystemProvider.class);
 
     private FileSystemProvider storageFileSystemProvider;
-    private boolean forceDelete;
+    private boolean allowsForceDelete;
     
     public RepositoryFileSystemProvider(FileSystemProvider storageFileSystemProvider)
     {
@@ -57,14 +57,14 @@ public abstract class RepositoryFileSystemProvider
         this.storageFileSystemProvider = storageFileSystemProvider;
     }
 
-    public boolean isForceDelete()
+    public boolean isAllowsForceDelete()
     {
-        return forceDelete;
+        return allowsForceDelete;
     }
 
-    public void setForceDelete(boolean forceDelete)
+    public void setAllowsForceDelete(boolean forceDelete)
     {
-        this.forceDelete = forceDelete;
+        this.allowsForceDelete = forceDelete;
     }
 
     public String getScheme()
@@ -170,7 +170,7 @@ public abstract class RepositoryFileSystemProvider
     }
 
     public void delete(Path path) throws IOException{
-        delete(path, isForceDelete());
+        delete(path, isAllowsForceDelete());
     }
 
     public void delete(Path path, boolean force)
