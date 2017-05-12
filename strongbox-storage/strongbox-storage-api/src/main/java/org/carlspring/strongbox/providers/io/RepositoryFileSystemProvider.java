@@ -229,6 +229,7 @@ public abstract class RepositoryFileSystemProvider
         }
         for (String digestAlgorithm : repositoryPath.getFileSystem().getDigestAlgorithmSet())
         {
+            //it creates Checksum file extension name form Digest algorithm name: SHA-1->sha1
             String extension = digestAlgorithm.replaceAll("-", "").toLowerCase();
             RepositoryPath checksumPath = repositoryPath.resolveSibling(repositoryPath.getFileName() + "." + extension);
             if (Files.exists(unwrap(checksumPath)))

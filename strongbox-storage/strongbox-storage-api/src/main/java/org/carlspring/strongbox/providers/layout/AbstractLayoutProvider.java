@@ -586,9 +586,10 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                                         });
     }
 
-    protected Map<String,Object> getRepositoryFileAttributes(RepositoryPath repositoryRelativePath){
+    protected Map<String, Object> getRepositoryFileAttributes(RepositoryPath repositoryRelativePath)
+    {
         RepositoryFileSystemProvider provider = repositoryRelativePath.getFileSystem().provider();
-        
+
         Map<String, Object> result = new HashMap<>();
         boolean isChecksum = provider.isChecksum(repositoryRelativePath);
         result.put(RepositoryFileAttributes.CHECKSUM, isChecksum);
@@ -600,19 +601,21 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         result.put(RepositoryFileAttributes.TRASH, isTrash);
         boolean isMetadata = isMetadata(repositoryRelativePath.toString());
         result.put(RepositoryFileAttributes.METEDATA, isMetadata);
-        
-        Boolean isArtifact = !Files.isDirectory(repositoryRelativePath.getTarget()) && !isChecksum && !isIndex && !isTemp && !isTrash && !isMetadata;
+
+        Boolean isArtifact = !Files.isDirectory(repositoryRelativePath.getTarget()) && !isChecksum && !isIndex
+                && !isTemp && !isTrash && !isMetadata;
         result.put(RepositoryFileAttributes.ARTIFACT, isArtifact);
         if (isArtifact)
         {
             result.put(RepositoryFileAttributes.COORDINATES, getArtifactCoordinates(repositoryRelativePath.toString()));
         }
-        return result ;
+        return result;
     }
     
     protected abstract boolean isMetadata(String string);
     
-    public class RepositoryLayoutFileSystem extends RepositoryFileSystem {
+    public class RepositoryLayoutFileSystem extends RepositoryFileSystem
+    {
 
         public RepositoryLayoutFileSystem(Repository repository,
                                           FileSystem storageFileSystem,
@@ -626,9 +629,9 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         {
             return AbstractLayoutProvider.this.getDigestAlgorithmSet();
         }
-        
+
     }
-    
+
     public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProvider
     {
 
