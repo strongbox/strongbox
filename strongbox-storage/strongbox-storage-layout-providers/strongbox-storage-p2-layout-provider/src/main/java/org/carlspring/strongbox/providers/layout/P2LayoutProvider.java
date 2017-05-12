@@ -1,10 +1,16 @@
 package org.carlspring.strongbox.providers.layout;
 
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
+
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.P2ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.p2.P2ArtifactReader;
 import org.carlspring.strongbox.repository.P2RepositoryFeatures;
 import org.carlspring.strongbox.repository.P2RepositoryManagementStrategy;
@@ -13,13 +19,6 @@ import org.carlspring.strongbox.services.impl.P2ArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
-
-import javax.inject.Inject;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.util.List;
-
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
