@@ -16,6 +16,7 @@ tmp/
 .project
 .classpath
 .metadata
+.factorypath
 
 # idea specific
 .idea/*
