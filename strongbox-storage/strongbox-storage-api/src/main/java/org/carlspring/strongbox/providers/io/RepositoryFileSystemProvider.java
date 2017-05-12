@@ -94,14 +94,14 @@ public abstract class RepositoryFileSystemProvider
                                               FileAttribute<?>... attrs)
             throws IOException
     {
-        return storageFileSystemProvider.newByteChannel(getTargetPath(path), options, attrs);
+        return storageFileSystemProvider.newByteChannel(unwrap(path), options, attrs);
     }
 
     public DirectoryStream<Path> newDirectoryStream(Path dir,
                                                     Filter<? super Path> filter)
             throws IOException
     {
-        DirectoryStream<Path> ds = storageFileSystemProvider.newDirectoryStream(getTargetPath(dir), filter);
+        DirectoryStream<Path> ds = storageFileSystemProvider.newDirectoryStream(unwrap(dir), filter);
         if (!(dir instanceof RepositoryPath))
         {
             return ds;
@@ -166,7 +166,7 @@ public abstract class RepositoryFileSystemProvider
                                 FileAttribute<?>... attrs)
             throws IOException
     {
-        storageFileSystemProvider.createDirectory(getTargetPath(dir), attrs);
+        storageFileSystemProvider.createDirectory(unwrap(dir), attrs);
     }
 
     public void delete(Path path) throws IOException{
@@ -185,7 +185,7 @@ public abstract class RepositoryFileSystemProvider
         RepositoryPath repositoryPath = (RepositoryPath) path;
         if (!Files.exists(repositoryPath.getTarget()))
         {
-            throw new NoSuchFileException(getTargetPath(repositoryPath).toString());
+            throw new NoSuchFileException(unwrap(repositoryPath).toString());
         }
 
         if (!Files.isDirectory(repositoryPath))
@@ -211,7 +211,7 @@ public abstract class RepositoryFileSystemProvider
                                                           IOException exc)
                         throws IOException
                 {
-                    Files.delete(getTargetPath(dir));
+                    Files.delete(unwrap(dir));
                     return FileVisitResult.CONTINUE;
                 }
             });
@@ -231,7 +231,7 @@ public abstract class RepositoryFileSystemProvider
         {
             String extension = digestAlgorithm.replaceAll("-", "").toLowerCase();
             RepositoryPath checksumPath = repositoryPath.resolveSibling(repositoryPath.getFileName() + "." + extension);
-            if (Files.exists(getTargetPath(checksumPath)))
+            if (Files.exists(unwrap(checksumPath)))
             {
                 doDeletePath(checksumPath, force);
             }
@@ -295,9 +295,9 @@ public abstract class RepositoryFileSystemProvider
         RepositoryPath tempPath = getTempPath(path);
         if (Files.exists(tempPath.getTarget()))
         {
-            if (!Files.exists(getTargetPath(path).getParent()))
+            if (!Files.exists(unwrap(path).getParent()))
             {
-                Files.createDirectories(getTargetPath(path).getParent());
+                Files.createDirectories(unwrap(path).getParent());
             }
 
             Files.move(tempPath.getTarget(), path.getTarget(), StandardCopyOption.REPLACE_EXISTING);
@@ -384,7 +384,7 @@ public abstract class RepositoryFileSystemProvider
                                       OpenOption... options)
             throws IOException
     {
-        return super.newInputStream(getTargetPath(path), options);
+        return super.newInputStream(unwrap(path), options);
     }
 
     @Override
@@ -392,7 +392,7 @@ public abstract class RepositoryFileSystemProvider
                                         OpenOption... options)
             throws IOException
     {
-        return super.newOutputStream(getTargetPath(path), options);
+        return super.newOutputStream(unwrap(path), options);
     }
 
     public void copy(Path source,
@@ -400,7 +400,7 @@ public abstract class RepositoryFileSystemProvider
                      CopyOption... options)
             throws IOException
     {
-        storageFileSystemProvider.copy(getTargetPath(source), getTargetPath(target), options);
+        storageFileSystemProvider.copy(unwrap(source), unwrap(target), options);
     }
 
     public void move(Path source,
@@ -408,40 +408,40 @@ public abstract class RepositoryFileSystemProvider
                      CopyOption... options)
             throws IOException
     {
-        storageFileSystemProvider.move(getTargetPath(source), getTargetPath(target), options);
+        storageFileSystemProvider.move(unwrap(source), unwrap(target), options);
     }
 
     public boolean isSameFile(Path path,
                               Path path2)
             throws IOException
     {
-        return storageFileSystemProvider.isSameFile(getTargetPath(path), getTargetPath(path2));
+        return storageFileSystemProvider.isSameFile(unwrap(path), unwrap(path2));
     }
 
     public boolean isHidden(Path path)
             throws IOException
     {
-        return storageFileSystemProvider.isHidden(getTargetPath(path));
+        return storageFileSystemProvider.isHidden(unwrap(path));
     }
 
     public FileStore getFileStore(Path path)
             throws IOException
     {
-        return storageFileSystemProvider.getFileStore(getTargetPath(path));
+        return storageFileSystemProvider.getFileStore(unwrap(path));
     }
 
     public void checkAccess(Path path,
                             AccessMode... modes)
             throws IOException
     {
-        storageFileSystemProvider.checkAccess(getTargetPath(path), modes);
+        storageFileSystemProvider.checkAccess(unwrap(path), modes);
     }
 
     public <V extends FileAttributeView> V getFileAttributeView(Path path,
                                                                 Class<V> type,
                                                                 LinkOption... options)
     {
-        return storageFileSystemProvider.getFileAttributeView(getTargetPath(path), type, options);
+        return storageFileSystemProvider.getFileAttributeView(unwrap(path), type, options);
     }
 
     public <A extends BasicFileAttributes> A readAttributes(Path path,
@@ -449,7 +449,7 @@ public abstract class RepositoryFileSystemProvider
                                                             LinkOption... options)
         throws IOException
     {
-        A targetAttributes = storageFileSystemProvider.readAttributes(getTargetPath(path), type, options);
+        A targetAttributes = storageFileSystemProvider.readAttributes(unwrap(path), type, options);
         if (!(path instanceof RepositoryPath))
         {
             return targetAttributes;
@@ -484,7 +484,7 @@ public abstract class RepositoryFileSystemProvider
     {
         if (!(path instanceof RepositoryPath))
         {
-            return storageFileSystemProvider.readAttributes(getTargetPath(path), attributes, options);
+            return storageFileSystemProvider.readAttributes(unwrap(path), attributes, options);
         }
         //TODO: Make an implementation in accordance with the specification
         RepositoryPath repositoryPath = (RepositoryPath) path;
@@ -498,10 +498,10 @@ public abstract class RepositoryFileSystemProvider
                              LinkOption... options)
             throws IOException
     {
-        storageFileSystemProvider.setAttribute(getTargetPath(path), attribute, value, options);
+        storageFileSystemProvider.setAttribute(unwrap(path), attribute, value, options);
     }
 
-    private Path getTargetPath(Path path)
+    private Path unwrap(Path path)
     {
         return path instanceof RepositoryPath ? ((RepositoryPath) path).getTarget() : path;
     }

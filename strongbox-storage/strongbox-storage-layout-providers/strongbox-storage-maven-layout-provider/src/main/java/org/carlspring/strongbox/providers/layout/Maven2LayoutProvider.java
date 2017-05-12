@@ -206,7 +206,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         Repository repository = path.getFileSystem().getRepository();
         RepositoryFileAttributes a = (RepositoryFileAttributes) Files.readAttributes(path, BasicFileAttributes.class);
         
-        if (!repository.isIndexingEnabled() || a.getIsMetadata())
+        if (!repository.isIndexingEnabled() || a.isMetadata())
         {
             return;
         }
