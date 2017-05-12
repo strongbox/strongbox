@@ -17,7 +17,6 @@ public class RepositoryFileAttributes implements BasicFileAttributes
     public static final String TEMP = "temp";
     public static final String INDEX = "index";
     public static final String ARTIFACT = "artifact";
-    public static final String SERVICEFOLDER = "servicefolder";
     
     private BasicFileAttributes basicAttributes;
     private Map<String, Object> attributes = new HashMap<>();
@@ -116,9 +115,9 @@ public class RepositoryFileAttributes implements BasicFileAttributes
         return Boolean.TRUE.equals(attributes.get(ARTIFACT));
     }
 
-    protected void setMetedata(boolean isMetedata)
+    protected void setMetadata(boolean isMetadata)
     {
-        attributes.put(METEDATA, isMetedata);
+        attributes.put(METEDATA, isMetadata);
     }
 
     protected void setCoordinates(ArtifactCoordinates coordinates)
