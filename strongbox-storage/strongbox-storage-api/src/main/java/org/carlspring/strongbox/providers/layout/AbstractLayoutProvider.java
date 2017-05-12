@@ -602,10 +602,10 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         boolean isMetadata = isMetadata(repositoryRelativePath.toString());
         result.put(RepositoryFileAttributes.METEDATA, isMetadata);
 
-        Boolean isArtifact = !Files.isDirectory(repositoryRelativePath.getTarget()) && !isChecksum && !isIndex
-                && !isTemp && !isTrash && !isMetadata;
+        boolean isHidden = isTemp || isTrash || isMetadata;
+        Boolean isArtifact = !isChecksum && !isIndex && !isHidden;
         result.put(RepositoryFileAttributes.ARTIFACT, isArtifact);
-        if (isArtifact)
+        if (!Files.isDirectory(repositoryRelativePath.getTarget()) && isArtifact)
         {
             result.put(RepositoryFileAttributes.COORDINATES, getArtifactCoordinates(repositoryRelativePath.toString()));
         }
