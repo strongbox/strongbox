@@ -133,7 +133,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         }
         else
         {
-            is = storageProvider.getInputStreamImplementation(repositoryPath, path);
+            is = storageProvider.getInputStreamImplementation(repositoryPath);
         }
 
         logger.debug("Resolved " + path + "!");
@@ -186,7 +186,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         }
         else
         {
-            os = storageProvider.getOutputStreamImplementation(repositoryPath, path);
+            os = storageProvider.getOutputStreamImplementation(repositoryPath);
         }
        
         return decorateStream(path, os, artifactCoordinates);
@@ -601,7 +601,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         boolean isMetadata = isMetadata(repositoryRelativePath.toString());
         result.put(RepositoryFileAttributes.IS_METEDATA, isMetadata);
         
-        Boolean isArtifact = !Files.isDirectory(repositoryRelativePath) && !isChecksum && !isIndex && !isTemp && !isTrash && !isMetadata;
+        Boolean isArtifact = !Files.isDirectory(repositoryRelativePath.getTarget()) && !isChecksum && !isIndex && !isTemp && !isTrash && !isMetadata;
         result.put(RepositoryFileAttributes.IS_ARTIFACT, isArtifact);
         if (isArtifact)
         {

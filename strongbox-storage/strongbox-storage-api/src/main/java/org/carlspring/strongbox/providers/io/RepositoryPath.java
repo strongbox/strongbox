@@ -34,7 +34,12 @@ public class RepositoryPath
         this.fileSystem = fileSystem;
     }
 
-    protected Path getTarget()
+    /**
+     * Only for internal usage. Don't use this method if you not strongly sure that you need it.
+     * 
+     * @return
+     */
+    public Path getTarget()
     {
         return target;
     }
