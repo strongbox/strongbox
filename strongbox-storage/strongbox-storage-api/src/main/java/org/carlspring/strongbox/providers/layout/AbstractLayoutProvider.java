@@ -579,7 +579,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         boolean isTrash = repositoryRelativePath.startsWith(".trash");
         result.put(RepositoryFileAttributes.TRASH, isTrash);
         boolean isMetadata = isMetadata(repositoryRelativePath.toString());
-        result.put(RepositoryFileAttributes.METEDATA, isMetadata);
+        result.put(RepositoryFileAttributes.METADATA, isMetadata);
 
         boolean isHidden = isTemp || isTrash || isMetadata;
         Boolean isArtifact = !isChecksum && !isIndex && !isHidden;

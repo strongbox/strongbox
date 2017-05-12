@@ -11,7 +11,7 @@ public class RepositoryFileAttributes implements BasicFileAttributes
 {
 
     public static final String COORDINATES = "coordinates";
-    public static final String METEDATA = "metedata";
+    public static final String METADATA = "metadata";
     public static final String CHECKSUM = "checksum";
     public static final String TRASH = "trash";
     public static final String TEMP = "temp";
@@ -87,7 +87,7 @@ public class RepositoryFileAttributes implements BasicFileAttributes
 
     public boolean isMetadata()
     {
-        return Boolean.TRUE.equals(attributes.get(METEDATA));
+        return Boolean.TRUE.equals(attributes.get(METADATA));
     }
 
     public boolean isChecksum()
@@ -117,7 +117,7 @@ public class RepositoryFileAttributes implements BasicFileAttributes
 
     protected void setMetadata(boolean isMetadata)
     {
-        attributes.put(METEDATA, isMetadata);
+        attributes.put(METADATA, isMetadata);
     }
 
     protected void setCoordinates(ArtifactCoordinates coordinates)
