@@ -126,16 +126,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         
         T artifactCoordinates = (T) Files.getAttribute(repositoryPath, RepositoryFileAttributes.COORDINATES);
         
-        InputStream is;
-        if (artifactCoordinates != null)
-        {
-            is = storageProvider.getInputStreamImplementation(repositoryPath);
-        }
-        else
-        {
-            is = storageProvider.getInputStreamImplementation(repositoryPath);
-        }
-
+        InputStream is = storageProvider.getInputStreamImplementation(repositoryPath);
         logger.debug("Resolved " + path + "!");
 
         return decorateStream(storageId, repositoryId, path, is, artifactCoordinates);
@@ -143,8 +134,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
 
     protected StorageProvider getStorageProvider(Repository repository)
     {
-        StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
-        return storageProvider;
+        return storageProviderRegistry.getProvider(repository.getImplementation());
     }
 
     protected Repository getRepository(String storageId,
@@ -154,8 +144,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
 
         logger.debug("Checking in " + storage.getId() + ":" + repositoryId + "...");
 
-        Repository repository = storage.getRepository(repositoryId);
-        return repository;
+        return storage.getRepository(repositoryId);
     }
 
     @Override
@@ -179,16 +168,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         Files.createDirectories(repositoryPath.getParent());
         T artifactCoordinates = (T) Files.getAttribute(repositoryPath, RepositoryFileAttributes.COORDINATES);
         
-        OutputStream os;
-        if (artifactCoordinates != null)
-        {
-            os = storageProvider.getOutputStreamImplementation(repositoryPath);
-        }
-        else
-        {
-            os = storageProvider.getOutputStreamImplementation(repositoryPath);
-        }
-       
+        OutputStream os = storageProvider.getOutputStreamImplementation(repositoryPath);
         return decorateStream(path, os, artifactCoordinates);
     }
 
@@ -319,7 +299,6 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         throws IOException
     {
         RepositoryFileSystem repositoryFileSystem = getRepositoryFileSystem(repository);
-        RepositoryPath repositoryPath = repositoryFileSystem.getRootDirectory().resolve(coordinates.toPath());
         return repositoryFileSystem.getRootDirectory().resolve(coordinates.toPath());
     }
 
