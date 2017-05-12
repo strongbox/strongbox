@@ -83,7 +83,7 @@ public class ArtifactOutputStreamTest
         assertTrue("Failed to create temporary artifact file!", Files.exists(artifactPathTemp));
 
         afos.close();
-        provider.restoreFromTemp(artifactPath);
+        provider.moveFromTemporaryDirectory(artifactPath);
 
         assertTrue("Failed to the move temporary artifact file to original location!", Files.exists(artifactPath));
     }

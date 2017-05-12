@@ -6,6 +6,7 @@ import org.carlspring.strongbox.storage.Storage;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
 
 /**
@@ -18,6 +19,15 @@ public interface ArtifactManagementService extends ConfigurationService
                String repositoryId,
                String path,
                InputStream is)
+            throws IOException,
+                   ProviderImplementationException,
+                   NoSuchAlgorithmException;
+
+    void store(String storageId,
+               String repositoryId,
+               String path,
+               InputStream is,
+               OutputStream os)
             throws IOException,
                    ProviderImplementationException,
                    NoSuchAlgorithmException;

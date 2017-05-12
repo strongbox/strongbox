@@ -215,7 +215,7 @@ public class RepositoryFileSystemProvider
         }
     }
 
-    public void restoreFromTemp(RepositoryPath path)
+    public void moveFromTemporaryDirectory(RepositoryPath path)
             throws IOException
     {
         RepositoryPath tempPath = getTempPath(path);

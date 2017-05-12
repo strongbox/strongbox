@@ -100,6 +100,11 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
     @Override
     public MavenArtifactCoordinates getArtifactCoordinates(String path)
     {
+        if (!ArtifactUtils.isArtifact(path))
+        {
+            return null;
+        }
+
         MavenArtifactCoordinates coordinates;
         if (isMetadata(path))
         {

@@ -3,8 +3,10 @@ package org.carlspring.strongbox.providers.repository;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -28,7 +30,7 @@ import static org.junit.Assert.assertNotNull;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
-public class ProxyRepositoryProviderTest
+public class ProxyRepositoryProviderTest extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     @org.springframework.context.annotation.Configuration
@@ -67,11 +69,17 @@ public class ProxyRepositoryProviderTest
             throws ProviderImplementationException,
                    NoSuchAlgorithmException,
                    ArtifactTransportException,
-                   IOException
+                   IOException, SearchException
     {
         assertStreamNotNull("storage-common-proxies",
                             "maven-central",
                             "org/carlspring/maven/derby-maven-plugin/maven-metadata.xml");
+        assertStreamNotNull("storage-common-proxies",
+                            "maven-central",
+                            "org/carlspring/maven/derby-maven-plugin/maven-metadata.xml.md5");
+        assertStreamNotNull("storage-common-proxies",
+                            "maven-central",
+                            "org/carlspring/maven/derby-maven-plugin/maven-metadata.xml.sha1");
 
         assertStreamNotNull("storage-common-proxies",
                             "maven-central",
@@ -92,6 +100,10 @@ public class ProxyRepositoryProviderTest
         assertStreamNotNull("storage-common-proxies",
                             "maven-central",
                             "org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.pom.sha1");
+
+        assertIndexContainsArtifact("storage-common-proxies",
+                                    "maven-central",
+                                    "+g:org.carlspring.maven +a:derby-maven-plugin +v:1.10");
     }
 
     private void assertStreamNotNull(String storageId, String repositoryId, String path)

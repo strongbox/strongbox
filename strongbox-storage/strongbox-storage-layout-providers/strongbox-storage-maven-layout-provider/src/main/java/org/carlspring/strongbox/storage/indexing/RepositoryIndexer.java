@@ -90,11 +90,11 @@ public class RepositoryIndexer
     {
         try
         {
-            logger.debug("Adding artifact: {} to {}:{}...", artifact.getGroupId() + ":" +
-                                                            artifact.getArtifactId() + ":" +
-                                                            artifact.getVersion() + ":" +
-                                                            artifact.getType() + ":" +
-                                                            artifact.getClassifier(),
+            logger.debug("Adding artifact: {} to {}:{}:local...", artifact.getGroupId() + ":" +
+                                                                  artifact.getArtifactId() + ":" +
+                                                                  artifact.getVersion() + ":" +
+                                                                  artifact.getType() + ":" +
+                                                                  artifact.getClassifier(),
                          storageId,
                          repositoryId);
 

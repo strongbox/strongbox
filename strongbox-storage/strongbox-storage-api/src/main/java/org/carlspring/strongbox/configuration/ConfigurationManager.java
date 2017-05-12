@@ -61,10 +61,14 @@ public class ConfigurationManager
                 {
                     for (Repository repository : storage.getRepositories().values())
                     {
-                        if (repository.getType().equals(RepositoryTypeEnum.GROUP.getType()) ||
-                            repository.getType().equals(RepositoryTypeEnum.PROXY.getType()))
+                        if (repository.getType().equals(RepositoryTypeEnum.GROUP.getType()))
                         {
                             repository.setAllowsDelete(false);
+                            repository.setAllowsDeployment(false);
+                            repository.setAllowsRedeployment(false);
+                        }
+                        if (repository.getType().equals(RepositoryTypeEnum.PROXY.getType()))
+                        {
                             repository.setAllowsDeployment(false);
                             repository.setAllowsRedeployment(false);
                         }
