@@ -20,8 +20,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertNotNull;
 
@@ -29,23 +27,8 @@ import static org.junit.Assert.assertNotNull;
  * @author carlspring
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration
 public class ProxyRepositoryProviderTest extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
-
-    @org.springframework.context.annotation.Configuration
-    @ComponentScan(basePackages = { "org.carlspring.strongbox.artifact",
-                                    "org.carlspring.strongbox.configuration",
-                                    "org.carlspring.strongbox.io",
-                                    "org.carlspring.strongbox.providers",
-                                    "org.carlspring.strongbox.repository",
-                                    "org.carlspring.strongbox.services",
-                                    "org.carlspring.strongbox.storage",
-                                    "org.carlspring.strongbox.xml" })
-    public static class SpringConfig
-    {
-
-    }
 
     @Inject
     private ArtifactResolutionService artifactResolutionService;
