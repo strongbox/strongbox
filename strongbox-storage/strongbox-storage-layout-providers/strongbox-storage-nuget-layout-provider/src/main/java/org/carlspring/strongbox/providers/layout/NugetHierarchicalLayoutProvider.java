@@ -8,6 +8,8 @@ import org.carlspring.strongbox.io.filters.NuspecFilenameFilter;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
 import org.carlspring.strongbox.repository.NugetRepositoryManagementStrategy;
+import org.carlspring.strongbox.services.ArtifactManagementService;
+import org.carlspring.strongbox.services.impl.NugetArtifactManagementService;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.annotation.PostConstruct;
@@ -56,6 +58,9 @@ public class NugetHierarchicalLayoutProvider
 
     @Inject
     private NugetRepositoryManagementStrategy nugetRepositoryManagementStrategy;
+
+    @Inject
+    private NugetArtifactManagementService nugetArtifactManagementService;
 
 
     @Override
@@ -210,6 +215,12 @@ public class NugetHierarchicalLayoutProvider
     public NugetRepositoryManagementStrategy getRepositoryManagementStrategy()
     {
         return nugetRepositoryManagementStrategy;
+    }
+
+    @Override
+    public ArtifactManagementService getArtifactManagementService()
+    {
+        return nugetArtifactManagementService;
     }
 
 }
