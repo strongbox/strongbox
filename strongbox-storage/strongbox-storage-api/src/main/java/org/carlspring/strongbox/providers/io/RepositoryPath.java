@@ -137,10 +137,10 @@ public class RepositoryPath
         return wrap(getTarget().resolveSibling(other));
     }
 
-    public Path relativize(Path other)
+    public RepositoryPath relativize(Path other)
     {
         other = unwrap(other);
-        return getTarget().relativize(other);
+        return wrap(getTarget().relativize(other));
     }
     
     public RepositoryPath getRepositoryRelative()

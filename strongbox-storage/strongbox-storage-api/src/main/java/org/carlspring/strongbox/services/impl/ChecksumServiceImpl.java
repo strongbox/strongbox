@@ -1,19 +1,19 @@
 package org.carlspring.strongbox.services.impl;
 
+import java.io.IOException;
+
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.artifact.locator.handlers.ArtifactLocationGenerateChecksumOperation;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.providers.storage.StorageProvider;
-import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.services.ChecksumService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.inject.Inject;
-import java.io.IOException;
 import org.springframework.stereotype.Component;
 
 /**
@@ -28,8 +28,6 @@ public class ChecksumServiceImpl
     private ConfigurationManager configurationManager;
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
-    @Inject
-    private StorageProviderRegistry storageProviderRegistryl;
 
     @Override
     public void regenerateChecksum(String storageId,
@@ -41,11 +39,10 @@ public class ChecksumServiceImpl
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
         
-        StorageProvider storageProvider = storageProviderRegistryl.getProvider(repository.getImplementation());
-        RepositoryPath repositoryBasePath = storageProvider.resolve(repository, basePath);
+        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        RepositoryPath repositoryBasePath = layoutProvider.resolve(repository, basePath);
         
-        ArtifactLocationGenerateChecksumOperation operation = new ArtifactLocationGenerateChecksumOperation(
-                layoutProviderRegistry);
+        ArtifactLocationGenerateChecksumOperation operation = new ArtifactLocationGenerateChecksumOperation();
         operation.setStorage(storage);
         operation.setBasePath(repositoryBasePath);
         operation.setForceRegeneration(forceRegeneration);

@@ -1,8 +1,6 @@
 package org.carlspring.strongbox.providers.storage;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -15,8 +13,6 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.carlspring.commons.io.reloading.FSReloadableInputStreamHandler;
-import org.carlspring.strongbox.io.ByteRangeInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -48,61 +44,6 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
         storageProviderRegistry.addProvider(getAlias(), this);
 
         logger.info("Registered storage provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
-    }
-
-    @Override
-    public OutputStream getOutputStreamImplementation(Path artifactPath)
-        throws IOException,
-        NoSuchAlgorithmException
-    {
-        return Files.newOutputStream(artifactPath);
-    }
-
-    @Override
-    public OutputStream getOutputStreamImplementation(Path repositoryPath,
-                                                      String path)
-        throws IOException
-    {
-        return Files.newOutputStream(repositoryPath.resolve(path));
-    }
-
-    @Override
-    public InputStream getInputStreamImplementation(Path repositoryPath,
-                                                    String path)
-        throws IOException,
-        NoSuchAlgorithmException
-    {
-        Path artifactPath = repositoryPath.resolve(path);
-        if (!Files.exists(artifactPath) || Files.isDirectory(artifactPath))
-        {
-            throw new FileNotFoundException(artifactPath.toString());
-        }
-
-        return getInputStream(artifactPath);
-    }
-
-    @Override
-    public InputStream getInputStreamImplementation(Path artifactPath)
-        throws IOException,
-        NoSuchAlgorithmException
-    {
-        if (!Files.exists(artifactPath))
-        {
-            throw new FileNotFoundException(artifactPath.toString());
-        }
-
-        return getInputStream(artifactPath);
-    }
-
-    private InputStream getInputStream(Path artifactPath)
-        throws IOException,
-        NoSuchAlgorithmException
-    {
-        ByteRangeInputStream bris = new ByteRangeInputStream(Files.newInputStream(artifactPath));
-        bris.setReloadableInputStreamHandler(new FSReloadableInputStreamHandler(artifactPath.toFile()));
-        bris.setLength(Files.size(artifactPath));
-
-        return bris;
     }
 
     @Override

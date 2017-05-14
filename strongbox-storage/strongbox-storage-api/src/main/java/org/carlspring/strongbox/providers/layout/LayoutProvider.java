@@ -34,14 +34,6 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
 
     T getArtifactCoordinates(String path);
 
-    ArtifactInputStream getInputStream(String storageId, String repositoryId, String path)
-            throws IOException, NoSuchAlgorithmException, ArtifactTransportException;
-
-    ArtifactOutputStream getOutputStream(String storageId,
-                                         String repositoryId,
-                                         String path)
-            throws IOException, NoSuchAlgorithmException;
-
     RepositoryPath resolve(Repository repository,
                          ArtifactCoordinates coordinates)
         throws IOException;
@@ -101,9 +93,6 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
     void undeleteTrash()
             throws IOException;
 
-    boolean isExistChecksum(Repository repository,
-                            String path);
-
     Set<String> getDigestAlgorithmSet();
 
     void rebuildMetadata(String storageId,
@@ -118,17 +107,6 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
                         String basePath,
                         boolean forceRegeneration)
             throws IOException;
-
-    void regenerateChecksums(Repository repository,
-                             List<String> versionDirectories,
-                             boolean forceRegeneration)
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   ProviderImplementationException,
-                   UnknownRepositoryTypeException,
-                   ArtifactTransportException;
-
-    FilenameFilter getMetadataFilenameFilter();
 
     RepositoryFeatures getRepositoryFeatures();
 

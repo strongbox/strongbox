@@ -284,7 +284,7 @@ public abstract class RepositoryFileSystemProvider
         else
         {
             Files.walkFileTree(trashPath.getTarget(),
-                               new MoveDirVisitor(trashPath.getTarget(),
+                               new MoveDirectoryVisitor(trashPath.getTarget(),
                                                   path.getTarget(),
                                                   StandardCopyOption.REPLACE_EXISTING));
         }
@@ -464,8 +464,7 @@ public abstract class RepositoryFileSystemProvider
     }
 
     protected abstract Map<String,Object> getRepositoryFileAttributes(RepositoryPath repositoryRelativePath);
-
-
+    
     public boolean isChecksum(RepositoryPath path)
     {
         for (String e : path.getFileSystem().getDigestAlgorithmSet())
@@ -507,7 +506,7 @@ public abstract class RepositoryFileSystemProvider
         return path instanceof RepositoryPath ? ((RepositoryPath) path).getTarget() : path;
     }
 
-    public static class MoveDirVisitor
+    public static class MoveDirectoryVisitor
             extends SimpleFileVisitor<Path>
     {
 
@@ -515,7 +514,7 @@ public abstract class RepositoryFileSystemProvider
         private final Path toPath;
         private final CopyOption copyOption;
 
-        public MoveDirVisitor(Path fromPath,
+        public MoveDirectoryVisitor(Path fromPath,
                               Path toPath,
                               CopyOption copyOption)
         {

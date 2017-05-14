@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.services.impl;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -10,7 +9,6 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.io.ArtifactPath;
 import org.carlspring.strongbox.locator.handlers.MavenIndexerManagementOperation;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
@@ -41,8 +39,6 @@ public class ArtifactIndexesServiceImpl
     @Inject
     private RepositoryIndexManager repositoryIndexManager;
     @Inject
-    private RepositoryManagementService repositoryManagementService;
-    @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
     @Inject
     private StorageProviderRegistry storageProviderRegistry;
@@ -60,7 +56,7 @@ public class ArtifactIndexesServiceImpl
         StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
         
         ArtifactCoordinates artifactCoordinates = layoutProvider.getArtifactCoordinates(artifactPath);
-        ArtifactPath repositoryArtifactPath = storageProvider.resolve(repository, artifactCoordinates);
+        RepositoryPath repositoryArtifactPath = layoutProvider.resolve(repository, artifactCoordinates);
         
         artifactPath = artifactPath == null ? "/" : artifactPath;
 
@@ -68,13 +64,11 @@ public class ArtifactIndexesServiceImpl
         {
             return;
         }
-        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         RepositoryPath repostitoryPath = layoutProvider.resolve(repository, artifactPath);
         
         MavenIndexerManagementOperation operation = new MavenIndexerManagementOperation(repositoryIndexManager);
 
         operation.setStorage(storage);
-        operation.setRepository(repository);
         //noinspection ConstantConditions
         operation.setBasePath(repositoryArtifactPath);
 

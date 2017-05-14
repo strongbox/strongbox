@@ -15,7 +15,19 @@ import javax.inject.Inject;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.index.ArtifactInfo;
-import org.carlspring.maven.commons.io.filters.PomFilenameFilter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.index.ArtifactInfo;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
@@ -32,7 +44,6 @@ import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.services.impl.MavenArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.checksum.MavenChecksumManager;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
@@ -40,7 +51,6 @@ import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.storage.search.SearchResults;
@@ -67,9 +77,6 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
 
     @Inject
     private MavenArtifactManagementService mavenArtifactManagementService;
-
-    @Inject
-    private MavenChecksumManager mavenChecksumManager;
 
     @Inject
     private ArtifactMetadataService artifactMetadataService;
@@ -361,55 +368,6 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
     }
 
     @Override
-    public void regenerateChecksums(Repository repository,
-                                    List<String> versionDirectories,
-                                    boolean forceRegeneration)
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   ProviderImplementationException,
-                   UnknownRepositoryTypeException,
-                   ArtifactTransportException
-    {
-        /**
-         * In the repository we need to generate checksum for files in the artifactBasePath and
-         * for each version directory.
-         */
-        if (!versionDirectories.isEmpty())
-        {
-            RepositoryPath basePath = resolve(repository, versionDirectories.get(0)).getParent();
-
-            logger.debug("Artifact checksum generation triggered for " + basePath + " in '" +
-                         repository.getStorage().getId() + ":" + repository.getId() + "'" +
-                         " [policy: " + repository.getPolicy() + "].");
-
-            versionDirectories.forEach(path ->
-                                       {
-                                           try
-                                           {
-                                               storeChecksum(repository,
-                                                             resolve(repository, path),
-                                                             forceRegeneration);
-                                           }
-                                           catch (IOException |
-                                                  NoSuchAlgorithmException |
-                                                  ArtifactTransportException |
-                                                  ProviderImplementationException e)
-                                           {
-                                               logger.error(e.getMessage(), e);
-                                           }
-
-                                           logger.debug("Generated Maven checksum for " + path + ".");
-                                       });
-
-            storeChecksum(repository, basePath, forceRegeneration);
-        }
-        else
-        {
-            logger.error("Artifact checksum generation failed.");
-        }
-    }
-
-    @Override
     public void undelete(String storageId,
                          String repositoryId,
                          String path)
@@ -428,12 +386,6 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         super.undeleteTrash(storageId, repositoryId);
 
         artifactIndexesService.rebuildIndex(storageId, repositoryId, "/");
-    }
-
-    @Override
-    public FilenameFilter getMetadataFilenameFilter()
-    {
-        return new PomFilenameFilter();
     }
 
     @Override

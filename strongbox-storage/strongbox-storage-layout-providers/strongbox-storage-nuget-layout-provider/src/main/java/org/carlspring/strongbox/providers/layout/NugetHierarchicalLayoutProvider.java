@@ -17,14 +17,26 @@ import javax.inject.Inject;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.spi.FileSystemProvider;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.NugetHierarchicalArtifactCoordinates;
+import org.carlspring.strongbox.io.ArtifactOutputStream;
+import org.carlspring.strongbox.io.filters.NuspecFilenameFilter;
+import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
+import org.carlspring.strongbox.repository.NugetRepositoryManagementStrategy;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,17 +111,6 @@ public class NugetHierarchicalLayoutProvider
 
     }
 
-    @Override
-    protected ArtifactOutputStream decorateStream(String path,
-                                                  OutputStream os,
-                                                  NugetHierarchicalArtifactCoordinates c)
-            throws NoSuchAlgorithmException
-    {
-        ArtifactOutputStream result = super.decorateStream(path, os, c);
-        result.setDigestStringifier(this::toBase64);
-        return result;
-    }
-
     private String toBase64(byte[] digest)
     {
         byte[] encoded = Base64.getEncoder()
@@ -146,52 +147,6 @@ public class NugetHierarchicalLayoutProvider
     }
 
     @Override
-    public void regenerateChecksums(Repository repository,
-                                    List<String> versionDirectories,
-                                    boolean forceRegeneration)
-            throws IOException
-    {
-
-        if (!versionDirectories.isEmpty())
-            {
-                RepositoryPath basePath = resolve(repository, versionDirectories.get(0)).getParent();
-
-                logger.debug("Artifact checksum generation triggered for " + basePath + " in '" +
-                             repository.getStorage()
-                                       .getId() + ":" +
-                             repository.getId() + "'" + " [policy: " + repository.getPolicy() + "].");
-
-                versionDirectories.forEach(path ->
-                                           {
-                                               try
-                                               {
-                                                   storeChecksum(repository, resolve(repository, path),
-                                                                 forceRegeneration);
-                                               }
-                                               catch (IOException |
-                                                              NoSuchAlgorithmException |
-                                                              ArtifactTransportException |
-                                                              ProviderImplementationException e)
-                                               {
-                                                   logger.error(e.getMessage(), e);
-                                               }
-
-                                               logger.debug("Generated Nuget checksum for " + path + ".");
-                                           });
-            }
-        else
-        {
-            logger.error("Artifact checksum generation failed.");
-        }
-    }
-
-    @Override
-    public FilenameFilter getMetadataFilenameFilter()
-    {
-        return new NuspecFilenameFilter();
-    }
-
-    @Override
     public NugetRepositoryFeatures getRepositoryFeatures()
     {
         return nugetRepositoryFeatures;
@@ -203,6 +158,35 @@ public class NugetHierarchicalLayoutProvider
         return nugetRepositoryManagementStrategy;
     }
 
+    @Override
+    public RepositoryFileSystemProvider getProvider(Repository repository)
+    {
+        FileSystemProvider storageFileSystemProvider = getStorageProvider(repository).getFileSystemProvider();
+        RepositoryLayoutFileSystemProvider repositoryFileSystemProvider = new NugetRepositoryLayoutFileSystemProvider(
+                storageFileSystemProvider);
+        return repositoryFileSystemProvider;
+    }
+
+    public class NugetRepositoryLayoutFileSystemProvider extends RepositoryLayoutFileSystemProvider {
+
+        public NugetRepositoryLayoutFileSystemProvider(FileSystemProvider storageFileSystemProvider)
+        {
+            super(storageFileSystemProvider, NugetHierarchicalLayoutProvider.this);
+        }
+
+        @Override
+        protected ArtifactOutputStream decorateStream(RepositoryPath path,
+                                                      OutputStream os,
+                                                      ArtifactCoordinates artifactCoordinates)
+            throws NoSuchAlgorithmException,
+            IOException
+        {
+            ArtifactOutputStream result = super.decorateStream(path, os, artifactCoordinates);
+            result.setDigestStringifier(NugetHierarchicalLayoutProvider.this::toBase64);
+            return result;
+        }
+        
+    }
     @Override
     public ArtifactManagementService getArtifactManagementService()
     {

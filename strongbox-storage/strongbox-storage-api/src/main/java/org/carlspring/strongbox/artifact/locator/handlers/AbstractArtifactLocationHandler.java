@@ -1,20 +1,21 @@
 package org.carlspring.strongbox.artifact.locator.handlers;
 
-import java.io.File;
-import java.io.FilenameFilter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
+import java.util.TreeSet;
 
-import org.carlspring.strongbox.io.RepositoryFileSystem;
-import org.carlspring.strongbox.io.RepositoryPath;
-import org.carlspring.strongbox.io.filters.ArtifactVersionDirectoryFilter;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
+import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author mtodorov
@@ -23,9 +24,9 @@ import org.carlspring.strongbox.storage.repository.Repository;
 public abstract class AbstractArtifactLocationHandler
         implements ArtifactDirectoryOperation
 {
-
+    private static final Logger logger = LoggerFactory.getLogger(AbstractArtifactLocationHandler.class);
+    
     private Storage storage;
-    private FilenameFilter filter;
     private LinkedHashMap<RepositoryPath, List<RepositoryPath>> visitedRootPaths = new LinkedHashMap<>();
     private RepositoryFileSystem repositoryFileSystem;
 
@@ -41,25 +42,31 @@ public abstract class AbstractArtifactLocationHandler
     }
 
     public List<RepositoryPath> getVersionDirectories(RepositoryPath basePath)
+        throws IOException
     {
-        List<Path> filePathList = Files.walk(basePath)
-                                       .filter(p -> !p.getFileName().startsWith(".pom"))
-                                       .sorted()
-                                       .collect(Collectors.toList());
-        
-        File basedir = basePath.toFile();
-        File[] versionDirectories = basedir.listFiles(new ArtifactVersionDirectoryFilter(filter));
+        Set<RepositoryPath> versionDirectorySet = new TreeSet<>();
+        Files.walk(basePath)
+             .peek(p -> {
+                 if (isMetadata(p))
+                 {
+                     versionDirectorySet.add((RepositoryPath) p.getParent());
+                 }
+             });
+        return new ArrayList<>(versionDirectorySet);
+    }
 
-        if (versionDirectories == null)
+    protected boolean isMetadata(Path p)
+    {
+        try
         {
-            return null;
+            return Boolean.TRUE.equals(Files.getAttribute(p,
+                                                      RepositoryFileAttributes.METADATA));
         }
-        
-        List<File> directories = Arrays.asList(versionDirectories);
-
-        Collections.sort(directories);
-
-        return directories;
+        catch (IOException e)
+        {
+            logger.error(String.format("Failed to read Path attributes for [%s]", p), e);
+            return false;
+        }
     }
 
     @Override
@@ -88,16 +95,6 @@ public abstract class AbstractArtifactLocationHandler
     public void setBasePath(RepositoryPath basePath)
     {
         this.basePath = basePath;
-    }
-
-    public FilenameFilter getFilenameFilter()
-    {
-        return filter;
-    }
-
-    public void setFilenameFilter(FilenameFilter filter)
-    {
-        this.filter = filter;
     }
 
     public RepositoryFileSystem getFileSystem()

@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-import org.carlspring.strongbox.io.RepositoryPath;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.metadata.VersionCollectionRequest;
 import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;

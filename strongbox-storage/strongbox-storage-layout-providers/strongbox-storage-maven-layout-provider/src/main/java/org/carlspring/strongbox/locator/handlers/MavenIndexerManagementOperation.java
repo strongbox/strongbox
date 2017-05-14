@@ -8,17 +8,11 @@ import java.util.List;
 
 import org.carlspring.maven.commons.DetachedArtifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.metadata.VersionCollectionRequest;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.regex.Pattern;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,14 +84,10 @@ public class MavenIndexerManagementOperation
 //            String artifactId = artifactCoordinateElements[artifactCoordinateElements.length - 2];
 //            String version = artifactCoordinateElements[artifactCoordinateElements.length - 1];
 
-                String[] artifactCoordinateElements = artifactVersionDirectoryRelative.split(
-                        Pattern.quote(String.valueOf(File.separatorChar)));
-                StringBuilder groupId = new StringBuilder();
-                for (int i = 0; i < artifactCoordinateElements.length - 2; i++)
-                {
-                    String element = artifactCoordinateElements[i];
-                    groupId.append((groupId.length() == 0) ? element : "." + element);
-                }
+
+            DetachedArtifact artifact = (DetachedArtifact) ArtifactUtils.getArtifactFromGAVTC(groupId + ":" +
+                    artifactId + ":" +
+                    version);
 
             // TODO: @Sergey:
             // TODO: Could you please replace this with a fully Path-based implementation?
@@ -110,26 +100,13 @@ public class MavenIndexerManagementOperation
 
                      artifact.setFile(f.toFile());
 
-                // TODO: @Sergey:
-                // TODO: Could you please replace this with a fully Path-based implementation?
-                File[] artifactFiles = versionDirectory.listFiles(new ArtifactFilenameFilter());
-                if (artifactFiles != null)
-                {
-                    for (File artifactFile : artifactFiles)
-                    {
-                        String extension = artifactFile.getName()
-                                                       .substring(artifactFile.getName()
-                                                                              .lastIndexOf('.') + 1,
-                                                                  artifactFile.getName()
-                                                                              .length());
-
                      try
                      {
                          indexer.addArtifactToIndex(repositoryId, f.toFile(), artifact);
                      }
                      catch (IOException e)
                      {
-                         logger.error("Failed to add artifact to index " + artifactPath + "!", e);
+                         logger.error(String.format("Failed to add artifact to index for [%s]", f));
                      }
                  });
 

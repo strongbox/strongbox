@@ -2,7 +2,13 @@ package org.carlspring.strongbox.storage.repository.artifact.locator;
 
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.artifact.locator.handlers.ArtifactLocationReportOperation;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithRepository;
 
 import java.io.ByteArrayOutputStream;
@@ -11,6 +17,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.regex.Matcher;
+
+import javax.inject.Inject;
 
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.After;
@@ -34,7 +42,11 @@ public class ArtifactDirectoryLocatorTest
     private static PrintStream tempSysOut;
 
     private boolean INITIALIZED;
-
+    
+    @Inject
+    private LayoutProviderRegistry layoutProviderRegistry;
+    @Inject
+    private StorageProviderRegistry storageProviderRegistry;
 
     @Before
     public void setUp()
@@ -156,8 +168,13 @@ public class ArtifactDirectoryLocatorTest
     public void testLocateDirectories()
             throws IOException
     {
+        Storage storage = storageProviderRegistry.getStorage(STORAGE0);
+        Repository repository = storage.getRepository("releases");
+        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        RepositoryPath repositoryPath = layoutProvider.resolve(repository);
+        
         ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
-        locator.setBasedir(REPOSITORY_BASEDIR.getAbsolutePath());
+        locator.setBasedir(repositoryPath);
         locator.setOperation(new ArtifactLocationReportOperation());
         locator.locateArtifactDirectories();
 
@@ -179,9 +196,14 @@ public class ArtifactDirectoryLocatorTest
     public void testLocateDirectoriesWithBasePath()
             throws IOException
     {
+        Storage storage = storageProviderRegistry.getStorage(STORAGE0);
+        Repository repository = storage.getRepository("releases");
+        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        RepositoryPath repositoryPath = layoutProvider.resolve(repository);
+        
         ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
-        locator.setBasedir(REPOSITORY_BASEDIR.getAbsolutePath());
-        locator.setOperation(new ArtifactLocationReportOperation("org/carlspring"));
+        locator.setBasedir(repositoryPath);
+        locator.setOperation(new ArtifactLocationReportOperation(repositoryPath.resolve("org/carlspring").getRepositoryRelative()));
         locator.locateArtifactDirectories();
 
         os.flush();

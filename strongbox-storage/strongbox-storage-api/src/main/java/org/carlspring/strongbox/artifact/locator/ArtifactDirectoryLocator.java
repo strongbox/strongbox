@@ -5,7 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.carlspring.strongbox.artifact.locator.handlers.ArtifactDirectoryOperation;
-import org.carlspring.strongbox.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,7 +79,15 @@ public class ArtifactDirectoryLocator
         this.basedir = basedir;
     }
 
-    void execute(Path path) {
-        operation.execute((RepositoryPath) path);
+    void execute(Path path)
+    {
+        try
+        {
+            operation.execute((RepositoryPath) path);
+        }
+        catch (IOException e)
+        {
+            logger.error(String.format("Failed to execute operation [%s]", operation.getClass().getSimpleName()), e);
+        }
     }
 }

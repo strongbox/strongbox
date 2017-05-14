@@ -1,21 +1,15 @@
 package org.carlspring.strongbox.locator.handlers;
 
-import org.carlspring.maven.commons.io.filters.PomFilenameFilter;
-import org.carlspring.strongbox.artifact.locator.handlers.AbstractArtifactLocationHandler;
-import org.carlspring.strongbox.io.RepositoryPath;
-import org.carlspring.strongbox.storage.metadata.VersionCollectionRequest;
-import org.carlspring.strongbox.storage.metadata.VersionCollector;
-
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.carlspring.strongbox.artifact.locator.handlers.AbstractArtifactLocationHandler;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.storage.metadata.VersionCollectionRequest;
+import org.carlspring.strongbox.storage.metadata.VersionCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
