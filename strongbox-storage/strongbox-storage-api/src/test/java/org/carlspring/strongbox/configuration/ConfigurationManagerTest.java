@@ -42,13 +42,15 @@ public class ConfigurationManagerTest
 {
 
     @org.springframework.context.annotation.Configuration
-    @Import({
-                    StorageCoreConfig.class,
-                    CommonConfig.class,
-                    ClientConfig.class,
-                    DataServiceConfig.class
-    })
-    public static class SpringConfig { }
+    @Import({ StorageCoreConfig.class,
+              CommonConfig.class,
+              ClientConfig.class,
+              DataServiceConfig.class
+            })
+    public static class SpringConfig
+    {
+
+    }
 
     public static final String TEST_CLASSES = "target/test-classes";
 
@@ -99,9 +101,15 @@ public class ConfigurationManagerTest
         assertEquals("Incorrect version!", "1.0", configuration.getVersion());
         assertEquals("Incorrect port number!", 48080, configuration.getPort());
         assertTrue("Repository should have required authentication!",
-                   configuration.getStorages().get("storage0").getRepositories().get("snapshots").isSecured());
+                   configuration.getStorages()
+                                .get("storage0")
+                                .getRepositories()
+                                .get("snapshots").isSecured());
 
-        assertTrue(configuration.getStorages().get("storage0").getRepositories().get("releases").allowsDirectoryBrowsing());
+        assertTrue(configuration.getStorages()
+                                .get("storage0")
+                                .getRepositories()
+                                .get("releases").allowsDirectoryBrowsing());
     }
 
     @Test

@@ -8,7 +8,7 @@ import org.carlspring.strongbox.config.StorageCoreConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.resource.ResourceCloser;
-import org.carlspring.strongbox.services.impl.MavenArtifactManagementServiceImpl;
+import org.carlspring.strongbox.services.impl.MavenArtifactManagementService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -68,7 +68,7 @@ public class ArtifactManagementServiceImplTest
     private DateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
 
     @Inject
-    private MavenArtifactManagementServiceImpl mavenArtifactManagementService;
+    private MavenArtifactManagementService mavenArtifactManagementService;
 
     @Inject
     private ArtifactMetadataService artifactMetadataService;

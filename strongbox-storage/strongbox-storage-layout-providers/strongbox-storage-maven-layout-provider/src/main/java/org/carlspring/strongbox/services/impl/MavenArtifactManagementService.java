@@ -56,11 +56,11 @@ import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
  * @author mtodorov
  */
 @Component("mavenArtifactManagementService")
-public class MavenArtifactManagementServiceImpl
+public class MavenArtifactManagementService
     implements ArtifactManagementService
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(MavenArtifactManagementServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(MavenArtifactManagementService.class);
 
     @Inject
     private ArtifactResolutionService artifactResolutionService;

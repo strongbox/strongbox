@@ -57,8 +57,7 @@ public class StorageApiConfig
     public void init()
     {
         // register all domain entities
-        entityManager.registerEntityClasses(ArtifactEntry.class.getPackage()
-                                                               .getName());
+        entityManager.registerEntityClasses(ArtifactEntry.class.getPackage().getName());
     }
 
     @Bean(name = "checksumCacheManager")

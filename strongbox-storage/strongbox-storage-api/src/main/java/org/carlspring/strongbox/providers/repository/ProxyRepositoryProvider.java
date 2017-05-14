@@ -15,7 +15,6 @@ import org.carlspring.strongbox.providers.storage.StorageProvider;
 import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
-import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -54,9 +53,6 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
 
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
-
-    @Inject
-    protected ArtifactManagementService artifactManagementService;
 
 
     @PostConstruct
@@ -130,17 +126,12 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
                 return null;
             }
 
-            InputStream remoteIs = null;
-            OutputStream os = null;
-            try
+            RepositoryPath tempArtifact = fileSystemProvider.getTempPath(artifactPath);
+            try (InputStream remoteIs = new MultipleDigestInputStream(is);
+                 // Wrap the InputStream, so we could have checksums to compare
+                 OutputStream os = fileSystemProvider.newOutputStream(tempArtifact))
             {
-                RepositoryPath tempArtifact = fileSystemProvider.getTempPath(artifactPath);
-
-                // Wrap the InputStream, so we could have checksums to compare
-                remoteIs = new MultipleDigestInputStream(is);
-                os = fileSystemProvider.newOutputStream(tempArtifact);
-
-                artifactManagementService.store(storageId, repositoryId, path, remoteIs, os);
+                layoutProvider.getArtifactManagementService().store(storageId, repositoryId, path, remoteIs, os);
 
                 // TODO: Add a policy for validating the checksums of downloaded artifacts
                 // TODO: Validate the local checksum against the remote's checksums
@@ -148,12 +139,6 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
 
                 // Serve the downloaded artifact
                 return new ArtifactInputStream(null, layoutProvider.getInputStream(storageId, repositoryId, path));
-            }
-            finally
-            {
-                ResourceCloser.close(remoteIs, logger);
-                ResourceCloser.close(is, logger);
-                ResourceCloser.close(os, logger);
             }
         }
     }
