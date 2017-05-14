@@ -83,16 +83,6 @@ public class ProxyRepositoryProviderTest extends TestCaseWithMavenArtifactGenera
 
         assertStreamNotNull("storage-common-proxies",
                             "maven-central",
-                            "org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.jar");
-        assertStreamNotNull("storage-common-proxies",
-                            "maven-central",
-                            "org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.jar.md5");
-        assertStreamNotNull("storage-common-proxies",
-                            "maven-central",
-                            "org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.jar.sha1");
-
-        assertStreamNotNull("storage-common-proxies",
-                            "maven-central",
                             "org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.pom");
         assertStreamNotNull("storage-common-proxies",
                             "maven-central",
@@ -100,6 +90,16 @@ public class ProxyRepositoryProviderTest extends TestCaseWithMavenArtifactGenera
         assertStreamNotNull("storage-common-proxies",
                             "maven-central",
                             "org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.pom.sha1");
+
+        assertStreamNotNull("storage-common-proxies",
+                            "maven-central",
+                            "org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.jar");
+        assertStreamNotNull("storage-common-proxies",
+                            "maven-central",
+                            "org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.jar.md5");
+        assertStreamNotNull("storage-common-proxies",
+                            "maven-central",
+                            "org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.jar.sha1");
 
         assertIndexContainsArtifact("storage-common-proxies",
                                     "maven-central",
