@@ -99,7 +99,7 @@ public abstract class AbstractArtifactLocationHandler
 
     public RepositoryFileSystem getFileSystem()
     {
-        return repositoryFileSystem;
+        return repositoryFileSystem == null ? getBasePath().getFileSystem() : repositoryFileSystem;
     }
 
     public void setFileSystem(RepositoryFileSystem repositoryFileSystem)

@@ -115,7 +115,7 @@ public class RemoveTimestampedSnapshotOperation
                 }
             }
             
-            RepositoryPath artifactPath = path.relativize(getFileSystem().getRootDirectory());
+            RepositoryPath artifactPath = path.getRepositoryRelative();
 
 //            String artifactPath = parentPath.substring(getRepository().getBasedir()
 //                                                                      .length() + 1, parentPath.length());
