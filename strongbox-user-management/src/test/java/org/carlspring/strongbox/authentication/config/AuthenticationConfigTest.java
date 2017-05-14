@@ -56,13 +56,6 @@ public class AuthenticationConfigTest
     }
 
     @Test
-    public void applicationContextShouldContainStrongboxBuiltinAuthenticatorBean()
-    {
-        assertNotNull(applicationContext.getBean(DefaultAuthenticator.class));
-    }
-
-
-    @Test
     public void registryShouldContainEmptyAuthenticator()
     {
         assertThat(Lists.newArrayList(authenticatorsRegistry),
@@ -74,12 +67,6 @@ public class AuthenticationConfigTest
                            return ((Authenticator) o).getName().equals("EmptyAuthenticator");
                        }
                    }));
-    }
-
-    @Test
-    public void applicationContextShouldContainEmptyAuthenticatorBean()
-    {
-        assertNotNull(applicationContext.getBean("emptyAuthenticator"));
     }
 
 }

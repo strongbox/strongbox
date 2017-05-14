@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.authentication.registry;
 
 import org.carlspring.strongbox.authentication.api.Authenticator;
-import org.carlspring.strongbox.authentication.registry.support.xml.out.AuthenticatorsAdapter;
+import org.carlspring.strongbox.authentication.registry.support.xml.AuthenticatorsAdapter;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -49,9 +49,9 @@ public class AuthenticatorsRegistry
         return array;
     }
 
-    private void setArray(Authenticator[] a)
+    private void setArray(Authenticator[] elements)
     {
-        array = a;
+        array = Arrays.copyOf(elements, elements.length);
     }
 
     /**
@@ -128,7 +128,7 @@ public class AuthenticatorsRegistry
                             int initialCursor)
         {
             cursor = initialCursor;
-            snapshot = elements;
+            snapshot = Arrays.copyOf(elements, elements.length);
         }
 
         @Override

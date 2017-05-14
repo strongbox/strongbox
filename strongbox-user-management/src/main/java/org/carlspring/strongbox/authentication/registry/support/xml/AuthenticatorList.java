@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.authentication.registry.support.xml.out;
+package org.carlspring.strongbox.authentication.registry.support.xml;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

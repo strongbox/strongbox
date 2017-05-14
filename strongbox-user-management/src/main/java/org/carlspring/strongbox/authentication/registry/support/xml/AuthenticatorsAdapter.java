@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.authentication.registry.support.xml.out;
+package org.carlspring.strongbox.authentication.registry.support.xml;
 
 import org.carlspring.strongbox.authentication.api.Authenticator;
 
