@@ -26,6 +26,4 @@ public interface ArtifactDirectoryOperation
 
     RepositoryPath getBasePath();
     
-    RepositoryFileSystem getFileSystem();
-
 }

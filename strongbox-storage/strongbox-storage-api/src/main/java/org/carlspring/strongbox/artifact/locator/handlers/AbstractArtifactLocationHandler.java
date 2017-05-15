@@ -28,7 +28,6 @@ public abstract class AbstractArtifactLocationHandler
     
     private Storage storage;
     private LinkedHashMap<RepositoryPath, List<RepositoryPath>> visitedRootPaths = new LinkedHashMap<>();
-    private RepositoryFileSystem repositoryFileSystem;
 
     /**
      * The base path within the repository from where to start scanning for artifacts.
@@ -95,16 +94,6 @@ public abstract class AbstractArtifactLocationHandler
     public void setBasePath(RepositoryPath basePath)
     {
         this.basePath = basePath;
-    }
-
-    public RepositoryFileSystem getFileSystem()
-    {
-        return repositoryFileSystem == null ? getBasePath().getFileSystem() : repositoryFileSystem;
-    }
-
-    public void setFileSystem(RepositoryFileSystem repositoryFileSystem)
-    {
-        this.repositoryFileSystem = repositoryFileSystem;
     }
     
 }

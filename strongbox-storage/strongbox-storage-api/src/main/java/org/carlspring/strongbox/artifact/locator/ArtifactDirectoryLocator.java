@@ -49,7 +49,7 @@ public class ArtifactDirectoryLocator
     public RepositoryPath getStartingPath()
     {
         // The root path
-        RepositoryPath rootPath = basedir != null ? basedir : getOperation().getFileSystem().getRootDirectory();
+        RepositoryPath rootPath = basedir != null ? basedir : getOperation().getBasePath();
 
         rootPath = rootPath.resolve(operation.getBasePath());
         rootPath = rootPath.normalize();

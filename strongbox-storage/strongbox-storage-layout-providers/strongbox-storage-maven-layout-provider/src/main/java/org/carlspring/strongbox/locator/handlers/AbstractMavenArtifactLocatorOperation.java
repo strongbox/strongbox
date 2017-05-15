@@ -33,8 +33,8 @@ public abstract class AbstractMavenArtifactLocatorOperation
     {
 //        File f = path.toAbsolutePath().toFile();
 
-        List<Path> filePathList = Files.walk(path)
-                                       .filter(p -> !p.getFileName().startsWith(".pom"))
+        List<Path> filePathList = Files.list(path)
+                                       .filter(p -> p.getFileName().toString().endsWith(".pom"))
                                        .sorted()
                                        .collect(Collectors.toList());
         
@@ -72,7 +72,7 @@ public abstract class AbstractMavenArtifactLocatorOperation
         }
 
         List<RepositoryPath> versionDirectories = getVersionDirectories(parentPath);
-        if (versionDirectories != null)
+        if (versionDirectories == null)
         {
             return;
         }
@@ -90,7 +90,7 @@ public abstract class AbstractMavenArtifactLocatorOperation
             }
         }
 
-        RepositoryPath artifactPath = (RepositoryPath) parentPath.relativize(getFileSystem().getRootDirectory());
+        RepositoryPath artifactPath = parentPath.getRepositoryRelative();
         
         //String artifactPath = parentPath.substring(getRepository().getBasedir().length() + 1, parentPath.length());
 

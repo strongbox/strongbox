@@ -253,7 +253,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
             {
                 // This is at the version level
                 Path pomPath = Files.list(artifactVersionPath)
-                                    .filter(p -> p.getFileName().endsWith(".pom"))
+                                    .filter(p -> p.getFileName().toString().endsWith(".pom"))
                                     .findFirst()
                                     .orElse(null);
 
@@ -267,7 +267,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
             {
                 // This is at the artifact level
                 Path mavenMetadataPath = Files.list(artifactVersionPath.getParent())
-                                              .filter(p -> p.getFileName().endsWith("maven-metadata.xml"))
+                                              .filter(p -> p.getFileName().toString().endsWith("maven-metadata.xml"))
                                               .findFirst()
                                               .orElse(null);
 

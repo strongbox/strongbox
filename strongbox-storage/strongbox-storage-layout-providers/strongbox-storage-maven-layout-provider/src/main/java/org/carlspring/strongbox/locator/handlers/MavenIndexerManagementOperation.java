@@ -53,7 +53,7 @@ public class MavenIndexerManagementOperation
             // We're using System.out.println() here for clarity and due to the length of the lines
             // System.out.println(" " + versionDirectory.getAbsolutePath());
 
-            RepositoryPath artifactVersionDirectoryRelative  = versionDirectoryAbs.relativize(getFileSystem().getRootDirectory());
+            RepositoryPath artifactVersionDirectoryRelative  = versionDirectoryAbs.getRepositoryRelative();
             
 //            String artifactVersionDirectory = versionDirectory.getPath();
 //            String artifactVersionDirectoryRelative = artifactVersionDirectory.substring(getStorage().getRepository(repositoryId)

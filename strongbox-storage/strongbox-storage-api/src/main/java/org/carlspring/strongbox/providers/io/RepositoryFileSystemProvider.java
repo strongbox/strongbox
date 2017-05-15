@@ -469,7 +469,7 @@ public abstract class RepositoryFileSystemProvider
     {
         for (String e : path.getFileSystem().getDigestAlgorithmSet())
         {
-            if (path.endsWith("." + e.replaceAll("-", "").toLowerCase()))
+            if (path.getFileName().toString().endsWith("." + e.replaceAll("-", "").toLowerCase()))
             {
                 return true;
             }
