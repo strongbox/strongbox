@@ -9,6 +9,7 @@ import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -87,10 +88,22 @@ public class ArtifactOperationsValidator
     public void checkAllowsDeployment(Repository repository)
             throws ArtifactStorageException
     {
-        if (!repository.allowsDeployment())
+        if (!repository.allowsDeployment() &&
+            !RepositoryTypeEnum.GROUP.getType().equals(repository.getType()) &&
+            !RepositoryTypeEnum.PROXY.getType().equals(repository.getType()))
         {
+            // It should not be possible to write artifacts to:
+            // - a repository that doesn't allow the deployment of artifacts
+            // - a proxy repository
+            // - a group repository
+            //
+            // NOTE:
+            // - A proxy repository should only serve artifacts that already exist in the cache, or the remote host.
+            // - Both the ProxyRepositoryProvider and GroupRepositoryProvider need to have an implementation of the
+            //   getOutputStream(...) method, which is why this check is performed here instead.
+
             throw new ArtifactStorageException("Deployment of artifacts to " + repository.getType() +
-                                               " repository is not allowed!");
+                                               " repositories is not allowed!");
         }
     }
 
@@ -102,7 +115,8 @@ public class ArtifactOperationsValidator
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
         if (layoutProvider.containsArtifact(repository, coordinates) && !repository.allowsDeployment())
         {
-            throw new ArtifactStorageException("Re-deployment of artifacts to " + repository.getType() +
+            throw new ArtifactStorageException("Re-deployment of artifacts to " +
+                                               repository.getStorage().getId() + ":" + repository.getId() +
                                                " repository is not allowed!");
         }
     }

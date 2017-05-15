@@ -76,8 +76,7 @@ public class ArtifactOutputStream
         return getDigests().entrySet()
                            .stream()
                            .collect(Collectors.toMap(Map.Entry::getKey,
-                                                     e -> stringifyDigest(digestStringifier, e.getValue()
-                                                                                              .digest())));
+                                                     e -> stringifyDigest(digestStringifier, e.getValue().digest())));
     }
 
     protected String stringifyDigest(Function<byte[], String> digestStringifier,

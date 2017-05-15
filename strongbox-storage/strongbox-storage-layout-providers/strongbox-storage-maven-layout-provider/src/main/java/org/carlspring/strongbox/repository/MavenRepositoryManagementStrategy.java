@@ -135,13 +135,11 @@ public class MavenRepositoryManagementStrategy
 
             final File repositoryBasedir = new File(storage.getBasedir(), repositoryId);
 
-            if (storage.getRepository(repositoryId)
-                       .isIndexingEnabled())
+            if (storage.getRepository(repositoryId).isIndexingEnabled())
             {
                 initializeRepositoryIndex(storage, repositoryId, IndexTypeEnum.LOCAL.getType(), repositoryBasedir);
 
-                if (storage.getRepository(repositoryId)
-                           .isProxyRepository())
+                if (storage.getRepository(repositoryId).isProxyRepository())
                 {
                     initializeRepositoryIndex(storage, repositoryId, IndexTypeEnum.REMOTE.getType(), repositoryBasedir);
                 }

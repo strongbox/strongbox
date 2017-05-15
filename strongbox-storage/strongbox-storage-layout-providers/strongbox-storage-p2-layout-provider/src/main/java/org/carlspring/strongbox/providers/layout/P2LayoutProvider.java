@@ -7,6 +7,8 @@ import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.p2.P2ArtifactReader;
 import org.carlspring.strongbox.repository.P2RepositoryFeatures;
 import org.carlspring.strongbox.repository.P2RepositoryManagementStrategy;
+import org.carlspring.strongbox.services.ArtifactManagementService;
+import org.carlspring.strongbox.services.impl.P2ArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
@@ -39,6 +41,9 @@ public class P2LayoutProvider
 
     @Inject
     private P2RepositoryManagementStrategy p2RepositoryManagementStrategy;
+
+    @Inject
+    private P2ArtifactManagementService p2ArtifactManagementService;
 
 
     @Override
@@ -167,6 +172,12 @@ public class P2LayoutProvider
     public P2RepositoryManagementStrategy getRepositoryManagementStrategy()
     {
         return p2RepositoryManagementStrategy;
+    }
+
+    @Override
+    public ArtifactManagementService getArtifactManagementService()
+    {
+        return p2ArtifactManagementService;
     }
 
 }

@@ -8,6 +8,7 @@ import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.repository.RepositoryFeatures;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
+import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
 
@@ -115,5 +116,7 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
     RepositoryFeatures getRepositoryFeatures();
 
     RepositoryManagementStrategy getRepositoryManagementStrategy();
+
+    ArtifactManagementService getArtifactManagementService();
 
 }

@@ -36,8 +36,7 @@ public class ArtifactSearchServiceImpl
     public boolean contains(SearchRequest searchRequest)
             throws SearchException
     {
-        return !search(searchRequest).getResults()
-                                     .isEmpty();
+        return !search(searchRequest).getResults().isEmpty();
     }
 
 }

@@ -228,7 +228,10 @@ public class ArtifactResolver
         }
     }
 
-    public Metadata retrieveMetadata(String path) throws ArtifactTransportException, IOException, XmlPullParserException
+    public Metadata retrieveMetadata(String path)
+            throws ArtifactTransportException,
+                   IOException,
+                   XmlPullParserException
     {
         if (pathExists(path))
         {

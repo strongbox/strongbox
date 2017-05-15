@@ -11,8 +11,10 @@ import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.MavenRepositoryManagementStrategy;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
+import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.services.ArtifactSearchService;
+import org.carlspring.strongbox.services.impl.MavenArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.checksum.MavenChecksumManager;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
@@ -62,6 +64,9 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
     private MavenMetadataManager mavenMetadataManager;
 
     @Inject
+    private MavenArtifactManagementService mavenArtifactManagementService;
+
+    @Inject
     private MavenChecksumManager mavenChecksumManager;
 
     @Inject
@@ -100,6 +105,11 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
     @Override
     public MavenArtifactCoordinates getArtifactCoordinates(String path)
     {
+        if (!ArtifactUtils.isArtifact(path))
+        {
+            return null;
+        }
+
         MavenArtifactCoordinates coordinates;
         if (isMetadata(path))
         {
@@ -462,6 +472,12 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
     public MavenRepositoryManagementStrategy getRepositoryManagementStrategy()
     {
         return mavenRepositoryManagementStrategy;
+    }
+
+    @Override
+    public ArtifactManagementService getArtifactManagementService()
+    {
+        return mavenArtifactManagementService;
     }
 
 }

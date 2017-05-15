@@ -13,6 +13,7 @@ import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.search.SearchException;
+import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
@@ -37,6 +38,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.Set;
@@ -55,11 +57,11 @@ import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
  * @author mtodorov
  */
 @Component("mavenArtifactManagementService")
-public class MavenArtifactManagementServiceImpl
+public class MavenArtifactManagementService
     implements ArtifactManagementService
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(MavenArtifactManagementServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(MavenArtifactManagementService.class);
 
     @Inject
     private ArtifactResolutionService artifactResolutionService;
@@ -86,6 +88,9 @@ public class MavenArtifactManagementServiceImpl
     private LayoutProviderRegistry layoutProviderRegistry;
 
     @Inject
+    private StorageProviderRegistry storageProviderRegistry;
+
+    @Inject
     private ArtifactEntryService artifactEntryService;
 
 
@@ -99,16 +104,38 @@ public class MavenArtifactManagementServiceImpl
                    ProviderImplementationException,
                    NoSuchAlgorithmException
     {
+        store(storageId, repositoryId, path, is, null);
+    }
+
+    @Override
+    @Transactional
+    public void store(String storageId,
+                      String repositoryId,
+                      String path,
+                      InputStream is,
+                      OutputStream os)
+            throws IOException,
+                   ProviderImplementationException,
+                   NoSuchAlgorithmException
+    {
         String artifactPath = storageId + "/" + repositoryId + "/" + path;
         performRepositoryAcceptanceValidation(storageId, repositoryId, path);
 
-        try (ArtifactOutputStream os = artifactResolutionService.getOutputStream(storageId, repositoryId, path))
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+
+        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+
+        try (final ArtifactOutputStream aos = os != null ?
+                                        (os instanceof ArtifactOutputStream ?
+                                         (ArtifactOutputStream) os :
+                                         new ArtifactOutputStream(os, layoutProvider.getArtifactCoordinates(path))) :
+                                        artifactResolutionService.getOutputStream(storageId, repositoryId, path))
         {
-            //If we have no Digests then we have a Checksum to store.
-            if (os.getDigests()
-                  .isEmpty())
+            // If we have no digests, then we have a checksum to store.
+            if (ArtifactUtils.isChecksum(path))
             {
-                os.setCacheOutputStream(new ByteArrayOutputStream());
+                aos.setCacheOutputStream(new ByteArrayOutputStream());
             }
 
             int readLength;
@@ -116,24 +143,32 @@ public class MavenArtifactManagementServiceImpl
             while ((readLength = is.read(bytes, 0, bytes.length)) != -1)
             {
                 // Write the artifact
-                os.write(bytes, 0, readLength);
-                os.flush();
+                aos.write(bytes, 0, readLength);
+                aos.flush();
             }
 
-            if (!os.getDigestMap()
-                   .isEmpty())
+            if (ArtifactUtils.isChecksum(path))
             {
-                // Store artifact Digests in cache if we have them.
-                addChecksumsToCacheManager(os.getDigestMap(), artifactPath);
+                if (!aos.getDigestMap().isEmpty())
+                {
+                    // Store artifact digests in cache if we have them.
+                    addChecksumsToCacheManager(aos.getDigestMap(), artifactPath);
+                }
+
+                byte[] checksum = ((ByteArrayOutputStream) aos.getCacheOutputStream()).toByteArray();
+                if (checksum != null && checksum.length > 0)
+                {
+                    // Validate checksum with artifact digest cache.
+                    validateUploadedChecksumAgainstCache(checksum, artifactPath);
+                }
+            }
+
+            if (ArtifactUtils.isArtifact(path))
+            {
                 addArtifactToIndex(storageId, repositoryId, path);
-                storeArtifact(storageId, repositoryId, path);
             }
-            else
-            {
-                // Validate checksum with Artifact Digest cache.
-                byte[] checksum = ((ByteArrayOutputStream) os.getCacheOutputStream()).toByteArray();
-                validateUploadedChecksumAgainstCache(checksum, artifactPath);
-            }
+
+            storeArtifact(storageId, repositoryId, path);
         }
         catch (IOException e)
         {
@@ -319,15 +354,13 @@ public class MavenArtifactManagementServiceImpl
         if (srcFile.isDirectory())
         {
             FileUtils.copyDirectoryToDirectory(srcFile, destFile.getParentFile());
-
-            // TODO: SB-377: Sort out the logic for artifact directory paths
-            // TODO: SB-377: addArtifactToIndex(destStorageId, destRepositoryId, path);
         }
         else
         {
             FileUtils.copyFile(srcFile, destFile);
-            addArtifactToIndex(destStorageId, destRepositoryId, path);
         }
+
+        addArtifactToIndex(destStorageId, destRepositoryId, path);
     }
 
     private void validateUploadedChecksumAgainstCache(byte[] checksum,
@@ -341,9 +374,7 @@ public class MavenArtifactManagementServiceImpl
 
         if (!matchesChecksum(checksum, artifactBasePath, checksumExtension))
         {
-            logger.error(String.format("Artifact checksum is invalid: path-[%s]; ext-[%s]; checksum-[%s]", artifactPath,
-                                       checksumExtension,
-                                       new String(checksum)));
+            logger.error(String.format("The checksum for %s [%s] is invalid!", artifactPath, new String(checksum)));
         }
 
         checksumCacheManager.removeArtifactChecksum(artifactBasePath);
@@ -390,107 +421,6 @@ public class MavenArtifactManagementServiceImpl
         digestMap.entrySet()
                  .stream()
                  .forEach(e -> checksumCacheManager.addArtifactChecksum(artifactPath, e.getKey(), e.getValue()));
-    }
-
-    // TODO: This should have restricted access.
-    @Override
-    public void deleteTrash(String storageId, String repositoryId)
-            throws IOException
-    {
-        artifactOperationsValidator.checkStorageExists(storageId);
-        artifactOperationsValidator.checkRepositoryExists(storageId, repositoryId);
-
-        try
-        {
-            final Storage storage = getStorage(storageId);
-            final Repository repository = storage.getRepository(repositoryId);
-
-            artifactOperationsValidator.checkAllowsDeletion(repository);
-
-            LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
-            layoutProvider.deleteTrash(storageId, repositoryId);
-        }
-        catch (IOException | ProviderImplementationException e)
-        {
-            throw new ArtifactStorageException(e.getMessage(), e);
-        }
-    }
-
-    // TODO: This should have restricted access.
-    @Override
-    public void deleteTrash()
-            throws ArtifactStorageException
-    {
-        try
-        {
-            layoutProviderRegistry.deleteTrash();
-        }
-        catch (IOException e)
-        {
-            throw new ArtifactStorageException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public void undelete(String storageId, String repositoryId, String artifactPath)
-            throws IOException
-    {
-        artifactOperationsValidator.validate(storageId, repositoryId, artifactPath);
-
-        final Storage storage = getStorage(storageId);
-        final Repository repository = storage.getRepository(repositoryId);
-
-        artifactOperationsValidator.checkAllowsDeletion(repository);
-
-        try
-        {
-            LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
-            layoutProvider.undelete(storageId, repositoryId, artifactPath);
-        }
-        catch (IOException | ProviderImplementationException e)
-        {
-            throw new ArtifactStorageException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public void undeleteTrash(String storageId, String repositoryId)
-            throws IOException,
-                   ProviderImplementationException
-    {
-        artifactOperationsValidator.checkStorageExists(storageId);
-        artifactOperationsValidator.checkRepositoryExists(storageId, repositoryId);
-
-        try
-        {
-            final Storage storage = getStorage(storageId);
-            final Repository repository = storage.getRepository(repositoryId);
-
-            if (repository.isTrashEnabled())
-            {
-                LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
-                layoutProvider.undeleteTrash(storageId, repositoryId);
-            }
-        }
-        catch (IOException e)
-        {
-            throw new ArtifactStorageException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public void undeleteTrash()
-            throws IOException,
-                   ProviderImplementationException
-    {
-        try
-        {
-            layoutProviderRegistry.undeleteTrash();
-        }
-        catch (IOException e)
-        {
-            throw new ArtifactStorageException(e.getMessage(), e);
-        }
     }
 
     @Override

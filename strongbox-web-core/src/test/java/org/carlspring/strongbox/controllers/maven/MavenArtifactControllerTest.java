@@ -190,7 +190,7 @@ public class MavenArtifactControllerTest
     public void testResolveViaProxyToMavenCentral()
             throws Exception
     {
-        String artifactPath = "storages/public/public-group/org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.jar";
+        String artifactPath = "storages/storage-common-proxies/maven-central/org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.jar";
 
         InputStream is = client.getResource(artifactPath);
         if (is == null)

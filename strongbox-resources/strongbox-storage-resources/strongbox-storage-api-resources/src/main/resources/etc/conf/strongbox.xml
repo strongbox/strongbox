@@ -38,11 +38,11 @@
 
         <storage id="storage-common-proxies">
             <repositories>
-                <repository id="maven-central" policy="release" implementation="file-system" layout="Maven 2" type="proxy">
+                <repository id="maven-central" policy="release" implementation="file-system" layout="Maven 2" type="proxy" indexing-enabled="true">
                     <remote-repository url="https://repo.maven.apache.org/maven2/"
                                        download-remote-indexes="true"
                                        auto-blocking="true"
-                                       checksum-validation="true" />
+                                       checksum-validation="true"/>
                 </repository>
 
                 <repository id="carlspring" policy="mixed" implementation="file-system" layout="Maven 2" type="proxy">
