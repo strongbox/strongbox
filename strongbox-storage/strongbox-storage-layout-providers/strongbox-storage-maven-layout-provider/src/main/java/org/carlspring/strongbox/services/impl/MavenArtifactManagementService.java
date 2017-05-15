@@ -1,4 +1,5 @@
 package org.carlspring.strongbox.services.impl;
+
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
@@ -420,107 +421,6 @@ public class MavenArtifactManagementService
         digestMap.entrySet()
                  .stream()
                  .forEach(e -> checksumCacheManager.addArtifactChecksum(artifactPath, e.getKey(), e.getValue()));
-    }
-
-    // TODO: This should have restricted access.
-    @Override
-    public void deleteTrash(String storageId, String repositoryId)
-            throws IOException
-    {
-        artifactOperationsValidator.checkStorageExists(storageId);
-        artifactOperationsValidator.checkRepositoryExists(storageId, repositoryId);
-
-        try
-        {
-            final Storage storage = getStorage(storageId);
-            final Repository repository = storage.getRepository(repositoryId);
-
-            artifactOperationsValidator.checkAllowsDeletion(repository);
-
-            LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
-            layoutProvider.deleteTrash(storageId, repositoryId);
-        }
-        catch (IOException | ProviderImplementationException e)
-        {
-            throw new ArtifactStorageException(e.getMessage(), e);
-        }
-    }
-
-    // TODO: This should have restricted access.
-    @Override
-    public void deleteTrash()
-            throws ArtifactStorageException
-    {
-        try
-        {
-            layoutProviderRegistry.deleteTrash();
-        }
-        catch (IOException e)
-        {
-            throw new ArtifactStorageException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public void undelete(String storageId, String repositoryId, String artifactPath)
-            throws IOException
-    {
-        artifactOperationsValidator.validate(storageId, repositoryId, artifactPath);
-
-        final Storage storage = getStorage(storageId);
-        final Repository repository = storage.getRepository(repositoryId);
-
-        artifactOperationsValidator.checkAllowsDeletion(repository);
-
-        try
-        {
-            LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
-            layoutProvider.undelete(storageId, repositoryId, artifactPath);
-        }
-        catch (IOException | ProviderImplementationException e)
-        {
-            throw new ArtifactStorageException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public void undeleteTrash(String storageId, String repositoryId)
-            throws IOException,
-                   ProviderImplementationException
-    {
-        artifactOperationsValidator.checkStorageExists(storageId);
-        artifactOperationsValidator.checkRepositoryExists(storageId, repositoryId);
-
-        try
-        {
-            final Storage storage = getStorage(storageId);
-            final Repository repository = storage.getRepository(repositoryId);
-
-            if (repository.isTrashEnabled())
-            {
-                LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
-                layoutProvider.undeleteTrash(storageId, repositoryId);
-            }
-        }
-        catch (IOException e)
-        {
-            throw new ArtifactStorageException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public void undeleteTrash()
-            throws IOException,
-                   ProviderImplementationException
-    {
-        try
-        {
-            layoutProviderRegistry.undeleteTrash();
-        }
-        catch (IOException e)
-        {
-            throw new ArtifactStorageException(e.getMessage(), e);
-        }
     }
 
     @Override

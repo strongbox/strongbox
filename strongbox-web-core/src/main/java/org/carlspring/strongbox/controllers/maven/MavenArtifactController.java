@@ -4,12 +4,14 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.utils.ArtifactControllerHelper;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBException;
@@ -65,6 +67,10 @@ public class MavenArtifactController
 
     // must be the same as @RequestMapping value on the class definition
     public final static String ROOT_CONTEXT = "/storages";
+
+    @Inject
+    private ArtifactManagementService mavenArtifactManagementService;
+
 
     @PreAuthorize("authenticated")
     @RequestMapping(value = "greet",
@@ -496,6 +502,11 @@ public class MavenArtifactController
         }
 
         return ResponseEntity.ok("The artifact was deleted.");
+    }
+
+    public ArtifactManagementService getArtifactManagementService()
+    {
+        return mavenArtifactManagementService;
     }
 
 }

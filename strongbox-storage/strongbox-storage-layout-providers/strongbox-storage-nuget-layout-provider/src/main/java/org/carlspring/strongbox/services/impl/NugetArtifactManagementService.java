@@ -88,45 +88,6 @@ public class NugetArtifactManagementService
     }
 
     @Override
-    public void deleteTrash(String storageId,
-                            String repositoryId)
-            throws IOException
-    {
-        throw new UnsupportedOperationException("This operation is not yet implemented!");
-    }
-
-    @Override
-    public void deleteTrash()
-            throws IOException
-    {
-        throw new UnsupportedOperationException("This operation is not yet implemented!");
-    }
-
-    @Override
-    public void undelete(String storageId,
-                         String repositoryId,
-                         String artifactPath)
-            throws IOException
-    {
-        throw new UnsupportedOperationException("This operation is not yet implemented!");
-    }
-
-    @Override
-    public void undeleteTrash(String storageId,
-                              String repositoryId)
-            throws IOException, ProviderImplementationException
-    {
-        throw new UnsupportedOperationException("This operation is not yet implemented!");
-    }
-
-    @Override
-    public void undeleteTrash()
-            throws IOException, ProviderImplementationException
-    {
-        throw new UnsupportedOperationException("This operation is not yet implemented!");
-    }
-
-    @Override
     public void removeTimestampedSnapshots(String storageId,
                                            String repositoryId,
                                            String artifactPath,

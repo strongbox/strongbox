@@ -2,7 +2,7 @@ package org.carlspring.strongbox.cron.api.jobs;
 
 import org.carlspring.strongbox.cron.config.JobManager;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
-import org.carlspring.strongbox.services.ArtifactManagementService;
+import org.carlspring.strongbox.services.RepositoryManagementService;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -23,7 +23,7 @@ public class ClearRepositoryTrashCronJob
 
     @Named("mavenArtifactManagementService")
     @Inject
-    private ArtifactManagementService artifactManagementService;
+    private RepositoryManagementService repositoryManagementService;
 
     @Inject
     private JobManager manager;
@@ -45,11 +45,11 @@ public class ClearRepositoryTrashCronJob
 
             if (storageId == null && repositoryId == null)
             {
-                artifactManagementService.deleteTrash();
+                repositoryManagementService.deleteTrash();
             }
             else
             {
-                artifactManagementService.deleteTrash(storageId, repositoryId);
+                repositoryManagementService.deleteTrash(storageId, repositoryId);
             }
         }
         catch (Exception e)

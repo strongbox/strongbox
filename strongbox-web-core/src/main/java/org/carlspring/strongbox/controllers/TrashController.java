@@ -1,7 +1,9 @@
 package org.carlspring.strongbox.controllers;
 
+import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
@@ -29,6 +31,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public class TrashController
         extends BaseArtifactController
 {
+
+    @Inject
+    private RepositoryManagementService repositoryManagementService;
+
 
     @ApiOperation(value = "Used to delete the trash for a specified repository.",
                   position = 1)
@@ -63,7 +69,7 @@ public class TrashController
 
         try
         {
-            getArtifactManagementService().deleteTrash(storageId, repositoryId);
+            repositoryManagementService.deleteTrash(storageId, repositoryId);
 
             logger.debug("Deleted trash for repository " + repositoryId + ".");
         }
@@ -92,7 +98,7 @@ public class TrashController
     {
         try
         {
-            getArtifactManagementService().deleteTrash();
+            repositoryManagementService.deleteTrash();
 
             logger.debug("Deleted trash for all repositories.");
         }
@@ -147,7 +153,7 @@ public class TrashController
 
         try
         {
-            getArtifactManagementService().undelete(storageId, repositoryId, path);
+            repositoryManagementService.undelete(storageId, repositoryId, path);
 
             logger.debug("Undeleted trash for path " + path + " under repository " +
                          storageId + ":" + repositoryId + ".");
@@ -188,19 +194,19 @@ public class TrashController
         {
             try
             {
-                getArtifactManagementService().undeleteTrash(storageId, repositoryId);
+                repositoryManagementService.undeleteTrash(storageId, repositoryId);
 
                 logger.debug("Undeleted trash for repository " + repositoryId + ".");
             }
             catch (ArtifactStorageException e)
             {
-                if (getArtifactManagementService().getStorage(storageId) == null)
+                if (repositoryManagementService.getStorage(storageId) == null)
                 {
                     return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                          .body("The specified storageId does not exist!");
                 }
-                else if (getArtifactManagementService().getStorage(storageId)
-                                                       .getRepository(repositoryId) == null)
+                else if (repositoryManagementService.getStorage(storageId)
+                                                    .getRepository(repositoryId) == null)
                 {
                     return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                          .body("The specified repositoryId does not exist!");
@@ -234,7 +240,7 @@ public class TrashController
     {
         try
         {
-            getArtifactManagementService().undeleteTrash();
+            repositoryManagementService.undeleteTrash();
 
             logger.debug("Undeleted trash for all repositories.");
         }

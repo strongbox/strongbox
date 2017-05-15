@@ -3,6 +3,7 @@ package org.carlspring.strongbox.controllers.nuget;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.security.exceptions.SecurityTokenException;
+import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.users.service.UserService;
@@ -60,6 +61,9 @@ public class NugetPackageController extends BaseArtifactController
     private static final Logger logger = LoggerFactory.getLogger(NugetPackageController.class);
 
     public final static String ROOT_CONTEXT = "/storages";
+
+    @Inject
+    private ArtifactManagementService nugetArtifactManagementService;
 
     @Inject
     private UserService userService;
@@ -324,6 +328,11 @@ public class NugetPackageController extends BaseArtifactController
         Authentication authentication = securityContext == null ? null : securityContext.getAuthentication();
 
         return authentication == null ? null : authentication.getName();
+    }
+
+    public ArtifactManagementService getArtifactManagementService()
+    {
+        return nugetArtifactManagementService;
     }
 
 }

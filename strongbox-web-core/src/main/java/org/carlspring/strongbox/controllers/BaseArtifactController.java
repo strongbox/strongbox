@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.controllers;
 
-import org.carlspring.strongbox.services.ArtifactManagementService;
+import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
@@ -14,7 +15,11 @@ public abstract class BaseArtifactController
 {
 
     @Inject
-    protected ArtifactManagementService artifactManagementService;
+    private LayoutProviderRegistry layoutProviderRegistry;
+
+    @Inject
+    private StorageProviderRegistry storageProviderRegistry;
+
 
     // ----------------------------------------------------------------------------------------------------------------
     // Common-purpose methods
@@ -57,14 +62,24 @@ public abstract class BaseArtifactController
         return getStorage(storageId).getRepository(repositoryId);
     }
 
-    public ArtifactManagementService getArtifactManagementService()
+    public LayoutProviderRegistry getLayoutProviderRegistry()
     {
-        return artifactManagementService;
+        return layoutProviderRegistry;
     }
 
-    public void setArtifactManagementService(ArtifactManagementService artifactManagementService)
+    public void setLayoutProviderRegistry(LayoutProviderRegistry layoutProviderRegistry)
     {
-        this.artifactManagementService = artifactManagementService;
+        this.layoutProviderRegistry = layoutProviderRegistry;
+    }
+
+    public StorageProviderRegistry getStorageProviderRegistry()
+    {
+        return storageProviderRegistry;
+    }
+
+    public void setStorageProviderRegistry(StorageProviderRegistry storageProviderRegistry)
+    {
+        this.storageProviderRegistry = storageProviderRegistry;
     }
 
 }
