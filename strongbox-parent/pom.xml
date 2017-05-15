@@ -67,6 +67,8 @@
         <version.guava>19.0</version.guava>
         <version.jetty.maven.plugin>9.3.12.v20160915</version.jetty.maven.plugin>
         <version.junit>4.12</version.junit>
+        <version.mockito>2.0.2-beta</version.mockito>
+        <version.jsr305>3.0.2</version.jsr305>
     </properties>
 
     <build>
@@ -230,6 +232,11 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${version.guava}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>jsr305</artifactId>
+                <version>${version.jsr305}</version>
             </dependency>
 
             <!-- OrientDB dependencies -->
@@ -615,6 +622,13 @@
                 <version>${version.junit}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-all</artifactId>
+                <version>${version.mockito}</version>
+                <scope>test</scope>
+            </dependency>
+
             <dependency>
                 <groupId>com.carmatechnologies.commons</groupId>
                 <artifactId>commons-testing</artifactId>

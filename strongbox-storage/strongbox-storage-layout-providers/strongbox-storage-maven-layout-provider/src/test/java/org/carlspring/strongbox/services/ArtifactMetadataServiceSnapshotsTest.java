@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.services;
 
 import org.carlspring.maven.commons.DetachedArtifact;
+import org.carlspring.strongbox.authentication.config.AuthenticationConfig;
 import org.carlspring.strongbox.config.CommonConfig;
 import org.carlspring.strongbox.config.StorageCoreConfig;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
@@ -30,6 +31,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -48,7 +50,7 @@ public class ArtifactMetadataServiceSnapshotsTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
-    @ComponentScan(basePackages = {"org.carlspring.strongbox"})
+    @ComponentScan(basePackages = { "org.carlspring.strongbox" }, excludeFilters = { @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = AuthenticationConfig.class) })
     @org.springframework.context.annotation.Configuration
     @Import({ CommonConfig.class,
               StorageCoreConfig.class })
