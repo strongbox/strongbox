@@ -92,12 +92,9 @@ public class UsersConfig
                                                                              .getOrCreateClass(
                                                                                      userClass.getSimpleName());
 
-        if (!oUserClass.getIndexes()
-                       .stream()
-                       .filter(oIndex -> oIndex.getName()
-                                               .equals("idx_username"))
-                       .findAny()
-                       .isPresent())
+        if (oUserClass.getIndexes()
+                      .stream()
+                      .noneMatch(oIndex -> oIndex.getName().equals("idx_username")))
         {
             oUserClass.createProperty("username", OType.STRING);
             oUserClass.createIndex("idx_username", OClass.INDEX_TYPE.UNIQUE, "username");
@@ -133,13 +130,13 @@ public class UsersConfig
                             boolean needToSaveInDb)
     {
         User internalUser = toInternalUser(user);
-
         if (needToSaveInDb)
         {
             logger.debug("Saving new user from config file:\n\t" + internalUser);
+
             try
             {
-                internalUser = userService.save(internalUser);
+                userService.save(internalUser);
             }
             catch (Exception e)
             {
@@ -183,10 +180,9 @@ public class UsersConfig
                            .forEach(storage ->
                                             storage.getRepositories()
                                                    .getRepositories()
-                                                   .forEach(repository ->
-                                                                    processRepository(internalAccessModel,
-                                                                                      storage.getStorageId(),
-                                                                                      repository)));
+                                                   .forEach(repository -> processRepository(internalAccessModel,
+                                                                                            storage.getStorageId(),
+                                                                                            repository)));
             internalUser.setAccessModel(internalAccessModel);
         }
 
@@ -200,12 +196,12 @@ public class UsersConfig
         // assign default repository-level privileges set
         Set<String> defaultPrivileges = new HashSet<>();
         String key = "/storages/" + storageId + "/" + repository.getRepositoryId();
+
         repository.getPrivileges()
                   .getPrivileges()
-                  .forEach(privilege -> defaultPrivileges.add(privilege.getName()
-                                                                       .toUpperCase()));
-        internalAccessModel.getRepositoryPrivileges()
-                           .put(key, defaultPrivileges);
+                  .forEach(privilege -> defaultPrivileges.add(privilege.getName().toUpperCase()));
+
+        internalAccessModel.getRepositoryPrivileges().put(key, defaultPrivileges);
 
         // assign path-specific privileges
         UserPathPermissions userPathPermissions = repository.getPathPermissions();
