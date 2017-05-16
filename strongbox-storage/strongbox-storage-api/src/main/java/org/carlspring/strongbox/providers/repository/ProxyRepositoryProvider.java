@@ -2,7 +2,7 @@ package org.carlspring.strongbox.providers.repository;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
+import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
 
 import javax.annotation.PostConstruct;
@@ -15,27 +15,15 @@ import org.carlspring.strongbox.client.ArtifactResolver;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
-import org.carlspring.strongbox.io.RepositoryFileSystemProvider;
-import org.carlspring.strongbox.io.RepositoryPath;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.providers.storage.StorageProvider;
-import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
-import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.security.NoSuchAlgorithmException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -59,10 +47,6 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
 
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
-
-    @Inject
-    private LayoutProviderRegistry layoutProviderRegistry;
-
 
     @PostConstruct
     @Override
