@@ -1,23 +1,26 @@
 package org.carlspring.strongbox.services.impl;
 
+import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
+import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.io.RepositoryPath;
+import org.carlspring.strongbox.locator.handlers.MavenIndexerManagementOperation;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.providers.storage.StorageProvider;
+import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
+import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
+import org.carlspring.strongbox.services.ArtifactIndexesService;
+import org.carlspring.strongbox.services.RepositoryManagementService;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
+import org.carlspring.strongbox.storage.repository.Repository;
+
+import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Map;
 
-import javax.inject.Inject;
-
-import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
-import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.locator.handlers.MavenIndexerManagementOperation;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
-import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
-import org.carlspring.strongbox.services.ArtifactIndexesService;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -39,7 +42,13 @@ public class ArtifactIndexesServiceImpl
     private RepositoryIndexManager repositoryIndexManager;
 
     @Inject
+    private RepositoryManagementService repositoryManagementService;
+
+    @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
+
+    @Inject
+    private StorageProviderRegistry storageProviderRegistry;
 
     @Override
     public void rebuildIndex(String storageId,
@@ -57,7 +66,8 @@ public class ArtifactIndexesServiceImpl
             return;
         }
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        RepositoryPath repostitoryPath = layoutProvider.resolve(repository, artifactPath);
+        StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
+        RepositoryPath repostitoryPath = storageProvider.resolve(repository, artifactPath);
         
         MavenIndexerManagementOperation operation = new MavenIndexerManagementOperation(repositoryIndexManager);
 

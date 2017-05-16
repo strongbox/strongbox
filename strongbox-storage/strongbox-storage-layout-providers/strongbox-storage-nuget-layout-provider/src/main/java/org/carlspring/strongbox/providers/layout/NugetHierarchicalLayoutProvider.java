@@ -3,9 +3,9 @@ package org.carlspring.strongbox.providers.layout;
 import org.carlspring.strongbox.artifact.coordinates.NugetHierarchicalArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
+import org.carlspring.strongbox.io.RepositoryPath;
 import org.carlspring.strongbox.io.filters.NuspecFilenameFilter;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
 import org.carlspring.strongbox.repository.NugetRepositoryManagementStrategy;
 import org.carlspring.strongbox.services.ArtifactManagementService;
@@ -97,6 +97,20 @@ public class NugetHierarchicalLayoutProvider
         throws IOException
     {
 
+    }
+
+    @Override
+    protected void doDeletePath(RepositoryPath repositoryPath,
+                                boolean force,
+                                boolean deleteChecksum)
+        throws IOException
+    {
+        RepositoryPath sha512Path = repositoryPath.resolveSibling(repositoryPath.getFileName() + ".sha512");
+        super.doDeletePath(repositoryPath, force, deleteChecksum);
+        if (deleteChecksum)
+        {
+            super.doDeletePath(sha512Path, force, deleteChecksum);
+        }
     }
 
     @Override
