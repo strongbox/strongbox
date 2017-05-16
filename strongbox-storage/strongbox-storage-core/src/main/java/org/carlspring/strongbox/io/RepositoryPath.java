@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.providers.io;
+package org.carlspring.strongbox.io;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,6 +10,7 @@ import java.nio.file.WatchEvent.Modifier;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.Iterator;
+import java.util.regex.Pattern;
 
 /**
  * This implementation wraps target {@link Path} implementation, which can be an "CloudPath" or common
@@ -31,11 +32,6 @@ public class RepositoryPath
         this.fileSystem = fileSystem;
     }
 
-    /**
-     * Only for internal usage. Don't use this method if you not strongly sure that you need it.
-     * 
-     * @return
-     */
     public Path getTarget()
     {
         return target;
@@ -65,7 +61,7 @@ public class RepositoryPath
 
     public RepositoryPath getParent()
     {
-        return wrap(getTarget().getParent());
+        return createByTemplate(getTarget().getParent());
     }
 
     public int getNameCount()
@@ -106,27 +102,27 @@ public class RepositoryPath
 
     public RepositoryPath normalize()
     {
-        return wrap(getTarget().normalize());
+        return createByTemplate(getTarget().normalize());
     }
 
     public RepositoryPath resolve(Path other)
     {
-        other = unwrap(other);
-        return wrap(getTarget().resolve(other));
+        other = getTarget(other);
+        return createByTemplate(getTarget().resolve(other));
     }
 
     public RepositoryPath resolve(String other)
     {
-        return wrap(getTarget().resolve(other));
+        return createByTemplate(getTarget().resolve(other));
     }
 
     public RepositoryPath resolveSibling(Path other)
     {
-        other = unwrap(other);
-        return wrap(getTarget().resolveSibling(other));
+        other = getTarget(other);
+        return createByTemplate(getTarget().resolveSibling(other));
     }
 
-    protected Path unwrap(Path other)
+    protected Path getTarget(Path other)
     {
         other = other instanceof RepositoryPath ? ((RepositoryPath)other).getTarget() : other;
         return other;
@@ -134,19 +130,19 @@ public class RepositoryPath
 
     public RepositoryPath resolveSibling(String other)
     {
-        return wrap(getTarget().resolveSibling(other));
+        return createByTemplate(getTarget().resolveSibling(other));
     }
 
     public Path relativize(Path other)
     {
-        other = unwrap(other);
+        other = getTarget(other);
         return getTarget().relativize(other);
     }
     
-    public RepositoryPath getRepositoryRelative()
+    public Path getRepositoryRelative()
     {
         //TODO: there can be issues under Windows with replaceAll(..)
-        String resultString = toString().replaceAll(getFileSystem().getRootDirectory().toString(), "");
+        String resultString = toString().replaceAll(Pattern.quote(getFileSystem().getRootDirectory().toString()), "");
         resultString = resultString.startsWith(getFileSystem().getSeparator()) ? resultString.substring(1) : resultString;
         return getFileSystem().getPath(resultString);
     }
@@ -156,9 +152,9 @@ public class RepositoryPath
         throw new UnsupportedOperationException();
     }
 
-    public RepositoryPath toAbsolutePath()
+    public Path toAbsolutePath()
     {
-        return wrap(getTarget().toAbsolutePath());
+        throw new UnsupportedOperationException();
     }
 
     public Path toRealPath(LinkOption... options)
@@ -194,30 +190,17 @@ public class RepositoryPath
 
     public int compareTo(Path other)
     {
-        return getTarget().compareTo(unwrap(other));
+        return getTarget().compareTo(other);
     }
 
-    public RepositoryPath wrap(Path path)
+    public RepositoryPath createByTemplate(Path path)
     {
         return new RepositoryPath(path, fileSystem);
     }
-    
+
     public String toString()
     {
         return target.toString();
     }
 
-    @Override
-    public boolean equals(Object obj)
-    {
-        return target.equals(obj instanceof Path ? unwrap((Path) obj) : obj);
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return target.hashCode();
-    }
-
-    
 }

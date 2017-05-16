@@ -1,12 +1,5 @@
 package org.carlspring.strongbox.providers.layout;
 
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.util.List;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.P2ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
@@ -19,6 +12,13 @@ import org.carlspring.strongbox.services.impl.P2ArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
+
+import javax.inject.Inject;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
+
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,6 +70,12 @@ public class P2LayoutProvider
     {
         return "content.xml".equals(path) || "artifacts.xml".equals(path) || "artifacts.jar".equals(path) ||
                "content.jar".equals(path);
+    }
+
+    @Override
+    protected boolean isChecksum(String path)
+    {
+        return false;
     }
 
     @Override
