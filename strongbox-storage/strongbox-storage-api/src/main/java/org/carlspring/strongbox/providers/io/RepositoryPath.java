@@ -194,7 +194,7 @@ public class RepositoryPath
 
     public int compareTo(Path other)
     {
-        return getTarget().compareTo(other);
+        return getTarget().compareTo(unwrap(other));
     }
 
     public RepositoryPath wrap(Path path)
@@ -210,7 +210,13 @@ public class RepositoryPath
     @Override
     public boolean equals(Object obj)
     {
-        return target.equals(obj);
+        return target.equals(obj instanceof Path ? unwrap((Path) obj) : obj);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return target.hashCode();
     }
 
     
