@@ -1,32 +1,29 @@
 package org.carlspring.strongbox.providers.repository;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.NoSuchAlgorithmException;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.ws.rs.core.Response;
+
 import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactResolver;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
-import org.carlspring.strongbox.io.RepositoryFileSystemProvider;
-import org.carlspring.strongbox.io.RepositoryPath;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.providers.storage.StorageProvider;
-import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
-import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.security.NoSuchAlgorithmException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -49,11 +46,7 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
 
     @Inject
-    private StorageProviderRegistry storageProviderRegistry;
-
-    @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
-
 
     @PostConstruct
     @Override
@@ -85,11 +78,9 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
 
         logger.debug("Checking in " + storage.getId() + ":" + repositoryId + "...");
 
-        StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-
-        RepositoryPath repositoryPath = storageProvider.resolve(repository);
-        RepositoryPath artifactPath = repositoryPath.resolve(path);
+        RepositoryPath reposytoryPath = layoutProvider.resolve(repository);
+        RepositoryPath artifactPath = reposytoryPath.resolve(path);
 
         RepositoryFileSystemProvider fileSystemProvider = (RepositoryFileSystemProvider) artifactPath.getFileSystem()
                                                                                                      .provider();
