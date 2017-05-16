@@ -33,7 +33,7 @@ public class AuthenticatorsClassLoader
         try
         {
             authenticatorsDirectory = ConfigurationResourceResolver.getConfigurationResource("authentication.lib",
-                                                                                             "authentication-lib").getFile();
+                                                                                             "webapp/WEB-INF/lib").getFile();
         }
         catch (FileNotFoundException e)
         {

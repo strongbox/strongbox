@@ -7,7 +7,6 @@ tmp/
 
 # Java Files #
 *.jar
-!strongbox-user-management/src/test/resources/authentication-lib/strongbox-authentication-sample-1.0-SNAPSHOT.jar
 *.war
 *.class
 
@@ -37,6 +36,8 @@ tmp/
 # log files
 logs/
 *.log
-lib/
+
+lib/*
+!strongbox-user-management/src/test/resources/webapp/WEB-INF/lib/strongbox-authentication-sample-1.0-SNAPSHOT.jar
 
 *.sh
