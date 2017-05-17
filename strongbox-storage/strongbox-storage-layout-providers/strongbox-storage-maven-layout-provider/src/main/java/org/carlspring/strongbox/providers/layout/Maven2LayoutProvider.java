@@ -1,11 +1,27 @@
 package org.carlspring.strongbox.providers.layout;
 
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.index.ArtifactInfo;
 import org.carlspring.maven.commons.io.filters.PomFilenameFilter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.io.RepositoryPath;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
@@ -28,20 +44,6 @@ import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeExceptio
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.storage.search.SearchResults;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
-import java.util.List;
-
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.index.ArtifactInfo;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,9 +126,10 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         return coordinates;
     }
 
+    @Override
     protected boolean isMetadata(String path)
     {
-        return ArtifactUtils.isMetadata(path);
+        return path.endsWith(".pom") || path.endsWith(".xml");
     }
 
     @Override
@@ -144,7 +147,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
 
         if (!Files.isDirectory(repositoryPath))
         {
-            deleteFromIndex(storageId, repositoryId, path);
+            deleteFromIndex(repositoryPath);
         }
         else
         {
@@ -181,8 +184,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
                         String artifactPath = result.getArtifactCoordinates().toPath();
 
                         logger.debug("Removing " + artifactPath + " from index...");
-
-                        deleteFromIndex(storageId, repositoryId, artifactPath);
+                        deleteFromIndex(resolve(repository, result.getArtifactCoordinates()));
                     }
                 }
                 catch (SearchException e)
@@ -198,59 +200,31 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         deleteMetadata(storageId, repositoryId, path);
     }
 
-    @Override
-    protected void doDeletePath(RepositoryPath repositoryPath,
-                                boolean force,
-                                boolean deleteChecksum)
+    public void deleteFromIndex(RepositoryPath path)
             throws IOException
     {
-        // Delete the path
-        super.doDeletePath(repositoryPath, force, deleteChecksum);
-
-        if (deleteChecksum && !ArtifactUtils.isChecksum(repositoryPath.getTarget().getFileName().toString()))
-        {
-            // Delete the checksums
-            // TODO: Add check, if the paths exist
-
-            RepositoryPath md5Path = repositoryPath.resolveSibling(repositoryPath.getFileName() + ".md5");
-            if (Files.exists(md5Path))
-            {
-                super.doDeletePath(md5Path, force, deleteChecksum);
-            }
-
-            RepositoryPath sha1Path = repositoryPath.resolveSibling(repositoryPath.getFileName() + ".sha1");
-            if (Files.exists(sha1Path))
-            {
-                super.doDeletePath(sha1Path, force, deleteChecksum);
-            }
-        }
-    }
-
-    public void deleteFromIndex(String storageId,
-                                String repositoryId,
-                                String path)
-            throws IOException
-    {
-        Repository repository = getStorage(storageId).getRepository(repositoryId);
-        if (!repository.isIndexingEnabled() || isMetadata(path))
+        Repository repository = path.getFileSystem().getRepository();
+        RepositoryFileAttributes a = (RepositoryFileAttributes) Files.readAttributes(path, BasicFileAttributes.class);
+        
+        if (!repository.isIndexingEnabled() || a.isMetadata())
         {
             return;
         }
 
-        final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(storageId + ":" +
-                                                                                      repositoryId + ":" +
+        final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(repository.getStorage().getId() + ":" +
+                                                                                      repository.getId() + ":" +
                                                                                       IndexTypeEnum.LOCAL.getType());
         if (indexer != null)
         {
-            String extension = path.substring(path.lastIndexOf('.') + 1, path.length());
+            String extension = path.getFileName().toString().substring(path.getFileName().toString().lastIndexOf('.') + 1);
 
-            final Artifact a = ArtifactUtils.convertPathToArtifact(path);
-
-            indexer.delete(Collections.singletonList(new ArtifactInfo(repositoryId,
-                                                                      a.getGroupId(),
-                                                                      a.getArtifactId(),
-                                                                      a.getVersion(),
-                                                                      a.getClassifier(),
+            MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) a.getCoordinates();
+            
+            indexer.delete(Collections.singletonList(new ArtifactInfo(repository.getId(),
+                                                                      coordinates.getGroupId(),
+                                                                      coordinates.getArtifactId(),
+                                                                      coordinates.getVersion(),
+                                                                      coordinates.getClassifier(),
                                                                       extension)));
         }
     }
@@ -271,7 +245,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
             if (Files.exists(artifactVersionPath))
             {
                 // This is at the version level
-                Path pomPath = Files.list(artifactVersionPath.getTarget())
+                Path pomPath = Files.list(artifactVersionPath)
                                     .filter(p -> p.getFileName().endsWith(".pom"))
                                     .findFirst()
                                     .orElse(null);
@@ -285,7 +259,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
             else
             {
                 // This is at the artifact level
-                Path mavenMetadataPath = Files.list(artifactVersionPath.getTarget().getParent())
+                Path mavenMetadataPath = Files.list(artifactVersionPath.getParent())
                                               .filter(p -> p.getFileName().endsWith("maven-metadata.xml"))
                                               .findFirst()
                                               .orElse(null);

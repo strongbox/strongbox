@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.io;
+package org.carlspring.strongbox.providers.io;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +32,11 @@ public class RepositoryPath
         this.fileSystem = fileSystem;
     }
 
+    /**
+     * Only for internal usage. Don't use this method if you not strongly sure that you need it.
+     * 
+     * @return
+     */
     public Path getTarget()
     {
         return target;
@@ -61,7 +66,7 @@ public class RepositoryPath
 
     public RepositoryPath getParent()
     {
-        return createByTemplate(getTarget().getParent());
+        return wrap(getTarget().getParent());
     }
 
     public int getNameCount()
@@ -102,27 +107,27 @@ public class RepositoryPath
 
     public RepositoryPath normalize()
     {
-        return createByTemplate(getTarget().normalize());
+        return wrap(getTarget().normalize());
     }
 
     public RepositoryPath resolve(Path other)
     {
-        other = getTarget(other);
-        return createByTemplate(getTarget().resolve(other));
+        other = unwrap(other);
+        return wrap(getTarget().resolve(other));
     }
 
     public RepositoryPath resolve(String other)
     {
-        return createByTemplate(getTarget().resolve(other));
+        return wrap(getTarget().resolve(other));
     }
 
     public RepositoryPath resolveSibling(Path other)
     {
-        other = getTarget(other);
-        return createByTemplate(getTarget().resolveSibling(other));
+        other = unwrap(other);
+        return wrap(getTarget().resolveSibling(other));
     }
 
-    protected Path getTarget(Path other)
+    protected Path unwrap(Path other)
     {
         other = other instanceof RepositoryPath ? ((RepositoryPath)other).getTarget() : other;
         return other;
@@ -130,16 +135,16 @@ public class RepositoryPath
 
     public RepositoryPath resolveSibling(String other)
     {
-        return createByTemplate(getTarget().resolveSibling(other));
+        return wrap(getTarget().resolveSibling(other));
     }
 
     public Path relativize(Path other)
     {
-        other = getTarget(other);
+        other = unwrap(other);
         return getTarget().relativize(other);
     }
     
-    public Path getRepositoryRelative()
+    public RepositoryPath getRepositoryRelative()
     {
         //TODO: there can be issues under Windows with replaceAll(..)
         String resultString = toString().replaceAll(Pattern.quote(getFileSystem().getRootDirectory().toString()), "");
@@ -152,9 +157,9 @@ public class RepositoryPath
         throw new UnsupportedOperationException();
     }
 
-    public Path toAbsolutePath()
+    public RepositoryPath toAbsolutePath()
     {
-        throw new UnsupportedOperationException();
+        return wrap(getTarget().toAbsolutePath());
     }
 
     public Path toRealPath(LinkOption... options)
@@ -190,17 +195,30 @@ public class RepositoryPath
 
     public int compareTo(Path other)
     {
-        return getTarget().compareTo(other);
+        return getTarget().compareTo(unwrap(other));
     }
 
-    public RepositoryPath createByTemplate(Path path)
+    public RepositoryPath wrap(Path path)
     {
         return new RepositoryPath(path, fileSystem);
     }
-
+    
     public String toString()
     {
         return target.toString();
     }
 
+    @Override
+    public boolean equals(Object obj)
+    {
+        return target.equals(obj instanceof Path ? unwrap((Path) obj) : obj);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return target.hashCode();
+    }
+
+    
 }
