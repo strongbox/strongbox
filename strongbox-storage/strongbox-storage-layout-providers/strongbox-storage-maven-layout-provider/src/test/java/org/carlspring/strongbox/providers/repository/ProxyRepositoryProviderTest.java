@@ -103,6 +103,7 @@ public class ProxyRepositoryProviderTest extends TestCaseWithMavenArtifactGenera
         {
             System.out.println(ByteStreams.toByteArray(is));
         }
+
     }
 
     @Ignore // Broken while Docker is being worked on, as there is no running instance of the Strongbox service.

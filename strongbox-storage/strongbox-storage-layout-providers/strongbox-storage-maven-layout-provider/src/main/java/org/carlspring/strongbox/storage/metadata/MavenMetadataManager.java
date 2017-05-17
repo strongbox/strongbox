@@ -77,13 +77,12 @@ public class MavenMetadataManager
     {
         Metadata metadata;
 
-        StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
         ArtifactCoordinates coordinates = layoutProvider.getArtifactCoordinates(ArtifactUtils.convertArtifactToPath(artifact));
 
         if (layoutProvider.containsArtifact(repository, coordinates))
         {
-            Path artifactPath = storageProvider.resolve(repository, coordinates);
+            Path artifactPath = layoutProvider.resolve(repository, coordinates);
             Path artifactBasePath = artifactPath;
             if (artifact.getVersion() != null)
             {
