@@ -2,6 +2,7 @@ package org.carlspring.strongbox.providers.repository;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 
@@ -15,27 +16,15 @@ import org.carlspring.strongbox.client.ArtifactResolver;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
-import org.carlspring.strongbox.io.RepositoryFileSystemProvider;
-import org.carlspring.strongbox.io.RepositoryPath;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.providers.storage.StorageProvider;
-import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
-import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.security.NoSuchAlgorithmException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -56,9 +45,6 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
 
     @Inject
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
-
-    @Inject
-    private LayoutProviderRegistry layoutProviderRegistry;
 
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
@@ -108,7 +94,8 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
             logger.debug("The artifact was found in the local cache.");
             logger.debug("Resolved " + artifactPath + "!");
 
-            return new ArtifactInputStream(null, layoutProvider.getInputStream(storageId, repositoryId, path));
+            RepositoryPath repositoryPath = layoutProvider.resolve(repository, path);
+            return (ArtifactInputStream) Files.newInputStream(repositoryPath);
         }
         else
         {
@@ -145,7 +132,8 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
                 fileSystemProvider.moveFromTemporaryDirectory(artifactPath);
 
                 // Serve the downloaded artifact
-                return new ArtifactInputStream(null, layoutProvider.getInputStream(storageId, repositoryId, path));
+                RepositoryPath repositoryPath = layoutProvider.resolve(repository, path);
+                return (ArtifactInputStream) Files.newInputStream(repositoryPath);
             }
         }
     }
@@ -163,9 +151,9 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
 
         ArtifactCoordinates coordinates = layoutProvider.getArtifactCoordinates(artifactPath);
+        RepositoryPath repositoryPath = layoutProvider.resolve(repository, artifactPath);
 
-        return new ArtifactOutputStream(layoutProvider.getOutputStream(storageId, repositoryId, artifactPath),
-                                        coordinates);
+        return (ArtifactOutputStream) Files.newOutputStream(repositoryPath);
     }
 
 }

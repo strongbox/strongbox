@@ -199,7 +199,7 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
         throws IOException,
         NoSuchAlgorithmException
     {
-        Files.list(basePath)
+        Files.walk(basePath)
              .filter(p -> !Files.isDirectory(p))
              .filter(e -> {
                  try

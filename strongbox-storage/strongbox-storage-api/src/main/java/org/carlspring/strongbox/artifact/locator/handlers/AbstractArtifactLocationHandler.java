@@ -45,7 +45,7 @@ public abstract class AbstractArtifactLocationHandler
     {
         Set<RepositoryPath> versionDirectorySet = new TreeSet<>();
         Files.walk(basePath)
-             .peek(p -> {
+             .forEach(p -> {
                  if (isMetadata(p))
                  {
                      versionDirectorySet.add((RepositoryPath) p.getParent());
