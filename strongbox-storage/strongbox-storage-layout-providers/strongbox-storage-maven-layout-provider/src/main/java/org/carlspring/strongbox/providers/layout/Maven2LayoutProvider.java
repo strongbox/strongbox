@@ -385,7 +385,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
     {
         super.undeleteTrash(storageId, repositoryId);
 
-        artifactIndexesService.rebuildIndex(storageId, repositoryId, "/");
+        artifactIndexesService.rebuildIndex(storageId, repositoryId, null);
     }
 
     @Override
