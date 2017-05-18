@@ -134,10 +134,9 @@ public class MavenArtifactController
                          HttpServletResponse response)
             throws Exception
     {
-        logger.debug(" repository = " + repositoryId + "\n\tpath = " + path);
+        logger.debug("Requested /" + storageId + "/" + repositoryId + "/" + path + ".");
 
-        Storage storage = configurationManager.getConfiguration()
-                                              .getStorage(storageId);
+        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
         if (storage == null)
         {
             logger.error("Unable to find storage by ID " + storageId);

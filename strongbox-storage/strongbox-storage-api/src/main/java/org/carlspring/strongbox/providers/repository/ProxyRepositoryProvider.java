@@ -82,8 +82,7 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
         RepositoryPath reposytoryPath = layoutProvider.resolve(repository);
         RepositoryPath artifactPath = reposytoryPath.resolve(path);
 
-        RepositoryFileSystemProvider fileSystemProvider = (RepositoryFileSystemProvider) artifactPath.getFileSystem()
-                                                                                                     .provider();
+        RepositoryFileSystemProvider fileSystemProvider = artifactPath.getFileSystem().provider();
 
         logger.debug(" -> Checking for " + artifactPath + "...");
 

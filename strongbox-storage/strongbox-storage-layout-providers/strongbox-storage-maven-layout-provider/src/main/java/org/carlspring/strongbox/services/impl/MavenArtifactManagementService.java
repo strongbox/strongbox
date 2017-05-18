@@ -246,7 +246,7 @@ public class MavenArtifactManagementService
         {
             // This is not necessarily an error. It could simply be a check
             // whether a resource exists, before uploading/updating it.
-            logger.info("The requested path does not exist: /" + storageId + "/" + repositoryId + "/" + path);
+            logger.debug("The requested path does not exist: /" + storageId + "/" + repositoryId + "/" + path);
         }
 
         return null;
