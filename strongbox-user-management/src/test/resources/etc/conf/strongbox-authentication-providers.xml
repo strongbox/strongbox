@@ -9,6 +9,7 @@
 
     <util:list id="authenticators" value-type="java.lang.String">
         <value>org.carlspring.strongbox.authentication.api.impl.DefaultAuthenticator</value>
+        <value>org.carlspring.strongbox.authentication.api.impl.jwt.JWTAuthenticator</value>
         <value>org.carlspring.strongbox.authentication.impl.example.EmptyAuthenticator</value>
     </util:list>
     

@@ -13,10 +13,8 @@ import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -30,9 +28,6 @@ public class AuthenticationConfigTest
 
     @Inject
     AuthenticatorsRegistry authenticatorsRegistry;
-
-    @Inject
-    ApplicationContext applicationContext;
 
     @Test
     public void registryShouldNotBeNull()
@@ -49,8 +44,9 @@ public class AuthenticationConfigTest
                     @Override
                     public boolean matches(Object o)
                     {
-                        return ((Authenticator) o).getName().equals(
-                                DefaultAuthenticator.class.getSimpleName());
+                        return ((Authenticator) o).getName()
+                                                  .equals(
+                                                          DefaultAuthenticator.class.getSimpleName());
                     }
                 }));
     }
@@ -64,7 +60,8 @@ public class AuthenticationConfigTest
                        @Override
                        public boolean matches(Object o)
                        {
-                           return ((Authenticator) o).getName().equals("EmptyAuthenticator");
+                           return ((Authenticator) o).getName()
+                                                     .equals("EmptyAuthenticator");
                        }
                    }));
     }

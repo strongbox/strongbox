@@ -1,14 +1,17 @@
-package org.carlspring.strongbox.security.authentication;
+package org.carlspring.strongbox.authentication.api.impl.jwt;
 
 import org.carlspring.strongbox.security.exceptions.SecurityTokenException;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 
-import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,16 +21,26 @@ public class JWTAuthenticationProvider
         implements AuthenticationProvider
 {
 
-    @Inject
-    private UserDetailsService userDetailsService;
+    private static final Logger logger = LoggerFactory.getLogger(JWTAuthenticationProvider.class);
 
-    @Inject
-    private SecurityTokenProvider securityTokenProvider;
+    private final DaoAuthenticationProvider delegate;
 
+    private final UserDetailsService userDetailsService;
+
+    private final SecurityTokenProvider securityTokenProvider;
+
+    public JWTAuthenticationProvider(UserDetailsService userDetailsService,
+                                     SecurityTokenProvider securityTokenProvider)
+    {
+        this.userDetailsService = userDetailsService;
+        this.securityTokenProvider = securityTokenProvider;
+
+        delegate = new DaoAuthenticationProvider();
+        delegate.setUserDetailsService(userDetailsService);
+    }
 
     @Override
     public Authentication authenticate(Authentication authentication)
-            throws AuthenticationException
     {
 
         JWTAuthentication jwtAuthentication = (JWTAuthentication) authentication;
@@ -51,13 +64,12 @@ public class JWTAuthenticationProvider
             }
             else
             {
-                throw new BadCredentialsException(
-                                                         String.format(
-                                                                 String.format("Credentials don't match: user-[%s] ",
-                                                                               userName)), e);
+                throw new BadCredentialsException(String.format("Credentials don't match: user-[%s] ", userName), e);
             }
         }
-        return authentication;
+
+        logger.debug("Token verified. Delegating authentication to {}", delegate);
+        return delegate.authenticate(new UsernamePasswordAuthenticationToken(userName, user.getPassword()));
     }
 
     @Override

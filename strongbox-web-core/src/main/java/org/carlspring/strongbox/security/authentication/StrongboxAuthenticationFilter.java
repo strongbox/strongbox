@@ -61,8 +61,15 @@ public class StrongboxAuthenticationFilter
             }
 
             final AuthenticationProvider authenticationProvider = authenticator.getAuthenticationProvider();
-            logger.debug("Authentication provider attempt using {}", authenticationProvider.getClass()
-                                                                                           .getName());
+
+            if (!authenticationProvider.supports(authentication.getClass()))
+            {
+                logger.debug("Authentication provider {} does not support {}", authenticationProvider.getClass()
+                                                                                                     .getName(),
+                             authentication.getClass()
+                                           .getName());
+                continue;
+            }
 
             try
             {
