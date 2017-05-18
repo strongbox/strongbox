@@ -73,9 +73,9 @@ public class RepositoryPath
         return getTarget().getNameCount();
     }
 
-    public Path getName(int index)
+    public RepositoryPath getName(int index)
     {
-        return getTarget().getName(index);
+        return wrap(getTarget().getName(index));
     }
 
     public Path subpath(int beginIndex,

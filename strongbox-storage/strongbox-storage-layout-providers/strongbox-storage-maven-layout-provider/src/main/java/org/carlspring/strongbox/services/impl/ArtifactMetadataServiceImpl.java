@@ -113,10 +113,14 @@ public class ArtifactMetadataServiceImpl
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        basePath = basePath == null ? "/" : basePath;
+        //basePath = basePath == null ? "" : basePath;
 
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        RepositoryPath repositoryBasePath = layoutProvider.resolve(repository, basePath);
+        RepositoryPath repositoryBasePath = layoutProvider.resolve(repository);
+        if (basePath != null && basePath.trim().length() > 0)
+        {
+            repositoryBasePath = repositoryBasePath.resolve(basePath);
+        }
         
         GenerateMavenMetadataOperation operation = new GenerateMavenMetadataOperation(mavenMetadataManager);
         operation.setStorage(storage);

@@ -5,7 +5,6 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
@@ -51,26 +50,25 @@ public class ArtifactIndexesServiceImpl
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
-
-        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
-        
-        ArtifactCoordinates artifactCoordinates = layoutProvider.getArtifactCoordinates(artifactPath);
-        RepositoryPath repositoryArtifactPath = layoutProvider.resolve(repository, artifactCoordinates);
-        
-        artifactPath = artifactPath == null ? "/" : artifactPath;
-
         if (!repository.isIndexingEnabled())
         {
             return;
         }
-        RepositoryPath repostitoryPath = layoutProvider.resolve(repository, artifactPath);
+        
+        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
+        
+        RepositoryPath repostitoryPath = layoutProvider.resolve(repository);
+        if (artifactPath != null && artifactPath.trim().length() > 0)
+        {
+            repostitoryPath = repostitoryPath.resolve(artifactPath);
+        }
         
         MavenIndexerManagementOperation operation = new MavenIndexerManagementOperation(repositoryIndexManager);
 
         operation.setStorage(storage);
         //noinspection ConstantConditions
-        operation.setBasePath(repositoryArtifactPath);
+        operation.setBasePath(repostitoryPath);
 
         ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
         locator.setOperation(operation);
