@@ -58,8 +58,7 @@ public abstract class AbstractArtifactLocationHandler
     {
         try
         {
-            return Boolean.TRUE.equals(Files.getAttribute(p,
-                                                      RepositoryFileAttributes.METADATA));
+            return Boolean.TRUE.equals(Files.getAttribute(p, RepositoryFileAttributes.METADATA));
         }
         catch (IOException e)
         {
