@@ -41,7 +41,7 @@ public class ArtifactDirectoryLocator
         long endTime = System.currentTimeMillis();
 
         logger.debug("Executed (cache: " + operation.getVisitedRootPaths().size() + ")" +
-                " visits in " + (endTime - startTime) + " ms.");
+                     " visits in " + (endTime - startTime) + " ms.");
 
         getOperation().getVisitedRootPaths().clear();
     }
@@ -90,4 +90,5 @@ public class ArtifactDirectoryLocator
             logger.error(String.format("Failed to execute operation [%s]", operation.getClass().getSimpleName()), e);
         }
     }
+    
 }
