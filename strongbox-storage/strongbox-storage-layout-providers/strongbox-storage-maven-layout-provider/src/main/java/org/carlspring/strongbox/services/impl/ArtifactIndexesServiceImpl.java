@@ -12,8 +12,6 @@ import org.carlspring.strongbox.locator.handlers.MavenIndexerManagementOperation
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.providers.storage.StorageProvider;
-import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.storage.Storage;
@@ -39,9 +37,6 @@ public class ArtifactIndexesServiceImpl
     private RepositoryIndexManager repositoryIndexManager;
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
-    @Inject
-    private StorageProviderRegistry storageProviderRegistry;
-
     @Override
     public void rebuildIndex(String storageId,
                              String repositoryId,

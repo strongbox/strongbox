@@ -105,7 +105,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
                 {
                     is = resolveArtifact(sId, r.getId(), artifactPath);
                 }
-                catch (FileNotFoundException e)
+                catch (IOException e)
                 {
                     continue;
                 }

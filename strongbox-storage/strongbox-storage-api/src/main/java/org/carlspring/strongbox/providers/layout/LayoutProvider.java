@@ -42,6 +42,16 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
         throws IOException;
 
     RepositoryPath resolve(Repository repository,
+<<<<<<< HEAD
+=======
+                         ArtifactCoordinates coordinates)
+        throws IOException;
+
+    RepositoryPath resolve(Repository repository)
+        throws IOException;
+
+    RepositoryPath resolve(Repository repository,
+>>>>>>> refs/remotes/upstream/master
                            String path)
         throws IOException;
 

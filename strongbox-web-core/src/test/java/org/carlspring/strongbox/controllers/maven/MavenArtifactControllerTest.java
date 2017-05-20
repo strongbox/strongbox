@@ -190,15 +190,37 @@ public class MavenArtifactControllerTest
     public void testResolveViaProxyToMavenCentral()
             throws Exception
     {
-        String artifactPath = "storages/storage-common-proxies/maven-central/org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.jar";
+        String artifactPath = "storages/storage-common-proxies/maven-central/" +
+                              "org/carlspring/maven/derby-maven-plugin/1.9/derby-maven-plugin-1.9.jar";
 
+        resolveArtifact(artifactPath, "1.9");
+    }
+
+    /**
+     * Note: This test requires access to the Internet.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testResolveViaProxyToMavenCentralInGroup()
+            throws Exception
+    {
+        String artifactPath = "storages/storage-common-proxies/group-common-proxies/" +
+                              "org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.jar";
+
+        resolveArtifact(artifactPath, "1.10");
+    }
+
+    private void resolveArtifact(String artifactPath, String version)
+            throws NoSuchAlgorithmException, IOException
+    {
         InputStream is = client.getResource(artifactPath);
         if (is == null)
         {
-            fail("Failed to resolve 'derby-maven-plugin:1.10:jar' from Maven Central!");
+            fail("Failed to resolve 'derby-maven-plugin:" + version + ":jar' from Maven Central!");
         }
 
-        FileOutputStream fos = new FileOutputStream(new File(TEST_RESOURCES, "derby-maven-plugin-1.10.jar"));
+        FileOutputStream fos = new FileOutputStream(new File(TEST_RESOURCES, "derby-maven-plugin-" + version + ".jar"));
         MultipleDigestOutputStream mdos = new MultipleDigestOutputStream(fos);
 
         int len;

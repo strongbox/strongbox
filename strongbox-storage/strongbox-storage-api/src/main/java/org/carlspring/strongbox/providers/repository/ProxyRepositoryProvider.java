@@ -49,7 +49,6 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
-
     @PostConstruct
     @Override
     public void register()
