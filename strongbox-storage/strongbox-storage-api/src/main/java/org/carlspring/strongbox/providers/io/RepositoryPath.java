@@ -111,6 +111,9 @@ public class RepositoryPath
 
     public RepositoryPath resolve(Path other)
     {
+        if (other == null){
+            return this;
+        }
         other = unwrap(other);
         return wrap(getTarget().resolve(other));
     }

@@ -1,15 +1,7 @@
-package org.carlspring.strongbox.storage.repository.artifact.locator;
+package org.carlspring.strongbox.artifact.locator;
 
-import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
-import org.carlspring.strongbox.artifact.locator.handlers.ArtifactLocationReportOperation;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
-import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.TestCaseWithRepository;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -20,18 +12,30 @@ import java.util.regex.Matcher;
 
 import javax.inject.Inject;
 
+import org.carlspring.strongbox.artifact.locator.handlers.ArtifactLocationReportOperation;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertFalse;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * @author mtodorov
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration
 public class ArtifactDirectoryLocatorTest
-        extends TestCaseWithRepository
+        extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     private static final File REPOSITORY_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
