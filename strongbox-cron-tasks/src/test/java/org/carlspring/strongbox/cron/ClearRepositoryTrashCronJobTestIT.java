@@ -37,11 +37,11 @@ import static org.junit.Assert.*;
  */
 @CronTaskTest
 @RunWith(SpringJUnit4ClassRunner.class)
-public class ClearRepositoryTrashCronJobTest
+public class ClearRepositoryTrashCronJobTestIT
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
-    private final Logger logger = LoggerFactory.getLogger(ClearRepositoryTrashCronJobTest.class);
+    private final Logger logger = LoggerFactory.getLogger(ClearRepositoryTrashCronJobTestIT.class);
 
     private static final String STORAGE1 = "storage1";
 

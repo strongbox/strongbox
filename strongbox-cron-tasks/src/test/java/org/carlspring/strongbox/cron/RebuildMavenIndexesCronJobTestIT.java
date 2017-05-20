@@ -34,7 +34,7 @@ import static org.junit.Assert.*;
  */
 @CronTaskTest
 @RunWith(SpringJUnit4ClassRunner.class)
-public class RebuildMavenIndexesCronJobTest
+public class RebuildMavenIndexesCronJobTestIT
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
