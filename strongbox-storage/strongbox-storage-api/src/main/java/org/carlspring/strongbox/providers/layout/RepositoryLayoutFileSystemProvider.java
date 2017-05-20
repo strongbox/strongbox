@@ -136,8 +136,7 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
                                              String digestAlgorithm)
     {
         String checksumExtension = ".".concat(digestAlgorithm.toLowerCase().replaceAll("-", ""));
-        RepositoryPath checksumPath = path.resolveSibling(path.getFileName().toString().concat(checksumExtension));
-        return checksumPath;
+        return path.resolveSibling(path.getFileName().toString().concat(checksumExtension));
     }
     
     @Override
@@ -201,25 +200,25 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
     {
         Files.walk(basePath)
              .filter(p -> !Files.isDirectory(p))
-             .filter(e -> {
+             .filter(p -> {
                  try
                  {
-                     return !Boolean.TRUE.equals(Files.getAttribute(e, RepositoryFileAttributes.CHECKSUM));
+                     return !Boolean.TRUE.equals(Files.getAttribute(p, RepositoryFileAttributes.CHECKSUM));
                  }
-                 catch (IOException e2)
+                 catch (IOException e)
                  {
-                     logger.error(String.format("Failed to read attributes for [%s]", e), e);
+                     logger.error(String.format("Failed to read attributes for [%s]", p), e);
                  }
                  return false;
              })
-             .forEach(e -> {
+             .forEach(p -> {
                  try
                  {
-                     writeChecksum((RepositoryPath) e, forceRegeneration);
+                     writeChecksum((RepositoryPath) p, forceRegeneration);
                  }
-                 catch (IOException e1)
+                 catch (IOException e)
                  {
-                     logger.error(String.format("Failed to write checksum for [%s]", e), e);
+                     logger.error(String.format("Failed to write checksum for [%s]", p), e);
                  }
              });
     }
@@ -232,10 +231,10 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
         ArtifactInputStream is = newInputStream(path);
         Set<String> digestAlgorithmSet = path.getFileSystem().getDigestAlgorithmSet();
         digestAlgorithmSet.stream()
-                          .forEach(e -> {
+                          .forEach(p -> {
                               String checksum = is.getHexDigests()
-                                                  .get(e);
-                              RepositoryPath checksumPath = getChecksumPath(path, e);
+                                                  .get(p);
+                              RepositoryPath checksumPath = getChecksumPath(path, p);
                               if (Files.exists(checksumPath) && !force)
                               {
                                   return;
@@ -244,10 +243,10 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
                               {
                                   Files.write(checksumPath.getTarget(), checksum.getBytes());
                               }
-                              catch (IOException e1)
+                              catch (IOException e)
                               {
                                   logger.error(String.format("Failed to write checksum for [%s]",
-                                                             checksumPath.toString()));
+                                                             checksumPath.toString()), e);
                               }
                           });
     }
