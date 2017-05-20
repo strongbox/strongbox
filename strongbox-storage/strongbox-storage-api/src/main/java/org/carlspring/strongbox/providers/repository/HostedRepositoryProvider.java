@@ -54,7 +54,7 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
         Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
 
         LayoutProvider layoutPtovider = getLayoutProviderRegistry().getProvider(repository.getLayout());
-        RepositoryPath repositoryPath = layoutPtovider.resolve(repository, path);
+        RepositoryPath repositoryPath = layoutPtovider.resolve(repository).resolve(path);
         return (ArtifactInputStream) Files.newInputStream(repositoryPath);
     }
 
@@ -67,7 +67,7 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
         Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
 
         LayoutProvider layoutPtovider = getLayoutProviderRegistry().getProvider(repository.getLayout());
-        RepositoryPath repositoryPath = layoutPtovider.resolve(repository, path);
+        RepositoryPath repositoryPath = layoutPtovider.resolve(repository).resolve(path);
         return (ArtifactOutputStream) Files.newOutputStream(repositoryPath);
     }
 

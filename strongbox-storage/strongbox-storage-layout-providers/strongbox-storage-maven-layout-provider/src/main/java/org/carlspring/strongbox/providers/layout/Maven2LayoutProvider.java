@@ -1,35 +1,5 @@
 package org.carlspring.strongbox.providers.layout;
 
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.index.ArtifactInfo;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.index.ArtifactInfo;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -45,8 +15,6 @@ import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.index.ArtifactInfo;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
-import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
@@ -165,7 +133,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
 
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
-        RepositoryPath repositoryPath = resolve(repository, path);
+        RepositoryPath repositoryPath = resolve(repository).resolve(path);
 
         if (!Files.isDirectory(repositoryPath))
         {
@@ -187,7 +155,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
             String pomFilePath = path + "/" + artifactId + "-" + version + ".pom";
 
             // If there is a pom file, read it.
-            if (Files.exists(resolve(repository, pomFilePath)))
+            if (Files.exists(resolve(repository).resolve(pomFilePath)))
             {
                 // Run a search against the index and get a list of all the artifacts matching this exact GAV
                 SearchRequest request = new SearchRequest(storageId,
@@ -262,7 +230,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
 
         try
         {
-            RepositoryPath artifactVersionPath = resolve(repository, path);
+            RepositoryPath artifactVersionPath = resolve(repository).resolve(path);
 
             if (Files.exists(artifactVersionPath))
             {
@@ -290,7 +258,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
                 {
                     String version = path.substring(path.lastIndexOf('/') + 1, path.length());
 
-                    deleteMetadataAtArtifactLevel(resolve(repository, mavenMetadataPath.getParent().toString()), version);
+                    deleteMetadataAtArtifactLevel((RepositoryPath) mavenMetadataPath.getParent(), version);
                 }
             }
         }

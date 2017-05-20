@@ -51,8 +51,6 @@ public class ArtifactIndexesServiceImpl
         }
         
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
-        
         RepositoryPath repostitoryPath = layoutProvider.resolve(repository);
         if (artifactPath != null && artifactPath.trim().length() > 0)
         {

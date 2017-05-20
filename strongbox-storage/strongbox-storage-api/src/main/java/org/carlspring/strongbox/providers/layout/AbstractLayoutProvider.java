@@ -20,10 +20,6 @@ import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
-import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
-import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.providers.storage.StorageProvider;
 import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
@@ -97,21 +93,6 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         return storageProviderRegistry.getProvider(repository.getImplementation());
     }
 
-    protected StorageProvider getStorageProvider(Repository repository)
-    {
-        return storageProviderRegistry.getProvider(repository.getImplementation());
-    }
-
-    protected Repository getRepository(String storageId,
-                                       String repositoryId)
-    {
-        Storage storage = getConfiguration().getStorage(storageId);
-
-        logger.debug("Checking in " + storage.getId() + ":" + repositoryId + "...");
-
-        return storage.getRepository(repositoryId);
-    }
-
     protected Repository getRepository(String storageId,
                                        String repositoryId)
     {
@@ -151,14 +132,6 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         RepositoryFileSystem repositoryFileSystem = new RepositoryLayoutFileSystem(repository, storageFileSystem,
                 getProvider(repository));
         return repositoryFileSystem;
-    }
-
-    @Override
-    public RepositoryPath resolve(Repository repository,
-                                  String path)
-        throws IOException
-    {
-        return resolve(repository).resolve(path);
     }
 
     public RepositoryFileSystemProvider getProvider(Repository repository)
@@ -201,7 +174,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        RepositoryPath repositoryPath = resolve(repository, path);
+        RepositoryPath repositoryPath = resolve(repository).resolve(path);
 
         logger.debug("Checking in " + storageId + ":" + repositoryId + "(" + path + ")...");
         if (!Files.exists(repositoryPath))
@@ -264,7 +237,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                                    path));
 
         Repository repository = getRepository(storageId, repositoryId);
-        RepositoryPath artifactPath = resolve(repository, path);
+        RepositoryPath artifactPath = resolve(repository).resolve(path);
         RepositoryFileSystemProvider provider = getProvider(repository);
         
         provider.undelete(artifactPath);
@@ -312,7 +285,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
             throws IOException
     {
         Repository repository = getRepository(storageId, repositoryId);
-        RepositoryPath artifactPath = resolve(repository, path);
+        RepositoryPath artifactPath = resolve(repository).resolve(path);
         return Files.exists(artifactPath);
     }
 
@@ -381,66 +354,4 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
 
     }
 
-    protected Map<String, Object> getRepositoryFileAttributes(RepositoryPath repositoryRelativePath)
-    {
-        RepositoryFileSystemProvider provider = repositoryRelativePath.getFileSystem().provider();
-
-        Map<String, Object> result = new HashMap<>();
-        boolean isChecksum = provider.isChecksum(repositoryRelativePath);
-        result.put(RepositoryFileAttributes.CHECKSUM, isChecksum);
-        boolean isIndex = repositoryRelativePath.startsWith(".index");
-        result.put(RepositoryFileAttributes.INDEX, isIndex);
-        boolean isTemp = repositoryRelativePath.startsWith(".temp");
-        result.put(RepositoryFileAttributes.TEMP, isTemp);
-        boolean isTrash = repositoryRelativePath.startsWith(".trash");
-        result.put(RepositoryFileAttributes.TRASH, isTrash);
-        boolean isMetadata = isMetadata(repositoryRelativePath.toString());
-        result.put(RepositoryFileAttributes.METADATA, isMetadata);
-
-        boolean isHidden = isTemp || isTrash || isMetadata;
-        Boolean isArtifact = !isChecksum && !isIndex && !isHidden;
-        result.put(RepositoryFileAttributes.ARTIFACT, isArtifact);
-        if (!Files.isDirectory(repositoryRelativePath.getTarget()) && isArtifact)
-        {
-            result.put(RepositoryFileAttributes.COORDINATES, getArtifactCoordinates(repositoryRelativePath.toString()));
-        }
-        return result;
-    }
-    
-    protected abstract boolean isMetadata(String string);
-    
-    public class RepositoryLayoutFileSystem extends RepositoryFileSystem
-    {
-
-        public RepositoryLayoutFileSystem(Repository repository,
-                                          FileSystem storageFileSystem,
-                                          RepositoryFileSystemProvider provider)
-        {
-            super(repository, storageFileSystem, provider);
-        }
-
-        @Override
-        public Set<String> getDigestAlgorithmSet()
-        {
-            return AbstractLayoutProvider.this.getDigestAlgorithmSet();
-        }
-
-    }
-
-    public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProvider
-    {
-
-        public RepositoryLayoutFileSystemProvider(FileSystemProvider storageFileSystemProvider)
-        {
-            super(storageFileSystemProvider);
-        }
-
-        @Override
-        protected Map<String, Object> getRepositoryFileAttributes(RepositoryPath repositoryRelativePath)
-        {
-            return AbstractLayoutProvider.this.getRepositoryFileAttributes(repositoryRelativePath);
-        }
-
-    }
-    
 }

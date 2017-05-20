@@ -440,7 +440,7 @@ public class MavenArtifactManagementService
                       .equals(RepositoryPolicyEnum.SNAPSHOT.getPolicy()))
         {
             LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-            RepositoryPath repositoryPath = layoutProvider.resolve(repository, artifactPath);
+            RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(artifactPath);
             
             RemoveTimestampedSnapshotOperation operation = new RemoveTimestampedSnapshotOperation(mavenSnapshotManager);
             operation.setStorage(storage);

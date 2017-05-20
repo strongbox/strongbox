@@ -50,13 +50,8 @@ public class ArtifactMetadataServiceImpl
     private ConfigurationManager configurationManager;
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
-<<<<<<< HEAD
-=======
-    
->>>>>>> refs/remotes/upstream/master
     @Inject
     private MavenMetadataManager mavenMetadataManager;
-
 
     public ArtifactMetadataServiceImpl()
     {

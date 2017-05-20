@@ -93,7 +93,7 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
             logger.debug("The artifact was found in the local cache.");
             logger.debug("Resolved " + artifactPath + "!");
 
-            RepositoryPath repositoryPath = layoutProvider.resolve(repository, path);
+            RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(path);
             return (ArtifactInputStream) Files.newInputStream(repositoryPath);
         }
         else
@@ -131,7 +131,7 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
                 fileSystemProvider.moveFromTemporaryDirectory(artifactPath);
 
                 // Serve the downloaded artifact
-                RepositoryPath repositoryPath = layoutProvider.resolve(repository, path);
+                RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(path);
                 return (ArtifactInputStream) Files.newInputStream(repositoryPath);
             }
         }
@@ -150,7 +150,7 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
 
         ArtifactCoordinates coordinates = layoutProvider.getArtifactCoordinates(artifactPath);
-        RepositoryPath repositoryPath = layoutProvider.resolve(repository, artifactPath);
+        RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(artifactPath);
 
         return (ArtifactOutputStream) Files.newOutputStream(repositoryPath);
     }
