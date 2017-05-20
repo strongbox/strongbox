@@ -10,7 +10,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
-import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -27,6 +26,7 @@ public abstract class AbstractArtifactLocationHandler
     private static final Logger logger = LoggerFactory.getLogger(AbstractArtifactLocationHandler.class);
     
     private Storage storage;
+    
     private LinkedHashMap<RepositoryPath, List<RepositoryPath>> visitedRootPaths = new LinkedHashMap<>();
 
     /**
@@ -51,6 +51,7 @@ public abstract class AbstractArtifactLocationHandler
                      versionDirectorySet.add((RepositoryPath) p.getParent());
                  }
              });
+        
         return new ArrayList<>(versionDirectorySet);
     }
 

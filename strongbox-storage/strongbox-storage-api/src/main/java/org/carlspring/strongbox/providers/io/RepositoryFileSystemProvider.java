@@ -24,7 +24,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.FileAttributeView;
 import java.nio.file.spi.FileSystemProvider;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -49,6 +48,7 @@ public abstract class RepositoryFileSystemProvider
     private static final Logger logger = LoggerFactory.getLogger(RepositoryFileSystemProvider.class);
 
     private FileSystemProvider storageFileSystemProvider;
+    
     private boolean allowsForceDelete;
     
     public RepositoryFileSystemProvider(FileSystemProvider storageFileSystemProvider)
@@ -169,7 +169,9 @@ public abstract class RepositoryFileSystemProvider
         storageFileSystemProvider.createDirectory(unwrap(dir), attrs);
     }
 
-    public void delete(Path path) throws IOException{
+    public void delete(Path path)
+        throws IOException
+    {
         delete(path, isAllowsForceDelete());
     }
 

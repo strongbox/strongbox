@@ -49,7 +49,7 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
     }
 
     @Override
-    public FileSystem getFileSistem()
+    public FileSystem getFileSystem()
     {
         return FileSystems.getDefault();
     }

@@ -13,7 +13,7 @@ public interface StorageProvider
 
     void register();
 
-    FileSystem getFileSistem();
+    FileSystem getFileSystem();
     
     FileSystemProvider getFileSystemProvider();
 }

@@ -128,7 +128,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     
     public RepositoryFileSystem getRepositoryFileSystem(Repository repository)
     {
-        FileSystem storageFileSystem = getStorageProvider(repository).getFileSistem();
+        FileSystem storageFileSystem = getStorageProvider(repository).getFileSystem();
         RepositoryFileSystem repositoryFileSystem = new RepositoryLayoutFileSystem(repository, storageFileSystem,
                 getProvider(repository));
         return repositoryFileSystem;
