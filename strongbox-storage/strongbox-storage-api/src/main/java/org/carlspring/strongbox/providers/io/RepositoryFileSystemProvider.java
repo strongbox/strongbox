@@ -205,6 +205,7 @@ public abstract class RepositoryFileSystemProvider
                 {
                     //Checksum files will be deleted during directory walking
                     doDeletePath((RepositoryPath) file, force, false);
+                    
                     return FileVisitResult.CONTINUE;
                 }
 
@@ -226,9 +227,12 @@ public abstract class RepositoryFileSystemProvider
             throws IOException
     {
         doDeletePath(repositoryPath, force);
-        if (!deleteChacksum){
+        
+        if (!deleteChacksum)
+        {
             return;
         }
+        
         for (String digestAlgorithm : repositoryPath.getFileSystem().getDigestAlgorithmSet())
         {
             //it creates Checksum file extension name form Digest algorithm name: SHA-1->sha1
@@ -249,6 +253,7 @@ public abstract class RepositoryFileSystemProvider
         if (!repository.isTrashEnabled())
         {
             Files.deleteIfExists(repositoryPath.getTarget());
+            
             return;
         }
 
@@ -287,8 +292,8 @@ public abstract class RepositoryFileSystemProvider
         {
             Files.walkFileTree(trashPath.getTarget(),
                                new MoveDirectoryVisitor(trashPath.getTarget(),
-                                                  path.getTarget(),
-                                                  StandardCopyOption.REPLACE_EXISTING));
+                                                        path.getTarget(),
+                                                        StandardCopyOption.REPLACE_EXISTING));
         }
     }
 
@@ -360,8 +365,6 @@ public abstract class RepositoryFileSystemProvider
 
             Files.createDirectories(trashPath.getParent().getTarget());
         }
-        
-        
         
         return trashPath;
     }
@@ -457,11 +460,13 @@ public abstract class RepositoryFileSystemProvider
         {
             return targetAttributes;
         }
+        
         RepositoryPath repositoryPath = (RepositoryPath) path;
         RepositoryPath repositoryRelativePath = repositoryPath.getRepositoryRelative();
         
         RepositoryFileAttributes repositoryFileAttributes = new RepositoryFileAttributes(targetAttributes,
                 getRepositoryFileAttributes(repositoryRelativePath));
+        
         return (A) repositoryFileAttributes;
     }
 
@@ -476,6 +481,7 @@ public abstract class RepositoryFileSystemProvider
                 return true;
             }
         }
+        
         return false;
     }
     
@@ -488,9 +494,11 @@ public abstract class RepositoryFileSystemProvider
         {
             return storageFileSystemProvider.readAttributes(unwrap(path), attributes, options);
         }
+        
         //TODO: Make an implementation in accordance with the specification
         RepositoryPath repositoryPath = (RepositoryPath) path;
         RepositoryPath repositoryRelativePath = repositoryPath.getRepositoryRelative();
+        
         return getRepositoryFileAttributes(repositoryRelativePath);
     }
 
@@ -549,6 +557,5 @@ public abstract class RepositoryFileSystemProvider
             return FileVisitResult.CONTINUE;
         }
     }
-
 
 }
