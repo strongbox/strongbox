@@ -34,11 +34,6 @@ public class ArtifactLocationReportOperation
 
     public void execute(RepositoryPath path) throws IOException
     {
-        //File f = path.toAbsolutePath().toFile();
-
-        //String[] list = f.list(new PomFilenameFilter());
-        //List<String> filePaths = list != null ? Arrays.asList(list) : new ArrayList<>();
-
         List<Path> filePathList = Files.walk(path)
                 .filter(p -> !p.getFileName().startsWith(".pom"))
                 .sorted()

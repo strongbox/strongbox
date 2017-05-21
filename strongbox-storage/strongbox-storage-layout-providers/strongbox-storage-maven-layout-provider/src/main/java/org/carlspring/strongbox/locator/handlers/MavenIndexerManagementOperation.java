@@ -80,7 +80,7 @@ public class MavenIndexerManagementOperation
                      }
                      catch (IOException e)
                      {
-                         logger.error(String.format("Failed to add artifact to index for [%s]", f));
+                         logger.error(String.format("Failed to add artifact to index for [%s]", f), e);
                      }
                  });
 

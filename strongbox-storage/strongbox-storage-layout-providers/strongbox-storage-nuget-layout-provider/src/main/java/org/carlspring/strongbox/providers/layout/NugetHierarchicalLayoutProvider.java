@@ -1,20 +1,5 @@
 package org.carlspring.strongbox.providers.layout;
 
-import org.carlspring.strongbox.artifact.coordinates.NugetHierarchicalArtifactCoordinates;
-import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.io.ArtifactOutputStream;
-import org.carlspring.strongbox.io.filters.NuspecFilenameFilter;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
-import org.carlspring.strongbox.repository.NugetRepositoryManagementStrategy;
-import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.services.impl.NugetArtifactManagementService;
-import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.spi.FileSystemProvider;
@@ -31,11 +16,12 @@ import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.NugetHierarchicalArtifactCoordinates;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
-import org.carlspring.strongbox.io.filters.NuspecFilenameFilter;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
 import org.carlspring.strongbox.repository.NugetRepositoryManagementStrategy;
+import org.carlspring.strongbox.services.ArtifactManagementService;
+import org.carlspring.strongbox.services.impl.NugetArtifactManagementService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;

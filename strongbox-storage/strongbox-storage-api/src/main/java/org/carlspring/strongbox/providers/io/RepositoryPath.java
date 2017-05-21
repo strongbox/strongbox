@@ -216,5 +216,10 @@ public class RepositoryPath
         return  getTarget().equals(obj instanceof RepositoryPath ? unwrap((Path) obj) : obj);
     }
 
+    @Override
+    public int hashCode()
+    {
+        return getTarget().hashCode();
+    }
     
 }
