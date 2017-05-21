@@ -5,6 +5,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Set;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -27,6 +29,10 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
 
     T getArtifactCoordinates(String path);
 
+    ArtifactInputStream getInputStream(RepositoryPath path) throws IOException;
+
+    ArtifactOutputStream getOutputStream(RepositoryPath path) throws IOException;
+    
     RepositoryPath resolve(Repository repository,
                          ArtifactCoordinates coordinates)
         throws IOException;

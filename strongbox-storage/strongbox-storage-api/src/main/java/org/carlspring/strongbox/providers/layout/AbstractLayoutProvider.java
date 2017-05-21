@@ -16,6 +16,8 @@ import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
@@ -107,6 +109,20 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     {
         return Stream.of(MessageDigestAlgorithms.MD5, MessageDigestAlgorithms.SHA_1)
                      .collect(Collectors.toSet());
+    }
+
+    
+    
+    @Override
+    public final ArtifactInputStream getInputStream(RepositoryPath path) throws IOException
+    {
+        return (ArtifactInputStream) Files.newInputStream(path);
+    }
+
+    @Override
+    public final ArtifactOutputStream getOutputStream(RepositoryPath path) throws IOException
+    {
+        return (ArtifactOutputStream) Files.newOutputStream(path);
     }
 
     @Override
