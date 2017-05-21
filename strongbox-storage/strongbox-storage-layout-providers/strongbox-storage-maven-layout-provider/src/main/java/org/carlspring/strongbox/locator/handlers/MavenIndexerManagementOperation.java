@@ -87,14 +87,4 @@ public class MavenIndexerManagementOperation
         }
     }
 
-    public RepositoryIndexManager getRepositoryIndexManager()
-    {
-        return repositoryIndexManager;
-    }
-
-    public void setRepositoryIndexManager(RepositoryIndexManager repositoryIndexManager)
-    {
-        this.repositoryIndexManager = repositoryIndexManager;
-    }
-
 }
