@@ -31,16 +31,10 @@ public abstract class AbstractMavenArtifactLocatorOperation
 
     public void execute(RepositoryPath path) throws IOException
     {
-//        File f = path.toAbsolutePath().toFile();
-
         List<Path> filePathList = Files.list(path)
                                        .filter(p -> p.getFileName().toString().endsWith(".pom"))
                                        .sorted()
                                        .collect(Collectors.toList());
-        
-//        String[] list = f.list(new PomFilenameFilter());
-//        List<String> filePaths = list != null ? Arrays.asList(list) : new ArrayList<>();
-
         RepositoryPath parentPath = path.getParent();
 
         if (filePathList.isEmpty()){
@@ -91,9 +85,6 @@ public abstract class AbstractMavenArtifactLocatorOperation
         }
 
         RepositoryPath artifactPath = parentPath.getRepositoryRelative();
-        
-        //String artifactPath = parentPath.substring(getRepository().getBasedir().length() + 1, parentPath.length());
-
         executeOperation(request, artifactPath, versionDirectories);
     }
 

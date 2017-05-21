@@ -11,7 +11,6 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
 import org.carlspring.commons.io.MultipleDigestInputStream;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactResolver;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
@@ -148,8 +147,6 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
         Repository repository = storage.getRepository(repositoryId);
 
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-
-        ArtifactCoordinates coordinates = layoutProvider.getArtifactCoordinates(artifactPath);
         RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(artifactPath);
 
         return (ArtifactOutputStream) Files.newOutputStream(repositoryPath);

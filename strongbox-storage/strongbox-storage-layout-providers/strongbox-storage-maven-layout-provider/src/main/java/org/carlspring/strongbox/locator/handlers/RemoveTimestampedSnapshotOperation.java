@@ -48,18 +48,11 @@ public class RemoveTimestampedSnapshotOperation
 
     public void execute(RepositoryPath path) throws IOException
     {
-//        File f = path.toAbsolutePath()
-//                     .toFile();
-//
-//        String[] list = f.list(new PomFilenameFilter());
-        
         List<Path> filePathList = Files.walk(path)
                 .filter(p -> !p.getFileName().startsWith(".pom"))
                 .sorted()
                 .collect(Collectors.toList());
         
-//        List<String> filePaths = list != null ? Arrays.asList(list) : new ArrayList<>();
-
         RepositoryPath parentPath = path.getParent()
                                 .toAbsolutePath();
 
@@ -116,10 +109,6 @@ public class RemoveTimestampedSnapshotOperation
             }
             
             RepositoryPath artifactPath = path.getRepositoryRelative();
-
-//            String artifactPath = parentPath.substring(getRepository().getBasedir()
-//                                                                      .length() + 1, parentPath.length());
-
             try
             {
                 mavenSnapshotManager.deleteTimestampedSnapshotArtifacts(getRepository(), artifactPath.toString(), request,

@@ -3,7 +3,6 @@ package org.carlspring.strongbox.artifact.locator.handlers;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -98,14 +97,7 @@ public class ArtifactLocationGenerateChecksumOperation
         RepositoryPath basePath = versionDirectories.get(0).getParent();
         RepositoryLayoutFileSystemProvider provider = (RepositoryLayoutFileSystemProvider) basePath.getFileSystem()
                                                                                                    .provider();
-        try
-        {
-            provider.storeChecksum(basePath, forceRegeneration);
-        }
-        catch (NoSuchAlgorithmException e)
-        {
-            throw new IOException(e);
-        }
+        provider.storeChecksum(basePath, forceRegeneration);
     }
 
     public boolean getForceRegeneration()

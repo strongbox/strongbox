@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;

@@ -195,8 +195,7 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
     
     public void storeChecksum(RepositoryPath basePath,
                               boolean forceRegeneration)
-        throws IOException,
-        NoSuchAlgorithmException
+        throws IOException
     {
         Files.walk(basePath)
              .filter(p -> !Files.isDirectory(p))

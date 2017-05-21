@@ -54,13 +54,6 @@ public class MavenIndexerManagementOperation
             // System.out.println(" " + versionDirectory.getAbsolutePath());
 
             RepositoryPath artifactVersionDirectoryRelative  = versionDirectoryAbs.getRepositoryRelative();
-            
-//            String artifactVersionDirectory = versionDirectory.getPath();
-//            String artifactVersionDirectoryRelative = artifactVersionDirectory.substring(getStorage().getRepository(repositoryId)
-//                                                                                                     .getBasedir()
-//                                                                                                     .length()
-//                    + 1,
-//                                                                                         artifactVersionDirectory.length());
             int pathElementCount = artifactVersionDirectoryRelative.getNameCount();
             
             StringBuilder groupId = new StringBuilder();
@@ -69,37 +62,18 @@ public class MavenIndexerManagementOperation
                 String element = artifactVersionDirectoryRelative.getName(i).toString();
                 groupId.append((groupId.length() == 0) ? element : "." + element);
             }
-            
-//            String[] artifactCoordinateElements = artifactVersionDirectoryRelative.split("/");
-//            
-//            for (int i = 0; i < artifactCoordinateElements.length - 2; i++)
-//            {
-//                String element = artifactCoordinateElements[i];
-//                groupId.append((groupId.length() == 0) ? element : "." + element);
-//            }
 
             String artifactId = artifactVersionDirectoryRelative.getName(pathElementCount - 2).toString();
             String version = artifactVersionDirectoryRelative.getName(pathElementCount - 1).toString();           
-            
-//            String artifactId = artifactCoordinateElements[artifactCoordinateElements.length - 2];
-//            String version = artifactCoordinateElements[artifactCoordinateElements.length - 1];
-
 
             DetachedArtifact artifact = (DetachedArtifact) ArtifactUtils.getArtifactFromGAVTC(groupId + ":" +
                     artifactId + ":" +
                     version);
 
-            // TODO: @Sergey:
-            // TODO: Could you please replace this with a fully Path-based implementation?
             Files.walk(versionDirectoryAbs)
                  .filter(Files::isRegularFile)
                  .forEach(f -> {
-                     String fileName = f.getFileName().toString();
-                     String extension = fileName.substring(fileName.lastIndexOf('.') + 1,
-                                                           fileName.length());
-
                      artifact.setFile(f.toFile());
-
                      try
                      {
                          indexer.addArtifactToIndex(repositoryId, f.toFile(), artifact);
