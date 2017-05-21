@@ -162,7 +162,7 @@
                 <plugin>
                     <groupId>org.carlspring.maven</groupId>
                     <artifactId>little-proxy-maven-plugin</artifactId>
-                    <version>1.0</version>
+                    <version>1.1-SNAPSHOT</version>
                 </plugin>
 
                 <plugin>

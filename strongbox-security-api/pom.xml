@@ -219,7 +219,7 @@
         <!-- These two profiles need to be on top. -->
 
         <profile>
-            <id>run-tests</id>
+            <id>unit-tests</id>
             <activation>
                 <property>
                     <name>skipTests</name>
@@ -375,6 +375,10 @@
                                 <goals>
                                     <goal>stop</goal>
                                 </goals>
+
+                                <configuration>
+                                    <failIfNotRunning>false</failIfNotRunning>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -396,6 +400,7 @@
                                 </goals>
 
                                 <configuration>
+                                    <failIfNotRunning>false</failIfNotRunning>
                                     <shutdownPort>${port.littleproxy.shutdown}</shutdownPort>
                                 </configuration>
                             </execution>
@@ -435,6 +440,10 @@
                                 <goals>
                                     <goal>stop</goal>
                                 </goals>
+
+                                <configuration>
+                                    <failIfNotRunning>false</failIfNotRunning>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -457,6 +466,7 @@
                                 </goals>
 
                                 <configuration>
+                                    <failIfNotRunning>false</failIfNotRunning>
                                     <shutdownPort>${port.littleproxy.shutdown}</shutdownPort>
                                 </configuration>
                             </execution>
