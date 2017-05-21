@@ -1,6 +1,4 @@
-package org.carlspring.strongbox.authentication.api.impl;
-
-import org.carlspring.strongbox.authentication.api.AuthenticationSupplier;
+package org.carlspring.strongbox.security.authentication.suppliers;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -14,16 +12,18 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.codec.Base64;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 /**
  * @author Przemyslaw Fusik
  */
-public class DefaultAuthenticationSupplier
+@Component
+class BasicAuthenticationSupplier
         implements AuthenticationSupplier
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(DefaultAuthenticationSupplier.class);
+    private static final Logger logger = LoggerFactory.getLogger(BasicAuthenticationSupplier.class);
 
     private String credentialsCharset = "UTF-8";
 
@@ -70,7 +70,8 @@ public class DefaultAuthenticationSupplier
     private String[] extractAndDecodeHeader(String header)
             throws UnsupportedEncodingException
     {
-        byte[] base64Token = header.substring(6).getBytes(credentialsCharset);
+        byte[] base64Token = header.substring(6)
+                                   .getBytes(credentialsCharset);
         byte[] decoded;
         try
         {

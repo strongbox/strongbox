@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.security.authentication;
 
-import org.carlspring.strongbox.authentication.api.AuthenticationSupplier;
 import org.carlspring.strongbox.authentication.api.Authenticator;
 import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
+import org.carlspring.strongbox.security.authentication.suppliers.AuthenticationSuppliers;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -29,9 +29,12 @@ public class StrongboxAuthenticationFilter
 
     private final AuthenticatorsRegistry authenticatorsRegistry;
 
-    public StrongboxAuthenticationFilter(AuthenticatorsRegistry authenticatorsRegistry)
+    private final AuthenticationSuppliers authenticationSuppliers;
+
+    public StrongboxAuthenticationFilter(AuthenticationSuppliers authenticationSuppliers, AuthenticatorsRegistry authenticatorsRegistry)
     {
         super();
+        this.authenticationSuppliers = authenticationSuppliers;
         this.authenticatorsRegistry = authenticatorsRegistry;
     }
 
@@ -42,45 +45,37 @@ public class StrongboxAuthenticationFilter
             throws ServletException,
                    IOException
     {
-        Authentication result = null;
+        Authentication authentication = authenticationSuppliers.supply(request);
 
+        if (authentication == null) {
+            logger.debug("Authentication not supplied by any authentication supplier. Skipping authentication providing.");
+        } else {
+            provideAuthentication(authentication);
+        }
+
+        filterChain.doFilter(request, response);
+    }
+
+    private void provideAuthentication(Authentication authentication)
+    {
         for (final Authenticator authenticator : authenticatorsRegistry)
         {
-
-            final AuthenticationSupplier authenticationSupplier = authenticator.getAuthenticationSupplier();
-
-            logger.debug("Authentication supplier attempt using {}", authenticationSupplier.getClass()
-                                                                                           .getName());
-            final Authentication authentication = authenticationSupplier.supply(request);
-
-            if (authentication == null)
-            {
-                logger.debug("Unable to get an authentication instance using {}", authenticationSupplier.getClass()
-                                                                                                        .getName());
-                continue;
-            }
-
             final AuthenticationProvider authenticationProvider = authenticator.getAuthenticationProvider();
 
             if (!authenticationProvider.supports(authentication.getClass()))
             {
-                logger.debug("Authentication provider {} does not support {}", authenticationProvider.getClass()
-                                                                                                     .getName(),
-                             authentication.getClass()
-                                           .getName());
+                logger.debug("Authentication provider {} does not support {}", authenticationProvider.getClass().getName(), authentication.getClass().getName());
                 continue;
             }
 
             try
             {
-                result = authenticationProvider.authenticate(authentication);
+                authentication = authenticationProvider.authenticate(authentication);
 
-                if (result != null)
+                if (authentication != null)
                 {
-                    SecurityContextHolder.getContext()
-                                         .setAuthentication(result);
-                    logger.debug("Authentication success using {}", authenticationProvider.getClass()
-                                                                                          .getName());
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    logger.debug("Authentication success using {}", authenticationProvider.getClass().getName());
                     break;
                 }
             }
@@ -90,8 +85,5 @@ public class StrongboxAuthenticationFilter
                 continue;
             }
         }
-
-        filterChain.doFilter(request, response);
-
     }
 }

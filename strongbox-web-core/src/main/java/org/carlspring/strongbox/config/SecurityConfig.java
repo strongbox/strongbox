@@ -4,6 +4,8 @@ import org.carlspring.strongbox.authentication.config.AuthenticationConfig;
 import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
 import org.carlspring.strongbox.security.authentication.CustomAnonymousAuthenticationFilter;
 import org.carlspring.strongbox.security.authentication.StrongboxAuthenticationFilter;
+import org.carlspring.strongbox.security.authentication.suppliers.AuthenticationSupplier;
+import org.carlspring.strongbox.security.authentication.suppliers.AuthenticationSuppliers;
 import org.carlspring.strongbox.security.vote.MethodAccessDecisionManager;
 import org.carlspring.strongbox.users.security.AuthoritiesProvider;
 
@@ -38,6 +40,9 @@ public class SecurityConfig
     @Inject
     private AuthenticatorsRegistry authenticatorsRegistry;
 
+    @Inject
+    private List<AuthenticationSupplier> suppliers;
+
     @Override
     protected void configure(HttpSecurity http)
             throws Exception
@@ -58,7 +63,7 @@ public class SecurityConfig
     @Bean
     StrongboxAuthenticationFilter strongboxAuthenticationFilter()
     {
-        return new StrongboxAuthenticationFilter(authenticatorsRegistry);
+        return new StrongboxAuthenticationFilter(new AuthenticationSuppliers(suppliers), authenticatorsRegistry);
     }
 
     @Bean
@@ -93,6 +98,5 @@ public class SecurityConfig
         }
 
     }
-
 
 }
