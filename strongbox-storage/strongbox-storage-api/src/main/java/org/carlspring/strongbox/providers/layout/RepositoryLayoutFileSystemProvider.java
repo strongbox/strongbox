@@ -130,8 +130,6 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
         return checksum;
     }
 
-
-
     protected RepositoryPath getChecksumPath(RepositoryPath path,
                                              String digestAlgorithm)
     {
