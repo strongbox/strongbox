@@ -36,7 +36,7 @@ public class GenerateMavenMetadataOperation
     {
         try
         {
-            mavenMetadataManager.generateMetadata(getRepository(), artifactPath.toString(), request);
+            mavenMetadataManager.generateMetadata(artifactPath.getFileSystem().getRepository(), artifactPath.toString(), request);
         }
         catch (IOException |
                        XmlPullParserException |

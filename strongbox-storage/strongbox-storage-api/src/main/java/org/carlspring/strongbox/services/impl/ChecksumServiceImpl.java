@@ -43,7 +43,6 @@ public class ChecksumServiceImpl
         RepositoryPath repositoryBasePath = layoutProvider.resolve(repository).resolve(basePath);
         
         ArtifactLocationGenerateChecksumOperation operation = new ArtifactLocationGenerateChecksumOperation();
-        operation.setStorage(storage);
         operation.setBasePath(repositoryBasePath);
         operation.setForceRegeneration(forceRegeneration);
 

@@ -38,8 +38,8 @@ public class MavenIndexerManagementOperation
                                  RepositoryPath artifactPath,
                                  List<RepositoryPath> versionDirectories) throws IOException
     {
-        String repositoryId = getRepository().getId();
-        String storageId = getStorage().getId();
+        String repositoryId = artifactPath.getFileSystem().getRepository().getId();
+        String storageId = artifactPath.getFileSystem().getRepository().getStorage().getId();
 
         String contextId = getContextId(storageId, repositoryId, IndexTypeEnum.LOCAL.getType());
         RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(contextId);

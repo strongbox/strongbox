@@ -11,8 +11,6 @@ import java.util.TreeSet;
 
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,8 +22,6 @@ public abstract class AbstractArtifactLocationHandler
         implements ArtifactDirectoryOperation
 {
     private static final Logger logger = LoggerFactory.getLogger(AbstractArtifactLocationHandler.class);
-    
-    private Storage storage;
     
     private LinkedHashMap<RepositoryPath, List<RepositoryPath>> visitedRootPaths = new LinkedHashMap<>();
 
@@ -66,23 +62,6 @@ public abstract class AbstractArtifactLocationHandler
             logger.error(String.format("Failed to read Path attributes for [%s]", p), e);
             return false;
         }
-    }
-
-    @Override
-    public Storage getStorage()
-    {
-        return storage;
-    }
-
-    public void setStorage(Storage storage)
-    {
-        this.storage = storage;
-    }
-
-    @Override
-    public Repository getRepository()
-    {
-        return basePath.getFileSystem().getRepository();
     }
 
     @Override

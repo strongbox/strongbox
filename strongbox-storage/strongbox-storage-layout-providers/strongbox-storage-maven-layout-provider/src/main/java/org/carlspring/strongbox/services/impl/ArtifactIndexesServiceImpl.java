@@ -59,7 +59,6 @@ public class ArtifactIndexesServiceImpl
         
         MavenIndexerManagementOperation operation = new MavenIndexerManagementOperation(repositoryIndexManager);
 
-        operation.setStorage(storage);
         //noinspection ConstantConditions
         operation.setBasePath(repostitoryPath);
 

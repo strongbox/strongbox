@@ -120,7 +120,6 @@ public class ArtifactMetadataServiceImpl
         }
         
         GenerateMavenMetadataOperation operation = new GenerateMavenMetadataOperation(mavenMetadataManager);
-        operation.setStorage(storage);
         operation.setBasePath(repositoryBasePath);
 
         ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
