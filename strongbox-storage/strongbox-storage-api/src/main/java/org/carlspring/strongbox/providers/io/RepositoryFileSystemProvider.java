@@ -170,7 +170,7 @@ public abstract class RepositoryFileSystemProvider
     }
 
     public void delete(Path path)
-        throws IOException
+            throws IOException
     {
         delete(path, isAllowsForceDelete());
     }
