@@ -37,7 +37,7 @@ public class AuthenticatorsClassLoader
         }
         catch (FileNotFoundException e)
         {
-            logger.debug(e.getMessage(), e);
+            logger.debug(e.getMessage());
             return;
         }
         catch (IOException e)
