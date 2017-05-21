@@ -24,7 +24,7 @@ pipeline {
                             withSonarQubeEnv('sonar') {
                                 // requires SonarQube Scanner for Maven 3.2+
                                 sh "mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.2:sonar" +
-                                   " -Dintegration.tests"
+                                   " -Dspring.profiles.active=quartz-integration-tests"
 
                                 build(job: "strongbox/strongbox-os-builds", wait: false)
                             }
@@ -39,7 +39,7 @@ pipeline {
                                        " -Psonar-github" +
                                        " -Dsonar.github.repository=${REPO_NAME}" +
                                        " -Dsonar.github.pullRequest=${PR_NUMBER}" +
-                                       " -Dintegration.tests"
+                                       " -Dspring.profiles.active=quartz-integration-tests"
                                 }
                             }
                             else

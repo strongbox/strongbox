@@ -31,7 +31,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
-public class KeyStoreManagerIntegrationTestIT
+public class KeyStoreManagerIntegrationTest
 {
 
     @org.springframework.context.annotation.Configuration
@@ -60,8 +60,7 @@ public class KeyStoreManagerIntegrationTestIT
 
     private final Proxy PROXY_HTTP = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(PROXY_HOST, PROXY_HTTP_PORT));
 
-    private static final PasswordAuthentication credentials = new PasswordAuthentication(PROXY_USERNAME,
-                                                                                         PROXY_PASSWORD.toCharArray());
+    private static final PasswordAuthentication credentials = new PasswordAuthentication(PROXY_USERNAME, PROXY_PASSWORD.toCharArray());
 
     public static int LDAPS_PORT;
 
@@ -128,7 +127,6 @@ public class KeyStoreManagerIntegrationTestIT
         if (!ConnectionChecker.checkServiceAvailability(SOCKS_HOST, PROXY_SOCKS_PORT, 5000))
         {
             System.out.println("WARN: Skipping the testSocks() test, as the proxy server is unreachable.");
-
             return;
         }
 

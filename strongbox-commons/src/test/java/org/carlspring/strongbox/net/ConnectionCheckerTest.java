@@ -11,7 +11,7 @@ import static org.junit.Assert.fail;
 /**
  * @author mtodorov
  */
-public class ConnectionCheckerTestIT
+public class ConnectionCheckerTest
 {
 
     @Test

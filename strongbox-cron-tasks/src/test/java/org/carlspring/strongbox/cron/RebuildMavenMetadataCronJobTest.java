@@ -37,7 +37,7 @@ import static org.junit.Assert.assertNull;
  */
 @CronTaskTest
 @RunWith(SpringJUnit4ClassRunner.class)
-public class RebuildMavenMetadataCronJobTestIT
+public class RebuildMavenMetadataCronJobTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 

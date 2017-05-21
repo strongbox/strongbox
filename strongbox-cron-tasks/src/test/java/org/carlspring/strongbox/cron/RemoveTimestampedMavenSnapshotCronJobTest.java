@@ -38,7 +38,7 @@ import static org.junit.Assert.*;
  */
 @CronTaskTest
 @RunWith(SpringJUnit4ClassRunner.class)
-public class RemoveTimestampedMavenSnapshotCronJobTestIT
+public class RemoveTimestampedMavenSnapshotCronJobTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 

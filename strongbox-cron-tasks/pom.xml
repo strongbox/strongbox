@@ -31,6 +31,7 @@
 
         <version.quartz>2.2.3</version.quartz>
         <version.groovy>2.3.0-beta-2</version.groovy>
+
     </properties>
 
     <build>
