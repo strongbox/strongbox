@@ -525,8 +525,8 @@ public abstract class RepositoryFileSystemProvider
         private final CopyOption copyOption;
 
         public MoveDirectoryVisitor(Path fromPath,
-                              Path toPath,
-                              CopyOption copyOption)
+                                    Path toPath,
+                                    CopyOption copyOption)
         {
             this.fromPath = fromPath;
             this.toPath = toPath;
