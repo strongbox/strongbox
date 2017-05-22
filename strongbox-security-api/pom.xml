@@ -219,7 +219,7 @@
         <!-- These two profiles need to be on top. -->
 
         <profile>
-            <id>run-it-tests</id>
+            <id>unit-tests</id>
             <activation>
                 <property>
                     <name>skipTests</name>
@@ -258,14 +258,6 @@
                                     </ldifFiles>
                                 </configuration>
                             </execution>
-                            <execution>
-                                <id>unboundid-stop</id>
-
-                                <phase>test</phase>
-                                <goals>
-                                    <goal>stop</goal>
-                                </goals>
-                            </execution>
                         </executions>
                     </plugin>
 
@@ -294,17 +286,6 @@
                                     </userCredentials>
                                 </configuration>
                             </execution>
-                            <execution>
-                                <id>stop</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>stop</goal>
-                                </goals>
-
-                                <configuration>
-                                    <shutdownPort>${port.littleproxy.shutdown}</shutdownPort>
-                                </configuration>
-                            </execution>
                         </executions>
                     </plugin>
 
@@ -326,6 +307,170 @@
 
                             <useUnlimitedThreads>false</useUnlimitedThreads>
                         </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>fail-safe-integration-tests-configuration</id>
+            <activation>
+                <property>
+                    <name>integration.tests</name>
+                </property>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+
+                        <configuration>
+                            <systemPropertyVariables>
+                                <strongbox.home>${project.build.directory}/strongbox</strongbox.home>
+                                <logging.dir>${project.build.directory}/strongbox/logs</logging.dir>
+
+                                <port.littleproxy>${port.littleproxy.listen}</port.littleproxy>
+                                <port.unboundid>${port.unboundid}</port.unboundid>
+
+                                <!-- override jre/lib/net.properties -->
+                                <jdk.http.auth.tunneling.disabledSchemes>none</jdk.http.auth.tunneling.disabledSchemes>
+                            </systemPropertyVariables>
+
+                            <useUnlimitedThreads>false</useUnlimitedThreads>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>stop-services-for-unit-tests</id>
+            <activation>
+                <property>
+                    <name>!integration.tests</name>
+                </property>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.carlspring.maven</groupId>
+                        <artifactId>unboundid-maven-plugin</artifactId>
+
+                        <configuration>
+                            <baseDn>dc=carlspring,dc=com</baseDn>
+                            <portSSL>${port.unboundid}</portSSL>
+                            <useSSL>true</useSSL>
+                            <keyStorePassword>password</keyStorePassword>
+                            <keyStorePath>${dir.strongbox.home}/etc/ssl/keystore.jks</keyStorePath>
+                            <trustStorePath>${dir.strongbox.home}/etc/ssl/truststore.jks</trustStorePath>
+                        </configuration>
+
+                        <executions>
+                            <execution>
+                                <id>unboundid-stop</id>
+
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>stop</goal>
+                                </goals>
+
+                                <configuration>
+                                    <failIfNotRunning>false</failIfNotRunning>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.carlspring.maven</groupId>
+                        <artifactId>little-proxy-maven-plugin</artifactId>
+
+                        <configuration>
+                            <hash>5FD4F8E2A</hash>
+                        </configuration>
+
+                        <executions>
+                            <execution>
+                                <id>stop</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>stop</goal>
+                                </goals>
+
+                                <configuration>
+                                    <failIfNotRunning>false</failIfNotRunning>
+                                    <shutdownPort>${port.littleproxy.shutdown}</shutdownPort>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>stop-services-for-integration-tests</id>
+            <activation>
+                <property>
+                    <name>integration.tests</name>
+                </property>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.carlspring.maven</groupId>
+                        <artifactId>unboundid-maven-plugin</artifactId>
+
+                        <configuration>
+                            <baseDn>dc=carlspring,dc=com</baseDn>
+                            <portSSL>${port.unboundid}</portSSL>
+                            <useSSL>true</useSSL>
+                            <keyStorePassword>password</keyStorePassword>
+                            <keyStorePath>${dir.strongbox.home}/etc/ssl/keystore.jks</keyStorePath>
+                            <trustStorePath>${dir.strongbox.home}/etc/ssl/truststore.jks</trustStorePath>
+                        </configuration>
+
+                        <executions>
+                            <execution>
+                                <id>unboundid-stop</id>
+
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>stop</goal>
+                                </goals>
+
+                                <configuration>
+                                    <failIfNotRunning>false</failIfNotRunning>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.carlspring.maven</groupId>
+                        <artifactId>little-proxy-maven-plugin</artifactId>
+
+                        <configuration>
+                            <hash>5FD4F8E2A</hash>
+                        </configuration>
+
+                        <executions>
+                            <execution>
+                                <id>stop</id>
+
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>stop</goal>
+                                </goals>
+
+                                <configuration>
+                                    <failIfNotRunning>false</failIfNotRunning>
+                                    <shutdownPort>${port.littleproxy.shutdown}</shutdownPort>
+                                </configuration>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>

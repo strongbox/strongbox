@@ -36,7 +36,7 @@ import static org.junit.Assert.*;
  */
 @CronTaskTest
 @RunWith(SpringJUnit4ClassRunner.class)
-public class RegenerateMavenChecksumCronJobTest
+public class RegenerateMavenChecksumCronJobTestIT
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 

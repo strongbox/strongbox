@@ -30,6 +30,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- Sonar settings: -->
         <sonar.language>java</sonar.language>
@@ -119,11 +120,27 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.19.1</version>
+                    <version>2.20</version>
                     <inherited>false</inherited>
                     <configuration>
                         <argLine>-Xmx1024m -Xms512m</argLine>
+                        <includes>
+                            <include>**/*Test</include>
+                        </includes>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>2.20</version>
+
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.maven.surefire</groupId>
+                            <artifactId>surefire-junit47</artifactId>
+                            <version>2.20</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -145,7 +162,7 @@
                 <plugin>
                     <groupId>org.carlspring.maven</groupId>
                     <artifactId>little-proxy-maven-plugin</artifactId>
-                    <version>1.0</version>
+                    <version>1.1-SNAPSHOT</version>
                 </plugin>
 
                 <plugin>
@@ -722,6 +739,33 @@
                                 <id>dependency-check</id>
                                 <goals>
                                     <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>fail-safe-integration-tests</id>
+            <activation>
+                <property>
+                    <name>integration.tests</name>
+                </property>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
                                 </goals>
                             </execution>
                         </executions>
