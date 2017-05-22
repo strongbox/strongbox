@@ -8,8 +8,10 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import javax.inject.Inject;
 import java.io.IOException;
 
+import io.swagger.annotations.Api;
 import org.springframework.http.ResponseEntity;
 
+@Api(value = "/storages")
 public abstract class BaseArtifactController
         extends BaseController
 {

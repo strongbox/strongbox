@@ -16,10 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.springframework.cache.CacheManager;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -33,8 +30,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
-@RequestMapping(value = "/configuration/authorization")
 @PreAuthorize("hasAuthority('ADMIN')")
+@RequestMapping(value = "/configuration/authorization")
+@Api(value = "/configuration/authorization")
 public class AuthorizationConfigController
         extends BaseArtifactController
 {
