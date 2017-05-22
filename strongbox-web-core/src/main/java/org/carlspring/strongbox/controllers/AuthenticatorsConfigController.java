@@ -8,6 +8,7 @@ import org.carlspring.strongbox.xml.parsers.GenericParser;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -23,8 +24,9 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Przemyslaw Fusik
  */
 @RestController
-@RequestMapping(value = "/configuration/authenticators")
 @PreAuthorize("hasAuthority('ADMIN')")
+@RequestMapping(value = "/configuration/authenticators")
+@Api(value = "/configuration/authenticators")
 public class AuthenticatorsConfigController
         extends BaseController
 {
