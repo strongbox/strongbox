@@ -1,12 +1,10 @@
 package org.carlspring.strongbox.artifact.locator.handlers;
 
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
-
-import java.io.File;
-import java.nio.file.Path;
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
+
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 
 /**
  * @author mtodorov
@@ -15,14 +13,10 @@ import java.util.List;
 public interface ArtifactDirectoryOperation
 {
 
-    void execute(Path path);
+    void execute(RepositoryPath path) throws IOException;
 
-    LinkedHashMap<String, List<File>> getVisitedRootPaths();
+    LinkedHashMap<RepositoryPath, List<RepositoryPath>> getVisitedRootPaths();
 
-    Storage getStorage();
-
-    Repository getRepository();
-
-    String getBasePath();
-
+    RepositoryPath getBasePath();
+    
 }

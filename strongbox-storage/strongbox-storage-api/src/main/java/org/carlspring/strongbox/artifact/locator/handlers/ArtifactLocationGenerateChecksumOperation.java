@@ -1,23 +1,16 @@
 package org.carlspring.strongbox.artifact.locator.handlers;
 
-import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
-import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
-
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.layout.RepositoryLayoutFileSystemProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
 /**
  * @author Kate Novik.
@@ -28,119 +21,83 @@ public class ArtifactLocationGenerateChecksumOperation
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactLocationGenerateChecksumOperation.class);
 
-    private String previousPath;
+    private Path previousPath;
 
     private boolean forceRegeneration = false;
 
-    private LayoutProviderRegistry layoutProviderRegistry;
-
-
-    public ArtifactLocationGenerateChecksumOperation(LayoutProviderRegistry layoutProviderRegistry)
+    public void execute(RepositoryPath path)
+        throws IOException
     {
-        this.layoutProviderRegistry = layoutProviderRegistry;
-    }
+        List<Path> filePaths = Files.list(path)
+                                      .filter(p -> {
+                                        try
+                                        {
+                                            return Boolean.TRUE.equals(Files.getAttribute(p,
+                                                                                                  RepositoryFileAttributes.METADATA));
+                                        }
+                                        catch (IOException e)
+                                        {
+                                            logger.error(String.format("Failed to read attributes for [%s]", p), e);
+                                        }
+                                        return false;
+                                    }).collect(Collectors.toList());
+        
+        RepositoryPath parentPath = path.getParent()
+                                        .toAbsolutePath();
 
-    public void execute(Path path)
-    {
-        File f = path.toAbsolutePath()
-                     .toFile();
-
-        LayoutProvider layoutProvider = null;
-        try
+        if (filePaths.isEmpty())
         {
-            layoutProvider = getLayoutProvider(getRepository(), layoutProviderRegistry);
-            setFilenameFilter(layoutProvider.getMetadataFilenameFilter());
+            return;
         }
-        catch (ProviderImplementationException e)
+        // Don't enter visited paths (i.e. version directories such as 1.2, 1.3, 1.4...)
+        if (!getVisitedRootPaths().isEmpty() && getVisitedRootPaths().containsKey(parentPath))
         {
-            logger.error("Failed to get layout provider for repository " + getRepository(), e);
-        }
+            List<RepositoryPath> visitedVersionPaths = getVisitedRootPaths().get(parentPath);
 
-        String[] list = f.list(getFilenameFilter());
-        List<String> filePaths = list != null ? Arrays.asList(list) : new ArrayList<>();
-
-        String parentPath = path.getParent()
-                                .toAbsolutePath()
-                                .toString();
-
-        if (!filePaths.isEmpty())
-        {
-            // Don't enter visited paths (i.e. version directories such as 1.2, 1.3, 1.4...)
-            if (!getVisitedRootPaths().isEmpty() && getVisitedRootPaths().containsKey(parentPath))
+            if (visitedVersionPaths.contains(path))
             {
-                List<File> visitedVersionPaths = getVisitedRootPaths().get(parentPath);
-
-                if (visitedVersionPaths.contains(f))
-                {
-                    return;
-                }
+                return;
             }
+        }
 
-            if (logger.isDebugEnabled())
+        if (logger.isDebugEnabled())
+        {
+            // We're using System.out.println() here for clarity and due to the length of the lines
+            System.out.println(parentPath);
+        }
+
+        // The current directory is out of the tree
+        if (previousPath != null && !parentPath.startsWith(previousPath))
+        {
+            getVisitedRootPaths().remove(previousPath);
+            previousPath = parentPath;
+        }
+
+        if (previousPath == null)
+        {
+            previousPath = parentPath;
+        }
+
+        List<RepositoryPath> versionDirectories = getVersionDirectories(parentPath);
+        if (versionDirectories == null || versionDirectories.isEmpty())
+        {
+            return;
+        }
+        
+        getVisitedRootPaths().put(parentPath, versionDirectories);
+        if (logger.isDebugEnabled())
+        {
+            for (Path directory : versionDirectories)
             {
                 // We're using System.out.println() here for clarity and due to the length of the lines
-                System.out.println(parentPath);
-            }
-
-            // The current directory is out of the tree
-            if (previousPath != null && !parentPath.startsWith(previousPath))
-            {
-                getVisitedRootPaths().remove(previousPath);
-                previousPath = parentPath;
-            }
-
-            if (previousPath == null)
-            {
-                previousPath = parentPath;
-            }
-
-            List<File> versionDirectories = getVersionDirectories(Paths.get(parentPath));
-            if (versionDirectories != null)
-            {
-                getVisitedRootPaths().put(parentPath, versionDirectories);
-
-                if (logger.isDebugEnabled())
-                {
-                    for (File directory : versionDirectories)
-                    {
-                        // We're using System.out.println() here for clarity and due to the length of the lines
-                        System.out.println(" " + directory.getAbsolutePath());
-                    }
-                }
-
-                String artifactPath = parentPath.substring(getRepository().getBasedir()
-                                                                          .length() + 1, parentPath.length());
-
-                List<String> versionPaths = new ArrayList<>();
-                versionDirectories.forEach(file -> versionPaths.add(file.getAbsolutePath()));
-
-                    try
-                    {
-                        layoutProvider.regenerateChecksums(getRepository(),
-                                                           versionPaths,
-                                                           forceRegeneration);
-                    }
-                    catch (IOException |
-                                   NoSuchAlgorithmException |
-                                   ArtifactTransportException |
-                                   ProviderImplementationException |
-                                   UnknownRepositoryTypeException e)
-                    {
-                        logger.error("Failed to generate checksum for " + artifactPath, e);
-                    }
-
+                System.out.println(" " + directory.toAbsolutePath().toString());
             }
         }
-    }
 
-    public LayoutProviderRegistry getLayoutProviderRegistry()
-    {
-        return layoutProviderRegistry;
-    }
-
-    public void setLayoutProviderRegistry(LayoutProviderRegistry layoutProviderRegistry)
-    {
-        this.layoutProviderRegistry = layoutProviderRegistry;
+        RepositoryPath basePath = versionDirectories.get(0).getParent();
+        RepositoryLayoutFileSystemProvider provider = (RepositoryLayoutFileSystemProvider) basePath.getFileSystem()
+                                                                                                   .provider();
+        provider.storeChecksum(basePath, forceRegeneration);
     }
 
     public boolean getForceRegeneration()

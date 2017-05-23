@@ -1,14 +1,17 @@
 package org.carlspring.strongbox.providers.repository;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.security.NoSuchAlgorithmException;
+
+import javax.annotation.PostConstruct;
+
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.annotation.PostConstruct;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -50,8 +53,9 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
     {
         Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
 
-        return getLayoutProviderRegistry().getProvider(repository.getLayout())
-                                          .getInputStream(storageId, repositoryId, path);
+        LayoutProvider layoutPtovider = getLayoutProviderRegistry().getProvider(repository.getLayout());
+        RepositoryPath repositoryPath = layoutPtovider.resolve(repository).resolve(path);
+        return (ArtifactInputStream) Files.newInputStream(repositoryPath);
     }
 
     @Override
@@ -62,8 +66,9 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
     {
         Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
 
-        return getLayoutProviderRegistry().getProvider(repository.getLayout())
-                                          .getOutputStream(storageId, repositoryId, path);
+        LayoutProvider layoutPtovider = getLayoutProviderRegistry().getProvider(repository.getLayout());
+        RepositoryPath repositoryPath = layoutPtovider.resolve(repository).resolve(path);
+        return (ArtifactOutputStream) Files.newOutputStream(repositoryPath);
     }
 
 }

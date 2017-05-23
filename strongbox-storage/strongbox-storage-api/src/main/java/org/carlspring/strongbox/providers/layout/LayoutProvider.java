@@ -1,16 +1,12 @@
 package org.carlspring.strongbox.providers.layout;
 
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
 import java.util.Set;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -19,7 +15,6 @@ import org.carlspring.strongbox.repository.RepositoryFeatures;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 /**
@@ -34,23 +29,15 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
 
     T getArtifactCoordinates(String path);
 
-    ArtifactInputStream getInputStream(String storageId, String repositoryId, String path)
-            throws IOException, NoSuchAlgorithmException, ArtifactTransportException;
+    ArtifactInputStream getInputStream(RepositoryPath path) throws IOException;
 
-    ArtifactOutputStream getOutputStream(String storageId,
-                                         String repositoryId,
-                                         String path)
-            throws IOException, NoSuchAlgorithmException;
-
+    ArtifactOutputStream getOutputStream(RepositoryPath path) throws IOException;
+    
     RepositoryPath resolve(Repository repository,
                          ArtifactCoordinates coordinates)
         throws IOException;
 
     RepositoryPath resolve(Repository repository)
-        throws IOException;
-
-    RepositoryPath resolve(Repository repository,
-                           String path)
         throws IOException;
 
     RepositoryFileSystem getRepositoryFileSystem(Repository repository);
@@ -101,9 +88,6 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
     void undeleteTrash()
             throws IOException;
 
-    boolean isExistChecksum(Repository repository,
-                            String path);
-
     Set<String> getDigestAlgorithmSet();
 
     void rebuildMetadata(String storageId,
@@ -118,17 +102,6 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
                         String basePath,
                         boolean forceRegeneration)
             throws IOException;
-
-    void regenerateChecksums(Repository repository,
-                             List<String> versionDirectories,
-                             boolean forceRegeneration)
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   ProviderImplementationException,
-                   UnknownRepositoryTypeException,
-                   ArtifactTransportException;
-
-    FilenameFilter getMetadataFilenameFilter();
 
     RepositoryFeatures getRepositoryFeatures();
 

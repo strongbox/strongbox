@@ -3,6 +3,7 @@ package org.carlspring.strongbox.providers.repository;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 
 import javax.annotation.PostConstruct;
@@ -10,7 +11,6 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
 import org.carlspring.commons.io.MultipleDigestInputStream;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactResolver;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
@@ -82,7 +82,8 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
         RepositoryPath reposytoryPath = layoutProvider.resolve(repository);
         RepositoryPath artifactPath = reposytoryPath.resolve(path);
 
-        RepositoryFileSystemProvider fileSystemProvider = artifactPath.getFileSystem().provider();
+        RepositoryFileSystemProvider fileSystemProvider = (RepositoryFileSystemProvider) artifactPath.getFileSystem()
+                                                                                                     .provider();
 
         logger.debug(" -> Checking for " + artifactPath + "...");
 
@@ -91,7 +92,8 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
             logger.debug("The artifact was found in the local cache.");
             logger.debug("Resolved " + artifactPath + "!");
 
-            return new ArtifactInputStream(null, layoutProvider.getInputStream(storageId, repositoryId, path));
+            RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(path);
+            return (ArtifactInputStream) Files.newInputStream(repositoryPath);
         }
         else
         {
@@ -128,7 +130,8 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
                 fileSystemProvider.moveFromTemporaryDirectory(artifactPath);
 
                 // Serve the downloaded artifact
-                return new ArtifactInputStream(null, layoutProvider.getInputStream(storageId, repositoryId, path));
+                RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(path);
+                return (ArtifactInputStream) Files.newInputStream(repositoryPath);
             }
         }
     }
@@ -144,11 +147,9 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
         Repository repository = storage.getRepository(repositoryId);
 
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(artifactPath);
 
-        ArtifactCoordinates coordinates = layoutProvider.getArtifactCoordinates(artifactPath);
-
-        return new ArtifactOutputStream(layoutProvider.getOutputStream(storageId, repositoryId, artifactPath),
-                                        coordinates);
+        return (ArtifactOutputStream) Files.newOutputStream(repositoryPath);
     }
 
 }

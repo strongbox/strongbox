@@ -1,22 +1,19 @@
 package org.carlspring.strongbox.locator.handlers;
 
-import org.carlspring.maven.commons.io.filters.PomFilenameFilter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
+import java.text.ParseException;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.carlspring.strongbox.artifact.locator.handlers.AbstractArtifactLocationHandler;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.metadata.MavenSnapshotManager;
 import org.carlspring.strongbox.storage.metadata.VersionCollectionRequest;
 import org.carlspring.strongbox.storage.metadata.VersionCollector;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.NoSuchAlgorithmException;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +28,7 @@ public class RemoveTimestampedSnapshotOperation
     private static final Logger logger = LoggerFactory.getLogger(
             RemoveTimestampedSnapshotOperation.class);
 
-    private String previousPath;
+    private RepositoryPath previousPath;
 
     private int numberToKeep;
 
@@ -49,83 +46,81 @@ public class RemoveTimestampedSnapshotOperation
         this.mavenSnapshotManager = mavenSnapshotManager;
     }
 
-    public void execute(Path path)
+    public void execute(RepositoryPath path) throws IOException
     {
-        File f = path.toAbsolutePath()
-                     .toFile();
+        List<Path> filePathList = Files.walk(path)
+                .filter(p -> !p.getFileName().startsWith(".pom"))
+                .sorted()
+                .collect(Collectors.toList());
+        
+        RepositoryPath parentPath = path.getParent()
+                                .toAbsolutePath();
 
-        String[] list = f.list(new PomFilenameFilter());
-        List<String> filePaths = list != null ? Arrays.asList(list) : new ArrayList<>();
-
-        String parentPath = path.getParent()
-                                .toAbsolutePath()
-                                .toString();
-
-        if (!filePaths.isEmpty())
+        if (filePathList.isEmpty())
         {
-            // Don't enter visited paths (i.e. version directories such as 1.2, 1.3, 1.4...)
-            if (!getVisitedRootPaths().isEmpty() && getVisitedRootPaths().containsKey(parentPath))
-            {
-                List<File> visitedVersionPaths = getVisitedRootPaths().get(parentPath);
+            return;
+        }
+        
+        // Don't enter visited paths (i.e. version directories such as 1.2, 1.3, 1.4...)
+        if (!getVisitedRootPaths().isEmpty() && getVisitedRootPaths().containsKey(parentPath))
+        {
+            List<RepositoryPath> visitedVersionPaths = getVisitedRootPaths().get(parentPath);
 
-                if (visitedVersionPaths.contains(f))
-                {
-                    return;
-                }
+            if (visitedVersionPaths.contains(path))
+            {
+                return;
             }
+        }
+
+        if (logger.isDebugEnabled())
+        {
+            // We're using System.out.println() here for clarity and due to the length of the lines
+            System.out.println(parentPath);
+        }
+
+        // The current directory is out of the tree
+        if (previousPath != null && !parentPath.startsWith(previousPath))
+        {
+            getVisitedRootPaths().remove(previousPath);
+            previousPath = parentPath;
+        }
+
+        if (previousPath == null)
+        {
+            previousPath = parentPath;
+        }
+
+        List<RepositoryPath> versionDirectories = getVersionDirectories(parentPath);
+        if (versionDirectories != null)
+        {
+            getVisitedRootPaths().put(parentPath, versionDirectories);
+
+            VersionCollector versionCollector = new VersionCollector();
+            VersionCollectionRequest request = versionCollector.collectVersions(path.getParent()
+                                                                                    .toAbsolutePath());
 
             if (logger.isDebugEnabled())
             {
-                // We're using System.out.println() here for clarity and due to the length of the lines
-                System.out.println(parentPath);
-            }
-
-            // The current directory is out of the tree
-            if (previousPath != null && !parentPath.startsWith(previousPath))
-            {
-                getVisitedRootPaths().remove(previousPath);
-                previousPath = parentPath;
-            }
-
-            if (previousPath == null)
-            {
-                previousPath = parentPath;
-            }
-
-            List<File> versionDirectories = getVersionDirectories(Paths.get(parentPath));
-            if (versionDirectories != null)
-            {
-                getVisitedRootPaths().put(parentPath, versionDirectories);
-
-                VersionCollector versionCollector = new VersionCollector();
-                VersionCollectionRequest request = versionCollector.collectVersions(path.getParent()
-                                                                                        .toAbsolutePath());
-
-                if (logger.isDebugEnabled())
+                for (RepositoryPath directory : versionDirectories)
                 {
-                    for (File directory : versionDirectories)
-                    {
-                        // We're using System.out.println() here for clarity and due to the length of the lines
-                        System.out.println(" " + directory.getAbsolutePath());
-                    }
+                    // We're using System.out.println() here for clarity and due to the length of the lines
+                    System.out.println(" " + directory.toAbsolutePath());
                 }
-
-                String artifactPath = parentPath.substring(getRepository().getBasedir()
-                                                                          .length() + 1, parentPath.length());
-
-                try
-                {
-                    mavenSnapshotManager.deleteTimestampedSnapshotArtifacts(getRepository(), artifactPath, request,
-                                                                            numberToKeep, keepPeriod);
-                }
-                catch (IOException |
-                       ProviderImplementationException |
-                       NoSuchAlgorithmException |
-                       ParseException |
-                       XmlPullParserException e)
-                {
-                    logger.error("Failed to delete timestamped snapshot artifacts for " + artifactPath, e);
-                }
+            }
+            
+            RepositoryPath artifactPath = path.getRepositoryRelative();
+            try
+            {
+                mavenSnapshotManager.deleteTimestampedSnapshotArtifacts(artifactPath.getFileSystem().getRepository(), artifactPath.toString(), request,
+                                                                        numberToKeep, keepPeriod);
+            }
+            catch (IOException |
+                   ProviderImplementationException |
+                   NoSuchAlgorithmException |
+                   ParseException |
+                   XmlPullParserException e)
+            {
+                logger.error("Failed to delete timestamped snapshot artifacts for " + artifactPath, e);
             }
         }
     }

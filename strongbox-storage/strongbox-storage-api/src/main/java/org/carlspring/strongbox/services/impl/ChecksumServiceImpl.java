@@ -1,16 +1,19 @@
 package org.carlspring.strongbox.services.impl;
 
+import java.io.IOException;
+
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.artifact.locator.handlers.ArtifactLocationGenerateChecksumOperation;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.services.ChecksumService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.inject.Inject;
-import java.io.IOException;
 import org.springframework.stereotype.Component;
 
 /**
@@ -23,7 +26,6 @@ public class ChecksumServiceImpl
 
     @Inject
     private ConfigurationManager configurationManager;
-
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
@@ -32,15 +34,16 @@ public class ChecksumServiceImpl
                                    String repositoryId,
                                    String basePath,
                                    boolean forceRegeneration)
-            throws IOException
+        throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
-
-        ArtifactLocationGenerateChecksumOperation operation = new ArtifactLocationGenerateChecksumOperation(layoutProviderRegistry);
-        operation.setStorage(storage);
-        operation.setRepository(repository);
-        operation.setBasePath(basePath);
+        
+        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        RepositoryPath repositoryBasePath = layoutProvider.resolve(repository).resolve(basePath);
+        
+        ArtifactLocationGenerateChecksumOperation operation = new ArtifactLocationGenerateChecksumOperation();
+        operation.setBasePath(repositoryBasePath);
         operation.setForceRegeneration(forceRegeneration);
 
         ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();

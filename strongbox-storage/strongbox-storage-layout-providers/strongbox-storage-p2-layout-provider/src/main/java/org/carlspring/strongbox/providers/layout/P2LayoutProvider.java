@@ -1,16 +1,13 @@
 package org.carlspring.strongbox.providers.layout;
 
-import java.io.FilenameFilter;
+
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
 
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.P2ArtifactCoordinates;
-import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.p2.P2ArtifactReader;
 import org.carlspring.strongbox.repository.P2RepositoryFeatures;
 import org.carlspring.strongbox.repository.P2RepositoryManagementStrategy;
@@ -18,7 +15,6 @@ import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.impl.P2ArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,20 +99,6 @@ public class P2LayoutProvider
     }
 
     @Override
-    public void regenerateChecksums(Repository repository,
-                                    List<String> versionDirectories,
-                                    boolean forceRegeneration)
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   ProviderImplementationException,
-                   UnknownRepositoryTypeException,
-                   ArtifactTransportException
-    {
-        throw new UnsupportedOperationException("Not yet implemented!");
-    }
-
-
-    @Override
     public boolean containsArtifact(Repository repository,
                                     ArtifactCoordinates coordinates)
             throws IOException
@@ -148,12 +130,6 @@ public class P2LayoutProvider
             throws IOException
     {
         return containsArtifact(repository, P2ArtifactCoordinates.create(path));
-    }
-
-    @Override
-    public FilenameFilter getMetadataFilenameFilter()
-    {
-        throw new UnsupportedOperationException("Not yet implemented!");
     }
 
     @Override

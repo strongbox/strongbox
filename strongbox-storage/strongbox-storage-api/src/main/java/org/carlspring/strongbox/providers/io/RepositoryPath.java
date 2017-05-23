@@ -10,7 +10,6 @@ import java.nio.file.WatchEvent.Modifier;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.Iterator;
-import java.util.regex.Pattern;
 
 /**
  * This implementation wraps target {@link Path} implementation, which can be an "CloudPath" or common
@@ -74,9 +73,9 @@ public class RepositoryPath
         return getTarget().getNameCount();
     }
 
-    public Path getName(int index)
+    public RepositoryPath getName(int index)
     {
-        return getTarget().getName(index);
+        return wrap(getTarget().getName(index));
     }
 
     public Path subpath(int beginIndex,
@@ -112,7 +111,13 @@ public class RepositoryPath
 
     public RepositoryPath resolve(Path other)
     {
+        if (other == null)
+        {
+            return this;
+        }
+        
         other = unwrap(other);
+        
         return wrap(getTarget().resolve(other));
     }
 
@@ -124,12 +129,14 @@ public class RepositoryPath
     public RepositoryPath resolveSibling(Path other)
     {
         other = unwrap(other);
+        
         return wrap(getTarget().resolveSibling(other));
     }
 
     protected Path unwrap(Path other)
     {
         other = other instanceof RepositoryPath ? ((RepositoryPath)other).getTarget() : other;
+        
         return other;
     }
 
@@ -138,17 +145,19 @@ public class RepositoryPath
         return wrap(getTarget().resolveSibling(other));
     }
 
-    public Path relativize(Path other)
+    public RepositoryPath relativize(Path other)
     {
         other = unwrap(other);
-        return getTarget().relativize(other);
+        
+        return wrap(getTarget().relativize(other));
     }
     
     public RepositoryPath getRepositoryRelative()
     {
         //TODO: there can be issues under Windows with replaceAll(..)
-        String resultString = toString().replaceAll(Pattern.quote(getFileSystem().getRootDirectory().toString()), "");
+        String resultString = toString().replaceAll(getFileSystem().getRootDirectory().toString(), "");
         resultString = resultString.startsWith(getFileSystem().getSeparator()) ? resultString.substring(1) : resultString;
+        
         return getFileSystem().getPath(resultString);
     }
 
@@ -211,14 +220,13 @@ public class RepositoryPath
     @Override
     public boolean equals(Object obj)
     {
-        return target.equals(obj instanceof Path ? unwrap((Path) obj) : obj);
+        return  getTarget().equals(obj instanceof RepositoryPath ? unwrap((Path) obj) : obj);
     }
 
     @Override
     public int hashCode()
     {
-        return target.hashCode();
+        return getTarget().hashCode();
     }
-
     
 }

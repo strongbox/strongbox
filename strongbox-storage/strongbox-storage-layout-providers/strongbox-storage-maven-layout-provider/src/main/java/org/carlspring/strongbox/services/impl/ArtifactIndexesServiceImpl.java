@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.services.impl;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -34,13 +33,10 @@ public class ArtifactIndexesServiceImpl
 
     @Inject
     private ConfigurationManager configurationManager;
-
     @Inject
     private RepositoryIndexManager repositoryIndexManager;
-
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
-
     @Override
     public void rebuildIndex(String storageId,
                              String repositoryId,
@@ -49,25 +45,22 @@ public class ArtifactIndexesServiceImpl
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
-
-        artifactPath = artifactPath == null ? "/" : artifactPath;
-
         if (!repository.isIndexingEnabled())
         {
             return;
         }
+        
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        RepositoryPath repostitoryPath = layoutProvider.resolve(repository, artifactPath);
+        RepositoryPath repostitoryPath = layoutProvider.resolve(repository);
+        if (artifactPath != null && artifactPath.trim().length() > 0)
+        {
+            repostitoryPath = repostitoryPath.resolve(artifactPath);
+        }
         
         MavenIndexerManagementOperation operation = new MavenIndexerManagementOperation(repositoryIndexManager);
 
-        operation.setStorage(storage);
-        operation.setRepository(repository);
         //noinspection ConstantConditions
-        
-        String basePath = Files.isDirectory(repostitoryPath) ? artifactPath
-                : repostitoryPath.getParent().getRepositoryRelative().toString();
-        operation.setBasePath(basePath);
+        operation.setBasePath(repostitoryPath);
 
         ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
         locator.setOperation(operation);
