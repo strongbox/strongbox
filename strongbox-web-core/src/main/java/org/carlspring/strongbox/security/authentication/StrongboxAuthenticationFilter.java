@@ -31,7 +31,8 @@ public class StrongboxAuthenticationFilter
 
     private final AuthenticationSuppliers authenticationSuppliers;
 
-    public StrongboxAuthenticationFilter(AuthenticationSuppliers authenticationSuppliers, AuthenticatorsRegistry authenticatorsRegistry)
+    public StrongboxAuthenticationFilter(AuthenticationSuppliers authenticationSuppliers,
+                                         AuthenticatorsRegistry authenticatorsRegistry)
     {
         super();
         this.authenticationSuppliers = authenticationSuppliers;
@@ -47,9 +48,13 @@ public class StrongboxAuthenticationFilter
     {
         Authentication authentication = authenticationSuppliers.supply(request);
 
-        if (authentication == null) {
-            logger.debug("Authentication not supplied by any authentication supplier. Skipping authentication providing.");
-        } else {
+        if (authentication == null)
+        {
+            logger.debug(
+                    "Authentication not supplied by any authentication supplier. Skipping authentication providing.");
+        }
+        else
+        {
             provideAuthentication(authentication);
         }
 
@@ -64,7 +69,8 @@ public class StrongboxAuthenticationFilter
 
             if (!authenticationProvider.supports(authentication.getClass()))
             {
-                logger.debug("Authentication provider {} does not support {}", authenticationProvider.getClass().getName(), authentication.getClass().getName());
+                logger.debug("Authentication provider {} does not support {}",
+                             authenticationProvider.getClass().getName(), authentication.getClass().getName());
                 continue;
             }
 

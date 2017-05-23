@@ -64,7 +64,7 @@ class JWTAuthenticationSupplier
 
         if (user == null)
         {
-            logger.debug("User {} not found for token {}", user, token);
+            logger.debug("User not found for token {}", token);
             return null;
         }
 
