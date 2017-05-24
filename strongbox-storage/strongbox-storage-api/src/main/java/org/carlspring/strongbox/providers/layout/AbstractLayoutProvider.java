@@ -45,11 +45,14 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
 
     @Inject
     protected LayoutProviderRegistry layoutProviderRegistry;
+    
     @Inject
     protected StorageProviderRegistry storageProviderRegistry;
+    
     @Inject
     private ConfigurationManager configurationManager;
-
+    
+    
     public LayoutProviderRegistry getLayoutProviderRegistry()
     {
         return layoutProviderRegistry;
@@ -127,10 +130,11 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
 
     @Override
     public RepositoryPath resolve(Repository repository,
-                                ArtifactCoordinates coordinates)
-        throws IOException
+                                  ArtifactCoordinates coordinates)
+            throws IOException
     {
         RepositoryFileSystem repositoryFileSystem = getRepositoryFileSystem(repository);
+        
         return repositoryFileSystem.getRootDirectory().resolve(coordinates.toPath());
     }
 
@@ -139,14 +143,17 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
             throws IOException
     {
         RepositoryFileSystem repositoryFileSystem = getRepositoryFileSystem(repository);
+        
         return repositoryFileSystem.getRootDirectory();
     }
     
     public RepositoryFileSystem getRepositoryFileSystem(Repository repository)
     {
         FileSystem storageFileSystem = getStorageProvider(repository).getFileSystem();
-        RepositoryFileSystem repositoryFileSystem = new RepositoryLayoutFileSystem(repository, storageFileSystem,
-                getProvider(repository));
+        RepositoryFileSystem repositoryFileSystem = new RepositoryLayoutFileSystem(repository,
+                                                                                   storageFileSystem,
+                                                                                   getProvider(repository));
+                                                                                   
         return repositoryFileSystem;
     }
 
@@ -155,6 +162,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         FileSystemProvider storageFileSystemProvider = getStorageProvider(repository).getFileSystemProvider();
         RepositoryLayoutFileSystemProvider repositoryFileSystemProvider = new RepositoryLayoutFileSystemProvider(
                 storageFileSystemProvider, this);
+        
         return repositoryFileSystemProvider;
     }
 
@@ -193,9 +201,11 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         RepositoryPath repositoryPath = resolve(repository).resolve(path);
 
         logger.debug("Checking in " + storageId + ":" + repositoryId + "(" + path + ")...");
+        
         if (!Files.exists(repositoryPath))
         {
             logger.warn(String.format("Path not found: path-[%s]", repositoryPath));
+            
             return;
         }
         
@@ -224,8 +234,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     public void deleteTrash()
             throws IOException
     {
-        for (Map.Entry entry : getConfiguration().getStorages()
-                                                 .entrySet())
+        for (Map.Entry entry : getConfiguration().getStorages().entrySet())
         {
             Storage storage = (Storage) entry.getValue();
 
@@ -236,6 +245,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                 {
                     logger.warn("Repository " + repository.getId() + " does not support removal of trash.");
                 }
+                
                 deleteTrash(storage.getId(), repository.getId());
             }
         }
@@ -302,6 +312,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     {
         Repository repository = getRepository(storageId, repositoryId);
         RepositoryPath artifactPath = resolve(repository).resolve(path);
+        
         return Files.exists(artifactPath);
     }
 
@@ -311,6 +322,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
             throws IOException
     {
         RepositoryPath artifactPath = resolve(repository, coordinates);
+        
         return Files.exists(artifactPath);
     }
 
@@ -328,25 +340,27 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     {
         RepositoryFileSystemProvider provider = repositoryRelativePath.getFileSystem().provider();
 
-        Map<String, Object> result = new HashMap<>();
         boolean isChecksum = provider.isChecksum(repositoryRelativePath);
-        result.put(RepositoryFileAttributes.CHECKSUM, isChecksum);
         boolean isIndex = repositoryRelativePath.startsWith(".index");
-        result.put(RepositoryFileAttributes.INDEX, isIndex);
         boolean isTemp = repositoryRelativePath.startsWith(".temp");
-        result.put(RepositoryFileAttributes.TEMP, isTemp);
         boolean isTrash = repositoryRelativePath.startsWith(".trash");
-        result.put(RepositoryFileAttributes.TRASH, isTrash);
         boolean isMetadata = isMetadata(repositoryRelativePath.toString());
-        result.put(RepositoryFileAttributes.METADATA, isMetadata);
-
         boolean isHidden = isTemp || isTrash || isMetadata;
         Boolean isArtifact = !isChecksum && !isIndex && !isHidden;
+
+        Map<String, Object> result = new HashMap<>();
+        result.put(RepositoryFileAttributes.CHECKSUM, isChecksum);
+        result.put(RepositoryFileAttributes.INDEX, isIndex);
+        result.put(RepositoryFileAttributes.TEMP, isTemp);
+        result.put(RepositoryFileAttributes.TRASH, isTrash);
+        result.put(RepositoryFileAttributes.METADATA, isMetadata);
         result.put(RepositoryFileAttributes.ARTIFACT, isArtifact);
+
         if (!Files.isDirectory(repositoryRelativePath.getTarget()) && isArtifact)
         {
             result.put(RepositoryFileAttributes.COORDINATES, getArtifactCoordinates(repositoryRelativePath.toString()));
         }
+        
         return result;
     }
     

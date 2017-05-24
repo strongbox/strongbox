@@ -112,10 +112,13 @@ public class RepositoryPath
 
     public RepositoryPath resolve(Path other)
     {
-        if (other == null){
+        if (other == null)
+        {
             return this;
         }
+        
         other = unwrap(other);
+        
         return wrap(getTarget().resolve(other));
     }
 
@@ -127,12 +130,14 @@ public class RepositoryPath
     public RepositoryPath resolveSibling(Path other)
     {
         other = unwrap(other);
+        
         return wrap(getTarget().resolveSibling(other));
     }
 
     protected Path unwrap(Path other)
     {
         other = other instanceof RepositoryPath ? ((RepositoryPath)other).getTarget() : other;
+        
         return other;
     }
 
@@ -144,6 +149,7 @@ public class RepositoryPath
     public RepositoryPath relativize(Path other)
     {
         other = unwrap(other);
+        
         return wrap(getTarget().relativize(other));
     }
     

@@ -35,9 +35,9 @@ public class ArtifactLocationReportOperation
     public void execute(RepositoryPath path) throws IOException
     {
         List<Path> filePathList = Files.walk(path)
-                .filter(p -> !p.getFileName().startsWith(".pom"))
-                .sorted()
-                .collect(Collectors.toList());
+                                       .filter(p -> !p.getFileName().startsWith(".pom"))
+                                                                    .sorted()
+                                                                    .collect(Collectors.toList());
         
         RepositoryPath parentPath = path.getParent().toAbsolutePath();
 
