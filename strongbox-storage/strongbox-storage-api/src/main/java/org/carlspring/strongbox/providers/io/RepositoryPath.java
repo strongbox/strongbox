@@ -10,7 +10,6 @@ import java.nio.file.WatchEvent.Modifier;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.Iterator;
-import java.util.regex.Pattern;
 
 /**
  * This implementation wraps target {@link Path} implementation, which can be an "CloudPath" or common
