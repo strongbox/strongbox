@@ -225,8 +225,5 @@ public class RepositoryPath
     {
         return getTarget().hashCode();
     }
- 
-    public static void main(String args[]) throws Exception {
-        System.out.println(Pattern.quote("z:\\strongbox\\strongbox\\strongbox-storage\\strongbox-storage-layout-providers\\strongbox-storage-maven-layout-provider\\target\\strongbox-vault\\storages\\storage0\\m2lp-releases"));
-    }
+
 }
