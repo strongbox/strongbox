@@ -165,7 +165,7 @@ public class HeaderMappingFilter
                                                 })
                                            .orElseGet(() -> layoutMap.get(layout));
 
-            return Optional.of(result)
+            return Optional.ofNullable(result)
                            .orElse(String.format("%s/*", USER_AGENT_UNKNOWN));
         }
 
