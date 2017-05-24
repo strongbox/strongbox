@@ -4,11 +4,9 @@ import org.carlspring.strongbox.authentication.config.AuthenticationConfig;
 import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
 import org.carlspring.strongbox.security.authentication.CustomAnonymousAuthenticationFilter;
 import org.carlspring.strongbox.security.authentication.StrongboxAuthenticationFilter;
-import org.carlspring.strongbox.security.vote.FilterAccessDecisionManager;
 import org.carlspring.strongbox.security.vote.MethodAccessDecisionManager;
-import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
+import org.carlspring.strongbox.users.security.AuthoritiesProvider;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.util.List;
 
@@ -33,48 +31,12 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 public class SecurityConfig
         extends WebSecurityConfigurerAdapter
 {
-    /**
-     * This Configuration enables @PreAuthorize annotations
-     *
-     * @author Sergey Bespalov
-     *
-     */
-    @Configuration
-    @EnableGlobalMethodSecurity(prePostEnabled = true)
-    public static class MethodSecurityConfig
-            extends GlobalMethodSecurityConfiguration
-    {
-
-        @Inject
-        MethodAccessDecisionManager methodAccessDecisionManager;
-
-        @Override
-        protected AccessDecisionManager accessDecisionManager()
-        {
-            return methodAccessDecisionManager;
-        }
-    }
-
 
     @Inject
-    private AuthorizationConfigProvider authorizationConfigProvider;
+    private AuthoritiesProvider authoritiesProvider;
 
     @Inject
     private AuthenticatorsRegistry authenticatorsRegistry;
-
-    @Inject
-    FilterAccessDecisionManager filterAccessDecisionManager;
-
-    @PostConstruct
-    public void init()
-    {
-        authorizationConfigProvider.getConfig()
-                                   .ifPresent((config) ->
-                                              {
-                                                  anonymousAuthenticationFilter().getAuthorities()
-                                                                                 .addAll(config.getAnonymousAuthorities());
-                                              });
-    }
 
     @Override
     protected void configure(HttpSecurity http)
@@ -82,11 +44,6 @@ public class SecurityConfig
     {
         http.sessionManagement()
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and()
-            .authorizeRequests()
-            .anyRequest()
-            .authenticated()
-            .accessDecisionManager(filterAccessDecisionManager)
             .and()
             .anonymous()
             .authenticationFilter(anonymousAuthenticationFilter())
@@ -107,10 +64,34 @@ public class SecurityConfig
     @Bean
     AnonymousAuthenticationFilter anonymousAuthenticationFilter()
     {
-        List<GrantedAuthority> anonymousRole = AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS");
+        List<GrantedAuthority> anonymousRoles = AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS");
+        anonymousRoles.addAll(authoritiesProvider.getAuthoritiesByRoleName("ANONYMOUS_ROLE"));
+
         return new CustomAnonymousAuthenticationFilter("strongbox-unique-key",
                                                        "anonymousUser",
-                                                       anonymousRole);
+                                                       anonymousRoles);
+    }
+
+    /**
+     * This Configuration enables @PreAuthorize annotations
+     *
+     * @author Sergey Bespalov
+     */
+    @Configuration
+    @EnableGlobalMethodSecurity(prePostEnabled = true)
+    public static class MethodSecurityConfig
+            extends GlobalMethodSecurityConfiguration
+    {
+
+        @Inject
+        MethodAccessDecisionManager methodAccessDecisionManager;
+
+        @Override
+        protected AccessDecisionManager accessDecisionManager()
+        {
+            return methodAccessDecisionManager;
+        }
+
     }
 
 

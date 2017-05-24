@@ -1,12 +1,9 @@
 package org.carlspring.strongbox.authentication.api.impl.userdetails;
 
-import org.carlspring.strongbox.security.Role;
-import org.carlspring.strongbox.users.domain.Roles;
 import org.carlspring.strongbox.users.domain.User;
-import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
+import org.carlspring.strongbox.users.security.AuthoritiesProvider;
 import org.carlspring.strongbox.users.service.UserService;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Qualifier;
 import java.lang.annotation.Documented;
@@ -18,12 +15,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @StrongboxUserDetailService.StrongboxUserDetailServiceQualifier
@@ -41,50 +36,11 @@ public class StrongboxUserDetailService
     UserService userService;
 
     @Inject
-    AuthorizationConfigProvider authorizationConfigProvider;
-
-    private Set<GrantedAuthority> fullAuthorities;
-
-    private Set<Role> configuredRoles;
-
-    @PostConstruct
-    @Transactional
-    public void init()
-    {
-        fullAuthorities = new HashSet<>();
-        configuredRoles = new HashSet<>();
-
-        authorizationConfigProvider.getConfig()
-                                   .ifPresent(
-                                           config ->
-                                           {
-                                               try
-                                               {
-                                                   config.getRoles()
-                                                         .getRoles()
-                                                         .forEach(
-                                                                 role -> role.getPrivileges()
-                                                                             .forEach(
-                                                                                     privilegeName -> fullAuthorities.add(
-                                                                                             new SimpleGrantedAuthority(privilegeName.toUpperCase()))));
-
-                                                   configuredRoles.addAll(config.getRoles()
-                                                                                .getRoles());
-                                               }
-                                               catch (Exception e)
-                                               {
-                                                   logger.error("Unable to process authorization config", e);
-                                               }
-                                           }
-                                   );
-        authorizationConfigProvider.getConfig()
-                                   .orElseThrow(
-                                           () -> new RuntimeException("Unable to get authorization config"));
-    }
+    AuthoritiesProvider authoritiesProvider;
 
     @Override
     @Cacheable(value = "userDetails",
-               key = "#name")
+            key = "#name")
     public synchronized UserDetails loadUserByUsername(String name)
             throws UsernameNotFoundException
     {
@@ -105,7 +61,7 @@ public class StrongboxUserDetailService
         // thread-safe transformation of roles to authorities
         Set<GrantedAuthority> authorities = new HashSet<>();
         user.getRoles()
-            .forEach(role -> authorities.addAll(getAuthoritiesByRoleName(role.toUpperCase())));
+            .forEach(role -> authorities.addAll(authoritiesProvider.getAuthoritiesByRoleName(role.toUpperCase())));
 
         // extract (detach) user in current transaction
         SpringSecurityUser springUser = new SpringSecurityUser();
@@ -121,41 +77,6 @@ public class StrongboxUserDetailService
         return springUser;
     }
 
-    private synchronized Set<GrantedAuthority> getAuthoritiesByRoleName(final String roleName)
-    {
-
-        Set<GrantedAuthority> authorities = new HashSet<>();
-
-        if (roleName.equals("ADMIN"))
-        {
-            authorities.addAll(fullAuthorities);
-        }
-
-        // add all privileges from etc/conf/security-authorization.xml for any role that defines there
-        configuredRoles.forEach(role ->
-                                {
-                                    if (role.getName()
-                                            .equalsIgnoreCase(roleName))
-                                    {
-                                        role.getPrivileges()
-                                            .forEach(
-                                                    privilegeName -> authorities.add(
-                                                            new SimpleGrantedAuthority(privilegeName.toUpperCase())));
-                                    }
-                                });
-
-        try
-        {
-            Roles configuredRole = Roles.valueOf(roleName);
-            authorities.addAll(configuredRole.getPrivileges());
-        }
-        catch (IllegalArgumentException e)
-        {
-            logger.warn("Unable to find predefined role by name " + roleName, e);
-        }
-
-        return authorities;
-    }
 
     @Documented
     @Retention(RUNTIME)

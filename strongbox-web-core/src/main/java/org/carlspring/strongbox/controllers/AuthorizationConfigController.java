@@ -242,8 +242,6 @@ public class AuthorizationConfigController
     private void addAnonymousAuthority(String authority)
     {
         SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(authority.toUpperCase());
-        config.getAnonymousAuthorities()
-              .add(simpleGrantedAuthority);
         anonymousAuthenticationFilter.getAuthorities()
                                      .add(simpleGrantedAuthority);
     }

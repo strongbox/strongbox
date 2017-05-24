@@ -49,8 +49,12 @@ public class CustomAccessDecisionVoter
         // do not participate in voting directly by default
         int vote = ACCESS_ABSTAIN;
 
-        SpringSecurityUser user = (SpringSecurityUser) authentication.getPrincipal();
-        AccessModel accessModel = user.getAccessModel();
+        Object user = authentication.getPrincipal();
+        AccessModel accessModel = null;
+        if (user instanceof SpringSecurityUser)
+        {
+            accessModel = ((SpringSecurityUser) user).getAccessModel();
+        }
         if (accessModel == null)
         {
             return vote;
