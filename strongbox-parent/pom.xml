@@ -55,7 +55,7 @@
         <version.httpclient>4.5</version.httpclient>
         <version.jackson>2.8.7</version.jackson>
         <version.jersey>2.23.1</version.jersey>
-        <version.jetty>9.3.7.v20160115</version.jetty>
+        <version.jetty>9.4.5.v20170502</version.jetty>
         <version.lucene>4.8.1</version.lucene>
         <version.maven>3.3.9</version.maven>
         <version.jcl>1.7.24</version.jcl>
@@ -74,7 +74,6 @@
 
     <build>
         <pluginManagement>
-        
             <plugins>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
