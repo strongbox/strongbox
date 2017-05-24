@@ -10,6 +10,7 @@ import java.nio.file.WatchEvent.Modifier;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.Iterator;
+import java.util.regex.Pattern;
 
 /**
  * This implementation wraps target {@link Path} implementation, which can be an "CloudPath" or common
@@ -148,10 +149,7 @@ public class RepositoryPath
     
     public RepositoryPath getRepositoryRelative()
     {
-        //TODO: there can be issues under Windows with replaceAll(..)
-        String resultString = toString().replaceAll(getFileSystem().getRootDirectory().toString(), "");
-        resultString = resultString.startsWith(getFileSystem().getSeparator()) ? resultString.substring(1) : resultString;
-        return getFileSystem().getPath(resultString);
+        return getFileSystem().getRootDirectory().relativize(this); 
     }
 
     public URI toUri()
@@ -221,5 +219,8 @@ public class RepositoryPath
     {
         return getTarget().hashCode();
     }
-    
+ 
+    public static void main(String args[]) throws Exception {
+        System.out.println(Pattern.quote("z:\\strongbox\\strongbox\\strongbox-storage\\strongbox-storage-layout-providers\\strongbox-storage-maven-layout-provider\\target\\strongbox-vault\\storages\\storage0\\m2lp-releases"));
+    }
 }
