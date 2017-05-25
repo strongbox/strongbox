@@ -15,13 +15,10 @@ public interface Authenticator
     @Nonnull
     default String getName()
     {
-        return getClass().getSimpleName();
+        return getClass().getName();
     }
 
     @Nonnull
     AuthenticationProvider getAuthenticationProvider();
-
-    @Nonnull
-    AuthenticationSupplier getAuthenticationSupplier();
 
 }

@@ -46,7 +46,7 @@ public class AuthenticationConfigTest
                     {
                         return ((Authenticator) o).getName()
                                                   .equals(
-                                                          DefaultAuthenticator.class.getSimpleName());
+                                                          DefaultAuthenticator.class.getName());
                     }
                 }));
     }
@@ -61,7 +61,7 @@ public class AuthenticationConfigTest
                        public boolean matches(Object o)
                        {
                            return ((Authenticator) o).getName()
-                                                     .equals("EmptyAuthenticator");
+                                                     .equals("org.carlspring.strongbox.authentication.impl.example.EmptyAuthenticator");
                        }
                    }));
     }

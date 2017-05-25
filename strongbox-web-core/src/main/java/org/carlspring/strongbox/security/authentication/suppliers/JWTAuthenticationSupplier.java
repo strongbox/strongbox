@@ -1,53 +1,72 @@
-package org.carlspring.strongbox.authentication.api.impl.jwt;
+package org.carlspring.strongbox.security.authentication.suppliers;
 
+import org.carlspring.strongbox.authentication.api.impl.userdetails.StrongboxUserDetailService;
 import org.carlspring.strongbox.security.exceptions.SecurityTokenException;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Component;
 
-public class JWTAuthenticationProvider
-        implements AuthenticationProvider
+@Component
+class JWTAuthenticationSupplier
+        implements AuthenticationSupplier
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(JWTAuthenticationProvider.class);
+    private static final Logger logger = LoggerFactory.getLogger(JWTAuthenticationSupplier.class);
 
-    private final DaoAuthenticationProvider delegate;
+    private static final Pattern BEARER_PATTERN = Pattern.compile("Bearer (.*)");
 
-    private final UserDetailsService userDetailsService;
+    @Inject
+    @StrongboxUserDetailService.StrongboxUserDetailServiceQualifier
+    private UserDetailsService userDetailsService;
 
-    private final SecurityTokenProvider securityTokenProvider;
+    @Inject
+    private SecurityTokenProvider securityTokenProvider;
 
-    public JWTAuthenticationProvider(UserDetailsService userDetailsService,
-                                     SecurityTokenProvider securityTokenProvider)
-    {
-        this.userDetailsService = userDetailsService;
-        this.securityTokenProvider = securityTokenProvider;
-
-        delegate = new DaoAuthenticationProvider();
-        delegate.setUserDetailsService(userDetailsService);
-    }
-
+    @CheckForNull
     @Override
-    public Authentication authenticate(Authentication authentication)
+    public Authentication supply(@Nonnull HttpServletRequest request)
     {
+        final String tokenHeader = request.getHeader("Authorization");
+        if (tokenHeader == null)
+        {
+            return null;
+        }
 
-        JWTAuthentication jwtAuthentication = (JWTAuthentication) authentication;
-        String token = jwtAuthentication.getToken();
+        final Matcher matcher = BEARER_PATTERN.matcher(tokenHeader);
+        if (!matcher.matches())
+        {
+            return null;
+        }
+
+        final String token = matcher.group(1);
+
+        logger.debug("Bearer Authorization header found with token {}", token);
+
         String userName = securityTokenProvider.getSubject(token);
-
         UserDetails user = userDetailsService.loadUserByUsername(userName);
+
+        if (user == null)
+        {
+            logger.debug("User not found for token {}", token);
+            return null;
+        }
 
         Map<String, String> claimMap = new HashMap<>();
         claimMap.put("credentials", user.getPassword());
@@ -68,14 +87,8 @@ public class JWTAuthenticationProvider
             }
         }
 
-        logger.debug("Token verified. Delegating authentication to {}", delegate);
-        return delegate.authenticate(new UsernamePasswordAuthenticationToken(userName, user.getPassword()));
-    }
-
-    @Override
-    public boolean supports(Class<?> authentication)
-    {
-        return JWTAuthentication.class.isAssignableFrom(authentication);
+        logger.debug("Token verified.");
+        return new UsernamePasswordAuthenticationToken(userName, user.getPassword());
     }
 
     public static class JwtAuthenticationException
