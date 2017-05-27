@@ -59,6 +59,9 @@ public class ArtifactDirectoryLocatorTest
     public void setUp()
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
+        os = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(os));
+        
         if (initialized)
         {
             return;
@@ -159,8 +162,6 @@ public class ArtifactDirectoryLocatorTest
             initialized = true;
         }
 
-        os = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(os));
     }
 
     @After
