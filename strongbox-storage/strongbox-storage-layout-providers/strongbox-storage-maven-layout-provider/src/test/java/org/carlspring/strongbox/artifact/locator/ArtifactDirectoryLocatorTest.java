@@ -50,8 +50,6 @@ public class ArtifactDirectoryLocatorTest
 
     private static PrintStream tempSysOut;
 
-    private boolean INITIALIZED;
-    
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
     @Inject
@@ -66,8 +64,6 @@ public class ArtifactDirectoryLocatorTest
             return;
         }
 
-        initialized = true;
-        
         generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() +
                          "/org/apache/maven/location-utils/1.0.1/location-utils-1.0.1.jar");
         generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() +
@@ -156,11 +152,11 @@ public class ArtifactDirectoryLocatorTest
         generateArtifact(
                 REPOSITORY_BASEDIR.getAbsolutePath() + "/org/carlspring/strongbox/locator/utils/2.3/utils-2.3.pom");
 
-        if (!INITIALIZED)
+        if (!initialized)
         {
             tempSysOut = System.out;
 
-            INITIALIZED = true;
+            initialized = true;
         }
 
         os = new ByteArrayOutputStream();
