@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.security.NoSuchAlgorithmException;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 
 import javax.inject.Inject;
@@ -24,6 +26,7 @@ import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIn
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -41,6 +44,8 @@ public class ArtifactDirectoryLocatorTest
     private static final File REPOSITORY_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                             "/storages/storage0/releases");
 
+    private static boolean initialized;
+    
     private ByteArrayOutputStream os;
 
     private static PrintStream tempSysOut;
@@ -56,6 +61,13 @@ public class ArtifactDirectoryLocatorTest
     public void setUp()
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
+        if (initialized)
+        {
+            return;
+        }
+
+        initialized = true;
+        
         generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() +
                          "/org/apache/maven/location-utils/1.0.1/location-utils-1.0.1.jar");
         generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() +

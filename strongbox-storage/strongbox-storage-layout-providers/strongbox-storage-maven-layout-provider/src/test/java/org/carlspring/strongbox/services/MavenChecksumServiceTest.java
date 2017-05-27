@@ -50,7 +50,8 @@ public class MavenChecksumServiceTest
     private static final File REPOSITORY_SNAPSHOTS_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                                       "/storages/" + STORAGE0 + "/" +
                                                                       REPOSITORY_SNAPSHOTS);
-
+    private static boolean initialized;
+    
     private static Artifact snapshotArtifact;
 
     @Inject
@@ -77,6 +78,12 @@ public class MavenChecksumServiceTest
     public void initialize()
             throws Exception
     {
+        if (initialized){
+            return;
+        }
+        
+        initialized = true;
+        
         Repository repository = new Repository(REPOSITORY_RELEASES);
         repository.setStorage(configurationManager.getConfiguration()
                                                   .getStorage(STORAGE0));
