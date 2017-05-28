@@ -216,7 +216,7 @@ public class AuthorizationConfigProvider
         throws IOException
     {
         return ConfigurationResourceResolver.getConfigurationResource("authorization.config.xml",
-                                                                      "etc/conf/security-authorization.xml");
+                                                                      "etc/conf/strongbox-security-authorization.xml");
     }
 
     // used to receive String representation of any object to execute future comparisons based on that

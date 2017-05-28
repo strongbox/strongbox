@@ -46,3 +46,35 @@
         </privilege>
     </privileges>
 </authorization-configuration>
+
+
+<user>
+    <username>developer01</username>
+    <credentials>
+        <password>password</password>
+        <encryption-algorithm>plain</encryption-algorithm>
+    </credentials>
+    <roles>
+        <role>UI_MANAGER</role>
+    </roles>
+    <access-model>
+        <storages>
+            <storage id="storage0">
+                <repositories>
+                    <repository id="act-releases-1">
+                        <privileges>
+                            <privilege>
+                                <name>ARTIFACTS_RESOLVE</name>
+                            </privilege>
+                        </privileges>
+                        <path-permissions>
+                            <path>pro/redsoft/bar/.*</path>
+                            <path permission="r">com/carlspring/foo/.*</path>
+                            <path permission="rw">org/carlspring/foo/.*</path>
+                        </path-permissions>
+                    </repository>
+                </repositories>
+            </storage>
+        </storages>
+    </access-model>
+</user>
