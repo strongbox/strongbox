@@ -10,7 +10,6 @@ import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIn
 import org.carlspring.strongbox.util.FileUtils;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -22,6 +21,7 @@ import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,7 +50,6 @@ public class MavenChecksumServiceTest
     private static final File REPOSITORY_SNAPSHOTS_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                                       "/storages/" + STORAGE0 + "/" +
                                                                       REPOSITORY_SNAPSHOTS);
-    private static boolean initialized;
     
     private static Artifact snapshotArtifact;
 
@@ -78,11 +77,6 @@ public class MavenChecksumServiceTest
     public void initialize()
             throws Exception
     {
-        if (initialized){
-            return;
-        }
-        
-        initialized = true;
         
         Repository repository = new Repository(REPOSITORY_RELEASES);
         repository.setStorage(configurationManager.getConfiguration()
@@ -109,7 +103,7 @@ public class MavenChecksumServiceTest
                                                              1);
     }
 
-    @PreDestroy
+    @After
     public void removeRepositories()
             throws IOException, JAXBException
     {
