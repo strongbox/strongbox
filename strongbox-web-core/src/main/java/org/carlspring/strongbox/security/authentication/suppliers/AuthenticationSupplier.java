@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.authentication.api;
+package org.carlspring.strongbox.security.authentication.suppliers;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
