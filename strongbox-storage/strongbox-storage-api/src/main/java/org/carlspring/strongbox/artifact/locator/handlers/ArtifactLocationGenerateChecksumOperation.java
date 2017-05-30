@@ -1,14 +1,16 @@
 package org.carlspring.strongbox.artifact.locator.handlers;
 
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.layout.RepositoryLayoutFileSystemProvider;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.RepositoryLayoutFileSystemProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,22 +28,27 @@ public class ArtifactLocationGenerateChecksumOperation
     private boolean forceRegeneration = false;
 
     public void execute(RepositoryPath path)
-        throws IOException
+            throws IOException
     {
-        List<Path> filePaths = Files.list(path)
-                                      .filter(p -> {
-                                        try
-                                        {
-                                            return Boolean.TRUE.equals(Files.getAttribute(p,
-                                                                                                  RepositoryFileAttributes.METADATA));
-                                        }
-                                        catch (IOException e)
-                                        {
-                                            logger.error(String.format("Failed to read attributes for [%s]", p), e);
-                                        }
-                                        return false;
-                                    }).collect(Collectors.toList());
-        
+        List<Path> filePaths;
+        try (Stream<Path> pathStream = Files.list(path))
+        {
+            filePaths = pathStream.filter(p ->
+                                          {
+                                              try
+                                              {
+                                                  return Boolean.TRUE.equals(Files.getAttribute(p,
+                                                                                                RepositoryFileAttributes.METADATA));
+                                              }
+                                              catch (IOException e)
+                                              {
+                                                  logger.error(String.format("Failed to read attributes for [%s]", p),
+                                                               e);
+                                              }
+                                              return false;
+                                          }).collect(Collectors.toList());
+        }
+
         RepositoryPath parentPath = path.getParent()
                                         .toAbsolutePath();
 
@@ -83,7 +90,7 @@ public class ArtifactLocationGenerateChecksumOperation
         {
             return;
         }
-        
+
         getVisitedRootPaths().put(parentPath, versionDirectories);
         if (logger.isDebugEnabled())
         {
