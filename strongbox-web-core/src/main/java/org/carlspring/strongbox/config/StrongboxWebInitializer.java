@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.config;
 
+import org.carlspring.strongbox.web.DirectoryTraversalFilter;
 import org.carlspring.strongbox.web.HeaderMappingFilter;
 
 import javax.servlet.DispatcherType;
@@ -46,6 +47,9 @@ public class StrongboxWebInitializer
             throws ServletException
     {
         super.onStartup(servletContext);
+
+        registerFilter(servletContext, false, DirectoryTraversalFilter.class.getSimpleName(),
+                       new DirectoryTraversalFilter());
 
         DelegatingFilterProxy headerMappingFilterDelegate = new DelegatingFilterProxy("headerMappingFilter");
         registerFilter(servletContext, false, HeaderMappingFilter.class.getSimpleName(), headerMappingFilterDelegate);
