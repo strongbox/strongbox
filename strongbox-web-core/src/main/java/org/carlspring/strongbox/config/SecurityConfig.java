@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import java.util.List;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.access.AccessDecisionManager;
@@ -27,7 +28,9 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
-@Import(AuthenticationConfig.class)
+@ComponentScan({ "org.carlspring.strongbox.security" })
+@Import({ UsersConfig.class,
+          AuthenticationConfig.class })
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig
