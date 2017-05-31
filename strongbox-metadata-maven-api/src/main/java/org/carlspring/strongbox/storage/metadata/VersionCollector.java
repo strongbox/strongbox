@@ -11,6 +11,7 @@ import org.carlspring.strongbox.storage.metadata.visitors.ArtifactVersionDirecto
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -52,7 +53,8 @@ public class VersionCollector
 
         List<MetadataVersion> versions = new ArrayList<>();
 
-        List<File> versionPaths = Arrays.asList(artifactBasePath.toAbsolutePath().toFile().listFiles(new ArtifactVersionDirectoryFilter()));
+        List<File> versionPaths = Arrays.asList(
+                artifactBasePath.toAbsolutePath().toFile().listFiles(new ArtifactVersionDirectoryFilter()));
 
         // Add all versions
         for (File versionDirectory : versionPaths)
@@ -68,12 +70,14 @@ public class VersionCollector
                 {
                     Model pom = getPom(pomArtifactPath);
 
-                    BasicFileAttributes fileAttributes = Files.readAttributes(versionDirectoryPath, BasicFileAttributes.class);
+                    BasicFileAttributes fileAttributes = Files.readAttributes(versionDirectoryPath,
+                                                                              BasicFileAttributes.class);
 
                     // TODO: This will not work for versionless POM-s which extend the version from a parent.
                     // TODO: If pom.getVersion() == null, walk the parents until a parent with
                     // TODO: a non-null version is found and use that as the version.
-                    String version = pom.getVersion() != null ? pom.getVersion() : (pom.getParent() != null ? pom.getVersion() : null);
+                    String version = pom.getVersion() != null ? pom.getVersion() :
+                                     (pom.getParent() != null ? pom.getVersion() : null);
 
                     if (ArtifactUtils.isSnapshot(version))
                     {
@@ -123,7 +127,8 @@ public class VersionCollector
         return request;
     }
 
-    private Path getPomPath(Path artifactBasePath, Path versionDirectoryPath)
+    private Path getPomPath(Path artifactBasePath,
+                            Path versionDirectoryPath)
     {
         String version = versionDirectoryPath.getFileName().toString();
         if (ArtifactUtils.isReleaseVersion(version))
@@ -171,7 +176,8 @@ public class VersionCollector
 
             String name = filePath.toFile().getName();
 
-            SnapshotVersion snapshotVersion = MetadataHelper.createSnapshotVersion(artifact, FilenameUtils.getExtension(name));
+            SnapshotVersion snapshotVersion = MetadataHelper.createSnapshotVersion(artifact,
+                                                                                   FilenameUtils.getExtension(name));
 
             snapshotVersions.add(snapshotVersion);
         }
@@ -231,8 +237,12 @@ public class VersionCollector
     private Model getPom(Path filePath)
             throws IOException, XmlPullParserException
     {
-        MavenXpp3Reader reader = new MavenXpp3Reader();
-        return reader.read(new FileReader(filePath.toFile()));
+        try (Reader rr = new FileReader(filePath.toFile()))
+        {
+            MavenXpp3Reader reader = new MavenXpp3Reader();
+            return reader.read(rr);
+        }
+
     }
 
 }
