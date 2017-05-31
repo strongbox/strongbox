@@ -39,6 +39,6 @@ logs/
 *.log
 
 lib/*
-!strongbox-user-management/src/test/resources/webapp/WEB-INF/lib/strongbox-authentication-sample-1.0-SNAPSHOT.jar
+!strongbox-user-management/src/test/resources/webapp/WEB-INF/lib/strongbox-example-authentication-provider-1.0-SNAPSHOT.jar
 
 *.sh
