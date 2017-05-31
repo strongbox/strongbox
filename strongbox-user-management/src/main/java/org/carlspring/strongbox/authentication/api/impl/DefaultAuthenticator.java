@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.authentication.api.impl;
 
 import org.carlspring.strongbox.authentication.api.Authenticator;
-import org.carlspring.strongbox.authentication.api.impl.userdetails.StrongboxUserDetailService;
+import org.carlspring.strongbox.users.userdetails.StrongboxUserDetailService;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;

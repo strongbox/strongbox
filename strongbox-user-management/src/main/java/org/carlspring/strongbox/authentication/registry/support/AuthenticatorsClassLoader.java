@@ -6,6 +6,7 @@ import org.carlspring.strongbox.util.JarFileClassLoader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import com.google.common.base.Throwables;
@@ -18,6 +19,9 @@ import org.slf4j.LoggerFactory;
  */
 public class AuthenticatorsClassLoader
 {
+
+    private static final Pattern AUTHENTICAION_PROVIDER_PATTERN = Pattern.compile(
+            "strongbox-.*-authentication-provider.*jar");
 
     private static final Logger logger = LoggerFactory.getLogger(AuthenticatorsClassLoader.class);
 
@@ -55,7 +59,8 @@ public class AuthenticatorsClassLoader
             return;
         }
 
-        final File[] authenticatorsJars = authenticatorsDirectory.listFiles(name -> name.getName().endsWith(".jar"));
+        final File[] authenticatorsJars = authenticatorsDirectory.listFiles(
+                AuthenticatorsClassLoader::authenticationProviderFilter);
         if (ArrayUtils.isEmpty(authenticatorsJars))
         {
             logger.debug(authenticatorsDirectory + "contains 0 authenticators jar files.");
@@ -76,6 +81,11 @@ public class AuthenticatorsClassLoader
                                                   }
                                               });
 
+    }
+
+    private static boolean authenticationProviderFilter(File pathname)
+    {
+        return !pathname.isDirectory() && AUTHENTICAION_PROVIDER_PATTERN.matcher(pathname.getName()).matches();
     }
 
 }

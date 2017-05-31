@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.security.authentication.suppliers;
 
-import org.carlspring.strongbox.authentication.api.impl.userdetails.StrongboxUserDetailService;
+import org.carlspring.strongbox.users.userdetails.StrongboxUserDetailService;
 import org.carlspring.strongbox.security.exceptions.SecurityTokenException;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 
