@@ -33,67 +33,60 @@ public class ArtifactEntryServiceTest
     ArtifactEntryService artifactEntryService;
 
     final String storageId = "storage0";
+
     final String repositoryId = "release";
 
     final String groupId = "org.carlspring.strongbox";
+
     final String artifactId = "coordinates-test";
 
     /**
      * Make sure that we are able to search artifacts by single coordinate.
      *
-     * @param groupId
      * @throws Exception
      */
     @Test
     public void searchBySingleCoordinate()
             throws Exception
     {
-
-        logger.info("[prepareTests] Create artifacts....");
-
         artifactEntryService.deleteAll();
         createArtifacts(groupId, artifactId, storageId, repositoryId);
         displayAllEntries();
 
-        logger.info("\n\n\tThere is totally " + artifactEntryService.count() + " artifacts...\n");
+        logger.debug("There are a total of " + artifactEntryService.count() + " artifacts.");
 
         // prepare search query key (coordinates)
-        MavenArtifactCoordinates query = new MavenArtifactCoordinates();
-        query.setGroupId(groupId);
+        MavenArtifactCoordinates coordinates = new MavenArtifactCoordinates();
+        coordinates.setGroupId(groupId);
 
-        List<ArtifactEntry> result = artifactEntryService.findByCoordinates(query);
-        assertNotNull(result);
-        assertFalse(result.isEmpty());
+        List<ArtifactEntry> artifactEntries = artifactEntryService.findByCoordinates(coordinates);
 
-        assertEquals(2, result.size());
+        assertNotNull(artifactEntries);
+        assertFalse(artifactEntries.isEmpty());
+        assertEquals(2, artifactEntries.size());
 
-        result.forEach(artifactEntry ->
-                       {
-                           logger.info("Found artifact " + artifactEntry);
+        artifactEntries.forEach(artifactEntry ->
+                                {
+                                    logger.info("Found artifact " + artifactEntry);
 
-                           assertEquals(groupId, artifactEntry.getArtifactCoordinates()
-                                                              .getCoordinate("groupId"));
-                       });
+                                    assertEquals(groupId,
+                                                 artifactEntry.getArtifactCoordinates().getCoordinate("groupId"));
+                                });
     }
 
     /**
      * Make sure that we are able to search artifacts by two coordinates that need to be joined with logical AND operator.
-     *
-     * @param groupId
-     * @param artifactId
      */
     @Test
     public void searchByTwoCoordinate()
             throws Exception
     {
-
-        logger.info("[prepareTests] Create artifacts....");
-
         artifactEntryService.deleteAll();
+
         createArtifacts(groupId, artifactId, storageId, repositoryId);
         displayAllEntries();
 
-        logger.info("There is totally " + artifactEntryService.count() + " artifacts...");
+        logger.debug("There are a total of " + artifactEntryService.count() + " artifacts.");
 
         // prepare search query key (coordinates)
         MavenArtifactCoordinates query = new MavenArtifactCoordinates();
@@ -108,12 +101,10 @@ public class ArtifactEntryServiceTest
 
         result.forEach(artifactEntry ->
                        {
-                           logger.info("Found artifact " + artifactEntry);
+                           logger.debug("Found artifact " + artifactEntry);
 
-                           assertEquals(groupId, artifactEntry.getArtifactCoordinates()
-                                                              .getCoordinate("groupId"));
-                           assertEquals(artifactId, artifactEntry.getArtifactCoordinates()
-                                                                 .getCoordinate("artifactId"));
+                           assertEquals(groupId, artifactEntry.getArtifactCoordinates().getCoordinate("groupId"));
+                           assertEquals(artifactId, artifactEntry.getArtifactCoordinates().getCoordinate("artifactId"));
                        });
 
         artifactEntryService.deleteAll();
@@ -121,7 +112,6 @@ public class ArtifactEntryServiceTest
 
     public void displayAllEntries()
     {
-        logger.info("[displayAllEntries] ->>>> ...... ");
         List<ArtifactEntry> result = artifactEntryService.findAll()
                                                          .orElse(null);
         if (result == null || result.isEmpty())
@@ -129,7 +119,7 @@ public class ArtifactEntryServiceTest
             logger.warn("Artifact repository is empty");
         }
 
-        result.forEach(artifactEntry -> logger.info("[displayAllEntries] Found artifact " + artifactEntry));
+        result.forEach(artifactEntry -> logger.debug("Found artifact " + artifactEntry));
     }
 
     public void createArtifacts(String groupId,
@@ -166,9 +156,6 @@ public class ArtifactEntryServiceTest
                                              String storageId,
                                              String repositoryId)
     {
-
-        logger.info("[createArtifactEntry] Create artifact " + coordinates.toPath());
-
         ArtifactEntry artifactEntry = new ArtifactEntry();
         artifactEntry.setArtifactCoordinates(coordinates);
         artifactEntry.setStorageId(storageId);
@@ -186,4 +173,5 @@ public class ArtifactEntryServiceTest
                                             null,
                                             "jar");
     }
+
 }

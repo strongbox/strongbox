@@ -41,14 +41,12 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
         // Prepare a custom query based on all non-null coordinates that were joined by logical AND.
         // Read more about fetching strategies here: http://orientdb.com/docs/2.2/Fetching-Strategies.html
 
-        String nativeQuery = buildQuery(coordinates);
-        OSQLSynchQuery<ArtifactEntry> query = new OSQLSynchQuery<>(nativeQuery);
+        String sQuery = buildQuery(coordinates);
+        OSQLSynchQuery<ArtifactEntry> oQuery = new OSQLSynchQuery<>(sQuery);
 
-        List<ArtifactEntry> results = getDelegate().command(query).execute(coordinates);
+        List<ArtifactEntry> entries = getDelegate().command(oQuery).execute(coordinates);
 
-        logger.debug("Executing SQL query> " + nativeQuery);
-
-        return results;
+        return entries;
     }
 
     @Override
@@ -67,6 +65,42 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
         return Optional.ofNullable(artifactEntryList == null || artifactEntryList.isEmpty() ?
                                    null : artifactEntryList.iterator().next());
     }
+
+    @Override
+    protected String buildQuery(Map<String, String> map)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT * FROM ").append(getEntityClass().getSimpleName());
+
+        if (map == null || map.isEmpty())
+        {
+            return sb.toString();
+        }
+
+        sb.append(" WHERE ");
+
+        // process only coordinates with non-null values
+        map.entrySet()
+           .stream()
+           .filter(entry -> entry.getValue() != null)
+           .forEach(entry -> sb.append("artifactCoordinates.")
+                               .append(entry.getKey())
+                               .append(" = :")
+                               .append(entry.getKey())
+                               .append(" AND "));
+
+        // remove last 'and' statement (that doesn't relate to any value)
+        String query = sb.toString();
+        query = query.substring(0, query.length() - 5) + ";";
+
+        // now query should looks like
+        // SELECT * FROM Foo WHERE blah = :blah AND moreBlah = :moreBlah
+
+        logger.debug("Executing SQL query> " + query);
+
+        return query;
+    }
+
 
     @Override
     public Class<ArtifactEntry> getEntityClass()

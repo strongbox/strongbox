@@ -6,6 +6,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.carlspring.strongbox.data.domain.GenericEntity;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -17,6 +20,8 @@ import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 public abstract class CommonCrudService<T extends GenericEntity>
         implements CrudService<T, String>
 {
+
+    private static final Logger logger = LoggerFactory.getLogger(CommonCrudService.class);
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -127,7 +132,6 @@ public abstract class CommonCrudService<T extends GenericEntity>
         sb.append(" WHERE ");
 
         // process only coordinates with non-null values
-        // don't forget to 'wrap' values into ''
         map.entrySet()
            .stream()
            .filter(entry -> entry.getValue() != null)
@@ -136,13 +140,16 @@ public abstract class CommonCrudService<T extends GenericEntity>
                                .append(entry.getKey())
                                .append(" AND "));
 
-        // remove last 'and' statement (that doesn't relates to any coordinate)
+        // remove last 'and' statement (that doesn't relate to any value)
         String query = sb.toString();
-        query = query.substring(0, query.length() - 5);
+        query = query.substring(0, query.length() - 5) + ";";
 
         // now query should looks like
-        // SELECT * FROM ArtifactEntry WHERE artifactCoordinates.groupId = ? AND ...
-        return query + ";";
+        // SELECT * FROM Foo WHERE blah = :blah AND moreBlah = :moreBlah
+
+        logger.debug("Executing SQL query> " + query);
+
+        return query;
     }
 
     private String getEntityClassSimpleNameAsCamelHumpVariable()
