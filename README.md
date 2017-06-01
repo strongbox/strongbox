@@ -16,7 +16,7 @@ Welcome to the Strongbox artifact repository manager's home.
 * Directory browsing
 * Indexing
   * OrientDB (default implementation for all repositories and layout formats)
-  * [[Maven Indexer]] (additional implementation for Maven repositories)
+  * [Maven Indexer](https://github.com/strongbox/strongbox/wiki/Maven-Indexer] (additional implementation for Maven repositories)
 * Cache
   * For performance optimisation and for resolving concurrency issues when authenticate using OrientDB second-level cache EhCache is used
 * Security
