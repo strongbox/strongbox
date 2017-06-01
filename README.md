@@ -36,8 +36,8 @@ Welcome to the Strongbox artifact repository manager's home.
   * Ready-to-use Java-based client(s) covering each REST command.
 * [Cron Tasks](https://github.com/strongbox/strongbox/wiki/Cron-Tasks)
   * Implementations:
-    * [Java](https://github.com/strongbox/strongbox-cron-tasks#java-cron-task)
-    * [Groovy](https://github.com/strongbox/strongbox-cron-tasks#groovy-cron-task)
+    * Java
+    * Groovy
 * Logging:
   * Retrieve logs over HTTP
 
