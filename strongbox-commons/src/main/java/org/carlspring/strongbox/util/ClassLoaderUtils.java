@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.util;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -45,4 +46,12 @@ public final class ClassLoaderUtils
         }
     }
 
+    public static void addJarForClassLoading(ClassLoader classLoader,
+                                             String pathToJar)
+            throws IOException
+    {
+
+        final URLClassLoader cl = getURLClassLoader(classLoader);
+        addURLToURLClassLoader(cl, new URL[]{ new URL("jar:file:" + pathToJar + "!/") });
+    }
 }

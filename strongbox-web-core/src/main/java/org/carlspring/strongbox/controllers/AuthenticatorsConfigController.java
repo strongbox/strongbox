@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
-import org.carlspring.strongbox.authentication.registry.support.AuthenticatorsClassLoader;
+import org.carlspring.strongbox.authentication.registry.support.ExternalAuthenticatorsHelper;
 import org.carlspring.strongbox.authentication.registry.support.AuthenticatorsScanner;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
@@ -83,7 +83,7 @@ public class AuthenticatorsConfigController
     {
         try
         {
-            AuthenticatorsClassLoader.loadAuthenticatorsClasses();
+            ExternalAuthenticatorsHelper.addExternalAuthenticatorsForClassLoading();
             authenticatorsScanner.scanAndReloadRegistry();
             return ResponseEntity.ok("Reload succeeded");
         }

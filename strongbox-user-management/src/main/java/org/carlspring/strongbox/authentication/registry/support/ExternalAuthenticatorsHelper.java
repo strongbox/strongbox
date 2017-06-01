@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.authentication.registry.support;
 
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.util.JarFileClassLoader;
+import org.carlspring.strongbox.util.ClassLoaderUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -17,20 +17,20 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Przemyslaw Fusik
  */
-public class AuthenticatorsClassLoader
+public class ExternalAuthenticatorsHelper
 {
 
     private static final Pattern AUTHENTICAION_PROVIDER_PATTERN = Pattern.compile(
             "strongbox-.*-authentication-provider.*jar");
 
-    private static final Logger logger = LoggerFactory.getLogger(AuthenticatorsClassLoader.class);
+    private static final Logger logger = LoggerFactory.getLogger(ExternalAuthenticatorsHelper.class);
 
-    private AuthenticatorsClassLoader()
+    private ExternalAuthenticatorsHelper()
     {
 
     }
 
-    public static void loadAuthenticatorsClasses()
+    public static void addExternalAuthenticatorsForClassLoading()
     {
 
         File authenticatorsDirectory = null;
@@ -60,7 +60,7 @@ public class AuthenticatorsClassLoader
         }
 
         final File[] authenticatorsJars = authenticatorsDirectory.listFiles(
-                AuthenticatorsClassLoader::authenticationProviderFilter);
+                ExternalAuthenticatorsHelper::authenticationProviderFilter);
         if (ArrayUtils.isEmpty(authenticatorsJars))
         {
             logger.debug(authenticatorsDirectory + "contains 0 authenticators jar files.");
@@ -71,11 +71,11 @@ public class AuthenticatorsClassLoader
                                               {
                                                   try
                                                   {
-                                                      JarFileClassLoader.loadClasses(
+                                                      ClassLoaderUtils.addJarForClassLoading(
                                                               Thread.currentThread().getContextClassLoader(),
                                                               jarFile.getAbsolutePath());
                                                   }
-                                                  catch (IOException | ClassNotFoundException e)
+                                                  catch (IOException e)
                                                   {
                                                       throw Throwables.propagate(e);
                                                   }
