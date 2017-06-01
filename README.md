@@ -2,7 +2,7 @@
 [![Master Build Status](https://dev.carlspring.org/jenkins/buildStatus/icon?job=strongbox/strongbox/master)](https://dev.carlspring.org/jenkins/blue/organizations/jenkins/strongbox%2Fstrongbox/activity?branch=master)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/strongbox/strongbox?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Welcome to the Strongbox Maven artifact repository manager's home.
+Welcome to the Strongbox artifact repository manager's home.
 
 # What's implemented:
 * [Repositories](https://github.com/strongbox/strongbox/wiki/Repositories):
@@ -10,13 +10,14 @@ Welcome to the Strongbox Maven artifact repository manager's home.
   * Group
     * Support for repository ordering
     * Support for routing rules
-    * Support for nested group repositories
+    * Support for nested group repositories
+* Layout providers:
+  * Maven 2.x/3.x
 * Directory browsing
 * Indexing
-  * Currently using Lucene just for the sake of the PoC, but will be re-worked with OrientDB, or Titan.
-* Persistence
-  * All necessary data persisted using customised open-source spring-data-orientdb connector in OrientDB
-* Caching
+  * OrientDB (default implementation for all repositories and layout formats)
+  * [[Maven Indexer]] (additional implementation for Maven repositories)
+* Cache
   * For performance optimisation and for resolving concurrency issues when authenticate using OrientDB second-level cache EhCache is used
 * Security
   * HTTP Basic authentication
