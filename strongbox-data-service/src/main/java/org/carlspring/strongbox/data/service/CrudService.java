@@ -28,4 +28,6 @@ public interface CrudService<T, ID extends Serializable>
 
     void deleteAll();
 
+    Class<T> getEntityClass();
+
 }

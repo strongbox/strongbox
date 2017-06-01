@@ -4,9 +4,7 @@ import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.CronTaskDataService;
 import org.carlspring.strongbox.data.service.CommonCrudService;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import org.slf4j.Logger;
@@ -28,31 +26,31 @@ public class CronTaskDataServiceImpl
     private static final Logger logger = LoggerFactory.getLogger(CronTaskDataService.class);
 
 
-    @Override
-    public Class<CronTaskConfiguration> getEntityClass()
-    {
-        return CronTaskConfiguration.class;
-    }
-
-
     @Transactional
     public List<CronTaskConfiguration> findByName(String name)
     {
         try
         {
-            String sQuery = String.format("select * from %s where name=:name", getEntityClass().getSimpleName());
-            OSQLSynchQuery<CronTaskConfiguration> oQuery = new OSQLSynchQuery<CronTaskConfiguration>(sQuery);
-            HashMap<String, String> params = new HashMap<String, String>();
+            Map<String, String> params = new LinkedHashMap<>();
             params.put("name", name);
-            return getDelegate().command(oQuery)
-                                .execute(params);
+
+            String sQuery = buildQuery(params);
+            OSQLSynchQuery<CronTaskConfiguration> oQuery = new OSQLSynchQuery<>(sQuery);
+
+            return getDelegate().command(oQuery).execute(params);
         }
         catch (Exception e)
         {
-            logger.warn("Internal spring-data-orientdb exception: " + e.getMessage(), e);
+            logger.warn(e.getMessage(), e);
+
             return new LinkedList<>();
         }
     }
 
+    @Override
+    public Class<CronTaskConfiguration> getEntityClass()
+    {
+        return CronTaskConfiguration.class;
+    }
 
 }

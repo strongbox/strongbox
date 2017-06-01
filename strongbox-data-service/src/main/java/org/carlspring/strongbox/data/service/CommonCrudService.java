@@ -1,15 +1,14 @@
 package org.carlspring.strongbox.data.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.carlspring.strongbox.data.domain.GenericEntity;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -18,10 +17,15 @@ import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 @Transactional
-public abstract class CommonCrudService<T extends GenericEntity> implements CrudService<T, String>
+public abstract class CommonCrudService<T extends GenericEntity>
+        implements CrudService<T, String>
 {
+
+    private static final Logger logger = LoggerFactory.getLogger(CommonCrudService.class);
+
     @PersistenceContext
     private EntityManager entityManager;
+
 
     @Override
     public <S extends T> S save(S entity)
@@ -29,20 +33,27 @@ public abstract class CommonCrudService<T extends GenericEntity> implements Crud
         if (entity.getObjectId() == null && entity.getUuid() == null)
         {
             entity.setUuid(UUID.randomUUID().toString());
-        } else if (entity.getObjectId() == null && entity.getUuid() != null){
-            String sQuery = String.format("select @rid as objectId from %s where uuid=:uuid", getEntityClass().getSimpleName());
-            OSQLSynchQuery<ODocument> oQuery = new OSQLSynchQuery<ODocument>(sQuery);
+        }
+        else if (entity.getObjectId() == null && entity.getUuid() != null)
+        {
+            String sQuery = String.format("SELECT @rid AS objectId FROM %s WHERE uuid = :uuid",
+                                          getEntityClass().getSimpleName());
+
+            OSQLSynchQuery<ODocument> oQuery = new OSQLSynchQuery<>(sQuery);
             oQuery.setLimit(1);
-            HashMap<String, String> params = new HashMap<String, String>();
+
+            HashMap<String, String> params = new HashMap<>();
             params.put("uuid", entity.getUuid());
 
             List<ODocument> resultList = getDelegate().command(oQuery).execute(params);
-            if (!resultList.isEmpty()){
-                ODocument record = (ODocument)resultList.iterator().next();
+            if (!resultList.isEmpty())
+            {
+                ODocument record = resultList.iterator().next();
                 ODocument value = record.field("objectId");
                 entity.setObjectId(value.getIdentity().toString());
             }
         }
+
         return getDelegate().save(entity);
     }
 
@@ -71,6 +82,7 @@ public abstract class CommonCrudService<T extends GenericEntity> implements Crud
         {
             resultList.add(t);
         }
+
         return Optional.of(resultList);
     }
 
@@ -100,10 +112,53 @@ public abstract class CommonCrudService<T extends GenericEntity> implements Crud
         {
             return;
         }
+
         for (T entity : findAll.get())
         {
             delete(entity);
         }
+    }
+
+    protected String buildQuery(Map<String, String> map)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT * FROM ").append(getEntityClass().getSimpleName());
+
+        if (map == null || map.isEmpty())
+        {
+            return sb.toString();
+        }
+
+        sb.append(" WHERE ");
+
+        // process only coordinates with non-null values
+        map.entrySet()
+           .stream()
+           .filter(entry -> entry.getValue() != null)
+           .forEach(entry -> sb.append(entry.getKey())
+                               .append(" = :")
+                               .append(entry.getKey())
+                               .append(" AND "));
+
+        // remove last 'and' statement (that doesn't relate to any value)
+        String query = sb.toString();
+        query = query.substring(0, query.length() - 5) + ";";
+
+        // now query should looks like
+        // SELECT * FROM Foo WHERE blah = :blah AND moreBlah = :moreBlah
+
+        logger.debug("Executing SQL query> " + query);
+
+        return query;
+    }
+
+    private String getEntityClassSimpleNameAsCamelHumpVariable()
+    {
+        String simpleName = getEntityClass().getSimpleName();
+
+        simpleName = simpleName.substring(0, 1).toLowerCase() + simpleName.substring(1, simpleName.length());
+
+        return simpleName;
     }
 
     /**
@@ -117,5 +172,4 @@ public abstract class CommonCrudService<T extends GenericEntity> implements Crud
         return (OObjectDatabaseTx) entityManager.getDelegate();
     }
 
-    public abstract Class<T> getEntityClass();
 }
