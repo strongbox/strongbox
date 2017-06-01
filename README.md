@@ -10,7 +10,7 @@ Welcome to the Strongbox artifact repository manager's home.
   * Group
     * Support for repository ordering
     * Support for routing rules
-    * Support for nested group repositories
+    * Support for nested group repositories
 * Layout providers:
   * Maven 2.x/3.x
 * [Search providers](https://github.com/strongbox/strongbox/wiki/Searching):
