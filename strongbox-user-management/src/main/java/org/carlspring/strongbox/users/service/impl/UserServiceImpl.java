@@ -41,10 +41,13 @@ public class UserServiceImpl extends CommonCrudService<User>
     public static final String USERS_CACHE = "users";
 
     @Inject
-    CacheManager cacheManager;
+    private CacheManager cacheManager;
+
     @Inject
-    SecurityTokenProvider tokenProvider;
-    Cache usersCache;
+    private SecurityTokenProvider tokenProvider;
+
+    private Cache usersCache;
+
 
     @PostConstruct
     public void init()
@@ -52,25 +55,21 @@ public class UserServiceImpl extends CommonCrudService<User>
         usersCache = cacheManager.getCache(USERS_CACHE);
         if (usersCache == null)
         {
-            throw new BeanCreationException("Unable create users cache");
+            throw new BeanCreationException("Unable to create the users' cache!");
         }
-    }
-
-    @Override
-    public Class<User> getEntityClass()
-    {
-        return User.class;
     }
 
     @Override
     @Cacheable(value = USERS_CACHE, key = "#name", sync = true)
     public User findByUserName(String name)
     {
-        String sQuery = String.format("select * from %s where userName=:userName", getEntityClass().getSimpleName());
-        OSQLSynchQuery<Long> oQuery = new OSQLSynchQuery<Long>(sQuery);
+        HashMap<String, String> params = new HashMap<>();
+        params.put("username", name);
+
+        String sQuery = buildQuery(params);
+
+        OSQLSynchQuery<Long> oQuery = new OSQLSynchQuery<>(sQuery);
         oQuery.setLimit(1);
-        HashMap<String, String> params = new HashMap<String, String>();
-        params.put("userName", name);
 
         List<User> resultList = getDelegate().command(oQuery).execute(params);
         return !resultList.isEmpty() ? resultList.iterator().next() : null;
@@ -91,19 +90,24 @@ public class UserServiceImpl extends CommonCrudService<User>
         {
             return Optional.empty();
         }
+
         Optional<User> optionalUser = super.findOne(id);
-        return optionalUser.map(u -> {
-            usersCache.put(u.getUsername(), getDelegate().detachAll(u, true));
-            return Optional.ofNullable(u);
-        }).orElse(optionalUser);
+
+        return optionalUser.map(u ->
+                                {
+                                    usersCache.put(u.getUsername(), getDelegate().detachAll(u, true));
+                                    return Optional.ofNullable(u);
+                                })
+                           .orElse(optionalUser);
     }
 
     @Override
     public void delete(String objectId)
     {
-        findOne(objectId).ifPresent(user -> {
-            usersCache.evict(user.getUsername());
-        });
+        findOne(objectId).ifPresent(user ->
+                                    {
+                                        usersCache.evict(user.getUsername());
+                                    });
         super.delete(objectId);
     }
 
@@ -161,6 +165,12 @@ public class UserServiceImpl extends CommonCrudService<User>
         claimMap.put("security-token-key", user.getSecurityTokenKey());
 
         tokenProvider.verifyToken(apiKey, userName, claimMap);
+    }
+
+    @Override
+    public Class<User> getEntityClass()
+    {
+        return User.class;
     }
 
 }
