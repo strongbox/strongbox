@@ -115,7 +115,16 @@ public class HeaderMappingFilter
 
         Storage storage = configurationManager.getConfiguration()
                                               .getStorage(storageId);
+        if (storage == null)
+        {
+            return null;
+        }
+        
         Repository repository = storage.getRepository(repositoryId);
+        if (repository == null)
+        {
+            return null;
+        }
 
         return repository.getLayout();
     }
