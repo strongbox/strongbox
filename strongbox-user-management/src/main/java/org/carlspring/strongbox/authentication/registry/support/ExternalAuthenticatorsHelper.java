@@ -1,13 +1,12 @@
 package org.carlspring.strongbox.authentication.registry.support;
 
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.util.ClassLoaderUtils;
+import org.carlspring.strongbox.util.ClassLoaderFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 import com.google.common.base.Throwables;
 import org.apache.commons.lang.ArrayUtils;
@@ -30,10 +29,10 @@ public class ExternalAuthenticatorsHelper
 
     }
 
-    public static void addExternalAuthenticatorsForClassLoading()
+    public static ClassLoader getExternalAuthenticatorsClassLoader(ClassLoader parent)
     {
 
-        File authenticatorsDirectory = null;
+        File authenticatorsDirectory;
         try
         {
             authenticatorsDirectory = ConfigurationResourceResolver.getConfigurationResource("authentication.lib",
@@ -42,7 +41,7 @@ public class ExternalAuthenticatorsHelper
         catch (FileNotFoundException e)
         {
             logger.debug(e.getMessage());
-            return;
+            return parent;
         }
         catch (IOException e)
         {
@@ -51,12 +50,12 @@ public class ExternalAuthenticatorsHelper
         if (!authenticatorsDirectory.exists())
         {
             logger.debug(authenticatorsDirectory + " does not exist.");
-            return;
+            return parent;
         }
         if (!authenticatorsDirectory.isDirectory())
         {
             logger.error(authenticatorsDirectory + " is not a directory.");
-            return;
+            return parent;
         }
 
         final File[] authenticatorsJars = authenticatorsDirectory.listFiles(
@@ -64,23 +63,10 @@ public class ExternalAuthenticatorsHelper
         if (ArrayUtils.isEmpty(authenticatorsJars))
         {
             logger.debug(authenticatorsDirectory + "contains 0 authenticators jar files.");
-            return;
+            return null;
         }
 
-        Stream.of(authenticatorsJars).forEach(jarFile ->
-                                              {
-                                                  try
-                                                  {
-                                                      ClassLoaderUtils.addJarForClassLoading(
-                                                              Thread.currentThread().getContextClassLoader(),
-                                                              jarFile.getAbsolutePath());
-                                                  }
-                                                  catch (IOException e)
-                                                  {
-                                                      throw Throwables.propagate(e);
-                                                  }
-                                              });
-
+        return ClassLoaderFactory.urlClassLoaderFromFiles(parent, authenticatorsJars);
     }
 
     private static boolean authenticationProviderFilter(File pathname)
