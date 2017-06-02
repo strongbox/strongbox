@@ -25,7 +25,9 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 @ComponentScan({ "org.carlspring.strongbox.security" })
@@ -53,6 +55,9 @@ public class SecurityConfig
         http.sessionManagement()
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
+            // TODO SB-813
+            .exceptionHandling().authenticationEntryPoint(basicAuthenticationEntryPoint())
+            .and()
             .anonymous()
             .authenticationFilter(anonymousAuthenticationFilter())
             .and()
@@ -61,6 +66,14 @@ public class SecurityConfig
 
         http.addFilterBefore(strongboxAuthenticationFilter(),
                              BasicAuthenticationFilter.class);
+    }
+
+    @Bean
+    AuthenticationEntryPoint basicAuthenticationEntryPoint()
+    {
+        final BasicAuthenticationEntryPoint entryPoint = new BasicAuthenticationEntryPoint();
+        entryPoint.setRealmName("Protected area. Please provide user credentials.");
+        return entryPoint;
     }
 
     @Bean
