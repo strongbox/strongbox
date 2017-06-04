@@ -13,6 +13,8 @@ import javax.ws.rs.core.Response;
 import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.strongbox.client.ArtifactResolver;
 import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
@@ -20,6 +22,9 @@ import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.providers.repository.proxy.RemoteRepositoryRegistry;
+import org.carlspring.strongbox.providers.repository.proxy.RemoteRepositoryStatusEnum;
+import org.carlspring.strongbox.providers.repository.proxy.RemoteRepositoryStatusInfo;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.RemoteRepository;
@@ -48,6 +53,13 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
+    @Inject
+    private RemoteRepositoryRegistry remoteRepositoryRegistry;
+
+    @Inject
+    private ConfigurationManager configurationManager;
+
+
     @PostConstruct
     @Override
     public void register()
@@ -56,6 +68,24 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
 
         logger.info("Registered repository provider '" + getClass().getCanonicalName() +
                     "' with alias '" + ALIAS + "'.");
+
+        for (Storage storage : getConfiguration().getStorages().values())
+        {
+            for (Repository repository : storage.getRepositories().values())
+            {
+                if (repository.isProxyRepository())
+                {
+                    RemoteRepositoryStatusInfo info = new RemoteRepositoryStatusInfo();
+                    info.setStatus(RemoteRepositoryStatusEnum.UNKNOWN.getStatus());
+                    info.setUrl(repository.getRemoteRepository().getUrl());
+
+                    remoteRepositoryRegistry.addRepositoryInfo(info);
+
+                    logger.debug("Registered " +
+                                 repository.getRemoteRepository().getUrl() + " with the remote repository registry.");
+                }
+            }
+        }
     }
 
     @Override
@@ -82,8 +112,7 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
         RepositoryPath reposytoryPath = layoutProvider.resolve(repository);
         RepositoryPath artifactPath = reposytoryPath.resolve(path);
 
-        RepositoryFileSystemProvider fileSystemProvider = (RepositoryFileSystemProvider) artifactPath.getFileSystem()
-                                                                                                     .provider();
+        RepositoryFileSystemProvider fileSystemProvider = artifactPath.getFileSystem().provider();
 
         logger.debug(" -> Checking for " + artifactPath + "...");
 
@@ -150,6 +179,12 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
         RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(artifactPath);
 
         return (ArtifactOutputStream) Files.newOutputStream(repositoryPath);
+    }
+
+    @Override
+    public Configuration getConfiguration()
+    {
+        return configurationManager.getConfiguration();
     }
 
 }
