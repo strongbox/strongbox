@@ -225,27 +225,30 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
                               boolean force)
         throws IOException
     {
-        ArtifactInputStream is = newInputStream(path);
-        Set<String> digestAlgorithmSet = path.getFileSystem().getDigestAlgorithmSet();
-        digestAlgorithmSet.stream()
-                          .forEach(p -> {
-                              String checksum = is.getHexDigests()
-                                                  .get(p);
-                              RepositoryPath checksumPath = getChecksumPath(path, p);
-                              if (Files.exists(checksumPath) && !force)
-                              {
-                                  return;
-                              }
-                              try
-                              {
-                                  Files.write(checksumPath.getTarget(), checksum.getBytes());
-                              }
-                              catch (IOException e)
-                              {
-                                  logger.error(String.format("Failed to write checksum for [%s]",
-                                                             checksumPath.toString()), e);
-                              }
-                          });
+        try (ArtifactInputStream is = newInputStream(path))
+        {
+            Set<String> digestAlgorithmSet = path.getFileSystem().getDigestAlgorithmSet();
+            digestAlgorithmSet.stream()
+                              .forEach(p ->
+                                       {
+                                           String checksum = is.getHexDigests()
+                                                               .get(p);
+                                           RepositoryPath checksumPath = getChecksumPath(path, p);
+                                           if (Files.exists(checksumPath) && !force)
+                                           {
+                                               return;
+                                           }
+                                           try
+                                           {
+                                               Files.write(checksumPath.getTarget(), checksum.getBytes());
+                                           }
+                                           catch (IOException e)
+                                           {
+                                               logger.error(String.format("Failed to write checksum for [%s]",
+                                                                          checksumPath.toString()), e);
+                                           }
+                                       });
+        }
     }
     
     @Override

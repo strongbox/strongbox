@@ -30,6 +30,7 @@ import org.carlspring.strongbox.storage.search.SearchRequest;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
+import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -38,6 +39,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.base.Throwables;
+import org.apache.commons.io.FileUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.MultiFields;
@@ -348,6 +351,22 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                                                   MavenIndexerSearchProvider.ALIAS);
 
         return artifactSearchService.contains(request);
+    }
+
+    @Override
+    public void removeRepositories(Set<Repository> repositoriesToClean)
+            throws IOException, JAXBException
+    {
+        super.removeRepositories(repositoriesToClean);
+
+        try
+        {
+            cleanUp(repositoriesToClean);
+        }
+        catch (Exception e)
+        {
+            throw Throwables.propagate(e);
+        }
     }
 
     public RepositoryIndexManager getRepositoryIndexManager()
