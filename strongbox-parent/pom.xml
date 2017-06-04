@@ -669,6 +669,17 @@
                 <artifactId>groovy</artifactId>
                 <version>2.4.4</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.apache.directory.server</groupId>
+                <artifactId>apacheds-core</artifactId>
+                <version>${version.apache.directory}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.directory.server</groupId>
+                <artifactId>apacheds-protocol-ldap</artifactId>
+                <version>${version.apache.directory}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
