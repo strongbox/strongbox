@@ -2,6 +2,9 @@ def REPO_NAME = 'strongbox/strongbox'
 
 pipeline {
     agent { label 'opensuse-slave' }
+    options {
+        timeout(time: 2, unit: 'HOURS')
+    }
     stages {
         stage('Build') {
             steps {
