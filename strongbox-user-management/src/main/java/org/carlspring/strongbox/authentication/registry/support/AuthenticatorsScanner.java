@@ -37,6 +37,13 @@ public class AuthenticatorsScanner
 
     public void scanAndReloadRegistry()
     {
+        final ClassLoader entryClassLoader = Thread.currentThread().getContextClassLoader();
+        final ClassLoader requiredClassLoader = ExternalAuthenticatorsHelper.getExternalAuthenticatorsClassLoader(
+                entryClassLoader);
+
+        // let the Spring operate on the required class loader
+        Thread.currentThread().setContextClassLoader(requiredClassLoader);
+
         logger.debug("Reloading authenticators registry ...");
         final GenericXmlApplicationContext applicationContext = new GenericXmlApplicationContext();
         try
@@ -51,13 +58,17 @@ public class AuthenticatorsScanner
             throw Throwables.propagate(e);
         }
 
-        final List<Authenticator> authenticators = getAuthenticators(applicationContext);
+        final List<Authenticator> authenticators = getAuthenticators(requiredClassLoader, applicationContext);
         logger.debug("Scanned authenticators: {}", authenticators.stream().map(Authenticator::getName).collect(
                 Collectors.toList()));
         registry.reload(authenticators);
+
+        // revert thread context class loader
+        Thread.currentThread().setContextClassLoader(entryClassLoader);
     }
 
-    private List<Authenticator> getAuthenticators(ApplicationContext applicationContext)
+    private List<Authenticator> getAuthenticators(ClassLoader currentClassLoader,
+                                                  ApplicationContext applicationContext)
     {
         final List<String> authenticatorsClasses = applicationContext.getBean("authenticators", List.class);
         final List<Authenticator> authenticators = new ArrayList<>();
@@ -66,7 +77,7 @@ public class AuthenticatorsScanner
             final Class<?> authenticatorClass;
             try
             {
-                authenticatorClass = Class.forName(auth);
+                authenticatorClass = Class.forName(auth, true, currentClassLoader);
             }
             catch (ClassNotFoundException e)
             {
