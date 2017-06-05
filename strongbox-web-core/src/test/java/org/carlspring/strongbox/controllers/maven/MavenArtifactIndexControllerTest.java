@@ -6,11 +6,12 @@ import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import com.google.common.base.Throwables;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,8 +33,6 @@ public class MavenArtifactIndexControllerTest
 
     private static final String REPOSITORY_RELEASES_2 = "aict-releases-2";
 
-    private static boolean initialized = false;
-
     @Inject
     private ArtifactSearchService artifactSearchService;
 
@@ -45,17 +44,11 @@ public class MavenArtifactIndexControllerTest
         cleanUp(getRepositoriesToClean());
     }
 
-    @PostConstruct
-    public void initialize()
+    @Override
+    public void init()
             throws Exception
     {
         super.init();
-
-        if (initialized)
-        {
-            return;
-        }
-        initialized = true;
 
         // prepare storage: create it from Java code instead of putting <storage/> in strongbox.xml
         createStorage(STORAGE_ID);
@@ -81,6 +74,21 @@ public class MavenArtifactIndexControllerTest
         repository2.setIndexingEnabled(true);
 
         createRepository(repository2);
+    }
+
+    @Override
+    public void shutdown()
+    {
+        try
+        {
+            getRepositoryIndexManager().closeIndexersForRepository(STORAGE_ID, REPOSITORY_RELEASES_1);
+            getRepositoryIndexManager().closeIndexersForRepository(STORAGE_ID, REPOSITORY_RELEASES_2);
+        }
+        catch (IOException e)
+        {
+            throw Throwables.propagate(e);
+        }
+        super.shutdown();
     }
 
     public static Set<Repository> getRepositoriesToClean()

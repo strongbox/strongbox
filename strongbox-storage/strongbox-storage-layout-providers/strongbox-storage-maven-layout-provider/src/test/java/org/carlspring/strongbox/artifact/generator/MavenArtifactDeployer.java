@@ -11,11 +11,7 @@ import org.carlspring.strongbox.client.IArtifactClient;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.storage.metadata.MetadataMerger;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
@@ -237,12 +233,13 @@ public class MavenArtifactDeployer
             throws ArtifactOperationException, IOException, NoSuchAlgorithmException, XmlPullParserException
     {
         File artifactFile = new File(getBasedir(), ArtifactUtils.convertArtifactToPath(artifact));
-        ArtifactInputStream ais = new ArtifactInputStream(new MavenArtifactCoordinates(artifact),
-                                                          new FileInputStream(artifactFile));
+        try (InputStream is = new FileInputStream(artifactFile);
+             ArtifactInputStream ais = new ArtifactInputStream(new MavenArtifactCoordinates(artifact), is))
+        {
+            client.addArtifact(artifact, storageId, repositoryId, ais);
 
-        client.addArtifact(artifact, storageId, repositoryId, ais);
-
-        deployChecksum(ais, storageId, repositoryId, artifact);
+            deployChecksum(ais, storageId, repositoryId, artifact);
+        }
     }
 
     private void deployChecksum(ArtifactInputStream ais,
@@ -281,12 +278,13 @@ public class MavenArtifactDeployer
     {
         File pomFile = new File(getBasedir(), ArtifactUtils.convertArtifactToPath(artifact));
 
-        InputStream is = new FileInputStream(pomFile);
-        ArtifactInputStream ais = new ArtifactInputStream(new MavenArtifactCoordinates(artifact), is);
+        try (InputStream is = new FileInputStream(pomFile);
+             ArtifactInputStream ais = new ArtifactInputStream(new MavenArtifactCoordinates(artifact), is))
+        {
+            client.addArtifact(artifact, storageId, repositoryId, ais);
 
-        client.addArtifact(artifact, storageId, repositoryId, ais);
-
-        deployChecksum(ais, storageId, repositoryId, artifact);
+            deployChecksum(ais, storageId, repositoryId, artifact);
+        }
     }
 
     public String getUsername()

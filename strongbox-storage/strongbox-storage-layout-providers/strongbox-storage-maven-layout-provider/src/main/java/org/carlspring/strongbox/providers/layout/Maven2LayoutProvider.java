@@ -1,18 +1,5 @@
 package org.carlspring.strongbox.providers.layout;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.index.ArtifactInfo;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
@@ -37,6 +24,20 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.storage.search.SearchResults;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
+import java.util.stream.Stream;
+
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.index.ArtifactInfo;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,8 +48,8 @@ import org.springframework.stereotype.Component;
  */
 @Component("maven2LayoutProvider")
 public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCoordinates,
-                                                                 MavenRepositoryFeatures,
-                                                                 MavenRepositoryManagementStrategy>
+                                                                        MavenRepositoryFeatures,
+                                                                        MavenRepositoryManagementStrategy>
 {
 
     private static final Logger logger = LoggerFactory.getLogger(Maven2LayoutProvider.class);
@@ -195,21 +196,19 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
     {
         Repository repository = path.getFileSystem().getRepository();
         RepositoryFileAttributes a = (RepositoryFileAttributes) Files.readAttributes(path, BasicFileAttributes.class);
-        
+
         if (!repository.isIndexingEnabled() || a.isMetadata())
         {
             return;
         }
 
-        final RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(repository.getStorage().getId() + ":" +
-                                                                                      repository.getId() + ":" +
-                                                                                      IndexTypeEnum.LOCAL.getType());
+        final RepositoryIndexer indexer = getRepositoryIndexer(path);
         if (indexer != null)
         {
             String extension = path.getFileName().toString().substring(path.getFileName().toString().lastIndexOf('.') + 1);
 
             MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) a.getCoordinates();
-            
+
             indexer.delete(Collections.singletonList(new ArtifactInfo(repository.getId(),
                                                                       coordinates.getGroupId(),
                                                                       coordinates.getArtifactId(),
@@ -217,6 +216,47 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
                                                                       coordinates.getClassifier(),
                                                                       extension)));
         }
+    }
+
+    public void closeIndex(String storageId,
+                           String repositoryId,
+                           String path)
+            throws IOException
+    {
+        logger.debug("Removing " + storageId + ":" + repositoryId + ":" + path + "...");
+
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+        RepositoryPath repositoryPath = resolve(repository).resolve(path);
+        closeIndex(repositoryPath);
+    }
+
+    public void closeIndex(RepositoryPath path)
+            throws IOException
+    {
+        final RepositoryIndexer indexer = getRepositoryIndexer(path);
+        if (indexer != null)
+        {
+            logger.debug("Closing indexer of path " + path + "...");
+            indexer.close();
+        }
+    }
+
+    private RepositoryIndexer getRepositoryIndexer(RepositoryPath path)
+            throws IOException
+    {
+
+        Repository repository = path.getFileSystem().getRepository();
+
+        if (!repository.isIndexingEnabled())
+        {
+            return null;
+        }
+
+        return repositoryIndexManager.getRepositoryIndexer(
+                repository.getStorage().getId() + ":" +
+                repository.getId() + ":" +
+                IndexTypeEnum.LOCAL.getType());
     }
 
     @Override
@@ -249,17 +289,22 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
             else
             {
                 // This is at the artifact level
-                Path mavenMetadataPath = Files.list(artifactVersionPath.getParent())
-                                              .filter(p -> p.getFileName().toString().endsWith("maven-metadata.xml"))
-                                              .findFirst()
-                                              .orElse(null);
-
-                if (mavenMetadataPath != null)
+                try (Stream<Path> pathStream = Files.list(artifactVersionPath.getParent()))
                 {
-                    String version = path.substring(path.lastIndexOf('/') + 1, path.length());
+                    Path mavenMetadataPath = pathStream
+                                                     .filter(p -> p.getFileName().toString().endsWith(
+                                                             "maven-metadata.xml"))
+                                                     .findFirst()
+                                                     .orElse(null);
 
-                    deleteMetadataAtArtifactLevel((RepositoryPath) mavenMetadataPath.getParent(), version);
+                    if (mavenMetadataPath != null)
+                    {
+                        String version = path.substring(path.lastIndexOf('/') + 1, path.length());
+
+                        deleteMetadataAtArtifactLevel((RepositoryPath) mavenMetadataPath.getParent(), version);
+                    }
                 }
+
             }
         }
         catch (IOException | NoSuchAlgorithmException | XmlPullParserException e)

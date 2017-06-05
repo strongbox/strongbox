@@ -8,12 +8,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.security.NoSuchAlgorithmException;
-import java.util.LinkedHashSet;
-import java.util.Set;
 import java.util.regex.Matcher;
 
 import javax.inject.Inject;
 
+import org.carlspring.strongbox.TestConfig;
 import org.carlspring.strongbox.artifact.locator.handlers.ArtifactLocationReportOperation;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
@@ -26,7 +25,6 @@ import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIn
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -36,15 +34,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @author mtodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration
+@ContextConfiguration(classes = TestConfig.class)
 public class ArtifactDirectoryLocatorTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     private static final File REPOSITORY_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                             "/storages/storage0/releases");
-
-    private static boolean initialized;
     
     private ByteArrayOutputStream os;
 
@@ -61,11 +57,6 @@ public class ArtifactDirectoryLocatorTest
     {
         os = new ByteArrayOutputStream();
         System.setOut(new PrintStream(os));
-        
-        if (initialized)
-        {
-            return;
-        }
 
         generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath() +
                          "/org/apache/maven/location-utils/1.0.1/location-utils-1.0.1.jar");
@@ -155,13 +146,7 @@ public class ArtifactDirectoryLocatorTest
         generateArtifact(
                 REPOSITORY_BASEDIR.getAbsolutePath() + "/org/carlspring/strongbox/locator/utils/2.3/utils-2.3.pom");
 
-        if (!initialized)
-        {
-            tempSysOut = System.out;
-
-            initialized = true;
-        }
-
+        tempSysOut = System.out;
     }
 
     @After

@@ -13,8 +13,6 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -23,6 +21,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,8 +67,6 @@ public class ClearRepositoryTrashCronJobTestIT
 
     private static Repository repository3;
 
-    private static boolean initialized;
-
     @Inject
     private CronTaskConfigurationService cronTaskConfigurationService;
 
@@ -88,53 +86,48 @@ public class ClearRepositoryTrashCronJobTestIT
         cleanUp(getRepositoriesToClean());
     }
 
-    @PostConstruct
+    @Before
     public void initialize()
             throws Exception
     {
-        if (!initialized)
-        {
-            repository1 = new Repository(REPOSITORY_RELEASES_1);
-            repository1.setStorage(configurationManager.getConfiguration()
-                                                       .getStorage(STORAGE0));
-            repository1.setAllowsForceDeletion(false);
-            repository1.setTrashEnabled(true);
-            repository1.setIndexingEnabled(false);
+        repository1 = new Repository(REPOSITORY_RELEASES_1);
+        repository1.setStorage(configurationManager.getConfiguration()
+                                                   .getStorage(STORAGE0));
+        repository1.setAllowsForceDeletion(false);
+        repository1.setTrashEnabled(true);
+        repository1.setIndexingEnabled(false);
 
-            createRepository(repository1);
+        createRepository(repository1);
 
-            generateArtifact(REPOSITORY_RELEASES_BASEDIR_1.getAbsolutePath(),
-                             "org.carlspring.strongbox.clear:strongbox-test-one:1.0:jar");
+        generateArtifact(REPOSITORY_RELEASES_BASEDIR_1.getAbsolutePath(),
+                         "org.carlspring.strongbox.clear:strongbox-test-one:1.0:jar");
 
-            repository2 = new Repository(REPOSITORY_RELEASES_2);
-            repository2.setStorage(configurationManager.getConfiguration()
-                                                       .getStorage(STORAGE0));
-            repository2.setAllowsForceDeletion(false);
-            repository2.setTrashEnabled(true);
-            repository2.setIndexingEnabled(false);
-            createRepository(repository2);
+        repository2 = new Repository(REPOSITORY_RELEASES_2);
+        repository2.setStorage(configurationManager.getConfiguration()
+                                                   .getStorage(STORAGE0));
+        repository2.setAllowsForceDeletion(false);
+        repository2.setTrashEnabled(true);
+        repository2.setIndexingEnabled(false);
+        createRepository(repository2);
 
-            generateArtifact(REPOSITORY_RELEASES_BASEDIR_2.getAbsolutePath(),
-                             "org.carlspring.strongbox.clear:strongbox-test-two:1.0:jar");
+        generateArtifact(REPOSITORY_RELEASES_BASEDIR_2.getAbsolutePath(),
+                         "org.carlspring.strongbox.clear:strongbox-test-two:1.0:jar");
 
-            createStorage(new Storage(STORAGE1));
+        createStorage(new Storage(STORAGE1));
 
-            repository3 = new Repository(REPOSITORY_RELEASES_1);
-            repository3.setStorage(configurationManager.getConfiguration()
-                                                       .getStorage(STORAGE1));
-            repository3.setAllowsForceDeletion(false);
-            repository3.setTrashEnabled(true);
-            repository3.setIndexingEnabled(false);
-            createRepository(repository3);
+        repository3 = new Repository(REPOSITORY_RELEASES_1);
+        repository3.setStorage(configurationManager.getConfiguration()
+                                                   .getStorage(STORAGE1));
+        repository3.setAllowsForceDeletion(false);
+        repository3.setTrashEnabled(true);
+        repository3.setIndexingEnabled(false);
+        createRepository(repository3);
 
-            generateArtifact(REPOSITORY_RELEASES_BASEDIR_3.getAbsolutePath(),
-                             "org.carlspring.strongbox.clear:strongbox-test-one:1.0:jar");
-
-            initialized = true;
-        }
+        generateArtifact(REPOSITORY_RELEASES_BASEDIR_3.getAbsolutePath(),
+                         "org.carlspring.strongbox.clear:strongbox-test-one:1.0:jar");
     }
 
-    @PreDestroy
+    @After
     public void removeRepositories()
             throws IOException, JAXBException
     {

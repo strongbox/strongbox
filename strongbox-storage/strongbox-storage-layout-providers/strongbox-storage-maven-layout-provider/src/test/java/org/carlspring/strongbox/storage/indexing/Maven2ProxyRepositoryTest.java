@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.storage.indexing;
 
+import org.carlspring.strongbox.TestConfig;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.MockedIndexResourceFetcherConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
@@ -7,8 +8,6 @@ import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -16,6 +15,8 @@ import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,7 +27,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author carlspring
  */
-@ContextConfiguration(classes = MockedIndexResourceFetcherConfig.class)
+@ContextConfiguration(classes = TestConfig.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 public class Maven2ProxyRepositoryTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
@@ -47,7 +48,7 @@ public class Maven2ProxyRepositoryTest
         cleanUp(getRepositoriesToClean());
     }
 
-    @PostConstruct
+    @Before
     public void initialize()
             throws Exception
     {
@@ -62,7 +63,7 @@ public class Maven2ProxyRepositoryTest
                               "http://localhost:48080/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES + "/");
     }
 
-    @PreDestroy
+    @After
     public void removeRepositories()
             throws IOException, JAXBException
     {

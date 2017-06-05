@@ -1,22 +1,24 @@
 package org.carlspring.strongbox.services;
 
+import org.carlspring.strongbox.TestConfig;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertTrue;
 
@@ -24,6 +26,7 @@ import static org.junit.Assert.assertTrue;
  * @author mtodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = TestConfig.class)
 public class ArtifactSearchServiceImplTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -44,7 +47,7 @@ public class ArtifactSearchServiceImplTest
         cleanUp(getRepositoriesToClean());
     }
 
-    @PostConstruct
+    @Before
     public void initialize()
             throws Exception
     {
@@ -55,7 +58,7 @@ public class ArtifactSearchServiceImplTest
                                       "1.0.1", "1.1.1", "1.2.1");
     }
 
-    @PreDestroy
+    @After
     public void removeRepositories()
             throws IOException, JAXBException
     {

@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.providers.repository;
 
+import org.carlspring.strongbox.TestConfig;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
@@ -8,7 +9,6 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
-import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -34,7 +34,7 @@ import static org.junit.Assert.assertNull;
  * @author mtodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration
+@ContextConfiguration(classes = TestConfig.class)
 public class GroupRepositoryProviderTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -133,7 +133,7 @@ public class GroupRepositoryProviderTest
         createRoutingRules();
     }
 
-    @PreDestroy
+    @After
     public void removeRepositories()
             throws IOException, JAXBException
     {

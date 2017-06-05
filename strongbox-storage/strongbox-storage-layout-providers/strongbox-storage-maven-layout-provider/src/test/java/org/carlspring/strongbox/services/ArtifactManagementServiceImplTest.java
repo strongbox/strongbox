@@ -2,9 +2,8 @@ package org.carlspring.strongbox.services;
 
 import org.carlspring.maven.commons.io.filters.JarFilenameFilter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.TestConfig;
 import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.config.CommonConfig;
-import org.carlspring.strongbox.config.StorageCoreConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.resource.ResourceCloser;
@@ -15,8 +14,6 @@ import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -31,10 +28,13 @@ import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.*;
 
@@ -42,6 +42,7 @@ import static org.junit.Assert.*;
  * @author mtodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = TestConfig.class)
 public class ArtifactManagementServiceImplTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -59,11 +60,6 @@ public class ArtifactManagementServiceImplTest
     private static final String REPOSITORY_SNAPSHOTS = "amsi-snapshots";
 
     private static final String REPOSITORY_GROUP = "amsi-group";
-
-    @org.springframework.context.annotation.Configuration
-    @Import({ CommonConfig.class,
-              StorageCoreConfig.class })
-    public static class SpringConfig { }
 
     private DateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
 
@@ -84,14 +80,14 @@ public class ArtifactManagementServiceImplTest
         cleanUp(getRepositoriesToClean());
     }
 
-    @PreDestroy
+    @After
     public void removeRepositories()
             throws IOException, JAXBException
     {
         removeRepositories(getRepositoriesToClean());
     }
 
-    @PostConstruct
+    @Before
     public void initialize()
             throws Exception
     {

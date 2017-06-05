@@ -9,12 +9,9 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -23,6 +20,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,8 +57,6 @@ public class RebuildMavenIndexesCronJobTestIT
 
     private static final String ARTIFACT_BASE_PATH_STRONGBOX_INDEXES = "org/carlspring/strongbox/indexes/strongbox-test-one";
 
-    private static boolean INITIALIZED;
-
     @Inject
     private CronTaskConfigurationService cronTaskConfigurationService;
 
@@ -79,37 +76,24 @@ public class RebuildMavenIndexesCronJobTestIT
         cleanUp(getRepositoriesToClean());
     }
 
-    @PostConstruct
+    @Before
     public void initialize()
             throws Exception
     {
-        if (!INITIALIZED)
-        {
-            createRepository(STORAGE0, REPOSITORY_RELEASES_1, RepositoryPolicyEnum.RELEASE.getPolicy(), true);
+        generateArtifact(REPOSITORY_RELEASES_BASEDIR_1.getAbsolutePath(),
+                         "org.carlspring.strongbox.indexes:strongbox-test-one:1.0:jar");
 
-            generateArtifact(REPOSITORY_RELEASES_BASEDIR_1.getAbsolutePath(),
-                             "org.carlspring.strongbox.indexes:strongbox-test-one:1.0:jar");
+        generateArtifact(REPOSITORY_RELEASES_BASEDIR_1.getAbsolutePath(),
+                         "org.carlspring.strongbox.indexes:strongbox-test-two:1.0:jar");
 
-            generateArtifact(REPOSITORY_RELEASES_BASEDIR_1.getAbsolutePath(),
-                             "org.carlspring.strongbox.indexes:strongbox-test-two:1.0:jar");
+        generateArtifact(REPOSITORY_RELEASES_BASEDIR_2.getAbsolutePath(),
+                         "org.carlspring.strongbox.indexes:strongbox-test-one:1.0:jar");
 
-            createRepository(STORAGE0, REPOSITORY_RELEASES_2, RepositoryPolicyEnum.RELEASE.getPolicy(), true);
-
-            generateArtifact(REPOSITORY_RELEASES_BASEDIR_2.getAbsolutePath(),
-                             "org.carlspring.strongbox.indexes:strongbox-test-one:1.0:jar");
-
-            createStorage(STORAGE1);
-
-            createRepository(STORAGE1, REPOSITORY_RELEASES_1, RepositoryPolicyEnum.RELEASE.getPolicy(), true);
-
-            generateArtifact(REPOSITORY_RELEASES_BASEDIR_3.getAbsolutePath(),
-                             "org.carlspring.strongbox.indexes:strongbox-test-one:1.0:jar");
-
-            INITIALIZED = true;
-        }
+        generateArtifact(REPOSITORY_RELEASES_BASEDIR_3.getAbsolutePath(),
+                         "org.carlspring.strongbox.indexes:strongbox-test-one:1.0:jar");
     }
 
-    @PreDestroy
+    @After
     public void removeRepositories()
             throws IOException, JAXBException
     {

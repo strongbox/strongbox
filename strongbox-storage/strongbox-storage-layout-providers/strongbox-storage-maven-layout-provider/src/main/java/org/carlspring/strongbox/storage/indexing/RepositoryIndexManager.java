@@ -137,18 +137,29 @@ public class RepositoryIndexManager
 
     public RepositoryIndexer getRepositoryIndexer(String contextId)
     {
-        return indexes.get(contextId);
+        RepositoryIndexer repositoryIndexer = indexes.get(contextId);
+        logger.debug(
+                "RepositoryIndexManager = [{}]. Getting repository indexer. ContextId = [{}], RepositoryIndexer = [{}]",
+                this, contextId, repositoryIndexer);
+        return repositoryIndexer;
     }
 
-    public RepositoryIndexer addRepositoryIndexer(String repositoryId,
+    public RepositoryIndexer addRepositoryIndexer(String contextId,
                                                   RepositoryIndexer value)
     {
-        return indexes.put(repositoryId, value);
+        logger.debug(
+                "RepositoryIndexManager = [{}]. Adding repository indexer. ContextId = [{}], RepositoryIndexer = [{}]",
+                this, contextId, value);
+        return indexes.put(contextId, value);
     }
 
-    public RepositoryIndexer removeRepositoryIndex(String repositoryId)
+    public RepositoryIndexer removeRepositoryIndexer(String contextId)
     {
-        return indexes.remove(repositoryId);
+        RepositoryIndexer repositoryIndexer = indexes.remove(contextId);
+        logger.debug(
+                "RepositoryIndexManager = [{}]. Removing repository indexer. ContextId = [{}], RepositoryIndexer = [{}]",
+                this, contextId, repositoryIndexer);
+        return repositoryIndexer;
     }
 
     public Configuration getConfiguration()

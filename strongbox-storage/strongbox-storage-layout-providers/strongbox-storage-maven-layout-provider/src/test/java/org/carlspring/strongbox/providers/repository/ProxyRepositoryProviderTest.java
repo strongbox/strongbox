@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.TestConfig;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.search.SearchException;
@@ -20,6 +21,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertNotNull;
 
@@ -27,6 +29,7 @@ import static org.junit.Assert.assertNotNull;
  * @author carlspring
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = TestConfig.class)
 public class ProxyRepositoryProviderTest extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 

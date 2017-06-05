@@ -12,9 +12,11 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import com.google.common.base.Throwables;
 import org.apache.maven.artifact.Artifact;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,8 +41,8 @@ public class SearchControllerTest
 
     private static final File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                            "/local");
-    
-    private static boolean initialized = false;
+
+    private Repository repository;
 
     public static void cleanUp()
             throws Exception
@@ -53,11 +55,6 @@ public class SearchControllerTest
             throws Exception
     {
         super.init();
-
-        if (initialized)
-        {
-            return;
-        }
 
         cleanUp();
         
@@ -83,8 +80,20 @@ public class SearchControllerTest
         assertNotNull(repositoryIndexer);
 
         reIndex(STORAGE_SC_TEST, REPOSITORY_RELEASES, "org/carlspring/strongbox/searches");
+    }
 
-        initialized = true;
+    @Override
+    public void shutdown()
+    {
+        try
+        {
+            getRepositoryIndexManager().closeIndexersForRepository(STORAGE_SC_TEST, REPOSITORY_RELEASES);
+        }
+        catch (IOException e)
+        {
+            throw Throwables.propagate(e);
+        }
+        super.shutdown();
     }
 
     public static Set<Repository> getRepositoriesToClean()
@@ -153,5 +162,4 @@ public class SearchControllerTest
         // just to make sure that dump method will not produce any exceptions
         dumpIndex("foo", "bar");
     }
-
 }

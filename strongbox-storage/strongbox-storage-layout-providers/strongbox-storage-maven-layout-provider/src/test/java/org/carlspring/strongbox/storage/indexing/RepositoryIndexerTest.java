@@ -1,13 +1,12 @@
 package org.carlspring.strongbox.storage.indexing;
 
+import org.carlspring.strongbox.TestConfig;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
@@ -16,14 +15,18 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.maven.index.ArtifactInfo;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = TestConfig.class)
 public class RepositoryIndexerTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -38,7 +41,7 @@ public class RepositoryIndexerTest
         cleanUp(getRepositoriesToClean());
     }
 
-    @PostConstruct
+    @Before
     public void initialize()
             throws Exception
     {
@@ -49,7 +52,7 @@ public class RepositoryIndexerTest
                                       "1.0", "1.1", "1.2");
     }
 
-    @PreDestroy
+    @After
     public void removeRepositories()
             throws IOException, JAXBException
     {

@@ -6,30 +6,17 @@ import org.carlspring.strongbox.storage.search.SearchResult;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.util.Version;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
-import org.apache.maven.index.ArtifactContext;
-import org.apache.maven.index.ArtifactContextProducer;
-import org.apache.maven.index.ArtifactInfo;
-import org.apache.maven.index.FlatSearchRequest;
-import org.apache.maven.index.FlatSearchResponse;
-import org.apache.maven.index.Indexer;
-import org.apache.maven.index.MAVEN;
+import org.apache.maven.index.*;
 import org.apache.maven.index.Scanner;
 import org.apache.maven.index.context.IndexCreator;
 import org.apache.maven.index.context.IndexingContext;
@@ -42,8 +29,6 @@ public class RepositoryIndexer
 {
 
     private static final Logger logger = LoggerFactory.getLogger(RepositoryIndexer.class);
-
-    private static final Version luceneVersion = Version.LATEST;
 
     private static final String[] luceneFields = new String[]{ "g",
                                                                "a",
@@ -114,7 +99,7 @@ public class RepositoryIndexer
         final List<ArtifactContext> delete = new ArrayList<>();
         for (final ArtifactInfo artifactInfo : artifactInfos)
         {
-            delete.add(new ArtifactContext(null, null, null, artifactInfo, null));
+            delete.add(new SafeArtifactContext(new ArtifactContext(null, null, null, artifactInfo, null)));
         }
 
         getIndexer().deleteArtifactsFromIndex(delete, indexingContext);
@@ -199,21 +184,23 @@ public class RepositoryIndexer
                                                                             a2) -> calculateArtifactInfo(a1).compareTo(calculateArtifactInfo(a2)),
                     indexingContext);
             
-            final FlatSearchResponse response = getIndexer().searchFlat(searchRequest);
-
-            logger.debug("Hit count: {}", response.getReturnedHitsCount());
-
-            final Set<ArtifactInfo> r = response.getResults();
-            final Set<SearchResult> results = asSearchResults(r);
-
-            if (logger.isDebugEnabled())
+            try (final FlatSearchResponse response = getIndexer().searchFlat(searchRequest))
             {
-                for (final SearchResult result : results)
+
+                logger.debug("Hit count: {}", response.getReturnedHitsCount());
+
+                final Set<ArtifactInfo> r = response.getResults();
+                final Set<SearchResult> results = asSearchResults(r);
+
+                if (logger.isDebugEnabled())
                 {
-                    logger.debug("Found artifact: {}", result.toString());
+                    for (final SearchResult result : results)
+                    {
+                        logger.debug("Found artifact: {}", result.toString());
+                    }
                 }
+                return results;
             }
-            return results;
         }
         catch (Exception e)
         {
