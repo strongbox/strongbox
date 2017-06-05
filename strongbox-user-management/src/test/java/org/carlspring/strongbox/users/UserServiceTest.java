@@ -39,25 +39,31 @@ public class UserServiceTest
     public void testCreateAndDeleteUserOperations()
             throws Exception
     {
+        String testUserName = "test-user";
 
         User user = new User();
         user.setEnabled(true);
-        String testUserName = "TEST";
         user.setUsername(testUserName);
-        user.setPassword("test-pwd");
+        user.setPassword("test-password");
+
         assertNull(user.getObjectId());
 
         final User storedUser = userService.save(user);
+
         assertNotNull(storedUser);
+
         String id = storedUser.getObjectId();
+
         assertNotNull(id);
 
         logger.debug("Saved user: " + storedUser);
 
         User foundEntity = userService.findByUserName(testUserName);
-        assertNotNull("Unable to locate user " + testUserName + ". Save operation fails...", foundEntity);
+
+        assertNotNull("Unable to locate user " + testUserName + ". Save operation failed!", foundEntity);
 
         logger.debug("Found stored user\n\t" + foundEntity + "\n");
+
         assertEquals(storedUser.getObjectId(), foundEntity.getObjectId());
         assertEquals(storedUser.getUsername(), foundEntity.getUsername());
         assertEquals(storedUser.getPassword(), foundEntity.getPassword());
@@ -75,6 +81,7 @@ public class UserServiceTest
         first.setEnabled(!first.isEnabled());
 
         logger.debug("Trying to save " + first);
+
         userService.save(first);
     }
 
@@ -88,31 +95,36 @@ public class UserServiceTest
     @Test
     public void testPrivilegesProcessingForAccessModel()
     {
-
-        // load user
+        // Load the user
         User user = userService.findByUserName("developer01");
+
         assertNotNull("Unable to find user by name developer01", user);
 
-        // display access model
+        // Display the access model
         AccessModel accessModel = user.getAccessModel();
-        logger.debug(accessModel.toString());
-        assertNotNull(accessModel.getWildCardPrivilegesMap());
-        assertFalse(accessModel.getWildCardPrivilegesMap()
-                               .isEmpty());
 
-        // make sure that privileges was correctly assigned for example paths
+        logger.debug(accessModel.toString());
+
+        assertNotNull(accessModel.getWildCardPrivilegesMap());
+        assertFalse(accessModel.getWildCardPrivilegesMap().isEmpty());
+
+        // Make sure that the privileges were correctly assigned for the example paths
         Collection<String> privileges;
 
-        privileges = accessModel.getPathPrivileges(
-                "/storages/storage0/act-releases-1/org/carlspring/strongbox/partial/partial-foo/3.1/partial-foo-3.1.jar");
-        assertNotNull(privileges);
-        assertTrue(privileges.contains("ARTIFACTS_RESOLVE"));
-        assertTrue(privileges.size() == 1);
+        privileges = accessModel.getPathPrivileges("/storages/storage0/releases/" +
+                                                   "org/carlspring/foo/1.1/foo-1.1.jar");
 
-        privileges = accessModel.getPathPrivileges("/storages/storage0/act-releases-1/com/carlspring/foo/someJar.jar");
         assertNotNull(privileges);
+        assertFalse(privileges.isEmpty());
+        assertTrue(privileges.contains("ARTIFACTS_RESOLVE"));
+
+        privileges = accessModel.getPathPrivileges("/storages/storage0/releases/" +
+                                                   "com/carlspring/foo/1.2/foo-1.2.jar");
+
+        assertNotNull(privileges);
+        assertFalse(privileges.isEmpty());
         assertTrue(privileges.contains("ARTIFACTS_RESOLVE"));
         assertTrue(privileges.contains("ARTIFACTS_VIEW"));
-        assertTrue(privileges.size() == 2);
     }
+
 }

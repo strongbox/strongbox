@@ -23,7 +23,7 @@ Welcome to the Strongbox artifact repository manager's home.
   * HTTP Basic authentication
   * JWT authentication
   * Custom authentication provider based on users that resides in second-level cache that exists in OrientDB
-  * Users are predefined in the `etc/conf/security-users.xml` file
+  * Users are predefined in the `etc/conf/strongbox-security-users.xml` file
 * [REST API](https://github.com/strongbox/strongbox/wiki/REST-API):
   * Features:
     * Search for artifacts
