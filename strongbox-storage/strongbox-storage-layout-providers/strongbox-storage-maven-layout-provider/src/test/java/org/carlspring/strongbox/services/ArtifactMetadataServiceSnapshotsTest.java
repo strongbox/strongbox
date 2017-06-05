@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.services;
 
 import org.carlspring.maven.commons.DetachedArtifact;
+import org.carlspring.strongbox.authentication.api.Authenticator;
 import org.carlspring.strongbox.authentication.config.AuthenticationConfig;
 import org.carlspring.strongbox.config.CommonConfig;
 import org.carlspring.strongbox.config.StorageCoreConfig;
@@ -50,18 +51,24 @@ public class ArtifactMetadataServiceSnapshotsTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
-    @ComponentScan(basePackages = { "org.carlspring.strongbox" }, excludeFilters = { @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = AuthenticationConfig.class) })
+    @ComponentScan(basePackages = { "org.carlspring.strongbox" }, excludeFilters = { @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = { AuthenticationConfig.class,
+                                                                                                                                                        Authenticator.class }) })
     @org.springframework.context.annotation.Configuration
     @Import({ CommonConfig.class,
               StorageCoreConfig.class })
-    public static class SpringConfig { }
+    public static class SpringConfig
+    {
+
+    }
 
     private static final String REPOSITORY_SNAPSHOTS = "amss-snapshots";
 
     private static final File REPOSITORY_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                             "/storages/" + STORAGE0 + "/" + REPOSITORY_SNAPSHOTS);
 
-    private static final String[] CLASSIFIERS = { "javadoc", "sources", "source-release" };
+    private static final String[] CLASSIFIERS = { "javadoc",
+                                                  "sources",
+                                                  "source-release" };
 
     private static final String ARTIFACT_BASE_PATH_STRONGBOX_METADATA = "org/carlspring/strongbox/strongbox-metadata";
 
@@ -230,7 +237,8 @@ public class ArtifactMetadataServiceSnapshotsTest
         Metadata metadataAfter = artifactMetadataService.getMetadata(STORAGE0, REPOSITORY_SNAPSHOTS, metadataPath);
 
         assertNotNull(metadataAfter);
-        assertTrue("Failed to add timestamped SNAPSHOT version to metadata!", MetadataHelper.containsTimestampedSnapshotVersion(metadataAfter, addedArtifact.getVersion()));
+        assertTrue("Failed to add timestamped SNAPSHOT version to metadata!",
+                   MetadataHelper.containsTimestampedSnapshotVersion(metadataAfter, addedArtifact.getVersion()));
     }
 
     @Test
@@ -256,7 +264,8 @@ public class ArtifactMetadataServiceSnapshotsTest
 
         Metadata metadataBefore = artifactMetadataService.getMetadata(STORAGE0, REPOSITORY_SNAPSHOTS, metadataPath);
 
-        assertTrue(MetadataHelper.containsTimestampedSnapshotVersion(metadataBefore, deletedArtifact.getVersion(), null));
+        assertTrue(
+                MetadataHelper.containsTimestampedSnapshotVersion(metadataBefore, deletedArtifact.getVersion(), null));
 
         artifactMetadataService.removeTimestampedSnapshotVersion(STORAGE0,
                                                                  REPOSITORY_SNAPSHOTS,
@@ -276,7 +285,8 @@ public class ArtifactMetadataServiceSnapshotsTest
     {
         String version = "2.0-SNAPSHOT";
 
-        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(), "org.carlspring.strongbox.snapshots:metadata:" + version);
+        generateArtifact(REPOSITORY_BASEDIR.getAbsolutePath(),
+                         "org.carlspring.strongbox.snapshots:metadata:" + version);
         final String artifactPath = "org/carlspring/strongbox/snapshots/metadata";
 
         Artifact snapshotArtifact = new DetachedArtifact("org.carlspring.strongbox.snapshots", "metadata", version);
@@ -299,7 +309,8 @@ public class ArtifactMetadataServiceSnapshotsTest
         assertEquals(version, versioning.getLatest());
         assertNotNull("Failed to set lastUpdated field!", versioning.getLastUpdated());
 
-        assertNotNull("No versioning information could be found in the metadata!", snapshotVersioning.getVersions().size());
+        assertNotNull("No versioning information could be found in the metadata!",
+                      snapshotVersioning.getVersions().size());
         assertEquals("Incorrect number of versions stored in metadata!", 1, snapshotVersioning.getVersions().size());
         assertEquals(version, snapshotVersioning.getLatest());
         assertNotNull("Failed to set lastUpdated field!", snapshotVersioning.getLastUpdated());
@@ -364,7 +375,8 @@ public class ArtifactMetadataServiceSnapshotsTest
         assertNotNull(metadata);
 
         assertEquals("Incorrect latest release version!", "1.3-SNAPSHOT", metadata.getVersioning().getLatest());
-        assertEquals("Incorrect number of versions stored in metadata!", 3, metadata.getVersioning().getVersions().size());
+        assertEquals("Incorrect number of versions stored in metadata!", 3,
+                     metadata.getVersioning().getVersions().size());
     }
 
 }

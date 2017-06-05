@@ -77,7 +77,6 @@ public class StrongboxUserDetailService
         return springUser;
     }
 
-
     @Documented
     @Retention(RUNTIME)
     @Qualifier

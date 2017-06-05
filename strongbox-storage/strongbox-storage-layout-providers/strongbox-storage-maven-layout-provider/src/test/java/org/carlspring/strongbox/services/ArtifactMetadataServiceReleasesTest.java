@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.services;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.authentication.api.Authenticator;
 import org.carlspring.strongbox.authentication.config.AuthenticationConfig;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
@@ -50,8 +51,12 @@ public class ArtifactMetadataServiceReleasesTest
     private static Artifact artifact;
 
     @org.springframework.context.annotation.Configuration
-    @ComponentScan(basePackages = { "org.carlspring.strongbox" }, excludeFilters = { @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = AuthenticationConfig.class) })
-    public static class SpringConfig { }
+    @ComponentScan(basePackages = { "org.carlspring.strongbox" }, excludeFilters = { @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = { AuthenticationConfig.class,
+                                                                                                                                                        Authenticator.class }) })
+    public static class SpringConfig
+    {
+
+    }
 
     @Inject
     private ArtifactMetadataService artifactMetadataService;
@@ -70,7 +75,8 @@ public class ArtifactMetadataServiceReleasesTest
     {
         createRepository(STORAGE0, REPOSITORY_RELEASES, RepositoryPolicyEnum.RELEASE.getPolicy(), false);
 
-        File strongboxMetadataDir = new File(REPOSITORY_BASEDIR, "org/carlspring/strongbox/metadata/strongbox-metadata");
+        File strongboxMetadataDir = new File(REPOSITORY_BASEDIR,
+                                             "org/carlspring/strongbox/metadata/strongbox-metadata");
 
         String ga = "org.carlspring.strongbox.metadata:strongbox-metadata";
 
@@ -167,7 +173,7 @@ public class ArtifactMetadataServiceReleasesTest
         assertTrue("Unexpected set of versions!", MetadataHelper.containsVersion(metadataBefore, "1.3"));
 
         artifactMetadataService.addVersion(STORAGE0,
-                                           REPOSITORY_RELEASES,artifactPath,
+                                           REPOSITORY_RELEASES, artifactPath,
                                            "1.4",
                                            MetadataType.ARTIFACT_ROOT_LEVEL);
 
@@ -218,7 +224,8 @@ public class ArtifactMetadataServiceReleasesTest
                                "org.carlspring.strongbox.metadata.maven:strongbox-metadata-plugin",
                                "1.0");
 
-        Artifact pluginArtifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.metadata.maven:strongbox-metadata-plugin:1.0");
+        Artifact pluginArtifact = ArtifactUtils.getArtifactFromGAVTC(
+                "org.carlspring.strongbox.metadata.maven:strongbox-metadata-plugin:1.0");
 
         artifactMetadataService.rebuildMetadata(STORAGE0,
                                                 REPOSITORY_RELEASES,
