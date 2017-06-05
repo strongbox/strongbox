@@ -129,7 +129,7 @@ public class AuthorizationConfigController
     // ----------------------------------------------------------------------------------------------------------------
     // View authorization config as XML file
 
-    @ApiOperation(value = "Retrieves the security-authorization.xml configuration file.")
+    @ApiOperation(value = "Retrieves the strongbox-security-authorization.xml configuration file.")
     @ApiResponses(value = { @ApiResponse(code = 200,
                                          message = ""),
                             @ApiResponse(code = 500,
