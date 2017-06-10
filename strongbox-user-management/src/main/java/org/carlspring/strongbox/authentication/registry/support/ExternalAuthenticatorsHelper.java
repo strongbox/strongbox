@@ -63,7 +63,7 @@ public class ExternalAuthenticatorsHelper
         if (ArrayUtils.isEmpty(authenticatorsJars))
         {
             logger.debug(authenticatorsDirectory + "contains 0 authenticators jar files.");
-            return null;
+            return parent;
         }
 
         return ClassLoaderFactory.urlClassLoaderFromFiles(parent, authenticatorsJars);
