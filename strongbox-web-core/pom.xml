@@ -103,7 +103,7 @@
             <plugin>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
-                <version>${version.jetty.maven.plugin}</version>
+                <version>${version.jetty}</version>
                 <configuration>
                     <scanIntervalSeconds>10</scanIntervalSeconds>
 
