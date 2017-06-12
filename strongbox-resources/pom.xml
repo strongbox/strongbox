@@ -17,7 +17,13 @@
     <packaging>pom</packaging>
     
     <name>Strongbox: Resources</name>
-    
+
+    <scm>
+        <url>https://github.com/strongbox/strongbox/</url>
+        <connection>scm:git:git://github.com/strongbox/strongbox.git</connection>
+        <developerConnection>scm:git:git://github.com/strongbox/strongbox.git</developerConnection>
+    </scm>
+
     <modules>
         <module>strongbox-common-resources</module>
         <module>strongbox-storage-resources</module>
