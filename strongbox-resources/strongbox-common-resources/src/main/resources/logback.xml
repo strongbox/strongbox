@@ -45,7 +45,13 @@
     <logger name="org.jooq" level="ERROR"/>
     <logger name="org.apache.http" level="ERROR"/>
     <logger name="org.glassfish.jersey" level="ERROR"/>
+
+    <!-- ApacheDS -->
     <logger name="org.apache.directory" level="ERROR"/>
+    <logger name="org.apache.mina" level="ERROR"/>
+    <logger name="JdbmTable" level="ERROR"/>
+    <logger name="JdbmIndex" level="ERROR"/>
+    <logger name="LOG_CHANGES" level="ERROR"/>
 
     <logger name="org.carlspring.strongbox" level="DEBUG"/>
     <logger name="org.carlspring.strongbox.security.authentication" level="ERROR"/>
