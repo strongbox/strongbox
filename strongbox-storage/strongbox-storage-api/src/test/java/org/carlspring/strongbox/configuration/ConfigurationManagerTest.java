@@ -98,7 +98,7 @@ public class ConfigurationManagerTest
         }
 
         assertTrue("Unexpected number of storages!", configuration.getStorages().size() > 0);
-        assertEquals("Incorrect version!", "1.0", configuration.getVersion());
+        assertNotNull("Incorrect version!", configuration.getVersion());
         assertEquals("Incorrect port number!", 48080, configuration.getPort());
         assertTrue("Repository should have required authentication!",
                    configuration.getStorages()

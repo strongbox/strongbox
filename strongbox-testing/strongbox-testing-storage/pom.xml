@@ -34,6 +34,12 @@
 
     <inceptionYear>2014</inceptionYear>
 
+    <scm>
+        <url>https://github.com/strongbox/strongbox/</url>
+        <connection>scm:git:git://github.com/strongbox/strongbox.git</connection>
+        <developerConnection>scm:git:git://github.com/strongbox/strongbox.git</developerConnection>
+    </scm>
+
     <properties>
         <dir.strongbox.home>${project.build.directory}/strongbox</dir.strongbox.home>
         <dir.jetty.etc>${dir.strongbox.home}/etc/jetty</dir.jetty.etc>

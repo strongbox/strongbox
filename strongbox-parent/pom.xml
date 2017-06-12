@@ -28,6 +28,12 @@
 
     <inceptionYear>2014</inceptionYear>
 
+    <scm>
+        <url>https://github.com/strongbox/strongbox/</url>
+        <connection>scm:git:git://github.com/strongbox/strongbox.git</connection>
+        <developerConnection>scm:git:git://github.com/strongbox/strongbox.git</developerConnection>
+    </scm>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -117,6 +123,14 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>2.5</version>
+
+                    <configuration>
+                        <archive>
+                            <manifestEntries>
+                                <Strongbox-Implementation-Revision>${strongbox.revision}</Strongbox-Implementation-Revision>
+                            </manifestEntries>
+                        </archive>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -169,6 +183,25 @@
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
                     <version>1.9.1</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>buildnumber-maven-plugin</artifactId>
+                    <version>1.4</version>
+                    <executions>
+                        <execution>
+                            <phase>validate</phase>
+                            <goals>
+                                <goal>create</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <doCheck>false</doCheck>
+                        <buildNumberPropertyName>strongbox.revision</buildNumberPropertyName>
+                        <shortRevisionLength>16</shortRevisionLength>
+                    </configuration>
                 </plugin>
 
                 <plugin>
@@ -802,6 +835,37 @@
                                 </goals>
                             </execution>
                         </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>prepare-revision-number-dev</id>
+            <activation>
+                <property>
+                    <name>!prepare.revision</name>
+                </property>
+            </activation>
+
+            <properties>
+                <!-- We're falling back to the project's version -->
+                <strongbox.revision>${project.version}-dev</strongbox.revision>
+            </properties>
+        </profile>
+        <profile>
+            <id>prepare-revision-number</id>
+            <activation>
+                <property>
+                    <name>prepare.revision</name>
+                </property>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>buildnumber-maven-plugin</artifactId>
                     </plugin>
                 </plugins>
             </build>

@@ -18,6 +18,12 @@
 
     <name>Strongbox: Resources [Common]</name>
 
+    <scm>
+        <url>https://github.com/strongbox/strongbox/</url>
+        <connection>scm:git:git://github.com/strongbox/strongbox.git</connection>
+        <developerConnection>scm:git:git://github.com/strongbox/strongbox.git</developerConnection>
+    </scm>
+
     <build>
         <plugins>
             <plugin>

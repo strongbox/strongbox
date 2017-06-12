@@ -34,6 +34,12 @@
 
     <inceptionYear>2016</inceptionYear>
 
+    <scm>
+        <url>https://github.com/strongbox/strongbox/</url>
+        <connection>scm:git:git://github.com/strongbox/strongbox.git</connection>
+        <developerConnection>scm:git:git://github.com/strongbox/strongbox.git</developerConnection>
+    </scm>
+
     <properties>
         <dir.strongbox.home>${project.build.directory}/strongbox</dir.strongbox.home>
         <dir.strongbox.vault>${project.build.directory}/strongbox-vault</dir.strongbox.vault>

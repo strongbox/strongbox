@@ -29,6 +29,9 @@ public class Configuration
     private String version = "1.0";
 
     @XmlElement
+    private String revision;
+
+    @XmlElement
     private String baseUrl = "http://localhost/";
 
     @XmlElement
@@ -65,6 +68,16 @@ public class Configuration
     public void setVersion(String version)
     {
         this.version = version;
+    }
+
+    public String getRevision()
+    {
+        return revision;
+    }
+
+    public void setRevision(String revision)
+    {
+        this.revision = revision;
     }
 
     public String getBaseUrl()
