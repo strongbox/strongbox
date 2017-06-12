@@ -17,7 +17,13 @@
     <packaging>pom</packaging>
     
     <name>Strongbox: Testing</name>
-    
+
+    <scm>
+        <url>https://github.com/strongbox/strongbox/</url>
+        <connection>scm:git:git://github.com/strongbox/strongbox.git</connection>
+        <developerConnection>scm:git:git://github.com/strongbox/strongbox.git</developerConnection>
+    </scm>
+
     <modules>
         <module>strongbox-testing-core</module>
         <module>strongbox-testing-storage</module>

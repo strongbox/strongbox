@@ -32,11 +32,11 @@
 
     <inceptionYear>2014</inceptionYear>
 
-    <properties>
-        <dir.strongbox.home>${project.build.directory}/strongbox</dir.strongbox.home>
-        <dir.strongbox.vault>${project.build.directory}/strongbox-vault</dir.strongbox.vault>
-        <dir.jetty.etc>${dir.strongbox.home}/etc/jetty</dir.jetty.etc>
-    </properties>
+    <scm>
+        <url>https://github.com/strongbox/strongbox/</url>
+        <connection>scm:git:git://github.com/strongbox/strongbox.git</connection>
+        <developerConnection>scm:git:git://github.com/strongbox/strongbox.git</developerConnection>
+    </scm>
 
     <build>
         <plugins>
@@ -68,7 +68,7 @@
                                     <type>jar</type>
 
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${dir.strongbox.home}/etc</outputDirectory>
+                                    <outputDirectory>${strongbox.home}/etc</outputDirectory>
                                     <includes>logback.xml</includes>
                                 </artifactItem>
                             </artifactItems>
@@ -89,7 +89,7 @@
                                     <type>jar</type>
 
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${dir.strongbox.home}</outputDirectory>
+                                    <outputDirectory>${strongbox.home}</outputDirectory>
                                     <includes>etc/**</includes>
                                 </artifactItem>
                             </artifactItems>
@@ -239,8 +239,8 @@
                             <portSSL>${port.unboundid}</portSSL>
                             <useSSL>true</useSSL>
                             <keyStorePassword>password</keyStorePassword>
-                            <keyStorePath>${dir.strongbox.home}/etc/ssl/keystore.jks</keyStorePath>
-                            <trustStorePath>${dir.strongbox.home}/etc/ssl/truststore.jks</trustStorePath>
+                            <keyStorePath>${strongbox.home}/etc/ssl/keystore.jks</keyStorePath>
+                            <trustStorePath>${strongbox.home}/etc/ssl/truststore.jks</trustStorePath>
                         </configuration>
 
                         <executions>
@@ -296,6 +296,7 @@
                         <configuration>
                             <systemPropertyVariables>
                                 <strongbox.home>${project.build.directory}/strongbox</strongbox.home>
+                                <strongbox.vault>${project.build.directory}/strongbox-vault</strongbox.vault>
                                 <logging.dir>${project.build.directory}/strongbox/logs</logging.dir>
 
                                 <port.littleproxy>${port.littleproxy.listen}</port.littleproxy>
@@ -363,8 +364,8 @@
                             <portSSL>${port.unboundid}</portSSL>
                             <useSSL>true</useSSL>
                             <keyStorePassword>password</keyStorePassword>
-                            <keyStorePath>${dir.strongbox.home}/etc/ssl/keystore.jks</keyStorePath>
-                            <trustStorePath>${dir.strongbox.home}/etc/ssl/truststore.jks</trustStorePath>
+                            <keyStorePath>${strongbox.home}/etc/ssl/keystore.jks</keyStorePath>
+                            <trustStorePath>${strongbox.home}/etc/ssl/truststore.jks</trustStorePath>
                         </configuration>
 
                         <executions>
@@ -428,8 +429,8 @@
                             <portSSL>${port.unboundid}</portSSL>
                             <useSSL>true</useSSL>
                             <keyStorePassword>password</keyStorePassword>
-                            <keyStorePath>${dir.strongbox.home}/etc/ssl/keystore.jks</keyStorePath>
-                            <trustStorePath>${dir.strongbox.home}/etc/ssl/truststore.jks</trustStorePath>
+                            <keyStorePath>${strongbox.home}/etc/ssl/keystore.jks</keyStorePath>
+                            <trustStorePath>${strongbox.home}/etc/ssl/truststore.jks</trustStorePath>
                         </configuration>
 
                         <executions>

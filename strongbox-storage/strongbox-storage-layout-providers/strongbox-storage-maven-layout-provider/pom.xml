@@ -33,6 +33,12 @@
 
     <inceptionYear>2014</inceptionYear>
 
+    <scm>
+        <url>https://github.com/strongbox/strongbox/</url>
+        <connection>scm:git:git://github.com/strongbox/strongbox.git</connection>
+        <developerConnection>scm:git:git://github.com/strongbox/strongbox.git</developerConnection>
+    </scm>
+
     <properties>
         <dir.strongbox.home>${project.build.directory}/strongbox</dir.strongbox.home>
         <dir.strongbox.vault>${project.build.directory}/strongbox-vault</dir.strongbox.vault>
@@ -138,27 +144,6 @@
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${dir.strongbox.home}</outputDirectory>
                                     <includes>etc/conf/strongbox.xml,META-INF/spring/**</includes>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>unpack-user-management</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>${project.groupId}</groupId>
-                                    <artifactId>strongbox-user-management</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${dir.strongbox.vault}</outputDirectory>
-                                    <includes>etc/conf/security-users.xml</includes>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
@@ -272,11 +257,6 @@
         <dependency>
             <groupId>org.apache.maven.indexer</groupId>
             <artifactId>indexer-core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.fasterxml.jackson.jaxrs</groupId>
-            <artifactId>jackson-jaxrs-json-provider</artifactId>
         </dependency>
 
         <dependency>

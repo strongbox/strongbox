@@ -10,18 +10,19 @@ import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIn
 import org.carlspring.strongbox.util.FileUtils;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -77,6 +78,7 @@ public class MavenChecksumServiceTest
     public void initialize()
             throws Exception
     {
+
         Repository repository = new Repository(REPOSITORY_RELEASES);
         repository.setStorage(configurationManager.getConfiguration()
                                                   .getStorage(STORAGE0));
@@ -102,7 +104,7 @@ public class MavenChecksumServiceTest
                                                              1);
     }
 
-    @PreDestroy
+    @After
     public void removeRepositories()
             throws IOException, JAXBException
     {
@@ -258,12 +260,25 @@ public class MavenChecksumServiceTest
         assertTrue("The checksum file for metadata doesn't exist!",
                    new File(artifactPath, "maven-metadata.xml.md5").exists());
 
-        new FileOutputStream(md5File, false).write("".getBytes());
-        new FileOutputStream(new File(artifactPath, "1.0/checksum-rewrite-1.0.jar.sha1"), false).write("".getBytes());
-        new FileOutputStream(new File(artifactPath, "1.0/checksum-rewrite-1.0.pom.md5"), false).write("".getBytes());
-        new FileOutputStream(new File(artifactPath, "1.0/checksum-rewrite-1.0.pom.sha1"), false).write("".getBytes());
-        new FileOutputStream(new File(artifactPath, "maven-metadata.xml.md5"), false).write("".getBytes());
-        new FileOutputStream(new File(artifactPath, "maven-metadata.xml.sha1"), false).write("".getBytes());
+        try (
+                    OutputStream os1 = new FileOutputStream(md5File, false);
+                    OutputStream os2 = new FileOutputStream(new File(artifactPath, "1.0/checksum-rewrite-1.0.jar.sha1"),
+                                                            false);
+                    OutputStream os3 = new FileOutputStream(new File(artifactPath, "1.0/checksum-rewrite-1.0.pom.md5"),
+                                                            false);
+                    OutputStream os4 = new FileOutputStream(new File(artifactPath, "1.0/checksum-rewrite-1.0.pom.sha1"),
+                                                            false);
+                    OutputStream os5 = new FileOutputStream(new File(artifactPath, "maven-metadata.xml.md5"), false);
+                    OutputStream os6 = new FileOutputStream(new File(artifactPath, "maven-metadata.xml.sha1"), false);
+        )
+        {
+            os1.write("".getBytes());
+            os2.write("".getBytes());
+            os3.write("".getBytes());
+            os4.write("".getBytes());
+            os5.write("".getBytes());
+            os6.write("".getBytes());
+        }
 
         assertTrue("The checksum file for artifact isn't empty!",
                    md5File.length() == 0);

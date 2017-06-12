@@ -28,6 +28,12 @@
 
     <inceptionYear>2014</inceptionYear>
 
+    <scm>
+        <url>https://github.com/strongbox/strongbox/</url>
+        <connection>scm:git:git://github.com/strongbox/strongbox.git</connection>
+        <developerConnection>scm:git:git://github.com/strongbox/strongbox.git</developerConnection>
+    </scm>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -42,6 +48,12 @@
 
         <license.licenseName>apache_v2</license.licenseName>
 
+        <!-- Strongbox properties: -->
+        <strongbox.home>${project.build.directory}/strongbox</strongbox.home>
+        <strongbox.vault>${project.build.directory}/strongbox-vault</strongbox.vault>
+        <!-- Strongbox properties. -->
+
+        <!-- Version properties: -->
         <version.maven.indexer>6.0-SNAPSHOT</version.maven.indexer>
 
         <version.carlspring.maven.commons>1.4-SNAPSHOT</version.carlspring.maven.commons>
@@ -52,6 +64,7 @@
         <version.javaee>7.0</version.javaee>
         <version.servlet-api>3.1.0</version.servlet-api>
 
+        <version.apache.directory>1.5.5</version.apache.directory>
         <version.httpclient>4.5</version.httpclient>
         <version.jackson>2.8.7</version.jackson>
         <version.jersey>2.23.1</version.jersey>
@@ -66,10 +79,10 @@
         <version.spring.data>0.10.0-SNAPSHOT</version.spring.data>
         <version.orientdb>2.2.18</version.orientdb>
         <version.guava>19.0</version.guava>
-        <version.jetty.maven.plugin>9.3.12.v20160915</version.jetty.maven.plugin>
         <version.junit>4.12</version.junit>
         <version.mockito>2.0.2-beta</version.mockito>
         <version.jsr305>3.0.2</version.jsr305>
+        <!-- Version properties. -->
     </properties>
 
     <build>
@@ -110,11 +123,26 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>2.5</version>
+
+                    <configuration>
+                        <archive>
+                            <manifestEntries>
+                                <Strongbox-Implementation-Revision>${strongbox.revision}</Strongbox-Implementation-Revision>
+                            </manifestEntries>
+                        </archive>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
-                    <version>2.6</version>
+                    <version>3.1.0</version>
+                    <configuration>
+                        <archive>
+                            <manifestEntries>
+                                <Strongbox-Implementation-Revision>${strongbox.revision}</Strongbox-Implementation-Revision>
+                            </manifestEntries>
+                        </archive>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -126,6 +154,17 @@
                         <includes>
                             <include>**/*Test</include>
                         </includes>
+
+                        <systemPropertyVariables>
+                            <strongbox.home>${project.build.directory}/strongbox</strongbox.home>
+                            <strongbox.vault>${project.build.directory}/strongbox-vault</strongbox.vault>
+                            <strongbox.storage.booter.basedir>${project.build.directory}/strongbox-vault/storages</strongbox.storage.booter.basedir>
+                            <repository.config.xml>${project.build.directory}/strongbox/etc/conf/strongbox.xml</repository.config.xml>
+                            <logging.dir>${project.build.directory}/strongbox/logs</logging.dir>
+                            <logging.config.file>${project.build.directory}/strongbox/etc/logback.xml</logging.config.file>
+                            <java.io.tmpdir>${strongbox.vault}/tmp</java.io.tmpdir>
+                            <ehcache.disk.store.dir>${project.build.directory}/strongbox/cache</ehcache.disk.store.dir>
+                        </systemPropertyVariables>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -151,6 +190,25 @@
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
                     <version>1.9.1</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>buildnumber-maven-plugin</artifactId>
+                    <version>1.4</version>
+                    <executions>
+                        <execution>
+                            <phase>validate</phase>
+                            <goals>
+                                <goal>create</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <doCheck>false</doCheck>
+                        <buildNumberPropertyName>strongbox.revision</buildNumberPropertyName>
+                        <shortRevisionLength>16</shortRevisionLength>
+                    </configuration>
                 </plugin>
 
                 <plugin>
@@ -320,6 +378,11 @@
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-web</artifactId>
+                <version>${version.spring.security}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-ldap</artifactId>
                 <version>${version.spring.security}</version>
             </dependency>
             <dependency>
@@ -663,6 +726,17 @@
                 <artifactId>groovy</artifactId>
                 <version>2.4.4</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.apache.directory.server</groupId>
+                <artifactId>apacheds-core</artifactId>
+                <version>${version.apache.directory}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.directory.server</groupId>
+                <artifactId>apacheds-protocol-ldap</artifactId>
+                <version>${version.apache.directory}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -768,6 +842,37 @@
                                 </goals>
                             </execution>
                         </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>prepare-revision-number-dev</id>
+            <activation>
+                <property>
+                    <name>!prepare.revision</name>
+                </property>
+            </activation>
+
+            <properties>
+                <!-- We're falling back to the project's version -->
+                <strongbox.revision>${project.version}-dev</strongbox.revision>
+            </properties>
+        </profile>
+        <profile>
+            <id>prepare-revision-number</id>
+            <activation>
+                <property>
+                    <name>prepare.revision</name>
+                </property>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>buildnumber-maven-plugin</artifactId>
                     </plugin>
                 </plugins>
             </build>

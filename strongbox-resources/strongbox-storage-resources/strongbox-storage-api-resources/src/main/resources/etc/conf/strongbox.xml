@@ -1,6 +1,7 @@
 <configuration>
 
-    <version>1.0</version>
+    <version>${project.version}</version>
+    <revision>${strongbox.revision}</revision>
 
     <baseUrl>http://localhost:48080/</baseUrl>
     <port>48080</port>

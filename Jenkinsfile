@@ -2,6 +2,9 @@ def REPO_NAME = 'strongbox/strongbox'
 
 pipeline {
     agent { label 'opensuse-slave' }
+    options {
+        timeout(time: 2, unit: 'HOURS')
+    }
     stages {
         stage('Build') {
             steps {
@@ -9,7 +12,7 @@ pipeline {
                           mavenSettingsConfig: 'a5452263-40e5-4d71-a5aa-4fc94a0e6833',
                           mavenLocalRepo: '/home/jenkins/.m2/repository')
                 {
-                    sh 'mvn -U clean install -Dspring.profiles.active=quartz-integration-tests'
+                    sh 'mvn -U clean install -Dintegration.tests -Dprepare.revision'
                 }
             }
         }
@@ -23,8 +26,9 @@ pipeline {
                         if(BRANCH_NAME == 'master') {
                             withSonarQubeEnv('sonar') {
                                 // requires SonarQube Scanner for Maven 3.2+
-                                sh "mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.2:sonar" +
-                                   " -Dintegration.tests"
+                                sh "mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.2:sonar " +
+                                   "-Dintegration.tests " +
+                                   "-Dprepare.revision"
 
                                 build(job: "strongbox/strongbox-os-builds", wait: false)
                             }
@@ -36,10 +40,11 @@ pipeline {
                                     def PR_NUMBER = env.CHANGE_ID
                                     echo "Triggering sonar analysis in comment-only mode for PR: ${PR_NUMBER}."
                                     sh "mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.2:sonar " +
-                                       " -Psonar-github" +
-                                       " -Dsonar.github.repository=${REPO_NAME}" +
-                                       " -Dsonar.github.pullRequest=${PR_NUMBER}" +
-                                       " -Dintegration.tests"
+                                       "-Dintegration.tests " +
+                                       "-Dprepare.revision " +
+                                       "-Dsonar.github.repository=${REPO_NAME} " +
+                                       "-Dsonar.github.pullRequest=${PR_NUMBER} " +
+                                       "-Psonar-github"
                                 }
                             }
                             else

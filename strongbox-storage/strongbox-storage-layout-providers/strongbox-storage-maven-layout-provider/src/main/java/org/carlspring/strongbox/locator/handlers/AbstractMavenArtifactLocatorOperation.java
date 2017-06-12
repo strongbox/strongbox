@@ -1,15 +1,17 @@
 package org.carlspring.strongbox.locator.handlers;
 
+import org.carlspring.strongbox.artifact.locator.handlers.AbstractArtifactLocationHandler;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.storage.metadata.VersionCollectionRequest;
+import org.carlspring.strongbox.storage.metadata.VersionCollector;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import org.carlspring.strongbox.artifact.locator.handlers.AbstractArtifactLocationHandler;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.storage.metadata.VersionCollectionRequest;
-import org.carlspring.strongbox.storage.metadata.VersionCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,18 +31,23 @@ public abstract class AbstractMavenArtifactLocatorOperation
     {
     }
 
-    public void execute(RepositoryPath path) throws IOException
+    public void execute(RepositoryPath path)
+            throws IOException
     {
-        List<Path> filePathList = Files.list(path)
-                                       .filter(p -> p.getFileName().toString().endsWith(".pom"))
-                                       .sorted()
-                                       .collect(Collectors.toList());
+        List<Path> filePathList;
+        try (Stream<Path> pathStream = Files.list(path))
+        {
+            filePathList = pathStream.filter(p -> p.getFileName().toString().endsWith(".pom")).sorted().collect(
+                    Collectors.toList());
+        }
+
         RepositoryPath parentPath = path.getParent();
 
-        if (filePathList.isEmpty()){
+        if (filePathList.isEmpty())
+        {
             return;
         }
-        
+
         // Don't enter visited paths (i.e. version directories such as 1.2, 1.3, 1.4...)
         if (getVisitedRootPaths().containsKey(parentPath) && getVisitedRootPaths().get(parentPath).contains(path))
         {
@@ -90,6 +97,7 @@ public abstract class AbstractMavenArtifactLocatorOperation
 
     public abstract void executeOperation(VersionCollectionRequest request,
                                           RepositoryPath artifactPath,
-                                          List<RepositoryPath> versionDirectories) throws IOException;
+                                          List<RepositoryPath> versionDirectories)
+            throws IOException;
 
 }

@@ -44,7 +44,7 @@
             <storages>
                 <storage id="storage0">
                     <repositories>
-                        <repository id="act-releases-1">
+                        <repository id="releases">
                             <privileges>
                                 <privilege>
                                     <name>ARTIFACTS_DEPLOY</name>
@@ -72,14 +72,14 @@
             <storages>
                 <storage id="storage0">
                     <repositories>
-                        <repository id="act-releases-1">
+                        <repository id="releases">
                             <privileges>
                                 <privilege>
                                     <name>ARTIFACTS_RESOLVE</name>
                                 </privilege>
                             </privileges>
                             <path-permissions>
-                                <path>pro/redsoft/bar/.*</path>
+                                <path>com/mycorp/.*</path>
                                 <path permission="r">com/carlspring/foo/.*</path>
                                 <path permission="rw">org/carlspring/foo/.*</path>
                             </path-permissions>

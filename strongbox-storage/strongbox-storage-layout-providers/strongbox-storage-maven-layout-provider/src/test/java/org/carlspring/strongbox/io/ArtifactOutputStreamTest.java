@@ -42,13 +42,22 @@ public class ArtifactOutputStreamTest
 {
 
     public static final String REPOSITORY_RELEASES = "aos-releases";
+    
+    private static boolean initialized;
+    
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
-
+    
     @Before
     public void initialize()
         throws Exception
     {
+        if (initialized)
+        {
+            return;
+        }
+        initialized = true;
+        
         createRepository(STORAGE0, REPOSITORY_RELEASES, false);
 
         generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES).getAbsolutePath(),

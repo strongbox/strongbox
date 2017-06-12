@@ -33,6 +33,12 @@
 
     <inceptionYear>2014</inceptionYear>
 
+    <scm>
+        <url>https://github.com/strongbox/strongbox/</url>
+        <connection>scm:git:git://github.com/strongbox/strongbox.git</connection>
+        <developerConnection>scm:git:git://github.com/strongbox/strongbox.git</developerConnection>
+    </scm>
+
     <properties>
 
         <!-- Default ports for local development: -->
@@ -103,7 +109,7 @@
             <plugin>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
-                <version>${version.jetty.maven.plugin}</version>
+                <version>${version.jetty}</version>
                 <configuration>
                     <scanIntervalSeconds>10</scanIntervalSeconds>
 
@@ -242,37 +248,6 @@
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${dir.strongbox.home}</outputDirectory>
                                     <includes>etc/conf/strongbox.xml</includes>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>${project.groupId}</groupId>
-                                    <artifactId>strongbox-storage-api-resources</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${dir.strongbox.home}</outputDirectory>
-                                    <includes>etc/conf/security-users.xml</includes>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>unpack-user-management</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>${project.groupId}</groupId>
-                                    <artifactId>strongbox-user-management</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${dir.strongbox.vault}</outputDirectory>
-                                    <includes>etc/conf/security-users.xml</includes>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
@@ -733,47 +708,6 @@
                                             <overWrite>true</overWrite>
                                             <outputDirectory>${dir.strongbox.home}/etc</outputDirectory>
                                             <includes>logback.xml</includes>
-                                        </artifactItem>
-                                        <artifactItem>
-                                            <groupId>${project.groupId}</groupId>
-                                            <artifactId>strongbox-storage-api-resources</artifactId>
-                                            <version>${project.version}</version>
-                                            <type>jar</type>
-
-                                            <overWrite>true</overWrite>
-                                            <outputDirectory>${dir.strongbox.home}</outputDirectory>
-                                            <includes>etc/conf/strongbox.xml</includes>
-                                        </artifactItem>
-                                        <artifactItem>
-                                            <groupId>${project.groupId}</groupId>
-                                            <artifactId>strongbox-storage-api-resources</artifactId>
-                                            <version>${project.version}</version>
-                                            <type>jar</type>
-
-                                            <overWrite>true</overWrite>
-                                            <outputDirectory>${dir.strongbox.home}</outputDirectory>
-                                            <includes>etc/conf/security-users.xml</includes>
-                                        </artifactItem>
-                                    </artifactItems>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>unpack-user-management</id>
-                                <phase>process-resources</phase>
-                                <goals>
-                                    <goal>unpack</goal>
-                                </goals>
-                                <configuration>
-                                    <artifactItems>
-                                        <artifactItem>
-                                            <groupId>${project.groupId}</groupId>
-                                            <artifactId>strongbox-user-management</artifactId>
-                                            <version>${project.version}</version>
-                                            <type>jar</type>
-
-                                            <overWrite>true</overWrite>
-                                            <outputDirectory>${dir.strongbox.home}</outputDirectory>
-                                            <includes>etc/conf/security-users.xml</includes>
                                         </artifactItem>
                                     </artifactItems>
                                 </configuration>

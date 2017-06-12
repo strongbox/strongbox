@@ -15,11 +15,13 @@
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${strongbox.vault}/logs/strongbox.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>log_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>50MB</maxFileSize>
-            </timeBasedFileNamingAndTriggeringPolicy>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>strongbox_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+
+            <fileNamePattern>strongbox-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>128MB</maxFileSize>
+            <maxHistory>31</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
 
             <maxHistory>30</maxHistory>
         </rollingPolicy>
@@ -30,7 +32,8 @@
         </encoder>
     </appender>
 
-    <!-- Please read the following article to make yourself familiar with logback configuration details:
+    <!--
+        Please read the following article to make yourself familiar with logback configuration details:
         https://logback.qos.ch/manual/configuration.html
     -->
 
@@ -42,6 +45,7 @@
     <logger name="org.jooq" level="ERROR"/>
     <logger name="org.apache.http" level="ERROR"/>
     <logger name="org.glassfish.jersey" level="ERROR"/>
+    <logger name="org.apache.directory" level="ERROR"/>
 
     <logger name="org.carlspring.strongbox" level="DEBUG"/>
     <logger name="org.carlspring.strongbox.security.authentication" level="ERROR"/>

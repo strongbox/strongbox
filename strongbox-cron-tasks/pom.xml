@@ -16,6 +16,12 @@
 
     <name>Strongbox: Cron Tasks</name>
 
+    <scm>
+        <url>https://github.com/strongbox/strongbox/</url>
+        <connection>scm:git:git://github.com/strongbox/strongbox.git</connection>
+        <developerConnection>scm:git:git://github.com/strongbox/strongbox.git</developerConnection>
+    </scm>
+
     <properties>
 
         <!-- Default ports for local development: -->
@@ -71,10 +77,8 @@
                     <systemPropertyVariables>
                         <strongbox.home>${project.build.directory}/strongbox</strongbox.home>
                         <strongbox.vault>${project.build.directory}/strongbox-vault</strongbox.vault>
-                        <strongbox.storage.booter.basedir>${project.build.directory}/strongbox-vault/storages
-                        </strongbox.storage.booter.basedir>
-                        <repository.config.xml>${project.build.directory}/strongbox/etc/conf/strongbox.xml
-                        </repository.config.xml>
+                        <strongbox.storage.booter.basedir>${project.build.directory}/strongbox-vault/storages</strongbox.storage.booter.basedir>
+                        <repository.config.xml>${project.build.directory}/strongbox/etc/conf/strongbox.xml</repository.config.xml>
                         <strongbox.host>${strongbox.host}</strongbox.host>
                         <strongbox.port>${strongbox.port}</strongbox.port>
                         <logging.dir>${project.build.directory}/strongbox/logs</logging.dir>
@@ -174,37 +178,6 @@
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${dir.strongbox.home}</outputDirectory>
                                     <includes>etc/conf/strongbox.xml</includes>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>${project.groupId}</groupId>
-                                    <artifactId>strongbox-storage-api-resources</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${dir.strongbox.home}</outputDirectory>
-                                    <includes>etc/conf/security-users.xml</includes>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>unpack-user-management</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>${project.groupId}</groupId>
-                                    <artifactId>strongbox-user-management</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${dir.strongbox.vault}</outputDirectory>
-                                    <includes>etc/conf/security-users.xml</includes>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>

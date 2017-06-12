@@ -151,6 +151,12 @@ public class MavenArtifactControllerTest
                          }
         );
 
+        generateArtifact(getRepositoryBasedir(STORAGE0, "releases").getAbsolutePath(),
+                         "org.carlspring.strongbox.test:dynamic-privileges",
+                         new String[]{ "1.0" // Used by testDynamicPrivilegeAssignmentForRepository()
+                         }
+        );
+
         Repository repository2 = new Repository(REPOSITORY_RELEASES2);
         repository2.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
         repository2.setStorage(configurationManager.getConfiguration()
@@ -618,31 +624,25 @@ public class MavenArtifactControllerTest
 
         // Then
         // Group level metadata
-        Metadata groupLevelMetadata = client.retrieveMetadata(
-                "storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES2 + "/" +
-                ArtifactUtils.getGroupLevelMetadataPath(artifact1));
+        Metadata groupLevelMetadata = client.retrieveMetadata("storages/" + STORAGE0 + "/" +
+                                                              REPOSITORY_RELEASES2 + "/" +
+                                                              ArtifactUtils.getGroupLevelMetadataPath(artifact1));
 
         assertNotNull(groupLevelMetadata);
-        assertEquals(2, groupLevelMetadata.getPlugins()
-                                          .size());
+        assertEquals(2, groupLevelMetadata.getPlugins().size());
 
         // Artifact Level metadata
-        Metadata artifactLevelMetadata = client.retrieveMetadata(
-                "storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES2 + "/" +
-                ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
+        Metadata artifactLevelMetadata = client.retrieveMetadata("storages/" + STORAGE0 + "/" +
+                                                                 REPOSITORY_RELEASES2 + "/" +
+                                                                 ArtifactUtils.getArtifactLevelMetadataPath(artifact1));
 
         assertNotNull(artifactLevelMetadata);
         assertEquals(groupId, artifactLevelMetadata.getGroupId());
         assertEquals(artifactId1, artifactLevelMetadata.getArtifactId());
-        assertEquals(version2, artifactLevelMetadata.getVersioning()
-                                                    .getLatest());
-        assertEquals(version2, artifactLevelMetadata.getVersioning()
-                                                    .getRelease());
-        assertEquals(2, artifactLevelMetadata.getVersioning()
-                                             .getVersions()
-                                             .size());
-        assertNotNull(artifactLevelMetadata.getVersioning()
-                                           .getLastUpdated());
+        assertEquals(version2, artifactLevelMetadata.getVersioning().getLatest());
+        assertEquals(version2, artifactLevelMetadata.getVersioning().getRelease());
+        assertEquals(2, artifactLevelMetadata.getVersioning().getVersions().size());
+        assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
 
         artifactLevelMetadata = client.retrieveMetadata("storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES2 + "/" +
                                                         ArtifactUtils.getArtifactLevelMetadataPath(artifact2));
@@ -650,15 +650,10 @@ public class MavenArtifactControllerTest
         assertNotNull(artifactLevelMetadata);
         assertEquals(groupId, artifactLevelMetadata.getGroupId());
         assertEquals(artifactId2, artifactLevelMetadata.getArtifactId());
-        assertEquals(version2, artifactLevelMetadata.getVersioning()
-                                                    .getLatest());
-        assertEquals(version2, artifactLevelMetadata.getVersioning()
-                                                    .getRelease());
-        assertEquals(2, artifactLevelMetadata.getVersioning()
-                                             .getVersions()
-                                             .size());
-        assertNotNull(artifactLevelMetadata.getVersioning()
-                                           .getLastUpdated());
+        assertEquals(version2, artifactLevelMetadata.getVersioning().getLatest());
+        assertEquals(version2, artifactLevelMetadata.getVersioning().getRelease());
+        assertEquals(2, artifactLevelMetadata.getVersioning().getVersions().size());
+        assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
 
         artifactLevelMetadata = client.retrieveMetadata("storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES2 + "/" +
                                                         ArtifactUtils.getArtifactLevelMetadataPath(artifact5));
@@ -666,15 +661,10 @@ public class MavenArtifactControllerTest
         assertNotNull(artifactLevelMetadata);
         assertEquals(groupId, artifactLevelMetadata.getGroupId());
         assertEquals(artifactId3, artifactLevelMetadata.getArtifactId());
-        assertEquals(version2, artifactLevelMetadata.getVersioning()
-                                                    .getLatest());
-        assertEquals(version2, artifactLevelMetadata.getVersioning()
-                                                    .getRelease());
-        assertEquals(2, artifactLevelMetadata.getVersioning()
-                                             .getVersions()
-                                             .size());
-        assertNotNull(artifactLevelMetadata.getVersioning()
-                                           .getLastUpdated());
+        assertEquals(version2, artifactLevelMetadata.getVersioning().getLatest());
+        assertEquals(version2, artifactLevelMetadata.getVersioning().getRelease());
+        assertEquals(2, artifactLevelMetadata.getVersioning().getVersions().size());
+        assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
     }
 
     @Test
@@ -710,8 +700,7 @@ public class MavenArtifactControllerTest
 
         SearchResults results = artifactSearchService.search(request);
 
-        if (!results.getResults()
-                    .isEmpty())
+        if (!results.getResults().isEmpty())
         {
             logger.debug("Found " + results.getResults()
                                            .size() + " results in index of " +
@@ -720,16 +709,14 @@ public class MavenArtifactControllerTest
 
         for (SearchResult result : results.getResults())
         {
-            String artifactPath = result.getArtifactCoordinates()
-                                        .toPath();
+            String artifactPath = result.getArtifactCoordinates().toPath();
 
             logger.debug(result.getArtifactCoordinates() + "(" + artifactPath + ")");
         }
 
         assertEquals("Incorrect number of results yielded from search against Maven Index!",
                      2,
-                     results.getResults()
-                            .size());
+                     results.getResults().size());
 
         // When
         String path = "org/carlspring/strongbox/delete-metadata/metadata-foo/1.2.2";
@@ -795,27 +782,23 @@ public class MavenArtifactControllerTest
         return versionLevelMetadata.getVersioning()
                                    .getSnapshotVersions()
                                    .stream()
-                                   .anyMatch(snapshotVersion ->
-                                                     snapshotVersion.getVersion()
-                                                                    .equals(version) &&
-                                                     snapshotVersion.getClassifier()
-                                                                    .equals(classifier) &&
-                                                     snapshotVersion.getExtension()
-                                                                    .equals(extension)
+                                   .anyMatch(snapshotVersion -> snapshotVersion.getVersion().equals(version) &&
+                                                                snapshotVersion.getClassifier().equals(classifier) &&
+                                                                snapshotVersion.getExtension().equals(extension)
                                    );
     }
 
     /**
-     * User developer01 do not have general ARTIFACTS_RESOLVE permission, but it's defined for single 'act-releases-1'
-     * repository. So because of dynamic privileges assignment he will be able to get access to artifacts in that
+     * User developer01 does not have general the ARTIFACTS_RESOLVE permission, but it's defined for single 'releases'
+     * repository. So because of dynamic privileges assignment they will be able to get access to artifacts in that
      * repository.
      */
     @Test
     @WithUserDetails("developer01")
     public void testDynamicPrivilegeAssignmentForRepository()
     {
-        String url = getContextBaseUrl() + "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES1;
-        String pathToJar = "/org/carlspring/strongbox/partial/partial-foo/3.1/partial-foo-3.1.jar";
+        String url = getContextBaseUrl() + "/storages/" + STORAGE0 + "/releases";
+        String pathToJar = "/org/carlspring/strongbox/test/dynamic-privileges/1.0/dynamic-privileges-1.0.jar";
         String artifactPath = url + pathToJar;
 
         int statusCode = given().header("user-agent", "Maven/*")
