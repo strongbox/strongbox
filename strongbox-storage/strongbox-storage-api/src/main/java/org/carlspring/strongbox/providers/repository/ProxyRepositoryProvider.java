@@ -75,14 +75,19 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
             {
                 if (repository.isProxyRepository())
                 {
+                    RemoteRepository remoteRepository = repository.getRemoteRepository();
+
                     RemoteRepositoryStatusInfo info = new RemoteRepositoryStatusInfo();
                     info.setStatus(RemoteRepositoryStatusEnum.UNKNOWN.getStatus());
-                    info.setUrl(repository.getRemoteRepository().getUrl());
+                    info.setUrl(remoteRepository.getUrl());
 
                     remoteRepositoryRegistry.addRepositoryInfo(info);
 
-                    logger.debug("Registered " +
-                                 repository.getRemoteRepository().getUrl() + " with the remote repository registry.");
+                    logger.debug("Registered " + remoteRepository.getUrl() + " " +
+                                 "(timeout = " + remoteRepository.getTimeout() + "," +
+                                 " retries = " + remoteRepository.getRetries() + " , " +
+                                 " remoteHostCheckInterval = " + remoteRepository.getRemoteHostCheckInterval() + ")" +
+                                 " with the remote repository registry.");
                 }
             }
         }

@@ -1,5 +1,8 @@
 package org.carlspring.strongbox.providers.repository.proxy;
 
+import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
+
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -16,6 +19,9 @@ public class RemoteRepositoryStatusCheckManager
     public static final Logger logger = LoggerFactory.getLogger(RemoteRepositoryStatusCheckManager.class);
 
     @Inject
+    private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
+
+    @Inject
     private RemoteRepositoryRegistry remoteRepositoryRegistry;
 
     // TODO: Make this configurable via the strongbox.xml
@@ -28,7 +34,7 @@ public class RemoteRepositoryStatusCheckManager
     {
     }
 
-    //@PostConstruct
+    @PostConstruct
     public void execute()
     {
         while (executeChecks)

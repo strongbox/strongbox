@@ -43,7 +43,10 @@
                     <remote-repository url="https://repo.maven.apache.org/maven2/"
                                        download-remote-indexes="true"
                                        auto-blocking="true"
-                                       checksum-validation="true"/>
+                                       checksum-validation="true"
+                                       timeout="15000"
+                                       retries="3"
+                                       remote-host-check-interval="60000"/>
                 </repository>
 
                 <repository id="carlspring" policy="mixed" implementation="file-system" layout="Maven 2" type="proxy">
@@ -69,8 +72,8 @@
 
                 <repository id="group-common-proxies" policy="release" implementation="file-system" layout="Maven 2" type="group" secured="true">
                     <group>
-                        <repository>carlspring</repository>
                         <repository>maven-central</repository>
+                        <repository>carlspring</repository>
                         <repository>apache-snapshots</repository>
                         <repository>jboss-public-releases</repository>
                     </group>

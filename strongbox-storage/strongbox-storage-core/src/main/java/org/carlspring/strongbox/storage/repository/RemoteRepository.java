@@ -36,6 +36,15 @@ public class RemoteRepository
     @XmlAttribute(name = "checksum-policy")
     private String checksumPolicy;
 
+    @XmlAttribute(name = "timeout")
+    private long timeout;
+
+    @XmlAttribute(name = "retries")
+    private int retries;
+
+    @XmlAttribute(name = "remote-host-check-interval")
+    private long remoteHostCheckInterval;
+
 
     public RemoteRepository()
     {
@@ -109,6 +118,36 @@ public class RemoteRepository
     public void setChecksumPolicy(String checksumPolicy)
     {
         this.checksumPolicy = checksumPolicy;
+    }
+
+    public long getTimeout()
+    {
+        return timeout;
+    }
+
+    public void setTimeout(long timeout)
+    {
+        this.timeout = timeout;
+    }
+
+    public int getRetries()
+    {
+        return retries;
+    }
+
+    public void setRetries(int retries)
+    {
+        this.retries = retries;
+    }
+
+    public long getRemoteHostCheckInterval()
+    {
+        return remoteHostCheckInterval;
+    }
+
+    public void setRemoteHostCheckInterval(long remoteHostCheckInterval)
+    {
+        this.remoteHostCheckInterval = remoteHostCheckInterval;
     }
 
 }
