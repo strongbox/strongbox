@@ -15,7 +15,6 @@ import java.util.Map;
 
 import com.orientechnologies.orient.core.entity.OEntityManager;
 import org.apache.maven.index.ArtifactContextProducer;
-import org.apache.maven.index.DefaultArtifactContextProducer;
 import org.apache.maven.index.DefaultIndexerEngine;
 import org.apache.maven.index.DefaultQueryCreator;
 import org.apache.maven.index.DefaultScanner;

@@ -10,6 +10,8 @@ import org.apache.maven.index.util.zip.ZipHandle;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Przemyslaw Fusik
@@ -17,6 +19,8 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 public class SafeArtifactContext
         extends ArtifactContext
 {
+
+    private static final Logger logger = LoggerFactory.getLogger(SafeArtifactContext.class);
 
     public SafeArtifactContext(ArtifactContext ac)
     {
@@ -38,13 +42,9 @@ public class SafeArtifactContext
                 }
 
             }
-            catch (IOException e)
+            catch (IOException | XmlPullParserException e)
             {
-                e.printStackTrace();
-            }
-            catch (XmlPullParserException e)
-            {
-                e.printStackTrace();
+                logger.error(e.getMessage(), e);
             }
         }
         // Otherwise, check for pom contained in maven generated artifact
@@ -68,13 +68,9 @@ public class SafeArtifactContext
 
                 }
             }
-            catch (IOException e)
+            catch (IOException | XmlPullParserException e)
             {
-                e.printStackTrace();
-            }
-            catch (XmlPullParserException e)
-            {
-                e.printStackTrace();
+                logger.error(e.getMessage(), e);
             }
             finally
             {
@@ -84,6 +80,7 @@ public class SafeArtifactContext
                 }
                 catch (Exception e)
                 {
+                    logger.warn(e.getMessage(), e);
                 }
             }
         }

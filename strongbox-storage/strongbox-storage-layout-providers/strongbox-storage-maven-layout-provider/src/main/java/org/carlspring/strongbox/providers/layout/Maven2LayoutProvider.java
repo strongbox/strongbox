@@ -223,7 +223,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
                            String path)
             throws IOException
     {
-        logger.debug("Removing " + storageId + ":" + repositoryId + ":" + path + "...");
+        logger.debug("Closing " + storageId + ":" + repositoryId + ":" + path + "...");
 
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
@@ -243,7 +243,6 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
     }
 
     private RepositoryIndexer getRepositoryIndexer(RepositoryPath path)
-            throws IOException
     {
 
         Repository repository = path.getFileSystem().getRepository();
