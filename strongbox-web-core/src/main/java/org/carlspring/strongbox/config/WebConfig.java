@@ -25,6 +25,7 @@ import org.springframework.http.converter.xml.MarshallingHttpMessageConverter;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 @Configuration
@@ -129,4 +130,12 @@ public class WebConfig
                   .setPathMatcher(antPathMatcher);
     }
 
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry)
+    {
+        registry
+                .addResourceHandler("/docs/**")
+                .addResourceLocations("/docs/")
+                .setCachePeriod(3600);
+    }
 }
