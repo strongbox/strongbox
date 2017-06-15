@@ -5,6 +5,7 @@ import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.MavenRepositoryManagementStrategy;
+import org.carlspring.strongbox.storage.indexing.SafeArtifactContextProducer;
 import org.carlspring.strongbox.storage.indexing.StrongboxIndexer;
 
 import javax.annotation.PostConstruct;
@@ -14,7 +15,6 @@ import java.util.Map;
 
 import com.orientechnologies.orient.core.entity.OEntityManager;
 import org.apache.maven.index.ArtifactContextProducer;
-import org.apache.maven.index.DefaultArtifactContextProducer;
 import org.apache.maven.index.DefaultIndexerEngine;
 import org.apache.maven.index.DefaultQueryCreator;
 import org.apache.maven.index.DefaultScanner;
@@ -127,7 +127,7 @@ public class Maven2LayoutProviderConfig
     @Bean(name = "artifactContextProducer")
     ArtifactContextProducer artifactContextProducer()
     {
-        return new DefaultArtifactContextProducer(artifactPackagingMapper());
+        return new SafeArtifactContextProducer(artifactPackagingMapper());
     }
 
     @Bean(name = "artifactPackagingMapper")

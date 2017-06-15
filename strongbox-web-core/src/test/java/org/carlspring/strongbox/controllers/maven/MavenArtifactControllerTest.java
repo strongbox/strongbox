@@ -19,7 +19,6 @@ import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.storage.search.SearchResults;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -30,14 +29,13 @@ import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import com.google.common.base.Throwables;
 import com.jayway.restassured.response.ExtractableResponse;
-import org.apache.commons.lang.SystemUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.artifact.PluginArtifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -70,8 +68,6 @@ public class MavenArtifactControllerTest
 
     private static final String REPOSITORY_SNAPSHOTS = "act-snapshots";
 
-    private static boolean initialized = false;
-
     @Inject
     private ConfigurationManager configurationManager;
 
@@ -83,15 +79,12 @@ public class MavenArtifactControllerTest
         cleanUp(getRepositoriesToClean());
     }
 
-    @PostConstruct
-    public void initialize()
+    @Override
+    public void init()
             throws Exception
     {
-        if (initialized)
-        {
-            return;
-        }
-        initialized = true;
+        super.init();
+
         GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/local");
 
         Repository repository1 = new Repository(REPOSITORY_RELEASES1);
@@ -175,6 +168,22 @@ public class MavenArtifactControllerTest
 
         //noinspection ResultOfMethodCallIgnored
         new File(TEST_RESOURCES).mkdirs();
+    }
+
+    @Override
+    public void shutdown()
+    {
+        try
+        {
+            getRepositoryIndexManager().closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES1);
+            getRepositoryIndexManager().closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES2);
+            getRepositoryIndexManager().closeIndexersForRepository(STORAGE0, REPOSITORY_SNAPSHOTS);
+        }
+        catch (IOException e)
+        {
+            throw Throwables.propagate(e);
+        }
+        super.shutdown();
     }
 
     public static Set<Repository> getRepositoriesToClean()
@@ -671,9 +680,6 @@ public class MavenArtifactControllerTest
     public void testUpdateMetadataOnDeleteReleaseVersionDirectory()
             throws Exception
     {
-        // https://youtrack.carlspring.org/issue/SB-757#comment=84-648
-        Assume.assumeTrue(!SystemUtils.IS_OS_WINDOWS);
-
         // Given
         String groupId = "org.carlspring.strongbox.delete-metadata";
         String artifactId = "metadata-foo";

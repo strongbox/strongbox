@@ -140,15 +140,15 @@ public class RepositoryIndexManager
         return indexes.get(contextId);
     }
 
-    public RepositoryIndexer addRepositoryIndexer(String repositoryId,
+    public RepositoryIndexer addRepositoryIndexer(String contextId,
                                                   RepositoryIndexer value)
     {
-        return indexes.put(repositoryId, value);
+        return indexes.put(contextId, value);
     }
 
-    public RepositoryIndexer removeRepositoryIndex(String repositoryId)
+    public RepositoryIndexer removeRepositoryIndexer(String contextId)
     {
-        return indexes.remove(repositoryId);
+        return indexes.remove(contextId);
     }
 
     public Configuration getConfiguration()

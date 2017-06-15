@@ -9,15 +9,7 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Writer;
+import java.io.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
@@ -283,22 +275,23 @@ public class MavenArtifactGenerator
     private void generateChecksumsForArtifact(File artifactFile)
             throws NoSuchAlgorithmException, IOException
     {
-        InputStream is = new FileInputStream(artifactFile);
-        MultipleDigestInputStream mdis = new MultipleDigestInputStream(is);
+        try (InputStream is = new FileInputStream(artifactFile);
+             MultipleDigestInputStream mdis = new MultipleDigestInputStream(is))
+        {
+            int size = 4096;
+            byte[] bytes = new byte[size];
 
-        int size = 4096;
-        byte[] bytes = new byte[size];
+            //noinspection StatementWithEmptyBody
+            while (mdis.read(bytes, 0, size) != -1) ;
 
-        //noinspection StatementWithEmptyBody
-        while (mdis.read(bytes, 0, size) != -1);
+            mdis.close();
 
-        mdis.close();
+            String md5 = mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
+            String sha1 = mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
 
-        String md5 = mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
-        String sha1 = mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
-
-        MessageDigestUtils.writeChecksum(artifactFile, EncryptionAlgorithmsEnum.MD5.getExtension(), md5);
-        MessageDigestUtils.writeChecksum(artifactFile, EncryptionAlgorithmsEnum.SHA1.getExtension(), sha1);
+            MessageDigestUtils.writeChecksum(artifactFile, EncryptionAlgorithmsEnum.MD5.getExtension(), md5);
+            MessageDigestUtils.writeChecksum(artifactFile, EncryptionAlgorithmsEnum.SHA1.getExtension(), sha1);
+        }
     }
 
     public String getBasedir()

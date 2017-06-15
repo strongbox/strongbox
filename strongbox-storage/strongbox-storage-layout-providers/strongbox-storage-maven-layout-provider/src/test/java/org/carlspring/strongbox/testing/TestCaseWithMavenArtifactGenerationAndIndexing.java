@@ -1,10 +1,5 @@
 package org.carlspring.strongbox.testing;
 
-import org.carlspring.strongbox.config.ClientConfig;
-import org.carlspring.strongbox.config.CommonConfig;
-import org.carlspring.strongbox.config.DataServiceConfig;
-import org.carlspring.strongbox.config.Maven2LayoutProviderConfig;
-import org.carlspring.strongbox.config.StorageCoreConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
@@ -30,7 +25,6 @@ import org.carlspring.strongbox.storage.search.SearchRequest;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
-import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -39,8 +33,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.google.common.base.Throwables;
-import org.apache.commons.io.FileUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.MultiFields;
@@ -52,15 +44,12 @@ import org.apache.maven.index.context.IndexingContext;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ContextConfiguration;
+
 import static org.junit.Assert.assertTrue;
 
 /**
  * @author carlspring
  */
-@ContextConfiguration
 public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         extends TestCaseWithMavenArtifactGeneration
 {
@@ -70,18 +59,6 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
     public static final int ROUTING_RULE_TYPE_DENIED = 0;
 
     public static final int ROUTING_RULE_TYPE_ACCEPTED = 1;
-
-    @Configuration
-    @Import({ Maven2LayoutProviderConfig.class,
-              StorageCoreConfig.class,
-              CommonConfig.class,
-              ClientConfig.class,
-              DataServiceConfig.class
-            })
-    public static class SpringConfig
-    {
-
-    }
 
     @Inject
     protected RepositoryIndexManager repositoryIndexManager;
@@ -351,22 +328,6 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                                                   MavenIndexerSearchProvider.ALIAS);
 
         return artifactSearchService.contains(request);
-    }
-
-    @Override
-    public void removeRepositories(Set<Repository> repositoriesToClean)
-            throws IOException, JAXBException
-    {
-        super.removeRepositories(repositoriesToClean);
-
-        try
-        {
-            cleanUp(repositoriesToClean);
-        }
-        catch (Exception e)
-        {
-            throw Throwables.propagate(e);
-        }
     }
 
     public RepositoryIndexManager getRepositoryIndexManager()

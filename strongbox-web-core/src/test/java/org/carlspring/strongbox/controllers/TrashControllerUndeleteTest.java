@@ -7,8 +7,6 @@ import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -16,7 +14,7 @@ import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.junit.Before;
+import com.google.common.base.Throwables;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,9 +46,6 @@ public class TrashControllerUndeleteTest
     @Inject
     private ConfigurationManager configurationManager;
 
-    private static boolean initialized = false;
-
-
     @BeforeClass
     public static void cleanUp()
             throws Exception
@@ -58,17 +53,11 @@ public class TrashControllerUndeleteTest
         cleanUp(getRepositoriesToClean());
     }
 
-    @PostConstruct
-    public void initialize()
+    @Override
+    public void init()
             throws Exception
     {
         super.init();
-
-        if (initialized)
-        {
-            return;
-        }
-        initialized = true;
 
         Storage storage = configurationManager.getConfiguration().getStorage(STORAGE0);
 
@@ -93,10 +82,11 @@ public class TrashControllerUndeleteTest
         repositoryReleases.setIndexingEnabled(true);
 
         createRepository(repositoryReleases);
+
+        setUp();
     }
 
-    @Before
-    public void setUp()
+    private void setUp()
             throws Exception
     {
         generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_TRASH).getAbsolutePath(),
@@ -121,8 +111,23 @@ public class TrashControllerUndeleteTest
                       "org/carlspring/strongbox/undelete/test-artifact-undelete/2.0/test-artifact-undelete-2.0.jar");
     }
 
-    @PreDestroy
-    public void removeRepositories()
+    @Override
+    public void shutdown()
+    {
+        try
+        {
+            getRepositoryIndexManager().closeIndexersForRepository(STORAGE0, REPOSITORY_WITH_TRASH);
+            getRepositoryIndexManager().closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES);
+            removeRepositories();
+        }
+        catch (IOException | JAXBException e)
+        {
+            throw Throwables.propagate(e);
+        }
+        super.shutdown();
+    }
+
+    private void removeRepositories()
             throws IOException, JAXBException
     {
         removeRepositories(getRepositoriesToClean());

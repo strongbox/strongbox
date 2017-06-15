@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.services;
 
+import org.carlspring.strongbox.TestConfig;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.config.StorageCoreConfig;
@@ -23,7 +24,7 @@ import static org.junit.Assert.*;
  * @see https://dev.carlspring.org/youtrack/issue/SB-711
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { StorageCoreConfig.class })
+@ContextConfiguration(classes = TestConfig.class)
 public class ArtifactEntryServiceTest
 {
 

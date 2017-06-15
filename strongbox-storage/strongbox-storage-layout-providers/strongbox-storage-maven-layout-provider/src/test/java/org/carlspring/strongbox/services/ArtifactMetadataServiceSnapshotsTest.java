@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.services;
 
 import org.carlspring.maven.commons.DetachedArtifact;
+import org.carlspring.strongbox.TestConfig;
 import org.carlspring.strongbox.authentication.api.Authenticator;
 import org.carlspring.strongbox.authentication.config.AuthenticationConfig;
 import org.carlspring.strongbox.config.CommonConfig;
@@ -28,6 +29,7 @@ import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Snapshot;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,20 +48,10 @@ import static org.junit.Assert.assertNull;
  * @author stodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration
+@ContextConfiguration(classes = TestConfig.class)
 public class ArtifactMetadataServiceSnapshotsTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
-
-    @ComponentScan(basePackages = { "org.carlspring.strongbox" }, excludeFilters = { @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = { AuthenticationConfig.class,
-                                                                                                                                                        Authenticator.class }) })
-    @org.springframework.context.annotation.Configuration
-    @Import({ CommonConfig.class,
-              StorageCoreConfig.class })
-    public static class SpringConfig
-    {
-
-    }
 
     private static final String REPOSITORY_SNAPSHOTS = "amss-snapshots";
 
@@ -85,15 +77,7 @@ public class ArtifactMetadataServiceSnapshotsTest
 
     private Calendar calendar = Calendar.getInstance();
 
-
-    @BeforeClass
-    public static void cleanUp()
-            throws Exception
-    {
-        cleanUp(getRepositoriesToClean());
-    }
-
-    @PostConstruct
+    @Before
     public void initialize()
             throws Exception
     {
@@ -128,14 +112,6 @@ public class ArtifactMetadataServiceSnapshotsTest
                                                            "1.1",
                                                            "maven-plugin",
                                                            null);
-    }
-
-    public static Set<Repository> getRepositoriesToClean()
-    {
-        Set<Repository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS));
-
-        return repositories;
     }
 
     @Test

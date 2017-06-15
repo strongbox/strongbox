@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.resource;
 
+import org.carlspring.strongbox.TestConfig;
 import org.carlspring.strongbox.booters.ResourcesBooter;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
@@ -9,6 +10,7 @@ import java.io.File;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertTrue;
 
@@ -16,6 +18,7 @@ import static org.junit.Assert.assertTrue;
  * @author mtodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = TestConfig.class)
 public class ResourcesBooterTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
