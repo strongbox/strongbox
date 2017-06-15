@@ -2,8 +2,6 @@ package org.carlspring.strongbox.services;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.TestConfig;
-import org.carlspring.strongbox.authentication.api.Authenticator;
-import org.carlspring.strongbox.authentication.config.AuthenticationConfig;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
