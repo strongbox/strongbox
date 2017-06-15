@@ -98,9 +98,6 @@
                             <goal>jar</goal>
                             <goal>test-jar</goal>
                         </goals>
-                        <configuration>
-                            <classifier>classes</classifier>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
