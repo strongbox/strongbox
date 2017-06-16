@@ -186,6 +186,11 @@ public class UsersConfig
             internalUser.setAccessModel(internalAccessModel);
         }
 
+        if (user.getSecurityTokenKey() != null && !user.getSecurityTokenKey().trim().isEmpty())
+        {
+            internalUser.setSecurityTokenKey(user.getSecurityTokenKey());
+        }
+        
         return internalUser;
     }
 
