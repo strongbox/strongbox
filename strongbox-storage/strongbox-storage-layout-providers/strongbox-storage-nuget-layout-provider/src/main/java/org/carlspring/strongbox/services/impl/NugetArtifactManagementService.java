@@ -1,18 +1,13 @@
 package org.carlspring.strongbox.services.impl;
 
-import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.storage.Storage;
-
-import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.security.NoSuchAlgorithmException;
 
+import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.storage.Storage;
 import org.springframework.stereotype.Component;
 
 /**
@@ -20,32 +15,14 @@ import org.springframework.stereotype.Component;
  */
 @Component("nugetArtifactManagementService")
 public class NugetArtifactManagementService
-        implements ArtifactManagementService
+        extends AbstractArtifactManagementService
 {
 
-    @Inject
-    private ConfigurationManager configurationManager;
-
-
     @Override
-    public void store(String storageId,
-                      String repositoryId,
-                      String path,
-                      InputStream is)
-            throws IOException, ProviderImplementationException, NoSuchAlgorithmException
+    protected void addArtifactToIndex(RepositoryPath path)
+        throws IOException
     {
-        throw new UnsupportedOperationException("This operation is not yet implemented!");
-    }
-
-    @Override
-    public void store(String storageId,
-                      String repositoryId,
-                      String path,
-                      InputStream is,
-                      OutputStream os)
-            throws IOException, ProviderImplementationException, NoSuchAlgorithmException
-    {
-        throw new UnsupportedOperationException("This operation is not yet implemented!");
+        //We have no custom indexes for Nuget
     }
 
     @Override

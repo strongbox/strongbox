@@ -121,9 +121,9 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
             RepositoryPath tempArtifact = fileSystemProvider.getTempPath(artifactPath);
             try (InputStream remoteIs = new MultipleDigestInputStream(is);
                  // Wrap the InputStream, so we could have checksums to compare
-                 OutputStream os = fileSystemProvider.newOutputStream(tempArtifact))
+                 OutputStream os = Files.newOutputStream(tempArtifact))
             {
-                layoutProvider.getArtifactManagementService().store(storageId, repositoryId, path, remoteIs, os);
+                layoutProvider.getArtifactManagementService().store(tempArtifact, remoteIs);
 
                 // TODO: Add a policy for validating the checksums of downloaded artifacts
                 // TODO: Validate the local checksum against the remote's checksums

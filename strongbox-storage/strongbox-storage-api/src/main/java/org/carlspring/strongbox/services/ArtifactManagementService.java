@@ -2,6 +2,7 @@ package org.carlspring.strongbox.services;
 
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.Storage;
 
 import java.io.IOException;
@@ -23,11 +24,8 @@ public interface ArtifactManagementService extends ConfigurationService
                    ProviderImplementationException,
                    NoSuchAlgorithmException;
 
-    void store(String storageId,
-               String repositoryId,
-               String path,
-               InputStream is,
-               OutputStream os)
+    void store(RepositoryPath path,
+               InputStream is)
             throws IOException,
                    ProviderImplementationException,
                    NoSuchAlgorithmException;
