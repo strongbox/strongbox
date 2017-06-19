@@ -16,7 +16,7 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>Strongbox: Default Authentication Provider</name>
+    <name>Strongbox: Authentication Provider [Default]</name>
 
     <licenses>
         <license>
@@ -41,13 +41,11 @@
     </scm>
 
     <dependencies>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-user-management</artifactId>
             <version>${project.version}</version>
         </dependency>
-
     </dependencies>
 
 </project>

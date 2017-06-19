@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.authentication.config;
 
 import org.carlspring.strongbox.authentication.api.Authenticator;
-import org.carlspring.strongbox.authentication.api.impl.defaulting.DefaultAuthenticator;
+import org.carlspring.strongbox.authentication.api.impl.xml.DefaultAuthenticator;
 import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
 import org.carlspring.strongbox.config.UsersConfig;
 

@@ -8,9 +8,9 @@
                            http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
     <util:list id="authenticators" value-type="java.lang.String">
-        <value>org.carlspring.strongbox.authentication.api.impl.defaulting.DefaultAuthenticator</value>
+        <value>org.carlspring.strongbox.authentication.api.impl.xml.DefaultAuthenticator</value>
     </util:list>
 
-    <context:component-scan base-package="org.carlspring.strongbox.authentication.api.impl.defaulting"/>
+    <context:component-scan base-package="org.carlspring.strongbox.authentication.api.impl.xml"/>
 
 </beans>

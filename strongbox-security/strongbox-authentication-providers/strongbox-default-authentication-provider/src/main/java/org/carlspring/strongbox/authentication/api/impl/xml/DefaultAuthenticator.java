@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.authentication.api.impl.defaulting;
+package org.carlspring.strongbox.authentication.api.impl.xml;
 
 import org.carlspring.strongbox.authentication.api.Authenticator;
 import org.carlspring.strongbox.users.userdetails.StrongboxUserDetailService;
