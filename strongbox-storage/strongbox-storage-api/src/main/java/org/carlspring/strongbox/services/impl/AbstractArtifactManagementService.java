@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
  * @author Sergey Bespalov
  *
  */
+//TODO: move all the common mehtod implementation here
 public abstract class AbstractArtifactManagementService implements ArtifactManagementService
 {
     
