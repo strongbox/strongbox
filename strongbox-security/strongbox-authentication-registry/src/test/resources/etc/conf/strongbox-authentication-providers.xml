@@ -9,16 +9,13 @@
                            http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
                            http://www.springframework.org/schema/security http://www.springframework.org/security/spring-security.xsd">
 
-    <util:list id="authenticators" value-type="java.lang.String">
-        <value>org.carlspring.strongbox.authentication.api.impl.xml.DefaultAuthenticator</value>
-        <value>org.carlspring.strongbox.authentication.impl.example.EmptyAuthenticator</value>
-        <value>org.carlspring.strongbox.authentication.api.impl.ldap.LdapAuthenticator</value>
-    </util:list>
+    <context:annotation-config />
 
-    <context:component-scan base-package="
-        org.carlspring.strongbox.authentication.api.impl.xml,
-        org.carlspring.strongbox.authentication.api.impl.ldap,
-        org.carlspring.strongbox.authentication.impl.example"/>
+    <util:list id="authenticators" value-type="java.lang.String">
+        <bean class="org.carlspring.strongbox.authentication.api.impl.DefaultAuthenticator" />
+        <bean class="org.carlspring.strongbox.authentication.impl.example.EmptyAuthenticator" />
+        <bean class="org.carlspring.strongbox.authentication.api.impl.ldap.LdapAuthenticator" />
+    </util:list>
 
 
     <!-- LDAP section -->
