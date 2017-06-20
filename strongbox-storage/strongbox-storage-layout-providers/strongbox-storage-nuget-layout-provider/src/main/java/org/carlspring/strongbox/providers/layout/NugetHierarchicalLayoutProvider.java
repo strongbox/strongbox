@@ -173,6 +173,14 @@ public class NugetHierarchicalLayoutProvider
         }
         
     }
+    
+    @Override
+    protected void addArtifactToIndex(RepositoryPath path)
+        throws IOException
+    {
+        // We have no custom indexes for Nuget packages.
+    }
+
     @Override
     public ArtifactManagementService getArtifactManagementService()
     {

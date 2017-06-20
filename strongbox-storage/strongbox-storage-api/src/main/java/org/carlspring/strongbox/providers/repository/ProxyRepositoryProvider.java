@@ -128,7 +128,7 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
                 // TODO: Add a policy for validating the checksums of downloaded artifacts
                 // TODO: Validate the local checksum against the remote's checksums
                 fileSystemProvider.moveFromTemporaryDirectory(artifactPath);
-
+                
                 // Serve the downloaded artifact
                 RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(path);
                 return (ArtifactInputStream) Files.newInputStream(repositoryPath);

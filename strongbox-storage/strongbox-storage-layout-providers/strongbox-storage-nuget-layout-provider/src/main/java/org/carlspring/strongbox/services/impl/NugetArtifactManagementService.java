@@ -6,7 +6,6 @@ import java.io.InputStream;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.Storage;
 import org.springframework.stereotype.Component;
 
@@ -17,13 +16,6 @@ import org.springframework.stereotype.Component;
 public class NugetArtifactManagementService
         extends AbstractArtifactManagementService
 {
-
-    @Override
-    protected void addArtifactToIndex(RepositoryPath path)
-        throws IOException
-    {
-        //We have no custom indexes for Nuget
-    }
 
     @Override
     public InputStream resolve(String storageId,

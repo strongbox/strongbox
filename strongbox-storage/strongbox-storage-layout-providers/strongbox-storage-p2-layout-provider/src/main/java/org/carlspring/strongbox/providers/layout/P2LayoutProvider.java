@@ -8,6 +8,7 @@ import javax.inject.Inject;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.P2ArtifactCoordinates;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.p2.P2ArtifactReader;
 import org.carlspring.strongbox.repository.P2RepositoryFeatures;
 import org.carlspring.strongbox.repository.P2RepositoryManagementStrategy;
@@ -128,6 +129,13 @@ public class P2LayoutProvider
             throws IOException
     {
         return containsArtifact(repository, P2ArtifactCoordinates.create(path));
+    }
+
+    @Override
+    protected void addArtifactToIndex(RepositoryPath path)
+        throws IOException
+    {
+        // Will be implemented if needed.
     }
 
     @Override

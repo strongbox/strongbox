@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Sergey Bespalov
  */
-public class ArtifactOutputStream
+public abstract class ArtifactOutputStream
         extends MultipleDigestOutputStream
 {
 

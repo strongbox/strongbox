@@ -1,24 +1,19 @@
 package org.carlspring.strongbox.services.impl;
 
 import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
-import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 
 import javax.inject.Inject;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.maven.artifact.Artifact;
-import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.locator.handlers.RemoveTimestampedSnapshotOperation;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
@@ -26,9 +21,7 @@ import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.metadata.MavenSnapshotManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -59,33 +52,6 @@ public class MavenArtifactManagementService
     private LayoutProviderRegistry layoutProviderRegistry;
 
     
-    @Override
-    protected void addArtifactToIndex(RepositoryPath repositoryPath)
-        throws IOException
-    {
-        Repository repository = repositoryPath.getFileSystem().getRepository();
-        Storage storage = repository.getStorage();
-        
-
-        String contextId = getContextId(storage.getId(), repository.getId(), IndexTypeEnum.LOCAL.getType());
-        RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(contextId);
-
-        Boolean artifactAttribute = (Boolean) Files.getAttribute(repositoryPath, RepositoryFileAttributes.ARTIFACT);
-        
-        if (!repository.isIndexingEnabled() || !Boolean.TRUE.equals(artifactAttribute) || indexer == null)
-        {
-            return;
-        }
-
-        String repositoryRelativePath = repositoryPath.getRepositoryRelative().toString();
-        Artifact artifact = ArtifactUtils.convertPathToArtifact(repositoryRelativePath);
-
-        File storageBasedir = new File(storage.getBasedir());
-        File artifactFile = new File(new File(storageBasedir, repository.getId()), repositoryRelativePath).getCanonicalFile();
-
-        indexer.addArtifactToIndex(repository.getId(), artifactFile, artifact);
-    }
-
     @Override
     public InputStream resolve(String storageId,
                                String repositoryId,
@@ -183,10 +149,10 @@ public class MavenArtifactManagementService
             FileUtils.copyFile(srcFile, destFile);
         }
 
-        LayoutProvider destLayoutProvider = layoutProviderRegistry.getProvider(destRepository.getLayout());
-        RepositoryPath destRepositoryPath = destLayoutProvider.resolve(destRepository).resolve(path);
+        //LayoutProvider destLayoutProvider = layoutProviderRegistry.getProvider(destRepository.getLayout());
+        //RepositoryPath destRepositoryPath = destLayoutProvider.resolve(destRepository).resolve(path);
         
-        addArtifactToIndex(destRepositoryPath);
+        //addArtifactToIndex(destRepositoryPath);
     }
 
     @Override

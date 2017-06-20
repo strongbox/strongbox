@@ -168,7 +168,23 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
             throws NoSuchAlgorithmException, IOException
     {
         Set<String> digestAlgorithmSet = path.getFileSystem().getDigestAlgorithmSet();
-        ArtifactOutputStream result = new ArtifactOutputStream(os, artifactCoordinates);
+        ArtifactOutputStream result = new ArtifactOutputStream(os, artifactCoordinates)
+        {
+
+            @Override
+            public void close()
+                throws IOException
+            {
+                super.close();
+                Object artifactAttribute = Files.getAttribute(path, RepositoryFileAttributes.ARTIFACT);
+                if (Boolean.TRUE.equals(artifactAttribute))
+                {
+                    logger.debug(String.format("Create index for artifact [%s]", path));
+                    addArtifactToIndex(path);
+                }
+            }
+            
+        };
         // Add digest algorithm only if it is not a Checksum (we don't need a Checksum of Checksum).
         if (Boolean.TRUE.equals(Files.getAttribute(path, RepositoryFileAttributes.CHECKSUM)))
         {
@@ -256,5 +272,21 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
     {
         return layoutProvider.getRepositoryFileAttributes(repositoryRelativePath);
     }
+
+
+
+    @Override
+    protected void addArtifactToIndex(RepositoryPath path)
+    {
+        try
+        {
+            layoutProvider.addArtifactToIndex(path);
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(String.format("Failed to create index for artifact [%s]", path.toString()), e);
+        }
+    }
+
 
 }

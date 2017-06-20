@@ -301,14 +301,21 @@ public abstract class RepositoryFileSystemProvider
             throws IOException
     {
         RepositoryPath tempPath = getTempPath(path);
-        if (Files.exists(tempPath.getTarget()))
+        if (!Files.exists(tempPath.getTarget()))
         {
-            if (!Files.exists(unwrap(path).getParent()))
-            {
-                Files.createDirectories(unwrap(path).getParent());
-            }
+            return;
+        }
+        
+        if (!Files.exists(unwrap(path).getParent()))
+        {
+            Files.createDirectories(unwrap(path).getParent());
+        }
 
-            Files.move(tempPath.getTarget(), path.getTarget(), StandardCopyOption.REPLACE_EXISTING);
+        Files.move(tempPath.getTarget(), path.getTarget(), StandardCopyOption.REPLACE_EXISTING);
+        
+        Map<String, Object> repositoryFileAttributes = getRepositoryFileAttributes(path);
+        if (Boolean.TRUE.equals(repositoryFileAttributes.get(RepositoryFileAttributes.ARTIFACT))){
+            addArtifactToIndex(path);
         }
     }
 
@@ -471,6 +478,8 @@ public abstract class RepositoryFileSystemProvider
     }
 
     protected abstract Map<String,Object> getRepositoryFileAttributes(RepositoryPath repositoryRelativePath);
+    
+    protected abstract void addArtifactToIndex(RepositoryPath path);
     
     public boolean isChecksum(RepositoryPath path)
     {

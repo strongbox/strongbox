@@ -365,6 +365,9 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     }
     
     protected abstract boolean isMetadata(String string);
+
+    protected abstract void addArtifactToIndex(RepositoryPath path)
+            throws IOException;
     
     public class RepositoryLayoutFileSystem extends RepositoryFileSystem
     {

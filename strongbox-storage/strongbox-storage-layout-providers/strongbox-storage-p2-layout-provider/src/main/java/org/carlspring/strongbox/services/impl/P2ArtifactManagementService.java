@@ -5,7 +5,6 @@ import java.io.InputStream;
 
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.springframework.stereotype.Component;
 
 /**
@@ -15,13 +14,6 @@ import org.springframework.stereotype.Component;
 public class P2ArtifactManagementService
         extends AbstractArtifactManagementService
 {
-
-    @Override
-    protected void addArtifactToIndex(RepositoryPath path)
-        throws IOException
-    {
-        //We have no custom indexes for P2
-    }
 
     @Override
     public InputStream resolve(String storageId,

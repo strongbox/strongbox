@@ -124,7 +124,7 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
         String artifactPath = storage.getId() + "/" + repository.getId() + "/" + artifactPathRelative;
      
         Boolean checksumAttribute = (Boolean) Files.getAttribute(repositoryPath, RepositoryFileAttributes.CHECKSUM);
-        Boolean artifactAttribute = (Boolean) Files.getAttribute(repositoryPath, RepositoryFileAttributes.ARTIFACT);
+        //Boolean artifactAttribute = (Boolean) Files.getAttribute(repositoryPath, RepositoryFileAttributes.ARTIFACT);
         
         // If we have no digests, then we have a checksum to store.
         if (Boolean.TRUE.equals(checksumAttribute))
@@ -157,10 +157,10 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
             }
         }
 
-        if (Boolean.TRUE.equals(artifactAttribute))
-        {
-            addArtifactToIndex(repositoryPath);
-        }
+//        if (Boolean.TRUE.equals(artifactAttribute))
+//        {
+//            addArtifactToIndex(repositoryPath);
+//        }
 
         storeArtifact(repositoryPath);
     }
@@ -289,10 +289,6 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
 
         return true;
     }
-    
-    protected abstract void addArtifactToIndex(RepositoryPath path)
-        throws IOException;
-
     
     @Override
     public Storage getStorage(String storageId)
