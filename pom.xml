@@ -64,14 +64,12 @@
         <module>strongbox-configuration</module>
         <module>strongbox-metadata-maven-api</module>
         <module>strongbox-event-api</module>
-        <module>strongbox-authentication-api</module>
-        <module>strongbox-security-api</module>
+        <module>strongbox-security</module>
         <module>strongbox-testing</module>
         <module>strongbox-client</module>
         <module>strongbox-rest-client</module>
         <module>strongbox-storage</module>
         <module>strongbox-data-service</module>
-        <module>strongbox-user-management</module>
         <module>strongbox-web-core</module>
         <module>strongbox-cron-tasks</module>
     </modules>

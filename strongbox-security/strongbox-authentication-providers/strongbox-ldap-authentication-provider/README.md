@@ -1,0 +1,1 @@
+Strongbox LDAP authentication provider.

@@ -290,12 +290,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-user-management</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-security-api</artifactId>
+            <artifactId>strongbox-authentication-registry</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
