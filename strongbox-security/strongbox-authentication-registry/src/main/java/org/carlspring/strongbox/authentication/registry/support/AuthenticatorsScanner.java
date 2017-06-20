@@ -70,26 +70,17 @@ public class AuthenticatorsScanner
     private List<Authenticator> getAuthenticators(ClassLoader currentClassLoader,
                                                   ApplicationContext applicationContext)
     {
-        final List<String> authenticatorsClasses = applicationContext.getBean("authenticators", List.class);
+        final List<Object> authenticatorsClasses = applicationContext.getBean("authenticators", List.class);
         final List<Authenticator> authenticators = new ArrayList<>();
-        for (final String auth : authenticatorsClasses)
+        for (final Object authenticator : authenticatorsClasses)
         {
-            final Class<?> authenticatorClass;
-            try
-            {
-                authenticatorClass = Class.forName(auth, true, currentClassLoader);
-            }
-            catch (ClassNotFoundException e)
-            {
-                throw Throwables.propagate(e);
-            }
+            Class<?> authenticatorClass = authenticator.getClass();
             if (!Authenticator.class.isAssignableFrom(authenticatorClass))
             {
                 throw new IllegalAuthenticatorException(authenticatorClass + " is not assignable from " +
                                                         Authenticator.class.getName());
             }
-            final Authenticator authenticator = (Authenticator) applicationContext.getBean(authenticatorClass);
-            authenticators.add(authenticator);
+            authenticators.add((Authenticator) authenticator);
         }
         return authenticators;
     }
