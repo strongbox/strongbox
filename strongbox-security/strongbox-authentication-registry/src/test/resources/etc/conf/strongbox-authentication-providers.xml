@@ -17,6 +17,7 @@
         <bean class="org.carlspring.strongbox.authentication.api.impl.ldap.LdapAuthenticator" />
     </util:list>
 
+    <bean class="org.carlspring.strongbox.authentication.impl.example.EmptyAuthenticationProviderComponent"/>
 
     <!-- LDAP section -->
     <!-- http://docs.spring.io/spring-security/site/docs/current/reference/html/ldap.html -->
