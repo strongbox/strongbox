@@ -107,7 +107,7 @@ public class LdapContextLoaderTest
     {
         try
         {
-            Class<?> loadClass = Thread.currentThread().getContextClassLoader().loadClass("org.carlspring.strongbox.authentication.api.impl.DefaultAuthenticator");
+            Class<?> loadClass = Thread.currentThread().getContextClassLoader().loadClass("org.carlspring.strongbox.authentication.api.impl.xml.DefaultAuthenticator");
         }
         catch (ClassNotFoundException e)
         {
