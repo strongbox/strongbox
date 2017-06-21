@@ -1,26 +1,24 @@
 package org.carlspring.strongbox.authentication.api.impl.ldap;
 
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.Iterator;
+import java.util.stream.StreamSupport;
+
+import javax.inject.Inject;
+
+import org.carlspring.strongbox.authentication.api.Authenticator;
 import org.carlspring.strongbox.authentication.config.AuthenticationConfig;
 import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
 import org.carlspring.strongbox.config.UsersConfig;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.users.domain.Privileges;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
 import org.hamcrest.CoreMatchers;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.LdapTemplate;
@@ -30,11 +28,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
+import org.springframework.security.ldap.authentication.AbstractLdapAuthenticator;
+import org.springframework.security.ldap.authentication.BindAuthenticator;
 import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
 import org.springframework.security.ldap.userdetails.LdapUserDetails;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsImpl;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.util.ReflectionUtils;
 
 /**
  * @author Przemyslaw Fusik
@@ -47,52 +48,20 @@ public class LdapContextLoaderTest
 
     private static final Logger logger = LoggerFactory.getLogger(LdapContextLoaderTest.class);
 
-
-    GenericXmlApplicationContext appCtx;
-
     @Inject
-    private ApplicationContext parentApplicationContext;
-
-    @Before
-    public void initAppContext()
-            throws IOException
-    {
-        if (appCtx == null)
-        {
-            appCtx = new GenericXmlApplicationContext();
-
-            appCtx.setParent(parentApplicationContext);
-            appCtx.load(getAuthenticationConfigurationResource());
-            appCtx.refresh();
-        }
-    }
-
-    @After
-    public void closeAppContext()
-    {
-        if (appCtx != null)
-        {
-            appCtx.close();
-            appCtx = null;
-        }
-    }
-
-
-    private void displayBeanNames()
-    {
-        if (appCtx != null)
-        {
-            Stream.of(appCtx.getBeanDefinitionNames())
-                  .forEach(logger::debug);
-        }
-    }
+    private AuthenticatorsRegistry authenticatorsRegistry;    
 
     @Test
-    public void embeddedLdapServerCreationContainsExpectedContextSourceAndData()
+    public void embeddedLdapServerCreationContainsExpectedContextSourceAndData() throws Exception
     {
-
-        DefaultSpringSecurityContextSource contextSource = (DefaultSpringSecurityContextSource) appCtx.getBean(
-                "contextSource");
+        Method methodGetAuthenticator = LdapAuthenticationProvider.class.getDeclaredMethod("getAuthenticator");
+        methodGetAuthenticator.setAccessible(true);
+        BindAuthenticator bindAuthenticator = (BindAuthenticator) ReflectionUtils.invokeMethod(methodGetAuthenticator,
+                                                                                               getLdapAuthenticationProvider());
+        Method methodGetContextSource = AbstractLdapAuthenticator.class.getDeclaredMethod("getContextSource");
+        methodGetContextSource.setAccessible(true);
+        DefaultSpringSecurityContextSource contextSource = (DefaultSpringSecurityContextSource) ReflectionUtils.invokeMethod(methodGetContextSource,
+                                                                                                                             bindAuthenticator);
 
         LdapTemplate template = new LdapTemplate(contextSource);
         Object ldapObject = template.lookup("uid=przemyslaw.fusik,ou=Users");
@@ -109,8 +78,7 @@ public class LdapContextLoaderTest
     public void embeddedLdapServerRegistersExpectedAuthenticationProvider()
     {
 
-        LdapAuthenticationProvider LdapAuthenticationProvider = (org.springframework.security.ldap.authentication.LdapAuthenticationProvider) appCtx.getBean(
-                "ldapAuthenticationProvider");
+        LdapAuthenticationProvider LdapAuthenticationProvider = getLdapAuthenticationProvider();
         Authentication authentication = LdapAuthenticationProvider.authenticate(
                 new UsernamePasswordAuthenticationToken("przemyslaw.fusik", "password"));
 
@@ -137,17 +105,32 @@ public class LdapContextLoaderTest
     @Test(expected = BadCredentialsException.class)
     public void ldapAuthenticationProviderShouldInvalidedOnWrongPassword()
     {
-
-        LdapAuthenticationProvider LdapAuthenticationProvider = appCtx.getBean(LdapAuthenticationProvider.class);
+        try
+        {
+            Class<?> loadClass = Thread.currentThread().getContextClassLoader().loadClass("org.carlspring.strongbox.authentication.api.impl.DefaultAuthenticator");
+        }
+        catch (ClassNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+        LdapAuthenticationProvider LdapAuthenticationProvider = getLdapAuthenticationProvider();
         Authentication authentication = LdapAuthenticationProvider.authenticate(
                 new UsernamePasswordAuthenticationToken("przemyslaw.fusik", "not-a-password"));
+    }
+
+    protected LdapAuthenticationProvider getLdapAuthenticationProvider()
+    {
+        Iterator<Authenticator> i = authenticatorsRegistry.iterator();
+        i.next();
+        i.next();
+        LdapAuthenticationProvider LdapAuthenticationProvider = (org.springframework.security.ldap.authentication.LdapAuthenticationProvider) i.next().getAuthenticationProvider();
+        return LdapAuthenticationProvider;
     }
 
     @Test
     public void registryShouldContainLdapAuthenticator()
     {
-        AuthenticatorsRegistry registry = appCtx.getBean(AuthenticatorsRegistry.class);
-        Assert.assertTrue(StreamSupport.stream(registry.spliterator(), false).filter(
+        Assert.assertTrue(StreamSupport.stream(authenticatorsRegistry.spliterator(), false).filter(
                 authenticator -> authenticator instanceof LdapAuthenticator).findFirst().isPresent());
     }
 

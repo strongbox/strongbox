@@ -10,7 +10,7 @@
     <context:annotation-config />
 
     <util:list id="authenticators">
-        <bean class="org.carlspring.strongbox.authentication.api.impl.DefaultAuthenticator" />
+        <bean class="org.carlspring.strongbox.authentication.api.impl.xml.DefaultAuthenticator" />
     </util:list>
 
 </beans>

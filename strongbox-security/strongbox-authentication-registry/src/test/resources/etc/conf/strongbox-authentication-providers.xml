@@ -12,7 +12,7 @@
     <context:annotation-config />
 
     <util:list id="authenticators" value-type="java.lang.String">
-        <bean class="org.carlspring.strongbox.authentication.api.impl.DefaultAuthenticator" />
+        <bean class="org.carlspring.strongbox.authentication.api.impl.xml.DefaultAuthenticator" />
         <bean class="org.carlspring.strongbox.authentication.impl.example.EmptyAuthenticator" />
         <bean class="org.carlspring.strongbox.authentication.api.impl.ldap.LdapAuthenticator" />
     </util:list>
