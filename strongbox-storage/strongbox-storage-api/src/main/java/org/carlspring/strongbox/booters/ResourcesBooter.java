@@ -32,7 +32,6 @@ public class ResourcesBooter
             throws IOException
     {
         copyConfigurationFilesFromClasspath("etc/conf");
-        copyConfigurationFilesFromClasspath("META-INF/properties");
     }
 
     public Resource[] getConfigurationResourcesFromClasspath(String resourcesBasedir)
