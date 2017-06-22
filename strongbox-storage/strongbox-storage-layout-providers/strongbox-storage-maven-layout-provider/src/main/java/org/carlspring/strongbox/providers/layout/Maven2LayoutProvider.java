@@ -193,6 +193,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         deleteMetadata(storageId, repositoryId, path);
     }
 
+    //TODO: move this method call into `RepositoryFileSystemProvider.delete(Path path)` 
     public void deleteFromIndex(RepositoryPath path)
             throws IOException
     {
