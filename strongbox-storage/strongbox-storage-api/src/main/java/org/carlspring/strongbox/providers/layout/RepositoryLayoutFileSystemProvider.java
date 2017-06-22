@@ -84,8 +84,9 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
             throws NoSuchAlgorithmException, IOException
     {
         Set<String> digestAlgorithmSet = path.getFileSystem().getDigestAlgorithmSet();
-        ArtifactInputStream result = new ArtifactInputStream(artifactCoordinates, is, digestAlgorithmSet){
-            
+        ArtifactInputStream result = new ArtifactInputStream(artifactCoordinates, is, digestAlgorithmSet)
+        {
+
         };
         // Add digest algorithm only if it is not a Checksum (we don't need a Checksum of Checksum).
         if (Boolean.TRUE.equals(Files.getAttribute(path, RepositoryFileAttributes.CHECKSUM)))

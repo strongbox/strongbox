@@ -16,6 +16,14 @@ import org.carlspring.commons.util.MessageDigestUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 
 /**
+ * Note that this class is "abstract" and you don't need to instantiate it directly, see example below:
+ * <pre>
+ * ...
+ * RepositoryPath repositoryPath = layoutProvider.resolve("path/to/your/artifact/file.ext");
+ * ArtifactInputStream aos = (ArtifactInputStream) Files.newInputStream(repositoryPath); 
+ * ...
+ * </pre>
+ * 
  * @author mtodorov
  */
 public abstract class ArtifactInputStream
