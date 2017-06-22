@@ -158,11 +158,6 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
             }
         }
 
-//        if (Boolean.TRUE.equals(artifactAttribute))
-//        {
-//            addArtifactToIndex(repositoryPath);
-//        }
-
         storeArtifact(repositoryPath);
     }
 
@@ -302,6 +297,5 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
     {
         return configurationManager.getConfiguration();
     }
-
     
 }

@@ -21,7 +21,6 @@ import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.metadata.MavenSnapshotManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -45,9 +44,6 @@ public class MavenArtifactManagementService
     @Inject
     private MavenSnapshotManager mavenSnapshotManager;
     
-    @Inject
-    private RepositoryIndexManager repositoryIndexManager;
-
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
@@ -148,11 +144,6 @@ public class MavenArtifactManagementService
         {
             FileUtils.copyFile(srcFile, destFile);
         }
-
-        //LayoutProvider destLayoutProvider = layoutProviderRegistry.getProvider(destRepository.getLayout());
-        //RepositoryPath destRepositoryPath = destLayoutProvider.resolve(destRepository).resolve(path);
-        
-        //addArtifactToIndex(destRepositoryPath);
     }
 
     @Override
