@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.config;
 
+import org.carlspring.strongbox.booters.ResourcesBooter;
+import org.carlspring.strongbox.booters.StorageBooter;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
@@ -74,6 +76,18 @@ public class StorageApiConfig
     LinkedHashSet<VersionValidator> versionValidators()
     {
         return new LinkedHashSet<>(versionValidators);
+    }
+
+    @Bean(name = "resourcesBooter")
+    ResourcesBooter getResourcesBooter()
+    {
+        return new ResourcesBooter();
+    }
+
+    @Bean(name = "storageBooter")
+    StorageBooter getStorageBooter()
+    {
+        return new StorageBooter();
     }
 
 }

@@ -93,9 +93,7 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <executions>
                     <execution>
-                        <phase>package</phase>
                         <goals>
-                            <goal>jar</goal>
                             <goal>test-jar</goal>
                         </goals>
                     </execution>
@@ -329,11 +327,13 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-rest-client</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-rest-client</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
             <type>test-jar</type>
         </dependency>
         <dependency>

@@ -30,7 +30,8 @@ import static org.junit.Assert.assertNotNull;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TestConfig.class)
-public class ProxyRepositoryProviderTest extends TestCaseWithMavenArtifactGenerationAndIndexing
+public class ProxyRepositoryProviderTestIT
+        extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     @Inject
