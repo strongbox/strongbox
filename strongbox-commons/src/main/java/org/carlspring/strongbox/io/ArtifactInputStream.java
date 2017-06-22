@@ -18,7 +18,7 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 /**
  * @author mtodorov
  */
-public class ArtifactInputStream
+public abstract class ArtifactInputStream
         extends FilterInputStream
 {
 

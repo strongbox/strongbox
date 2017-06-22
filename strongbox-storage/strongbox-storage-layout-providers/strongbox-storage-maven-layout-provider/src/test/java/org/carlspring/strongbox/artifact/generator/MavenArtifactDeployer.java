@@ -1,17 +1,12 @@
 package org.carlspring.strongbox.artifact.generator;
 
-import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
-import org.carlspring.commons.io.MultipleDigestInputStream;
-import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
-import org.carlspring.strongbox.client.ArtifactClient;
-import org.carlspring.strongbox.client.ArtifactOperationException;
-import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.client.IArtifactClient;
-import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.storage.metadata.MetadataMerger;
+import static org.carlspring.maven.commons.util.ArtifactUtils.getArtifactFileName;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
@@ -19,10 +14,17 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
 import org.apache.maven.project.artifact.PluginArtifact;
+import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
+import org.carlspring.commons.io.MultipleDigestInputStream;
+import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.client.ArtifactClient;
+import org.carlspring.strongbox.client.ArtifactOperationException;
+import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.client.IArtifactClient;
+import org.carlspring.strongbox.storage.metadata.MetadataMerger;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.carlspring.maven.commons.util.ArtifactUtils.getArtifactFileName;
 
 /**
  * @author mtodorov
@@ -234,7 +236,7 @@ public class MavenArtifactDeployer
     {
         File artifactFile = new File(getBasedir(), ArtifactUtils.convertArtifactToPath(artifact));
         try (InputStream is = new FileInputStream(artifactFile);
-             ArtifactInputStream ais = new ArtifactInputStream(new MavenArtifactCoordinates(artifact), is))
+                MultipleDigestInputStream ais = new MultipleDigestInputStream(is))
         {
             client.addArtifact(artifact, storageId, repositoryId, ais);
 
@@ -242,7 +244,7 @@ public class MavenArtifactDeployer
         }
     }
 
-    private void deployChecksum(ArtifactInputStream ais,
+    private void deployChecksum(MultipleDigestInputStream ais,
                                 String storageId,
                                 String repositoryId,
                                 Artifact artifact)
@@ -279,7 +281,7 @@ public class MavenArtifactDeployer
         File pomFile = new File(getBasedir(), ArtifactUtils.convertArtifactToPath(artifact));
 
         try (InputStream is = new FileInputStream(pomFile);
-             ArtifactInputStream ais = new ArtifactInputStream(new MavenArtifactCoordinates(artifact), is))
+                MultipleDigestInputStream ais = new MultipleDigestInputStream(is))
         {
             client.addArtifact(artifact, storageId, repositoryId, ais);
 
