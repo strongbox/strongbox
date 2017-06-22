@@ -7,6 +7,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -32,7 +34,6 @@ public class ResourcesBooter
             throws IOException
     {
         copyConfigurationFilesFromClasspath("etc/conf");
-        copyConfigurationFilesFromClasspath("META-INF/spring");
         copyConfigurationFilesFromClasspath("META-INF/properties");
     }
 

@@ -34,9 +34,6 @@
         <dir.strongbox.home>${project.build.directory}/strongbox</dir.strongbox.home>
         <dir.strongbox.vault>${project.build.directory}/strongbox-vault</dir.strongbox.vault>
         <dir.jetty.etc>${dir.strongbox.home}/etc/jetty</dir.jetty.etc>
-
-        <version.quartz>2.2.3</version.quartz>
-        <version.groovy>2.3.0-beta-2</version.groovy>
     </properties>
 
     <build>
@@ -90,12 +87,15 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <executions>
                     <execution>
-                        <phase>package</phase>
                         <goals>
-                            <goal>jar</goal>
                             <goal>test-jar</goal>
                         </goals>
                     </execution>
@@ -275,25 +275,15 @@
         <dependency>
             <groupId>org.carlspring.maven</groupId>
             <artifactId>maven-commons</artifactId>
-            <exclusions>
-                <!-- Exclude Commons Logging -->
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
             <groupId>org.quartz-scheduler</groupId>
             <artifactId>quartz</artifactId>
-            <version>${version.quartz}</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
-            <version>${version.groovy}</version>
-            <!--<version>2.4.7</version>-->
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
