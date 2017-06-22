@@ -64,6 +64,7 @@
         <version.apache.directory>1.5.5</version.apache.directory>
         <version.groovy>2.3.0-beta-2</version.groovy>
         <version.guava>19.0</version.guava>
+        <version.hamcrest>1.3</version.hamcrest>
         <version.httpclient>4.5</version.httpclient>
         <version.jackson>2.8.7</version.jackson>
         <version.javaee>7.0</version.javaee>
@@ -81,9 +82,8 @@
         <version.servlet.api>3.1.0</version.servlet.api>
         <version.slf4j>1.7.24</version.slf4j>
         <version.spring>4.3.6.RELEASE</version.spring>
-        <version.spring.security>4.2.1.RELEASE</version.spring.security>
         <version.spring.data>0.10.0-SNAPSHOT</version.spring.data>
-
+        <version.spring.security>4.2.1.RELEASE</version.spring.security>
         <!-- Version properties. -->
     </properties>
 
@@ -727,11 +727,35 @@
                 <artifactId>junit</artifactId>
                 <version>${version.junit}</version>
                 <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>hamcrest-core</artifactId>
+                        <groupId>org.hamcrest</groupId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-all</artifactId>
                 <version>${version.mockito}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${version.mockito}</version>
+                <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>hamcrest-core</artifactId>
+                        <groupId>org.hamcrest</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.hamcrest</groupId>
+                <artifactId>hamcrest-all</artifactId>
+                <version>${version.hamcrest}</version>
                 <scope>test</scope>
             </dependency>
 
@@ -758,11 +782,25 @@
                 <groupId>org.apache.directory.server</groupId>
                 <artifactId>apacheds-core</artifactId>
                 <version>${version.apache.directory}</version>
+                <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.directory.server</groupId>
                 <artifactId>apacheds-protocol-ldap</artifactId>
                 <version>${version.apache.directory}</version>
+                <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
         </dependencies>
     </dependencyManagement>

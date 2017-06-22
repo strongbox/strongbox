@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+                           http://www.springframework.org/schema/security http://www.springframework.org/security/spring-security.xsd">
+
+    <util:list id="authenticators" value-type="java.lang.String">
+        <value>org.carlspring.strongbox.authentication.api.impl.xml.DefaultAuthenticator</value>
+        <value>org.carlspring.strongbox.authentication.impl.example.EmptyAuthenticator</value>
+        <value>org.carlspring.strongbox.authentication.api.impl.ldap.LdapAuthenticator</value>
+    </util:list>
+
+    <context:component-scan base-package="
+        org.carlspring.strongbox.authentication.api.impl.xml,
+        org.carlspring.strongbox.authentication.api.impl.ldap,
+        org.carlspring.strongbox.authentication.impl.example"/>
+
+
+    <!-- LDAP section -->
+    <!-- http://docs.spring.io/spring-security/site/docs/current/reference/html/ldap.html -->
+    <security:ldap-server ldif="classpath:ldap/strongbox.ldif" root="dc=carlspring,dc=com" id="contextSource"/>
+
+    <bean id="ldapAuthenticationProvider"
+          class="org.springframework.security.ldap.authentication.LdapAuthenticationProvider">
+        <constructor-arg>
+            <bean class="org.springframework.security.ldap.authentication.BindAuthenticator">
+                <constructor-arg ref="contextSource"/>
+                <property name="userDnPatterns">
+                    <list>
+                        <value>uid={0},ou=Users</value>
+                    </list>
+                </property>
+            </bean>
+        </constructor-arg>
+        <constructor-arg>
+            <bean class="org.carlspring.strongbox.authentication.api.impl.ldap.DefaultLdapAuthoritiesPopulator">
+                <constructor-arg ref="contextSource"/>
+                <constructor-arg value="ou=Groups"/>
+                <property name="searchSubtree" value="true"/>
+                <property name="groupSearchFilter" value="(uniqueMember={0})"/>
+                <property name="groupRoleAttribute" value="cn"/>
+                <property name="ldapRoleToInternalRolesMapping">
+                    <map>
+                        <entry key="Developers" value="REPOSITORY_MANAGER"/>
+                        <entry key="Contributors" value="USER_ROLE"/>
+                    </map>
+                </property>
+            </bean>
+        </constructor-arg>
+    </bean>
+
+</beans>

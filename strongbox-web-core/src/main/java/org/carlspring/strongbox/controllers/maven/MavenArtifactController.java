@@ -54,8 +54,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
  * @see {@linkplain http://docs.spring.io/spring/docs/current/spring-framework-reference/html/mvc.html#mvc-config-path-matching}
  */
 @RestController
-@RequestMapping(path = MavenArtifactController.ROOT_CONTEXT/*,
-                headers = "user-agent=Maven/*"*/)
+@RequestMapping(path = MavenArtifactController.ROOT_CONTEXT, headers = "user-agent=Maven/*")
 public class MavenArtifactController
         extends BaseArtifactController
 {
