@@ -49,4 +49,9 @@ public class RuleSet
         this.routingRules = routingRules;
     }
 
+    @Override
+    public String toString()
+    {
+        return "RuleSet{" + "groupRepository='" + groupRepository + '\'' + ", routingRules=" + routingRules + '}';
+    }
 }
