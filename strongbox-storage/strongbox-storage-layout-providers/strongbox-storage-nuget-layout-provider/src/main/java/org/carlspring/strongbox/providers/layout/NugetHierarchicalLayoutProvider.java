@@ -157,7 +157,7 @@ public class NugetHierarchicalLayoutProvider
 
         public NugetRepositoryLayoutFileSystemProvider(FileSystemProvider storageFileSystemProvider)
         {
-            super(storageFileSystemProvider, NugetHierarchicalLayoutProvider.this);
+            super(storageFileSystemProvider, null, NugetHierarchicalLayoutProvider.this);
         }
 
         @Override
@@ -174,13 +174,6 @@ public class NugetHierarchicalLayoutProvider
         
     }
     
-    @Override
-    protected void addArtifactToIndex(RepositoryPath path)
-        throws IOException
-    {
-        // We have no custom indexes for Nuget packages.
-    }
-
     @Override
     public ArtifactManagementService getArtifactManagementService()
     {

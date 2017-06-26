@@ -20,6 +20,7 @@ import org.carlspring.strongbox.io.ByteRangeInputStream;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathHandler;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,9 +32,10 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
     private AbstractLayoutProvider layoutProvider;
 
     public RepositoryLayoutFileSystemProvider(FileSystemProvider storageFileSystemProvider,
+                                              RepositoryPathHandler repositoryPathHandler,
                                               AbstractLayoutProvider layoutProvider)
     {
-        super(storageFileSystemProvider);
+        super(storageFileSystemProvider, repositoryPathHandler);
         this.layoutProvider = layoutProvider;
     }
 
@@ -179,11 +181,10 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
                 throws IOException
             {
                 super.close();
-                Object artifactAttribute = Files.getAttribute(path, RepositoryFileAttributes.ARTIFACT);
-                if (Boolean.TRUE.equals(artifactAttribute))
+                RepositoryPathHandler pathHandler = getPathHandler();
+                if (pathHandler != null)
                 {
-                    logger.debug(String.format("Create index for artifact [%s]", path));
-                    addArtifactToIndex(path);
+                    pathHandler.postProcess(path);
                 }
             }
             
@@ -275,21 +276,5 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
     {
         return layoutProvider.getRepositoryFileAttributes(repositoryRelativePath);
     }
-
-
-
-    @Override
-    protected void addArtifactToIndex(RepositoryPath path)
-    {
-        try
-        {
-            layoutProvider.addArtifactToIndex(path);
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException(String.format("Failed to create index for artifact [%s]", path.toString()), e);
-        }
-    }
-
-
+    
 }

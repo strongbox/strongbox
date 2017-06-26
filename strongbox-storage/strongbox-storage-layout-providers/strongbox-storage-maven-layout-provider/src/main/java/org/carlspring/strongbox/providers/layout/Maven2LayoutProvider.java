@@ -19,6 +19,7 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathHandler;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
@@ -52,6 +53,7 @@ import org.springframework.stereotype.Component;
 public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCoordinates,
                                                                         MavenRepositoryFeatures,
                                                                         MavenRepositoryManagementStrategy>
+                                  implements RepositoryPathHandler
 {
 
     private static final Logger logger = LoggerFactory.getLogger(Maven2LayoutProvider.class);
@@ -420,9 +422,15 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
 
     
     @Override
-    protected void addArtifactToIndex(RepositoryPath repositoryPath)
+    public void postProcess(RepositoryPath repositoryPath)
         throws IOException
     {
+        Boolean artifactAttribute = (Boolean) Files.getAttribute(repositoryPath, RepositoryFileAttributes.ARTIFACT);
+        if (!Boolean.TRUE.equals(artifactAttribute))
+        {
+            return;
+        }
+        
         Repository repository = repositoryPath.getFileSystem().getRepository();
         Storage storage = repository.getStorage();
         
@@ -430,9 +438,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         String contextId = IndexContextHelper.getContextId(storage.getId(), repository.getId(), IndexTypeEnum.LOCAL.getType());
         RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(contextId);
 
-        Boolean artifactAttribute = (Boolean) Files.getAttribute(repositoryPath, RepositoryFileAttributes.ARTIFACT);
-        
-        if (!repository.isIndexingEnabled() || !Boolean.TRUE.equals(artifactAttribute) || indexer == null)
+        if (!repository.isIndexingEnabled() || indexer == null)
         {
             return;
         }
@@ -465,4 +471,8 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         return mavenArtifactManagementService;
     }
 
+    protected RepositoryPathHandler getRepositoryPathHandler()
+    {
+        return this;
+    }
 }

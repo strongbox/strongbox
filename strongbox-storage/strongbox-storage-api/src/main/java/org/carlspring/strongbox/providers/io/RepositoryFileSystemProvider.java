@@ -51,10 +51,19 @@ public abstract class RepositoryFileSystemProvider
     
     private boolean allowsForceDelete;
     
-    public RepositoryFileSystemProvider(FileSystemProvider storageFileSystemProvider)
+    private RepositoryPathHandler pathHandler;
+    
+    public RepositoryFileSystemProvider(FileSystemProvider storageFileSystemProvider,
+                                        RepositoryPathHandler repositoryPathHandler)
     {
         super();
         this.storageFileSystemProvider = storageFileSystemProvider;
+        this.pathHandler = repositoryPathHandler;
+    }
+
+    protected RepositoryPathHandler getPathHandler()
+    {
+        return pathHandler;
     }
 
     public boolean isAllowsForceDelete()
@@ -313,10 +322,12 @@ public abstract class RepositoryFileSystemProvider
 
         Files.move(tempPath.getTarget(), path.getTarget(), StandardCopyOption.REPLACE_EXISTING);
         
-        Map<String, Object> repositoryFileAttributes = getRepositoryFileAttributes(path);
-        if (Boolean.TRUE.equals(repositoryFileAttributes.get(RepositoryFileAttributes.ARTIFACT))){
-            addArtifactToIndex(path);
+        RepositoryPathHandler pathHandler = getPathHandler();
+        if (pathHandler != null)
+        {
+            pathHandler.postProcess(path);
         }
+        
     }
 
     public void deleteTrash(RepositoryPath path)
@@ -478,8 +489,6 @@ public abstract class RepositoryFileSystemProvider
     }
 
     protected abstract Map<String,Object> getRepositoryFileAttributes(RepositoryPath repositoryRelativePath);
-    
-    protected abstract void addArtifactToIndex(RepositoryPath path);
     
     public boolean isChecksum(RepositoryPath path)
     {
