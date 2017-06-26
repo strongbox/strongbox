@@ -7,10 +7,10 @@
                            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
                            http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
-    <util:list id="authenticators" value-type="java.lang.String">
-        <value>org.carlspring.strongbox.authentication.api.impl.xml.DefaultAuthenticator</value>
-    </util:list>
+    <context:annotation-config />
 
-    <context:component-scan base-package="org.carlspring.strongbox.authentication.api.impl.xml"/>
+    <util:list id="authenticators">
+        <bean class="org.carlspring.strongbox.authentication.api.impl.xml.DefaultAuthenticator" />
+    </util:list>
 
 </beans>

@@ -1,9 +1,25 @@
 package org.carlspring.strongbox.providers.layout;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
+import java.util.stream.Stream;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.index.ArtifactInfo;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathHandler;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
@@ -24,20 +40,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.storage.search.SearchResults;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
-import java.util.stream.Stream;
-
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.index.ArtifactInfo;
+import org.carlspring.strongbox.util.IndexContextHelper;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +53,7 @@ import org.springframework.stereotype.Component;
 public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCoordinates,
                                                                         MavenRepositoryFeatures,
                                                                         MavenRepositoryManagementStrategy>
+                                  implements RepositoryPathHandler
 {
 
     private static final Logger logger = LoggerFactory.getLogger(Maven2LayoutProvider.class);
@@ -191,6 +195,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         deleteMetadata(storageId, repositoryId, path);
     }
 
+    //TODO: move this method call into `RepositoryFileSystemProvider.delete(Path path)` 
     public void deleteFromIndex(RepositoryPath path)
             throws IOException
     {
@@ -415,6 +420,39 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         artifactIndexesService.rebuildIndex(storageId, repositoryId, null);
     }
 
+    
+    @Override
+    public void postProcess(RepositoryPath repositoryPath)
+        throws IOException
+    {
+        Boolean artifactAttribute = (Boolean) Files.getAttribute(repositoryPath, RepositoryFileAttributes.ARTIFACT);
+        if (!Boolean.TRUE.equals(artifactAttribute))
+        {
+            return;
+        }
+        
+        Repository repository = repositoryPath.getFileSystem().getRepository();
+        Storage storage = repository.getStorage();
+        
+
+        String contextId = IndexContextHelper.getContextId(storage.getId(), repository.getId(), IndexTypeEnum.LOCAL.getType());
+        RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(contextId);
+
+        if (!repository.isIndexingEnabled() || indexer == null)
+        {
+            return;
+        }
+
+        String repositoryRelativePath = repositoryPath.getRepositoryRelative().toString();
+        Artifact artifact = ArtifactUtils.convertPathToArtifact(repositoryRelativePath);
+
+        File storageBasedir = new File(storage.getBasedir());
+        File artifactFile = new File(new File(storageBasedir, repository.getId()), repositoryRelativePath).getCanonicalFile();
+
+        indexer.addArtifactToIndex(repository.getId(), artifactFile, artifact);
+    }
+
+    
     @Override
     public MavenRepositoryFeatures getRepositoryFeatures()
     {
@@ -433,4 +471,8 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         return mavenArtifactManagementService;
     }
 
+    protected RepositoryPathHandler getRepositoryPathHandler()
+    {
+        return this;
+    }
 }

@@ -16,10 +16,16 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This OutputStream wraps a source stream from different Storage types (File System, AWS, JDBC, etc.).
- *
+ * Note that this class is "abstract" and you don't need to instantiate it directly, see example below:
+ * <pre>
+ * ...
+ * RepositoryPath repositoryPath = layoutProvider.resolve("path/to/your/artifact/file.ext");
+ * ArtifactOutputStream aos = (ArtifactOutputStream) Files.newOutputStream(repositoryPath); 
+ * ...
+ * </pre>
  * @author Sergey Bespalov
  */
-public class ArtifactOutputStream
+public abstract class ArtifactOutputStream
         extends MultipleDigestOutputStream
 {
 

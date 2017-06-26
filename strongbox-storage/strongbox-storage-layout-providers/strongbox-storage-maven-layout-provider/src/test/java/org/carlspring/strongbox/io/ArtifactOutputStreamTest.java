@@ -90,8 +90,7 @@ public class ArtifactOutputStreamTest
                                                                                            .provider();
         RepositoryPath artifactPathTemp = provider.getTempPath(artifactPath);
 
-        final ArtifactOutputStream afos = new ArtifactOutputStream(Files.newOutputStream(artifactPathTemp),
-                                                                   coordinates);
+        final ArtifactOutputStream afos = (ArtifactOutputStream) Files.newOutputStream(artifactPathTemp);
         ByteArrayInputStream bais = new ByteArrayInputStream("This is a test\n".getBytes());
         IOUtils.copy(bais, afos);
 
@@ -122,8 +121,7 @@ public class ArtifactOutputStreamTest
                                                                                            .provider();
         RepositoryPath artifactPathTemp = provider.getTempPath(artifactPath);
 
-        final ArtifactOutputStream afos = new ArtifactOutputStream(Files.newOutputStream(artifactPathTemp),
-                                                                   coordinates);
+        final ArtifactOutputStream afos = (ArtifactOutputStream) Files.newOutputStream(artifactPathTemp);
         ByteArrayInputStream bais = new ByteArrayInputStream("This is a test\n".getBytes());
         IOUtils.copy(bais, afos);
 

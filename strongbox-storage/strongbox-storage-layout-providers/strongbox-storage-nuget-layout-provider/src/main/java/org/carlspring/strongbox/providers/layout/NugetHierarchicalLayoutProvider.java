@@ -157,7 +157,7 @@ public class NugetHierarchicalLayoutProvider
 
         public NugetRepositoryLayoutFileSystemProvider(FileSystemProvider storageFileSystemProvider)
         {
-            super(storageFileSystemProvider, NugetHierarchicalLayoutProvider.this);
+            super(storageFileSystemProvider, null, NugetHierarchicalLayoutProvider.this);
         }
 
         @Override
@@ -173,6 +173,7 @@ public class NugetHierarchicalLayoutProvider
         }
         
     }
+    
     @Override
     public ArtifactManagementService getArtifactManagementService()
     {

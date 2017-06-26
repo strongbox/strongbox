@@ -22,6 +22,7 @@ import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathHandler;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.providers.storage.StorageProvider;
 import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
@@ -161,7 +162,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     {
         FileSystemProvider storageFileSystemProvider = getStorageProvider(repository).getFileSystemProvider();
         RepositoryLayoutFileSystemProvider repositoryFileSystemProvider = new RepositoryLayoutFileSystemProvider(
-                storageFileSystemProvider, this);
+                storageFileSystemProvider, getRepositoryPathHandler(), this);
         
         return repositoryFileSystemProvider;
     }
@@ -365,6 +366,11 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     }
     
     protected abstract boolean isMetadata(String string);
+
+    protected RepositoryPathHandler getRepositoryPathHandler()
+    {
+        return null;
+    }
     
     public class RepositoryLayoutFileSystem extends RepositoryFileSystem
     {

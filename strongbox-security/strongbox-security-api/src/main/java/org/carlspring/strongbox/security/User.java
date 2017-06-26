@@ -40,6 +40,9 @@ public class User
 
     @XmlElement(name = "access-model")
     private UserAccessModel userAccessModel;
+    
+    @XmlElement(name = "security-token-key")
+    private String securityTokenKey;
 
     public User()
     {
@@ -145,6 +148,16 @@ public class User
     public void setUserAccessModel(UserAccessModel userAccessModel)
     {
         this.userAccessModel = userAccessModel;
+    }
+
+    public String getSecurityTokenKey()
+    {
+        return securityTokenKey;
+    }
+
+    public void setSecurityTokenKey(String securityTokenKey)
+    {
+        this.securityTokenKey = securityTokenKey;
     }
 
     @Override

@@ -20,6 +20,7 @@ import org.carlspring.strongbox.io.ByteRangeInputStream;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathHandler;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,9 +32,10 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
     private AbstractLayoutProvider layoutProvider;
 
     public RepositoryLayoutFileSystemProvider(FileSystemProvider storageFileSystemProvider,
+                                              RepositoryPathHandler repositoryPathHandler,
                                               AbstractLayoutProvider layoutProvider)
     {
-        super(storageFileSystemProvider);
+        super(storageFileSystemProvider, repositoryPathHandler);
         this.layoutProvider = layoutProvider;
     }
 
@@ -84,7 +86,10 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
             throws NoSuchAlgorithmException, IOException
     {
         Set<String> digestAlgorithmSet = path.getFileSystem().getDigestAlgorithmSet();
-        ArtifactInputStream result = new ArtifactInputStream(artifactCoordinates, is, digestAlgorithmSet);
+        ArtifactInputStream result = new ArtifactInputStream(artifactCoordinates, is, digestAlgorithmSet)
+        {
+
+        };
         // Add digest algorithm only if it is not a Checksum (we don't need a Checksum of Checksum).
         if (Boolean.TRUE.equals(Files.getAttribute(path, RepositoryFileAttributes.CHECKSUM)))
         {
@@ -168,7 +173,22 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
             throws NoSuchAlgorithmException, IOException
     {
         Set<String> digestAlgorithmSet = path.getFileSystem().getDigestAlgorithmSet();
-        ArtifactOutputStream result = new ArtifactOutputStream(os, artifactCoordinates);
+        ArtifactOutputStream result = new ArtifactOutputStream(os, artifactCoordinates)
+        {
+
+            @Override
+            public void close()
+                throws IOException
+            {
+                super.close();
+                RepositoryPathHandler pathHandler = getPathHandler();
+                if (pathHandler != null)
+                {
+                    pathHandler.postProcess(path);
+                }
+            }
+            
+        };
         // Add digest algorithm only if it is not a Checksum (we don't need a Checksum of Checksum).
         if (Boolean.TRUE.equals(Files.getAttribute(path, RepositoryFileAttributes.CHECKSUM)))
         {
@@ -256,5 +276,5 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
     {
         return layoutProvider.getRepositoryFileAttributes(repositoryRelativePath);
     }
-
+    
 }

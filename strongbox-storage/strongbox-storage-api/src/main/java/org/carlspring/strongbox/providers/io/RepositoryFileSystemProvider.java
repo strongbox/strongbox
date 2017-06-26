@@ -51,10 +51,19 @@ public abstract class RepositoryFileSystemProvider
     
     private boolean allowsForceDelete;
     
-    public RepositoryFileSystemProvider(FileSystemProvider storageFileSystemProvider)
+    private RepositoryPathHandler pathHandler;
+    
+    public RepositoryFileSystemProvider(FileSystemProvider storageFileSystemProvider,
+                                        RepositoryPathHandler repositoryPathHandler)
     {
         super();
         this.storageFileSystemProvider = storageFileSystemProvider;
+        this.pathHandler = repositoryPathHandler;
+    }
+
+    protected RepositoryPathHandler getPathHandler()
+    {
+        return pathHandler;
     }
 
     public boolean isAllowsForceDelete()
@@ -301,15 +310,24 @@ public abstract class RepositoryFileSystemProvider
             throws IOException
     {
         RepositoryPath tempPath = getTempPath(path);
-        if (Files.exists(tempPath.getTarget()))
+        if (!Files.exists(tempPath.getTarget()))
         {
-            if (!Files.exists(unwrap(path).getParent()))
-            {
-                Files.createDirectories(unwrap(path).getParent());
-            }
-
-            Files.move(tempPath.getTarget(), path.getTarget(), StandardCopyOption.REPLACE_EXISTING);
+            return;
         }
+        
+        if (!Files.exists(unwrap(path).getParent()))
+        {
+            Files.createDirectories(unwrap(path).getParent());
+        }
+
+        Files.move(tempPath.getTarget(), path.getTarget(), StandardCopyOption.REPLACE_EXISTING);
+        
+        RepositoryPathHandler pathHandler = getPathHandler();
+        if (pathHandler != null)
+        {
+            pathHandler.postProcess(path);
+        }
+        
     }
 
     public void deleteTrash(RepositoryPath path)

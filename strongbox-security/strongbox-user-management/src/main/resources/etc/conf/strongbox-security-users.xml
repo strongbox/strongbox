@@ -9,6 +9,7 @@
         <roles>
             <role>admin</role>
         </roles>
+        <security-token-key>admin-secret</security-token-key>
     </user>
     <user>
         <username>maven</username>
@@ -19,6 +20,7 @@
         <roles>
             <role>admin</role>
         </roles>
+        <security-token-key>maven-secret</security-token-key>
     </user>
     <user>
         <username>user</username>
@@ -29,6 +31,7 @@
         <roles>
             <role>ADMIN</role>
         </roles>
+        <security-token-key>user-secret</security-token-key>
     </user>
     <user>
         <username>deployer</username>
@@ -39,7 +42,7 @@
         <roles>
             <role>UI_MANAGER</role>
         </roles>
-
+        <security-token-key>deployer-secret</security-token-key>
         <access-model>
             <storages>
                 <storage id="storage0">
@@ -68,6 +71,7 @@
         <roles>
             <role>UI_MANAGER</role>
         </roles>
+        <security-token-key>developer01-secret</security-token-key>
         <access-model>
             <storages>
                 <storage id="storage0">
