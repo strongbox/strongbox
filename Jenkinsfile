@@ -34,7 +34,6 @@ pipeline {
                                    "-Dsonar.dependencyCheck.reportPath=${WORKSPACE}/dependency-check-report.xml " +
                                    "-Pdependency-check "
 
-
                                 build(job: "strongbox/strongbox-os-builds", wait: false)
                             }
                         }
@@ -52,7 +51,7 @@ pipeline {
                                        "-Dsonar.dependencyCheck.reportPath=${WORKSPACE}/dependency-check-report.xml " +
                                        "-Ddownloader.quick.query.timestamp=false " +
                                        "-Dformat=XML " +
-                                       "-Pdependency-check "
+                                       "-Pdependency-check " +
                                        "-Psonar-github"
                                 }
                             }
