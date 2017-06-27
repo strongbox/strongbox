@@ -5,6 +5,13 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.carlspring.strongbox</groupId>
+        <artifactId>strongbox-parent</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>strongbox-parent</relativePath>
+    </parent>
+
     <groupId>org.carlspring.strongbox</groupId>
     <artifactId>strongbox-masterbuild</artifactId>
     <version>1.0-SNAPSHOT</version>
@@ -87,7 +94,6 @@
                     <plugin>
                         <groupId>org.owasp</groupId>
                         <artifactId>dependency-check-maven</artifactId>
-                        <version>1.4.5</version>
 
                         <executions>
                             <execution>
