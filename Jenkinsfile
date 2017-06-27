@@ -26,7 +26,7 @@ pipeline {
                         if(BRANCH_NAME == 'master') {
                             withSonarQubeEnv('sonar') {
                                 // requires SonarQube Scanner for Maven 3.2+
-                                sh "mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.2:sonar " +
+                                sh "mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.3.0.603:sonar " +
                                    "-Dintegration.tests " +
                                    "-Dprepare.revision" +
                                    "-Ddownloader.quick.query.timestamp=false " +
@@ -43,7 +43,7 @@ pipeline {
                                 withSonarQubeEnv('sonar') {
                                     def PR_NUMBER = env.CHANGE_ID
                                     echo "Triggering sonar analysis in comment-only mode for PR: ${PR_NUMBER}."
-                                    sh "mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.2:sonar " +
+                                    sh "mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.3.0.603:sonar " +
                                        "-Dintegration.tests " +
                                        "-Dprepare.revision " +
                                        "-Dsonar.github.repository=${REPO_NAME} " +
