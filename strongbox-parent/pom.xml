@@ -228,11 +228,6 @@
 
                 <plugin>
                     <groupId>org.carlspring.maven</groupId>
-                    <artifactId>unboundid-maven-plugin</artifactId>
-                    <version>1.0-SNAPSHOT</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.carlspring.maven</groupId>
                     <artifactId>little-proxy-maven-plugin</artifactId>
                     <version>1.1-SNAPSHOT</version>
                 </plugin>
@@ -247,6 +242,30 @@
                     <groupId>com.github.kongchen</groupId>
                     <artifactId>swagger-maven-plugin</artifactId>
                     <version>3.1.3</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.owasp</groupId>
+                    <artifactId>dependency-check-maven</artifactId>
+                    <version>1.4.5</version>
+
+                    <configuration>
+                        <cveUrl12Modified>https://nvd.carlspring.org/1.2/nvdcve-modified.xml.gz</cveUrl12Modified>
+                        <cveUrl20Modified>https://nvd.carlspring.org/2.0/nvdcve-2.0-modified.xml.gz</cveUrl20Modified>
+                        <cveUrl12Base>https://nvd.carlspring.org/1.2/nvdcve-%d.xml</cveUrl12Base>
+                        <cveUrl20Base>https://nvd.carlspring.org/2.0/nvdcve-2.0-%d.xml</cveUrl20Base>
+
+                        <autoconfAnalyzerEnabled>false</autoconfAnalyzerEnabled>
+                        <cmakeAnalyzerEnabled>false</cmakeAnalyzerEnabled>
+                        <cocoapodsAnalyzerEnabled>false</cocoapodsAnalyzerEnabled>
+                        <composerAnalyzerEnabled>false</composerAnalyzerEnabled>
+                        <nuspecAnalyzerEnabled>false</nuspecAnalyzerEnabled>
+                        <pyPackageAnalyzerEnabled>false</pyPackageAnalyzerEnabled>
+                        <pyDistributionAnalyzerEnabled>false</pyDistributionAnalyzerEnabled>
+                        <rubygemsAnalyzerEnabled>false</rubygemsAnalyzerEnabled>
+                        <swiftPackageManagerAnalyzerEnabled>false</swiftPackageManagerAnalyzerEnabled>
+                        <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -857,20 +876,6 @@
                     <plugin>
                         <groupId>org.owasp</groupId>
                         <artifactId>dependency-check-maven</artifactId>
-                        <version>1.4.5</version>
-
-                        <configuration>
-                            <autoconfAnalyzerEnabled>false</autoconfAnalyzerEnabled>
-                            <cmakeAnalyzerEnabled>false</cmakeAnalyzerEnabled>
-                            <cocoapodsAnalyzerEnabled>false</cocoapodsAnalyzerEnabled>
-                            <composerAnalyzerEnabled>false</composerAnalyzerEnabled>
-                            <nuspecAnalyzerEnabled>false</nuspecAnalyzerEnabled>
-                            <pyPackageAnalyzerEnabled>false</pyPackageAnalyzerEnabled>
-                            <pyDistributionAnalyzerEnabled>false</pyDistributionAnalyzerEnabled>
-                            <rubygemsAnalyzerEnabled>false</rubygemsAnalyzerEnabled>
-                            <swiftPackageManagerAnalyzerEnabled>false</swiftPackageManagerAnalyzerEnabled>
-                            <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
-                        </configuration>
 
                         <executions>
                             <execution>

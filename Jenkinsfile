@@ -28,7 +28,12 @@ pipeline {
                                 // requires SonarQube Scanner for Maven 3.2+
                                 sh "mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.2:sonar " +
                                    "-Dintegration.tests " +
-                                   "-Dprepare.revision"
+                                   "-Dprepare.revision" +
+                                   "-Ddownloader.quick.query.timestamp=false " +
+                                   "-Dformat=XML " +
+                                   "-Dsonar.dependencyCheck.reportPath=${WORKSPACE}/dependency-check-report.xml " +
+                                   "-Pdependency-check "
+
 
                                 build(job: "strongbox/strongbox-os-builds", wait: false)
                             }
@@ -44,6 +49,10 @@ pipeline {
                                        "-Dprepare.revision " +
                                        "-Dsonar.github.repository=${REPO_NAME} " +
                                        "-Dsonar.github.pullRequest=${PR_NUMBER} " +
+                                       "-Dsonar.dependencyCheck.reportPath=${WORKSPACE}/dependency-check-report.xml " +
+                                       "-Ddownloader.quick.query.timestamp=false " +
+                                       "-Dformat=XML " +
+                                       "-Pdependency-check "
                                        "-Psonar-github"
                                 }
                             }
