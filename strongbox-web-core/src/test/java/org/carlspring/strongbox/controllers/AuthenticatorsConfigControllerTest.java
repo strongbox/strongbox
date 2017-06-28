@@ -10,7 +10,7 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 
-import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
+import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;

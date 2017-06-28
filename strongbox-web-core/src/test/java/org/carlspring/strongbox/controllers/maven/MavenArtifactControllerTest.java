@@ -30,7 +30,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.google.common.base.Throwables;
-import com.jayway.restassured.response.ExtractableResponse;
+import io.restassured.response.ExtractableResponse;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.model.Plugin;
@@ -42,7 +42,7 @@ import org.junit.runner.RunWith;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.maven.commons.util.ArtifactUtils.getArtifactFromGAVTC;
 import static org.junit.Assert.*;
 

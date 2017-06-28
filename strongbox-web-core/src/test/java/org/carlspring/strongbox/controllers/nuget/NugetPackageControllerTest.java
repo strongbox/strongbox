@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.controllers.nuget;
 
-import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,11 +18,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.common.base.Throwables;
-import com.jayway.restassured.http.ContentType;
 
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -93,9 +91,18 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
         NugetPackageGenerator nugetPackageGenerator = new NugetPackageGenerator(basedir);
         nugetPackageGenerator.generateNugetPackage(packageId, packageVersion);
 
-        client.put(Files.newInputStream(Paths.get(basedir).resolve(packageVersion).resolve(packageFileName)),
-                   getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/", packageFileName,
-                   ContentType.BINARY.toString());
+        // client.put(Files.newInputStream(Paths.get(basedir).resolve(packageVersion).resolve(packageFileName)),
+        // getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/", packageFileName,
+        // ContentType.BINARY.toString());
+
+        given().header("User-Agent", "NuGet/*")
+               .multiPart("file", packageFileName,
+                          Files.readAllBytes(Paths.get(basedir).resolve(packageVersion).resolve(packageFileName)))
+               .when()
+               .post(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value());
 
     }
 
