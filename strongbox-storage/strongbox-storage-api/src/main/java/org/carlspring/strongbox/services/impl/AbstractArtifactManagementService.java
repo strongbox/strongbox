@@ -14,6 +14,7 @@ import javax.transaction.Transactional;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.ArtifactEntry;
@@ -298,4 +299,29 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
         return configurationManager.getConfiguration();
     }
     
+    @Override
+    public InputStream resolve(String storageId,
+                               String repositoryId,
+                               String path)
+            throws IOException,
+                   ArtifactTransportException,
+                   ProviderImplementationException
+    {
+        InputStream is;
+
+        try
+        {
+            is = artifactResolutionService.getInputStream(storageId, repositoryId, path);
+            return is;
+        }
+        catch (IOException | NoSuchAlgorithmException e)
+        {
+            // This is not necessarily an error. It could simply be a check
+            // whether a resource exists, before uploading/updating it.
+            logger.debug("The requested path does not exist: /" + storageId + "/" + repositoryId + "/" + path);
+        }
+
+        return null;
+    }
+
 }

@@ -1,10 +1,12 @@
 package org.carlspring.strongbox.controllers.nuget;
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.hamcrest.CoreMatchers.equalTo;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -28,6 +30,7 @@ import com.google.common.base.Throwables;
 
 import io.restassured.config.MultiPartConfig;
 import io.restassured.config.RestAssuredConfig;
+import io.restassured.matcher.ResponseAwareMatcherComposer;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 
@@ -96,16 +99,17 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
         String packageId = "Org.Carlspring.Strongbox.Examples.Nuget.Mono";
         String packageVersion = "1.0.0";
         String packageFileName = packageId + "." + packageVersion + ".nupkg";
+        Path packageFilePath = Paths.get(basedir).resolve(packageVersion).resolve(packageFileName);
+        long packageFileSize = Files.size(packageFilePath);
 
         NugetPackageGenerator nugetPackageGenerator = new NugetPackageGenerator(basedir);
         nugetPackageGenerator.generateNugetPackage(packageId, packageVersion);
 
         ByteArrayOutputStream contentStream = new ByteArrayOutputStream();
+
         MultipartEntityBuilder.create()
                               .addBinaryBody("package",
-                                             Files.newInputStream(Paths.get(basedir)
-                                                                       .resolve(packageVersion)
-                                                                       .resolve(packageFileName)))
+                                             Files.newInputStream(packageFilePath))
                               .build()
                               .writeTo(contentStream);
 
@@ -119,6 +123,16 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
                .peek()
                .then()
                .statusCode(HttpStatus.CREATED.value());
+
+        given().header("User-Agent", "NuGet/*")
+               .when()
+               .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/download/"
+                       + packageId + "/" + packageVersion)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .assertThat()
+               .header("Content-Length", equalTo(String.valueOf(packageFileSize)));
 
     }
 
