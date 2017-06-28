@@ -88,7 +88,7 @@ public class NugetPackageController extends BaseArtifactController
     @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "The package was deployed successfully."),
                             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
-    @RequestMapping(path = "{storageId}/{repositoryId}/", method = { RequestMethod.PUT, RequestMethod.POST }, consumes = MediaType.MULTIPART_FORM_DATA)
+    @RequestMapping(path = "{storageId}/{repositoryId}/", method = RequestMethod.PUT, consumes = MediaType.MULTIPART_FORM_DATA)
     public ResponseEntity putPackage(@RequestHeader(name = "X-NuGet-ApiKey", required = false) String apiKey,
                                      @ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
                                      @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
@@ -198,11 +198,11 @@ public class NugetPackageController extends BaseArtifactController
     private String extractBoundary(String contentType)
     {
         String boundaryString = "";
-        Pattern pattern = Pattern.compile("multipart/form-data; boundary=(.*)");
+        Pattern pattern = Pattern.compile("multipart/form-data;([ ]*)boundary=(.*)[;?](.*)");
         Matcher matcher = pattern.matcher(contentType);
         if (matcher.matches())
         {
-            boundaryString = matcher.group(1);
+            boundaryString = matcher.group(2);
         }
         return boundaryString;
     }

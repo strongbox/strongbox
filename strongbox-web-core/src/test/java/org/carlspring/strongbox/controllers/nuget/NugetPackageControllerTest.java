@@ -2,12 +2,16 @@ package org.carlspring.strongbox.controllers.nuget;
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.commons.fileupload.MultipartStream;
+import org.apache.http.entity.mime.FormBodyPart;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.carlspring.strongbox.artifact.generator.NugetPackageGenerator;
 import org.carlspring.strongbox.controllers.context.IntegrationTest;
 import org.carlspring.strongbox.data.PropertyUtils;
@@ -21,6 +25,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.common.base.Throwables;
+
+import io.restassured.config.MultiPartConfig;
+import io.restassured.config.RestAssuredConfig;
+import io.restassured.module.mockmvc.RestAssuredMockMvc;
+import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -79,7 +88,7 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
     }
 
     @Test
-    public void test()
+    public void testPackageCommonFlow()
         throws Exception
     {
         String basedir = PropertyUtils.getHomeDirectory() + "/tmp";
@@ -91,18 +100,25 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
         NugetPackageGenerator nugetPackageGenerator = new NugetPackageGenerator(basedir);
         nugetPackageGenerator.generateNugetPackage(packageId, packageVersion);
 
-        // client.put(Files.newInputStream(Paths.get(basedir).resolve(packageVersion).resolve(packageFileName)),
-        // getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/", packageFileName,
-        // ContentType.BINARY.toString());
+        ByteArrayOutputStream contentStream = new ByteArrayOutputStream();
+        MultipartEntityBuilder.create()
+                              .addBinaryBody("package",
+                                             Files.newInputStream(Paths.get(basedir)
+                                                                       .resolve(packageVersion)
+                                                                       .resolve(packageFileName)))
+                              .build()
+                              .writeTo(contentStream);
 
         given().header("User-Agent", "NuGet/*")
-               .multiPart("file", packageFileName,
-                          Files.readAllBytes(Paths.get(basedir).resolve(packageVersion).resolve(packageFileName)))
+               .header("X-NuGet-ApiKey",
+                       "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJTdHJvbmdib3giLCJqdGkiOiJ0SExSbWU4eFJOSnJjNXVXdTVkZDhRIiwic3ViIjoiYWRtaW4iLCJzZWN1cml0eS10b2tlbi1rZXkiOiJhZG1pbi1zZWNyZXQifQ.xRWxXt5yob5qcHjsvV1YsyfY3C-XFt9oKPABY0tYx88")
+               .header("Content-Type", "multipart/form-data; boundary=---------------------------123qwe")
+               .body(contentStream.toByteArray())
                .when()
-               .post(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/")
+               .put(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/")
                .peek()
                .then()
-               .statusCode(HttpStatus.OK.value());
+               .statusCode(HttpStatus.CREATED.value());
 
     }
 
