@@ -99,12 +99,13 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
         String packageId = "Org.Carlspring.Strongbox.Examples.Nuget.Mono";
         String packageVersion = "1.0.0";
         String packageFileName = packageId + "." + packageVersion + ".nupkg";
-        Path packageFilePath = Paths.get(basedir).resolve(packageVersion).resolve(packageFileName);
-        long packageFileSize = Files.size(packageFilePath);
 
         NugetPackageGenerator nugetPackageGenerator = new NugetPackageGenerator(basedir);
         nugetPackageGenerator.generateNugetPackage(packageId, packageVersion);
 
+        Path packageFilePath = Paths.get(basedir).resolve(packageVersion).resolve(packageFileName);
+        long packageFileSize = Files.size(packageFilePath);
+        
         ByteArrayOutputStream contentStream = new ByteArrayOutputStream();
 
         MultipartEntityBuilder.create()
@@ -112,6 +113,7 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
                                              Files.newInputStream(packageFilePath))
                               .build()
                               .writeTo(contentStream);
+        contentStream.flush();
 
         given().header("User-Agent", "NuGet/*")
                .header("X-NuGet-ApiKey",
