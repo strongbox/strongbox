@@ -111,6 +111,7 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
         MultipartEntityBuilder.create()
                               .addBinaryBody("package",
                                              Files.newInputStream(packageFilePath))
+                              .setBoundary("---------------------------123qwe")
                               .build()
                               .writeTo(contentStream);
         contentStream.flush();

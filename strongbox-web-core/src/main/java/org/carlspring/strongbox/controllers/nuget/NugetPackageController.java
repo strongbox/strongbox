@@ -248,11 +248,13 @@ public class NugetPackageController extends BaseArtifactController
                 return;
             }
 
-            multipartStream.readBodyData(packagePartOutputStream);
+            int contentLength = multipartStream.readBodyData(packagePartOutputStream);
+            logger.info(String.format("NuGet package content length [%s]", contentLength));
         }
         catch (MultipartStream.MalformedStreamException e)
         {
             // Seems that this is normal for Nuget push request
+            e.printStackTrace();
         }
     }
 

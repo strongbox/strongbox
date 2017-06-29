@@ -126,7 +126,6 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
         String artifactPath = storage.getId() + "/" + repository.getId() + "/" + artifactPathRelative;
      
         Boolean checksumAttribute = (Boolean) Files.getAttribute(repositoryPath, RepositoryFileAttributes.CHECKSUM);
-        //Boolean artifactAttribute = (Boolean) Files.getAttribute(repositoryPath, RepositoryFileAttributes.ARTIFACT);
         
         // If we have no digests, then we have a checksum to store.
         if (Boolean.TRUE.equals(checksumAttribute))
@@ -143,14 +142,15 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
             aos.flush();
         }
 
+        Map<String, String> digestMap = aos.getDigestMap();
+        if (Boolean.FALSE.equals(checksumAttribute) && !digestMap.isEmpty())
+        {
+            // Store artifact digests in cache if we have them.
+            addChecksumsToCacheManager(digestMap, artifactPath);
+        }
+        
         if (Boolean.TRUE.equals(checksumAttribute))
         {
-            if (!aos.getDigestMap().isEmpty())
-            {
-                // Store artifact digests in cache if we have them.
-                addChecksumsToCacheManager(aos.getDigestMap(), artifactPath);
-            }
-
             byte[] checksumValue = ((ByteArrayOutputStream) aos.getCacheOutputStream()).toByteArray();
             if (checksumValue != null && checksumValue.length > 0)
             {

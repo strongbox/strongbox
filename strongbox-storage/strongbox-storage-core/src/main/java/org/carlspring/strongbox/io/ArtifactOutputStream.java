@@ -92,6 +92,24 @@ public abstract class ArtifactOutputStream
     }
 
     @Override
+    public void write(int b)
+        throws IOException
+    {
+        super.write(b);
+        cacheOutputStreamTemplate.apply(o -> o.write(b));
+    }
+
+    @Override
+    public void write(byte[] b,
+                      int off,
+                      int len)
+        throws IOException
+    {
+        super.write(b, off, len);
+        cacheOutputStreamTemplate.apply(o -> o.write(b, off, len));
+    }
+
+    @Override
     public void write(byte[] b)
             throws IOException
     {
