@@ -1,18 +1,5 @@
 package org.carlspring.strongbox.controllers.nuget;
 
-import org.carlspring.strongbox.controllers.BaseArtifactController;
-import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.security.exceptions.SecurityTokenException;
-import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.users.service.UserService;
-import org.carlspring.strongbox.utils.ArtifactControllerHelper;
-
-import javax.inject.Inject;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -23,12 +10,21 @@ import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import javax.inject.Inject;
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.MediaType;
+
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.lang.StringUtils;
+import org.carlspring.strongbox.controllers.BaseArtifactController;
+import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.security.exceptions.SecurityTokenException;
+import org.carlspring.strongbox.services.ArtifactManagementService;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.users.service.UserService;
+import org.carlspring.strongbox.utils.ArtifactControllerHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
@@ -45,6 +41,11 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import ru.aristar.jnuget.files.TempNupkgFile;
 
 /**
@@ -198,7 +199,7 @@ public class NugetPackageController extends BaseArtifactController
     private String extractBoundary(String contentType)
     {
         String boundaryString = "";
-        Pattern pattern = Pattern.compile("multipart/form-data;([ ]*)boundary=(.*)[;?](.*)");
+        Pattern pattern = Pattern.compile("multipart/form-data;(\\s*)boundary=([^;]+)(.*)");
         Matcher matcher = pattern.matcher(contentType);
         if (matcher.matches())
         {
@@ -231,7 +232,11 @@ public class NugetPackageController extends BaseArtifactController
                                   FileOutputStream packagePartOutputStream)
             throws IOException
     {
+        //boundaryString = String.format("--%s--", boundaryString);
         byte[] boundary = boundaryString.getBytes();
+//        String theString = IOUtils.toString(is);
+//        System.out.println(theString);
+        
         MultipartStream multipartStream = new MultipartStream(is, boundary);
 
         try
