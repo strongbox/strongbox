@@ -13,14 +13,12 @@ import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.io.File;
-import java.io.IOException;
+
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -91,13 +89,6 @@ public class RebuildMavenIndexesCronJobTestIT
 
         generateArtifact(REPOSITORY_RELEASES_BASEDIR_3.getAbsolutePath(),
                          "org.carlspring.strongbox.indexes:strongbox-test-one:1.0:jar");
-    }
-
-    @After
-    public void removeRepositories()
-            throws IOException, JAXBException
-    {
-        removeRepositories(getRepositoriesToClean());
     }
 
     public static Set<Repository> getRepositoriesToClean()
