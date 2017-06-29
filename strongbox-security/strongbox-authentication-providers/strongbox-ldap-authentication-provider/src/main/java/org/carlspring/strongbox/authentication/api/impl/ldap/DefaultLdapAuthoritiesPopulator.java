@@ -17,8 +17,7 @@ import org.springframework.util.Assert;
  */
 public class DefaultLdapAuthoritiesPopulator
         extends org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator
-        implements
-        InitializingBean
+        implements InitializingBean
 {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultLdapAuthoritiesPopulator.class);

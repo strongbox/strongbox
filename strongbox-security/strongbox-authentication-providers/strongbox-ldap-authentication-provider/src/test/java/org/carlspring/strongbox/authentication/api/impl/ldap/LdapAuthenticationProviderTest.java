@@ -97,7 +97,7 @@ public class LdapAuthenticationProviderTest
             throws IOException
     {
         return ConfigurationResourceResolver.getConfigurationResource("authentication.providers.xml",
-                                                                      "etc/conf/ldap-strongbox-authentication-providers.xml");
+                                                                      "etc/conf/strongbox-authentication-providers.xml");
     }
 
     @Override
