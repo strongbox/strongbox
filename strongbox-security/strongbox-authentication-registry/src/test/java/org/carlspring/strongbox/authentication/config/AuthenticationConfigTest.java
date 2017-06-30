@@ -1,9 +1,9 @@
 package org.carlspring.strongbox.authentication.config;
 
+import org.carlspring.strongbox.authentication.TestConfig;
 import org.carlspring.strongbox.authentication.api.Authenticator;
 import org.carlspring.strongbox.authentication.api.impl.xml.DefaultAuthenticator;
 import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
-import org.carlspring.strongbox.config.UsersConfig;
 
 import javax.inject.Inject;
 
@@ -20,8 +20,7 @@ import static org.junit.Assert.assertThat;
  * @author Przemyslaw Fusik
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { UsersConfig.class,
-                                  AuthenticationConfig.class })
+@ContextConfiguration(classes = TestConfig.class)
 public class AuthenticationConfigTest
 {
 

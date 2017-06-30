@@ -1,30 +1,28 @@
 package org.carlspring.strongbox.authentication.api.impl.ldap;
 
-import org.carlspring.strongbox.users.security.AuthoritiesProvider;
+import org.carlspring.strongbox.authentication.support.AuthoritiesExternalToInternalMapper;
 
-import javax.inject.Inject;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.util.Assert;
 
 /**
  * @author Przemyslaw Fusik
  */
 public class DefaultLdapAuthoritiesPopulator
         extends org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator
+        implements InitializingBean
 {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultLdapAuthoritiesPopulator.class);
 
-    @Inject
-    private AuthoritiesProvider authoritiesProvider;
-
-    private Map<String, String> ldapRoleToInternalRolesMapping;
+    private AuthoritiesExternalToInternalMapper authoritiesExternalToInternalMapper;
 
     public DefaultLdapAuthoritiesPopulator(ContextSource contextSource,
                                            String groupSearchBase)
@@ -56,24 +54,18 @@ public class DefaultLdapAuthoritiesPopulator
 
         logger.debug("Roles from search: {}", userRoles);
 
-        Set<GrantedAuthority> authorities = new HashSet<>();
-        for (String ldapRole : userRoles)
-        {
-            if (ldapRoleToInternalRolesMapping.containsKey(ldapRole))
-            {
-                final String internalRole = ldapRoleToInternalRolesMapping.get(ldapRole);
-
-                logger.debug("Internal role {} found for LDAP role {}", internalRole, ldapRole);
-
-                authorities.addAll(authoritiesProvider.getAuthoritiesByRoleName(internalRole));
-            }
-        }
-
-        return authorities;
+        return new HashSet<>(authoritiesExternalToInternalMapper.mapRoles(userRoles));
     }
 
-    public void setLdapRoleToInternalRolesMapping(Map<String, String> ldapRoleToInternalRolesMapping)
+    public void setAuthoritiesExternalToInternalMapper(AuthoritiesExternalToInternalMapper authoritiesExternalToInternalMapper)
     {
-        this.ldapRoleToInternalRolesMapping = ldapRoleToInternalRolesMapping;
+        this.authoritiesExternalToInternalMapper = authoritiesExternalToInternalMapper;
+    }
+
+    @Override
+    public void afterPropertiesSet()
+            throws Exception
+    {
+        Assert.notNull(authoritiesExternalToInternalMapper, "authoritiesExternalToInternalMapper property not set");
     }
 }
