@@ -292,6 +292,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.carlspring.strongbox</groupId>
+            <artifactId>strongbox-ldap-authentication-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-storage-api</artifactId>
             <version>${project.version}</version>
@@ -523,6 +528,15 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.directory.server</groupId>
+            <artifactId>apacheds-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.directory.server</groupId>
+            <artifactId>apacheds-protocol-ldap</artifactId>
         </dependency>
 
     </dependencies>
