@@ -1,11 +1,8 @@
 package org.carlspring.strongbox.services.impl;
 
 import java.io.IOException;
-import java.io.InputStream;
 
-import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.storage.Storage;
 import org.springframework.stereotype.Component;
 
@@ -16,15 +13,6 @@ import org.springframework.stereotype.Component;
 public class NugetArtifactManagementService
         extends AbstractArtifactManagementService
 {
-
-    @Override
-    public InputStream resolve(String storageId,
-                               String repositoryId,
-                               String path)
-            throws IOException, ArtifactTransportException, ProviderImplementationException
-    {
-        throw new UnsupportedOperationException("This operation is not yet implemented!");
-    }
 
     @Override
     public void delete(String storageId,

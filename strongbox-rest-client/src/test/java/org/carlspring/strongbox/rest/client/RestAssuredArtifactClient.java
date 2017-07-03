@@ -13,12 +13,12 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 import com.google.common.io.ByteStreams;
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
-import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
-import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
-import com.jayway.restassured.response.ExtractableResponse;
-import com.jayway.restassured.response.Headers;
+import io.restassured.http.ContentType;
+import io.restassured.module.mockmvc.RestAssuredMockMvc;
+import io.restassured.module.mockmvc.response.MockMvcResponse;
+import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
+import io.restassured.response.ExtractableResponse;
+import io.restassured.http.Headers;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;

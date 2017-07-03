@@ -49,31 +49,6 @@ public class MavenArtifactManagementService
 
     
     @Override
-    public InputStream resolve(String storageId,
-                               String repositoryId,
-                               String path)
-            throws IOException,
-                   ArtifactTransportException,
-                   ProviderImplementationException
-    {
-        InputStream is;
-
-        try
-        {
-            is = artifactResolutionService.getInputStream(storageId, repositoryId, path);
-            return is;
-        }
-        catch (IOException | NoSuchAlgorithmException e)
-        {
-            // This is not necessarily an error. It could simply be a check
-            // whether a resource exists, before uploading/updating it.
-            logger.debug("The requested path does not exist: /" + storageId + "/" + repositoryId + "/" + path);
-        }
-
-        return null;
-    }
-
-    @Override
     public void delete(String storageId,
                        String repositoryId,
                        String artifactPath,

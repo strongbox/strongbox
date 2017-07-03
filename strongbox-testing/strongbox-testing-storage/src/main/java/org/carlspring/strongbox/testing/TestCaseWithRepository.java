@@ -1,18 +1,22 @@
 package org.carlspring.strongbox.testing;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Set;
+
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+
+import org.apache.commons.io.FileUtils;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-import java.io.File;
-import java.io.IOException;
-import java.util.Set;
-
-import org.apache.commons.io.FileUtils;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.rules.TestName;
 
 /**
  * @author carlspring
@@ -25,7 +29,18 @@ public class TestCaseWithRepository
     @Inject
     ConfigurationManagementService configurationManagementService;
 
-
+    @ClassRule 
+    public static JUnitHelper jUnitHelper = new JUnitHelper();
+    
+    @BeforeClass
+    public static void setUpEnv()
+    {
+        
+        String basePath = jUnitHelper.getTestClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+        System.setProperty("strongbox.vault", basePath + "/../strongbox-vault");
+        System.setProperty("strongbox.home", basePath + "/..");
+    }
+    
     public static void cleanUp(Set<Repository> repositoriesToClean)
             throws Exception
     {

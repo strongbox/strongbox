@@ -14,6 +14,7 @@ import javax.transaction.Transactional;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.ArtifactEntry;
@@ -125,7 +126,6 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
         String artifactPath = storage.getId() + "/" + repository.getId() + "/" + artifactPathRelative;
      
         Boolean checksumAttribute = (Boolean) Files.getAttribute(repositoryPath, RepositoryFileAttributes.CHECKSUM);
-        //Boolean artifactAttribute = (Boolean) Files.getAttribute(repositoryPath, RepositoryFileAttributes.ARTIFACT);
         
         // If we have no digests, then we have a checksum to store.
         if (Boolean.TRUE.equals(checksumAttribute))
@@ -142,14 +142,15 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
             aos.flush();
         }
 
+        Map<String, String> digestMap = aos.getDigestMap();
+        if (Boolean.FALSE.equals(checksumAttribute) && !digestMap.isEmpty())
+        {
+            // Store artifact digests in cache if we have them.
+            addChecksumsToCacheManager(digestMap, artifactPath);
+        }
+        
         if (Boolean.TRUE.equals(checksumAttribute))
         {
-            if (!aos.getDigestMap().isEmpty())
-            {
-                // Store artifact digests in cache if we have them.
-                addChecksumsToCacheManager(aos.getDigestMap(), artifactPath);
-            }
-
             byte[] checksumValue = ((ByteArrayOutputStream) aos.getCacheOutputStream()).toByteArray();
             if (checksumValue != null && checksumValue.length > 0)
             {
@@ -298,4 +299,29 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
         return configurationManager.getConfiguration();
     }
     
+    @Override
+    public InputStream resolve(String storageId,
+                               String repositoryId,
+                               String path)
+            throws IOException,
+                   ArtifactTransportException,
+                   ProviderImplementationException
+    {
+        InputStream is;
+
+        try
+        {
+            is = artifactResolutionService.getInputStream(storageId, repositoryId, path);
+            return is;
+        }
+        catch (IOException | NoSuchAlgorithmException e)
+        {
+            // This is not necessarily an error. It could simply be a check
+            // whether a resource exists, before uploading/updating it.
+            logger.debug("The requested path does not exist: /" + storageId + "/" + repositoryId + "/" + path);
+        }
+
+        return null;
+    }
+
 }

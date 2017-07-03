@@ -13,7 +13,7 @@ import javax.xml.bind.JAXBException;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
+import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.MediaType;
