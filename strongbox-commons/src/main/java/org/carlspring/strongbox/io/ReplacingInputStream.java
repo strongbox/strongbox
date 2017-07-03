@@ -7,8 +7,17 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-
-public class ReplacingInputStream extends FilterInputStream {
+/**
+ * This {@link InputStream} decorates a source {@link InputStream} with ability to replace a target chain of bytes with
+ * another specified chain of bytes.<br>
+ * 
+ * For example it can be used as Mulitpart Stream Adapter to change boundary bytes.
+ * 
+ * @author Sergey Bespalov
+ * 
+ */
+public class ReplacingInputStream extends FilterInputStream
+{
 
     Deque<Integer> inQueue = new LinkedList<Integer>();
 
@@ -16,50 +25,68 @@ public class ReplacingInputStream extends FilterInputStream {
 
     final byte[] search, replacement;
 
-    public ReplacingInputStream(InputStream in, byte[] search, byte[] replacement) {
+    public ReplacingInputStream(InputStream in,
+                                byte[] search,
+                                byte[] replacement)
+    {
         super(in);
         this.search = search;
         this.replacement = replacement;
     }
 
-    private boolean isMatchFound() {
+    private boolean isMatchFound()
+    {
         Iterator<Integer> inIter = inQueue.iterator();
-        for (int i = 0; i < search.length; i++) {
-            if (!inIter.hasNext() || search[i] != inIter.next()) {
+        for (int i = 0; i < search.length; i++)
+        {
+            if (!inIter.hasNext() || search[i] != inIter.next())
+            {
                 return false;
             }
         }
         return true;
     }
 
-    private void readAhead() throws IOException {
+    private void readAhead()
+        throws IOException
+    {
         // Work up some look-ahead.
-        while (inQueue.size() < search.length) {
+        while (inQueue.size() < search.length)
+        {
             int next = super.read();
             inQueue.offer(next);
-            if (next == -1) {
+            if (next == -1)
+            {
                 break;
             }
         }
     }
 
     @Override
-    public int read() throws IOException {
+    public int read()
+        throws IOException
+    {
 
         // Next byte already determined.
-        if (outQueue.isEmpty()) {
+        if (outQueue.isEmpty())
+        {
 
             readAhead();
 
-            if (isMatchFound()) {
-                for (int i = 0; i < search.length; i++) {
+            if (isMatchFound())
+            {
+                for (int i = 0; i < search.length; i++)
+                {
                     inQueue.remove();
                 }
 
-                for (byte b : replacement) {
+                for (byte b : replacement)
+                {
                     outQueue.offer((int) b);
                 }
-            } else {
+            }
+            else
+            {
                 outQueue.add(inQueue.remove());
             }
         }
@@ -68,11 +95,11 @@ public class ReplacingInputStream extends FilterInputStream {
     }
 
     /**
-     * Returns false. REFilterInputStream does not support mark() and reset()
-     * methods.
+     * Returns false. REFilterInputStream does not support mark() and reset() methods.
      */
     @Override
-    public boolean markSupported() {
+    public boolean markSupported()
+    {
         return false;
     }
 
@@ -80,12 +107,18 @@ public class ReplacingInputStream extends FilterInputStream {
      * Reads from the stream into the provided array.
      */
     @Override
-    public int read(byte[] b, int off, int len) throws IOException {
+    public int read(byte[] b,
+                    int off,
+                    int len)
+        throws IOException
+    {
         int i;
         int ok = 0;
-        while (len-- > 0) {
+        while (len-- > 0)
+        {
             i = read();
-            if (i == -1) {
+            if (i == -1)
+            {
                 return (ok == 0) ? -1 : ok;
             }
             b[off++] = (byte) i;
@@ -95,7 +128,9 @@ public class ReplacingInputStream extends FilterInputStream {
     }
 
     @Override
-    public int read(byte[] buffer) throws IOException {
+    public int read(byte[] buffer)
+        throws IOException
+    {
 
         return read(buffer, 0, buffer.length);
     }
