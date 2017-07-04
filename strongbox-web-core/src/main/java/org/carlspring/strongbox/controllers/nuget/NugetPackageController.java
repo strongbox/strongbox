@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 import javax.inject.Inject;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.fileupload.MultipartStream;
@@ -44,6 +45,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.ApiOperation;
@@ -73,6 +75,19 @@ public class NugetPackageController extends BaseArtifactController
     @Inject
     private UserService userService;
 
+    @RequestMapping(path = { "{storageId}/{repositoryId}/Search()" }, method = RequestMethod.GET, produces = MediaType.APPLICATION_XML)
+    public ResponseEntity<?> searchPackages(@ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
+                                            @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
+                                            @RequestParam(name = "$filter", required = true) String filter,
+                                            @RequestParam(name = "$orderby", required = false, defaultValue = "updated") String orderBy,
+                                            @RequestParam(name = "$skip", required = false, defaultValue = "0") int skip,
+                                            @RequestParam(name = "$top", required = false, defaultValue = "-1") int top,
+                                            @RequestParam(name = "searchTerm", required = true) String searchTerm,
+                                            @RequestParam(name = "targetFramework", required = true) String targetFramework)
+    {
+        return new ResponseEntity<>("success", HttpStatus.OK);
+    }
+    
     @ApiOperation(value = "Used to get storage metadata")
     @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "The metadata was downloaded successfully."),
                             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred.") })

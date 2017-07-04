@@ -508,6 +508,15 @@
             <artifactId>jnuget-server</artifactId>
         </dependency>
 
+<<<<<<< Upstream, based on upstream-master-new
+=======
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-default-authentication-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+>>>>>>> cf6dc3a SB-850: `searchPackages` 
         <!-- Testing frameworks -->
         <dependency>
             <groupId>org.springframework</groupId>
