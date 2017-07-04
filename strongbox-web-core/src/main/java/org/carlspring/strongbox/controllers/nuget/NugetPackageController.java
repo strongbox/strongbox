@@ -10,6 +10,8 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,7 +19,11 @@ import javax.inject.Inject;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.lang.StringUtils;
@@ -52,7 +58,13 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import ru.aristar.jnuget.QueryExecutor;
+import ru.aristar.jnuget.files.NugetFormatException;
+import ru.aristar.jnuget.files.Nupkg;
 import ru.aristar.jnuget.files.TempNupkgFile;
+import ru.aristar.jnuget.query.Expression;
+import ru.aristar.jnuget.query.Lexer;
+import ru.aristar.jnuget.query.QueryLexer;
 
 /**
  * This Controller used to handle Nuget requests.
@@ -75,6 +87,14 @@ public class NugetPackageController extends BaseArtifactController
     @Inject
     private UserService userService;
 
+    @RequestMapping(path = { "{storageId}/{repositoryId}/Search()/$count" }, method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN)
+    public ResponseEntity<String> countPackages(@RequestParam(name = "$filter", required = false) String filter,
+                                                @RequestParam(name = "searchTerm", required = false) String searchTerm,
+                                                @RequestParam(name = "targetFramework", required = false) String targetFramework)
+    {
+        return new ResponseEntity<>("1", HttpStatus.OK);
+    }
+    
     @RequestMapping(path = { "{storageId}/{repositoryId}/Search()" }, method = RequestMethod.GET, produces = MediaType.APPLICATION_XML)
     public ResponseEntity<?> searchPackages(@ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
                                             @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
@@ -85,6 +105,28 @@ public class NugetPackageController extends BaseArtifactController
                                             @RequestParam(name = "searchTerm", required = true) String searchTerm,
                                             @RequestParam(name = "targetFramework", required = true) String targetFramework)
     {
+        Lexer queryLexer = new QueryLexer();
+        Expression expression;
+        try
+        {
+            expression = queryLexer.parse(filter);
+        }
+        catch (NugetFormatException e)
+        {
+            e.printStackTrace();
+        }
+        final String normSearchTerm = QueryExecutor.normaliseTerm(searchTerm);
+        if (normSearchTerm == null || normSearchTerm.matches("\\s*")) {
+            //return nupkgs;
+        }
+        ArrayList<Nupkg> result = new ArrayList<>();
+        Collection<? extends Nupkg> nupkgs = new ArrayList<>();
+        for (Nupkg nupkg : nupkgs) {
+            if (nupkg.getId().toLowerCase().contains(normSearchTerm)) {
+                result.add(nupkg);
+            }
+        }
+
         return new ResponseEntity<>("success", HttpStatus.OK);
     }
     
