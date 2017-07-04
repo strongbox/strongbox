@@ -73,6 +73,17 @@ public class NugetPackageController extends BaseArtifactController
     @Inject
     private UserService userService;
 
+    @ApiOperation(value = "Used to get storage metadata")
+    @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "The metadata was downloaded successfully."),
+                            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred.") })
+    @RequestMapping(path = { "{storageId}/{repositoryId}/$metadata" }, method = RequestMethod.GET, produces = MediaType.APPLICATION_XML)
+    public ResponseEntity<Resource> getMetadata()
+        throws IOException
+    {
+        InputStream inputStream = NugetPackageController.class.getResourceAsStream("/metadata.xml");
+        return new ResponseEntity<Resource>(new InputStreamResource(inputStream), HttpStatus.OK);
+    }
+    
     /**
      * This method is used to check storage availability.<br>
      * For example NuGet pings the root without credentials to determine if the repository is healthy. If this receives
