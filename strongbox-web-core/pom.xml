@@ -292,6 +292,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-default-authentication-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.carlspring.strongbox</groupId>
             <artifactId>strongbox-ldap-authentication-provider</artifactId>
             <version>${project.version}</version>
@@ -501,13 +506,6 @@
         <dependency>
             <groupId>ru.aristar.nuget</groupId>
             <artifactId>jnuget-server</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-default-authentication-provider</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
 
         <!-- Testing frameworks -->
