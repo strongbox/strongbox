@@ -5,9 +5,19 @@ package org.carlspring.strongbox.controllers.security.ldap.support;
  */
 public final class LdapConstants
 {
-    public static class LdapMessages {
+
+    private LdapConstants()
+    {
+    }
+
+    public static class LdapMessages
+    {
 
         public static final String NOT_CONFIGURED = "LDAP is not configured";
+
+        private LdapMessages()
+        {
+        }
 
     }
 
