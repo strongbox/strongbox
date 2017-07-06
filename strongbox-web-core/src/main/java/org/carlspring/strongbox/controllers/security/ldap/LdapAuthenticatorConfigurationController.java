@@ -2,6 +2,7 @@ package org.carlspring.strongbox.controllers.security.ldap;
 
 import org.carlspring.strongbox.authentication.support.AuthoritiesExternalToInternalMapper;
 import org.carlspring.strongbox.controllers.BaseController;
+import org.carlspring.strongbox.controllers.security.ldap.support.LdapConstants.LdapMessages;
 import org.carlspring.strongbox.controllers.security.ldap.support.*;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
@@ -55,7 +56,7 @@ public class LdapAuthenticatorConfigurationController
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
-            return toXmlError("LDAP is not enabled", HttpStatus.BAD_REQUEST);
+            return toXmlError(LdapMessages.NOT_CONFIGURED, HttpStatus.BAD_REQUEST);
         }
 
         final GenericParser<AuthoritiesExternalToInternalMapper> parser = new GenericParser<>(AuthoritiesExternalToInternalMapper.class);
@@ -74,7 +75,7 @@ public class LdapAuthenticatorConfigurationController
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
-            return ResponseEntity.badRequest().body("LDAP is not enabled");
+            return ResponseEntity.badRequest().body(LdapMessages.NOT_CONFIGURED);
         }
         try
         {
@@ -103,7 +104,7 @@ public class LdapAuthenticatorConfigurationController
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
-            return ResponseEntity.badRequest().body("LDAP is not enabled");
+            return ResponseEntity.badRequest().body(LdapMessages.NOT_CONFIGURED);
         }
         try
         {
@@ -127,7 +128,7 @@ public class LdapAuthenticatorConfigurationController
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
-            return ResponseEntity.badRequest().body("LDAP is not enabled");
+            return ResponseEntity.badRequest().body(LdapMessages.NOT_CONFIGURED);
         }
         try
         {
@@ -151,12 +152,12 @@ public class LdapAuthenticatorConfigurationController
                             @ApiResponse(code = 204, message = "User DN patterns are empty."),
                             @ApiResponse(code = 400, message = "LDAP is not enabled.") })
     @RequestMapping(value = "/userDnPatterns", method = RequestMethod.GET, produces = { MediaType.APPLICATION_XML_VALUE })
-    public ResponseEntity<?> getUserDnPatterns()
+    public ResponseEntity<String> getUserDnPatterns()
             throws JAXBException
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
-            return toXmlError("LDAP is not enabled", HttpStatus.BAD_REQUEST);
+            return toXmlError(LdapMessages.NOT_CONFIGURED, HttpStatus.BAD_REQUEST);
         }
         List<String> userDnPatterns = springSecurityLdapInternalsSupplier.getUserDnPatterns();
         if (userDnPatterns == null)
@@ -179,7 +180,7 @@ public class LdapAuthenticatorConfigurationController
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
-            return ResponseEntity.badRequest().body("LDAP is not enabled");
+            return ResponseEntity.badRequest().body(LdapMessages.NOT_CONFIGURED);
         }
         List<String> userDnPatterns = springSecurityLdapInternalsSupplier.getUserDnPatterns();
         if (userDnPatterns == null)
@@ -211,7 +212,7 @@ public class LdapAuthenticatorConfigurationController
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
-            return ResponseEntity.badRequest().body("LDAP is not enabled");
+            return ResponseEntity.badRequest().body(LdapMessages.NOT_CONFIGURED);
         }
         List<String> userDnPatterns = springSecurityLdapInternalsSupplier.getUserDnPatterns();
         if (userDnPatterns == null)
@@ -220,7 +221,7 @@ public class LdapAuthenticatorConfigurationController
         }
         if (!userDnPatterns.add(pattern))
         {
-            return ResponseEntity.badRequest().body("LDAP is not enabled");
+            return ResponseEntity.badRequest().body(LdapMessages.NOT_CONFIGURED);
         }
         try
         {
@@ -239,12 +240,12 @@ public class LdapAuthenticatorConfigurationController
                             @ApiResponse(code = 204, message = "User search filter was not provided."),
                             @ApiResponse(code = 400, message = "LDAP is not enabled or userSearchFilter is not supported via this method.") })
     @RequestMapping(value = "/userSearchFilter", method = RequestMethod.GET, produces = { MediaType.APPLICATION_XML_VALUE })
-    public ResponseEntity<?> getUserSearchFilter()
+    public ResponseEntity<String> getUserSearchFilter()
             throws JAXBException
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
-            return toXmlError("LDAP is not enabled", HttpStatus.BAD_REQUEST);
+            return toXmlError(LdapMessages.NOT_CONFIGURED, HttpStatus.BAD_REQUEST);
         }
         LdapUserSearch userSearch = springSecurityLdapInternalsSupplier.getUserSearch();
         if (userSearch == null)
@@ -270,12 +271,12 @@ public class LdapAuthenticatorConfigurationController
                             @ApiResponse(code = 204, message = "AbstractLdapAuthenticator was not provided."),
                             @ApiResponse(code = 400, message = "LDAP is not enabled.") })
     @RequestMapping(value = "/userSearchFilter/{searchBase}/{searchFilter}", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateUserSearchFilter(@PathVariable String searchBase,
-                                                    @PathVariable String searchFilter)
+    public ResponseEntity<String> updateUserSearchFilter(@PathVariable String searchBase,
+                                                         @PathVariable String searchFilter)
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
-            return ResponseEntity.badRequest().body("LDAP is not enabled");
+            return ResponseEntity.badRequest().body(LdapMessages.NOT_CONFIGURED);
         }
         AbstractLdapAuthenticator abstractLdapAuthenticator = springSecurityLdapInternalsSupplier.getAuthenticator();
         if (abstractLdapAuthenticator == null)
@@ -293,12 +294,12 @@ public class LdapAuthenticatorConfigurationController
                             @ApiResponse(code = 204, message = "Group search filter was not provided."),
                             @ApiResponse(code = 400, message = "LDAP is not enabled or groupSearchFilter is not supported via this method.") })
     @RequestMapping(value = "/groupSearchFilter", method = RequestMethod.GET, produces = { MediaType.APPLICATION_XML_VALUE })
-    public ResponseEntity<?> getGroupSearchFilter()
+    public ResponseEntity<String> getGroupSearchFilter()
             throws JAXBException
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
-            return toXmlError("LDAP is not enabled", HttpStatus.BAD_REQUEST);
+            return toXmlError(LdapMessages.NOT_CONFIGURED, HttpStatus.BAD_REQUEST);
         }
         LdapAuthoritiesPopulator populator = springSecurityLdapInternalsSupplier.getAuthoritiesPopulator();
         if (populator == null)
@@ -324,12 +325,12 @@ public class LdapAuthenticatorConfigurationController
                             @ApiResponse(code = 204, message = "LdapAuthoritiesPopulator was not provided."),
                             @ApiResponse(code = 400, message = "LDAP is not enabled or ldapAuthoritiesPopulator class is not supported via this method.") })
     @RequestMapping(value = "/groupSearchFilter/{searchBase}/{searchFilter}", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateGroupSearchFilter(@PathVariable String searchBase,
-                                                     @PathVariable String searchFilter)
+    public ResponseEntity<String> updateGroupSearchFilter(@PathVariable String searchBase,
+                                                          @PathVariable String searchFilter)
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
-            return ResponseEntity.badRequest().body("LDAP is not enabled");
+            return ResponseEntity.badRequest().body(LdapMessages.NOT_CONFIGURED);
         }
         LdapAuthoritiesPopulator ldapAuthoritiesPopulator = springSecurityLdapInternalsSupplier.getAuthoritiesPopulator();
         if (ldapAuthoritiesPopulator == null)

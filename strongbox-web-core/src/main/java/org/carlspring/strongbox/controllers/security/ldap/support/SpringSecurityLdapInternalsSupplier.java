@@ -3,6 +3,7 @@ package org.carlspring.strongbox.controllers.security.ldap.support;
 import org.carlspring.strongbox.authentication.api.impl.ldap.LdapAuthenticator;
 import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
 import org.carlspring.strongbox.authentication.support.AuthoritiesExternalToInternalMapper;
+import org.carlspring.strongbox.controllers.security.ldap.support.LdapConstants.LdapMessages;
 
 import javax.inject.Inject;
 import java.lang.reflect.Field;
@@ -41,7 +42,8 @@ public class SpringSecurityLdapInternalsSupplier
     public LdapAuthenticationProvider getAuthenticationProvider()
     {
         return (LdapAuthenticationProvider) (StreamSupport.stream(authenticatorsRegistry.spliterator(), false).filter(
-                a -> a instanceof LdapAuthenticator).findFirst().get()).getAuthenticationProvider();
+                a -> a instanceof LdapAuthenticator).findFirst().orElseThrow(
+                () -> new IllegalStateException(LdapMessages.NOT_CONFIGURED))).getAuthenticationProvider();
     }
 
     public AbstractLdapAuthenticator getAuthenticator()
