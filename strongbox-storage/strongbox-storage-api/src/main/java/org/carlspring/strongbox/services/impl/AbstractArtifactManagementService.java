@@ -81,6 +81,8 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
                    ProviderImplementationException,
                    NoSuchAlgorithmException
     {
+        performRepositoryAcceptanceValidation(storageId, repositoryId, path);
+
         Storage storage = layoutProviderRegistry.getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
@@ -116,8 +118,7 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
     private void doStore(RepositoryPath repositoryPath,
                          InputStream is,
                          final ArtifactOutputStream aos)
-        throws IOException,
-        ArtifactStorageException
+            throws IOException
     {
         Repository repository = repositoryPath.getFileSystem().getRepository();
         Storage storage = repository.getStorage();
@@ -167,13 +168,13 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
         Repository repository = path.getFileSystem().getRepository();
         Storage storage = repository.getStorage();
 
-        ArtifactCoordinates artifactCoordinates = artifactResolutionService.getArtifactCoordinates(storage.getId(),
-                                                                                                   repository.getId(),
-                                                                                                   path.getRepositoryRelative()
-                                                                                                       .toString());
+        ArtifactCoordinates coordinates = artifactResolutionService.getArtifactCoordinates(storage.getId(),
+                                                                                           repository.getId(),
+                                                                                           path.getRepositoryRelative()
+                                                                                               .toString());
 
-        ArtifactEntry artifactEntry = artifactEntryService.findOne(artifactCoordinates)
-                                                          .orElse(createArtifactEntry(artifactCoordinates,
+        ArtifactEntry artifactEntry = artifactEntryService.findOne(coordinates)
+                                                          .orElse(createArtifactEntry(coordinates,
                                                                                       storage.getId(),
                                                                                       repository.getId()));
         artifactEntryService.save(artifactEntry);
