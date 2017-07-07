@@ -229,6 +229,11 @@
 
                 <plugin>
                     <groupId>org.carlspring.maven</groupId>
+                    <artifactId>unboundid-maven-plugin</artifactId>
+                    <version>1.0-SNAPSHOT</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.carlspring.maven</groupId>
                     <artifactId>little-proxy-maven-plugin</artifactId>
                     <version>1.1-SNAPSHOT</version>
                 </plugin>
@@ -426,12 +431,6 @@
                 <version>${version.spring.security}</version>
                 <scope>test</scope>
             </dependency>
-
-<!--             <dependency>
-                <groupId>com.jayway.restassured</groupId>
-                <artifactId>spring-mock-mvc</artifactId>
-                <version>2.9.0</version>
-            </dependency> -->
 
             <dependency>
                 <groupId>io.rest-assured</groupId>
