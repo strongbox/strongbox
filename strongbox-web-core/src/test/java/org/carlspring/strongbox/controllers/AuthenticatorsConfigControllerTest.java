@@ -122,7 +122,11 @@ public class AuthenticatorsConfigControllerTest
                                 CoreMatchers.equalTo("0"))
                           .body("authenticatorsRegistry.authenticators.authenticator[0].name",
                                 CoreMatchers.equalTo("org.carlspring.strongbox.authentication.api.impl.xml.DefaultAuthenticator"))
-                          .body("authenticatorsRegistry.authenticators.authenticator.size()", CoreMatchers.is(1))
+                          .body("authenticatorsRegistry.authenticators.authenticator[1].index",
+                                CoreMatchers.equalTo("1"))
+                          .body("authenticatorsRegistry.authenticators.authenticator[1].name",
+                                CoreMatchers.equalTo("org.carlspring.strongbox.authentication.api.impl.ldap.LdapAuthenticator"))
+                          .body("authenticatorsRegistry.authenticators.authenticator.size()", CoreMatchers.is(2))
                           .statusCode(200);
     }
 

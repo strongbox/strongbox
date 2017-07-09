@@ -75,7 +75,7 @@ public class LdapAuthenticationProviderTest
                           CoreMatchers.equalTo("password"));
         Assert.assertThat(ldapUserDetails.getUsername(),
                           CoreMatchers.equalTo("przemyslaw.fusik"));
-        Assert.assertThat(ldapUserDetails.getAuthorities(),
+        Assert.assertThat(authentication.getAuthorities(),
                           CoreMatchers.hasItems(
                                   CoreMatchers.equalTo((GrantedAuthority) Privileges.ADMIN_CREATE_REPO),
                                   CoreMatchers.equalTo((GrantedAuthority) Privileges.ADMIN_DELETE_REPO),

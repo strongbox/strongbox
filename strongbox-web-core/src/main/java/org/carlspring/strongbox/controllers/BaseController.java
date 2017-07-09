@@ -2,9 +2,12 @@ package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.controllers.support.ErrorXmlHandler;
+import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.JAXBException;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +35,19 @@ public abstract class BaseController
     @Inject
     protected ConfigurationManager configurationManager;
 
+    protected ResponseEntity toXmlError(String message,
+                                        HttpStatus httpStatus)
+            throws JAXBException
+    {
+        return ResponseEntity.status(httpStatus)
+                             .body(new GenericParser<>(ErrorXmlHandler.class).serialize(new ErrorXmlHandler(message)));
+    }
+
+    protected ResponseEntity toXmlError(String message)
+            throws JAXBException
+    {
+        return toXmlError(message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
     protected ResponseEntity toError(String message)
     {
