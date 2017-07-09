@@ -68,13 +68,15 @@ pipeline {
         }
     }
     post {
-        always {
+        changed {
             script {
-                if(BRANCH_NAME == 'master' && currentBuild.result != 'ABORTED') {
+                if(BRANCH_NAME == 'master') {
                     def skype = new org.carlspring.jenkins.notification.skype.Skype()
                     skype.sendNotification("admins;devs");
                 }
             }
+        }
+        always {
             deleteDir()
         }
     }
