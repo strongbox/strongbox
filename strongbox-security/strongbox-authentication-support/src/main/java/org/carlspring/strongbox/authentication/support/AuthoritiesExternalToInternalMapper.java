@@ -88,8 +88,8 @@ public class AuthoritiesExternalToInternalMapper
         this.rolesMapping = new ConcurrentHashMap<>(rolesMapping);
     }
 
-    public String upsertRoleMapping(String externalRole,
-                                    String internalRole)
+    public String putRoleMapping(String externalRole,
+                                 String internalRole)
     {
         return this.rolesMapping.put(externalRole, internalRole);
     }

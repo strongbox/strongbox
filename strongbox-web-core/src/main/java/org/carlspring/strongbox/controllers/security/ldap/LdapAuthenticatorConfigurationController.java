@@ -75,15 +75,17 @@ public class LdapAuthenticatorConfigurationController
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
-            return ResponseEntity.badRequest().body(LdapMessages.NOT_CONFIGURED);
+            return ResponseEntity.badRequest()
+                                 .body(LdapMessages.NOT_CONFIGURED);
         }
         try
         {
-            String previousInternalRole = springSecurityLdapInternalsSupplier.getAuthoritiesMapper().addRoleMapping(
-                    externalRole, internalRole);
+            String previousInternalRole = springSecurityLdapInternalsSupplier.getAuthoritiesMapper()
+                                                                             .addRoleMapping(externalRole, internalRole);
             if (previousInternalRole != null)
             {
-                return ResponseEntity.badRequest().body("LDAP role mapping already exists for given LDAP role");
+                return ResponseEntity.badRequest()
+                                     .body("LDAP role mapping already exists for given LDAP role");
             }
         }
         catch (Exception e)
@@ -104,11 +106,13 @@ public class LdapAuthenticatorConfigurationController
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
-            return ResponseEntity.badRequest().body(LdapMessages.NOT_CONFIGURED);
+            return ResponseEntity.badRequest()
+                                 .body(LdapMessages.NOT_CONFIGURED);
         }
         try
         {
-            springSecurityLdapInternalsSupplier.getAuthoritiesMapper().upsertRoleMapping(externalRole, internalRole);
+            springSecurityLdapInternalsSupplier.getAuthoritiesMapper()
+                                               .putRoleMapping(externalRole, internalRole);
         }
         catch (Exception e)
         {
@@ -128,15 +132,17 @@ public class LdapAuthenticatorConfigurationController
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
-            return ResponseEntity.badRequest().body(LdapMessages.NOT_CONFIGURED);
+            return ResponseEntity.badRequest()
+                                 .body(LdapMessages.NOT_CONFIGURED);
         }
         try
         {
-            String removedInternalRole = springSecurityLdapInternalsSupplier.getAuthoritiesMapper().deleteRoleMapping(
-                    externalRole);
+            String removedInternalRole = springSecurityLdapInternalsSupplier.getAuthoritiesMapper()
+                                                                            .deleteRoleMapping(externalRole);
             if (removedInternalRole == null)
             {
-                return ResponseEntity.badRequest().body(externalRole + "role does not exist in the LDAP roles mapping");
+                return ResponseEntity.badRequest()
+                                     .body(externalRole + "role does not exist in the LDAP roles mapping");
             }
         }
         catch (Exception e)
@@ -162,7 +168,8 @@ public class LdapAuthenticatorConfigurationController
         List<String> userDnPatterns = springSecurityLdapInternalsSupplier.getUserDnPatterns();
         if (userDnPatterns == null)
         {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.noContent()
+                                 .build();
         }
 
         final GenericParser<LdapUserDnPatternsXmlHolder> parser = new GenericParser<>(LdapUserDnPatternsXmlHolder.class);
@@ -180,7 +187,8 @@ public class LdapAuthenticatorConfigurationController
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
-            return ResponseEntity.badRequest().body(LdapMessages.NOT_CONFIGURED);
+            return ResponseEntity.badRequest()
+                                 .body(LdapMessages.NOT_CONFIGURED);
         }
         List<String> userDnPatterns = springSecurityLdapInternalsSupplier.getUserDnPatterns();
         if (userDnPatterns == null)
@@ -189,7 +197,8 @@ public class LdapAuthenticatorConfigurationController
         }
         if (!userDnPatterns.remove(pattern))
         {
-            return ResponseEntity.badRequest().body("Pattern does not match any existing userDnPatterns");
+            return ResponseEntity.badRequest()
+                                 .body("Pattern does not match any existing userDnPatterns");
         }
         try
         {
@@ -212,16 +221,19 @@ public class LdapAuthenticatorConfigurationController
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
-            return ResponseEntity.badRequest().body(LdapMessages.NOT_CONFIGURED);
+            return ResponseEntity.badRequest()
+                                 .body(LdapMessages.NOT_CONFIGURED);
         }
         List<String> userDnPatterns = springSecurityLdapInternalsSupplier.getUserDnPatterns();
         if (userDnPatterns == null)
         {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.noContent()
+                                 .build();
         }
         if (!userDnPatterns.add(pattern))
         {
-            return ResponseEntity.badRequest().body(LdapMessages.NOT_CONFIGURED);
+            return ResponseEntity.badRequest()
+                                 .body(LdapMessages.NOT_CONFIGURED);
         }
         try
         {
@@ -250,7 +262,8 @@ public class LdapAuthenticatorConfigurationController
         LdapUserSearch userSearch = springSecurityLdapInternalsSupplier.getUserSearch();
         if (userSearch == null)
         {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.noContent()
+                                 .build();
         }
         if (!(userSearch instanceof FilterBasedLdapUserSearch))
         {
@@ -276,12 +289,14 @@ public class LdapAuthenticatorConfigurationController
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
-            return ResponseEntity.badRequest().body(LdapMessages.NOT_CONFIGURED);
+            return ResponseEntity.badRequest()
+                                 .body(LdapMessages.NOT_CONFIGURED);
         }
         AbstractLdapAuthenticator abstractLdapAuthenticator = springSecurityLdapInternalsSupplier.getAuthenticator();
         if (abstractLdapAuthenticator == null)
         {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.noContent()
+                                 .build();
         }
         abstractLdapAuthenticator.setUserSearch(new FilterBasedLdapUserSearch(searchBase, searchFilter,
                                                                               (BaseLdapPathContextSource) springSecurityLdapInternalsSupplier.getContextSource()));
@@ -304,7 +319,8 @@ public class LdapAuthenticatorConfigurationController
         LdapAuthoritiesPopulator populator = springSecurityLdapInternalsSupplier.getAuthoritiesPopulator();
         if (populator == null)
         {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.noContent()
+                                 .build();
         }
         if (!(populator instanceof DefaultLdapAuthoritiesPopulator))
         {
@@ -330,16 +346,19 @@ public class LdapAuthenticatorConfigurationController
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
-            return ResponseEntity.badRequest().body(LdapMessages.NOT_CONFIGURED);
+            return ResponseEntity.badRequest()
+                                 .body(LdapMessages.NOT_CONFIGURED);
         }
         LdapAuthoritiesPopulator ldapAuthoritiesPopulator = springSecurityLdapInternalsSupplier.getAuthoritiesPopulator();
         if (ldapAuthoritiesPopulator == null)
         {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.noContent()
+                                 .build();
         }
         if (!(ldapAuthoritiesPopulator instanceof DefaultLdapAuthoritiesPopulator))
         {
-            return ResponseEntity.badRequest().body(
+            return ResponseEntity.badRequest()
+                                 .body(
                     "Configured ldapAuthoritiesPopulator is not supported. LDAP has to be configured with DefaultLdapAuthoritiesPopulator.");
         }
         springSecurityLdapInternalsUpdater.updateGroupSearchFilter(
@@ -347,6 +366,5 @@ public class LdapAuthenticatorConfigurationController
 
         return ResponseEntity.ok("Group search filter updated.");
     }
-
 
 }

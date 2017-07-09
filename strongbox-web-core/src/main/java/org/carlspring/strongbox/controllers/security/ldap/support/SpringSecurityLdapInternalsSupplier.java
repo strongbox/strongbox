@@ -35,21 +35,26 @@ public class SpringSecurityLdapInternalsSupplier
 
     public boolean isLdapAuthenticationEnabled()
     {
-        return StreamSupport.stream(authenticatorsRegistry.spliterator(), false).filter(
-                a -> a instanceof LdapAuthenticator).findFirst().isPresent();
+        return StreamSupport.stream(authenticatorsRegistry.spliterator(), false)
+                            .filter(a -> a instanceof LdapAuthenticator)
+                            .findFirst()
+                            .isPresent();
     }
 
     public LdapAuthenticationProvider getAuthenticationProvider()
     {
-        return (LdapAuthenticationProvider) (StreamSupport.stream(authenticatorsRegistry.spliterator(), false).filter(
-                a -> a instanceof LdapAuthenticator).findFirst().orElseThrow(
-                () -> new IllegalStateException(LdapMessages.NOT_CONFIGURED))).getAuthenticationProvider();
+        return (LdapAuthenticationProvider) (StreamSupport.stream(authenticatorsRegistry.spliterator(), false)
+                                                          .filter(a -> a instanceof LdapAuthenticator)
+                                                          .findFirst()
+                                                          .orElseThrow(() -> new IllegalStateException(LdapMessages.NOT_CONFIGURED)))
+                                                    .getAuthenticationProvider();
     }
 
     public AbstractLdapAuthenticator getAuthenticator()
     {
         Field authenticator = ReflectionUtils.findField(LdapAuthenticationProvider.class, "authenticator");
         ReflectionUtils.makeAccessible(authenticator);
+
         return (AbstractLdapAuthenticator) ReflectionUtils.getField(authenticator, getAuthenticationProvider());
     }
 
@@ -58,6 +63,7 @@ public class SpringSecurityLdapInternalsSupplier
         Field authoritiesPopulator = ReflectionUtils.findField(LdapAuthenticationProvider.class,
                                                                "authoritiesPopulator");
         ReflectionUtils.makeAccessible(authoritiesPopulator);
+
         return (LdapAuthoritiesPopulator) ReflectionUtils.getField(authoritiesPopulator, getAuthenticationProvider());
     }
 
@@ -68,13 +74,16 @@ public class SpringSecurityLdapInternalsSupplier
         final MessageFormat[] userDnFormatValue = (MessageFormat[]) ReflectionUtils.getField(userDnFormat,
                                                                                              getAuthenticator());
         return userDnFormatValue == null ? null :
-               Stream.of(userDnFormatValue).map(MessageFormat::toPattern).collect(Collectors.toList());
+               Stream.of(userDnFormatValue)
+                     .map(MessageFormat::toPattern)
+                     .collect(Collectors.toList());
     }
 
     public LdapUserSearch getUserSearch()
     {
         Field userSearch = ReflectionUtils.findField(AbstractLdapAuthenticator.class, "userSearch");
         ReflectionUtils.makeAccessible(userSearch);
+
         return (LdapUserSearch) ReflectionUtils.getField(userSearch, getAuthenticator());
     }
 
@@ -82,6 +91,7 @@ public class SpringSecurityLdapInternalsSupplier
     {
         Field authoritiesMapper = ReflectionUtils.findField(LdapAuthenticationProvider.class, "authoritiesMapper");
         ReflectionUtils.makeAccessible(authoritiesMapper);
+
         return (AuthoritiesExternalToInternalMapper) ReflectionUtils.getField(authoritiesMapper,
                                                                               getAuthenticationProvider());
     }
@@ -96,7 +106,8 @@ public class SpringSecurityLdapInternalsSupplier
         ReflectionUtils.makeAccessible(searchFilter);
         final String searchFilterValue = (String) ReflectionUtils.getField(searchFilter, userSearch);
 
-        return new LdapUserSearchXmlHolder().searchBase(searchBaseValue).searchFilter(searchFilterValue);
+        return new LdapUserSearchXmlHolder().searchBase(searchBaseValue)
+                                            .searchFilter(searchFilterValue);
     }
 
     public LdapGroupSearchXmlHolder ldapGroupSearchHolder(DefaultLdapAuthoritiesPopulator populator)
@@ -110,13 +121,15 @@ public class SpringSecurityLdapInternalsSupplier
         ReflectionUtils.makeAccessible(searchFilter);
         String searchFilterValue = (String) ReflectionUtils.getField(searchFilter, populator);
 
-        return new LdapGroupSearchXmlHolder().searchBase(searchBaseValue).searchFilter(searchFilterValue);
+        return new LdapGroupSearchXmlHolder().searchBase(searchBaseValue)
+                                             .searchFilter(searchFilterValue);
     }
 
     public ContextSource getContextSource()
     {
         final Field contextSource = ReflectionUtils.findField(AbstractLdapAuthenticator.class, "contextSource");
         ReflectionUtils.makeAccessible(contextSource);
+
         return (ContextSource) ReflectionUtils.getField(contextSource, getAuthenticator());
     }
 
