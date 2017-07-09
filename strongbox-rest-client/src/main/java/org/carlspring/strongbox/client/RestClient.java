@@ -334,7 +334,8 @@ public class RestClient
         if (repository == null)
         {
             logger.error("Unable to add non-existing repository.");
-            throw new ServerErrorException("Unable to add non-existing repository.", Response.Status.INTERNAL_SERVER_ERROR);
+            throw new ServerErrorException("Unable to add non-existing repository.",
+                                           Response.Status.INTERNAL_SERVER_ERROR);
         }
 
         WebTarget resource;
@@ -342,12 +343,14 @@ public class RestClient
         if (repository.getStorage() == null)
         {
             logger.error("Storage associated with repo is null.");
-            throw new ServerErrorException("Storage associated with repo is null.", Response.Status.INTERNAL_SERVER_ERROR);
+            throw new ServerErrorException("Storage associated with repo is null.",
+                                           Response.Status.INTERNAL_SERVER_ERROR);
         }
 
         try
         {
-            String url = getContextBaseUrl() + "/configuration/strongbox/storages/" + repository.getStorage().getId() + "/" + repository.getId();
+            String url = getContextBaseUrl() + "/configuration/strongbox/storages/" +
+                         repository.getStorage().getId() + "/" + repository.getId();
 
             resource = getClientInstance().target(url);
         }
@@ -356,15 +359,11 @@ public class RestClient
             logger.error("Unable to create web resource.", e);
             throw new ServerErrorException(Response.Status.INTERNAL_SERVER_ERROR);
         }
+
         setupAuthentication(resource);
 
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-        GenericParser<Repository> parser = new GenericParser<>(Repository.class);
-        parser.store(repository, baos);
-
-        Response response = resource.request(MediaType.APPLICATION_XML)
-                                    .put(Entity.entity(baos.toString("UTF-8"), MediaType.APPLICATION_XML));
+        Response response = resource.request(MediaType.TEXT_PLAIN)
+                                    .put(Entity.entity(repository, MediaType.APPLICATION_XML));
 
         return response.getStatus();
     }
