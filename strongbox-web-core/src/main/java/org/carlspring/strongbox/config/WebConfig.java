@@ -29,7 +29,8 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 @Configuration
-@ComponentScan({ "org.carlspring.strongbox.controllers",
+@ComponentScan({ "com.carlspring.strongbox.controllers",
+                 "org.carlspring.strongbox.controllers",
                  "org.carlspring.strongbox.mapper",
                  "org.carlspring.strongbox.utils",
                  "org.carlspring.logging" })
