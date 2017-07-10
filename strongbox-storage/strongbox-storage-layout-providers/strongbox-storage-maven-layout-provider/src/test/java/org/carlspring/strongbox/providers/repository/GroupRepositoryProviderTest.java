@@ -5,6 +5,7 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.resource.ResourceCloser;
+import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
@@ -52,6 +53,9 @@ public class GroupRepositoryProviderTest
 
     @Inject
     private RepositoryProviderRegistry repositoryProviderRegistry;
+
+    @Inject
+    private ConfigurationManagementService configurationManagementService;
 
     @Inject
     private ConfigurationManager configurationManager;
