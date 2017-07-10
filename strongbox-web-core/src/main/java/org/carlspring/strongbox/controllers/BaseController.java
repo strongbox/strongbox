@@ -2,12 +2,14 @@ package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.resource.ResourceCloser;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.ByteStreams;
@@ -50,20 +52,34 @@ public abstract class BaseController
         return configurationManager.getConfiguration();
     }
 
-    protected void copyToResponse(InputStream inputStream,
+    protected void copyToResponse(InputStream is,
                                   HttpServletResponse response)
             throws Exception
     {
+        OutputStream os = response.getOutputStream();
+
         try
         {
-            long totalBytes = ByteStreams.copy(new BufferedInputStream(inputStream), response.getOutputStream());
-            response.setHeader("Content-Length", totalBytes + "");
+            long totalBytes = 0L;
+
+            int readLength;
+            byte[] bytes = new byte[4096];
+            while ((readLength = is.read(bytes, 0, bytes.length)) != -1)
+            {
+                // Write the artifact
+                os.write(bytes, 0, readLength);
+                os.flush();
+
+                totalBytes += readLength;
+            }
+
+            response.setHeader("Content-Length", Long.toString(totalBytes));
             response.flushBuffer();
-            inputStream.close();
         }
-        catch (IOException e)
+        finally
         {
-            throw new RuntimeException("Unable copy to response", e);
+            ResourceCloser.close(is, logger);
+            ResourceCloser.close(os, logger);
         }
     }
 

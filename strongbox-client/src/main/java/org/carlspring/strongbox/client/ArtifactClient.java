@@ -9,6 +9,8 @@ import javax.ws.rs.core.Response;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.http.HttpStatus;
 import org.apache.maven.artifact.Artifact;
@@ -159,7 +161,10 @@ public class ArtifactClient
 
         WebTarget webResource = getClientInstance().target(url);
         setupAuthentication(webResource);
-        Response response = webResource.request(MediaType.TEXT_PLAIN).header(HEADER_NAME_USER_AGENT, HEADER_VALUE_MAVEN).get();
+
+        Response response = webResource.request(MediaType.TEXT_PLAIN)
+                                       .header(HEADER_NAME_USER_AGENT, HEADER_VALUE_MAVEN)
+                                       .get();
 
         final InputStream is = response.readEntity(InputStream.class);
 
@@ -192,6 +197,16 @@ public class ArtifactClient
             throws ArtifactTransportException,
                    IOException
     {
+        return getResource(path, offset, null, null);
+    }
+
+    public InputStream getResource(String path,
+                                   long offset,
+                                   MediaType mediaType,
+                                   Map<String, String> headers)
+            throws ArtifactTransportException,
+                   IOException
+    {
         String url = getContextBaseUrl() + (!path.startsWith("/") ? "/" : "") + path;
 
         logger.debug("Getting " + url + "...");
@@ -200,6 +215,19 @@ public class ArtifactClient
         setupAuthentication(resource);
 
         Invocation.Builder request = resource.request();
+        if (mediaType != null)
+        {
+            resource.request(mediaType.getType());
+        }
+
+        if (headers != null)
+        {
+            for (Map.Entry<String, String> header : headers.entrySet())
+            {
+                resource.request().header(header.getKey(), header.getValue());
+            }
+        }
+
         Response response;
 
         if (offset > 0)
