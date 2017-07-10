@@ -257,6 +257,8 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
                                                           String path)
             throws IOException, ProviderImplementationException
     {
+        logger.info(String.format("Validate artifact with path [%s]", path));
+        
         artifactOperationsValidator.validate(storageId, repositoryId, path);
 
         final Storage storage = getStorage(storageId);
@@ -267,7 +269,9 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
         {
             LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
             ArtifactCoordinates coordinates = layoutProvider.getArtifactCoordinates(path);
-
+            
+            logger.info(String.format("Validate artifact with coordinates [%s]", coordinates));
+            
             try
             {
                 final Set<VersionValidator> validators = versionValidatorService.getVersionValidators();

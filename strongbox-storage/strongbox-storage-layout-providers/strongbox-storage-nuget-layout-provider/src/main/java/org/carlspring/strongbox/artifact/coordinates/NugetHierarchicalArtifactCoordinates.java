@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 public class NugetHierarchicalArtifactCoordinates extends NugetArtifactCoordinates
 {
 
-    private static final String NUGET_PACKAGE_REGEXP_PATTERN = "([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_.-]+).(nupkg|nuspec|nupkg\\.sha512)";
+    private static final String NUGET_PACKAGE_REGEXP_PATTERN = "([a-zA-Z0-9_.-]+)[/|\\\\]([a-zA-Z0-9_.-]+)[/|\\\\]([a-zA-Z0-9_.-]+).(nupkg|nuspec|nupkg\\.sha512)";
 
     
     public NugetHierarchicalArtifactCoordinates()
@@ -53,7 +53,7 @@ public class NugetHierarchicalArtifactCoordinates extends NugetArtifactCoordinat
         String versionLocal = getVersion();
         String typeLocal = getType();
 
-        if (typeLocal.equals("nuspec"))
+        if ("nuspec".equals(typeLocal))
         {
             return String.format("%s/%s/%s.%s", idLocal, versionLocal, idLocal, typeLocal);
         }

@@ -1,3 +1,5 @@
+@Library('jenkins-shared-libraries')
+
 def REPO_NAME = 'strongbox/strongbox'
 
 pipeline {
@@ -66,6 +68,14 @@ pipeline {
         }
     }
     post {
+        changed {
+            script {
+                if(BRANCH_NAME == 'master') {
+                    def skype = new org.carlspring.jenkins.notification.skype.Skype()
+                    skype.sendNotification("admins;devs");
+                }
+            }
+        }
         always {
             deleteDir()
         }
