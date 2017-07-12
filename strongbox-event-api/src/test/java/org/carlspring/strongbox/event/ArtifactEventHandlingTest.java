@@ -1,10 +1,13 @@
 package org.carlspring.strongbox.event;
 
 import org.carlspring.strongbox.config.EventsConfig;
+import org.carlspring.strongbox.event.artifact.ArtifactEvent;
+import org.carlspring.strongbox.event.artifact.ArtifactEventListener;
+import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
+import org.carlspring.strongbox.event.artifact.ArtifactEventTypeEnum;
 
 import javax.inject.Inject;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.context.annotation.Import;
@@ -35,7 +38,7 @@ public class ArtifactEventHandlingTest
 
         artifactEventListenerRegistry.addListener(listener);
 
-        ArtifactEvent artifactEvent = new ArtifactEvent(ArtifactEvent.EVENT_ARTIFACT_UPLOADED);
+        ArtifactEvent artifactEvent = new ArtifactEvent(ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_UPLOADED.getType());
 
         artifactEventListenerRegistry.dispatchEvent(artifactEvent);
 

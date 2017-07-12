@@ -1,6 +1,10 @@
 package org.carlspring.strongbox.event;
 
 import org.carlspring.strongbox.config.EventsConfig;
+import org.carlspring.strongbox.event.artifact.ArtifactEventListener;
+import org.carlspring.strongbox.event.repository.RepositoryEvent;
+import org.carlspring.strongbox.event.repository.RepositoryEventListenerRegistry;
+import org.carlspring.strongbox.event.repository.RepositoryEventTypeEnum;
 
 import javax.inject.Inject;
 
@@ -34,7 +38,8 @@ public class RepositoryEventHandlingTest
 
         repositoryEventListenerRegistry.addListener(listener);
 
-        RepositoryEvent artifactEvent = new RepositoryEvent(RepositoryEvent.EVENT_REPOSITORY_PUT_IN_SERVICE);
+        RepositoryEvent artifactEvent = new RepositoryEvent(RepositoryEventTypeEnum.EVENT_REPOSITORY_PUT_IN_SERVICE
+                                                                                   .getType());
 
         repositoryEventListenerRegistry.dispatchEvent(artifactEvent);
 

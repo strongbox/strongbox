@@ -1,10 +1,13 @@
 package org.carlspring.strongbox.event;
 
 import org.carlspring.strongbox.config.EventsConfig;
+import org.carlspring.strongbox.event.server.ServerEvent;
+import org.carlspring.strongbox.event.server.ServerEventListener;
+import org.carlspring.strongbox.event.server.ServerEventListenerRegistry;
+import org.carlspring.strongbox.event.server.ServerEventTypeEnum;
 
 import javax.inject.Inject;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.context.annotation.Import;
@@ -35,7 +38,7 @@ public class ServerEventHandlingTest
 
         serverEventListenerRegistry.addListener(listener);
 
-        ServerEvent artifactEvent = new ServerEvent(ServerEvent.EVENT_SERVER_STARTED);
+        ServerEvent artifactEvent = new ServerEvent(ServerEventTypeEnum.EVENT_SERVER_STARTED.getType());
 
         serverEventListenerRegistry.dispatchEvent(artifactEvent);
 
@@ -43,7 +46,7 @@ public class ServerEventHandlingTest
     }
 
     private class DummyServerEventListener
-            implements ArtifactEventListener
+            implements ServerEventListener
     {
 
         boolean eventCaught = false;
