@@ -3,9 +3,7 @@ package org.carlspring.strongbox.event;
 /**
  * @author mtodorov
  */
-public interface ArtifactEventListener
+public interface ArtifactEventListener extends EventListener
 {
-
-    void handle(ArtifactEvent event);
 
 }

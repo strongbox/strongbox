@@ -3,9 +3,7 @@ package org.carlspring.strongbox.event;
 /**
  * @author mtodorov
  */
-public interface RepositoryEventListener
+public interface RepositoryEventListener extends EventListener
 {
-
-    void handle(RepositoryEvent event);
 
 }
