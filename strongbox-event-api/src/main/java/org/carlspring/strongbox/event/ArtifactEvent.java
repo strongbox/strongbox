@@ -3,7 +3,7 @@ package org.carlspring.strongbox.event;
 /**
  * @author mtodorov
  */
-public class ArtifactEvent
+public class ArtifactEvent extends Event
 {
 
     public static final int EVENT_ARTIFACT_UPLOADED = 1;
@@ -21,26 +21,9 @@ public class ArtifactEvent
     public static final int EVENT_ARTIFACT_DELETED = 7;
 
 
-    private int type;
-
-
-    public ArtifactEvent()
-    {
-    }
-
     public ArtifactEvent(int type)
     {
-        this.type = type;
-    }
-
-    public int getType()
-    {
-        return type;
-    }
-
-    public void setType(int type)
-    {
-        this.type = type;
+        setType(type);
     }
 
 }
