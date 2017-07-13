@@ -61,7 +61,6 @@ public class CronTaskController
     {
         try
         {
-            logger.debug("Cron task configuration: " + objectMapper.writeValueAsString(cronTaskConfiguration));
             logger.debug("Save Cron Task config call");
 
             cronTaskConfigurationService.saveConfiguration(cronTaskConfiguration);

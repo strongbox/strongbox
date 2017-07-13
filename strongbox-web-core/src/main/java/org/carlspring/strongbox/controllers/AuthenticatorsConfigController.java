@@ -2,10 +2,8 @@ package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
 import org.carlspring.strongbox.authentication.registry.support.AuthenticatorsScanner;
-import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -39,14 +37,11 @@ public class AuthenticatorsConfigController
     @ApiOperation(value = "Enumerates ordered collection of authenticators with order number and name")
     @ApiResponses(value = { @ApiResponse(code = 200,
             message = "The list was returned successfully.") })
-    @RequestMapping(value = "/", method = RequestMethod.GET, produces = { MediaType.APPLICATION_XML_VALUE })
-    public ResponseEntity<String> list()
-            throws JAXBException
+    @RequestMapping(value = "/", method = RequestMethod.GET, produces = { MediaType.APPLICATION_XML_VALUE,
+                                                                          MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity<AuthenticatorsRegistry> list()
     {
-        final GenericParser<AuthenticatorsRegistry> parser = new GenericParser<>(AuthenticatorsRegistry.class);
-        final String result = parser.serialize(authenticatorsRegistry);
-
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(authenticatorsRegistry);
     }
 
     @ApiOperation(value = "Reorders authenticators by their indexes")

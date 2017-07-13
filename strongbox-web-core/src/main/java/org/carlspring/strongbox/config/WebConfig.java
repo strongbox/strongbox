@@ -97,7 +97,9 @@ public class WebConfig
         Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
         marshaller.setPackagesToScan("org.carlspring.strongbox.artifact.coordinates",
                                      "org.carlspring.strongbox.authentication.registry",
+                                     "org.carlspring.strongbox.authentication.support",
                                      "org.carlspring.strongbox.configuration",
+                                     "org.carlspring.strongbox.controllers",
                                      //TODO: resolve @XmlRootElement(name = "repository") conflict with  org.carlspring.strongbox.storage.repository.Repository
                                      //"org.carlspring.strongbox.providers.layout.p2",
                                      "org.carlspring.strongbox.storage",

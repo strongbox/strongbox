@@ -36,17 +36,15 @@ public class LdapAuthenticatorConfigurationControllerTest
     public void shouldReturnProperRolesMapping()
             throws Exception
     {
-        RestAssuredMockMvc.when()
+        RestAssuredMockMvc.given()
+                          .header("Accept", "application/json")
+                          .when()
                           .get("/configuration/ldap/rolesMapping")
                           .peek()
                           .then()
-                          .body("authoritiesExternalToInternalMapper.rolesMapping.entry[0].key",
-                                CoreMatchers.equalTo("Developers"))
-                          .body("authoritiesExternalToInternalMapper.rolesMapping.entry[0].value",
+                          .body("rolesMapping.Developers",
                                 CoreMatchers.equalTo("REPOSITORY_MANAGER"))
-                          .body("authoritiesExternalToInternalMapper.rolesMapping.entry[1].key",
-                                CoreMatchers.equalTo("Contributors"))
-                          .body("authoritiesExternalToInternalMapper.rolesMapping.entry[1].value",
+                          .body("rolesMapping.Contributors",
                                 CoreMatchers.equalTo("USER_ROLE"))
                           .statusCode(200);
     }
@@ -55,11 +53,13 @@ public class LdapAuthenticatorConfigurationControllerTest
     public void userDnPatternsContainExpectedUserDnPattern()
             throws Exception
     {
-        RestAssuredMockMvc.when()
+        RestAssuredMockMvc.given()
+                          .header("Accept", "application/json")
+                          .when()
                           .get("/configuration/ldap/userDnPatterns")
                           .peek()
                           .then()
-                          .body("userDnPatterns.userDnPattern[0]",
+                          .body("userDnPattern[0]",
                                 CoreMatchers.equalTo("uid={0},ou=Users"))
                           .statusCode(200);
     }
@@ -68,13 +68,15 @@ public class LdapAuthenticatorConfigurationControllerTest
     public void userSearchFilterEqualsExpectedValue()
             throws Exception
     {
-        RestAssuredMockMvc.when()
+        RestAssuredMockMvc.given()
+                          .header("Accept", "application/json")
+                          .when()
                           .get("/configuration/ldap/userSearchFilter")
                           .peek()
                           .then()
-                          .body("userSearch.searchFilter",
+                          .body("searchFilter",
                                 CoreMatchers.equalTo("(uid={0})"))
-                          .body("userSearch.searchBase",
+                          .body("searchBase",
                                 CoreMatchers.equalTo("ou=people"))
                           .statusCode(200);
     }
@@ -83,13 +85,15 @@ public class LdapAuthenticatorConfigurationControllerTest
     public void groupSearchFilterEqualsExpectedValue()
             throws Exception
     {
-        RestAssuredMockMvc.when()
+        RestAssuredMockMvc.given()
+                          .header("Accept", "application/json")
+                          .when()
                           .get("/configuration/ldap/groupSearchFilter")
                           .peek()
                           .then()
-                          .body("groupSearch.searchBase",
+                          .body("searchBase",
                                 CoreMatchers.equalTo("ou=Groups"))
-                          .body("groupSearch.searchFilter",
+                          .body("searchFilter",
                                 CoreMatchers.equalTo("(uniqueMember={0})"))
                           .statusCode(200);
     }
@@ -166,6 +170,8 @@ public class LdapAuthenticatorConfigurationControllerTest
             throws Exception
     {
         RestAssuredMockMvc.given()
+                          .header("Accept", "application/xml")
+                          .when()
                           // below line is a workaround URI placeholders in RestAssuredMockMvc
                           .put("/configuration/ldap/userSearchFilter/ou=guys/(uid={0})", "{0}")
                           .peek()
@@ -173,13 +179,15 @@ public class LdapAuthenticatorConfigurationControllerTest
                           .body(CoreMatchers.equalTo("User search filter updated."))
                           .statusCode(200);
 
-        RestAssuredMockMvc.when()
+        RestAssuredMockMvc.given()
+                          .header("Accept", "application/json")
+                          .when()
                           .get("/configuration/ldap/userSearchFilter")
                           .peek()
                           .then()
-                          .body("userSearch.searchFilter",
+                          .body("searchFilter",
                                 CoreMatchers.equalTo("(uid={0})"))
-                          .body("userSearch.searchBase",
+                          .body("searchBase",
                                 CoreMatchers.equalTo("ou=guys"))
                           .statusCode(200);
     }
@@ -196,13 +204,15 @@ public class LdapAuthenticatorConfigurationControllerTest
                           .body(CoreMatchers.equalTo("Group search filter updated."))
                           .statusCode(200);
 
-        RestAssuredMockMvc.when()
+        RestAssuredMockMvc.given()
+                          .header("Accept", "application/json")
+                          .when()
                           .get("/configuration/ldap/groupSearchFilter")
                           .peek()
                           .then()
-                          .body("groupSearch.searchBase",
+                          .body("searchBase",
                                 CoreMatchers.equalTo("ou=guys"))
-                          .body("groupSearch.searchFilter",
+                          .body("searchFilter",
                                 CoreMatchers.equalTo("(participiant={0})"))
                           .statusCode(200);
     }
@@ -226,6 +236,8 @@ public class LdapAuthenticatorConfigurationControllerTest
             throws Exception
     {
         RestAssuredMockMvc.given()
+                          .header("Accept", "application/xml")
+                          .when()
                           // below line is a workaround URI placeholders in RestAssuredMockMvc
                           .post("/configuration/ldap/userDnPatterns/uid={0},ou=Guys", "{0}")
                           .peek()
@@ -234,13 +246,15 @@ public class LdapAuthenticatorConfigurationControllerTest
                                   "user DN pattern uid={0},ou=Guys added to the userDnPatterns"))
                           .statusCode(200);
 
-        RestAssuredMockMvc.when()
+        RestAssuredMockMvc.given()
+                          .header("Accept", "application/json")
+                          .when()
                           .get("/configuration/ldap/userDnPatterns")
                           .peek()
                           .then()
-                          .body("userDnPatterns.userDnPattern[0]",
+                          .body("userDnPattern[0]",
                                 CoreMatchers.equalTo("uid={0},ou=Users"))
-                          .body("userDnPatterns.userDnPattern[1]",
+                          .body("userDnPattern[1]",
                                 CoreMatchers.equalTo("uid={0},ou=Guys"))
                           .statusCode(200);
     }
