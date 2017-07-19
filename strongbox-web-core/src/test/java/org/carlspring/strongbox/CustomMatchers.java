@@ -8,19 +8,19 @@ import org.hamcrest.CustomMatcher;
 public class CustomMatchers
 {
 
-    public static org.hamcrest.Matcher<Number> eqByNumberOrToString(Number expected)
+    public static <T> org.hamcrest.Matcher<T> equalByToString(T expected)
     {
-        return new EqByNumberOrToStringMatcher(expected, "expected value = " + expected);
+        return new EqualByToStringMatcher(expected, "expected value = " + expected);
     }
 
-    public static class EqByNumberOrToStringMatcher
-            extends CustomMatcher<Number>
+    public static class EqualByToStringMatcher<T>
+            extends CustomMatcher<T>
     {
 
-        private Number expected;
+        private T expected;
 
-        public EqByNumberOrToStringMatcher(Number expected,
-                                           String description)
+        public EqualByToStringMatcher(T expected,
+                                      String description)
         {
             super(description);
             this.expected = expected;
@@ -29,7 +29,7 @@ public class CustomMatchers
         @Override
         public boolean matches(Object item)
         {
-            return (item instanceof Number) ? item.equals(expected) : item.toString().equals(expected.toString());
+            return item.toString().equals(expected.toString());
         }
     }
 
