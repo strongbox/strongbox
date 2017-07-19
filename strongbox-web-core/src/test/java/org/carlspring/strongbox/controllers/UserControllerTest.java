@@ -131,11 +131,11 @@ public class UserControllerTest
 
         // send update request
         User updatedUser = given().contentType("application/json")
-                                 .body(createdUser)
-                                 .when()
-                                 .put("/users/user")
-                                 .peek() // Use peek() to print the output
-                                 .as(User.class);
+                                  .body(createdUser)
+                                  .when()
+                                  .put("/users/user")
+                                  .peek() // Use peek() to print the output
+                                  .as(User.class);
 
         logger.info("Users after update: ->>>>>> ");
         displayAllUsers();
@@ -182,22 +182,22 @@ public class UserControllerTest
         //2. Provide `securityTokenKey`
         user.setSecurityTokenKey("seecret");
         user = given().contentType("application/json")
-                                 .body(user)
-                                 .when()
-                                 .put("/users/user")
-                                 .peek() // Use peek() to print the output
-                                 .as(User.class);
+                      .body(user)
+                      .when()
+                      .put("/users/user")
+                      .peek()
+                      .as(User.class);
 
         assertNotNull(user.getSecurityTokenKey());
 
         //3. Generate token
         String response = given().when()
-                          .get("/users/user/test-jwt/generate-security-token")
-                          .peek() // Use peek() to print the output
-                          .then()
-                          .statusCode(200) // check http status code
-                          .extract()
-                          .asString();
+                                 .get("/users/user/test-jwt/generate-security-token")
+                                 .peek()
+                                 .then()
+                                 .statusCode(200)
+                                 .extract()
+                                 .asString();
         assertTrue(response.startsWith("eyJhbGciOiJIUzI1NiJ9"));
     }
 

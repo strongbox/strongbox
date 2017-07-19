@@ -114,9 +114,9 @@ public class ConfigurationManagementControllerTest
         logger.debug("Current proxy host: " + proxyConfiguration.getHost());
 
         ProxyConfiguration pc = given().contentType(MediaType.APPLICATION_XML_VALUE)
-                                 .when()
-                                 .get(url)
-                                 .as(ProxyConfiguration.class);
+                                       .when()
+                                       .get(url)
+                                       .as(ProxyConfiguration.class);
 
         assertNotNull("Failed to get proxy configuration!", pc);
         assertEquals("Failed to get proxy configuration!", proxyConfiguration.getHost(), pc.getHost());
@@ -190,9 +190,9 @@ public class ConfigurationManagementControllerTest
         String url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId;
 
         return given().contentType(MediaType.TEXT_PLAIN_VALUE)
-                                 .when()
-                                 .get(url)
-                                 .as(Storage.class);
+                      .when()
+                      .get(url)
+                      .as(Storage.class);
     }
 
     private int addRepository(Repository repository)
@@ -350,9 +350,9 @@ public class ConfigurationManagementControllerTest
         String url = getContextBaseUrl() + "/configuration/strongbox/xml";
 
         return given().contentType(MediaType.TEXT_PLAIN_VALUE)
-                                 .when()
-                                 .get(url)
-                                 .as(Configuration.class);
+                      .when()
+                      .get(url)
+                      .as(Configuration.class);
     }
 
     @Test
