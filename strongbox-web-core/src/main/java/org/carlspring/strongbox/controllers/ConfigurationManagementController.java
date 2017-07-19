@@ -11,7 +11,6 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RuleSet;
-import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -71,16 +70,10 @@ public class ConfigurationManagementController
     @RequestMapping(value = "/xml",
                     method = RequestMethod.PUT,
                     produces = MediaType.TEXT_PLAIN_VALUE,
-                    consumes = MediaType.TEXT_PLAIN_VALUE)
+                    consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity setConfigurationXML(@ApiParam(value = "The strongbox.xml configuration file", required = true)
-                                              @RequestBody String serializedConfiguration)
-            throws IOException,
-                   AuthenticationException,
-                   JAXBException
+                                              @RequestBody Configuration configuration)
     {
-        GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
-        Configuration configuration = parser.deserialize(serializedConfiguration);
-
         try
         {
             configurationManagementService.setConfiguration(configuration);
@@ -108,15 +101,11 @@ public class ConfigurationManagementController
                     produces = { MediaType.APPLICATION_XML_VALUE,
                                  MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getConfigurationXML()
-            throws IOException, ParseException, JAXBException
     {
         logger.debug("Received configuration request.");
 
-        GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
-        String serializedConfiguration = parser.serialize(getConfiguration());
-
         return ResponseEntity.status(HttpStatus.OK)
-                             .body(serializedConfiguration);
+                             .body(getConfiguration());
     }
 
     @ApiOperation(value = "Retrieves the strongbox.xml configuration file.")
@@ -214,8 +203,7 @@ public class ConfigurationManagementController
     @RequestMapping(value = "/port",
                     method = RequestMethod.GET)
     public ResponseEntity getPort()
-            throws IOException,
-                   AuthenticationException
+            throws IOException
     {
         return ResponseEntity.ok(configurationManagementService.getPort());
     }
@@ -228,19 +216,14 @@ public class ConfigurationManagementController
     @PreAuthorize("hasAuthority('CONFIGURATION_SET_GLOBAL_PROXY_CFG')")
     @RequestMapping(value = "/proxy-configuration",
                     method = RequestMethod.PUT,
-                    consumes = MediaType.TEXT_PLAIN_VALUE)
+                    consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity setProxyConfiguration(@ApiParam(value = "The storageId")
                                                 @RequestParam(value = "storageId", required = false) String storageId,
                                                 @ApiParam(value = "The repositoryId")
                                                 @RequestParam(value = "repositoryId", required = false) String repositoryId,
                                                 @ApiParam(value = "The proxy configuration for this proxy repository", required = true)
-                                                @RequestBody String serializedProxyConfiguration)
-            throws IOException,
-                   JAXBException
+                                                @RequestBody ProxyConfiguration proxyConfiguration)
     {
-        GenericParser<ProxyConfiguration> parser = new GenericParser<>(ProxyConfiguration.class);
-        ProxyConfiguration proxyConfiguration = parser.deserialize(serializedProxyConfiguration);
-
         logger.debug("Received proxy configuration \n" + proxyConfiguration);
 
         try
@@ -264,7 +247,7 @@ public class ConfigurationManagementController
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_GLOBAL_PROXY_CFG')")
     @RequestMapping(value = "/proxy-configuration",
                     method = RequestMethod.GET,
-                    produces = MediaType.TEXT_PLAIN_VALUE)
+                    produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getProxyConfiguration(@ApiParam(value = "The storageId")
                                                 @RequestParam(value = "storageId", required = false) String storageId,
                                                 @ApiParam(value = "The repositoryId")
@@ -286,11 +269,8 @@ public class ConfigurationManagementController
 
         if (proxyConfiguration != null)
         {
-            GenericParser<ProxyConfiguration> parser = new GenericParser<>(ProxyConfiguration.class);
-            String serializedProxyConfiguration = parser.serialize(proxyConfiguration);
-
             return ResponseEntity.status(HttpStatus.OK)
-                                 .body(serializedProxyConfiguration);
+                                 .body(proxyConfiguration);
         }
         else
         {
@@ -347,25 +327,14 @@ public class ConfigurationManagementController
                     consumes = { MediaType.TEXT_PLAIN_VALUE })
     public ResponseEntity getStorage(@ApiParam(value = "The storageId", required = true)
                                      @PathVariable final String storageId)
-            throws IOException, ParseException
+            throws IOException
     {
         final Storage storage = configurationManagementService.getStorage(storageId);
 
         if (storage != null)
         {
-            GenericParser<Storage> parser = new GenericParser<>(Storage.class);
-            String serializedStorage = null;
-            try
-            {
-                serializedStorage = parser.serialize(storage);
-            }
-            catch (JAXBException e)
-            {
-                logger.error(e.getMessage(), e);
-            }
-
             return ResponseEntity.status(HttpStatus.OK)
-                                 .body(serializedStorage);
+                                 .body(storage);
         }
         else
         {
@@ -489,11 +458,8 @@ public class ConfigurationManagementController
 
             if (repository != null)
             {
-                GenericParser<Repository> parser = new GenericParser<>(Repository.class);
-                String serializeRepository = parser.serialize(repository);
-
                 return ResponseEntity.status(HttpStatus.OK)
-                                     .body(serializeRepository);
+                                     .body(repository);
             }
             else
             {
@@ -586,23 +552,9 @@ public class ConfigurationManagementController
 
     @RequestMapping(value = "/routing/rules/set/accepted",
                     method = RequestMethod.PUT,
-                    consumes = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity addAcceptedRuleSet(@RequestBody String serializeRuleSet)
+                    consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity addAcceptedRuleSet(@RequestBody RuleSet ruleSet)
     {
-
-        GenericParser<RuleSet> parser = new GenericParser<>(RuleSet.class);
-        RuleSet ruleSet = null;
-        try
-        {
-            ruleSet = parser.deserialize(serializeRuleSet);
-        }
-        catch (JAXBException e)
-        {
-            logger.error("[addAcceptedRuleSet] deserialize error", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .build();
-        }
-
         final boolean added = configurationManagementService.saveAcceptedRuleSet(ruleSet);
         if (added)
         {
@@ -626,24 +578,10 @@ public class ConfigurationManagementController
 
     @RequestMapping(value = "/routing/rules/accepted/{groupRepository}/repositories",
                     method = RequestMethod.PUT,
-                    consumes = MediaType.TEXT_PLAIN_VALUE)
+                    consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity addAcceptedRepository(@PathVariable String groupRepository,
-                                                @RequestBody String serializeRoutingRule)
+                                                @RequestBody RoutingRule routingRule)
     {
-
-        GenericParser<RoutingRule> parser = new GenericParser<>(RoutingRule.class);
-        RoutingRule routingRule = null;
-        try
-        {
-            routingRule = parser.deserialize(serializeRoutingRule);
-        }
-        catch (JAXBException e)
-        {
-            logger.error("[addAcceptedRepository] deserialize error", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .build();
-        }
-
         logger.debug("[addAcceptedRepository] Routing rule " + routingRule);
 
         if (routingRule.getPattern() == null && routingRule.getRepositories()
@@ -671,22 +609,8 @@ public class ConfigurationManagementController
                     method = RequestMethod.PUT,
                     consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity overrideAcceptedRepository(@PathVariable String groupRepository,
-                                                     @RequestBody String serializeRoutingRule)
+                                                     @RequestBody RoutingRule routingRule)
     {
-
-        GenericParser<RoutingRule> parser = new GenericParser<>(RoutingRule.class);
-        RoutingRule routingRule = null;
-        try
-        {
-            routingRule = parser.deserialize(serializeRoutingRule);
-        }
-        catch (JAXBException e)
-        {
-            logger.error("[overrideAcceptedRepository] deserialize error", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .build();
-        }
-
         logger.debug("[addAcceptedRepository] Routing rule " + routingRule);
 
         if (routingRule.getPattern() == null && routingRule.getRepositories()

@@ -8,9 +8,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * @author Przemyslaw Fusik
  */
-@XmlRootElement(name = "groupSearch")
+@XmlRootElement(name = "userSearch")
 @XmlAccessorType(XmlAccessType.NONE)
-public class LdapGroupSearchXmlHolder
+public class LdapUserSearchResponseEntityBody
 {
 
     @XmlElement(name = "searchBase")
@@ -19,13 +19,13 @@ public class LdapGroupSearchXmlHolder
     @XmlElement(name = "searchFilter")
     private String searchFilter;
 
-    LdapGroupSearchXmlHolder searchBase(String searchBase)
+    LdapUserSearchResponseEntityBody searchBase(String searchBase)
     {
         this.searchBase = searchBase;
         return this;
     }
 
-    LdapGroupSearchXmlHolder searchFilter(String searchFilter)
+    LdapUserSearchResponseEntityBody searchFilter(String searchFilter)
     {
         this.searchFilter = searchFilter;
         return this;

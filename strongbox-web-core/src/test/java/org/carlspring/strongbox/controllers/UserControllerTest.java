@@ -11,7 +11,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
+import java.util.stream.Stream;
 
 import io.restassured.http.ContentType;
 import org.junit.Test;
@@ -70,7 +70,7 @@ public class UserControllerTest
         User test = buildUser("test", "password");
 
         given().contentType("application/json")
-               .param("juser", test)
+               .body(test)
                .when()
                .post("/users/user")
                .peek() // Use peek() to print the output
@@ -87,24 +87,16 @@ public class UserControllerTest
             throws Exception
     {
 
-        String response = given().contentType("application/json")
-                                 .when()
-                                 .get("/users/all")
-                                 .peek() // Use peek() to print the output
-                                 .then()
-                                 .statusCode(200) // check http status code
-                                 .extract()
-                                 .asString();
-
-        List<User> users = objectMapper.readValue(response,
-                                                  objectMapper.getTypeFactory()
-                                                              .constructCollectionType(List.class,
-                                                                                       User.class));
+        User[] users = given().contentType("application/json")
+                              .when()
+                              .get("/users/all")
+                              .peek() // Use peek() to print the output
+                              .as(User[].class);
 
         assertNotNull(users);
-        assertFalse(users.isEmpty());
+        assertFalse(users.length == 0);
 
-        users.forEach(user -> logger.debug("Retrieved " + user));
+        Stream.of(users).forEach(user -> logger.debug("Retrieved " + user));
     }
 
     @Test
@@ -117,7 +109,7 @@ public class UserControllerTest
         User test = buildUser(userName, "password-update");
 
         given().contentType("application/json")
-               .param("juser", test)
+               .body(test)
                .when()
                .post("/users/user")
                .peek() // Use peek() to print the output
@@ -138,18 +130,12 @@ public class UserControllerTest
         displayAllUsers();
 
         // send update request
-        String response = given().contentType("application/json")
-                                 .param("juser", createdUser)
-                                 .when()
-                                 .put("/users/user")
-                                 .peek() // Use peek() to print the output
-                                 .then()
-                                 .statusCode(200) // check http status code
-                                 .extract()
-                                 .asString();
-
-        // deserialize response
-        User updatedUser = objectMapper.readValue(response, User.class);
+        User updatedUser = given().contentType("application/json")
+                                  .body(createdUser)
+                                  .when()
+                                  .put("/users/user")
+                                  .peek() // Use peek() to print the output
+                                  .as(User.class);
 
         logger.info("Users after update: ->>>>>> ");
         displayAllUsers();
@@ -181,7 +167,7 @@ public class UserControllerTest
 
         //1. Create user
         given().contentType("application/json")
-               .param("juser", user)
+               .body(user)
                .when()
                .post("/users/user")
                .peek() // Use peek() to print the output
@@ -195,26 +181,23 @@ public class UserControllerTest
 
         //2. Provide `securityTokenKey`
         user.setSecurityTokenKey("seecret");
-        String response = given().contentType("application/json")
-                                 .param("juser", user)
-                                 .when()
-                                 .put("/users/user")
-                                 .peek() // Use peek() to print the output
-                                 .then()
-                                 .statusCode(200) // check http status code
-                                 .extract()
-                                 .asString();
-        user = objectMapper.readValue(response, User.class);
+        user = given().contentType("application/json")
+                      .body(user)
+                      .when()
+                      .put("/users/user")
+                      .peek()
+                      .as(User.class);
+
         assertNotNull(user.getSecurityTokenKey());
 
         //3. Generate token
-        response = given().when()
-                          .get("/users/user/test-jwt/generate-security-token")
-                          .peek() // Use peek() to print the output
-                          .then()
-                          .statusCode(200) // check http status code
-                          .extract()
-                          .asString();
+        String response = given().when()
+                                 .get("/users/user/test-jwt/generate-security-token")
+                                 .peek()
+                                 .then()
+                                 .statusCode(200)
+                                 .extract()
+                                 .asString();
         assertTrue(response.startsWith("eyJhbGciOiJIUzI1NiJ9"));
     }
 
@@ -227,7 +210,7 @@ public class UserControllerTest
         User test = buildUser("test-delete", "password-update");
 
         given().contentType("application/json")
-               .param("juser", test)
+               .body(test)
                .when()
                .post("/users/user")
                .peek() // Use peek() to print the output

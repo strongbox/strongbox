@@ -7,7 +7,6 @@ import org.carlspring.strongbox.users.security.AuthorizationConfig;
 import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.service.impl.UserServiceImpl;
-import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -97,15 +96,12 @@ public class AuthorizationConfigController
                                          message = "An error occurred.") })
     @RequestMapping(value = "role",
                     method = RequestMethod.POST,
-                    consumes = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity addRole(@RequestBody String serializedJson)
+                    consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity addRole(@RequestBody Role role)
             throws JAXBException
     {
 
-        GenericParser<Role> parser = new GenericParser<>(Role.class);
-        Role role = parser.deserialize(serializedJson);
-
-        logger.info("Trying to add new role from JSON\n" + serializedJson);
+        logger.info("Trying to add new role \n" + role);
         logger.debug(role.toString());
         return processConfig(config ->
                              {
@@ -139,7 +135,6 @@ public class AuthorizationConfigController
                     produces = { MediaType.APPLICATION_XML_VALUE,
                                  MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getAuthorizationConfig()
-            throws JAXBException
     {
         logger.debug("Trying to receive authorization config as XML / JSON file...");
 
@@ -161,7 +156,6 @@ public class AuthorizationConfigController
     public ResponseEntity deleteRole(@ApiParam(value = "The name of the role",
                                                required = true)
                                      @PathVariable("name") String name)
-            throws Exception
     {
         return processConfig(config ->
                              {

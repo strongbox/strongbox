@@ -6,10 +6,8 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
-import java.io.IOException;
 
 import io.swagger.annotations.Api;
-import org.springframework.http.ResponseEntity;
 
 @Api(value = "/storages")
 public abstract class BaseArtifactController
@@ -25,32 +23,6 @@ public abstract class BaseArtifactController
 
     // ----------------------------------------------------------------------------------------------------------------
     // Common-purpose methods
-
-    protected synchronized <T> T read(String json,
-                                      Class<T> type)
-    {
-        try
-        {
-            return objectMapper.readValue(json, type);
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-
-    protected synchronized ResponseEntity toResponse(Object arg)
-    {
-        try
-        {
-            return ResponseEntity.ok(objectMapper.writeValueAsString(arg));
-        }
-        catch (Exception e)
-        {
-            return toError(e);
-        }
-    }
-
 
     public Storage getStorage(String storageId)
     {

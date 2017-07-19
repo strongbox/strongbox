@@ -8,7 +8,6 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RuleSet;
-import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -100,15 +99,11 @@ public class ConfigurationManagementControllerTest
             throws Exception
     {
         ProxyConfiguration proxyConfiguration = createProxyConfiguration();
-        GenericParser<ProxyConfiguration> parser = new GenericParser<>(ProxyConfiguration.class);
-        String serializedConfig = parser.serialize(proxyConfiguration);
-
-        logger.info("Serialized config -> \n" + serializedConfig);
 
         String url = getContextBaseUrl() + "/configuration/strongbox/proxy-configuration";
 
-        given().contentType(MediaType.TEXT_PLAIN_VALUE)
-               .body(serializedConfig)
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .body(proxyConfiguration)
                .when()
                .put(url)
                .then()
@@ -118,15 +113,10 @@ public class ConfigurationManagementControllerTest
 
         logger.debug("Current proxy host: " + proxyConfiguration.getHost());
 
-        String response = given().contentType(MediaType.APPLICATION_XML_VALUE)
-                                 .when()
-                                 .get(url)
-                                 .then()
-                                 .statusCode(200)
-                                 .extract().response().getBody().asString();
-
-        GenericParser<ProxyConfiguration> parser2 = new GenericParser<>(ProxyConfiguration.class);
-        ProxyConfiguration pc = parser2.deserialize(response);
+        ProxyConfiguration pc = given().contentType(MediaType.APPLICATION_XML_VALUE)
+                                       .when()
+                                       .get(url)
+                                       .as(ProxyConfiguration.class);
 
         assertNotNull("Failed to get proxy configuration!", pc);
         assertEquals("Failed to get proxy configuration!", proxyConfiguration.getHost(), pc.getHost());
@@ -195,28 +185,17 @@ public class ConfigurationManagementControllerTest
     }
 
     private Storage getStorage(String storageId)
-            throws IOException, JAXBException
     {
 
         String url = getContextBaseUrl() + "/configuration/strongbox/storages/" + storageId;
 
-        String response = given().contentType(MediaType.TEXT_PLAIN_VALUE)
-                                 .when()
-                                 .get(url)
-                                 .then()
-                                 .statusCode(200)
-                                 .extract()
-                                 .response()
-                                 .getBody()
-                                 .asString();
-
-        GenericParser<Storage> parser2 = new GenericParser<>(Storage.class);
-        Storage storage = parser2.deserialize(response);
-        return storage;
+        return given().contentType(MediaType.TEXT_PLAIN_VALUE)
+                      .when()
+                      .get(url)
+                      .as(Storage.class);
     }
 
     private int addRepository(Repository repository)
-            throws IOException, JAXBException
     {
         String url;
         if (repository == null)
@@ -258,7 +237,6 @@ public class ConfigurationManagementControllerTest
 
     @Test
     public void testCreateAndDeleteStorage()
-            throws IOException, JAXBException
     {
         final String storageId = "storage2";
         final String repositoryId1 = "repository0";
@@ -304,8 +282,7 @@ public class ConfigurationManagementControllerTest
 
         url = getContextBaseUrl() + "/configuration/strongbox/proxy-configuration";
 
-        given().contentType(MediaType.APPLICATION_XML_VALUE)
-               .params("storageId", storageId, "repositoryId", repositoryId1)
+        given().params("storageId", storageId, "repositoryId", repositoryId1)
                .when()
                .get(url)
                .peek() // Use peek() to print the ouput
@@ -356,11 +333,8 @@ public class ConfigurationManagementControllerTest
 
         String url = getContextBaseUrl() + "/configuration/strongbox/xml";
 
-        GenericParser<Configuration> parser2 = new GenericParser<>(Configuration.class);
-        String serializedConfiguration = parser2.serialize(configuration);
-
-        given().contentType(MediaType.TEXT_PLAIN_VALUE)
-               .body(serializedConfiguration)
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .body(configuration)
                .when()
                .put(url)
                .then()
@@ -372,21 +346,13 @@ public class ConfigurationManagementControllerTest
     }
 
     public Configuration getConfigurationFromRemote()
-            throws IOException, JAXBException
     {
         String url = getContextBaseUrl() + "/configuration/strongbox/xml";
 
-        String response = given().contentType(MediaType.TEXT_PLAIN_VALUE)
-                                 .when()
-                                 .get(url)
-                                 .then()
-                                 .statusCode(200)
-                                 .extract().response().getBody().asString();
-
-        GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
-        Configuration configuration = parser.deserialize(response);
-
-        return configuration;
+        return given().contentType(MediaType.TEXT_PLAIN_VALUE)
+                      .when()
+                      .get(url)
+                      .as(Configuration.class);
     }
 
     @Test
@@ -453,19 +419,8 @@ public class ConfigurationManagementControllerTest
         repositories.add("releases32");
         routingRule.setRepositories(repositories);
 
-        GenericParser<RoutingRule> parser = new GenericParser<>(RoutingRule.class);
-        String serialezeRoutingRule = null;
-        try
-        {
-            serialezeRoutingRule = parser.serialize(routingRule);
-        }
-        catch (JAXBException e)
-        {
-            e.printStackTrace();
-        }
-
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .body(serialezeRoutingRule)
+               .body(routingRule)
                .when()
                .put(url)
                .then()
@@ -490,19 +445,8 @@ public class ConfigurationManagementControllerTest
         rule.add(routingRule);
         ruleSet.setRoutingRules(rule);
 
-        GenericParser<RuleSet> parser = new GenericParser<>(RuleSet.class);
-        String serializeRuleSet = null;
-        try
-        {
-            serializeRuleSet = parser.serialize(ruleSet);
-        }
-        catch (JAXBException e)
-        {
-            e.printStackTrace();
-        }
-
-        given().contentType(MediaType.TEXT_PLAIN_VALUE)
-               .body(serializeRuleSet)
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .body(ruleSet)
                .when()
                .put(url)
                .then()
@@ -522,19 +466,8 @@ public class ConfigurationManagementControllerTest
         repositories.add("releases3");
         routingRule.setRepositories(repositories);
 
-        GenericParser<RoutingRule> parser = new GenericParser<>(RoutingRule.class);
-        String serialezeRoutingRule = null;
-        try
-        {
-            serialezeRoutingRule = parser.serialize(routingRule);
-        }
-        catch (JAXBException e)
-        {
-            e.printStackTrace();
-        }
-
-        given().contentType(MediaType.TEXT_PLAIN_VALUE)
-               .body(serialezeRoutingRule)
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .body(routingRule)
                .when()
                .put(url)
                .then()

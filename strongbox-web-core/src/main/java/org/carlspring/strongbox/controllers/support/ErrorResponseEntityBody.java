@@ -10,17 +10,17 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement(name = "error")
 @XmlAccessorType(XmlAccessType.NONE)
-public class ErrorXmlHandler
+public class ErrorResponseEntityBody
 {
 
     @XmlElement(name = "message")
     private String message;
 
-    public ErrorXmlHandler()
+    public ErrorResponseEntityBody()
     {
     }
 
-    public ErrorXmlHandler(String message)
+    public ErrorResponseEntityBody(String message)
     {
         this.message = message;
     }

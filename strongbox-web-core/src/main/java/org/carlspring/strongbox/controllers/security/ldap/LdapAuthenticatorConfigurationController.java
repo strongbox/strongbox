@@ -1,13 +1,12 @@
 package org.carlspring.strongbox.controllers.security.ldap;
 
-import org.carlspring.strongbox.authentication.support.AuthoritiesExternalToInternalMapper;
 import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.controllers.security.ldap.support.LdapConstants.LdapMessages;
-import org.carlspring.strongbox.controllers.security.ldap.support.*;
-import org.carlspring.strongbox.xml.parsers.GenericParser;
+import org.carlspring.strongbox.controllers.security.ldap.support.LdapUserDnPatternsResponseEntityBody;
+import org.carlspring.strongbox.controllers.security.ldap.support.SpringSecurityLdapInternalsSupplier;
+import org.carlspring.strongbox.controllers.security.ldap.support.SpringSecurityLdapInternalsUpdater;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.util.List;
 
 import io.swagger.annotations.Api;
@@ -50,19 +49,15 @@ public class LdapAuthenticatorConfigurationController
     @ApiOperation(value = "Returns LDAP roles to strongbox internal roles mapping")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The mapping."),
                             @ApiResponse(code = 400, message = "LDAP is not enabled.") })
-    @RequestMapping(value = "/rolesMapping", method = RequestMethod.GET, produces = MediaType.APPLICATION_XML_VALUE)
-    public ResponseEntity<String> getRolesMapping()
-            throws JAXBException
+    @RequestMapping(value = "/rolesMapping", method = RequestMethod.GET, produces = { MediaType.APPLICATION_XML_VALUE,
+                                                                                      MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity getRolesMapping()
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
-            return toXmlError(LdapMessages.NOT_CONFIGURED, HttpStatus.BAD_REQUEST);
+            return toResponseEntityError(LdapMessages.NOT_CONFIGURED, HttpStatus.BAD_REQUEST);
         }
-
-        final GenericParser<AuthoritiesExternalToInternalMapper> parser = new GenericParser<>(AuthoritiesExternalToInternalMapper.class);
-        final String result = parser.serialize(springSecurityLdapInternalsSupplier.getAuthoritiesMapper());
-
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(springSecurityLdapInternalsSupplier.getAuthoritiesMapper());
     }
 
     @ApiOperation(value = "Adds LDAP role mapping if the mapping does not exist. It doesn't override existing value.")
@@ -81,7 +76,8 @@ public class LdapAuthenticatorConfigurationController
         try
         {
             String previousInternalRole = springSecurityLdapInternalsSupplier.getAuthoritiesMapper()
-                                                                             .addRoleMapping(externalRole, internalRole);
+                                                                             .addRoleMapping(externalRole,
+                                                                                             internalRole);
             if (previousInternalRole != null)
             {
                 return ResponseEntity.badRequest()
@@ -157,13 +153,13 @@ public class LdapAuthenticatorConfigurationController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "User DN patterns."),
                             @ApiResponse(code = 204, message = "User DN patterns are empty."),
                             @ApiResponse(code = 400, message = "LDAP is not enabled.") })
-    @RequestMapping(value = "/userDnPatterns", method = RequestMethod.GET, produces = { MediaType.APPLICATION_XML_VALUE })
-    public ResponseEntity<String> getUserDnPatterns()
-            throws JAXBException
+    @RequestMapping(value = "/userDnPatterns", method = RequestMethod.GET, produces = { MediaType.APPLICATION_XML_VALUE,
+                                                                                        MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity getUserDnPatterns()
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
-            return toXmlError(LdapMessages.NOT_CONFIGURED, HttpStatus.BAD_REQUEST);
+            return toResponseEntityError(LdapMessages.NOT_CONFIGURED, HttpStatus.BAD_REQUEST);
         }
         List<String> userDnPatterns = springSecurityLdapInternalsSupplier.getUserDnPatterns();
         if (userDnPatterns == null)
@@ -171,11 +167,7 @@ public class LdapAuthenticatorConfigurationController
             return ResponseEntity.noContent()
                                  .build();
         }
-
-        final GenericParser<LdapUserDnPatternsXmlHolder> parser = new GenericParser<>(LdapUserDnPatternsXmlHolder.class);
-        final String result = parser.serialize(new LdapUserDnPatternsXmlHolder(userDnPatterns));
-
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(new LdapUserDnPatternsResponseEntityBody(userDnPatterns));
     }
 
     @ApiOperation(value = "Removes the provided user DN pattern from the userDnPatterns.")
@@ -251,13 +243,13 @@ public class LdapAuthenticatorConfigurationController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "User search filter."),
                             @ApiResponse(code = 204, message = "User search filter was not provided."),
                             @ApiResponse(code = 400, message = "LDAP is not enabled or userSearchFilter is not supported via this method.") })
-    @RequestMapping(value = "/userSearchFilter", method = RequestMethod.GET, produces = { MediaType.APPLICATION_XML_VALUE })
-    public ResponseEntity<String> getUserSearchFilter()
-            throws JAXBException
+    @RequestMapping(value = "/userSearchFilter", method = RequestMethod.GET, produces = { MediaType.APPLICATION_XML_VALUE,
+                                                                                          MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity getUserSearchFilter()
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
-            return toXmlError(LdapMessages.NOT_CONFIGURED, HttpStatus.BAD_REQUEST);
+            return toResponseEntityError(LdapMessages.NOT_CONFIGURED, HttpStatus.BAD_REQUEST);
         }
         LdapUserSearch userSearch = springSecurityLdapInternalsSupplier.getUserSearch();
         if (userSearch == null)
@@ -267,16 +259,12 @@ public class LdapAuthenticatorConfigurationController
         }
         if (!(userSearch instanceof FilterBasedLdapUserSearch))
         {
-            return ResponseEntity.badRequest().body(
-                    "Unable to display userSearchFilter configuration. " + userSearch.getClass() +
-                    " is not supported via this method.");
+            return toResponseEntityError("Unable to display userSearchFilter configuration. " + userSearch.getClass() +
+                                         " is not supported via this method.", HttpStatus.BAD_REQUEST);
         }
 
-        final GenericParser<LdapUserSearchXmlHolder> parser = new GenericParser<>(LdapUserSearchXmlHolder.class);
-        final String result = parser.serialize(
+        return ResponseEntity.ok(
                 springSecurityLdapInternalsSupplier.getUserSearchXmlHolder((FilterBasedLdapUserSearch) userSearch));
-
-        return ResponseEntity.ok(result);
     }
 
     @ApiOperation(value = "Updates LDAP user search filter. See http://docs.spring.io/spring-security/site/docs/current/reference/html/ldap.html#using-bind-authentication")
@@ -308,13 +296,13 @@ public class LdapAuthenticatorConfigurationController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Group search filter."),
                             @ApiResponse(code = 204, message = "Group search filter was not provided."),
                             @ApiResponse(code = 400, message = "LDAP is not enabled or groupSearchFilter is not supported via this method.") })
-    @RequestMapping(value = "/groupSearchFilter", method = RequestMethod.GET, produces = { MediaType.APPLICATION_XML_VALUE })
-    public ResponseEntity<String> getGroupSearchFilter()
-            throws JAXBException
+    @RequestMapping(value = "/groupSearchFilter", method = RequestMethod.GET, produces = { MediaType.APPLICATION_XML_VALUE,
+                                                                                           MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity getGroupSearchFilter()
     {
         if (!springSecurityLdapInternalsSupplier.isLdapAuthenticationEnabled())
         {
-            return toXmlError(LdapMessages.NOT_CONFIGURED, HttpStatus.BAD_REQUEST);
+            return toResponseEntityError(LdapMessages.NOT_CONFIGURED, HttpStatus.BAD_REQUEST);
         }
         LdapAuthoritiesPopulator populator = springSecurityLdapInternalsSupplier.getAuthoritiesPopulator();
         if (populator == null)
@@ -324,16 +312,11 @@ public class LdapAuthenticatorConfigurationController
         }
         if (!(populator instanceof DefaultLdapAuthoritiesPopulator))
         {
-            return ResponseEntity.badRequest().body(
-                    "Unable to display groupSearchFilter configuration. " + populator.getClass() +
-                    " is not supported via this method.");
+            return toResponseEntityError("Unable to display groupSearchFilter configuration. " + populator.getClass() +
+                                         " is not supported via this method.", HttpStatus.BAD_REQUEST);
         }
-
-        final GenericParser<LdapGroupSearchXmlHolder> parser = new GenericParser<>(LdapGroupSearchXmlHolder.class);
-        final String result = parser.serialize(
+        return ResponseEntity.ok(
                 springSecurityLdapInternalsSupplier.ldapGroupSearchHolder((DefaultLdapAuthoritiesPopulator) populator));
-
-        return ResponseEntity.ok(result);
     }
 
     @ApiOperation(value = "Updates LDAP group search filter. See http://docs.spring.io/spring-security/site/docs/current/reference/html/ldap.html#loading-authorities")
@@ -359,7 +342,7 @@ public class LdapAuthenticatorConfigurationController
         {
             return ResponseEntity.badRequest()
                                  .body(
-                    "Configured ldapAuthoritiesPopulator is not supported. LDAP has to be configured with DefaultLdapAuthoritiesPopulator.");
+                                         "Configured ldapAuthoritiesPopulator is not supported. LDAP has to be configured with DefaultLdapAuthoritiesPopulator.");
         }
         springSecurityLdapInternalsUpdater.updateGroupSearchFilter(
                 (DefaultLdapAuthoritiesPopulator) ldapAuthoritiesPopulator, searchBase, searchFilter);
