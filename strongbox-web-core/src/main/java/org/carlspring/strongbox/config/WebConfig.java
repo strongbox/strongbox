@@ -95,7 +95,8 @@ public class WebConfig
     public Jaxb2Marshaller marshaller()
     {
         Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
-        marshaller.setPackagesToScan("org.carlspring.strongbox.artifact.coordinates",
+        marshaller.setPackagesToScan("com.carlspring.strongbox.controllers",
+                                     "org.carlspring.strongbox.artifact.coordinates",
                                      "org.carlspring.strongbox.authentication.registry",
                                      "org.carlspring.strongbox.authentication.support",
                                      "org.carlspring.strongbox.configuration",

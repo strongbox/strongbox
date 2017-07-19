@@ -20,7 +20,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.carlspring.strongbox.CustomMatchers.eqByNumberOrToString;
+import static org.carlspring.strongbox.CustomMatchers.equalByToString;
 
 /**
  * @author Przemyslaw Fusik
@@ -55,12 +55,12 @@ public class AuthenticatorsConfigControllerTest
                           .peek()
                           .then()
                           .body(wrapperPrefix + "authenticators.authenticator[0].index",
-                                eqByNumberOrToString(0))
+                                equalByToString(0))
                           .body(wrapperPrefix + "authenticators.authenticator[0].name",
                                 CoreMatchers.equalTo(
                                         "org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$OrientDbAuthenticator"))
                           .body(wrapperPrefix + "authenticators.authenticator[1].index",
-                                eqByNumberOrToString(1))
+                                equalByToString(1))
                           .body(wrapperPrefix + "authenticators.authenticator[1].name",
                                 CoreMatchers.equalTo(
                                         "org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$LdapAuthenticator"))
@@ -95,12 +95,12 @@ public class AuthenticatorsConfigControllerTest
                           .peek()
                           .then()
                           .body(wrapperPrefix + "authenticators.authenticator[0].index",
-                                eqByNumberOrToString(0))
+                                equalByToString(0))
                           .body(wrapperPrefix + "authenticators.authenticator[0].name",
                                 CoreMatchers.equalTo(
                                         "org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$OrientDbAuthenticator"))
                           .body(wrapperPrefix + "authenticators.authenticator[1].index",
-                                eqByNumberOrToString(1))
+                                equalByToString(1))
                           .body(wrapperPrefix + "authenticators.authenticator[1].name",
                                 CoreMatchers.equalTo(
                                         "org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$LdapAuthenticator"))
@@ -122,12 +122,12 @@ public class AuthenticatorsConfigControllerTest
                           .peek()
                           .then()
                           .body(wrapperPrefix + "authenticators.authenticator[0].index",
-                                eqByNumberOrToString(0))
+                                equalByToString(0))
                           .body(wrapperPrefix + "authenticators.authenticator[0].name",
                                 CoreMatchers.equalTo(
                                         "org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$LdapAuthenticator"))
                           .body(wrapperPrefix + "authenticators.authenticator[1].index",
-                                eqByNumberOrToString(1))
+                                equalByToString(1))
                           .body(wrapperPrefix + "authenticators.authenticator[1].name",
                                 CoreMatchers.equalTo(
                                         "org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$OrientDbAuthenticator"))
@@ -149,12 +149,12 @@ public class AuthenticatorsConfigControllerTest
                           .peek()
                           .then()
                           .body(wrapperPrefix + "authenticators.authenticator[0].index",
-                                eqByNumberOrToString(0))
+                                equalByToString(0))
                           .body(wrapperPrefix + "authenticators.authenticator[0].name",
                                 CoreMatchers.equalTo(
                                         "org.carlspring.strongbox.authentication.api.impl.xml.DefaultAuthenticator"))
                           .body(wrapperPrefix + "authenticators.authenticator[1].index",
-                                eqByNumberOrToString(1))
+                                equalByToString(1))
                           .body(wrapperPrefix + "authenticators.authenticator[1].name",
                                 CoreMatchers.equalTo(
                                         "org.carlspring.strongbox.authentication.api.impl.ldap.LdapAuthenticator"))
@@ -195,12 +195,12 @@ public class AuthenticatorsConfigControllerTest
                           .peek()
                           .then()
                           .body(wrapperPrefix + "authenticators.authenticator[0].index",
-                                eqByNumberOrToString(0))
+                                equalByToString(0))
                           .body(wrapperPrefix + "authenticators.authenticator[0].name",
                                 CoreMatchers.equalTo(
                                         "org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$LdapAuthenticator"))
                           .body(wrapperPrefix + "authenticators.authenticator[1].index",
-                                eqByNumberOrToString(1))
+                                equalByToString(1))
                           .body(wrapperPrefix + "authenticators.authenticator[1].name",
                                 CoreMatchers.equalTo(
                                         "org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$OrientDbAuthenticator"))
