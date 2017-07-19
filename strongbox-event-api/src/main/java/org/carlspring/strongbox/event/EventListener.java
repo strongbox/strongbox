@@ -3,9 +3,9 @@ package org.carlspring.strongbox.event;
 /**
  * @author carlspring
  */
-public interface EventListener
+public interface EventListener<T extends Event>
 {
 
-    void handle(Event event);
+    void handle(T event);
 
 }

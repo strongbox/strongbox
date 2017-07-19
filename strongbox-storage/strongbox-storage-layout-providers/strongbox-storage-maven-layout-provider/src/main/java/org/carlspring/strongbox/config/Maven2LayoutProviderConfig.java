@@ -41,6 +41,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.repository",
+                 "org.carlspring.strongbox.event",
                  "org.carlspring.strongbox.providers",
                  "org.carlspring.strongbox.services",
                  "org.carlspring.strongbox.storage",

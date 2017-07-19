@@ -2,6 +2,9 @@ package org.carlspring.strongbox.services.impl;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.event.repository.RepositoryEvent;
+import org.carlspring.strongbox.event.repository.RepositoryEventListenerRegistry;
+import org.carlspring.strongbox.event.repository.RepositoryEventTypeEnum;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
@@ -9,6 +12,7 @@ import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
 
 import javax.inject.Inject;
@@ -38,6 +42,9 @@ public class RepositoryManagementServiceImpl
     @Inject
     private ArtifactOperationsValidator artifactOperationsValidator;
 
+    @Inject
+    private RepositoryEventListenerRegistry repositoryEventListenerRegistry;
+
 
     @Override
     public void createRepository(String storageId,
@@ -47,25 +54,28 @@ public class RepositoryManagementServiceImpl
         LayoutProvider provider = getLayoutProvider(storageId, repositoryId);
         if (provider != null)
         {
-            provider.getRepositoryManagementStrategy()
-                    .createRepository(storageId, repositoryId);
+            provider.getRepositoryManagementStrategy().createRepository(storageId, repositoryId);
         }
         else
         {
-            Repository repository = getConfiguration().getStorage(storageId)
-                                                      .getRepository(repositoryId);
+            Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
 
             logger.warn("Layout provider '" + repository.getLayout() + "' could not be resolved. " +
                         "Using generic implementation instead.");
 
-            File repositoryDir = new File(repository.getStorage()
-                                                    .getBasedir(), repositoryId);
+            File repositoryDir = new File(repository.getStorage().getBasedir(), repositoryId);
             if (!repositoryDir.exists())
             {
                 //noinspection ResultOfMethodCallIgnored
                 repositoryDir.mkdirs();
             }
         }
+
+        RepositoryEvent event = new RepositoryEvent(storageId,
+                                                    repositoryId,
+                                                    RepositoryEventTypeEnum.EVENT_REPOSITORY_CREATED.getType());
+
+        repositoryEventListenerRegistry.dispatchEvent(event);
     }
 
     @Override
@@ -74,8 +84,13 @@ public class RepositoryManagementServiceImpl
             throws IOException
     {
         LayoutProvider provider = getLayoutProvider(storageId, repositoryId);
-        provider.getRepositoryManagementStrategy()
-                .removeRepository(storageId, repositoryId);
+        provider.getRepositoryManagementStrategy().removeRepository(storageId, repositoryId);
+
+        RepositoryEvent event = new RepositoryEvent(storageId,
+                                                    repositoryId,
+                                                    RepositoryEventTypeEnum.EVENT_REPOSITORY_DELETED.getType());
+
+        repositoryEventListenerRegistry.dispatchEvent(event);
     }
 
     @Override
@@ -94,6 +109,12 @@ public class RepositoryManagementServiceImpl
 
             LayoutProvider layoutProvider = getLayoutProvider(storageId, repositoryId);
             layoutProvider.deleteTrash(storageId, repositoryId);
+
+            RepositoryEvent event = new RepositoryEvent(storageId,
+                                                        repositoryId,
+                                                        RepositoryEventTypeEnum.EVENT_REPOSITORY_EMTPY_TRASH.getType());
+
+            repositoryEventListenerRegistry.dispatchEvent(event);
         }
         catch (IOException e)
         {
@@ -108,6 +129,11 @@ public class RepositoryManagementServiceImpl
         try
         {
             layoutProviderRegistry.deleteTrash();
+
+            int type = RepositoryEventTypeEnum.EVENT_REPOSITORY_EMTPY_TRASH_FOR_ALL_REPOSITORIES.getType();
+            RepositoryEvent event = new RepositoryEvent(null, null, type);
+
+            repositoryEventListenerRegistry.dispatchEvent(event);
         }
         catch (IOException e)
         {
@@ -130,6 +156,14 @@ public class RepositoryManagementServiceImpl
         {
             LayoutProvider layoutProvider = getLayoutProvider(storageId, repositoryId);
             layoutProvider.undelete(storageId, repositoryId, artifactPath);
+
+            int type = RepositoryEventTypeEnum.EVENT_REPOSITORY_EMTPY_TRASH_FOR_ALL_REPOSITORIES.getType();
+            RepositoryEvent event = new RepositoryEvent(storageId,
+                                                        repositoryId,
+                                                        artifactPath,
+                                                        type);
+
+            repositoryEventListenerRegistry.dispatchEvent(event);
         }
         catch (IOException e)
         {
@@ -154,6 +188,14 @@ public class RepositoryManagementServiceImpl
             {
                 LayoutProvider layoutProvider = getLayoutProvider(storageId, repositoryId);
                 layoutProvider.undeleteTrash(storageId, repositoryId);
+
+                RepositoryEvent event = new RepositoryEvent(storageId,
+                                                            repositoryId,
+                                                            null,
+                                                            RepositoryEventTypeEnum.EVENT_REPOSITORY_UNDELETE_TRASH
+                                                                                   .getType());
+
+                repositoryEventListenerRegistry.dispatchEvent(event);
             }
         }
         catch (IOException e)
@@ -170,6 +212,12 @@ public class RepositoryManagementServiceImpl
         try
         {
             layoutProviderRegistry.undeleteTrash();
+            RepositoryEvent event = new RepositoryEvent(null,
+                                                        null,
+                                                        null,
+                                                        RepositoryEventTypeEnum.EVENT_REPOSITORY_UNDELETE_TRASH_FOR_ALL_REPOSITORIES
+                                                                               .getType());
+            repositoryEventListenerRegistry.dispatchEvent(event);
         }
         catch (IOException e)
         {
@@ -177,6 +225,36 @@ public class RepositoryManagementServiceImpl
         }
     }
 
+    @Override
+    public void putInService(String storageId,
+                             String repositoryId)
+    {
+        getConfiguration().getStorage(storageId)
+                          .getRepository(repositoryId)
+                          .setStatus(RepositoryStatusEnum.IN_SERVICE.getStatus());
+
+        RepositoryEvent event = new RepositoryEvent(storageId,
+                                                    repositoryId,
+                                                    RepositoryEventTypeEnum.EVENT_REPOSITORY_PUT_IN_SERVICE.getType());
+
+        repositoryEventListenerRegistry.dispatchEvent(event);
+    }
+
+    @Override
+    public void putOutOfService(String storageId,
+                                String repositoryId)
+    {
+        getConfiguration().getStorage(storageId)
+                          .getRepository(repositoryId)
+                          .setStatus(RepositoryStatusEnum.OUT_OF_SERVICE.getStatus());
+
+        RepositoryEvent event = new RepositoryEvent(storageId,
+                                                    repositoryId,
+                                                    RepositoryEventTypeEnum.EVENT_REPOSITORY_PUT_OUT_OF_SERVICE
+                                                                           .getType());
+
+        repositoryEventListenerRegistry.dispatchEvent(event);
+    }
 
     private LayoutProvider getLayoutProvider(String storageId,
                                              String repositoryId)

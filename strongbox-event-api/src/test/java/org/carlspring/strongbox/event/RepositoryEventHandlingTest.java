@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.event;
 
 import org.carlspring.strongbox.config.EventsConfig;
-import org.carlspring.strongbox.event.artifact.ArtifactEventListener;
 import org.carlspring.strongbox.event.repository.RepositoryEvent;
+import org.carlspring.strongbox.event.repository.RepositoryEventListener;
 import org.carlspring.strongbox.event.repository.RepositoryEventListenerRegistry;
 import org.carlspring.strongbox.event.repository.RepositoryEventTypeEnum;
 
@@ -38,8 +38,9 @@ public class RepositoryEventHandlingTest
 
         repositoryEventListenerRegistry.addListener(listener);
 
-        RepositoryEvent artifactEvent = new RepositoryEvent(RepositoryEventTypeEnum.EVENT_REPOSITORY_PUT_IN_SERVICE
-                                                                                   .getType());
+        RepositoryEvent artifactEvent = new RepositoryEvent("storage0",
+                                                            "releases",
+                                                            RepositoryEventTypeEnum.EVENT_REPOSITORY_PUT_IN_SERVICE.getType());
 
         repositoryEventListenerRegistry.dispatchEvent(artifactEvent);
 
@@ -47,15 +48,16 @@ public class RepositoryEventHandlingTest
     }
 
     private class DummyRepositoryEventListener
-            implements ArtifactEventListener
+            implements RepositoryEventListener
     {
 
         boolean eventCaught = false;
 
         @Override
-        public void handle(Event event)
+        public void handle(RepositoryEvent event)
         {
-            System.out.println("Caught repository event type " + event.getType() + ".");
+            System.out.println("Caught repository event type " + event.getType() + " for " +
+                               event.getStorageId() + ":" + event.getRepositoryId() + ".");
 
             eventCaught = true;
         }

@@ -51,8 +51,8 @@ import org.springframework.stereotype.Component;
  */
 @Component("maven2LayoutProvider")
 public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCoordinates,
-                                                                        MavenRepositoryFeatures,
-                                                                        MavenRepositoryManagementStrategy>
+                                                                 MavenRepositoryFeatures,
+                                                                 MavenRepositoryManagementStrategy>
                                   implements RepositoryPathHandler
 {
 
@@ -233,6 +233,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
         RepositoryPath repositoryPath = resolve(repository).resolve(path);
+
         closeIndex(repositoryPath);
     }
 
@@ -243,6 +244,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         if (indexer != null)
         {
             logger.debug("Closing indexer of path " + path + "...");
+
             indexer.close();
         }
     }
@@ -257,10 +259,9 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
             return null;
         }
 
-        return repositoryIndexManager.getRepositoryIndexer(
-                repository.getStorage().getId() + ":" +
-                repository.getId() + ":" +
-                IndexTypeEnum.LOCAL.getType());
+        return repositoryIndexManager.getRepositoryIndexer(repository.getStorage().getId() + ":" +
+                                                           repository.getId() + ":" +
+                                                           IndexTypeEnum.LOCAL.getType());
     }
 
     @Override
@@ -295,11 +296,11 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
                 // This is at the artifact level
                 try (Stream<Path> pathStream = Files.list(artifactVersionPath.getParent()))
                 {
-                    Path mavenMetadataPath = pathStream
-                                                     .filter(p -> p.getFileName().toString().endsWith(
-                                                             "maven-metadata.xml"))
-                                                     .findFirst()
-                                                     .orElse(null);
+                    Path mavenMetadataPath = pathStream.filter(p -> p.getFileName()
+                                                                     .toString()
+                                                                     .endsWith("maven-metadata.xml"))
+                                                       .findFirst()
+                                                       .orElse(null);
 
                     if (mavenMetadataPath != null)
                     {
@@ -433,9 +434,11 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         
         Repository repository = repositoryPath.getFileSystem().getRepository();
         Storage storage = repository.getStorage();
-        
 
-        String contextId = IndexContextHelper.getContextId(storage.getId(), repository.getId(), IndexTypeEnum.LOCAL.getType());
+        String contextId = IndexContextHelper.getContextId(storage.getId(),
+                                                           repository.getId(),
+                                                           IndexTypeEnum.LOCAL.getType());
+
         RepositoryIndexer indexer = repositoryIndexManager.getRepositoryIndexer(contextId);
 
         if (!repository.isIndexingEnabled() || indexer == null)
@@ -447,12 +450,12 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         Artifact artifact = ArtifactUtils.convertPathToArtifact(repositoryRelativePath);
 
         File storageBasedir = new File(storage.getBasedir());
-        File artifactFile = new File(new File(storageBasedir, repository.getId()), repositoryRelativePath).getCanonicalFile();
+        File artifactFile = new File(new File(storageBasedir, repository.getId()),
+                                     repositoryRelativePath).getCanonicalFile();
 
         indexer.addArtifactToIndex(repository.getId(), artifactFile, artifact);
     }
 
-    
     @Override
     public MavenRepositoryFeatures getRepositoryFeatures()
     {
@@ -475,4 +478,5 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
     {
         return this;
     }
+
 }

@@ -1,5 +1,26 @@
 package org.carlspring.strongbox.providers.layout;
 
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.event.artifact.ArtifactEvent;
+import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
+import org.carlspring.strongbox.event.artifact.ArtifactEventTypeEnum;
+import org.carlspring.strongbox.event.repository.RepositoryEvent;
+import org.carlspring.strongbox.event.repository.RepositoryEventListenerRegistry;
+import org.carlspring.strongbox.event.repository.RepositoryEventTypeEnum;
+import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.io.ArtifactOutputStream;
+import org.carlspring.strongbox.providers.io.*;
+import org.carlspring.strongbox.providers.search.SearchException;
+import org.carlspring.strongbox.providers.storage.StorageProvider;
+import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
+import org.carlspring.strongbox.repository.RepositoryFeatures;
+import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
+
+import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
@@ -10,26 +31,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
-
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.io.ArtifactOutputStream;
-import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
-import org.carlspring.strongbox.providers.io.RepositoryFileSystem;
-import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryPathHandler;
-import org.carlspring.strongbox.providers.search.SearchException;
-import org.carlspring.strongbox.providers.storage.StorageProvider;
-import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
-import org.carlspring.strongbox.repository.RepositoryFeatures;
-import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,8 +54,14 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     
     @Inject
     private ConfigurationManager configurationManager;
-    
-    
+
+    @Inject
+    private ArtifactEventListenerRegistry artifactEventListenerRegistry;
+
+    @Inject
+    private RepositoryEventListenerRegistry repositoryEventListenerRegistry;
+
+
     public LayoutProviderRegistry getLayoutProviderRegistry()
     {
         return layoutProviderRegistry;
@@ -114,8 +122,6 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         return Stream.of(MessageDigestAlgorithms.MD5, MessageDigestAlgorithms.SHA_1)
                      .collect(Collectors.toSet());
     }
-
-    
     
     @Override
     public final ArtifactInputStream getInputStream(RepositoryPath path) throws IOException
@@ -175,7 +181,25 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                      String path)
             throws IOException
     {
-        // TODO: Implement
+        ArtifactEvent eventStart = new ArtifactEvent(srcStorageId,
+                                                     srcRepositoryId,
+                                                     destStorageId,
+                                                     destRepositoryId,
+                                                     path,
+                                                     ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_COPYING.getType());
+
+        artifactEventListenerRegistry.dispatchEvent(eventStart);
+
+        // TODO: Implement copying
+
+        ArtifactEvent eventEnd = new ArtifactEvent(srcStorageId,
+                                                   srcRepositoryId,
+                                                   destStorageId,
+                                                   destRepositoryId,
+                                                   path,
+                                                   ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_COPIED.getType());
+
+        artifactEventListenerRegistry.dispatchEvent(eventEnd);
     }
 
     @Override
@@ -186,7 +210,25 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                      String path)
             throws IOException
     {
-        // TODO: Implement
+        ArtifactEvent eventStart = new ArtifactEvent(srcStorageId,
+                                                     srcRepositoryId,
+                                                     destStorageId,
+                                                     destRepositoryId,
+                                                     path,
+                                                     ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_MOVING.getType());
+
+        artifactEventListenerRegistry.dispatchEvent(eventStart);
+
+        // TODO: Implement moving
+
+        ArtifactEvent eventEnd = new ArtifactEvent(srcStorageId,
+                                                   srcRepositoryId,
+                                                   destStorageId,
+                                                   destRepositoryId,
+                                                   path,
+                                                   ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_MOVING.getType());
+
+        artifactEventListenerRegistry.dispatchEvent(eventEnd);
     }
 
     @Override
@@ -209,11 +251,18 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
             
             return;
         }
-        
+
         RepositoryFileSystemProvider provider = getProvider(repository);
         provider.setAllowsForceDelete(force);
         provider.delete(repositoryPath);
-        
+
+        ArtifactEvent event = new ArtifactEvent(storageId,
+                                                repositoryId,
+                                                path,
+                                                ArtifactEventTypeEnum.EVENT_ARTIFACT_DELETED.getType());
+
+        artifactEventListenerRegistry.dispatchEvent(event);
+
         logger.debug("Removed /" + repositoryId + "/" + path);
     }
 
@@ -222,19 +271,29 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                             String repositoryId)
             throws IOException
     {
-        logger.debug("Emptying trash for repositoryId " + repositoryId + "...");
+        logger.debug("Emptying trash for " + storageId + ":" + repositoryId + "...");
 
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
         RepositoryPath path = resolve(repository);
 
         getProvider(repository).deleteTrash(path);
+
+        RepositoryEvent event = new RepositoryEvent(storageId,
+                                                    repositoryId,
+                                                    RepositoryEventTypeEnum.EVENT_REPOSITORY_EMTPY_TRASH.getType());
+
+        repositoryEventListenerRegistry.dispatchEvent(event);
+
+        logger.debug("Trash for " + storageId + ":" + repositoryId + " removed.");
     }
 
     @Override
     public void deleteTrash()
             throws IOException
     {
+        boolean trashRemoved = false;
+
         for (Map.Entry entry : getConfiguration().getStorages().entrySet())
         {
             Storage storage = (Storage) entry.getValue();
@@ -248,7 +307,17 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                 }
                 
                 deleteTrash(storage.getId(), repository.getId());
+
+                trashRemoved = true;
             }
+        }
+
+        if (trashRemoved)
+        {
+            int eventType = RepositoryEventTypeEnum.EVENT_REPOSITORY_EMTPY_TRASH_FOR_ALL_REPOSITORIES.getType();
+            RepositoryEvent event = new RepositoryEvent(null, null, eventType);
+
+            repositoryEventListenerRegistry.dispatchEvent(event);
         }
     }
 
@@ -268,6 +337,15 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         RepositoryFileSystemProvider provider = getProvider(repository);
         
         provider.undelete(artifactPath);
+
+
+        RepositoryEvent event = new RepositoryEvent(storageId,
+                                                    repositoryId,
+                                                    RepositoryEventTypeEnum.EVENT_REPOSITORY_UNDELETE_TRASH.getType());
+
+        repositoryEventListenerRegistry.dispatchEvent(event);
+
+        logger.debug("The trash for " + storageId + ":" + repositoryId + " has been undeleted.");
     }
 
     @Override
@@ -287,12 +365,22 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
 
         RepositoryPath path = resolve(repository);
         getProvider(repository).undelete(path);
+
+        RepositoryEvent event = new RepositoryEvent(storageId,
+                                                    null,
+                                                    RepositoryEventTypeEnum.EVENT_REPOSITORY_UNDELETE_TRASH.getType());
+
+        repositoryEventListenerRegistry.dispatchEvent(event);
+
+        logger.debug("The trash for all repositories in " + storageId + " has been undeleted.");
     }
 
     @Override
     public void undeleteTrash()
             throws IOException
     {
+        boolean trashUndeleted = false;
+
         for (Map.Entry entry : getConfiguration().getStorages().entrySet())
         {
             Storage storage = (Storage) entry.getValue();
@@ -301,7 +389,17 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
             for (Repository repository : repositories.values())
             {
                 undeleteTrash(storage.getId(), repository.getId());
+
+                trashUndeleted = true;
             }
+        }
+
+        if (trashUndeleted)
+        {
+            int eventType = RepositoryEventTypeEnum.EVENT_REPOSITORY_EMTPY_TRASH_FOR_ALL_REPOSITORIES.getType();
+            RepositoryEvent event = new RepositoryEvent(null, null, eventType);
+
+            repositoryEventListenerRegistry.dispatchEvent(event);
         }
     }
 

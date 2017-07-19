@@ -161,6 +161,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-event-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-storage-core</artifactId>
             <version>${project.version}</version>
         </dependency>

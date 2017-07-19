@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
  * @author carlspring
  */
 @Component
-public class ServerEventListenerRegistry<ServerEvent>
-        extends AbstractEventListenerRegistry
+public class ServerEventListenerRegistry
+        extends AbstractEventListenerRegistry<ServerEvent>
 {
 
 }

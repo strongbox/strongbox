@@ -5,7 +5,7 @@ import org.carlspring.strongbox.event.EventListener;
 /**
  * @author mtodorov
  */
-public interface RepositoryEventListener extends EventListener
+public interface RepositoryEventListener extends EventListener<RepositoryEvent>
 {
 
 }

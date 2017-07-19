@@ -38,6 +38,10 @@ public interface RepositoryManagementService
             throws IOException,
                    ProviderImplementationException;
 
+    void putInService(String storageId, String repositoryId);
+
+    void putOutOfService(String storageId, String repositoryId);
+
     Storage getStorage(String storageId);
 
 }

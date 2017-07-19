@@ -38,20 +38,24 @@ public class ArtifactEventHandlingTest
 
         artifactEventListenerRegistry.addListener(listener);
 
-        ArtifactEvent artifactEvent = new ArtifactEvent(ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_UPLOADED.getType());
+        ArtifactEvent artifactEvent = new ArtifactEvent("storage0",
+                                                        "releases",
+                                                        "foo/bar/1.2.3/bar-1.2.3.jar",
+                                                        ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_UPLOADED.getType());
 
         artifactEventListenerRegistry.dispatchEvent(artifactEvent);
 
         assertEquals("Failed to catch event!", true, listener.eventCaught);
     }
 
-    private class DummyArtifactEventListener implements ArtifactEventListener
+    private class DummyArtifactEventListener
+            implements ArtifactEventListener
     {
 
         boolean eventCaught = false;
 
         @Override
-        public void handle(Event event)
+        public void handle(ArtifactEvent event)
         {
             System.out.println("Caught artifact event type " + event.getType() + ".");
 

@@ -1,16 +1,77 @@
 package org.carlspring.strongbox.event.artifact;
 
-import org.carlspring.strongbox.event.Event;
+import org.carlspring.strongbox.event.RepositoryBasedEvent;
 
 /**
  * @author mtodorov
  */
-public class ArtifactEvent extends Event
+public class ArtifactEvent extends RepositoryBasedEvent
 {
 
-    public ArtifactEvent(int type)
+    /**
+     * The destination storage ID.
+     *
+     * Note: This should only be used for events that involve
+     * a source and destination repository such as copying, moving, etc.
+     */
+    private String destinationStorageId;
+
+    /**
+     * The destination repository ID.
+     *
+     * Note: This should only be used for events that involve
+     * a source and destination repository such as copying, moving, etc.
+     */
+    private String destinationRepositoryId;
+
+
+    public ArtifactEvent()
     {
+    }
+
+    public ArtifactEvent(String storageId,
+                         String repositoryId,
+                         String path,
+                         int type)
+    {
+        super(storageId, repositoryId, type);
+
+        setPath(path);
+    }
+
+    public ArtifactEvent(String srcStorageId,
+                         String srcRepositoryId,
+                         String destStorageId,
+                         String destRepositoryId,
+                         String path,
+                         int type)
+    {
+        setStorageId(srcStorageId);
+        setRepositoryId(srcRepositoryId);
+        setDestinationStorageId(destStorageId);
+        setDestinationRepositoryId(destRepositoryId);
+        setPath(path);
         setType(type);
+    }
+
+    public String getDestinationStorageId()
+    {
+        return destinationStorageId;
+    }
+
+    public void setDestinationStorageId(String destinationStorageId)
+    {
+        this.destinationStorageId = destinationStorageId;
+    }
+
+    public String getDestinationRepositoryId()
+    {
+        return destinationRepositoryId;
+    }
+
+    public void setDestinationRepositoryId(String destinationRepositoryId)
+    {
+        this.destinationRepositoryId = destinationRepositoryId;
     }
 
 }

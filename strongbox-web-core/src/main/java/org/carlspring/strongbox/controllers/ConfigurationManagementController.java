@@ -555,23 +555,20 @@ public class ConfigurationManagementController
 
                 logger.debug("Removed repository " + storageId + ":" + repositoryId + ".");
 
-                return ResponseEntity.ok()
-                                     .build();
+                return ResponseEntity.ok().build();
             }
             catch (IOException | JAXBException e)
             {
                 logger.error(e.getMessage(), e);
 
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                     .body(
-                                             "Failed to remove repository " + repositoryId + "!");
+                                     .body("Failed to remove repository " + repositoryId + "!");
             }
         }
         else
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .body(
-                                         "Repository " + storageId + ":" + repositoryId + " was not found.");
+                                 .body("Repository " + storageId + ":" + repositoryId + " was not found.");
         }
     }
 
@@ -599,20 +596,17 @@ public class ConfigurationManagementController
         catch (JAXBException e)
         {
             logger.error("[addAcceptedRuleSet] deserialize error", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
         final boolean added = configurationManagementService.saveAcceptedRuleSet(ruleSet);
         if (added)
         {
-            return ResponseEntity.ok()
-                                 .build();
+            return ResponseEntity.ok().build();
         }
         else
         {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
@@ -640,8 +634,8 @@ public class ConfigurationManagementController
         catch (JAXBException e)
         {
             logger.error("[addAcceptedRepository] deserialize error", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .build();
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
         logger.debug("[addAcceptedRepository] Routing rule " + routingRule);
@@ -673,7 +667,6 @@ public class ConfigurationManagementController
     public ResponseEntity overrideAcceptedRepository(@PathVariable String groupRepository,
                                                      @RequestBody String serializeRoutingRule)
     {
-
         GenericParser<RoutingRule> parser = new GenericParser<>(RoutingRule.class);
         RoutingRule routingRule = null;
         try
@@ -683,8 +676,7 @@ public class ConfigurationManagementController
         catch (JAXBException e)
         {
             logger.error("[overrideAcceptedRepository] deserialize error", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
         logger.debug("[addAcceptedRepository] Routing rule " + routingRule);
@@ -692,8 +684,7 @@ public class ConfigurationManagementController
         if (routingRule.getPattern() == null && routingRule.getRepositories()
                                                            .isEmpty())
         {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                 .body("Routing rule is empty");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Routing rule is empty");
         }
 
         return getResponse(configurationManagementService.overrideAcceptedRepositories(groupRepository, routingRule));
@@ -703,13 +694,11 @@ public class ConfigurationManagementController
     {
         if (result)
         {
-            return ResponseEntity.ok()
-                                 .build();
+            return ResponseEntity.ok().build();
         }
         else
         {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
