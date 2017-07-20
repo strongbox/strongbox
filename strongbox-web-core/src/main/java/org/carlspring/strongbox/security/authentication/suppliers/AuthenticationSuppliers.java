@@ -35,6 +35,13 @@ public class AuthenticationSuppliers
             final String supplierName = supplier.getClass()
                                                 .getName();
 
+            if (!supplier.supports(request))
+            {
+                logger.debug("Supplier {} does not support this request [method: {}] [URI: {}] [ContentType {}]",
+                             supplierName, request.getMethod(), request.getRequestURI(), request.getContentType());
+                continue;
+            }
+
             logger.debug("Authentication supplier attempt using {}", supplierName);
             authentication = supplier.supply(request);
 

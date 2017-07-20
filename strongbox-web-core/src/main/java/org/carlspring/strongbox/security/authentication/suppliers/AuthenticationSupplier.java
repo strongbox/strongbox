@@ -5,11 +5,12 @@ import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.validation.Errors;
+import org.springframework.validation.Validator;
 
 /**
  * @author Przemyslaw Fusik
  */
-@FunctionalInterface
 public interface AuthenticationSupplier
 {
 
@@ -18,5 +19,9 @@ public interface AuthenticationSupplier
      */
     @CheckForNull
     Authentication supply(@Nonnull HttpServletRequest request);
+
+    default boolean supports(@Nonnull HttpServletRequest request) {
+        return true;
+    }
 
 }
