@@ -1,23 +1,12 @@
 package org.carlspring.strongbox.services.impl;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.security.NoSuchAlgorithmException;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
@@ -36,6 +25,18 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
 import org.carlspring.strongbox.storage.validation.version.VersionValidationException;
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
+
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +71,11 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
 
     @Inject
     protected ChecksumCacheManager checksumCacheManager;
-    
+
+    @Inject
+    protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
+
+
     @Override
     @Transactional
     public void store(String storageId,
@@ -134,6 +139,8 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
             aos.setCacheOutputStream(new ByteArrayOutputStream());
         }
 
+        artifactEventListenerRegistry.dispatchArtifactUploadingEvent(storage.getId(), repository.getId(), artifactPath);
+
         int readLength;
         byte[] bytes = new byte[4096];
         while ((readLength = is.read(bytes, 0, bytes.length)) != -1)
@@ -142,6 +149,8 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
             aos.write(bytes, 0, readLength);
             aos.flush();
         }
+
+        artifactEventListenerRegistry.dispatchArtifactUploadedEvent(storage.getId(), repository.getId(), artifactPath);
 
         Map<String, String> digestMap = aos.getDigestMap();
         if (Boolean.FALSE.equals(checksumAttribute) && !digestMap.isEmpty())
@@ -155,6 +164,10 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
             byte[] checksumValue = ((ByteArrayOutputStream) aos.getCacheOutputStream()).toByteArray();
             if (checksumValue != null && checksumValue.length > 0)
             {
+                artifactEventListenerRegistry.dispatchArtifactChecksumUploadedEvent(storage.getId(),
+                                                                                    repository.getId(),
+                                                                                    artifactPath);
+
                 // Validate checksum with artifact digest cache.
                 validateUploadedChecksumAgainstCache(checksumValue, artifactPath);
             }

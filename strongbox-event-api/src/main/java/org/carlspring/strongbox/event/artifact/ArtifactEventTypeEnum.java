@@ -15,36 +15,26 @@ public enum ArtifactEventTypeEnum
 
     /**
      * Occurs when an artifact has commenced an upload operation.
-     *
-     * TODO: Not yet implemented.
      */
     EVENT_ARTIFACT_FILE_UPLOADING(2),
 
     /**
      * Occurs when an artifact upload operation has completed.
-     *
-     * TODO: Not yet implemented.
      */
     EVENT_ARTIFACT_FILE_UPLOADED(3),
 
     /**
      * Occurs when an artifact checksum has been uploaded.
-     *
-     * TODO: Not yet implemented.
      */
     EVENT_ARTIFACT_CHECKSUM_UPLOADED(4),
 
     /**
      * Occurs when an artifact has commenced an download operation.
-     *
-     * TODO: Not yet implemented.
      */
     EVENT_ARTIFACT_FILE_DOWNLOADING(5),
 
     /**
      * Occurs when an artifact download operation has completed.
-     *
-     * TODO: Not yet implemented.
      */
     EVENT_ARTIFACT_FILE_DOWNLOADED(6),
 
@@ -93,7 +83,7 @@ public enum ArtifactEventTypeEnum
     /**
      * Occurs when an artifact file has been deleted.
      */
-    EVENT_ARTIFACT_DELETED(13);
+    EVENT_ARTIFACT_PATH_DELETED(13);
 
 
     private int type;

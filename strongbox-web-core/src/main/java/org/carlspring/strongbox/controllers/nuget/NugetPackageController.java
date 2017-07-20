@@ -1,26 +1,7 @@
 package org.carlspring.strongbox.controllers.nuget;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.inject.Inject;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.MediaType;
-
-import org.apache.commons.fileupload.MultipartStream;
-import org.apache.commons.lang.StringUtils;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
+import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ReplacingInputStream;
 import org.carlspring.strongbox.security.exceptions.SecurityTokenException;
@@ -29,28 +10,39 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.utils.ArtifactControllerHelper;
+
+import javax.inject.Inject;
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MediaType;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import org.apache.commons.fileupload.MultipartStream;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
-
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import org.springframework.web.bind.annotation.*;
 import ru.aristar.jnuget.files.TempNupkgFile;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 /**
  * This Controller used to handle Nuget requests.
@@ -72,6 +64,10 @@ public class NugetPackageController extends BaseArtifactController
 
     @Inject
     private UserService userService;
+
+    @Inject
+    protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
+
 
     /**
      * This method is used to check storage availability.<br>
@@ -148,10 +144,12 @@ public class NugetPackageController extends BaseArtifactController
                             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @RequestMapping(path = "{storageId}/{repositoryId}/download/{packageId}/{packageVersion}", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM)
-    public ResponseEntity<?> getPackage(@ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
-                                        @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
-                                        @ApiParam(value = "The packageId", required = true) @PathVariable(name = "packageId") String packageId,
-                                        @ApiParam(value = "The packageVersion", required = true) @PathVariable(name = "packageVersion") String packageVersion)
+    public void getPackage(@ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
+                           @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
+                           @ApiParam(value = "The packageId", required = true) @PathVariable(name = "packageId") String packageId,
+                           @ApiParam(value = "The packageVersion", required = true) @PathVariable(name = "packageVersion") String packageVersion,
+                           HttpServletResponse response)
+            throws IOException
     {
         Storage storage = configurationManager.getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
@@ -159,7 +157,9 @@ public class NugetPackageController extends BaseArtifactController
         if (!repository.isInService())
         {
             logger.error("Repository is not in service...");
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
+
+            response.sendError(HttpStatus.SERVICE_UNAVAILABLE.value(),
+                               "The " + storageId + ":" + repositoryId + " repository is currently out of service.");
         }
 
         String path = String.format("%s/%s/%s.%s.nupkg", packageId, packageVersion, packageId, packageVersion);
@@ -171,19 +171,26 @@ public class NugetPackageController extends BaseArtifactController
                                                                                                   path);
             if (is == null)
             {
-                return ResponseEntity.notFound().build();
+                logger.debug("Unable to find artifact by path " + path);
+
+                response.setStatus(NOT_FOUND.value());
             }
 
             try (TempNupkgFile nupkgFile = new TempNupkgFile(is))
             {
+                /*
                 HttpHeaders headers = new HttpHeaders();
                 headers.add("Content-Length", String.valueOf(nupkgFile.getSize()));
-                headers.add("Content-Disposition",
-                            String.format("attachment; filename=\"%s\"", nupkgFile.getFileName()));
-                ArtifactControllerHelper.setHeadersForChecksums(is, headers);
-                return new ResponseEntity<Resource>(new InputStreamResource(nupkgFile.getStream()), headers,
-                        HttpStatus.OK);
+                headers.add("Content-Disposition", String.format("attachment; filename=\"%s\"", nupkgFile.getFileName()));
+                */
 
+//                return new ResponseEntity<Resource>(new InputStreamResource(nupkgFile.getStream()), headers, HttpStatus.OK);
+
+                //response.setHeader("Content-Length", String.valueOf(nupkgFile.getSize()));
+                response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", nupkgFile.getFileName()));
+                ArtifactControllerHelper.setHeadersForChecksums(is, response);
+
+                copyToResponse(is, response);
             }
 
         }
@@ -196,7 +203,7 @@ public class NugetPackageController extends BaseArtifactController
                                        packageVersion),
                          e);
 
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            response.setStatus(INTERNAL_SERVER_ERROR.value());
         }
     }
 

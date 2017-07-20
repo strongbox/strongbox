@@ -3,6 +3,8 @@ package org.carlspring.strongbox.controllers.maven;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
+import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
+import org.carlspring.strongbox.event.artifact.ArtifactEventTypeEnum;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.ArtifactResolutionException;
@@ -66,6 +68,9 @@ public class MavenArtifactController
 
     @Inject
     private ArtifactManagementService mavenArtifactManagementService;
+
+    @Inject
+    protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
 
 
     @PreAuthorize("authenticated")
@@ -155,7 +160,7 @@ public class MavenArtifactController
             }
             catch (Exception e)
             {
-                logger.error("Unable to generate directory listing for " +
+                logger.debug("Unable to generate directory listing for " +
                              "/" + storageId + "/" + repositoryId + "/" + path, e);
 
                 response.setStatus(INTERNAL_SERVER_ERROR.value());
@@ -181,11 +186,15 @@ public class MavenArtifactController
                 handlePartialDownload(is, httpHeaders, response);
             }
 
+            artifactEventListenerRegistry.dispatchArtifactDownloadingEvent(storage.getId(), repository.getId(), path);
+
             copyToResponse(is, response);
+
+            artifactEventListenerRegistry.dispatchArtifactDownloadedEvent(storage.getId(), repository.getId(), path);
         }
         catch (ArtifactResolutionException | ArtifactTransportException e)
         {
-            logger.info("Unable to find artifact by path " + path, e);
+            logger.debug("Unable to find artifact by path " + path, e);
 
             response.setStatus(NOT_FOUND.value());
 

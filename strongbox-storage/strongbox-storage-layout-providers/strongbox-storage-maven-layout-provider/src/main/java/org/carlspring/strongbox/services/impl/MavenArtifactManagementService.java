@@ -1,32 +1,27 @@
 package org.carlspring.strongbox.services.impl;
 
-import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.NoSuchAlgorithmException;
-
-import javax.inject.Inject;
-
-import org.apache.commons.io.FileUtils;
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
-import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.locator.handlers.RemoveTimestampedSnapshotOperation;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.search.SearchException;
-import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MavenSnapshotManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+
+import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
 /**
  * @author mtodorov
@@ -37,9 +32,6 @@ public class MavenArtifactManagementService
 {
 
     private static final Logger logger = LoggerFactory.getLogger(MavenArtifactManagementService.class);
-
-    @Inject
-    private ArtifactResolutionService artifactResolutionService;
 
     @Inject
     private MavenSnapshotManager mavenSnapshotManager;

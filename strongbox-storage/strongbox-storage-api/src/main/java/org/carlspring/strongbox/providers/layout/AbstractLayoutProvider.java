@@ -3,12 +3,8 @@ package org.carlspring.strongbox.providers.layout;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.event.artifact.ArtifactEvent;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
-import org.carlspring.strongbox.event.artifact.ArtifactEventTypeEnum;
-import org.carlspring.strongbox.event.repository.RepositoryEvent;
 import org.carlspring.strongbox.event.repository.RepositoryEventListenerRegistry;
-import org.carlspring.strongbox.event.repository.RepositoryEventTypeEnum;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.io.*;
@@ -181,25 +177,19 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                      String path)
             throws IOException
     {
-        ArtifactEvent eventStart = new ArtifactEvent(srcStorageId,
-                                                     srcRepositoryId,
-                                                     destStorageId,
-                                                     destRepositoryId,
-                                                     path,
-                                                     ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_COPYING.getType());
-
-        artifactEventListenerRegistry.dispatchEvent(eventStart);
+        artifactEventListenerRegistry.dispatchArtifactCopyingEvent(srcStorageId,
+                                                                   srcRepositoryId,
+                                                                   destStorageId,
+                                                                   destRepositoryId,
+                                                                   path);
 
         // TODO: Implement copying
 
-        ArtifactEvent eventEnd = new ArtifactEvent(srcStorageId,
-                                                   srcRepositoryId,
-                                                   destStorageId,
-                                                   destRepositoryId,
-                                                   path,
-                                                   ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_COPIED.getType());
-
-        artifactEventListenerRegistry.dispatchEvent(eventEnd);
+        artifactEventListenerRegistry.dispatchArtifactCopiedEvent(srcStorageId,
+                                                                  srcRepositoryId,
+                                                                  destStorageId,
+                                                                  destRepositoryId,
+                                                                  path);
     }
 
     @Override
@@ -210,25 +200,19 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
                      String path)
             throws IOException
     {
-        ArtifactEvent eventStart = new ArtifactEvent(srcStorageId,
-                                                     srcRepositoryId,
-                                                     destStorageId,
-                                                     destRepositoryId,
-                                                     path,
-                                                     ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_MOVING.getType());
-
-        artifactEventListenerRegistry.dispatchEvent(eventStart);
+        artifactEventListenerRegistry.dispatchArtifactMovingEvent(srcStorageId,
+                                                                  srcRepositoryId,
+                                                                  destStorageId,
+                                                                  destRepositoryId,
+                                                                  path);
 
         // TODO: Implement moving
 
-        ArtifactEvent eventEnd = new ArtifactEvent(srcStorageId,
-                                                   srcRepositoryId,
-                                                   destStorageId,
-                                                   destRepositoryId,
-                                                   path,
-                                                   ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_MOVING.getType());
-
-        artifactEventListenerRegistry.dispatchEvent(eventEnd);
+        artifactEventListenerRegistry.dispatchArtifactMovedEvent(srcStorageId,
+                                                                 srcRepositoryId,
+                                                                 destStorageId,
+                                                                 destRepositoryId,
+                                                                 path);
     }
 
     @Override
@@ -256,12 +240,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         provider.setAllowsForceDelete(force);
         provider.delete(repositoryPath);
 
-        ArtifactEvent event = new ArtifactEvent(storageId,
-                                                repositoryId,
-                                                path,
-                                                ArtifactEventTypeEnum.EVENT_ARTIFACT_DELETED.getType());
-
-        artifactEventListenerRegistry.dispatchEvent(event);
+        artifactEventListenerRegistry.dispatchArtifactPathDeletedEvent(storageId, repositoryId, path);
 
         logger.debug("Removed /" + repositoryId + "/" + path);
     }
@@ -279,11 +258,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
 
         getProvider(repository).deleteTrash(path);
 
-        RepositoryEvent event = new RepositoryEvent(storageId,
-                                                    repositoryId,
-                                                    RepositoryEventTypeEnum.EVENT_REPOSITORY_EMTPY_TRASH.getType());
-
-        repositoryEventListenerRegistry.dispatchEvent(event);
+        repositoryEventListenerRegistry.dispatchEmptyTrashEvent(storageId, repositoryId);
 
         logger.debug("Trash for " + storageId + ":" + repositoryId + " removed.");
     }
@@ -314,10 +289,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
 
         if (trashRemoved)
         {
-            int eventType = RepositoryEventTypeEnum.EVENT_REPOSITORY_EMTPY_TRASH_FOR_ALL_REPOSITORIES.getType();
-            RepositoryEvent event = new RepositoryEvent(null, null, eventType);
-
-            repositoryEventListenerRegistry.dispatchEvent(event);
+            repositoryEventListenerRegistry.dispatchEmptyTrashForAllRepositoriesEvent();
         }
     }
 
@@ -338,12 +310,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         
         provider.undelete(artifactPath);
 
-
-        RepositoryEvent event = new RepositoryEvent(storageId,
-                                                    repositoryId,
-                                                    RepositoryEventTypeEnum.EVENT_REPOSITORY_UNDELETE_TRASH.getType());
-
-        repositoryEventListenerRegistry.dispatchEvent(event);
+        repositoryEventListenerRegistry.dispatchUndeleteTrashEvent(storageId, repositoryId);
 
         logger.debug("The trash for " + storageId + ":" + repositoryId + " has been undeleted.");
     }
@@ -366,11 +333,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         RepositoryPath path = resolve(repository);
         getProvider(repository).undelete(path);
 
-        RepositoryEvent event = new RepositoryEvent(storageId,
-                                                    null,
-                                                    RepositoryEventTypeEnum.EVENT_REPOSITORY_UNDELETE_TRASH.getType());
-
-        repositoryEventListenerRegistry.dispatchEvent(event);
+        repositoryEventListenerRegistry.dispatchUndeleteTrashEvent(storageId, repositoryId);
 
         logger.debug("The trash for all repositories in " + storageId + " has been undeleted.");
     }
@@ -396,10 +359,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
 
         if (trashUndeleted)
         {
-            int eventType = RepositoryEventTypeEnum.EVENT_REPOSITORY_EMTPY_TRASH_FOR_ALL_REPOSITORIES.getType();
-            RepositoryEvent event = new RepositoryEvent(null, null, eventType);
-
-            repositoryEventListenerRegistry.dispatchEvent(event);
+            repositoryEventListenerRegistry.dispatchUndeleteTrashForAllRepositoriesEvent();
         }
     }
 
