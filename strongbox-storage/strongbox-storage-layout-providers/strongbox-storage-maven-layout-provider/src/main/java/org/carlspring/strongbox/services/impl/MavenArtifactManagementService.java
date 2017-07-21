@@ -87,9 +87,9 @@ public class MavenArtifactManagementService
     @Override
     public void copy(String srcStorageId,
                      String srcRepositoryId,
-                     String path,
                      String destStorageId,
-                     String destRepositoryId)
+                     String destRepositoryId,
+                     String path)
             throws IOException
     {
         artifactOperationsValidator.validate(srcStorageId, srcRepositoryId, path);
@@ -124,8 +124,7 @@ public class MavenArtifactManagementService
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        if (repository.getPolicy()
-                      .equals(RepositoryPolicyEnum.SNAPSHOT.getPolicy()))
+        if (repository.getPolicy().equals(RepositoryPolicyEnum.SNAPSHOT.getPolicy()))
         {
             LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
             RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(artifactPath);

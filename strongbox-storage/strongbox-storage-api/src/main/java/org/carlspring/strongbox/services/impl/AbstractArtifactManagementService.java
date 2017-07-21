@@ -44,7 +44,6 @@ import org.slf4j.LoggerFactory;
  * @author Sergey Bespalov
  *
  */
-//TODO: move all the common mehtod implementation here
 public abstract class AbstractArtifactManagementService implements ArtifactManagementService
 {
     
@@ -112,7 +111,8 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
 
         try (final ArtifactOutputStream aos = (ArtifactOutputStream) Files.newOutputStream(repositoryPath))
         {
-            doStore(repositoryPath, is, aos);
+            storeArtifact(repositoryPath, is, aos);
+            storeArtifactEntry(repositoryPath);
         }
         catch (IOException e)
         {
@@ -120,9 +120,9 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
         }
     }
 
-    private void doStore(RepositoryPath repositoryPath,
-                         InputStream is,
-                         final ArtifactOutputStream aos)
+    private void storeArtifact(RepositoryPath repositoryPath,
+                               InputStream is,
+                               final ArtifactOutputStream aos)
             throws IOException
     {
         Repository repository = repositoryPath.getFileSystem().getRepository();
@@ -172,11 +172,9 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
                 validateUploadedChecksumAgainstCache(checksumValue, artifactPath);
             }
         }
-
-        storeArtifact(repositoryPath);
     }
 
-    private void storeArtifact(RepositoryPath path)
+    private void storeArtifactEntry(RepositoryPath path)
     {
         Repository repository = path.getFileSystem().getRepository();
         Storage storage = repository.getStorage();

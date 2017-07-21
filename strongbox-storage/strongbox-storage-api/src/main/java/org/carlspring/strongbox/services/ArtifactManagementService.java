@@ -50,9 +50,9 @@ public interface ArtifactManagementService extends ConfigurationService
 
     void copy(String srcStorageId,
               String srcRepositoryId,
-              String path,
               String destStorageId,
-              String destRepositoryId)
+              String destRepositoryId,
+              String path)
             throws IOException;
 
     void removeTimestampedSnapshots(String storageId,

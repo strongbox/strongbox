@@ -399,14 +399,13 @@ public class MavenArtifactController
             }
             if (getStorage(srcStorageId) != null &&
                 getStorage(srcStorageId).getRepository(srcRepositoryId) != null &&
-                !new File(getStorage(srcStorageId).getRepository(srcRepositoryId)
-                                                  .getBasedir(), path).exists())
+                !new File(getStorage(srcStorageId).getRepository(srcRepositoryId).getBasedir(), path).exists())
             {
                 return ResponseEntity.status(NOT_FOUND)
                                      .body("The source path does not exist!");
             }
 
-            getArtifactManagementService().copy(srcStorageId, srcRepositoryId, path, destStorageId, destRepositoryId);
+            getArtifactManagementService().copy(srcStorageId, srcRepositoryId, destStorageId, destRepositoryId, path);
         }
         catch (ArtifactStorageException e)
         {

@@ -43,13 +43,13 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     private static final Logger logger = LoggerFactory.getLogger(AbstractLayoutProvider.class);
 
     @Inject
+    private ConfigurationManager configurationManager;
+
+    @Inject
     protected LayoutProviderRegistry layoutProviderRegistry;
     
     @Inject
     protected StorageProviderRegistry storageProviderRegistry;
-    
-    @Inject
-    private ConfigurationManager configurationManager;
 
     @Inject
     private ArtifactEventListenerRegistry artifactEventListenerRegistry;
