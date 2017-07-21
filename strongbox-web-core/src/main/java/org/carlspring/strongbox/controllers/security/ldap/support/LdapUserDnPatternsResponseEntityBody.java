@@ -11,17 +11,17 @@ import java.util.List;
  */
 @XmlRootElement(name = "userDnPatterns")
 @XmlAccessorType(XmlAccessType.NONE)
-public class LdapUserDnPatternsXmlHolder
+public class LdapUserDnPatternsResponseEntityBody
 {
 
     @XmlElement(name = "userDnPattern")
     private List<String> userDnPatterns;
 
-    LdapUserDnPatternsXmlHolder()
+    LdapUserDnPatternsResponseEntityBody()
     {
     }
 
-    public LdapUserDnPatternsXmlHolder(List<String> userDnPatterns)
+    public LdapUserDnPatternsResponseEntityBody(List<String> userDnPatterns)
     {
         this.userDnPatterns = userDnPatterns;
     }

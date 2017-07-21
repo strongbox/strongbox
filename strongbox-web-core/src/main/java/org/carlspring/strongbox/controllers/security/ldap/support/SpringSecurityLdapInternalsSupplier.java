@@ -96,7 +96,7 @@ public class SpringSecurityLdapInternalsSupplier
                                                                               getAuthenticationProvider());
     }
 
-    public LdapUserSearchXmlHolder getUserSearchXmlHolder(FilterBasedLdapUserSearch userSearch)
+    public LdapUserSearchResponseEntityBody getUserSearchXmlHolder(FilterBasedLdapUserSearch userSearch)
     {
         Field searchBase = ReflectionUtils.findField(FilterBasedLdapUserSearch.class, "searchBase");
         ReflectionUtils.makeAccessible(searchBase);
@@ -106,11 +106,11 @@ public class SpringSecurityLdapInternalsSupplier
         ReflectionUtils.makeAccessible(searchFilter);
         final String searchFilterValue = (String) ReflectionUtils.getField(searchFilter, userSearch);
 
-        return new LdapUserSearchXmlHolder().searchBase(searchBaseValue)
-                                            .searchFilter(searchFilterValue);
+        return new LdapUserSearchResponseEntityBody().searchBase(searchBaseValue)
+                                                     .searchFilter(searchFilterValue);
     }
 
-    public LdapGroupSearchXmlHolder ldapGroupSearchHolder(DefaultLdapAuthoritiesPopulator populator)
+    public LdapGroupSearchResponseEntityBody ldapGroupSearchHolder(DefaultLdapAuthoritiesPopulator populator)
     {
         Field searchBase = ReflectionUtils.findField(DefaultLdapAuthoritiesPopulator.class, "groupSearchBase");
         ReflectionUtils.makeAccessible(searchBase);
@@ -121,8 +121,8 @@ public class SpringSecurityLdapInternalsSupplier
         ReflectionUtils.makeAccessible(searchFilter);
         String searchFilterValue = (String) ReflectionUtils.getField(searchFilter, populator);
 
-        return new LdapGroupSearchXmlHolder().searchBase(searchBaseValue)
-                                             .searchFilter(searchFilterValue);
+        return new LdapGroupSearchResponseEntityBody().searchBase(searchBaseValue)
+                                                      .searchFilter(searchFilterValue);
     }
 
     public ContextSource getContextSource()

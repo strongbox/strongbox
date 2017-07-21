@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
+import org.apache.commons.lang.StringUtils;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,6 +20,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import static org.carlspring.strongbox.CustomMatchers.equalByToString;
 
 /**
  * @author Przemyslaw Fusik
@@ -42,45 +44,67 @@ public class AuthenticatorsConfigControllerTest
         authenticatorsRegistry.reload(registryList);
     }
 
-    @Test
-    public void registryShouldReturnExpectedInitialArray()
+    private void registryShouldReturnExpectedInitialArray(String acceptHeader,
+                                                          String wrapperPrefix)
             throws Exception
     {
-        RestAssuredMockMvc.when()
+        RestAssuredMockMvc.given()
+                          .header("Accept", acceptHeader)
+                          .when()
                           .get("/configuration/authenticators/")
                           .peek()
                           .then()
-                          .body("authenticatorsRegistry.authenticators.authenticator[0].index",
-                                CoreMatchers.equalTo("0"))
-                          .body("authenticatorsRegistry.authenticators.authenticator[0].name",
-                                CoreMatchers.equalTo("org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$OrientDbAuthenticator"))
-                          .body("authenticatorsRegistry.authenticators.authenticator[1].index",
-                                CoreMatchers.equalTo("1"))
-                          .body("authenticatorsRegistry.authenticators.authenticator[1].name",
-                                CoreMatchers.equalTo("org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$LdapAuthenticator"))
-                          .body("authenticatorsRegistry.authenticators.authenticator.size()", CoreMatchers.is(2))
+                          .body(wrapperPrefix + "authenticators.authenticator[0].index",
+                                equalByToString(0))
+                          .body(wrapperPrefix + "authenticators.authenticator[0].name",
+                                CoreMatchers.equalTo(
+                                        "org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$OrientDbAuthenticator"))
+                          .body(wrapperPrefix + "authenticators.authenticator[1].index",
+                                equalByToString(1))
+                          .body(wrapperPrefix + "authenticators.authenticator[1].name",
+                                CoreMatchers.equalTo(
+                                        "org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$LdapAuthenticator"))
+                          .body(wrapperPrefix + "authenticators.authenticator.size()", CoreMatchers.is(2))
                           .statusCode(200);
     }
 
     @Test
-    public void registryShouldBeReloadable()
+    public void registryShouldReturnExpectedInitialArrayinJson()
+            throws Exception
+    {
+        registryShouldReturnExpectedInitialArray("application/json", StringUtils.EMPTY);
+    }
+
+    @Test
+    public void registryShouldReturnExpectedInitialArrayInXml()
+            throws Exception
+    {
+        registryShouldReturnExpectedInitialArray("application/xml", "authenticatorsRegistry.");
+    }
+
+    private void registryShouldBeReloadable(String acceptHeader,
+                                            String wrapperPrefix)
             throws Exception
     {
 
         // Registry should have form setup in test, first
-        RestAssuredMockMvc.when()
+        RestAssuredMockMvc.given()
+                          .header("Accept", acceptHeader)
+                          .when()
                           .get("/configuration/authenticators/")
                           .peek()
                           .then()
-                          .body("authenticatorsRegistry.authenticators.authenticator[0].index",
-                                CoreMatchers.equalTo("0"))
-                          .body("authenticatorsRegistry.authenticators.authenticator[0].name",
-                                CoreMatchers.equalTo("org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$OrientDbAuthenticator"))
-                          .body("authenticatorsRegistry.authenticators.authenticator[1].index",
-                                CoreMatchers.equalTo("1"))
-                          .body("authenticatorsRegistry.authenticators.authenticator[1].name",
-                                CoreMatchers.equalTo("org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$LdapAuthenticator"))
-                          .body("authenticatorsRegistry.authenticators.authenticator.size()", CoreMatchers.is(2))
+                          .body(wrapperPrefix + "authenticators.authenticator[0].index",
+                                equalByToString(0))
+                          .body(wrapperPrefix + "authenticators.authenticator[0].name",
+                                CoreMatchers.equalTo(
+                                        "org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$OrientDbAuthenticator"))
+                          .body(wrapperPrefix + "authenticators.authenticator[1].index",
+                                equalByToString(1))
+                          .body(wrapperPrefix + "authenticators.authenticator[1].name",
+                                CoreMatchers.equalTo(
+                                        "org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$LdapAuthenticator"))
+                          .body(wrapperPrefix + "authenticators.authenticator.size()", CoreMatchers.is(2))
                           .statusCode(200);
 
         // Reorder elements
@@ -91,19 +115,23 @@ public class AuthenticatorsConfigControllerTest
                           .statusCode(200);
 
         // Confirm they are reordered
-        RestAssuredMockMvc.when()
+        RestAssuredMockMvc.given()
+                          .header("Accept", acceptHeader)
+                          .when()
                           .get("/configuration/authenticators/")
                           .peek()
                           .then()
-                          .body("authenticatorsRegistry.authenticators.authenticator[0].index",
-                                CoreMatchers.equalTo("0"))
-                          .body("authenticatorsRegistry.authenticators.authenticator[0].name",
-                                CoreMatchers.equalTo("org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$LdapAuthenticator"))
-                          .body("authenticatorsRegistry.authenticators.authenticator[1].index",
-                                CoreMatchers.equalTo("1"))
-                          .body("authenticatorsRegistry.authenticators.authenticator[1].name",
-                                CoreMatchers.equalTo("org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$OrientDbAuthenticator"))
-                          .body("authenticatorsRegistry.authenticators.authenticator.size()", CoreMatchers.is(2))
+                          .body(wrapperPrefix + "authenticators.authenticator[0].index",
+                                equalByToString(0))
+                          .body(wrapperPrefix + "authenticators.authenticator[0].name",
+                                CoreMatchers.equalTo(
+                                        "org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$LdapAuthenticator"))
+                          .body(wrapperPrefix + "authenticators.authenticator[1].index",
+                                equalByToString(1))
+                          .body(wrapperPrefix + "authenticators.authenticator[1].name",
+                                CoreMatchers.equalTo(
+                                        "org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$OrientDbAuthenticator"))
+                          .body(wrapperPrefix + "authenticators.authenticator.size()", CoreMatchers.is(2))
                           .statusCode(200);
 
         // Reload registry
@@ -114,24 +142,42 @@ public class AuthenticatorsConfigControllerTest
                           .statusCode(200);
 
         // Refistry should be reloaded
-        RestAssuredMockMvc.when()
+        RestAssuredMockMvc.given()
+                          .header("Accept", acceptHeader)
+                          .when()
                           .get("/configuration/authenticators/")
                           .peek()
                           .then()
-                          .body("authenticatorsRegistry.authenticators.authenticator[0].index",
-                                CoreMatchers.equalTo("0"))
-                          .body("authenticatorsRegistry.authenticators.authenticator[0].name",
-                                CoreMatchers.equalTo("org.carlspring.strongbox.authentication.api.impl.xml.DefaultAuthenticator"))
-                          .body("authenticatorsRegistry.authenticators.authenticator[1].index",
-                                CoreMatchers.equalTo("1"))
-                          .body("authenticatorsRegistry.authenticators.authenticator[1].name",
-                                CoreMatchers.equalTo("org.carlspring.strongbox.authentication.api.impl.ldap.LdapAuthenticator"))
-                          .body("authenticatorsRegistry.authenticators.authenticator.size()", CoreMatchers.is(2))
+                          .body(wrapperPrefix + "authenticators.authenticator[0].index",
+                                equalByToString(0))
+                          .body(wrapperPrefix + "authenticators.authenticator[0].name",
+                                CoreMatchers.equalTo(
+                                        "org.carlspring.strongbox.authentication.api.impl.xml.DefaultAuthenticator"))
+                          .body(wrapperPrefix + "authenticators.authenticator[1].index",
+                                equalByToString(1))
+                          .body(wrapperPrefix + "authenticators.authenticator[1].name",
+                                CoreMatchers.equalTo(
+                                        "org.carlspring.strongbox.authentication.api.impl.ldap.LdapAuthenticator"))
+                          .body(wrapperPrefix + "authenticators.authenticator.size()", CoreMatchers.is(2))
                           .statusCode(200);
     }
 
     @Test
-    public void registryShouldBeAbleToReorderElements()
+    public void registryShouldBeReloadableWithResponseInXml()
+            throws Exception
+    {
+        registryShouldBeReloadable("application/xml", "authenticatorsRegistry.");
+    }
+
+    @Test
+    public void registryShouldBeReloadableWithResponseInJson()
+            throws Exception
+    {
+        registryShouldBeReloadable("application/json", StringUtils.EMPTY);
+    }
+
+    private void registryShouldBeAbleToReorderElement(String acceptHeader,
+                                                      String wrapperPrefix)
             throws Exception
     {
         // when
@@ -142,20 +188,38 @@ public class AuthenticatorsConfigControllerTest
                           .statusCode(200);
 
         // then
-        RestAssuredMockMvc.when()
+        RestAssuredMockMvc.given()
+                          .header("Accept", acceptHeader)
+                          .when()
                           .get("/configuration/authenticators/")
                           .peek()
                           .then()
-                          .body("authenticatorsRegistry.authenticators.authenticator[0].index",
-                                CoreMatchers.equalTo("0"))
-                          .body("authenticatorsRegistry.authenticators.authenticator[0].name",
-                                CoreMatchers.equalTo("org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$LdapAuthenticator"))
-                          .body("authenticatorsRegistry.authenticators.authenticator[1].index",
-                                CoreMatchers.equalTo("1"))
-                          .body("authenticatorsRegistry.authenticators.authenticator[1].name",
-                                CoreMatchers.equalTo("org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$OrientDbAuthenticator"))
-                          .body("authenticatorsRegistry.authenticators.authenticator.size()", CoreMatchers.is(2))
+                          .body(wrapperPrefix + "authenticators.authenticator[0].index",
+                                equalByToString(0))
+                          .body(wrapperPrefix + "authenticators.authenticator[0].name",
+                                CoreMatchers.equalTo(
+                                        "org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$LdapAuthenticator"))
+                          .body(wrapperPrefix + "authenticators.authenticator[1].index",
+                                equalByToString(1))
+                          .body(wrapperPrefix + "authenticators.authenticator[1].name",
+                                CoreMatchers.equalTo(
+                                        "org.carlspring.strongbox.controllers.AuthenticatorsConfigControllerTest$OrientDbAuthenticator"))
+                          .body(wrapperPrefix + "authenticators.authenticator.size()", CoreMatchers.is(2))
                           .statusCode(200);
+    }
+
+    @Test
+    public void registryShouldBeAbleToReorderElementsWithResponseInXml()
+            throws Exception
+    {
+        registryShouldBeReloadable("application/xml", "authenticatorsRegistry.");
+    }
+
+    @Test
+    public void registryShouldBeAbleToReorderElementsWithResponseInJson()
+            throws Exception
+    {
+        registryShouldBeReloadable("application/json", StringUtils.EMPTY);
     }
 
     private static class OrientDbAuthenticator

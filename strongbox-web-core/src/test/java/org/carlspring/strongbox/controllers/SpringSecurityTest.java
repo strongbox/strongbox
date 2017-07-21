@@ -188,7 +188,7 @@ public class SpringSecurityTest
         User user = new User();
         user.setUsername("someNewUserName");
         given().contentType("application/json")
-               .param("juser", user)
+               .body(user)
                .when()
                .put("/users/user")
                .peek()

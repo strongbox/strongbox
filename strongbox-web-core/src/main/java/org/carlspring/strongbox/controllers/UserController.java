@@ -5,14 +5,9 @@ import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.service.UserService;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.util.LinkedList;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.jose4j.lang.JoseException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,12 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/users")
@@ -57,7 +47,7 @@ public class UserController
                                                                   required = false) String param)
     {
         logger.debug("UserController -> Say hello to " + param + ". Path variable " + anyString);
-        return toResponse("hello, " + param);
+        return ResponseEntity.ok("hello, " + param);
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -66,20 +56,15 @@ public class UserController
     @ApiOperation(value = "Used to create new user",
                   position = 0)
     @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "The artifact was deployed successfully."),
-                            @ApiResponse(code = 400,
-                                         message = "An error occurred.") })
+                                         message = "The user was created successfully.")})
     @PreAuthorize("hasAuthority('CREATE_USER')")
     @RequestMapping(value = "/user",
                     method = RequestMethod.POST)
     public
     @ResponseBody
-    ResponseEntity create(@ApiParam(value = "The user JSON",
-                                    required = true)
-                          @RequestParam(value = "juser",
-                                        required = false) String userJson)
+    ResponseEntity create(@RequestBody User user)
     {
-        User user = userService.save(read(userJson, User.class));
+        user = userService.save(user);
         logger.debug("Created new user " + user);
 
         return ResponseEntity.ok()
@@ -133,30 +118,26 @@ public class UserController
     @ResponseBody
     ResponseEntity getUsers()
     {
-        return toResponse(userService.findAll()
-                                     .orElse(new LinkedList<>()));
+        return ResponseEntity.ok(userService.findAll().orElse(new LinkedList<>()));
     }
 
     // ----------------------------------------------------------------------------------------------------------------
     // Update user
 
-    @ApiOperation(value = "Used to create new user",
+    @ApiOperation(value = "Used to update user",
                   position = 0)
     @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "The artifact was deployed successfully."),
-                            @ApiResponse(code = 400,
-                                         message = "An error occurred.") })
+                                         message = "The user was updated successfully.")})
     @PreAuthorize("hasAuthority('UPDATE_USER')")
     @RequestMapping(value = "user",
                     method = RequestMethod.PUT)
     public
     @ResponseBody
-    ResponseEntity update(@RequestParam(value = "juser") String userJson)
+    ResponseEntity update(@RequestBody User userToUpdate)
     {
-        User userToUpdate = read(userJson, User.class);
         userToUpdate = userService.save(userToUpdate);
 
-        return toResponse(userToUpdate);
+        return ResponseEntity.ok(userToUpdate);
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -262,35 +243,6 @@ public class UserController
         userService.save(user);
 
         return ResponseEntity.ok(user);
-    }
-
-
-    // ----------------------------------------------------------------------------------------------------------------
-    // Common-purpose methods
-
-    private synchronized <T> T read(String json,
-                                    Class<T> type)
-    {
-        try
-        {
-            return objectMapper.readValue(json, type);
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private synchronized ResponseEntity toResponse(Object arg)
-    {
-        try
-        {
-            return ResponseEntity.ok(objectMapper.writeValueAsString(arg));
-        }
-        catch (Exception e)
-        {
-            return toError(e);
-        }
     }
 
 }

@@ -39,8 +39,7 @@ public class ProxyConfiguration
      */
     @XmlAttribute
     private String type;
-
-    @XmlElement(name = "host")
+    
     @XmlElementWrapper(name = "non-proxy-hosts")
     private List<String> nonProxyHosts = new ArrayList<>();
 
