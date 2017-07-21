@@ -458,7 +458,8 @@ public class ConfigurationManagementController
 
             if (repository != null)
             {
-                return ResponseEntity.status(HttpStatus.OK).body(repository);
+                return ResponseEntity.status(HttpStatus.OK)
+                                     .body(repository);
             }
             else
             {
