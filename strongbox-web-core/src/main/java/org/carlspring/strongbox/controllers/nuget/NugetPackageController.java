@@ -191,9 +191,10 @@ public class NugetPackageController extends BaseArtifactController
                 ArtifactControllerHelper.setHeadersForChecksums(is, response);
 
                 // unfortunately 'new TempNupkgFile(is)' closes 'is' stream :(
-                InputStream isCopy = getArtifactManagementService().resolve(storageId, repositoryId, path);
-
-                copyToResponse(isCopy, response);
+                try (InputStream isCopy = getArtifactManagementService().resolve(storageId, repositoryId, path))
+                {
+                    copyToResponse(isCopy, response);
+                }
             }
 
         }
