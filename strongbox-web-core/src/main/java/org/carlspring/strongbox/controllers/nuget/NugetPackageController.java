@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.controllers.nuget;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -10,7 +11,6 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,12 +18,8 @@ import java.util.regex.Pattern;
 import javax.inject.Inject;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.xml.bind.JAXBException;
 
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.lang.StringUtils;
@@ -53,6 +49,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -65,6 +63,9 @@ import ru.aristar.jnuget.files.TempNupkgFile;
 import ru.aristar.jnuget.query.Expression;
 import ru.aristar.jnuget.query.Lexer;
 import ru.aristar.jnuget.query.QueryLexer;
+import ru.aristar.jnuget.rss.NuPkgToRssTransformer;
+import ru.aristar.jnuget.rss.PackageFeed;
+import ru.aristar.jnuget.sources.PackageSource;
 
 /**
  * This Controller used to handle Nuget requests.
@@ -104,6 +105,7 @@ public class NugetPackageController extends BaseArtifactController
                                             @RequestParam(name = "$top", required = false, defaultValue = "-1") int top,
                                             @RequestParam(name = "searchTerm", required = true) String searchTerm,
                                             @RequestParam(name = "targetFramework", required = true) String targetFramework)
+        throws JAXBException
     {
         Lexer queryLexer = new QueryLexer();
         Expression expression;
@@ -113,21 +115,39 @@ public class NugetPackageController extends BaseArtifactController
         }
         catch (NugetFormatException e)
         {
-            e.printStackTrace();
-        }
-        final String normSearchTerm = QueryExecutor.normaliseTerm(searchTerm);
-        if (normSearchTerm == null || normSearchTerm.matches("\\s*")) {
-            //return nupkgs;
-        }
-        ArrayList<Nupkg> result = new ArrayList<>();
-        Collection<? extends Nupkg> nupkgs = new ArrayList<>();
-        for (Nupkg nupkg : nupkgs) {
-            if (nupkg.getId().toLowerCase().contains(normSearchTerm)) {
-                result.add(nupkg);
-            }
+            return ResponseEntity.badRequest().build();
         }
 
-        return new ResponseEntity<>("success", HttpStatus.OK);
+        PackageSource<Nupkg> packageSource = new NugetSearchPackageSource(expression);
+        Collection<? extends Nupkg> files = getPackages(packageSource, filter, normaliseSearchTerm(searchTerm),
+                                                        targetFramework);
+
+        String feedId = getFeedUri(((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest(),
+                                   storageId, repositoryId);
+        NuPkgToRssTransformer toRssTransformer = new NuPkgToRssTransformer(feedId);
+        PackageFeed feed = toRssTransformer.transform(files, orderBy, skip, top);
+
+        ByteArrayOutputStream rssResultStream = new ByteArrayOutputStream();
+        feed.writeXml(rssResultStream);
+
+        return new ResponseEntity<>(new String(rssResultStream.toByteArray()), HttpStatus.OK);
+    }
+
+    private String getFeedUri(HttpServletRequest request, String storageId, String repositoryId)
+    {
+        return String.format("%s://%s:%s/%s/%s/%s", request.getScheme(), request.getServerName(),
+                             request.getServerPort(),
+                             request.getContextPath(), storageId, repositoryId);
+    }
+
+    private Collection<? extends Nupkg> getPackages(PackageSource<Nupkg> packageSource,
+                                                    String filter,
+                                                    String searchTerm,
+                                                    String targetFramework)
+    {
+        QueryExecutor queryExecutor = new QueryExecutor();
+        Collection<? extends Nupkg> files = queryExecutor.execQuery(packageSource, filter, searchTerm, targetFramework);
+        return files;
     }
     
     @ApiOperation(value = "Used to get storage metadata")
@@ -430,4 +450,12 @@ public class NugetPackageController extends BaseArtifactController
         return nugetArtifactManagementService;
     }
 
+    private String normaliseSearchTerm(String sourceValue) {
+        if (sourceValue == null) {
+            return null;
+        }
+        return sourceValue.replaceAll("['\"]", "").toLowerCase();
+    }
+
+    
 }
