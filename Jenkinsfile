@@ -1,6 +1,8 @@
 @Library('jenkins-shared-libraries')
 
-def REPO_NAME = 'strongbox/strongbox'
+def REPO_NAME  = 'strongbox/strongbox'
+def SERVER_ID  = 'carlspring-oss-snapshots'
+def SERVER_URL = 'https://dev.carlspring.org/nexus/content/repositories/carlspring-oss-snapshots/'
 
 pipeline {
     agent { label 'opensuse-slave' }
@@ -20,7 +22,7 @@ pipeline {
         }
         stage('Code Analysis') {
             steps {
-                withMaven(maven: 'maven-3.3.9', 
+                withMaven(maven: 'maven-3.3.9',
                           mavenSettingsConfig: 'a5452263-40e5-4d71-a5aa-4fc94a0e6833',
                           mavenLocalRepo: '/home/jenkins/.m2/repository')
                 {
@@ -35,8 +37,6 @@ pipeline {
                                    "-Dformat=XML " +
                                    "-Dsonar.dependencyCheck.reportPath=${WORKSPACE}/dependency-check-report.xml " +
                                    "-Pdependency-check "
-
-                                build(job: "strongbox/strongbox-os-builds", wait: false)
                             }
                         }
                         else {
@@ -59,15 +59,35 @@ pipeline {
                             }
                             else
                             {
-                                echo "This step is skipped for branches other than master or PR-*"  
+                                echo "This step is skipped for branches other than master or PR-*"
                             }
                         }
                     }
                 }
             }
         }
+        stage('Deploy') {
+            when {
+                expression { BRANCH_NAME == 'master' && (currentBuild.result == null || currentBuild.result == 'SUCCESS') }
+            }
+            steps {
+                script {
+                    withMaven(maven: 'maven-3.3.9',
+                              mavenSettingsConfig: 'a5452263-40e5-4d71-a5aa-4fc94a0e6833',
+                              mavenLocalRepo: '/home/jenkins/.m2/repository')
+                    {
+                        sh "mvn package deploy:deploy" +
+                           " -Dmaven.test.skip=true" +
+                           " -DaltDeploymentRepository=${SERVER_ID}::default::${SERVER_URL}"
+                    }
+                }
+            }
+        }
     }
     post {
+        success {
+            build(job: "strongbox/strongbox-os-builds", wait: false)
+        }
         changed {
             script {
                 if(BRANCH_NAME == 'master') {
@@ -81,3 +101,4 @@ pipeline {
         }
     }
 }
+
