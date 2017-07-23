@@ -24,4 +24,9 @@ public class ErrorResponseEntityBody
     {
         this.error = error;
     }
+
+    public String getError()
+    {
+        return error;
+    }
 }
