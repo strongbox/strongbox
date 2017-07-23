@@ -84,7 +84,7 @@ public class SafeArtifactContext
                 }
             }
         }
-
+        logger.warn(String.format("Failed to read POM [%s]", getArtifact()));
         return null;
     }
 }
