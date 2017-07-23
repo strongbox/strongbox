@@ -86,7 +86,11 @@ pipeline {
     }
     post {
         success {
-            build(job: "strongbox/strongbox-os-builds", wait: false)
+            script {
+                if(BRANCH_NAME == 'master') {
+                    build(job: "strongbox/strongbox-os-builds", wait: false)
+                }
+            }
         }
         changed {
             script {
