@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.controllers.support;
+package org.carlspring.strongbox.controllers.security.login;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -8,20 +8,20 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * @author Przemyslaw Fusik
  */
-@XmlRootElement(name = "error")
+@XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
-public class ErrorResponseEntityBody
+public class LoginOutput
 {
 
-    @XmlElement(name = "error")
-    private String error;
+    @XmlElement
+    private String token;
 
-    public ErrorResponseEntityBody()
+    public LoginOutput(String token)
     {
+        this.token = token;
     }
 
-    public ErrorResponseEntityBody(String error)
+    public LoginOutput()
     {
-        this.error = error;
     }
 }

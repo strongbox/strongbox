@@ -6,6 +6,10 @@
     <baseUrl>http://localhost:48080/</baseUrl>
     <port>48080</port>
 
+    <session-configuration>
+        <timeoutSeconds>30</timeoutSeconds>
+    </session-configuration>
+
     <storages>
 
         <storage id="nuget-common-storage">
