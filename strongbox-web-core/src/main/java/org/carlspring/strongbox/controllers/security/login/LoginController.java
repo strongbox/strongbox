@@ -6,7 +6,6 @@ import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 
 import javax.inject.Inject;
 
-import com.google.common.collect.ImmutableMap;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -71,8 +70,8 @@ public class LoginController
         try
         {
             token = securityTokenProvider.getToken(authentication.getPrincipal().toString(),
-                                                   ImmutableMap.of("credentials",
-                                                                   authentication.getCredentials().toString()),
+                                                   securityTokenProvider.passwordClaimMap(
+                                                           authentication.getCredentials().toString()),
                                                    configurationManagementService.getConfiguration().getSessionConfiguration().getTimeoutSeconds());
         }
         catch (JoseException e)
