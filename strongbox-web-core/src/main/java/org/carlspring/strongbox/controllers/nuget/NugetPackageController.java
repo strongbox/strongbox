@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -130,7 +131,7 @@ public class NugetPackageController extends BaseArtifactController
         ByteArrayOutputStream rssResultStream = new ByteArrayOutputStream();
         feed.writeXml(rssResultStream);
 
-        return new ResponseEntity<>(new String(rssResultStream.toByteArray()), HttpStatus.OK);
+        return new ResponseEntity<>(new String(rssResultStream.toByteArray(), Charset.forName("UTF-8")), HttpStatus.OK);
     }
 
     private String getFeedUri(HttpServletRequest request, String storageId, String repositoryId)
