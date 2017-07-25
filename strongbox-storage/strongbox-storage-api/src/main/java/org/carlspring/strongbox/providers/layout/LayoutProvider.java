@@ -103,6 +103,8 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
                         boolean forceRegeneration)
             throws IOException;
 
+    boolean isMetadata(String path);
+
     RepositoryFeatures getRepositoryFeatures();
 
     RepositoryManagementStrategy getRepositoryManagementStrategy();

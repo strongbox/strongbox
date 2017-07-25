@@ -83,7 +83,7 @@ public class NugetHierarchicalLayoutProvider
     }
 
     @Override
-    protected boolean isMetadata(String path)
+    public boolean isMetadata(String path)
     {
         return path.endsWith(".nuspec");
     }

@@ -122,7 +122,7 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
     }
 
     @Override
-    protected boolean isMetadata(String path)
+    public boolean isMetadata(String path)
     {
         return path.endsWith(".pom") || path.endsWith(".xml");
     }

@@ -16,6 +16,8 @@ import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -39,7 +41,33 @@ public class MavenArtifactManagementService
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
-    
+
+    @Override
+    public void store(RepositoryPath repositoryPath,
+                      InputStream is)
+            throws IOException, ProviderImplementationException, NoSuchAlgorithmException
+    {
+        super.store(repositoryPath, is);
+
+        try
+        {
+            Repository repository = repositoryPath.getFileSystem().getRepository();
+            Storage storage = repository.getStorage();
+
+            LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
+            if (layoutProvider.isMetadata(repositoryPath.toString()))
+            {
+                artifactEventListenerRegistry.dispatchArtifactMetadataUploadedEvent(storage.getId(),
+                                                                                    repository.getId(),
+                                                                                    repositoryPath.toString());
+            }
+        }
+        catch (ProviderImplementationException e)
+        {
+            throw new ArtifactStorageException(e.getMessage(), e);
+        }
+    }
+
     @Override
     public void delete(String storageId,
                        String repositoryId,

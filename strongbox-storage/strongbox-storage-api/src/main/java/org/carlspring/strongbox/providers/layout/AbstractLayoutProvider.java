@@ -423,8 +423,6 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
         return result;
     }
     
-    protected abstract boolean isMetadata(String string);
-
     protected RepositoryPathHandler getRepositoryPathHandler()
     {
         return null;

@@ -2,6 +2,8 @@ package org.carlspring.strongbox.event.artifact;
 
 import org.carlspring.strongbox.event.AbstractEventListenerRegistry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
@@ -12,6 +14,8 @@ public class ArtifactEventListenerRegistry
         extends AbstractEventListenerRegistry<ArtifactEvent>
 {
 
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactEventListenerRegistry.class);
+
 
     public void dispatchArtifactUploadingEvent(String storageId, String repositoryId, String path)
     {
@@ -19,7 +23,10 @@ public class ArtifactEventListenerRegistry
                                                 repositoryId,
                                                 path,
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_UPLOADING.getType());
-
+        
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_UPLOADING event for " +
+                     storageId + ":" + repositoryId + "...");
+        
         dispatchEvent(event);
     }
 
@@ -29,6 +36,35 @@ public class ArtifactEventListenerRegistry
                                                 repositoryId,
                                                 path,
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_UPLOADED.getType());
+
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_UPLOADED event for " +
+                     storageId + ":" + repositoryId + "...");
+
+        dispatchEvent(event);
+    }
+
+    public void dispatchArtifactMetadataUploadedEvent(String storageId, String repositoryId, String path)
+    {
+        ArtifactEvent event = new ArtifactEvent(storageId,
+                                                repositoryId,
+                                                path,
+                                                ArtifactEventTypeEnum.EVENT_ARTIFACT_METADATA_UPLOADED.getType());
+
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_METADATA_UPLOADED event for " +
+                     storageId + ":" + repositoryId + "...");
+
+        dispatchEvent(event);
+    }
+
+    public void dispatchArtifactMetadataUpdatedEvent(String storageId, String repositoryId, String path)
+    {
+        ArtifactEvent event = new ArtifactEvent(storageId,
+                                                repositoryId,
+                                                path,
+                                                ArtifactEventTypeEnum.EVENT_ARTIFACT_METADATA_UPDATED.getType());
+
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_METADATA_UPDATED event for " +
+                     storageId + ":" + repositoryId + "...");
 
         dispatchEvent(event);
     }
@@ -40,6 +76,9 @@ public class ArtifactEventListenerRegistry
                                                 path,
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_CHECKSUM_UPLOADED.getType());
 
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_CHECKSUM_UPLOADED event for " +
+                     storageId + ":" + repositoryId + "...");
+
         dispatchEvent(event);
     }
 
@@ -50,6 +89,9 @@ public class ArtifactEventListenerRegistry
                                                 path,
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_DOWNLOADING.getType());
 
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_DOWNLOADING event for " +
+                     storageId + ":" + repositoryId + "...");
+
         dispatchEvent(event);
     }
 
@@ -59,6 +101,9 @@ public class ArtifactEventListenerRegistry
                                                 repositoryId,
                                                 path,
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_DOWNLOADED.getType());
+
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_DOWNLOADED event for " +
+                     storageId + ":" + repositoryId + "...");
 
         dispatchEvent(event);
     }
@@ -76,6 +121,9 @@ public class ArtifactEventListenerRegistry
                                                 path,
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_COPYING.getType());
 
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_COPYING event for " +
+                     srcStorageId + ":" + srcRepositoryId + " to " + destStorageId + ":" + destRepositoryId + "...");
+
         dispatchEvent(event);
     }
 
@@ -91,6 +139,9 @@ public class ArtifactEventListenerRegistry
                                                 destRepositoryId,
                                                 path,
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_COPIED.getType());
+
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_COPIED event for " +
+                     srcStorageId + ":" + srcRepositoryId + " to " + destStorageId + ":" + destRepositoryId + "...");
 
         dispatchEvent(event);
     }
@@ -108,6 +159,9 @@ public class ArtifactEventListenerRegistry
                                                 path,
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_MOVING.getType());
 
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_MOVING event for " +
+                     srcStorageId + ":" + srcRepositoryId + " to " + destStorageId + ":" + destRepositoryId + "...");
+
         dispatchEvent(event);
     }
 
@@ -124,6 +178,9 @@ public class ArtifactEventListenerRegistry
                                                 path,
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_MOVED.getType());
 
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_MOVED event for " +
+                     srcStorageId + ":" + srcRepositoryId + " to " + destStorageId + ":" + destRepositoryId + "...");
+
         dispatchEvent(event);
     }
 
@@ -135,6 +192,9 @@ public class ArtifactEventListenerRegistry
                                                 repositoryId,
                                                 path,
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_PATH_DELETED.getType());
+
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_PATH_DELETED event for " +
+                     storageId + ":" + repositoryId + "...");
 
         dispatchEvent(event);
     }
