@@ -1,15 +1,5 @@
 package org.carlspring.strongbox.providers.repository;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.security.NoSuchAlgorithmException;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
-
 import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.strongbox.client.ArtifactResolver;
 import org.carlspring.strongbox.client.ArtifactTransportException;
@@ -22,8 +12,19 @@ import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
+import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessCacheManager;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.security.NoSuchAlgorithmException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -32,7 +33,8 @@ import org.springframework.stereotype.Component;
  * @author carlspring
  */
 @Component
-public class ProxyRepositoryProvider extends AbstractRepositoryProvider
+public class ProxyRepositoryProvider
+        extends AbstractRepositoryProvider
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ProxyRepositoryProvider.class);
@@ -47,6 +49,9 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
 
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
+
+    @Inject
+    private RemoteRepositoryAlivenessCacheManager remoteRepositoryAlivenessCacheManager;
 
     @PostConstruct
     @Override
@@ -101,6 +106,12 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
 
             RemoteRepository remoteRepository = repository.getRemoteRepository();
 
+            if (!remoteRepositoryAlivenessCacheManager.isAlive(remoteRepository))
+            {
+                logger.debug("RemoteRepository {} is not alive" + remoteRepository);
+                return null;
+            }
+
             ArtifactResolver client = new ArtifactResolver(proxyRepositoryConnectionPoolConfigurationService.getClient());
             client.setRepositoryBaseUrl(remoteRepository.getUrl());
             client.setUsername(remoteRepository.getUsername());
@@ -128,7 +139,7 @@ public class ProxyRepositoryProvider extends AbstractRepositoryProvider
                 // TODO: Add a policy for validating the checksums of downloaded artifacts
                 // TODO: Validate the local checksum against the remote's checksums
                 fileSystemProvider.moveFromTemporaryDirectory(artifactPath);
-                
+
                 // Serve the downloaded artifact
                 RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(path);
                 return (ArtifactInputStream) Files.newInputStream(repositoryPath);

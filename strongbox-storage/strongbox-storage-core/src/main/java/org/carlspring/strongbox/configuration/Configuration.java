@@ -46,6 +46,9 @@ public class Configuration
     @XmlElement(name = "session-configuration")
     private SessionConfiguration sessionConfiguration;
 
+    @XmlElement(name = "remote-repositories-configuration")
+    private RemoteRepositoriesConfiguration remoteRepositoriesConfiguration = RemoteRepositoriesConfiguration.DEFAULT;
+
     /**
      * K: storageId
      * V: storage
@@ -164,6 +167,16 @@ public class Configuration
         this.routingRules = routingRules;
     }
 
+    public RemoteRepositoriesConfiguration getRemoteRepositoriesConfiguration()
+    {
+        return remoteRepositoriesConfiguration;
+    }
+
+    public void setRemoteRepositoriesConfiguration(RemoteRepositoriesConfiguration remoteRepositoriesConfiguration)
+    {
+        this.remoteRepositoriesConfiguration = remoteRepositoriesConfiguration;
+    }
+
     @Override
     public boolean equals(Object o)
     {
@@ -176,13 +189,15 @@ public class Configuration
                Objects.equal(proxyConfiguration, that.proxyConfiguration) &&
                Objects.equal(sessionConfiguration, that.sessionConfiguration) &&
                Objects.equal(storages, that.storages) &&
-               Objects.equal(routingRules, that.routingRules);
+               Objects.equal(routingRules, that.routingRules) &&
+               Objects.equal(remoteRepositoriesConfiguration, that.remoteRepositoriesConfiguration);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hashCode(version, baseUrl, port, proxyConfiguration, sessionConfiguration, storages, routingRules);
+        return Objects.hashCode(version, baseUrl, port, proxyConfiguration, sessionConfiguration, storages,
+                                routingRules, remoteRepositoriesConfiguration);
     }
 
     @Override
@@ -196,6 +211,7 @@ public class Configuration
                           .add("\n\tsessionConfiguration", sessionConfiguration)
                           .add("\n\tstorages", storages)
                           .add("\n\troutingRules", routingRules)
+                          .add("\n\tremoteRepositoriesConfiguration", remoteRepositoriesConfiguration)
                           .toString();
     }
 

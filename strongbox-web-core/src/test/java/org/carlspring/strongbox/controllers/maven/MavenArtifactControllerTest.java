@@ -3,6 +3,7 @@ package org.carlspring.strongbox.controllers.maven;
 import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.TestHelper;
 import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
@@ -14,17 +15,15 @@ import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
+import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessCacheManager;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.storage.search.SearchResults;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import javax.inject.Inject;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -59,17 +58,15 @@ public class MavenArtifactControllerTest
 {
 
     private static final String TEST_RESOURCES = "target/test-resources";
-
-    private static File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/local");
-
     private static final String REPOSITORY_RELEASES1 = "act-releases-1";
-
     private static final String REPOSITORY_RELEASES2 = "act-releases-2";
-
     private static final String REPOSITORY_SNAPSHOTS = "act-snapshots";
-
+    private static File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/local");
     @Inject
     private ConfigurationManager configurationManager;
+
+    @Inject
+    private RemoteRepositoryAlivenessCacheManager remoteRepositoryAlivenessCacheManager;
 
 
     @BeforeClass
@@ -77,6 +74,16 @@ public class MavenArtifactControllerTest
             throws Exception
     {
         cleanUp(getRepositoriesToClean());
+    }
+
+    public static Set<Repository> getRepositoriesToClean()
+    {
+        Set<Repository> repositories = new LinkedHashSet<>();
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES1));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES2));
+        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS));
+
+        return repositories;
     }
 
     @Override
@@ -146,7 +153,8 @@ public class MavenArtifactControllerTest
 
         generateArtifact(getRepositoryBasedir(STORAGE0, "releases").getAbsolutePath(),
                          "org.carlspring.strongbox.test:dynamic-privileges",
-                         new String[]{ "1.0" // Used by testDynamicPrivilegeAssignmentForRepository()
+                         new String[]{ "1.0"
+                                       // Used by testDynamicPrivilegeAssignmentForRepository()
                          }
         );
 
@@ -186,16 +194,6 @@ public class MavenArtifactControllerTest
         super.shutdown();
     }
 
-    public static Set<Repository> getRepositoriesToClean()
-    {
-        Set<Repository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES1));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES2));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_SNAPSHOTS));
-
-        return repositories;
-    }
-
     /**
      * Note: This test requires access to the Internet.
      *
@@ -205,6 +203,12 @@ public class MavenArtifactControllerTest
     public void testResolveViaProxyToMavenCentral()
             throws Exception
     {
+        if (!isRemoteRepositoryAvailabilityDetermined("storage-common-proxies", "maven-central"))
+        {
+            logger.debug("Remote repository maven-central availability was not determined");
+            return;
+        }
+
         String artifactPath = "storages/storage-common-proxies/maven-central/" +
                               "org/carlspring/maven/derby-maven-plugin/1.9/derby-maven-plugin-1.9.jar";
 
@@ -220,13 +224,20 @@ public class MavenArtifactControllerTest
     public void testResolveViaProxyToMavenCentralInGroup()
             throws Exception
     {
+        if (!isRemoteRepositoryAvailabilityDetermined("storage-common-proxies", "group-common-proxies"))
+        {
+            logger.debug("Remote repository group-common-proxies availability was not determined");
+            return;
+        }
+
         String artifactPath = "storages/storage-common-proxies/group-common-proxies/" +
                               "org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.jar";
 
         resolveArtifact(artifactPath, "1.10");
     }
 
-    private void resolveArtifact(String artifactPath, String version)
+    private void resolveArtifact(String artifactPath,
+                                 String version)
             throws NoSuchAlgorithmException, IOException
     {
         InputStream is = client.getResource(artifactPath);
@@ -816,4 +827,15 @@ public class MavenArtifactControllerTest
         assertEquals("Access was wrongly restricted for user with custom access model", 200, statusCode);
     }
 
+    private boolean isRemoteRepositoryAvailabilityDetermined(String storageId,
+                                                             String repositoryId)
+            throws InterruptedException
+    {
+
+        Repository repository = configurationManager.getRepository(storageId, repositoryId);
+        RemoteRepository remoteRepository = repository.getRemoteRepository();
+
+        return TestHelper.isOperationSuccessed(rr -> remoteRepositoryAlivenessCacheManager.wasPut(rr), remoteRepository,
+                                               30000, 1000);
+    }
 }

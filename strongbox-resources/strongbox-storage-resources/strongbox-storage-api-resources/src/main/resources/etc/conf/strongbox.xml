@@ -1,4 +1,4 @@
-<configuration>
+<configuration >
 
     <version>${project.version}</version>
     <revision>${strongbox.revision}</revision>
@@ -9,6 +9,10 @@
     <session-configuration>
         <timeoutSeconds>30</timeoutSeconds>
     </session-configuration>
+
+    <remote-repositories-configuration
+            check-interval-seconds="60"
+            heartbeat-threads-number="5" />
 
     <storages>
 
@@ -47,7 +51,9 @@
                     <remote-repository url="https://repo.maven.apache.org/maven2/"
                                        download-remote-indexes="true"
                                        auto-blocking="true"
-                                       checksum-validation="true"/>
+                                       checksum-validation="true"
+                                       check-interval-seconds="20" />
+
                 </repository>
 
                 <repository id="carlspring" policy="mixed" implementation="file-system" layout="Maven 2" type="proxy">
@@ -69,6 +75,15 @@
                                        download-remote-indexes="true"
                                        auto-blocking="true"
                                        checksum-validation="true" />
+                </repository>
+
+                <repository id="maven-oracle" policy="release" implementation="file-system" layout="Maven 2" type="proxy">
+                    <remote-repository url="https://maven.oracle.com"
+                                       download-remote-indexes="true"
+                                       auto-blocking="true"
+                                       checksum-validation="true"
+                                       allows-directory-browsing="false"
+                                       check-interval-seconds="10" />
                 </repository>
 
                 <repository id="group-common-proxies" policy="release" implementation="file-system" layout="Maven 2" type="group" secured="true">

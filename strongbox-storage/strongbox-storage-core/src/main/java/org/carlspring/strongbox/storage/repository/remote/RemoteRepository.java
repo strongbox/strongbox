@@ -1,10 +1,12 @@
-package org.carlspring.strongbox.storage.repository;
+package org.carlspring.strongbox.storage.repository.remote;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
+
+import static org.carlspring.strongbox.configuration.RemoteRepositoriesConfiguration.DEFAULT_HEARTBEAT_INTERVAL_SECONDS;
 
 /**
  * @author mtodorov
@@ -36,6 +38,11 @@ public class RemoteRepository
     @XmlAttribute(name = "checksum-policy")
     private String checksumPolicy;
 
+    @XmlAttribute(name = "check-interval-seconds")
+    private Integer checkIntervalSeconds = DEFAULT_HEARTBEAT_INTERVAL_SECONDS;
+
+    @XmlAttribute(name = "allows-directory-browsing")
+    private boolean allowsDirectoryBrowsing = true;
 
     public RemoteRepository()
     {
@@ -111,4 +118,23 @@ public class RemoteRepository
         this.checksumPolicy = checksumPolicy;
     }
 
+    public Integer getCheckIntervalSeconds()
+    {
+        return checkIntervalSeconds;
+    }
+
+    public void setCheckIntervalSeconds(Integer checkIntervalSeconds)
+    {
+        this.checkIntervalSeconds = checkIntervalSeconds;
+    }
+
+    public boolean isAllowsDirectoryBrowsing()
+    {
+        return allowsDirectoryBrowsing;
+    }
+
+    public void setAllowsDirectoryBrowsing(boolean allowsDirectoryBrowsing)
+    {
+        this.allowsDirectoryBrowsing = allowsDirectoryBrowsing;
+    }
 }
