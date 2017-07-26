@@ -394,7 +394,26 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
 
         return Files.exists(repositoryPath.resolve(path));
     }
-    
+
+    @Override
+    public boolean isChecksum(RepositoryPath repositoryPath)
+    {
+        return repositoryPath.getFileSystem().provider().isChecksum(repositoryPath);
+    }
+
+    @Override
+    public void archive(String storageId,
+                        String repositoryId,
+                        String path)
+            throws IOException
+    {
+        artifactEventListenerRegistry.dispatchArtifactArchivingEvent(storageId, repositoryId, path);
+
+        // TODO: Implement archiving
+
+        artifactEventListenerRegistry.dispatchArtifactArchivedEvent(storageId, repositoryId, path);
+    }
+
     protected Map<String, Object> getRepositoryFileAttributes(RepositoryPath repositoryRelativePath)
     {
         RepositoryFileSystemProvider provider = repositoryRelativePath.getFileSystem().provider();

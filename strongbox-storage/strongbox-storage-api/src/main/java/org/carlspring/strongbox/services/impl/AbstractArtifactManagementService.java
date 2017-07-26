@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
 /**
  * @author Sergey Bespalov
@@ -123,14 +124,39 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
     private void storeArtifact(RepositoryPath repositoryPath,
                                InputStream is,
                                final ArtifactOutputStream aos)
-            throws IOException
+            throws IOException,
+                   ProviderImplementationException
     {
         Repository repository = repositoryPath.getFileSystem().getRepository();
         Storage storage = repository.getStorage();
-        
+
+        String repositoryId = repository.getId();
+        String storageId = storage.getId();
+
         String artifactPathRelative = repositoryPath.getRepositoryRelative().toString();
-        String artifactPath = storage.getId() + "/" + repository.getId() + "/" + artifactPathRelative;
-     
+        String artifactPath = storageId + "/" + repositoryId + "/" + artifactPathRelative;
+
+        LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
+
+        boolean updatedMetadataFile = false;
+        boolean updatedArtifactFile = false;
+        boolean updatedArtifactChecksumFile = false;
+        if (Files.exists(repositoryPath.getTarget()))
+        {
+            if (layoutProvider.isMetadata(artifactPath))
+            {
+                updatedMetadataFile = true;
+            }
+            else if (layoutProvider.isChecksum(repositoryPath))
+            {
+                updatedArtifactChecksumFile = true;
+            }
+            else
+            {
+                updatedArtifactFile = true;
+            }
+        }
+
         Boolean checksumAttribute = (Boolean) Files.getAttribute(repositoryPath, RepositoryFileAttributes.CHECKSUM);
         
         // If we have no digests, then we have a checksum to store.
@@ -139,7 +165,7 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
             aos.setCacheOutputStream(new ByteArrayOutputStream());
         }
 
-        artifactEventListenerRegistry.dispatchArtifactUploadingEvent(storage.getId(), repository.getId(), artifactPath);
+        artifactEventListenerRegistry.dispatchArtifactUploadingEvent(storageId, repositoryId, artifactPath);
 
         int readLength;
         byte[] bytes = new byte[4096];
@@ -150,7 +176,32 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
             aos.flush();
         }
 
-        artifactEventListenerRegistry.dispatchArtifactUploadedEvent(storage.getId(), repository.getId(), artifactPath);
+        if (updatedMetadataFile)
+        {
+            // If this is a metadata file and it has been updated:
+            artifactEventListenerRegistry.dispatchArtifactMetadataFileUpdatedEvent(storageId,
+                                                                                   repositoryId,
+                                                                                   artifactPath);
+        }
+        if (updatedArtifactChecksumFile)
+        {
+            // If this is a checksum file and it has been updated:
+            artifactEventListenerRegistry.dispatchArtifactChecksumFileUpdatedEvent(storageId,
+                                                                                   repositoryId,
+                                                                                   artifactPath);
+        }
+
+        if (updatedArtifactFile)
+        {
+            // If this is an artifact file and it has been updated:
+            artifactEventListenerRegistry.dispatchArtifactUploadedEvent(storageId, repositoryId, artifactPath);
+        }
+
+        if (!layoutProvider.isChecksum(repositoryPath) && !layoutProvider.isMetadata(repositoryPath.toString()))
+        {
+            // If this us just a regular upload of a new artifact file:
+            artifactEventListenerRegistry.dispatchArtifactUploadedEvent(storageId, repositoryId, artifactPath);
+        }
 
         Map<String, String> digestMap = aos.getDigestMap();
         if (Boolean.FALSE.equals(checksumAttribute) && !digestMap.isEmpty())
@@ -162,10 +213,10 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
         if (Boolean.TRUE.equals(checksumAttribute))
         {
             byte[] checksumValue = ((ByteArrayOutputStream) aos.getCacheOutputStream()).toByteArray();
-            if (checksumValue != null && checksumValue.length > 0)
+            if (checksumValue != null && checksumValue.length > 0 && !updatedArtifactChecksumFile)
             {
-                artifactEventListenerRegistry.dispatchArtifactChecksumUploadedEvent(storage.getId(),
-                                                                                    repository.getId(),
+                artifactEventListenerRegistry.dispatchArtifactChecksumUploadedEvent(storageId,
+                                                                                    repositoryId,
                                                                                     artifactPath);
 
                 // Validate checksum with artifact digest cache.
