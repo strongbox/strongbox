@@ -93,9 +93,10 @@ public class NugetPackageController extends BaseArtifactController
         return new ResponseEntity<>("1", HttpStatus.OK);
     }
 
-    @RequestMapping(path = { "{storageId}/{repositoryId}/Search()" }, method = RequestMethod.GET, produces = MediaType.APPLICATION_XML)
+    @RequestMapping(path = { "{storageId}/{repositoryId}/{searchCommandName:(?:Packages(?:\\(\\))?|Search\\(\\))}" }, method = RequestMethod.GET, produces = MediaType.APPLICATION_XML)
     public ResponseEntity<?> searchPackages(@ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
                                             @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
+                                            @PathVariable(name = "searchCommandName") String searchCommandName,
                                             @RequestParam(name = "$filter", required = true) String filter,
                                             @RequestParam(name = "$orderby", required = false, defaultValue = "updated") String orderBy,
                                             @RequestParam(name = "$skip", required = false, defaultValue = "0") int skip,
@@ -462,4 +463,12 @@ public class NugetPackageController extends BaseArtifactController
         return sourceValue.replaceAll("['\"]", "").toLowerCase();
     }
 
+
+    public static final void main(String[] args){
+        Pattern pattern = Pattern.compile("(?:Packages(?:\\(\\))?|Search\\(\\))");
+        System.out.println(pattern.matcher("Packages").matches());;
+        System.out.println(pattern.matcher("Packages()").matches());;
+        System.out.println(pattern.matcher("Search").matches());;
+        System.out.println(pattern.matcher("Search()").matches());;
+    }
 }
