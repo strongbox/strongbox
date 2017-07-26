@@ -1,31 +1,6 @@
 package org.carlspring.strongbox.controllers.nuget;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.util.Collection;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.inject.Inject;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.MediaType;
-import javax.xml.bind.JAXBException;
-
-import org.apache.commons.fileupload.MultipartStream;
-import org.apache.commons.lang.StringUtils;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
-import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ReplacingInputStream;
@@ -41,12 +16,15 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
+import javax.xml.bind.JAXBException;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -58,29 +36,20 @@ import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import ru.aristar.jnuget.QueryExecutor;
 import ru.aristar.jnuget.files.NugetFormatException;
 import ru.aristar.jnuget.files.Nupkg;
-import org.springframework.web.bind.annotation.*;
 import ru.aristar.jnuget.files.TempNupkgFile;
 import ru.aristar.jnuget.query.Expression;
 import ru.aristar.jnuget.query.Lexer;
@@ -151,7 +120,9 @@ public class NugetPackageController extends BaseArtifactController
                                                         targetFramework);
 
         String feedId = getFeedUri(((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest(),
-                                   storageId, repositoryId);
+                                   storageId,
+                                   repositoryId);
+
         NuPkgToRssTransformer toRssTransformer = new NuPkgToRssTransformer(feedId);
         PackageFeed feed = toRssTransformer.transform(files, orderBy, skip, top);
 
@@ -186,7 +157,7 @@ public class NugetPackageController extends BaseArtifactController
         throws IOException
     {
         InputStream inputStream = NugetPackageController.class.getResourceAsStream("/metadata.xml");
-        return new ResponseEntity<Resource>(new InputStreamResource(inputStream), HttpStatus.OK);
+        return new ResponseEntity<>(new InputStreamResource(inputStream), HttpStatus.OK);
     }
 
     /**
@@ -369,15 +340,11 @@ public class NugetPackageController extends BaseArtifactController
         byte[] replacementPattern = new byte[boundary.length + 4];
         byte[] replacementTarget = new byte[boundary.length + 5];
 
-        System.arraycopy(boundaryPrefixToFix, 0, replacementPattern, 0,
-                         4);
-        System.arraycopy(boundaryPrefixTarget, 0, replacementTarget, 0,
-                         5);
+        System.arraycopy(boundaryPrefixToFix, 0, replacementPattern, 0, 4);
+        System.arraycopy(boundaryPrefixTarget, 0, replacementTarget, 0, 5);
         
-        System.arraycopy(boundary, 0, replacementPattern, 4,
-                         boundary.length);
-        System.arraycopy(boundary, 0, replacementTarget, 4,
-                         boundary.length);
+        System.arraycopy(boundary, 0, replacementPattern, 4, boundary.length);
+        System.arraycopy(boundary, 0, replacementTarget, 4, boundary.length);
         
         Path streamContentPath = Files.createTempFile("boundaryString", "nupkg");
         ReplacingInputStream replacingIs = new ReplacingInputStream(is, boundaryPrefixToFix, boundaryPrefixTarget);
