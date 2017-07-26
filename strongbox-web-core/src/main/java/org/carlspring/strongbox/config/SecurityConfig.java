@@ -2,7 +2,9 @@ package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.authentication.config.AuthenticationConfig;
 import org.carlspring.strongbox.authentication.registry.AuthenticatorsRegistry;
+import org.carlspring.strongbox.security.CustomAccessDeniedHandler;
 import org.carlspring.strongbox.security.authentication.CustomAnonymousAuthenticationFilter;
+import org.carlspring.strongbox.security.authentication.JwtTokenValidationFilter;
 import org.carlspring.strongbox.security.authentication.StrongboxAuthenticationFilter;
 import org.carlspring.strongbox.security.authentication.suppliers.AuthenticationSupplier;
 import org.carlspring.strongbox.security.authentication.suppliers.AuthenticationSuppliers;
@@ -26,6 +28,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
@@ -56,8 +59,10 @@ public class SecurityConfig
         http.sessionManagement()
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
+            .exceptionHandling()
+            .accessDeniedHandler(accessDeniedHandler())
             // TODO SB-813
-            .exceptionHandling().authenticationEntryPoint(basicAuthenticationEntryPoint())
+            .authenticationEntryPoint(basicAuthenticationEntryPoint())
             .and()
             .anonymous()
             .authenticationFilter(anonymousAuthenticationFilter())
@@ -67,6 +72,12 @@ public class SecurityConfig
 
         http.addFilterBefore(strongboxAuthenticationFilter(),
                              BasicAuthenticationFilter.class);
+    }
+
+    @Bean
+    AccessDeniedHandler accessDeniedHandler()
+    {
+        return new CustomAccessDeniedHandler();
     }
 
     @Bean
@@ -81,6 +92,12 @@ public class SecurityConfig
     StrongboxAuthenticationFilter strongboxAuthenticationFilter()
     {
         return new StrongboxAuthenticationFilter(new AuthenticationSuppliers(suppliers), authenticatorsRegistry);
+    }
+
+    @Bean
+    JwtTokenValidationFilter jwtTokenValidationFilter()
+    {
+        return new JwtTokenValidationFilter();
     }
 
     @Bean

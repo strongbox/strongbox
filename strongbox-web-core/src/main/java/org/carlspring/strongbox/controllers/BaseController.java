@@ -7,7 +7,6 @@ import org.carlspring.strongbox.resource.ResourceCloser;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.JAXBException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -37,7 +36,6 @@ public abstract class BaseController
     }
 
     protected ResponseEntity toResponseEntityError(String message)
-            throws JAXBException
     {
         return toResponseEntityError(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }

@@ -13,15 +13,20 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class ErrorResponseEntityBody
 {
 
-    @XmlElement(name = "message")
-    private String message;
+    @XmlElement(name = "error")
+    private String error;
 
     public ErrorResponseEntityBody()
     {
     }
 
-    public ErrorResponseEntityBody(String message)
+    public ErrorResponseEntityBody(String error)
     {
-        this.message = message;
+        this.error = error;
+    }
+
+    public String getError()
+    {
+        return error;
     }
 }

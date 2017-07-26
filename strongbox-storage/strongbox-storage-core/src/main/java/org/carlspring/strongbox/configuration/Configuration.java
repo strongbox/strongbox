@@ -43,6 +43,9 @@ public class Configuration
     @XmlElement(name = "proxy-configuration")
     private ProxyConfiguration proxyConfiguration;
 
+    @XmlElement(name = "session-configuration")
+    private SessionConfiguration sessionConfiguration;
+
     /**
      * K: storageId
      * V: storage
@@ -110,6 +113,16 @@ public class Configuration
         this.proxyConfiguration = proxyConfiguration;
     }
 
+    public SessionConfiguration getSessionConfiguration()
+    {
+        return sessionConfiguration;
+    }
+
+    public void setSessionConfiguration(SessionConfiguration sessionConfiguration)
+    {
+        this.sessionConfiguration = sessionConfiguration;
+    }
+
     public Map<String, Storage> getStorages()
     {
         return storages;
@@ -161,6 +174,7 @@ public class Configuration
                Objects.equal(version, that.version) &&
                Objects.equal(baseUrl, that.baseUrl) &&
                Objects.equal(proxyConfiguration, that.proxyConfiguration) &&
+               Objects.equal(sessionConfiguration, that.sessionConfiguration) &&
                Objects.equal(storages, that.storages) &&
                Objects.equal(routingRules, that.routingRules);
     }
@@ -168,7 +182,7 @@ public class Configuration
     @Override
     public int hashCode()
     {
-        return Objects.hashCode(version, baseUrl, port, proxyConfiguration, storages, routingRules);
+        return Objects.hashCode(version, baseUrl, port, proxyConfiguration, sessionConfiguration, storages, routingRules);
     }
 
     @Override
@@ -179,6 +193,7 @@ public class Configuration
                           .add("\n\tbaseUrl", baseUrl)
                           .add("\n\tport", port)
                           .add("\n\tproxyConfiguration", proxyConfiguration)
+                          .add("\n\tsessionConfiguration", sessionConfiguration)
                           .add("\n\tstorages", storages)
                           .add("\n\troutingRules", routingRules)
                           .toString();

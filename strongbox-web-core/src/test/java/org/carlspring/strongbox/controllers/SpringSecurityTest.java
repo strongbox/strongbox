@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.controllers;
 
-import org.carlspring.strongbox.config.WebConfig;
+import org.carlspring.strongbox.controllers.context.IntegrationTest;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.security.authentication.CustomAnonymousAuthenticationFilter;
 import org.carlspring.strongbox.users.domain.User;
@@ -9,6 +9,7 @@ import javax.inject.Inject;
 
 import io.restassured.http.ContentType;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
+import org.hamcrest.CoreMatchers;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,17 +19,14 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 /**
  * @author Alex Oreshkevich
  */
-@ContextConfiguration(classes = WebConfig.class)
-@WebAppConfiguration
+@IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
 public class SpringSecurityTest
         extends RestAssuredBaseTest
@@ -193,6 +191,7 @@ public class SpringSecurityTest
                .put("/users/user")
                .peek()
                .then()
+               .body("error", CoreMatchers.equalTo("unauthorized"))
                .statusCode(HttpStatus.FORBIDDEN.value());
     }
 }

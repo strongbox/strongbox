@@ -1,6 +1,31 @@
 package org.carlspring.strongbox.controllers.nuget;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.Collection;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.inject.Inject;
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.MediaType;
+import javax.xml.bind.JAXBException;
+
+import org.apache.commons.fileupload.MultipartStream;
+import org.apache.commons.lang.StringUtils;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
+import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ReplacingInputStream;
@@ -39,8 +64,30 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import ru.aristar.jnuget.QueryExecutor;
+import ru.aristar.jnuget.files.NugetFormatException;
+import ru.aristar.jnuget.files.Nupkg;
 import org.springframework.web.bind.annotation.*;
 import ru.aristar.jnuget.files.TempNupkgFile;
+import ru.aristar.jnuget.query.Expression;
+import ru.aristar.jnuget.query.Lexer;
+import ru.aristar.jnuget.query.QueryLexer;
+import ru.aristar.jnuget.rss.NuPkgToRssTransformer;
+import ru.aristar.jnuget.rss.PackageFeed;
+import ru.aristar.jnuget.sources.PackageSource;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -68,6 +115,79 @@ public class NugetPackageController extends BaseArtifactController
     @Inject
     protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
 
+
+    @RequestMapping(path = { "{storageId}/{repositoryId}/Search()/$count" }, method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN)
+    public ResponseEntity<String> countPackages(@RequestParam(name = "$filter", required = false) String filter,
+                                                @RequestParam(name = "searchTerm", required = false) String searchTerm,
+                                                @RequestParam(name = "targetFramework", required = false) String targetFramework)
+    {
+        return new ResponseEntity<>("1", HttpStatus.OK);
+    }
+
+    @RequestMapping(path = { "{storageId}/{repositoryId}/Search()" }, method = RequestMethod.GET, produces = MediaType.APPLICATION_XML)
+    public ResponseEntity<?> searchPackages(@ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
+                                            @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
+                                            @RequestParam(name = "$filter", required = true) String filter,
+                                            @RequestParam(name = "$orderby", required = false, defaultValue = "updated") String orderBy,
+                                            @RequestParam(name = "$skip", required = false, defaultValue = "0") int skip,
+                                            @RequestParam(name = "$top", required = false, defaultValue = "-1") int top,
+                                            @RequestParam(name = "searchTerm", required = true) String searchTerm,
+                                            @RequestParam(name = "targetFramework", required = true) String targetFramework)
+        throws JAXBException
+    {
+        Lexer queryLexer = new QueryLexer();
+        Expression expression;
+        try
+        {
+            expression = queryLexer.parse(filter);
+        }
+        catch (NugetFormatException e)
+        {
+            return ResponseEntity.badRequest().build();
+        }
+
+        PackageSource<Nupkg> packageSource = new NugetSearchPackageSource(expression);
+        Collection<? extends Nupkg> files = getPackages(packageSource, filter, normaliseSearchTerm(searchTerm),
+                                                        targetFramework);
+
+        String feedId = getFeedUri(((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest(),
+                                   storageId, repositoryId);
+        NuPkgToRssTransformer toRssTransformer = new NuPkgToRssTransformer(feedId);
+        PackageFeed feed = toRssTransformer.transform(files, orderBy, skip, top);
+
+        ByteArrayOutputStream rssResultStream = new ByteArrayOutputStream();
+        feed.writeXml(rssResultStream);
+
+        return new ResponseEntity<>(new String(rssResultStream.toByteArray(), Charset.forName("UTF-8")), HttpStatus.OK);
+    }
+
+    private String getFeedUri(HttpServletRequest request, String storageId, String repositoryId)
+    {
+        return String.format("%s://%s:%s/%s/%s/%s", request.getScheme(), request.getServerName(),
+                             request.getServerPort(),
+                             request.getContextPath(), storageId, repositoryId);
+    }
+
+    private Collection<? extends Nupkg> getPackages(PackageSource<Nupkg> packageSource,
+                                                    String filter,
+                                                    String searchTerm,
+                                                    String targetFramework)
+    {
+        QueryExecutor queryExecutor = new QueryExecutor();
+        Collection<? extends Nupkg> files = queryExecutor.execQuery(packageSource, filter, searchTerm, targetFramework);
+        return files;
+    }
+
+    @ApiOperation(value = "Used to get storage metadata")
+    @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "The metadata was downloaded successfully."),
+                            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred.") })
+    @RequestMapping(path = { "{storageId}/{repositoryId}/$metadata" }, method = RequestMethod.GET, produces = MediaType.APPLICATION_XML)
+    public ResponseEntity<Resource> getMetadata()
+        throws IOException
+    {
+        InputStream inputStream = NugetPackageController.class.getResourceAsStream("/metadata.xml");
+        return new ResponseEntity<Resource>(new InputStreamResource(inputStream), HttpStatus.OK);
+    }
 
     /**
      * This method is used to check storage availability.<br>
@@ -178,15 +298,6 @@ public class NugetPackageController extends BaseArtifactController
 
             try (TempNupkgFile nupkgFile = new TempNupkgFile(is))
             {
-                /*
-                HttpHeaders headers = new HttpHeaders();
-                headers.add("Content-Length", String.valueOf(nupkgFile.getSize()));
-                headers.add("Content-Disposition", String.format("attachment; filename=\"%s\"", nupkgFile.getFileName()));
-                */
-
-//                return new ResponseEntity<Resource>(new InputStreamResource(nupkgFile.getStream()), headers, HttpStatus.OK);
-
-                //response.setHeader("Content-Length", String.valueOf(nupkgFile.getSize()));
                 response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", nupkgFile.getFileName()));
                 ArtifactControllerHelper.setHeadersForChecksums(is, response);
 
@@ -354,6 +465,7 @@ public class NugetPackageController extends BaseArtifactController
         catch (SecurityTokenException e)
         {
             logger.info(String.format("Invalid security token: user-[%s]", userName), e);
+
             return false;
         }
 
@@ -371,6 +483,16 @@ public class NugetPackageController extends BaseArtifactController
     public ArtifactManagementService getArtifactManagementService()
     {
         return nugetArtifactManagementService;
+    }
+
+    private String normaliseSearchTerm(String sourceValue)
+    {
+        if (sourceValue == null)
+        {
+            return null;
+        }
+
+        return sourceValue.replaceAll("['\"]", "").toLowerCase();
     }
 
 }
