@@ -38,6 +38,7 @@ Welcome to the Strongbox artifact repository manager's home.
   * Implementations:
     * Java
     * Groovy
+* [Event handling](https://github.com/strongbox/strongbox/wiki/Using-the-event-API)
 * Logging:
   * Retrieve logs over HTTP
 
@@ -61,7 +62,6 @@ Welcome to the Strongbox artifact repository manager's home.
 
 # What's not yet implemented:
 * Plugins
-* Event handling
 
 # Requirements:
 * Java 1.8.x

@@ -1,23 +1,12 @@
 package org.carlspring.strongbox.services.impl;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.security.NoSuchAlgorithmException;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
@@ -36,14 +25,26 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
 import org.carlspring.strongbox.storage.validation.version.VersionValidationException;
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
+
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static org.carlspring.strongbox.providers.layout.LayoutProviderRegistry.getLayoutProvider;
 
 /**
  * @author Sergey Bespalov
  *
  */
-//TODO: move all the common mehtod implementation here
 public abstract class AbstractArtifactManagementService implements ArtifactManagementService
 {
     
@@ -70,7 +71,11 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
 
     @Inject
     protected ChecksumCacheManager checksumCacheManager;
-    
+
+    @Inject
+    protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
+
+
     @Override
     @Transactional
     public void store(String storageId,
@@ -107,7 +112,8 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
 
         try (final ArtifactOutputStream aos = (ArtifactOutputStream) Files.newOutputStream(repositoryPath))
         {
-            doStore(repositoryPath, is, aos);
+            storeArtifact(repositoryPath, is, aos);
+            storeArtifactEntry(repositoryPath);
         }
         catch (IOException e)
         {
@@ -115,17 +121,42 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
         }
     }
 
-    private void doStore(RepositoryPath repositoryPath,
-                         InputStream is,
-                         final ArtifactOutputStream aos)
-            throws IOException
+    private void storeArtifact(RepositoryPath repositoryPath,
+                               InputStream is,
+                               final ArtifactOutputStream aos)
+            throws IOException,
+                   ProviderImplementationException
     {
         Repository repository = repositoryPath.getFileSystem().getRepository();
         Storage storage = repository.getStorage();
-        
+
+        String repositoryId = repository.getId();
+        String storageId = storage.getId();
+
         String artifactPathRelative = repositoryPath.getRepositoryRelative().toString();
-        String artifactPath = storage.getId() + "/" + repository.getId() + "/" + artifactPathRelative;
-     
+        String artifactPath = storageId + "/" + repositoryId + "/" + artifactPathRelative;
+
+        LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
+
+        boolean updatedMetadataFile = false;
+        boolean updatedArtifactFile = false;
+        boolean updatedArtifactChecksumFile = false;
+        if (Files.exists(repositoryPath.getTarget()))
+        {
+            if (layoutProvider.isMetadata(artifactPath))
+            {
+                updatedMetadataFile = true;
+            }
+            else if (layoutProvider.isChecksum(repositoryPath))
+            {
+                updatedArtifactChecksumFile = true;
+            }
+            else
+            {
+                updatedArtifactFile = true;
+            }
+        }
+
         Boolean checksumAttribute = (Boolean) Files.getAttribute(repositoryPath, RepositoryFileAttributes.CHECKSUM);
         
         // If we have no digests, then we have a checksum to store.
@@ -134,6 +165,8 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
             aos.setCacheOutputStream(new ByteArrayOutputStream());
         }
 
+        artifactEventListenerRegistry.dispatchArtifactUploadingEvent(storageId, repositoryId, artifactPath);
+
         int readLength;
         byte[] bytes = new byte[4096];
         while ((readLength = is.read(bytes, 0, bytes.length)) != -1)
@@ -141,6 +174,33 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
             // Write the artifact
             aos.write(bytes, 0, readLength);
             aos.flush();
+        }
+
+        if (updatedMetadataFile)
+        {
+            // If this is a metadata file and it has been updated:
+            artifactEventListenerRegistry.dispatchArtifactMetadataFileUpdatedEvent(storageId,
+                                                                                   repositoryId,
+                                                                                   artifactPath);
+        }
+        if (updatedArtifactChecksumFile)
+        {
+            // If this is a checksum file and it has been updated:
+            artifactEventListenerRegistry.dispatchArtifactChecksumFileUpdatedEvent(storageId,
+                                                                                   repositoryId,
+                                                                                   artifactPath);
+        }
+
+        if (updatedArtifactFile)
+        {
+            // If this is an artifact file and it has been updated:
+            artifactEventListenerRegistry.dispatchArtifactUploadedEvent(storageId, repositoryId, artifactPath);
+        }
+
+        if (!layoutProvider.isChecksum(repositoryPath) && !layoutProvider.isMetadata(repositoryPath.toString()))
+        {
+            // If this us just a regular upload of a new artifact file:
+            artifactEventListenerRegistry.dispatchArtifactUploadedEvent(storageId, repositoryId, artifactPath);
         }
 
         Map<String, String> digestMap = aos.getDigestMap();
@@ -153,17 +213,19 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
         if (Boolean.TRUE.equals(checksumAttribute))
         {
             byte[] checksumValue = ((ByteArrayOutputStream) aos.getCacheOutputStream()).toByteArray();
-            if (checksumValue != null && checksumValue.length > 0)
+            if (checksumValue != null && checksumValue.length > 0 && !updatedArtifactChecksumFile)
             {
+                artifactEventListenerRegistry.dispatchArtifactChecksumUploadedEvent(storageId,
+                                                                                    repositoryId,
+                                                                                    artifactPath);
+
                 // Validate checksum with artifact digest cache.
                 validateUploadedChecksumAgainstCache(checksumValue, artifactPath);
             }
         }
-
-        storeArtifact(repositoryPath);
     }
 
-    private void storeArtifact(RepositoryPath path)
+    private void storeArtifactEntry(RepositoryPath path)
     {
         Repository repository = path.getFileSystem().getRepository();
         Storage storage = repository.getStorage();

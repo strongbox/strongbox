@@ -52,7 +52,7 @@ public class ServerEventHandlingTest
         boolean eventCaught = false;
 
         @Override
-        public void handle(Event event)
+        public void handle(ServerEvent event)
         {
             System.out.println("Caught server event type " + event.getType() + ".");
 

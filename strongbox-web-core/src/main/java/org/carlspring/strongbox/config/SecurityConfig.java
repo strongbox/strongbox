@@ -34,7 +34,8 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationEn
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 @ComponentScan({ "org.carlspring.strongbox.security" })
-@Import({ UsersConfig.class,
+@Import({ EventsConfig.class,
+          UsersConfig.class,
           AuthenticationConfig.class })
 @Configuration
 @EnableWebSecurity

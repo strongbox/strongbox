@@ -1,9 +1,5 @@
 package org.carlspring.strongbox.providers.layout;
 
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Set;
-
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
@@ -15,6 +11,11 @@ import org.carlspring.strongbox.repository.RepositoryFeatures;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.repository.Repository;
+
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Set;
+
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 /**
@@ -88,6 +89,9 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
     void undeleteTrash()
             throws IOException;
 
+    void archive(String storageId, String repositoryId, String path)
+            throws IOException;
+
     Set<String> getDigestAlgorithmSet();
 
     void rebuildMetadata(String storageId,
@@ -102,6 +106,10 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
                         String basePath,
                         boolean forceRegeneration)
             throws IOException;
+
+    boolean isMetadata(String path);
+
+    boolean isChecksum(RepositoryPath path);
 
     RepositoryFeatures getRepositoryFeatures();
 

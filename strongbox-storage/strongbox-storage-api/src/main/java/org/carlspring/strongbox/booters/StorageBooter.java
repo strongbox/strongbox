@@ -2,12 +2,16 @@ package org.carlspring.strongbox.booters;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.event.repository.RepositoryEvent;
+import org.carlspring.strongbox.event.repository.RepositoryEventListenerRegistry;
+import org.carlspring.strongbox.event.repository.RepositoryEventTypeEnum;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -43,6 +47,9 @@ public class StorageBooter
 
     @Inject
     private RepositoryManagementService repositoryManagementService;
+
+    @Inject
+    private RepositoryEventListenerRegistry repositoryEventListenerRegistry;
 
     private File lockFile = new File(ConfigurationResourceResolver.getVaultDirectory(), "storage-booter.lock");
 
@@ -218,6 +225,11 @@ public class StorageBooter
         {
             logger.warn("Could not resolve layout provider implementation (" +
                         repository.getLayout() + ") for " + storage.getId() + ":" + repositoryId + ".");
+        }
+
+        if (RepositoryStatusEnum.IN_SERVICE.getStatus().equals(repository.getStatus()))
+        {
+            repositoryManagementService.putInService(storage.getId(), repositoryId);
         }
     }
 

@@ -20,11 +20,12 @@ public class ArtifactControllerHelper
 {
 
     public static final String HEADER_NAME_RANGE = "Range";
+
     private static final Logger logger = LoggerFactory.getLogger(ArtifactControllerHelper.class);
+
 
     private ArtifactControllerHelper()
     {
-
     }
 
     public static void handlePartialDownload(ArtifactInputStream is,
@@ -123,8 +124,7 @@ public class ArtifactControllerHelper
         }
         else
         {
-            String contentRange =
-                    headers.getFirst(HEADER_NAME_RANGE) != null ? headers.getFirst(HEADER_NAME_RANGE) : null;
+            String contentRange = headers.getFirst(HEADER_NAME_RANGE) != null ? headers.getFirst(HEADER_NAME_RANGE) : null;
             return contentRange != null && !"0/*".equals(contentRange) && !"0-".equals(contentRange) &&
                    !"0".equals(contentRange);
         }
@@ -134,26 +134,29 @@ public class ArtifactControllerHelper
                                               HttpServletResponse response)
     {
         ais.getHexDigests()
-           .forEach((k,
-                     v) -> response.setHeader(String.format("Checksum-%s",
-                                                            k.toUpperCase()
-                                                             .replaceAll("-", "")),
-                                              v));
+           .forEach((k, v) -> response.setHeader(String.format("Checksum-%s",
+                                                               k.toUpperCase().replaceAll("-", "")),
+                                                 v));
 
+        /*
+        ArtifactCoordinates artifactCoordinates = ais.getArtifactCoordinates();
+        if (artifactCoordinates != null)
+        {
+            response.setHeader("strongbox-layout", artifactCoordinates.getClass().getSimpleName());
+        }
+        */
     }
 
     public static void setHeadersForChecksums(ArtifactInputStream ais,
                                               HttpHeaders headers)
     {
         ais.getHexDigests()
-           .forEach((k, v) -> headers.add(String.format("Checksum-%s", k.toUpperCase()
-                                                                        .replaceAll("-", "")), v));
+           .forEach((k, v) -> headers.add(String.format("Checksum-%s", k.toUpperCase().replaceAll("-", "")), v));
 
         ArtifactCoordinates artifactCoordinates = ais.getArtifactCoordinates();
         if (artifactCoordinates != null)
         {
-            headers.add("strongbox-layout", artifactCoordinates.getClass()
-                                                               .getSimpleName());
+            headers.add("strongbox-layout", artifactCoordinates.getClass().getSimpleName());
         }
     }
 
