@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.services.impl;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.service.CommonCrudService;
@@ -41,7 +42,7 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
         // Prepare a custom query based on all non-null coordinates that were joined by logical AND.
         // Read more about fetching strategies here: http://orientdb.com/docs/2.2/Fetching-Strategies.html
 
-        String sQuery = buildQuery(coordinates);
+        String sQuery = buildCoordinatesQuery(coordinates);
         OSQLSynchQuery<ArtifactEntry> oQuery = new OSQLSynchQuery<>(sQuery);
 
         List<ArtifactEntry> entries = getDelegate().command(oQuery).execute(coordinates);
@@ -54,7 +55,11 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
     // don't try to use second level cache here until you make all coordinates properly serializable
     public List<ArtifactEntry> findByCoordinates(ArtifactCoordinates coordinates)
     {
-        return findByCoordinates(coordinates == null ? null : coordinates.getCoordinates());
+        if (coordinates == null)
+        {
+            return findByCoordinates((Map<String, String>)null);
+        }
+        return findByCoordinates(coordinates.getCoordinates());
     }
 
     @Override
@@ -66,8 +71,7 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
                                    null : artifactEntryList.iterator().next());
     }
 
-    @Override
-    protected String buildQuery(Map<String, String> map)
+    protected String buildCoordinatesQuery(Map<String, String> map)
     {
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT * FROM ").append(getEntityClass().getSimpleName());
@@ -83,12 +87,13 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
         map.entrySet()
            .stream()
            .filter(entry -> entry.getValue() != null)
-           .forEach(entry -> sb.append("artifactCoordinates.")
+           .forEach(entry -> sb.append("artifactCoordinates.coordinates.")
                                .append(entry.getKey())
                                .append(" = :")
                                .append(entry.getKey())
                                .append(" AND "));
 
+        
         // remove last 'and' statement (that doesn't relate to any value)
         String query = sb.toString();
         query = query.substring(0, query.length() - 5) + ";";

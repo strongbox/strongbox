@@ -100,7 +100,7 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
         ArrayList<Nupkg> result = new ArrayList<>();
         
         SearchRequest searchRequest = new SearchRequest();
-        searchRequest.setQuery(String.format("id=%s;", getSearchTerm()));
+        searchRequest.setQuery(String.format("id=%s;extension=nupkg;", getSearchTerm().replaceAll("'", "")));
         SearchResults searchResults;
         try
         {
@@ -121,7 +121,7 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
             LayoutProvider provider = layoutProviderRegistry.getProvider(repository.getLayout());
             try
             {
-                new PathNupkg(provider.resolve(repository, artifactCoordinates));
+                result.add(new PathNupkg(provider.resolve(repository, artifactCoordinates)));
             }
             catch (IOException e)
             {
