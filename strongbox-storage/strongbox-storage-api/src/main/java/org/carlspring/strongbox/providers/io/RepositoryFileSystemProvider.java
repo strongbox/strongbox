@@ -24,6 +24,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.FileAttributeView;
 import java.nio.file.spi.FileSystemProvider;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -242,16 +243,26 @@ public abstract class RepositoryFileSystemProvider
             return;
         }
         
+        for (RepositoryPath checksumPath : resolveChecksumPathMap(repositoryPath).values())
+        {
+            if (!Files.exists(unwrap(checksumPath)))
+            {
+                continue;
+            }
+            doDeletePath(checksumPath, force);
+        }
+    }
+    
+    public Map<String, RepositoryPath> resolveChecksumPathMap(RepositoryPath repositoryPath)
+    {
+        Map<String, RepositoryPath> result = new HashMap<>();
         for (String digestAlgorithm : repositoryPath.getFileSystem().getDigestAlgorithmSet())
         {
-            //it creates Checksum file extension name form Digest algorithm name: SHA-1->sha1
+            // it creates Checksum file extension name form Digest algorithm name: SHA-1->sha1
             String extension = digestAlgorithm.replaceAll("-", "").toLowerCase();
-            RepositoryPath checksumPath = repositoryPath.resolveSibling(repositoryPath.getFileName() + "." + extension);
-            if (Files.exists(unwrap(checksumPath)))
-            {
-                doDeletePath(checksumPath, force);
-            }
+            result.put(digestAlgorithm, repositoryPath.resolveSibling(repositoryPath.getFileName() + "." + extension));
         }
+        return result;
     }
     
     protected void doDeletePath(RepositoryPath repositoryPath,

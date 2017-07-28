@@ -20,6 +20,7 @@ import javax.xml.bind.JAXBException;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -85,6 +86,9 @@ public class NugetPackageController extends BaseArtifactController
     protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
 
 
+    @Inject
+    private NugetSearchPackageSource packageSource;
+    
     @RequestMapping(path = { "{storageId}/{repositoryId}/Search()/$count" }, method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN)
     public ResponseEntity<String> countPackages(@RequestParam(name = "$filter", required = false) String filter,
                                                 @RequestParam(name = "searchTerm", required = false) String searchTerm,
@@ -116,7 +120,9 @@ public class NugetPackageController extends BaseArtifactController
             return ResponseEntity.badRequest().build();
         }
 
-        PackageSource<Nupkg> packageSource = new NugetSearchPackageSource(expression);
+        packageSource.setStorageId(storageId);
+        packageSource.setRepositoryId(repositoryId);
+        packageSource.setSearchTerm(searchTerm);
         Collection<? extends Nupkg> files = getPackages(packageSource, filter, normaliseSearchTerm(searchTerm),
                                                         targetFramework);
 
@@ -349,8 +355,9 @@ public class NugetPackageController extends BaseArtifactController
         
         Path streamContentPath = Files.createTempFile("boundaryString", "nupkg");
         ReplacingInputStream replacingIs = new ReplacingInputStream(is, boundaryPrefixToFix, boundaryPrefixTarget);
-        Files.copy(replacingIs, streamContentPath,
+        long len = Files.copy(replacingIs, streamContentPath,
                    StandardCopyOption.REPLACE_EXISTING);
+        System.out.println(len);
         
         try (InputStream streamContentIs = Files.newInputStream(streamContentPath))
         {
@@ -463,6 +470,14 @@ public class NugetPackageController extends BaseArtifactController
         return sourceValue.replaceAll("['\"]", "").toLowerCase();
     }
 
+
+    public static final void main(String[] args){
+        Pattern pattern = Pattern.compile("(?:Packages(?:\\(\\))?|Search\\(\\))");
+        System.out.println(pattern.matcher("Packages").matches());;
+        System.out.println(pattern.matcher("Packages()").matches());;
+        System.out.println(pattern.matcher("Search").matches());;
+        System.out.println(pattern.matcher("Search()").matches());;
+    }
 
     public static final void main(String[] args){
         Pattern pattern = Pattern.compile("(?:Packages(?:\\(\\))?|Search\\(\\))");

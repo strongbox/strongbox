@@ -107,6 +107,7 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
                               .writeTo(contentStream);
         contentStream.flush();
 
+        //Push
         given().header("User-Agent", "NuGet/*")
                .header("X-NuGet-ApiKey",
                        "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJTdHJvbmdib3giLCJqdGkiOiJ0SExSbWU4eFJOSnJjNXVXdTVkZDhRIiwic3V" +
@@ -119,7 +120,8 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
                .peek()
                .then()
                .statusCode(HttpStatus.CREATED.value());
-
+        
+        //Get
         given().header("User-Agent", "NuGet/*")
                .when()
                .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/download/" +
