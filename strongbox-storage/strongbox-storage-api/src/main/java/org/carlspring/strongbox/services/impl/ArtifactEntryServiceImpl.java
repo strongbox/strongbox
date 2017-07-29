@@ -39,9 +39,13 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
             return findAll().orElse(Collections.EMPTY_LIST);
         }
 
+        coordinates = coordinates.entrySet()
+                                 .stream()
+                                 .collect(Collectors.toMap(Map.Entry::getKey,
+                                                           e -> e.getValue().toLowerCase()));
+
         // Prepare a custom query based on all non-null coordinates that were joined by logical AND.
         // Read more about fetching strategies here: http://orientdb.com/docs/2.2/Fetching-Strategies.html
-
         String sQuery = buildCoordinatesQuery(coordinates);
         OSQLSynchQuery<ArtifactEntry> oQuery = new OSQLSynchQuery<>(sQuery);
 
@@ -88,7 +92,7 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
            .stream()
            .filter(entry -> entry.getValue() != null)
            .forEach(entry -> sb.append("artifactCoordinates.coordinates.")
-                               .append(entry.getKey())
+                               .append(entry.getKey()).append(".toLowerCase()")
                                .append(" = :")
                                .append(entry.getKey())
                                .append(" AND "));

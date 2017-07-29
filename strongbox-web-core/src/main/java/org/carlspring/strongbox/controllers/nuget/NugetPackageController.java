@@ -20,7 +20,6 @@ import javax.xml.bind.JAXBException;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -102,11 +101,11 @@ public class NugetPackageController extends BaseArtifactController
                                             @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
                                             @PathVariable(name = "searchCommandName") String searchCommandName,
                                             @RequestParam(name = "$filter", required = true) String filter,
-                                            @RequestParam(name = "$orderby", required = false, defaultValue = "updated") String orderBy,
+                                            @RequestParam(name = "$orderby", required = false, defaultValue = "id") String orderBy,
                                             @RequestParam(name = "$skip", required = false, defaultValue = "0") int skip,
                                             @RequestParam(name = "$top", required = false, defaultValue = "-1") int top,
-                                            @RequestParam(name = "searchTerm", required = true) String searchTerm,
-                                            @RequestParam(name = "targetFramework", required = true) String targetFramework)
+                                            @RequestParam(name = "searchTerm", required = false) String searchTerm,
+                                            @RequestParam(name = "targetFramework", required = false) String targetFramework)
         throws JAXBException
     {
         Lexer queryLexer = new QueryLexer();
@@ -141,7 +140,7 @@ public class NugetPackageController extends BaseArtifactController
 
     private String getFeedUri(HttpServletRequest request, String storageId, String repositoryId)
     {
-        return String.format("%s://%s:%s/%s/%s/%s", request.getScheme(), request.getServerName(),
+        return String.format("%s://%s:%s%s/storages/%s/%s/", request.getScheme(), request.getServerName(),
                              request.getServerPort(),
                              request.getContextPath(), storageId, repositoryId);
     }
@@ -468,15 +467,6 @@ public class NugetPackageController extends BaseArtifactController
         }
 
         return sourceValue.replaceAll("['\"]", "").toLowerCase();
-    }
-
-
-    public static final void main(String[] args){
-        Pattern pattern = Pattern.compile("(?:Packages(?:\\(\\))?|Search\\(\\))");
-        System.out.println(pattern.matcher("Packages").matches());;
-        System.out.println(pattern.matcher("Packages()").matches());;
-        System.out.println(pattern.matcher("Search").matches());;
-        System.out.println(pattern.matcher("Search()").matches());;
     }
 
     public static final void main(String[] args){
