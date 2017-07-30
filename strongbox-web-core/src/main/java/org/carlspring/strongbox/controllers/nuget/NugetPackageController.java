@@ -122,6 +122,8 @@ public class NugetPackageController extends BaseArtifactController
         packageSource.setStorageId(storageId);
         packageSource.setRepositoryId(repositoryId);
         packageSource.setSearchTerm(searchTerm);
+        packageSource.setOrderBy(orderBy);
+        
         Collection<? extends Nupkg> files = getPackages(packageSource, filter, normaliseSearchTerm(searchTerm),
                                                         targetFramework);
 

@@ -32,5 +32,7 @@ public interface ArtifactEntryService
     
     List<ArtifactEntry> findByCoordinates(Map<String, String> coordinates);
     
+    List<ArtifactEntry> findByCoordinates(Map<String, String> coordinates, String orderBy, boolean strict);
+    
     Optional<ArtifactEntry> findOne(ArtifactCoordinates artifactCoordinates);
 }

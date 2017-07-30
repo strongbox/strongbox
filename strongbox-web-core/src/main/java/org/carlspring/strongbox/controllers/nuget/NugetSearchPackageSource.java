@@ -3,22 +3,20 @@ package org.carlspring.strongbox.controllers.nuget;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.PathNupkg;
+import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.providers.search.SearchException;
-import org.carlspring.strongbox.services.ArtifactSearchService;
+import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.search.SearchRequest;
-import org.carlspring.strongbox.storage.search.SearchResult;
-import org.carlspring.strongbox.storage.search.SearchResults;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
@@ -43,21 +41,20 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
     private String repositoryId;
     
     @Inject
-    private ArtifactSearchService artifactSearchService;
-    
-//    @Inject
-//    private ArtifactResolutionService artifactResolutionService;
+    private ArtifactEntryService artifactEntryService;
     
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
+
+    private String orderBy = "id";
     
     public NugetSearchPackageSource(String storageId,
                                     String repositoryId,
                                     String searchTerm)
     {
-        this.searchTerm = searchTerm;
-        this.storageId = storageId;
-        this.repositoryId = repositoryId;
+        setSearchTerm(searchTerm);;
+        setStorageId(storageId);
+        setRepositoryId(repositoryId);
     }
 
     public NugetSearchPackageSource()
@@ -92,32 +89,41 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
 
     protected void setSearchTerm(String searchTerm)
     {
-        this.searchTerm = searchTerm;
+        this.searchTerm = searchTerm == null ? null : getSearchTerm().replaceAll("'", "");
+    }
+
+    public void setOrderBy(String orderBy)
+    {
+        if (!orderBy.equals("id") || !orderBy.equals("version")){
+            return;
+        }
+        this.orderBy = orderBy;
+    }
+    
+    protected String getOrderBy()
+    {
+        return orderBy;
     }
 
     @Override
     public Collection<Nupkg> getPackages()
     {
-        SearchRequest searchRequest = new SearchRequest();
-        searchRequest.setQuery(String.format("id=%s;extension=nupkg;", getSearchTerm().replaceAll("'", "")));
-        SearchResults searchResults;
-        try
+        Map<String, String> coordinates = new HashMap<>();
+        coordinates.put("extension", "nupkg");
+        if (searchTerm != null && !searchTerm.trim().isEmpty())
         {
-            searchResults = artifactSearchService.search(searchRequest);
-        }
-        catch (SearchException e)
-        {
-            logger.error(String.format("Failed to search packages within [%s]/[%s]", storageId, repositoryId), e);
-            return new ArrayList<>();
+            coordinates.put("id", searchTerm + "%");
         }
         
-        return  createPackageList(searchResults.getResults());
+        List<ArtifactEntry> searchResultList = artifactEntryService.findByCoordinates(coordinates, orderBy, false);
+        
+        return createPackageList(searchResultList);
     }
 
-    public List<Nupkg> createPackageList(Set<SearchResult> searchResultSet)
+    public List<Nupkg> createPackageList(List<ArtifactEntry> searchResultList)
     {
         List<Nupkg> result = new ArrayList<>();
-        for (SearchResult searchResult : searchResultSet)
+        for (ArtifactEntry searchResult : searchResultList)
         {
             Nupkg nupkg = createPackage(searchResult);
             if (nupkg == null)
@@ -130,7 +136,7 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
         return result;
     }
 
-    public Nupkg createPackage(SearchResult searchResult)
+    public Nupkg createPackage(ArtifactEntry searchResult)
     {
         ArtifactCoordinates artifactCoordinates = searchResult.getArtifactCoordinates();
         Storage storage = layoutProviderRegistry.getStorage(storageId);
@@ -151,54 +157,42 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
     @Override
     public Collection<Nupkg> getLastVersionPackages()
     {
-        // TODO: implement Package search
+        // TODO: implement Latest Version Package search
         return getPackages();
     }
 
     @Override
     public Collection<Nupkg> getPackages(String id)
     {
-        SearchRequest searchRequest = new SearchRequest();
-        searchRequest.setQuery(String.format("id=%s;extension=nupkg;", id));
-        SearchResults searchResults;
-        try
-        {
-            searchResults = artifactSearchService.search(searchRequest);
-        }
-        catch (SearchException e)
-        {
-            logger.error(String.format("Failed to search packages within [%s]/[%s]", storageId, repositoryId), e);
-            return new ArrayList<>();
-        }
+        Map<String, String> coordinates = new HashMap<>();
+        coordinates.put("extension", "nupkg");
+        coordinates.put("id", id);
         
-        return  createPackageList(searchResults.getResults());
+        List<ArtifactEntry> searchResultList = artifactEntryService.findByCoordinates(coordinates, orderBy, true);
+        
+        return createPackageList(searchResultList);
     }
 
     @Override
     public Nupkg getLastVersionPackage(String id)
     {
-        // TODO: implement Package search
-        return null;
+        // TODO: implement Latest Version Package search
+        Collection<Nupkg> packageList = getPackages(id);
+        return packageList.isEmpty() ? null : packageList.iterator().next();
     }
 
     @Override
     public Nupkg getPackage(String id,
                             Version version)
     {
-        SearchRequest searchRequest = new SearchRequest();
-        searchRequest.setQuery(String.format("id=%s;version=%s;extension=nupkg;", id, version));
-        SearchResults searchResults;
-        try
-        {
-            searchResults = artifactSearchService.search(searchRequest);
-        }
-        catch (SearchException e)
-        {
-            logger.error(String.format("Failed to search packages within [%s]/[%s]", storageId, repositoryId), e);
-            return null;
-        }
+        Map<String, String> coordinates = new HashMap<>();
+        coordinates.put("extension", "nupkg");
+        coordinates.put("id", id);
+        coordinates.put("version", version.toString());
         
-        List<Nupkg> result = createPackageList(searchResults.getResults());
+        List<ArtifactEntry> searchResultList = artifactEntryService.findByCoordinates(coordinates);
+        List<Nupkg> result = createPackageList(searchResultList);
+        
         return result.isEmpty() ? null : result.iterator().next();
     }
 
