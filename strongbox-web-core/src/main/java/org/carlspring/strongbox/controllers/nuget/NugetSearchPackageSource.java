@@ -94,9 +94,6 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
 
     public void setOrderBy(String orderBy)
     {
-        if (!orderBy.equals("id") || !orderBy.equals("version")){
-            return;
-        }
         this.orderBy = orderBy;
     }
     

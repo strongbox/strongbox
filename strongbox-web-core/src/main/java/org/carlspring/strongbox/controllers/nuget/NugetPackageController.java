@@ -89,11 +89,24 @@ public class NugetPackageController extends BaseArtifactController
     private NugetSearchPackageSource packageSource;
     
     @RequestMapping(path = { "{storageId}/{repositoryId}/Search()/$count" }, method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN)
-    public ResponseEntity<String> countPackages(@RequestParam(name = "$filter", required = false) String filter,
+    public ResponseEntity<String> countPackages(@ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
+                                                @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
+                                                @RequestParam(name = "$filter", required = false) String filter,
                                                 @RequestParam(name = "searchTerm", required = false) String searchTerm,
                                                 @RequestParam(name = "targetFramework", required = false) String targetFramework)
     {
-        return new ResponseEntity<>("1", HttpStatus.OK);
+        Collection<? extends Nupkg> files;
+        try
+        {
+            files = getPackages(storageId, repositoryId, filter, null, searchTerm,
+                                targetFramework);
+        }
+        catch (NugetFormatException e)
+        {
+            return ResponseEntity.badRequest().build();
+        }
+
+        return new ResponseEntity<>(String.valueOf(files.size()), HttpStatus.OK);
     }
 
     @RequestMapping(path = { "{storageId}/{repositoryId}/{searchCommandName:(?:Packages(?:\\(\\))?|Search\\(\\))}" }, method = RequestMethod.GET, produces = MediaType.APPLICATION_XML)
@@ -108,24 +121,16 @@ public class NugetPackageController extends BaseArtifactController
                                             @RequestParam(name = "targetFramework", required = false) String targetFramework)
         throws JAXBException
     {
-        Lexer queryLexer = new QueryLexer();
-        Expression expression;
+        Collection<? extends Nupkg> files;
         try
         {
-            expression = queryLexer.parse(filter);
+            files = getPackages(storageId, repositoryId, filter, orderBy, searchTerm,
+                                                            targetFramework);
         }
         catch (NugetFormatException e)
         {
             return ResponseEntity.badRequest().build();
         }
-
-        packageSource.setStorageId(storageId);
-        packageSource.setRepositoryId(repositoryId);
-        packageSource.setSearchTerm(searchTerm);
-        packageSource.setOrderBy(orderBy);
-        
-        Collection<? extends Nupkg> files = getPackages(packageSource, filter, normaliseSearchTerm(searchTerm),
-                                                        targetFramework);
 
         String feedId = getFeedUri(((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest(),
                                    storageId,
@@ -138,6 +143,27 @@ public class NugetPackageController extends BaseArtifactController
         feed.writeXml(rssResultStream);
 
         return new ResponseEntity<>(new String(rssResultStream.toByteArray(), Charset.forName("UTF-8")), HttpStatus.OK);
+    }
+
+    public Collection<? extends Nupkg> getPackages(String storageId,
+                                                   String repositoryId,
+                                                   String filter,
+                                                   String orderBy,
+                                                   String searchTerm,
+                                                   String targetFramework) throws NugetFormatException
+    {
+        Lexer queryLexer = new QueryLexer();
+        Expression expression;
+        expression = queryLexer.parse(filter);
+
+        packageSource.setStorageId(storageId);
+        packageSource.setRepositoryId(repositoryId);
+        packageSource.setSearchTerm(searchTerm);
+        packageSource.setOrderBy(orderBy);
+        
+        Collection<? extends Nupkg> files = getPackages(packageSource, filter, normaliseSearchTerm(searchTerm),
+                                                        targetFramework);
+        return files;
     }
 
     private String getFeedUri(HttpServletRequest request, String storageId, String repositoryId)
