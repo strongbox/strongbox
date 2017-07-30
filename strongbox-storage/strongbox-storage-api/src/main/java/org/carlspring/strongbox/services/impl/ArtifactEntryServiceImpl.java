@@ -47,8 +47,10 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
 
         coordinates = coordinates.entrySet()
                                  .stream()
+                                 .filter(e -> e.getValue() != null)
                                  .collect(Collectors.toMap(Map.Entry::getKey,
-                                                           e -> e.getValue().toLowerCase()));
+                                                           e -> e.getValue() == null ? null
+                                                                   : e.getValue().toLowerCase()));
         
         // Prepare a custom query based on all non-null coordinates that were joined by logical AND.
         // Read more about fetching strategies here: http://orientdb.com/docs/2.2/Fetching-Strategies.html
