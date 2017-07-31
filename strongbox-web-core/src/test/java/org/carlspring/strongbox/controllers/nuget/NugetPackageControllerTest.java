@@ -34,10 +34,9 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
 
     private static final String REPOSITORY_RELEASES_1 = "nuget-releases-1";
 
-
     @BeforeClass
     public static void cleanUp()
-            throws Exception
+        throws Exception
     {
         cleanUp(getRepositoriesToClean());
     }
@@ -52,7 +51,7 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
 
     @Override
     public void init()
-            throws Exception
+        throws Exception
     {
         super.init();
 
@@ -84,7 +83,7 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
 
     @Test
     public void testPackageCommonFlow()
-            throws Exception
+        throws Exception
     {
         String basedir = PropertyUtils.getHomeDirectory() + "/tmp";
 
@@ -97,7 +96,7 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
 
         Path packageFilePath = Paths.get(basedir).resolve(packageVersion).resolve(packageFileName);
         long packageFileSize = Files.size(packageFilePath);
-        
+
         ByteArrayOutputStream contentStream = new ByteArrayOutputStream();
 
         MultipartEntityBuilder.create()
@@ -107,11 +106,13 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
                               .writeTo(contentStream);
         contentStream.flush();
 
+        // Push
         given().header("User-Agent", "NuGet/*")
                .header("X-NuGet-ApiKey",
                        "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJTdHJvbmdib3giLCJqdGkiOiJ0SExSbWU4eFJOSnJjNXVXdTVkZDhRIiwic3V" +
-                       "iIjoiYWRtaW4iLCJzZWN1cml0eS10b2tlbi1rZXkiOiJhZG1pbi1zZWNyZXQifQ.xRWxXt5yob5qcHjsvV1YsyfY3C-X" +
-                       "Ft9oKPABY0tYx88")
+                               "iIjoiYWRtaW4iLCJzZWN1cml0eS10b2tlbi1rZXkiOiJhZG1pbi1zZWNyZXQifQ.xRWxXt5yob5qcHjsvV1YsyfY3C-X"
+                               +
+                               "Ft9oKPABY0tYx88")
                .header("Content-Type", "multipart/form-data; boundary=---------------------------123qwe")
                .body(contentStream.toByteArray())
                .when()
@@ -120,10 +121,11 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
                .then()
                .statusCode(HttpStatus.CREATED.value());
 
+        // Get
         given().header("User-Agent", "NuGet/*")
                .when()
                .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/download/" +
-                    packageId + "/" + packageVersion)
+                       packageId + "/" + packageVersion)
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -131,4 +133,69 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
                .header("Content-Length", equalTo(String.valueOf(packageFileSize)));
     }
 
+    @Test
+    public void testPackageSearch()
+        throws Exception
+    {
+        String basedir = PropertyUtils.getHomeDirectory() + "/tmp";
+
+        String packageId = "Org.Carlspring.Strongbox.Nuget.Test.Search";
+        String packageVersion = "1.0.0";
+        String packageFileName = packageId + "." + packageVersion + ".nupkg";
+
+        NugetPackageGenerator nugetPackageGenerator = new NugetPackageGenerator(basedir);
+        nugetPackageGenerator.generateNugetPackage(packageId, packageVersion);
+
+        Path packageFilePath = Paths.get(basedir).resolve(packageVersion).resolve(packageFileName);
+
+        ByteArrayOutputStream contentStream = new ByteArrayOutputStream();
+
+        MultipartEntityBuilder.create()
+                              .addBinaryBody("package",
+                                             Files.newInputStream(packageFilePath))
+                              .setBoundary("---------------------------123qwe")
+                              .build()
+                              .writeTo(contentStream);
+        contentStream.flush();
+
+        // Push
+        given().header("User-Agent", "NuGet/*")
+               .header("X-NuGet-ApiKey",
+                       "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJTdHJvbmdib3giLCJqdGkiOiJ0SExSbWU4eFJOSnJjNXVXdTVkZDhRIiwic3ViIjoiYWRtaW4iLCJzZWN1cml0eS10b2tlbi1rZXkiOiJhZG1pbi1zZWNyZXQifQ.xRWxXt5yob5qcHjsvV1YsyfY3C-XFt9oKPABY0tYx88")
+               .header("Content-Type", "multipart/form-data; boundary=---------------------------123qwe")
+               .body(contentStream.toByteArray())
+               .when()
+               .put(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.CREATED.value());
+
+        // Count
+        given().header("User-Agent", "NuGet/*")
+               .when()
+               .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1
+                       + String.format("/Search()/$count?$filter=%s&searchTerm=%s&targetFramework=",
+                                       "IsLatestVersion", "Test"))
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .and()
+               .assertThat()
+               .body(equalTo("1"));
+
+        // Search
+        given().header("User-Agent", "NuGet/*")
+               .when()
+               .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1
+                       + String.format("/Search()?$filter=%s&$skip=%s&$top=%s&searchTerm=%s&targetFramework=",
+                                       "IsLatestVersion", 0, 30, "Test"))
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .and()
+               .assertThat()
+               .body("feed.title", equalTo("Packages"))
+               .and()
+               .assertThat()
+               .body("feed.entry[0].title", equalTo("Org.Carlspring.Strongbox.Nuget.Test.Search"));
+
+    }
 }

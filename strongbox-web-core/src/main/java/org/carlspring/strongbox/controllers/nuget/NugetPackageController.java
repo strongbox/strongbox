@@ -1,23 +1,14 @@
 package org.carlspring.strongbox.controllers.nuget;
 
-import org.carlspring.strongbox.controllers.BaseArtifactController;
-import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
-import org.carlspring.strongbox.io.ArtifactInputStream;
-import org.carlspring.strongbox.io.ReplacingInputStream;
-import org.carlspring.strongbox.security.exceptions.SecurityTokenException;
-import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.users.service.UserService;
-import org.carlspring.strongbox.utils.ArtifactControllerHelper;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
-import javax.inject.Inject;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.MediaType;
-import javax.xml.bind.JAXBException;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -28,12 +19,25 @@ import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import javax.inject.Inject;
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MediaType;
+import javax.xml.bind.JAXBException;
+
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.lang.StringUtils;
+import org.carlspring.strongbox.controllers.BaseArtifactController;
+import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
+import org.carlspring.strongbox.io.ArtifactInputStream;
+import org.carlspring.strongbox.io.ReplacingInputStream;
+import org.carlspring.strongbox.security.exceptions.SecurityTokenException;
+import org.carlspring.strongbox.services.ArtifactManagementService;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.users.service.UserService;
+import org.carlspring.strongbox.utils.ArtifactControllerHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
@@ -44,21 +48,26 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import ru.aristar.jnuget.QueryExecutor;
 import ru.aristar.jnuget.files.NugetFormatException;
 import ru.aristar.jnuget.files.Nupkg;
 import ru.aristar.jnuget.files.TempNupkgFile;
-import ru.aristar.jnuget.query.Expression;
-import ru.aristar.jnuget.query.Lexer;
-import ru.aristar.jnuget.query.QueryLexer;
 import ru.aristar.jnuget.rss.NuPkgToRssTransformer;
 import ru.aristar.jnuget.rss.PackageFeed;
 import ru.aristar.jnuget.sources.PackageSource;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 /**
  * This Controller used to handle Nuget requests.
@@ -85,39 +94,52 @@ public class NugetPackageController extends BaseArtifactController
     protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
 
 
+    @Inject
+    private NugetSearchPackageSource packageSource;
+    
     @RequestMapping(path = { "{storageId}/{repositoryId}/Search()/$count" }, method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN)
-    public ResponseEntity<String> countPackages(@RequestParam(name = "$filter", required = false) String filter,
+    public ResponseEntity<String> countPackages(@ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
+                                                @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
+                                                @RequestParam(name = "$filter", required = false) String filter,
                                                 @RequestParam(name = "searchTerm", required = false) String searchTerm,
                                                 @RequestParam(name = "targetFramework", required = false) String targetFramework)
     {
-        return new ResponseEntity<>("1", HttpStatus.OK);
-    }
-
-    @RequestMapping(path = { "{storageId}/{repositoryId}/Search()" }, method = RequestMethod.GET, produces = MediaType.APPLICATION_XML)
-    public ResponseEntity<?> searchPackages(@ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
-                                            @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
-                                            @RequestParam(name = "$filter", required = true) String filter,
-                                            @RequestParam(name = "$orderby", required = false, defaultValue = "updated") String orderBy,
-                                            @RequestParam(name = "$skip", required = false, defaultValue = "0") int skip,
-                                            @RequestParam(name = "$top", required = false, defaultValue = "-1") int top,
-                                            @RequestParam(name = "searchTerm", required = true) String searchTerm,
-                                            @RequestParam(name = "targetFramework", required = true) String targetFramework)
-        throws JAXBException
-    {
-        Lexer queryLexer = new QueryLexer();
-        Expression expression;
+        Collection<? extends Nupkg> files;
         try
         {
-            expression = queryLexer.parse(filter);
+            files = getPackages(storageId, repositoryId, filter, null, searchTerm,
+                                targetFramework);
         }
         catch (NugetFormatException e)
         {
             return ResponseEntity.badRequest().build();
         }
 
-        PackageSource<Nupkg> packageSource = new NugetSearchPackageSource(expression);
-        Collection<? extends Nupkg> files = getPackages(packageSource, filter, normaliseSearchTerm(searchTerm),
-                                                        targetFramework);
+        return new ResponseEntity<>(String.valueOf(files.size()), HttpStatus.OK);
+    }
+
+    @RequestMapping(path = { "{storageId}/{repositoryId}/{searchCommandName:(?:Packages(?:\\(\\))?|Search\\(\\))}" }, method = RequestMethod.GET, produces = MediaType.APPLICATION_XML)
+    public ResponseEntity<?> searchPackages(@ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
+                                            @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
+                                            @PathVariable(name = "searchCommandName") String searchCommandName,
+                                            @RequestParam(name = "$filter", required = true) String filter,
+                                            @RequestParam(name = "$orderby", required = false, defaultValue = "id") String orderBy,
+                                            @RequestParam(name = "$skip", required = false, defaultValue = "0") int skip,
+                                            @RequestParam(name = "$top", required = false, defaultValue = "-1") int top,
+                                            @RequestParam(name = "searchTerm", required = false) String searchTerm,
+                                            @RequestParam(name = "targetFramework", required = false) String targetFramework)
+        throws JAXBException
+    {
+        Collection<? extends Nupkg> files;
+        try
+        {
+            files = getPackages(storageId, repositoryId, filter, orderBy, searchTerm,
+                                                            targetFramework);
+        }
+        catch (NugetFormatException e)
+        {
+            return ResponseEntity.badRequest().build();
+        }
 
         String feedId = getFeedUri(((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest(),
                                    storageId,
@@ -132,9 +154,26 @@ public class NugetPackageController extends BaseArtifactController
         return new ResponseEntity<>(new String(rssResultStream.toByteArray(), Charset.forName("UTF-8")), HttpStatus.OK);
     }
 
+    public Collection<? extends Nupkg> getPackages(String storageId,
+                                                   String repositoryId,
+                                                   String filter,
+                                                   String orderBy,
+                                                   String searchTerm,
+                                                   String targetFramework) throws NugetFormatException
+    {
+        packageSource.setStorageId(storageId);
+        packageSource.setRepositoryId(repositoryId);
+        packageSource.setSearchTerm(searchTerm);
+        packageSource.setOrderBy(orderBy);
+        
+        Collection<? extends Nupkg> files = getPackages(packageSource, filter, normaliseSearchTerm(searchTerm),
+                                                        targetFramework);
+        return files;
+    }
+
     private String getFeedUri(HttpServletRequest request, String storageId, String repositoryId)
     {
-        return String.format("%s://%s:%s/%s/%s/%s", request.getScheme(), request.getServerName(),
+        return String.format("%s://%s:%s%s/storages/%s/%s/", request.getScheme(), request.getServerName(),
                              request.getServerPort(),
                              request.getContextPath(), storageId, repositoryId);
     }
@@ -348,8 +387,9 @@ public class NugetPackageController extends BaseArtifactController
         
         Path streamContentPath = Files.createTempFile("boundaryString", "nupkg");
         ReplacingInputStream replacingIs = new ReplacingInputStream(is, boundaryPrefixToFix, boundaryPrefixTarget);
-        Files.copy(replacingIs, streamContentPath,
+        long len = Files.copy(replacingIs, streamContentPath,
                    StandardCopyOption.REPLACE_EXISTING);
+        System.out.println(len);
         
         try (InputStream streamContentIs = Files.newInputStream(streamContentPath))
         {
@@ -462,4 +502,11 @@ public class NugetPackageController extends BaseArtifactController
         return sourceValue.replaceAll("['\"]", "").toLowerCase();
     }
 
+    public static final void main(String[] args){
+        Pattern pattern = Pattern.compile("(?:Packages(?:\\(\\))?|Search\\(\\))");
+        System.out.println(pattern.matcher("Packages").matches());;
+        System.out.println(pattern.matcher("Packages()").matches());;
+        System.out.println(pattern.matcher("Search").matches());;
+        System.out.println(pattern.matcher("Search()").matches());;
+    }
 }

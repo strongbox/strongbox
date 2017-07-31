@@ -32,7 +32,7 @@ public class OrientDbSearchProvider
 
     private static final Logger logger = LoggerFactory.getLogger(OrientDbSearchProvider.class);
 
-    private static final String QUERY_PATTERN_DB = "([\\w]+)=([^;]+);";
+    private static final String QUERY_PATTERN_DB = "([^=]+)=([^;]+);";
 
     public static final String ALIAS = "OrientDB";
 

@@ -1,13 +1,15 @@
 package org.carlspring.strongbox.services.impl;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.service.CommonCrudService;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.services.ArtifactEntryService;
-
-import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -28,20 +30,31 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactEntryService.class);
 
+    @Override
+    public List<ArtifactEntry> findByCoordinates(Map<String, String> coordinates)
+    {
+        return findByCoordinates(coordinates, null, false);
+    }
 
     @Override
     @Transactional
-    public List<ArtifactEntry> findByCoordinates(Map<String, String> coordinates)
+    public List<ArtifactEntry> findByCoordinates(Map<String, String> coordinates, String orderBy, boolean strict)
     {
         if (coordinates == null || coordinates.keySet().isEmpty())
         {
             return findAll().orElse(Collections.EMPTY_LIST);
         }
 
+        coordinates = coordinates.entrySet()
+                                 .stream()
+                                 .filter(e -> e.getValue() != null)
+                                 .collect(Collectors.toMap(Map.Entry::getKey,
+                                                           e -> e.getValue() == null ? null
+                                                                   : e.getValue().toLowerCase()));
+        
         // Prepare a custom query based on all non-null coordinates that were joined by logical AND.
         // Read more about fetching strategies here: http://orientdb.com/docs/2.2/Fetching-Strategies.html
-
-        String sQuery = buildQuery(coordinates);
+        String sQuery = buildCoordinatesQuery(coordinates, orderBy, strict);
         OSQLSynchQuery<ArtifactEntry> oQuery = new OSQLSynchQuery<>(sQuery);
 
         List<ArtifactEntry> entries = getDelegate().command(oQuery).execute(coordinates);
@@ -54,7 +67,11 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
     // don't try to use second level cache here until you make all coordinates properly serializable
     public List<ArtifactEntry> findByCoordinates(ArtifactCoordinates coordinates)
     {
-        return findByCoordinates(coordinates == null ? null : coordinates.getCoordinates());
+        if (coordinates == null)
+        {
+            return findByCoordinates((Map<String, String>)null);
+        }
+        return findByCoordinates(coordinates.getCoordinates());
     }
 
     @Override
@@ -66,8 +83,7 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
                                    null : artifactEntryList.iterator().next());
     }
 
-    @Override
-    protected String buildQuery(Map<String, String> map)
+    protected String buildCoordinatesQuery(Map<String, String> map, String orderBy, boolean strict)
     {
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT * FROM ").append(getEntityClass().getSimpleName());
@@ -83,16 +99,22 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
         map.entrySet()
            .stream()
            .filter(entry -> entry.getValue() != null)
-           .forEach(entry -> sb.append("artifactCoordinates.")
-                               .append(entry.getKey())
-                               .append(" = :")
-                               .append(entry.getKey())
+           .forEach(entry -> sb.append("artifactCoordinates.coordinates.")
+                               .append(entry.getKey()).append(".toLowerCase()")
+                               .append(strict ? " = " : " like ")
+                               .append(String.format(":%s", entry.getKey()))
                                .append(" AND "));
 
+        
         // remove last 'and' statement (that doesn't relate to any value)
         String query = sb.toString();
-        query = query.substring(0, query.length() - 5) + ";";
+        query = query.substring(0, query.length() - 5);
 
+        if (orderBy != null && !orderBy.trim().isEmpty())
+        {
+            query += String.format(" ORDER BY artifactCoordinates.coordinates.%s", orderBy);
+        }
+        
         // now query should looks like
         // SELECT * FROM Foo WHERE blah = :blah AND moreBlah = :moreBlah
 

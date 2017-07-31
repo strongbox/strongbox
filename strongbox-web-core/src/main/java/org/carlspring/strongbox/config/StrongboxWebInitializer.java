@@ -1,17 +1,18 @@
 package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.security.authentication.JwtTokenValidationFilter;
-import org.carlspring.strongbox.web.DirectoryTraversalFilter;
-import org.carlspring.strongbox.web.HeaderMappingFilter;
+import java.util.EnumSet;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.FilterRegistration.Dynamic;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import java.util.EnumSet;
 
+import org.carlspring.strongbox.web.DirectoryTraversalFilter;
+import org.carlspring.strongbox.web.HeaderMappingFilter;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.filter.RequestContextFilter;
@@ -49,6 +50,8 @@ public class StrongboxWebInitializer
     {
         super.onStartup(servletContext);
 
+        servletContext.addListener(new RequestContextListener());
+        
         registerFilter(servletContext, false, DirectoryTraversalFilter.class.getSimpleName(),
                        new DirectoryTraversalFilter());
 
