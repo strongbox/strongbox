@@ -64,7 +64,7 @@ public class PathNupkg implements Nupkg
             return null;
         }
         String checkSumStr = checkSumContents.iterator().next();
-        Hash result = new Hash(Base64.getDecoder().decode(checkSumStr.getBytes()));
+        Hash result = new Hash(Base64.getDecoder().decode(checkSumStr.getBytes("UTF-8")));
         return result;
     }
 
