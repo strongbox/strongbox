@@ -10,17 +10,20 @@
         <timeoutSeconds>30</timeoutSeconds>
     </session-configuration>
 
-    <remote-repositories-configuration
-            check-interval-seconds="60"
-            heartbeat-threads-number="5" />
+    <remote-repositories-configuration check-interval-seconds="60" heartbeat-threads-number="5" />
 
     <storages>
 
         <storage id="nuget-common-storage">
             <repositories>
-                <repository id="nuget-releases" policy="release" implementation="file-system"
-                            layout="Nuget Hierarchical" type="hosted" allows-force-deletion="true"
-                            checksum-headers-enabled="true" indexing-enabled="false"/>
+                <repository id="nuget-releases"
+                            policy="release"
+                            implementation="file-system"
+                            layout="Nuget Hierarchical"
+                            type="hosted"
+                            allows-force-deletion="true"
+                            checksum-headers-enabled="true"
+                            indexing-enabled="false"/>
             </repositories>
         </storage>
 
@@ -53,7 +56,6 @@
                                        auto-blocking="true"
                                        checksum-validation="true"
                                        check-interval-seconds="20" />
-
                 </repository>
 
                 <repository id="carlspring" policy="mixed" implementation="file-system" layout="Maven 2" type="proxy">
