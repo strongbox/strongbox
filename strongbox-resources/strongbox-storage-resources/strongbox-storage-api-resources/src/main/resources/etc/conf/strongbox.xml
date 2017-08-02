@@ -6,9 +6,7 @@
     <baseUrl>http://localhost:48080/</baseUrl>
     <port>48080</port>
 
-    <session-configuration>
-        <timeoutSeconds>30</timeoutSeconds>
-    </session-configuration>
+    <session-configuration timeout-seconds="30" />
 
     <remote-repositories-configuration check-interval-seconds="60" heartbeat-threads-number="5" />
 

@@ -8,15 +8,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * @author Przemyslaw Fusik
  */
-@XmlRootElement(name = "groupSearch")
+@XmlRootElement(name = "group-search")
 @XmlAccessorType(XmlAccessType.NONE)
 public class LdapGroupSearchResponseEntityBody
 {
 
-    @XmlElement(name = "searchBase")
+    @XmlElement(name = "search-base")
     private String searchBase;
 
-    @XmlElement(name = "searchFilter")
+    @XmlElement(name = "search-filter")
     private String searchFilter;
 
     LdapGroupSearchResponseEntityBody searchBase(String searchBase)
