@@ -38,7 +38,7 @@ public class DownloadRemoteIndexCronJob
 
 
     @Override
-    protected void executeInternal(JobExecutionContext jobExecutionContext)
+    public void executeTask(JobExecutionContext jobExecutionContext)
             throws JobExecutionException
     {
         logger.debug("Executed DownloadRemoteIndexCronJob.");
@@ -61,6 +61,7 @@ public class DownloadRemoteIndexCronJob
         catch (ArtifactTransportException | RepositoryInitializationException e)
         {
             logger.error(e.getMessage(), e);
+
             manager.addExecutedJob(config.getName(), true);
         }
 

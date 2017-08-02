@@ -21,22 +21,22 @@ public class ClearRepositoryTrashCronJob
 
     private final Logger logger = LoggerFactory.getLogger(ClearRepositoryTrashCronJob.class);
 
-    @Named("mavenArtifactManagementService")
     @Inject
     private RepositoryManagementService repositoryManagementService;
 
     @Inject
     private JobManager manager;
 
+
     @Override
-    protected void executeInternal(JobExecutionContext jobExecutionContext)
+    public void executeTask(JobExecutionContext jobExecutionContext)
             throws JobExecutionException
     {
         final String jobClassName = getClass().getName();
+
         logger.debug("Execute " + jobClassName);
 
-        CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap()
-                                                                                  .get("config");
+        CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap().get("config");
 
         try
         {
@@ -60,4 +60,5 @@ public class ClearRepositoryTrashCronJob
         // notify about job execution in any case
         manager.addExecutedJob(config.getName(), true);
     }
+
 }

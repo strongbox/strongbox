@@ -1,10 +1,14 @@
 package org.carlspring.strongbox.cron.api.jobs;
 
+import org.carlspring.strongbox.cron.api.CronJobStatusEnum;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
+import org.carlspring.strongbox.cron.exceptions.CronTaskNotFoundException;
 import org.carlspring.strongbox.cron.quartz.CronTask;
+import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 
-import org.quartz.InterruptableJob;
-import org.quartz.UnableToInterruptJobException;
+import javax.inject.Inject;
+
+import org.quartz.*;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
@@ -20,8 +24,47 @@ public abstract class AbstractCronJob
 
     private SchedulerFactoryBean schedulerFactoryBean;
 
+    @Inject
+    private CronTaskConfigurationService cronTaskConfigurationService;
+
     private CronTask cronTask;
 
+    private boolean oneTimeExecution;
+
+    private String status = CronJobStatusEnum.SLEEPING.getStatus();
+
+
+    public abstract void executeTask(JobExecutionContext jobExecutionContext)
+            throws JobExecutionException;
+
+    @Override
+    protected void executeInternal(JobExecutionContext jobExecutionContext)
+            throws JobExecutionException
+    {
+        setStatus(CronJobStatusEnum.EXECUTING.getStatus());
+
+        executeTask(jobExecutionContext);
+
+        setStatus(CronJobStatusEnum.SLEEPING.getStatus());
+
+        if (isOneTimeExecution())
+        {
+            try
+            {
+                cronTaskConfigurationService.deleteConfiguration(getConfiguration());
+            }
+            catch (SchedulerException | CronTaskNotFoundException | ClassNotFoundException e)
+            {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void interrupt()
+            throws UnableToInterruptJobException
+    {
+    }
 
     public CronTaskConfiguration getConfiguration()
     {
@@ -53,10 +96,24 @@ public abstract class AbstractCronJob
         this.cronTask = cronTask;
     }
 
-    @Override
-    public void interrupt()
-            throws UnableToInterruptJobException
+    public boolean isOneTimeExecution()
     {
-
+        return oneTimeExecution;
     }
+
+    public void setOneTimeExecution(boolean oneTimeExecution)
+    {
+        this.oneTimeExecution = oneTimeExecution;
+    }
+
+    public String getStatus()
+    {
+        return status;
+    }
+
+    public void setStatus(String status)
+    {
+        this.status = status;
+    }
+
 }

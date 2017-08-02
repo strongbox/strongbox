@@ -18,7 +18,7 @@ public class MyTask
     private final Logger logger = LoggerFactory.getLogger(MyTask.class);
 
     @Override
-    protected void executeInternal(JobExecutionContext jobExecutionContext)
+    public void executeTask(JobExecutionContext jobExecutionContext)
             throws JobExecutionException
     {
         logger.debug("Executed MyTask.");

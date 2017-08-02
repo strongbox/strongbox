@@ -38,7 +38,7 @@ public class RebuildMavenMetadataCronJob
 
 
     @Override
-    protected void executeInternal(JobExecutionContext jobExecutionContext)
+    public void executeTask(JobExecutionContext jobExecutionContext)
             throws JobExecutionException
     {
         logger.debug("Executed RebuildMavenMetadataCronJob.");
@@ -70,6 +70,7 @@ public class RebuildMavenMetadataCronJob
         catch (IOException | XmlPullParserException | NoSuchAlgorithmException e)
         {
             logger.error(e.getMessage(), e);
+
             manager.addExecutedJob(config.getName(), true);
         }
 
