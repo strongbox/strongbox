@@ -476,6 +476,11 @@
                 <artifactId>httpclient</artifactId>
                 <version>${version.httpclient}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>fluent-hc</artifactId>
+                <version>${version.httpclient}</version>
+            </dependency>
 
             <dependency>
                 <groupId>javax.ws.rs</groupId>

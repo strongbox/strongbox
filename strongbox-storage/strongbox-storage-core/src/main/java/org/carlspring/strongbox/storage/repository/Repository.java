@@ -2,6 +2,7 @@ package org.carlspring.strongbox.storage.repository;
 
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
