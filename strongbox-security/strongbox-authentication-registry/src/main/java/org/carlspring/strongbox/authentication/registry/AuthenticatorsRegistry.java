@@ -16,7 +16,7 @@ import java.util.NoSuchElementException;
 /**
  * @author Przemyslaw Fusik
  */
-@XmlRootElement
+@XmlRootElement(name = "authenticators-registry")
 @XmlAccessorType(XmlAccessType.NONE)
 public class AuthenticatorsRegistry
         implements Iterable<Authenticator>

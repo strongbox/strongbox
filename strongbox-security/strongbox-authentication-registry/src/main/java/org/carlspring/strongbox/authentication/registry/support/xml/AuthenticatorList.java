@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * @author Przemyslaw Fusik
  */
-@XmlRootElement
+@XmlRootElement(name = "authenticator-list")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class AuthenticatorList
 {

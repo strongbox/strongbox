@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * @author Przemyslaw Fusik
  */
-@XmlRootElement
+@XmlRootElement(name = "login-input")
 @XmlAccessorType(XmlAccessType.NONE)
 public class LoginInput
 {

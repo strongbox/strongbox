@@ -28,7 +28,7 @@ import org.springframework.util.Assert;
  * @author Przemyslaw Fusik
  */
 @ThreadSafe
-@XmlRootElement
+@XmlRootElement(name = "authorities-external-to-internal-mapper")
 @XmlAccessorType(XmlAccessType.NONE)
 public class AuthoritiesExternalToInternalMapper
         implements InitializingBean, GrantedAuthoritiesMapper
@@ -39,7 +39,7 @@ public class AuthoritiesExternalToInternalMapper
     @Inject
     private AuthoritiesProvider authoritiesProvider;
 
-    @XmlElement(name = "rolesMapping")
+    @XmlElement(name = "roles-mapping")
     private ConcurrentMap<String, String> rolesMapping;
 
     @Override

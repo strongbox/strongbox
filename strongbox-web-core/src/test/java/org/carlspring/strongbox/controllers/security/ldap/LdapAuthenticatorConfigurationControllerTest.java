@@ -42,9 +42,9 @@ public class LdapAuthenticatorConfigurationControllerTest
                           .get("/configuration/ldap/rolesMapping")
                           .peek()
                           .then()
-                          .body("rolesMapping.Developers",
+                          .body("roles-mapping.Developers",
                                 CoreMatchers.equalTo("REPOSITORY_MANAGER"))
-                          .body("rolesMapping.Contributors",
+                          .body("roles-mapping.Contributors",
                                 CoreMatchers.equalTo("USER_ROLE"))
                           .statusCode(200);
     }
@@ -59,7 +59,7 @@ public class LdapAuthenticatorConfigurationControllerTest
                           .get("/configuration/ldap/userDnPatterns")
                           .peek()
                           .then()
-                          .body("userDnPattern[0]",
+                          .body("user-dn-pattern[0]",
                                 CoreMatchers.equalTo("uid={0},ou=Users"))
                           .statusCode(200);
     }
@@ -74,9 +74,9 @@ public class LdapAuthenticatorConfigurationControllerTest
                           .get("/configuration/ldap/userSearchFilter")
                           .peek()
                           .then()
-                          .body("searchFilter",
+                          .body("search-filter",
                                 CoreMatchers.equalTo("(uid={0})"))
-                          .body("searchBase",
+                          .body("search-base",
                                 CoreMatchers.equalTo("ou=people"))
                           .statusCode(200);
     }
@@ -91,9 +91,9 @@ public class LdapAuthenticatorConfigurationControllerTest
                           .get("/configuration/ldap/groupSearchFilter")
                           .peek()
                           .then()
-                          .body("searchBase",
+                          .body("search-base",
                                 CoreMatchers.equalTo("ou=Groups"))
-                          .body("searchFilter",
+                          .body("search-filter",
                                 CoreMatchers.equalTo("(uniqueMember={0})"))
                           .statusCode(200);
     }
@@ -185,9 +185,9 @@ public class LdapAuthenticatorConfigurationControllerTest
                           .get("/configuration/ldap/userSearchFilter")
                           .peek()
                           .then()
-                          .body("searchFilter",
+                          .body("search-filter",
                                 CoreMatchers.equalTo("(uid={0})"))
-                          .body("searchBase",
+                          .body("search-base",
                                 CoreMatchers.equalTo("ou=guys"))
                           .statusCode(200);
     }
@@ -210,9 +210,9 @@ public class LdapAuthenticatorConfigurationControllerTest
                           .get("/configuration/ldap/groupSearchFilter")
                           .peek()
                           .then()
-                          .body("searchBase",
+                          .body("search-base",
                                 CoreMatchers.equalTo("ou=guys"))
-                          .body("searchFilter",
+                          .body("search-filter",
                                 CoreMatchers.equalTo("(participiant={0})"))
                           .statusCode(200);
     }
@@ -252,9 +252,9 @@ public class LdapAuthenticatorConfigurationControllerTest
                           .get("/configuration/ldap/userDnPatterns")
                           .peek()
                           .then()
-                          .body("userDnPattern[0]",
+                          .body("user-dn-pattern[0]",
                                 CoreMatchers.equalTo("uid={0},ou=Users"))
-                          .body("userDnPattern[1]",
+                          .body("user-dn-pattern[1]",
                                 CoreMatchers.equalTo("uid={0},ou=Guys"))
                           .statusCode(200);
     }

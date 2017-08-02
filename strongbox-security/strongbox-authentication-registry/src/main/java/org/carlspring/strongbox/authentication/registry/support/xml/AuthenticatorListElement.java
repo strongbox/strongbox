@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * @author Przemyslaw Fusik
  */
-@XmlRootElement
+@XmlRootElement(name = "authenticator-list-element")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class AuthenticatorListElement
 {

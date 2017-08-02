@@ -1,9 +1,6 @@
 package org.carlspring.strongbox.configuration;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
 
 /**
  * @author Przemyslaw Fusik
@@ -12,7 +9,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class SessionConfiguration
 {
-    @XmlElement
+    @XmlAttribute(name= "timeout-seconds")
     private Integer timeoutSeconds = 30;
 
     public Integer getTimeoutSeconds()
