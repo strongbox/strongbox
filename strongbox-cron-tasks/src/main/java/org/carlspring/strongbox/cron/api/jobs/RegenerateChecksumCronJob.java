@@ -38,21 +38,23 @@ public class RegenerateChecksumCronJob
 
 
     @Override
-    protected void executeInternal(JobExecutionContext jobExecutionContext)
+    public void executeTask(JobExecutionContext jobExecutionContext)
             throws JobExecutionException
     {
         logger.debug("Executed RegenerateChecksumCronJob.");
 
-        CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap()
-                                                                                  .get("config");
+        CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap().get("config");
         try
         {
             String storageId = config.getProperty("storageId");
             String repositoryId = config.getProperty("repositoryId");
             String basePath = config.getProperty("basePath");
 
-            /**Values of forceRegeneration are true - to re-write existing checksum and to regenerate missing checksum,
-             false - to regenerate missing checksum only*/
+            /**
+             * The values of forceRegeneration are:
+             * - true  - to re-write existing checksum and to regenerate missing checksum,
+             * - false - to regenerate missing checksum only
+             */
             boolean forceRegeneration = Boolean.valueOf(config.getProperty("forceRegeneration"));
 
             if (storageId == null)
@@ -75,6 +77,7 @@ public class RegenerateChecksumCronJob
         catch (IOException | XmlPullParserException | NoSuchAlgorithmException e)
         {
             logger.error(e.getMessage(), e);
+
             manager.addExecutedJob(config.getName(), true);
         }
 
@@ -105,14 +108,12 @@ public class RegenerateChecksumCronJob
 
     private Map<String, Storage> getStorages()
     {
-        return configurationManager.getConfiguration()
-                                   .getStorages();
+        return configurationManager.getConfiguration().getStorages();
     }
 
     private Map<String, Repository> getRepositories(String storageId)
     {
-        return getStorages().get(storageId)
-                            .getRepositories();
+        return getStorages().get(storageId).getRepositories();
     }
 
 

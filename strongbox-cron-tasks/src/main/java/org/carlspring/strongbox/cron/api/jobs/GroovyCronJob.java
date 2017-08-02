@@ -22,7 +22,7 @@ public class GroovyCronJob
 
 
     @Override
-    protected void executeInternal(JobExecutionContext jobExecutionContext)
+    public void executeTask(JobExecutionContext jobExecutionContext)
             throws JobExecutionException
     {
         try
@@ -40,7 +40,7 @@ public class GroovyCronJob
 
     public String getScriptPath()
     {
-        return (String) getConfiguration().getProperties().get("script.path");
+        return getConfiguration().getProperties().get("script.path");
     }
 
 }

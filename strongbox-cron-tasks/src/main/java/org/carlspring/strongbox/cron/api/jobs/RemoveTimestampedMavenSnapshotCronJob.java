@@ -41,7 +41,7 @@ public class RemoveTimestampedMavenSnapshotCronJob
 
 
     @Override
-    protected void executeInternal(JobExecutionContext jobExecutionContext)
+    public void executeTask(JobExecutionContext jobExecutionContext)
             throws JobExecutionException
     {
         logger.debug("Executed RemoveTimestampedMavenSnapshotCronJob.");

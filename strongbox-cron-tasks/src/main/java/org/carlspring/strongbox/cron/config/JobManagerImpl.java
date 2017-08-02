@@ -28,8 +28,7 @@ public class JobManagerImpl
                                             Boolean statusExecuted)
     {
         executedJobs.put(jobName, statusExecuted);
-        getJobExecutionListener(jobName).ifPresent(
-                listener -> listener.onJobExecution(jobName, statusExecuted));
+        getJobExecutionListener(jobName).ifPresent(listener -> listener.onJobExecution(jobName, statusExecuted));
     }
 
     public Map<String, Boolean> getExecutedJobs()
