@@ -4,10 +4,7 @@ import org.carlspring.strongbox.users.security.AuthoritiesProvider;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -40,6 +37,7 @@ public class AuthoritiesExternalToInternalMapper
     private AuthoritiesProvider authoritiesProvider;
 
     @XmlElement(name = "roles-mapping")
+    @XmlElementWrapper(name = "roles-mapping")
     private ConcurrentMap<String, String> rolesMapping;
 
     @Override
