@@ -70,7 +70,9 @@ public class ProxyRepositoryProviderTestIT
             throws ProviderImplementationException,
                    NoSuchAlgorithmException,
                    ArtifactTransportException,
-                   IOException, SearchException, InterruptedException
+                   IOException,
+                   SearchException,
+                   InterruptedException
     {
         if (!isRemoteRepositoryAvailabilityDetermined("storage-common-proxies", "maven-central"))
         {
