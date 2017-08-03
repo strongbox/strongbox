@@ -9,6 +9,7 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexerFactory;
 import org.carlspring.strongbox.storage.indexing.downloader.IndexDownloader;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -65,6 +66,11 @@ public class MavenRepositoryManagementStrategy
             {
                 // Create a remote index
                 createRepositoryIndexer(storageId, repositoryId, IndexTypeEnum.REMOTE.getType(), repositoryBasedir);
+
+                // Create a scheduled task for downloading the remote's index
+
+
+                // Run the scheduled task once, immediately, so that the remote's index would become available
             }
 
             // Create a local index
