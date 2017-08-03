@@ -54,10 +54,15 @@ public class RemoveTimestampedMavenSnapshotCronJob
             String repositoryId = config.getProperty("repositoryId");
             String basePath = config.getProperty("basePath");
 
-            //the number of artifacts to keep
-            int numberToKeep = Integer.valueOf(config.getProperty("numberToKeep"));
-            //the period to keep artifacts (the number of days)
-            int keepPeriod = Integer.valueOf(config.getProperty("keepPeriod"));
+            // The number of artifacts to keep
+            int numberToKeep = config.getProperty("numberToKeep") != null ?
+                               Integer.valueOf(config.getProperty("numberToKeep")) :
+                               10;
+
+            // The period to keep artifacts (the number of days)
+            int keepPeriod = config.getProperty("keepPeriod") != null ?
+                             Integer.valueOf(config.getProperty("keepPeriod")) :
+                             30;
 
             if (storageId == null)
             {
