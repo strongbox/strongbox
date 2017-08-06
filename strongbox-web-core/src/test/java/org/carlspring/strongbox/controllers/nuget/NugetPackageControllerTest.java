@@ -1,21 +1,21 @@
 package org.carlspring.strongbox.controllers.nuget;
 
 import org.carlspring.strongbox.artifact.generator.NugetPackageGenerator;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.controllers.context.IntegrationTest;
 import org.carlspring.strongbox.data.PropertyUtils;
-import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import org.carlspring.strongbox.rest.common.NugetRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
+import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import com.google.common.base.Throwables;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -27,12 +27,16 @@ import static org.hamcrest.CoreMatchers.equalTo;
 
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
-public class NugetPackageControllerTest extends RestAssuredBaseTest
+public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
 {
 
     private final static String STORAGE_ID = "storage-nuget-test";
 
     private static final String REPOSITORY_RELEASES_1 = "nuget-releases-1";
+
+    @Inject
+    private ConfigurationManager configurationManager;
+
 
     @BeforeClass
     public static void cleanUp()
@@ -69,15 +73,6 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
     @Override
     public void shutdown()
     {
-        try
-        {
-            getRepositoryIndexManager().closeIndexersForRepository(STORAGE_ID, REPOSITORY_RELEASES_1);
-        }
-        catch (IOException e)
-        {
-            throw Throwables.propagate(e);
-        }
-
         super.shutdown();
     }
 

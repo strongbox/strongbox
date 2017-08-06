@@ -4,7 +4,6 @@ import org.carlspring.strongbox.cron.config.JobManager;
 import org.carlspring.strongbox.cron.context.CronTaskTest;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.inject.Inject;
 
@@ -19,7 +18,6 @@ import static org.junit.Assert.*;
 @CronTaskTest
 @RunWith(SpringJUnit4ClassRunner.class)
 public class OneTimeExecutionCronJobTestIT
-        extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     @Inject

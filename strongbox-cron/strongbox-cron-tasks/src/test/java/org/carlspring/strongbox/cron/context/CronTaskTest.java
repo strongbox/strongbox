@@ -20,9 +20,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @ContextConfiguration(classes = { StorageApiConfig.class,
                                   ClientConfig.class,
                                   EventsConfig.class,
-                                  Maven2LayoutProviderConfig.class,
-                                  NugetLayoutProviderConfig.class,
-                                  P2LayoutProviderConfig.class,
                                   CronTasksConfig.class })
 @WebAppConfiguration
 public @interface CronTaskTest

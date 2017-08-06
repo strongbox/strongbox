@@ -1,11 +1,18 @@
 package org.carlspring.strongbox.rest.common;
 
 import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
+import org.carlspring.strongbox.services.ConfigurationManagementService;
+import org.carlspring.strongbox.services.RepositoryManagementService;
+import org.carlspring.strongbox.services.StorageManagementService;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithRepository;
 import org.carlspring.strongbox.users.domain.Roles;
 
 import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
@@ -26,7 +33,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author Alex Oreshkevich
  */
-public abstract class RestAssuredBaseTest
+public abstract class NugetRestAssuredBaseTest
         extends TestCaseWithRepository
 {
 
@@ -38,6 +45,15 @@ public abstract class RestAssuredBaseTest
      * Share logger instance across all tests.
      */
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
+
+    @Inject
+    protected ConfigurationManagementService configurationManagementService;
+
+    @Inject
+    protected RepositoryManagementService repositoryManagementService;
+
+    @Inject
+    protected StorageManagementService storageManagementService;
 
     @Inject
     protected WebApplicationContext context;
@@ -55,7 +71,7 @@ public abstract class RestAssuredBaseTest
     private String contextBaseUrl;
 
 
-    public RestAssuredBaseTest()
+    public NugetRestAssuredBaseTest()
     {
         // initialize host
         host = System.getProperty("strongbox.host");
@@ -90,7 +106,8 @@ public abstract class RestAssuredBaseTest
         // Security settings for tests:
         // By default all operations incl. deletion, etc. are allowed (be careful)!
         // Override #provideAuthorities, if you want be more specific.
-        anonymousAuthenticationFilter.getAuthorities().addAll(provideAuthorities());
+        anonymousAuthenticationFilter.getAuthorities()
+                                     .addAll(provideAuthorities());
 
         setContextBaseUrl(contextBaseUrl);
     }
@@ -156,7 +173,7 @@ public abstract class RestAssuredBaseTest
     {
         logger.trace("[pathExists] URL -> " + url);
 
-        return given().header("user-agent", "Maven/*")
+        return given().header("user-agent", "Nuget/*")
                       .contentType(MediaType.TEXT_PLAIN_VALUE)
                       .when()
                       .get(url)
@@ -166,6 +183,29 @@ public abstract class RestAssuredBaseTest
     protected void assertPathExists(String url)
     {
         assertTrue("Path " + url + " doesn't exist.", pathExists(url));
+    }
+
+    public void createStorage(String storageId)
+            throws IOException, JAXBException
+    {
+        createStorage(new Storage(storageId));
+    }
+
+    public void createStorage(Storage storage)
+            throws IOException, JAXBException
+    {
+        configurationManagementService.saveStorage(storage);
+        storageManagementService.createStorage(storage);
+    }
+
+    public void createRepository(Repository repository)
+            throws IOException,
+                   JAXBException
+    {
+        configurationManagementService.saveRepository(repository.getStorage().getId(), repository);
+
+        // Create the repository
+        repositoryManagementService.createRepository(repository.getStorage().getId(), repository.getId());
     }
 
 }
