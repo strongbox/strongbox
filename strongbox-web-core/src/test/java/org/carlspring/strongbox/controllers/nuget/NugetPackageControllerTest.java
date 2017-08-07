@@ -1,34 +1,43 @@
 package org.carlspring.strongbox.controllers.nuget;
 
-import org.carlspring.strongbox.artifact.generator.NugetPackageGenerator;
-import org.carlspring.strongbox.controllers.context.IntegrationTest;
-import org.carlspring.strongbox.data.PropertyUtils;
-import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.hamcrest.CoreMatchers.equalTo;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import com.google.common.base.Throwables;
+import javax.xml.bind.JAXBException;
+
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.carlspring.strongbox.artifact.generator.NugetPackageGenerator;
+import org.carlspring.strongbox.controllers.context.IntegrationTest;
+import org.carlspring.strongbox.data.PropertyUtils;
+import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.hamcrest.CoreMatchers.equalTo;
+
+import com.google.common.base.Throwables;
+
+import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
+import ru.aristar.jnuget.files.NugetFormatException;
 
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
 public class NugetPackageControllerTest extends RestAssuredBaseTest
 {
+
+    private static final String API_KEY = "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJTdHJvbmdib3giLCJqdGkiOiJ0SExSbWU4eFJOSnJjNXVXdTVkZDhRIiwic3ViIjoiYWRtaW4iLCJzZWN1cml0eS10b2tlbi1rZXkiOiJhZG1pbi1zZWNyZXQifQ.xRWxXt5yob5qcHjsvV1YsyfY3C-XFt9oKPABY0tYx88";
 
     private final static String STORAGE_ID = "storage-nuget-test";
 
@@ -82,6 +91,36 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
     }
 
     @Test
+    public void testPackageDelete()
+        throws Exception
+    {
+        String basedir = PropertyUtils.getHomeDirectory() + "/tmp";
+
+        String packageId = "Org.Carlspring.Strongbox.Examples.Nuget.Mono.Delete";
+        String packageVersion = "1.0.0";
+        Path packageFile = generatePackageFile(basedir, packageId, packageVersion);
+        byte[] packageContent = readPackageContent(packageFile);
+
+        // Push
+        createPushRequest(packageContent).when()
+                                         .put(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/"
+                                                 + REPOSITORY_RELEASES_1 + "/")
+                                         .peek()
+                                         .then()
+                                         .statusCode(HttpStatus.CREATED.value());
+
+        // Delete
+        given().header("User-Agent", "NuGet/*")
+               .header("X-NuGet-ApiKey", API_KEY)
+               .when()
+               .delete(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/" +
+                       packageId + "/" + packageVersion)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value());
+    }
+
+    @Test
     public void testPackageCommonFlow()
         throws Exception
     {
@@ -89,32 +128,13 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
 
         String packageId = "Org.Carlspring.Strongbox.Examples.Nuget.Mono";
         String packageVersion = "1.0.0";
-        String packageFileName = packageId + "." + packageVersion + ".nupkg";
+        Path packageFile = generatePackageFile(basedir, packageId, packageVersion);
+        long packageSize = Files.size(packageFile);
+        byte[] packageContent = readPackageContent(packageFile);
 
-        NugetPackageGenerator nugetPackageGenerator = new NugetPackageGenerator(basedir);
-        nugetPackageGenerator.generateNugetPackage(packageId, packageVersion);
-
-        Path packageFilePath = Paths.get(basedir).resolve(packageVersion).resolve(packageFileName);
-        long packageFileSize = Files.size(packageFilePath);
-
-        ByteArrayOutputStream contentStream = new ByteArrayOutputStream();
-
-        MultipartEntityBuilder.create()
-                              .addBinaryBody("package", Files.newInputStream(packageFilePath))
-                              .setBoundary("---------------------------123qwe")
-                              .build()
-                              .writeTo(contentStream);
-        contentStream.flush();
 
         // Push
-        given().header("User-Agent", "NuGet/*")
-               .header("X-NuGet-ApiKey",
-                       "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJTdHJvbmdib3giLCJqdGkiOiJ0SExSbWU4eFJOSnJjNXVXdTVkZDhRIiwic3V" +
-                               "iIjoiYWRtaW4iLCJzZWN1cml0eS10b2tlbi1rZXkiOiJhZG1pbi1zZWNyZXQifQ.xRWxXt5yob5qcHjsvV1YsyfY3C-X"
-                               +
-                               "Ft9oKPABY0tYx88")
-               .header("Content-Type", "multipart/form-data; boundary=---------------------------123qwe")
-               .body(contentStream.toByteArray())
+        createPushRequest(packageContent)
                .when()
                .put(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/")
                .peek()
@@ -130,7 +150,7 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
                .then()
                .statusCode(HttpStatus.OK.value())
                .assertThat()
-               .header("Content-Length", equalTo(String.valueOf(packageFileSize)));
+               .header("Content-Length", equalTo(String.valueOf(packageSize)));
     }
 
     @Test
@@ -141,34 +161,15 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
 
         String packageId = "Org.Carlspring.Strongbox.Nuget.Test.Search";
         String packageVersion = "1.0.0";
-        String packageFileName = packageId + "." + packageVersion + ".nupkg";
-
-        NugetPackageGenerator nugetPackageGenerator = new NugetPackageGenerator(basedir);
-        nugetPackageGenerator.generateNugetPackage(packageId, packageVersion);
-
-        Path packageFilePath = Paths.get(basedir).resolve(packageVersion).resolve(packageFileName);
-
-        ByteArrayOutputStream contentStream = new ByteArrayOutputStream();
-
-        MultipartEntityBuilder.create()
-                              .addBinaryBody("package",
-                                             Files.newInputStream(packageFilePath))
-                              .setBoundary("---------------------------123qwe")
-                              .build()
-                              .writeTo(contentStream);
-        contentStream.flush();
-
+        byte[] packageContent = readPackageContent(generatePackageFile(basedir, packageId, packageVersion));
+        
         // Push
-        given().header("User-Agent", "NuGet/*")
-               .header("X-NuGet-ApiKey",
-                       "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJTdHJvbmdib3giLCJqdGkiOiJ0SExSbWU4eFJOSnJjNXVXdTVkZDhRIiwic3ViIjoiYWRtaW4iLCJzZWN1cml0eS10b2tlbi1rZXkiOiJhZG1pbi1zZWNyZXQifQ.xRWxXt5yob5qcHjsvV1YsyfY3C-XFt9oKPABY0tYx88")
-               .header("Content-Type", "multipart/form-data; boundary=---------------------------123qwe")
-               .body(contentStream.toByteArray())
-               .when()
-               .put(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/")
-               .peek()
-               .then()
-               .statusCode(HttpStatus.CREATED.value());
+        createPushRequest(packageContent).when()
+                                         .put(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/"
+                                                 + REPOSITORY_RELEASES_1 + "/")
+                                         .peek()
+                                         .then()
+                                         .statusCode(HttpStatus.CREATED.value());
 
         // Count
         given().header("User-Agent", "NuGet/*")
@@ -197,5 +198,46 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
                .assertThat()
                .body("feed.entry[0].title", equalTo("Org.Carlspring.Strongbox.Nuget.Test.Search"));
 
+    }
+
+    public byte[] readPackageContent(Path packageFilePath)
+        throws IOException
+    {
+        ByteArrayOutputStream contentStream = new ByteArrayOutputStream();
+
+        MultipartEntityBuilder.create()
+                              .addBinaryBody("package",
+                                             Files.newInputStream(packageFilePath))
+                              .setBoundary("---------------------------123qwe")
+                              .build()
+                              .writeTo(contentStream);
+        contentStream.flush();
+        byte[] packageContent = contentStream.toByteArray();
+        return packageContent;
+    }
+
+    public Path generatePackageFile(String basedir,
+                                    String packageId,
+                                    String packageVersion)
+        throws NugetFormatException,
+        JAXBException,
+        IOException,
+        NoSuchAlgorithmException
+    {
+        String packageFileName = packageId + "." + packageVersion + ".nupkg";
+
+        NugetPackageGenerator nugetPackageGenerator = new NugetPackageGenerator(basedir);
+        nugetPackageGenerator.generateNugetPackage(packageId, packageVersion);
+
+        Path packageFilePath = Paths.get(basedir).resolve(packageVersion).resolve(packageFileName);
+        return packageFilePath;
+    }
+    
+    public MockMvcRequestSpecification createPushRequest(byte[] packageContent)
+    {
+        return given().header("User-Agent", "NuGet/*")
+                      .header("X-NuGet-ApiKey", API_KEY)
+                      .header("Content-Type", "multipart/form-data; boundary=---------------------------123qwe")
+                      .body(packageContent);
     }
 }

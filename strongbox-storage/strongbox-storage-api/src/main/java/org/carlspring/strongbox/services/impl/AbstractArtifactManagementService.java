@@ -13,6 +13,7 @@ import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
@@ -389,6 +390,31 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
         }
 
         return null;
+    }
+
+    @Override
+    public void delete(String storageId,
+                       String repositoryId,
+                       String artifactPath,
+                       boolean force)
+            throws IOException
+    {
+        artifactOperationsValidator.validate(storageId, repositoryId, artifactPath);
+
+        final Storage storage = getStorage(storageId);
+        final Repository repository = storage.getRepository(repositoryId);
+
+        artifactOperationsValidator.checkAllowsDeletion(repository);
+
+        try
+        {
+            LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
+            layoutProvider.delete(storageId, repositoryId, artifactPath, force);
+        }
+        catch (IOException | ProviderImplementationException | SearchException e)
+        {
+            throw new ArtifactStorageException(e.getMessage(), e);
+        }
     }
 
 }
