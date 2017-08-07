@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBException;
 
@@ -96,6 +97,39 @@ public class NugetPackageController extends BaseArtifactController
 
     @Inject
     private NugetSearchPackageSource packageSource;
+    
+    @RequestMapping(path = { "{storageId}/{repositoryId}/{packageId}/{versionString}" }, method = RequestMethod.DELETE)
+    public ResponseEntity deletePackageNew(
+                                           @RequestHeader(name = "X-NuGet-ApiKey", required = false) String apiKey,
+                                           @ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
+                                           @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
+                                           @PathParam("packageId") String packageId,
+                                           @PathParam("versionString") String versionString)
+    {
+        logger.info(String.format("Nuget delete request: storageId-[%s]; repositoryId-[%s]; packageId-[%s]", storageId, repositoryId, packageId));
+
+        String userName = getUserName();
+        if (!verify(userName, apiKey))
+        {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        
+        String path = String.format("%s/%s/%s.nuspec", packageId, versionString, packageId);
+        
+        try
+        {
+            getArtifactManagementService().delete(storageId, repositoryId, path, true);
+        }
+        catch (IOException e)
+        {
+            logger.error(String.format("Failed to process Nuget delete request: path-[%s]", storageId, repositoryId,
+                                       path),
+                         e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+        
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
     
     @RequestMapping(path = { "{storageId}/{repositoryId}/Search()/$count" }, method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN)
     public ResponseEntity<String> countPackages(@ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
@@ -502,11 +536,4 @@ public class NugetPackageController extends BaseArtifactController
         return sourceValue.replaceAll("['\"]", "").toLowerCase();
     }
 
-    public static final void main(String[] args){
-        Pattern pattern = Pattern.compile("(?:Packages(?:\\(\\))?|Search\\(\\))");
-        System.out.println(pattern.matcher("Packages").matches());;
-        System.out.println(pattern.matcher("Packages()").matches());;
-        System.out.println(pattern.matcher("Search").matches());;
-        System.out.println(pattern.matcher("Search()").matches());;
-    }
 }
