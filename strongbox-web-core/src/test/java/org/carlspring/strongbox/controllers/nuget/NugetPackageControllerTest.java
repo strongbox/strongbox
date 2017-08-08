@@ -5,6 +5,8 @@ import static org.hamcrest.CoreMatchers.equalTo;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -29,9 +31,14 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.common.base.Throwables;
 
+import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import ru.aristar.jnuget.files.NugetFormatException;
 
+/**
+ * @author Sergey Bespalov
+ *
+ */
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
 public class NugetPackageControllerTest extends RestAssuredBaseTest
@@ -64,6 +71,10 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
     {
         super.init();
 
+        RestAssuredMockMvcConfig config = RestAssuredMockMvcConfig.config();
+        config.getLogConfig().enableLoggingOfRequestAndResponseIfValidationFails();
+        given().config(config);
+        
         createStorage(STORAGE_ID);
 
         Repository repository1 = new Repository(REPOSITORY_RELEASES_1);
@@ -141,16 +152,42 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
                .then()
                .statusCode(HttpStatus.CREATED.value());
 
-        // Get
-        given().header("User-Agent", "NuGet/*")
-               .when()
-               .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/download/" +
-                       packageId + "/" + packageVersion)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value())
-               .assertThat()
-               .header("Content-Length", equalTo(String.valueOf(packageSize)));
+        
+        // We need to mute `System.out` here manually because response body logging hardcoded in current version of
+        // RestAssured, and we can not change it using configuration (@see `RestAssuredResponseOptionsGroovyImpl.peek(...)`).
+        PrintStream originalSysOut = muteSystemOutput();
+        try
+        {
+            // Get
+            given().header("User-Agent", "NuGet/*")
+                   .when()
+                   .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/download/" +
+                           packageId + "/" + packageVersion)
+                   .peek()
+                   .then()
+                   .statusCode(HttpStatus.OK.value())
+                   .assertThat()
+                   .header("Content-Length", equalTo(String.valueOf(packageSize)));
+        } finally
+        {
+            System.setOut(originalSysOut);
+        }
+    }
+
+    /**
+     * Mute the system output to avoid malicious logging (binary content for example).
+     * 
+     * @return
+     */
+    private PrintStream muteSystemOutput()
+    {
+        PrintStream original = System.out;
+        System.setOut(new PrintStream(new OutputStream() {
+            public void write(int b) {
+                //DO NOTHING
+            }
+        }));
+        return original;
     }
 
     @Test
