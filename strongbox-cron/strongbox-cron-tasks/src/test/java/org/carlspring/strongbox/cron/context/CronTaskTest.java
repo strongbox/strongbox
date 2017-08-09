@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.cron.context;
 
-import org.carlspring.strongbox.config.*;
+import org.carlspring.strongbox.config.ClientConfig;
+import org.carlspring.strongbox.config.EventsConfig;
+import org.carlspring.strongbox.config.StorageApiConfig;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
 
 import java.lang.annotation.ElementType;
@@ -9,7 +11,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 /**
  * @author Alex Oreshkevich
@@ -21,7 +22,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
                                   ClientConfig.class,
                                   EventsConfig.class,
                                   CronTasksConfig.class })
-@WebAppConfiguration
 public @interface CronTaskTest
 {
 
