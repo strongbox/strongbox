@@ -2,6 +2,9 @@ package org.carlspring.strongbox.storage.search;
 
 import org.carlspring.strongbox.providers.search.OrientDbSearchProvider;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 /**
  * @author mtodorov
  */
@@ -18,6 +21,8 @@ public class SearchRequest
      * The search provider implementation to use. This defaults to the database one.
      */
     private String implementation = OrientDbSearchProvider.ALIAS;
+
+    private Map<String, String> options = new LinkedHashMap<>();
 
 
     public SearchRequest()
@@ -83,6 +88,33 @@ public class SearchRequest
     public void setImplementation(String implementation)
     {
         this.implementation = implementation;
+    }
+
+    public Map<String, String> getOptions()
+    {
+        return options;
+    }
+
+    public void setOptions(Map<String, String> options)
+    {
+        this.options = options;
+    }
+
+    public String getOption(String key)
+    {
+        return options.get(key);
+    }
+
+    public String addOption(String key,
+                            String value)
+    {
+        return options.put(key, value);
+    }
+
+    public boolean removeOption(String key,
+                                String value)
+    {
+        return options.remove(key, value);
     }
 
 }

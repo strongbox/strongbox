@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.providers.layout;
 
-import org.carlspring.strongbox.TestConfig;
+import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
@@ -30,7 +30,7 @@ import static org.junit.Assert.assertTrue;
  * @author mtodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = TestConfig.class)
+@ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 public class Maven2LayoutProviderTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {

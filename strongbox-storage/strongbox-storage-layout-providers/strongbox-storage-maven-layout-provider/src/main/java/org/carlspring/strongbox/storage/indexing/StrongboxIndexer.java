@@ -8,7 +8,6 @@ import org.apache.maven.index.DefaultIndexer;
 import org.apache.maven.index.IndexerEngine;
 import org.apache.maven.index.QueryCreator;
 import org.apache.maven.index.SearchEngine;
-import org.apache.maven.index.context.ExistingLuceneIndexMismatchException;
 import org.apache.maven.index.context.IndexCreator;
 import org.apache.maven.index.context.IndexingContext;
 import org.apache.maven.index.util.IndexCreatorSorter;
@@ -35,13 +34,18 @@ public class StrongboxIndexer
                                                  boolean reclaim,
                                                  List<? extends IndexCreator> indexers)
             throws IOException,
-                   ExistingLuceneIndexMismatchException,
                    IllegalArgumentException
     {
-        final IndexingContext context = new StrongboxIndexingContext(id, repositoryId, repository, indexDirectory,
-                                                                     repositoryUrl, indexUpdateUrl,
-                                                                     IndexCreatorSorter.sort(indexers), reclaim);
+        final IndexingContext context = new StrongboxIndexingContext(id,
+                                                                     repositoryId,
+                                                                     repository,
+                                                                     indexDirectory,
+                                                                     repositoryUrl,
+                                                                     indexUpdateUrl,
+                                                                     IndexCreatorSorter.sort(indexers),
+                                                                     reclaim);
         context.setSearchable(searchable);
+
         return context;
     }
 

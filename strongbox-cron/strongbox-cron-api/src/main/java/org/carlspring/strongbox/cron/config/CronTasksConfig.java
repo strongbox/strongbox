@@ -50,6 +50,7 @@ public class CronTasksConfig
     {
         SchedulerFactoryBean schedulerFactoryBean = new SchedulerFactoryBean();
         schedulerFactoryBean.setJobFactory(springBeanJobFactory());
+
         return schedulerFactoryBean;
     }
 

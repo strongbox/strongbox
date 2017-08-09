@@ -144,7 +144,10 @@ public class RebuildMavenIndexesCronJobTestIT
             if (jobName1.equals(jobName) && statusExecuted)
             {
                 SearchRequest request = new SearchRequest(STORAGE0, REPOSITORY_RELEASES_1,
-                                                          "+g:org.carlspring.strongbox.indexes +a:strongbox-test-one +v:1.0 +p:jar");
+                                                          "+g:org.carlspring.strongbox.indexes " +
+                                                          "+a:strongbox-test-one " +
+                                                          "+v:1.0 " +
+                                                          "+p:jar");
 
                 try
                 {
@@ -172,13 +175,21 @@ public class RebuildMavenIndexesCronJobTestIT
             {
                 try
                 {
-                    SearchRequest request1 = new SearchRequest(STORAGE0, REPOSITORY_RELEASES_1,
-                                                               "+g:org.carlspring.strongbox.indexes +a:strongbox-test-one +v:1.0 +p:jar");
+                    SearchRequest request1 = new SearchRequest(STORAGE0,
+                                                               REPOSITORY_RELEASES_1,
+                                                               "+g:org.carlspring.strongbox.indexes " +
+                                                               "+a:strongbox-test-one " +
+                                                               "+v:1.0 " +
+                                                               "+p:jar");
 
                     assertTrue(artifactSearchService.contains(request1));
 
-                    SearchRequest request2 = new SearchRequest(STORAGE0, REPOSITORY_RELEASES_1,
-                                                               "+g:org.carlspring.strongbox.indexes +a:strongbox-test-two +v:1.0 +p:jar");
+                    SearchRequest request2 = new SearchRequest(STORAGE0,
+                                                               REPOSITORY_RELEASES_1,
+                                                               "+g:org.carlspring.strongbox.indexes " +
+                                                               "+a:strongbox-test-two " +
+                                                               "+v:1.0 " +
+                                                               "+p:jar");
 
                     assertTrue(artifactSearchService.contains(request2));
 
@@ -205,13 +216,21 @@ public class RebuildMavenIndexesCronJobTestIT
             {
                 try
                 {
-                    SearchRequest request1 = new SearchRequest(STORAGE0, REPOSITORY_RELEASES_1,
-                                                               "+g:org.carlspring.strongbox.indexes +a:strongbox-test-two +v:1.0 +p:jar");
+                    SearchRequest request1 = new SearchRequest(STORAGE0,
+                                                               REPOSITORY_RELEASES_1,
+                                                               "+g:org.carlspring.strongbox.indexes " +
+                                                               "+a:strongbox-test-two " +
+                                                               "+v:1.0 " +
+                                                               "+p:jar");
 
                     assertTrue(artifactSearchService.contains(request1));
 
-                    SearchRequest request2 = new SearchRequest(STORAGE0, REPOSITORY_RELEASES_2,
-                                                               "+g:org.carlspring.strongbox.indexes +a:strongbox-test-one +v:1.0 +p:jar");
+                    SearchRequest request2 = new SearchRequest(STORAGE0,
+                                                               REPOSITORY_RELEASES_2,
+                                                               "+g:org.carlspring.strongbox.indexes " +
+                                                               "+a:strongbox-test-one " +
+                                                               "+v:1.0 " +
+                                                               "+p:jar");
 
                     assertTrue(artifactSearchService.contains(request2));
 
@@ -238,13 +257,21 @@ public class RebuildMavenIndexesCronJobTestIT
             {
                 try
                 {
-                    SearchRequest request1 = new SearchRequest(STORAGE0, REPOSITORY_RELEASES_2,
-                                                               "+g:org.carlspring.strongbox.indexes +a:strongbox-test-one +v:1.0 +p:jar");
+                    SearchRequest request1 = new SearchRequest(STORAGE0,
+                                                               REPOSITORY_RELEASES_2,
+                                                               "+g:org.carlspring.strongbox.indexes " +
+                                                               "+a:strongbox-test-one " +
+                                                               "+v:1.0 " +
+                                                               "+p:jar");
 
                     assertTrue(artifactSearchService.contains(request1));
 
-                    SearchRequest request2 = new SearchRequest(STORAGE1, REPOSITORY_RELEASES_1,
-                                                               "+g:org.carlspring.strongbox.indexes +a:strongbox-test-one +v:1.0 +p:jar");
+                    SearchRequest request2 = new SearchRequest(STORAGE1,
+                                                               REPOSITORY_RELEASES_1,
+                                                               "+g:org.carlspring.strongbox.indexes " +
+                                                               "+a:strongbox-test-one " +
+                                                               "+v:1.0 " +
+                                                               "+p:jar");
 
                     assertTrue(artifactSearchService.contains(request2));
 
@@ -257,7 +284,7 @@ public class RebuildMavenIndexesCronJobTestIT
             }
         });
 
-
         addRebuildCronJobConfig(jobName, null, null, null);
     }
+
 }

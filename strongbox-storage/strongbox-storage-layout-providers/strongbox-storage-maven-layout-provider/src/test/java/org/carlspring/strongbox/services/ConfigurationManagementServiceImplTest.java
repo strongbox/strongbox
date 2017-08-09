@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.services;
 
-import org.carlspring.strongbox.TestConfig;
+import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationRepository;
 import org.carlspring.strongbox.storage.Storage;
@@ -35,7 +35,7 @@ import static org.junit.Assert.*;
  * @author mtodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = TestConfig.class)
+@ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 public class ConfigurationManagementServiceImplTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
