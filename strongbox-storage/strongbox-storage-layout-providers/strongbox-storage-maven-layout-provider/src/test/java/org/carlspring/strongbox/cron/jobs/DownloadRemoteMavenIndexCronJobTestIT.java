@@ -2,7 +2,6 @@ package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.cron.config.JobManager;
-import org.carlspring.strongbox.cron.context.CronTaskTest;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
@@ -31,7 +30,6 @@ import static org.junit.Assert.*;
 /**
  * @author Martin Todorov
  */
-@CronTaskTest
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 public class DownloadRemoteMavenIndexCronJobTestIT
