@@ -122,8 +122,7 @@ public class NugetPackageController extends BaseArtifactController
         }
         catch (IOException e)
         {
-            logger.error(String.format("Failed to process Nuget delete request: path-[%s]", storageId, repositoryId,
-                                       path),
+            logger.error(String.format("Failed to process Nuget delete request: path-[%s]", path),
                          e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
