@@ -111,7 +111,7 @@ public class NugetPackageController extends BaseArtifactController
         String userName = getUserName();
         if (!verify(userName, apiKey))
         {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         
         String path = String.format("%s/%s/%s.nuspec", packageId, versionString, packageId);
@@ -264,7 +264,7 @@ public class NugetPackageController extends BaseArtifactController
         String userName = getUserName();
         if (!verify(userName, apiKey))
         {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         String contentType = request.getHeader("content-type");
