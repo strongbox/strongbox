@@ -38,6 +38,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -825,6 +826,30 @@ public class MavenArtifactControllerTest
                                 .getStatusCode();
 
         assertEquals("Access was wrongly restricted for user with custom access model", 200, statusCode);
+    }
+
+    @Test
+    public void testThatMavenProxyRepoDoesNotBlockTheConnectionPool()
+            throws Exception
+    {
+        String url = getContextBaseUrl() +
+                     "/storages/public/public-group/org/carlspring/commons/commons-http/1.0-SNAPSHOT/commons-http-1.0-20170517.232121-7.jar";
+
+        given().header("user-agent", "Maven/*")
+               .contentType(MediaType.TEXT_PLAIN_VALUE)
+               .when()
+               .get(url)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.NOT_FOUND.value());
+
+        given().header("user-agent", "Maven/*")
+               .contentType(MediaType.TEXT_PLAIN_VALUE)
+               .when()
+               .get(url)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.NOT_FOUND.value());
     }
 
     private boolean isRemoteRepositoryAvailabilityDetermined(String storageId,
