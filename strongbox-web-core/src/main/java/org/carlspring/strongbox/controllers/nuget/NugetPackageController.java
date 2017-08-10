@@ -100,11 +100,11 @@ public class NugetPackageController extends BaseArtifactController
     
     @RequestMapping(path = { "{storageId}/{repositoryId}/{packageId}/{versionString}" }, method = RequestMethod.DELETE)
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
-    public ResponseEntity deletePackageNew(@RequestHeader(name = "X-NuGet-ApiKey", required = false) String apiKey,
-                                           @ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
-                                           @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
-                                           @PathParam("packageId") String packageId,
-                                           @PathParam("versionString") String versionString)
+    public ResponseEntity deletePackage(@RequestHeader(name = "X-NuGet-ApiKey", required = false) String apiKey,
+                                        @ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
+                                        @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
+                                        @PathParam("packageId") String packageId,
+                                        @PathParam("versionString") String version)
     {
         logger.info(String.format("Nuget delete request: storageId-[%s]; repositoryId-[%s]; packageId-[%s]", storageId, repositoryId, packageId));
 
@@ -114,7 +114,7 @@ public class NugetPackageController extends BaseArtifactController
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         
-        String path = String.format("%s/%s/%s.nuspec", packageId, versionString, packageId);
+        String path = String.format("%s/%s/%s.nuspec", packageId, version, packageId);
         
         try
         {
