@@ -114,8 +114,8 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
 
         // Push
         createPushRequest(packageContent).when()
-                                         .put(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/"
-                                                 + REPOSITORY_RELEASES_1 + "/")
+                                         .put(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" +
+                                              REPOSITORY_RELEASES_1 + "/")
                                          .peek()
                                          .then()
                                          .statusCode(HttpStatus.CREATED.value());
@@ -143,7 +143,6 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
         long packageSize = Files.size(packageFile);
         byte[] packageContent = readPackageContent(packageFile);
 
-
         // Push
         createPushRequest(packageContent)
                .when()
@@ -162,13 +161,14 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
             given().header("User-Agent", "NuGet/*")
                    .when()
                    .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/download/" +
-                           packageId + "/" + packageVersion)
+                        packageId + "/" + packageVersion)
                    .peek()
                    .then()
                    .statusCode(HttpStatus.OK.value())
                    .assertThat()
                    .header("Content-Length", equalTo(String.valueOf(packageSize)));
-        } finally
+        }
+        finally
         {
             System.setOut(originalSysOut);
         }
@@ -182,11 +182,14 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
     private PrintStream muteSystemOutput()
     {
         PrintStream original = System.out;
-        System.setOut(new PrintStream(new OutputStream() {
-            public void write(int b) {
+        System.setOut(new PrintStream(new OutputStream()
+        {
+            public void write(int b)
+            {
                 //DO NOTHING
             }
         }));
+        
         return original;
     }
 
@@ -202,8 +205,8 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
         
         // Push
         createPushRequest(packageContent).when()
-                                         .put(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/"
-                                                 + REPOSITORY_RELEASES_1 + "/")
+                                         .put(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" +
+                                              REPOSITORY_RELEASES_1 + "/")
                                          .peek()
                                          .then()
                                          .statusCode(HttpStatus.CREATED.value());
@@ -211,9 +214,9 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
         // Count
         given().header("User-Agent", "NuGet/*")
                .when()
-               .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1
-                       + String.format("/Search()/$count?$filter=%s&searchTerm=%s&targetFramework=",
-                                       "IsLatestVersion", "Test"))
+               .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
+                    String.format("/Search()/$count?$filter=%s&searchTerm=%s&targetFramework=",
+                                  "IsLatestVersion", "Test"))
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
@@ -223,9 +226,9 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
         // Search
         given().header("User-Agent", "NuGet/*")
                .when()
-               .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1
-                       + String.format("/Search()?$filter=%s&$skip=%s&$top=%s&searchTerm=%s&targetFramework=",
-                                       "IsLatestVersion", 0, 30, "Test"))
+               .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
+                    String.format("/Search()?$filter=%s&$skip=%s&$top=%s&searchTerm=%s&targetFramework=",
+                                  "IsLatestVersion", 0, 30, "Test"))
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
@@ -234,7 +237,6 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
                .and()
                .assertThat()
                .body("feed.entry[0].title", equalTo("Org.Carlspring.Strongbox.Nuget.Test.Search"));
-
     }
 
     public byte[] readPackageContent(Path packageFilePath)
@@ -249,7 +251,9 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
                               .build()
                               .writeTo(contentStream);
         contentStream.flush();
+        
         byte[] packageContent = contentStream.toByteArray();
+        
         return packageContent;
     }
 
@@ -257,9 +261,9 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
                                     String packageId,
                                     String packageVersion)
         throws NugetFormatException,
-        JAXBException,
-        IOException,
-        NoSuchAlgorithmException
+               JAXBException,
+               IOException,
+               NoSuchAlgorithmException
     {
         String packageFileName = packageId + "." + packageVersion + ".nupkg";
 
@@ -277,4 +281,5 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
                       .header("Content-Type", "multipart/form-data; boundary=---------------------------123qwe")
                       .body(packageContent);
     }
+    
 }
