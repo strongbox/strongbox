@@ -98,13 +98,13 @@ public class NugetPackageController extends BaseArtifactController
     @Inject
     private NugetSearchPackageSource packageSource;
     
-    @RequestMapping(path = { "{storageId}/{repositoryId}/{packageId}/{versionString}" }, method = RequestMethod.DELETE)
+    @RequestMapping(path = { "{storageId}/{repositoryId}/{packageId}/{version}" }, method = RequestMethod.DELETE)
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
     public ResponseEntity deletePackage(@RequestHeader(name = "X-NuGet-ApiKey", required = false) String apiKey,
                                         @ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
                                         @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
                                         @PathParam("packageId") String packageId,
-                                        @PathParam("versionString") String version)
+                                        @PathParam("version") String version)
     {
         logger.info(String.format("Nuget delete request: storageId-[%s]; repositoryId-[%s]; packageId-[%s]", storageId, repositoryId, packageId));
 
