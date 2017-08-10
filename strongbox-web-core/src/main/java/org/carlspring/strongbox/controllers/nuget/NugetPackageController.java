@@ -243,6 +243,7 @@ public class NugetPackageController extends BaseArtifactController
     @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Storage available."),
                             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Storage requires authorization.") })
     @RequestMapping(path = { "{storageId}/{repositoryId}", "greet" }, method = RequestMethod.GET)
+    @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
     public ResponseEntity greet()
     {
         return new ResponseEntity<>("success", HttpStatus.OK);
