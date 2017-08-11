@@ -41,32 +41,6 @@ public class MavenArtifactManagementService
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
-
-    @Override
-    public void delete(String storageId,
-                       String repositoryId,
-                       String artifactPath,
-                       boolean force)
-            throws IOException
-    {
-        artifactOperationsValidator.validate(storageId, repositoryId, artifactPath);
-
-        final Storage storage = getStorage(storageId);
-        final Repository repository = storage.getRepository(repositoryId);
-
-        artifactOperationsValidator.checkAllowsDeletion(repository);
-
-        try
-        {
-            LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
-            layoutProvider.delete(storageId, repositoryId, artifactPath, force);
-        }
-        catch (IOException | ProviderImplementationException | SearchException e)
-        {
-            throw new ArtifactStorageException(e.getMessage(), e);
-        }
-    }
-
     @Override
     public boolean contains(String storageId, String repositoryId, String artifactPath)
             throws IOException

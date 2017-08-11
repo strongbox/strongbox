@@ -15,16 +15,6 @@ public class NugetArtifactManagementService
 {
 
     @Override
-    public void delete(String storageId,
-                       String repositoryId,
-                       String artifactPath,
-                       boolean force)
-            throws IOException
-    {
-        throw new UnsupportedOperationException("This operation is not yet implemented!");
-    }
-
-    @Override
     public boolean contains(String storageId,
                             String repositoryId,
                             String artifactPath)
