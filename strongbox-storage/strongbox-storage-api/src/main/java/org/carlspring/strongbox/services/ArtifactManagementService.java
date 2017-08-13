@@ -16,10 +16,10 @@ import java.security.NoSuchAlgorithmException;
 public interface ArtifactManagementService extends ConfigurationService
 {
 
-    void store(String storageId,
-               String repositoryId,
-               String path,
-               InputStream is)
+    void validateAndStore(String storageId,
+                          String repositoryId,
+                          String path,
+                          InputStream is)
             throws IOException,
                    ProviderImplementationException,
                    NoSuchAlgorithmException;

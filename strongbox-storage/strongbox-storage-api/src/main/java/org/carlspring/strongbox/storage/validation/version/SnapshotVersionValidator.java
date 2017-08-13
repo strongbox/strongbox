@@ -33,7 +33,7 @@ public class SnapshotVersionValidator
         {
             throw new VersionValidationException("Cannot deploy a SNAPSHOT artifact to a repository with a release policy!");
         }
-        if (!isSnapshot(version) && repository.acceptsSnapshots())
+        if (!isSnapshot(version) && repository.acceptsSnapshots() && !repository.acceptsReleases())
         {
             throw new VersionValidationException("Cannot deploy a release artifact to a repository with a SNAPSHOT policy!");
         }

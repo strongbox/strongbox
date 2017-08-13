@@ -1,23 +1,41 @@
 package org.carlspring.strongbox.storage.repository;
 
+import java.util.stream.Stream;
+
 /**
  * @author mtodorov
  */
 public enum RepositoryPolicyEnum
 {
 
-    RELEASE("release"),
+    RELEASE("release", true, false),
 
-    SNAPSHOT("snapshot"),
+    SNAPSHOT("snapshot", false, true),
 
-    MIXED("mixed");
+    MIXED("mixed", true, true);
 
     private String policy;
 
+    private boolean acceptReleases;
 
-    RepositoryPolicyEnum(String policy)
+    private boolean acceptsSnapshots;
+
+
+    RepositoryPolicyEnum(String policy,
+                         boolean acceptReleases,
+                         boolean acceptsSnapshots)
     {
         this.policy = policy;
+        this.acceptReleases = acceptReleases;
+        this.acceptsSnapshots = acceptsSnapshots;
+    }
+
+    public static RepositoryPolicyEnum ofPolicy(String policy)
+    {
+        return Stream.of(values())
+                     .filter(e -> e.policy.equals(policy))
+                     .findFirst()
+                     .orElse(null);
     }
 
     public String getPolicy()
@@ -25,9 +43,14 @@ public enum RepositoryPolicyEnum
         return policy;
     }
 
-    public void setPolicy(String policy)
+    public boolean acceptsReleases()
     {
-        this.policy = policy;
+        return acceptReleases;
+    }
+
+    public boolean acceptsSnapshots()
+    {
+        return acceptsSnapshots;
     }
 
     @Override

@@ -190,10 +190,10 @@ public class ArtifactManagementServiceImplTest
                                              true);
 
             Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
-            mavenArtifactManagementService.store(STORAGE0,
-                                                 REPOSITORY_RELEASES_WITHOUT_DELETE,
-                                                 ArtifactUtils.convertArtifactToPath(artifact),
-                                                 is);
+            mavenArtifactManagementService.validateAndStore(STORAGE0,
+                                                            REPOSITORY_RELEASES_WITHOUT_DELETE,
+                                                            ArtifactUtils.convertArtifactToPath(artifact),
+                                                            is);
 
             fail("Failed to deny artifact operation for repository with disallowed deployments.");
         }
@@ -230,10 +230,10 @@ public class ArtifactManagementServiceImplTest
                                              true);
 
             Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
-            mavenArtifactManagementService.store(STORAGE0,
-                                                 REPOSITORY_RELEASES_WITHOUT_REDEPLOYMENT,
-                                                 ArtifactUtils.convertArtifactToPath(artifact),
-                                                 is);
+            mavenArtifactManagementService.validateAndStore(STORAGE0,
+                                                            REPOSITORY_RELEASES_WITHOUT_REDEPLOYMENT,
+                                                            ArtifactUtils.convertArtifactToPath(artifact),
+                                                            is);
 
             fail("Failed to deny artifact operation for repository with disallowed re-deployments.");
         }
@@ -290,10 +290,10 @@ public class ArtifactManagementServiceImplTest
             File repositoryDir = getRepositoryBasedir(STORAGE0, REPOSITORY_GROUP);
             is = generateArtifactInputStream(repositoryDir.getAbsolutePath(), REPOSITORY_GROUP, gavtc, true);
 
-            mavenArtifactManagementService.store(STORAGE0,
-                                                 REPOSITORY_GROUP,
-                                                 ArtifactUtils.convertArtifactToPath(artifact),
-                                                 is);
+            mavenArtifactManagementService.validateAndStore(STORAGE0,
+                                                            REPOSITORY_GROUP,
+                                                            ArtifactUtils.convertArtifactToPath(artifact),
+                                                            is);
 
             fail("Failed to deny artifact operation for repository with disallowed deployments.");
         }
@@ -312,10 +312,10 @@ public class ArtifactManagementServiceImplTest
             // Generate the artifact on the file-system anyway so that we could achieve
             // the state of having it there before attempting a re-deployment
             generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES).getAbsolutePath(), gavtc);
-            mavenArtifactManagementService.store(STORAGE0,
-                                                 REPOSITORY_GROUP,
-                                                 ArtifactUtils.convertArtifactToPath(artifact),
-                                                 is);
+            mavenArtifactManagementService.validateAndStore(STORAGE0,
+                                                            REPOSITORY_GROUP,
+                                                            ArtifactUtils.convertArtifactToPath(artifact),
+                                                            is);
 
             fail("Failed to deny artifact operation for repository with disallowed re-deployments.");
         }

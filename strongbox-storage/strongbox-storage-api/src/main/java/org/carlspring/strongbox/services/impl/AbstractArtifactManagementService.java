@@ -79,10 +79,10 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
 
     @Override
     @Transactional
-    public void store(String storageId,
-                      String repositoryId,
-                      String path,
-                      InputStream is)
+    public void validateAndStore(String storageId,
+                                 String repositoryId,
+                                 String path,
+                                 InputStream is)
             throws IOException,
                    ProviderImplementationException,
                    NoSuchAlgorithmException
@@ -105,12 +105,6 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
                    ProviderImplementationException,
                    NoSuchAlgorithmException
     {
-        Repository repository = repositoryPath.getFileSystem().getRepository();
-        Storage storage = repository.getStorage();
-        
-        String artifactPathRelative = repositoryPath.getRepositoryRelative().toString();
-        performRepositoryAcceptanceValidation(storage.getId(), repository.getId(), artifactPathRelative);
-
         try (final ArtifactOutputStream aos = (ArtifactOutputStream) Files.newOutputStream(repositoryPath))
         {
             storeArtifact(repositoryPath, is, aos);
