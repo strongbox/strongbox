@@ -1,12 +1,12 @@
 package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
-import org.carlspring.strongbox.cron.config.JobManager;
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
+import org.carlspring.strongbox.cron.services.JobManager;
+import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
+import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -48,9 +48,6 @@ public class DownloadRemoteMavenIndexCronJobTestIT
     private CronTaskConfigurationService cronTaskConfigurationService;
 
     @Inject
-    private ArtifactMetadataService artifactMetadataService;
-
-    @Inject
     private ArtifactSearchService artifactSearchService;
 
     @Inject
@@ -58,6 +55,8 @@ public class DownloadRemoteMavenIndexCronJobTestIT
 
     @Inject
     private CronJobSchedulerService cronJobSchedulerService;
+
+    private CronTaskConfiguration configuration;
 
 
     @BeforeClass
@@ -75,16 +74,48 @@ public class DownloadRemoteMavenIndexCronJobTestIT
 
         createProxyRepository(STORAGE0,
                               REPOSITORY_PROXIED_RELEASES,
-                              "http://localhost:48080/storages/" + STORAGE0 + "/" + REPOSITORY_PROXIED_RELEASES);
+                              "http://localhost:48080/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES);
 
         generateArtifact(REPOSITORY_RELEASES_BASEDIR.getAbsolutePath(),
-                         "org.carlspring.strongbox.indexes.download.remote:strongbox-test-one:1.0:jar");
+                         "org.carlspring.strongbox.indexes.download:strongbox-test-one:1.0:jar");
 
         generateArtifact(REPOSITORY_RELEASES_BASEDIR.getAbsolutePath(),
-                         "org.carlspring.strongbox.indexes.download.remote:strongbox-test-two:1.0:jar");
+                         "org.carlspring.strongbox.indexes.download:strongbox-test-two:1.0:jar");
 
-        generateArtifact(REPOSITORY_RELEASES_BASEDIR.getAbsolutePath(),
-                         "org.carlspring.strongbox.indexes.download.remote:strongbox-test-three:1.0:jar");
+        reIndex(STORAGE0, REPOSITORY_RELEASES, "/");
+        reIndex(STORAGE0, REPOSITORY_PROXIED_RELEASES, "/");
+
+        packIndex(STORAGE0, REPOSITORY_RELEASES);
+
+
+        // Requests against the local index of the hosted repository from which we're later on proxying:
+        // org.carlspring.strongbox.indexes.download:strongbox-test-one:1.0:jar
+        SearchRequest request1 = new SearchRequest(STORAGE0,
+                                                   REPOSITORY_RELEASES,
+                                                   "+g:org.carlspring.strongbox.indexes.download " +
+                                                   "+a:strongbox-test-one " +
+                                                   "+v:1.0 " +
+                                                   "+p:jar",
+                                                   MavenIndexerSearchProvider.ALIAS);
+        // org.carlspring.strongbox.indexes.download:strongbox-test-two:1.0:jar
+        SearchRequest request2 = new SearchRequest(STORAGE0,
+                                                   REPOSITORY_RELEASES,
+                                                   "+g:org.carlspring.strongbox.indexes.download " +
+                                                   "+a:strongbox-test-two " +
+                                                   "+v:1.0 " +
+                                                   "+p:jar",
+                                                   MavenIndexerSearchProvider.ALIAS);
+
+        // Check that the artifacts exist in the hosted repository's local index
+        assertTrue("Failed to find any results for " + request1.getQuery() + " in the hosted repository!",
+                   artifactSearchService.contains(request1));
+
+        System.out.println(request1.getQuery() + " found matches!");
+
+        assertTrue("Failed to find any results for " + request2.getQuery() + " in the hosted repository!",
+                   artifactSearchService.contains(request2));
+
+        System.out.println(request2.getQuery() + " found matches!");
     }
 
     public static Set<Repository> getRepositoriesToClean()
@@ -110,9 +141,9 @@ public class DownloadRemoteMavenIndexCronJobTestIT
 
         cronTaskConfigurationService.saveConfiguration(cronTaskConfiguration);
 
-        CronTaskConfiguration configuration = cronTaskConfigurationService.findOne(name);
+        configuration = cronTaskConfigurationService.findOne(name);
 
-        assertNotNull(configuration);
+        assertNotNull("Failed to save cron configuration!", configuration);
     }
 
     public void deleteCronJobConfig(String name)
@@ -122,44 +153,62 @@ public class DownloadRemoteMavenIndexCronJobTestIT
 
         for (CronTaskConfiguration cnf : confs)
         {
-            assertNotNull(cnf);
+            assertNotNull("Failed to look up the configuration for " + name + "!", cnf);
 
             cronTaskConfigurationService.deleteConfiguration(cnf);
+
+            System.out.println("Cron task removed.");
         }
 
         assertNull(cronTaskConfigurationService.findOne(name));
     }
 
     @Test
-    public void testRebuildArtifactsIndexes()
+    public void testDownloadRemoteIndexAndExecuteSearch()
             throws Exception
     {
         String jobName = "Download remote indexes for " + STORAGE0 + ":" + "drmicj-releases";
+
+        final DownloadRemoteMavenIndexCronJobState jobState = new DownloadRemoteMavenIndexCronJobState();
 
         // Checking if job was executed
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
             if (jobName1.equals(jobName) && statusExecuted)
             {
-                SearchRequest request1 = new SearchRequest(STORAGE0,
-                                                           REPOSITORY_RELEASES,
-                                                           "+g:org.carlspring.strongbox.indexes " +
-                                                           "+a:strongbox-test-one " +
-                                                           "+v:1.0 " +
-                                                           "+p:jar");
-
-                SearchRequest request2 = new SearchRequest(STORAGE0,
+                // Requests against the remote index on the proxied repository:
+                // org.carlspring.strongbox.indexes.download:strongbox-test-one:1.0:jar
+                SearchRequest request3 = new SearchRequest(STORAGE0,
                                                            REPOSITORY_PROXIED_RELEASES,
-                                                           "+g:org.carlspring.strongbox.indexes " +
+                                                           "+g:org.carlspring.strongbox.indexes.download " +
                                                            "+a:strongbox-test-one " +
                                                            "+v:1.0 " +
-                                                           "+p:jar");
-                request2.addOption("indexType", IndexTypeEnum.REMOTE.getType());
+                                                           "+p:jar",
+                                                           MavenIndexerSearchProvider.ALIAS);
+                request3.addOption("indexType", IndexTypeEnum.REMOTE.getType());
+
+                // org.carlspring.strongbox.indexes.download:strongbox-test-two:1.0:jar
+                SearchRequest request4 = new SearchRequest(STORAGE0,
+                                                           REPOSITORY_PROXIED_RELEASES,
+                                                           "+g:org.carlspring.strongbox.indexes.download " +
+                                                           "+a:strongbox-test-two " +
+                                                           "+v:1.0 " +
+                                                           "+p:jar",
+                                                           MavenIndexerSearchProvider.ALIAS);
+                request4.addOption("indexType", IndexTypeEnum.REMOTE.getType());
 
                 try
                 {
-                    assertTrue(artifactSearchService.contains(request1));
-                    assertTrue(artifactSearchService.contains(request2));
+                    // Check that the artifacts exist in the proxied repository's remote index
+                    assertTrue("Failed to find any results for " + request3.getQuery() + " in the remote index!",
+                               artifactSearchService.contains(request3));
+
+                    System.out.println(request3.getQuery() + " found matches!");
+
+                    assertTrue("Failed to find any results for " + request4.getQuery() + " in the remote index!",
+                               artifactSearchService.contains(request4));
+
+                    System.out.println(request4.getQuery() + " found matches!");
 
                     deleteCronJobConfig(jobName);
                 }
@@ -167,10 +216,46 @@ public class DownloadRemoteMavenIndexCronJobTestIT
                 {
                     throw new RuntimeException(e);
                 }
+
+                jobState.setExecuted(true);
             }
         });
 
-        addCronJobConfig(jobName, STORAGE0, REPOSITORY_RELEASES);
+        addCronJobConfig(jobName, STORAGE0, REPOSITORY_PROXIED_RELEASES);
+
+        cronJobSchedulerService.executeJob(configuration);
+
+        int maxWait = 15000;
+        int totalWait = 0;
+        while (!jobState.hasExecuted() && totalWait <= maxWait)
+        {
+            Thread.sleep(500);
+            totalWait += 500;
+        }
+
+        assertTrue("Failed to execute task!", jobState.hasExecuted());
+    }
+
+    class DownloadRemoteMavenIndexCronJobState
+    {
+
+        boolean executed = false;
+
+
+        public DownloadRemoteMavenIndexCronJobState()
+        {
+        }
+
+        public boolean hasExecuted()
+        {
+            return executed;
+        }
+
+        public void setExecuted(boolean executed)
+        {
+            this.executed = executed;
+        }
+
     }
 
 }

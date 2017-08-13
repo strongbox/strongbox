@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.cron.config.JobManager;
+import org.carlspring.strongbox.cron.services.JobManager;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;

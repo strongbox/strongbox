@@ -84,7 +84,7 @@ public class Maven2ProxyRepositoryTest
     {
         MavenRepositoryFeatures features = (MavenRepositoryFeatures) getFeatures(STORAGE0, REPOSITORY_RELEASES);
 
-        // Make sure the repositoryReleases that is being proxied has a packed index to serve:
+        // Make sure the repository that is being proxied has a packed index to serve:
         features.pack(STORAGE0, REPOSITORY_RELEASES);
 
         Repository repositoryReleases = configurationManager.getRepository(STORAGE0, REPOSITORY_RELEASES);
@@ -102,7 +102,7 @@ public class Maven2ProxyRepositoryTest
         File indexPropertiesUpdaterFile = new File(repositoryProxiedReleases.getBasedir(),
                                                    ".index/remote/nexus-maven-repository-index-updater.properties");
 
-        assertTrue("Failed to retrieve nexus-maven-repositoryReleases-index-updater.properties from the remote!",
+        assertTrue("Failed to retrieve nexus-maven-repository-index-updater.properties from the remote!",
                    indexPropertiesUpdaterFile.exists());
     }
 

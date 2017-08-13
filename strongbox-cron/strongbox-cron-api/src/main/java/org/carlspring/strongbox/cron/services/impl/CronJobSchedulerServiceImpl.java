@@ -47,7 +47,8 @@ public class CronJobSchedulerServiceImpl
 
             Trigger newTrigger = TriggerBuilder.newTrigger()
                                                .withIdentity(cronTaskConfiguration.getName())
-                                               .withSchedule(CronScheduleBuilder.cronSchedule(cronExpression)).build();
+                                               .withSchedule(CronScheduleBuilder.cronSchedule(cronExpression))
+                                               .build();
 
             scheduler.addJob(jobDetail, true, true);
             scheduler.rescheduleJob(oldTrigger.getKey(), newTrigger);
@@ -96,8 +97,21 @@ public class CronJobSchedulerServiceImpl
 
     @Override
     public void executeJob(CronTaskConfiguration cronTaskConfiguration)
+            throws SchedulerException
     {
-        // TODO: Implement
+        Scheduler scheduler = schedulerFactoryBean.getScheduler();
+
+        if (jobsMap.containsKey(cronTaskConfiguration.getName()))
+        {
+            CronTask cronTask = jobsMap.get(cronTaskConfiguration.getName());
+            JobDetail jobDetail = cronTask.getJobDetail();
+
+            scheduler.triggerJob(jobDetail.getKey());
+        }
+        else
+        {
+            throw new SchedulerException("Could not find cron task with key " + cronTaskConfiguration.getName() + "!");
+        }
     }
 
     @Override

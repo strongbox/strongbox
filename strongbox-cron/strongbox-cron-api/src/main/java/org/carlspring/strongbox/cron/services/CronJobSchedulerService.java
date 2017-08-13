@@ -15,7 +15,8 @@ public interface CronJobSchedulerService
     void scheduleJob(CronTaskConfiguration cronTaskConfiguration)
             throws ClassNotFoundException, SchedulerException;
 
-    void executeJob(CronTaskConfiguration cronTaskConfiguration);
+    void executeJob(CronTaskConfiguration cronTaskConfiguration)
+            throws SchedulerException;
 
     void deleteJob(CronTaskConfiguration cronTaskConfiguration)
                     throws ClassNotFoundException, SchedulerException, CronTaskNotFoundException;

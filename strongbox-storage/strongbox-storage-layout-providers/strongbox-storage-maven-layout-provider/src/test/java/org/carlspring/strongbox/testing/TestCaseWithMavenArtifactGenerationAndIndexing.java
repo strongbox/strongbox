@@ -91,8 +91,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                    XmlPullParserException
     {
         createRepository(repository);
-        generateArtifactsReIndexAndPack(repository.getStorage()
-                                                  .getId(), repository.getId(), ga, versions);
+        generateArtifactsReIndexAndPack(repository.getStorage().getId(), repository.getId(), ga, versions);
     }
 
     protected void createRepositoryWithArtifacts(String storageId,
@@ -190,15 +189,13 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                                           .getRepository(repositoryId)
                                           .isIndexingEnabled())
         {
-            Storage storage = configurationManager.getConfiguration()
-                                                  .getStorage(storageId);
+            Storage storage = configurationManager.getConfiguration().getStorage(storageId);
             Repository repository = storage.getRepository(repositoryId);
 
             LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
             MavenRepositoryFeatures features = (MavenRepositoryFeatures) layoutProvider.getRepositoryFeatures();
 
-            features.reIndex(storageId, repositoryId, ga.replaceAll("\\.", "/")
-                                                        .replaceAll("\\:", "\\/"));
+            features.reIndex(storageId, repositoryId, ga.replaceAll("\\.", "/").replaceAll("\\:", "\\/"));
             features.pack(storageId, repositoryId);
         }
     }
@@ -213,14 +210,32 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                                           .getRepository(repositoryId)
                                           .isIndexingEnabled())
         {
-            Storage storage = configurationManager.getConfiguration()
-                                                  .getStorage(storageId);
+            Storage storage = configurationManager.getConfiguration().getStorage(storageId);
             Repository repository = storage.getRepository(repositoryId);
 
             LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
             MavenRepositoryFeatures features = (MavenRepositoryFeatures) layoutProvider.getRepositoryFeatures();
 
             features.reIndex(storageId, repositoryId, path != null ? path : ".");
+        }
+    }
+
+    public void packIndex(String storageId,
+                          String repositoryId)
+            throws IOException
+    {
+        if (configurationManagementService.getConfiguration()
+                                          .getStorage(storageId)
+                                          .getRepository(repositoryId)
+                                          .isIndexingEnabled())
+        {
+            Storage storage = configurationManager.getConfiguration().getStorage(storageId);
+            Repository repository = storage.getRepository(repositoryId);
+
+            LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+            MavenRepositoryFeatures features = (MavenRepositoryFeatures) layoutProvider.getRepositoryFeatures();
+
+            features.pack(storageId, repositoryId);
         }
     }
 
@@ -297,6 +312,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                     }
                 }
             }
+
             logger.debug("Index dump completed.");
         }
         finally
@@ -316,8 +332,8 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
     }
 
     public boolean indexContainsArtifact(String storageId,
-                                          String repositoryId,
-                                          String query)
+                                         String repositoryId,
+                                         String query)
             throws SearchException
     {
         SearchRequest request = new SearchRequest(storageId,

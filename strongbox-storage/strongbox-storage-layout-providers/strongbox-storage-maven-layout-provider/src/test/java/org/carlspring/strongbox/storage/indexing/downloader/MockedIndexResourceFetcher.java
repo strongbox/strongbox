@@ -72,7 +72,8 @@ public class MockedIndexResourceFetcher
         String remoteStorageId = subPath.substring(0, subPath.indexOf('/'));
         String remoteRepositoryId = subPath.substring(subPath.lastIndexOf('/') + 1, subPath.length());
 
-        File indexBaseDir = new File("target/strongbox-vault/storages/" + remoteStorageId + "/" + remoteRepositoryId + "/.index/local");
+        File indexBaseDir = new File("target/strongbox-vault/storages/" + remoteStorageId + "/" + remoteRepositoryId +
+                                     "/.index/local");
         File indexResourceFile = new File(indexBaseDir, name);
 
         logger.debug("indexResourceFile: " + indexResourceFile.getAbsolutePath());
