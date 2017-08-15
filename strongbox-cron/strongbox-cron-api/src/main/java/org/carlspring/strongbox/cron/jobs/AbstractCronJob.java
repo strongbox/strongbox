@@ -5,6 +5,7 @@ import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.exceptions.CronTaskNotFoundException;
 import org.carlspring.strongbox.cron.quartz.CronTask;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
+import org.carlspring.strongbox.event.cron.CronTaskEventListenerRegistry;
 
 import javax.inject.Inject;
 
@@ -25,6 +26,9 @@ public abstract class AbstractCronJob
     private SchedulerFactoryBean schedulerFactoryBean;
 
     @Inject
+    private CronTaskEventListenerRegistry cronTaskEventListenerRegistry;
+
+    @Inject
     private CronTaskConfigurationService cronTaskConfigurationService;
 
     private CronTask cronTask;
@@ -42,9 +46,11 @@ public abstract class AbstractCronJob
             throws JobExecutionException
     {
         setStatus(CronJobStatusEnum.EXECUTING.getStatus());
+        cronTaskEventListenerRegistry.dispatchCronTaskExecutingEvent(configuration.getName());
 
         executeTask(jobExecutionContext);
 
+        cronTaskEventListenerRegistry.dispatchCronTaskExecutedEvent(configuration.getName());
         setStatus(CronJobStatusEnum.SLEEPING.getStatus());
 
         if (isOneTimeExecution())

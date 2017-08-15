@@ -1,22 +1,22 @@
 package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
+import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.JobManager;
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
-import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
+import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.Before;
@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Martin Todorov
@@ -33,7 +33,7 @@ import static org.junit.Assert.*;
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 public class DownloadRemoteMavenIndexCronJobTestIT
-        extends TestCaseWithMavenArtifactGenerationAndIndexing
+        extends BaseCronJobWithMavenIndexingTestCase
 {
 
     private static final String REPOSITORY_RELEASES = "drmicj-releases";
@@ -45,9 +45,6 @@ public class DownloadRemoteMavenIndexCronJobTestIT
                                                                      REPOSITORY_RELEASES);
 
     @Inject
-    private CronTaskConfigurationService cronTaskConfigurationService;
-
-    @Inject
     private ArtifactSearchService artifactSearchService;
 
     @Inject
@@ -55,8 +52,6 @@ public class DownloadRemoteMavenIndexCronJobTestIT
 
     @Inject
     private CronJobSchedulerService cronJobSchedulerService;
-
-    private CronTaskConfiguration configuration;
 
 
     @BeforeClass
@@ -70,6 +65,9 @@ public class DownloadRemoteMavenIndexCronJobTestIT
     public void initialize()
             throws Exception
     {
+        // Register to receive cron task-related events
+        cronTaskEventListenerRegistry.addListener(this);
+
         createRepository(STORAGE0, REPOSITORY_RELEASES, true);
 
         createProxyRepository(STORAGE0,
@@ -86,7 +84,6 @@ public class DownloadRemoteMavenIndexCronJobTestIT
         reIndex(STORAGE0, REPOSITORY_PROXIED_RELEASES, "/");
 
         packIndex(STORAGE0, REPOSITORY_RELEASES);
-
 
         // Requests against the local index of the hosted repository from which we're later on proxying:
         // org.carlspring.strongbox.indexes.download:strongbox-test-one:1.0:jar
@@ -127,40 +124,17 @@ public class DownloadRemoteMavenIndexCronJobTestIT
         return repositories;
     }
 
-    public void addCronJobConfig(String name,
-                                 String storageId,
-                                 String repositoryId)
+    public CronTaskConfiguration addCronJobConfig(String name,
+                                                  String storageId,
+                                                  String repositoryId)
             throws Exception
     {
-        CronTaskConfiguration cronTaskConfiguration = new CronTaskConfiguration();
-        cronTaskConfiguration.setName(name);
-        cronTaskConfiguration.addProperty("jobClass", DownloadRemoteMavenIndexCronJob.class.getName());
-        cronTaskConfiguration.addProperty("cronExpression", "0 0/1 * 1/1 * ? *");
-        cronTaskConfiguration.addProperty("storageId", storageId);
-        cronTaskConfiguration.addProperty("repositoryId", repositoryId);
+        Map<String, String> properties = new LinkedHashMap<>();
+        properties.put("cronExpression", "0 0/1 * 1/1 * ? *");
+        properties.put("storageId", storageId);
+        properties.put("repositoryId", repositoryId);
 
-        cronTaskConfigurationService.saveConfiguration(cronTaskConfiguration);
-
-        configuration = cronTaskConfigurationService.findOne(name);
-
-        assertNotNull("Failed to save cron configuration!", configuration);
-    }
-
-    public void deleteCronJobConfig(String name)
-            throws Exception
-    {
-        List<CronTaskConfiguration> confs = cronTaskConfigurationService.getConfiguration(name);
-
-        for (CronTaskConfiguration cnf : confs)
-        {
-            assertNotNull("Failed to look up the configuration for " + name + "!", cnf);
-
-            cronTaskConfigurationService.deleteConfiguration(cnf);
-
-            System.out.println("Cron task removed.");
-        }
-
-        assertNull(cronTaskConfigurationService.findOne(name));
+        return addCronJobConfig(name, DownloadRemoteMavenIndexCronJob.class.getName(), properties);
     }
 
     @Test
@@ -168,8 +142,6 @@ public class DownloadRemoteMavenIndexCronJobTestIT
             throws Exception
     {
         String jobName = "Download remote indexes for " + STORAGE0 + ":" + "drmicj-releases";
-
-        final DownloadRemoteMavenIndexCronJobState jobState = new DownloadRemoteMavenIndexCronJobState();
 
         // Checking if job was executed
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
@@ -216,46 +188,14 @@ public class DownloadRemoteMavenIndexCronJobTestIT
                 {
                     throw new RuntimeException(e);
                 }
-
-                jobState.setExecuted(true);
             }
         });
 
-        addCronJobConfig(jobName, STORAGE0, REPOSITORY_PROXIED_RELEASES);
+        CronTaskConfiguration configuration = addCronJobConfig(jobName, STORAGE0, REPOSITORY_PROXIED_RELEASES);
 
         cronJobSchedulerService.executeJob(configuration);
 
-        int maxWait = 15000;
-        int totalWait = 0;
-        while (!jobState.hasExecuted() && totalWait <= maxWait)
-        {
-            Thread.sleep(500);
-            totalWait += 500;
-        }
-
-        assertTrue("Failed to execute task!", jobState.hasExecuted());
-    }
-
-    class DownloadRemoteMavenIndexCronJobState
-    {
-
-        boolean executed = false;
-
-
-        public DownloadRemoteMavenIndexCronJobState()
-        {
-        }
-
-        public boolean hasExecuted()
-        {
-            return executed;
-        }
-
-        public void setExecuted(boolean executed)
-        {
-            this.executed = executed;
-        }
-
+        assertTrue("Failed to execute task!", expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
 }
