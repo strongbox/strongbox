@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.TestHelper;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
@@ -36,7 +36,7 @@ import static org.junit.Assert.assertNotNull;
  * @author carlspring
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
+@ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 public class ProxyRepositoryProviderTestIT
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
