@@ -33,10 +33,14 @@ public class ArtifactIndexesServiceImpl
 
     @Inject
     private ConfigurationManager configurationManager;
+
     @Inject
     private RepositoryIndexManager repositoryIndexManager;
+
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
+
+
     @Override
     public void rebuildIndex(String storageId,
                              String repositoryId,
@@ -108,8 +112,7 @@ public class ArtifactIndexesServiceImpl
 
     private Map<String, Repository> getRepositories(String storageId)
     {
-        return getStorages().get(storageId)
-                            .getRepositories();
+        return getStorages().get(storageId).getRepositories();
     }
 
 }

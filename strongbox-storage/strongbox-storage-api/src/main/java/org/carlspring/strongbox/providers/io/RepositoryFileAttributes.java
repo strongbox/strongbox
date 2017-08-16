@@ -11,15 +11,23 @@ public class RepositoryFileAttributes implements BasicFileAttributes
 {
 
     public static final String COORDINATES = "coordinates";
+
     public static final String METADATA = "metadata";
+
     public static final String CHECKSUM = "checksum";
+
     public static final String TRASH = "trash";
+
     public static final String TEMP = "temp";
+
     public static final String INDEX = "index";
+
     public static final String ARTIFACT = "artifact";
     
     private BasicFileAttributes basicAttributes;
+
     private Map<String, Object> attributes = new HashMap<>();
+
 
     public RepositoryFileAttributes(BasicFileAttributes basicAttributes)
     {

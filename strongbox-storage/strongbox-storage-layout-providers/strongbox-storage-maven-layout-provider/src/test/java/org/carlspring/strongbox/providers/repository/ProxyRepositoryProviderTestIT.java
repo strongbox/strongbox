@@ -65,7 +65,6 @@ public class ProxyRepositoryProviderTestIT
         }
     }
 
-    @Ignore // TODO: Not sure what's going on here. @fuss86, perhaps you might know?
     @Test
     public void testMavenCentral()
             throws ProviderImplementationException,
@@ -116,7 +115,6 @@ public class ProxyRepositoryProviderTestIT
                                     "+g:org.carlspring.maven +a:derby-maven-plugin +v:1.10");
     }
 
-
     private boolean isRemoteRepositoryAvailabilityDetermined(String storageId,
                                                              String repositoryId)
             throws InterruptedException
@@ -125,8 +123,10 @@ public class ProxyRepositoryProviderTestIT
         Repository repository = configurationManager.getRepository(storageId, repositoryId);
         RemoteRepository remoteRepository = repository.getRemoteRepository();
 
-        return TestHelper.isOperationSuccessed(rr -> remoteRepositoryAlivenessCacheManager.wasPut(rr), remoteRepository,
-                                               30000, 1000);
+        return TestHelper.isOperationSuccessed(rr -> remoteRepositoryAlivenessCacheManager.wasPut(rr),
+                                               remoteRepository,
+                                               30000,
+                                               1000);
     }
 
     private void assertStreamNotNull(String storageId,

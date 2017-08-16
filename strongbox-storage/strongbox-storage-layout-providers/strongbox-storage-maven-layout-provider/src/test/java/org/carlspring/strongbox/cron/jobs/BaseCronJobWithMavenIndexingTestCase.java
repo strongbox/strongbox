@@ -100,13 +100,7 @@ public class BaseCronJobWithMavenIndexingTestCase
             receivedExpectedEvent = true;
             receivedEvent = event;
 
-            System.out.println();
-            System.out.println();
-            System.out.println();
             System.out.println("Received expected event: " + expectedEventType);
-            System.out.println();
-            System.out.println();
-            System.out.println();
         }
     }
 
