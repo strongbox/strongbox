@@ -1,0 +1,21 @@
+package org.carlspring.strongbox.config;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+
+/**
+ * @author Martin Todorov
+ */
+@Configuration
+@Import({ NugetLayoutProviderConfig.class,
+          StorageCoreConfig.class,
+          StorageApiConfig.class,
+          CommonConfig.class,
+          ClientConfig.class,
+          DataServiceConfig.class,
+          TestingCoreConfig.class
+})
+public class NugetLayoutProviderTestConfig
+{
+
+}
