@@ -421,7 +421,6 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
         artifactIndexesService.rebuildIndex(storageId, repositoryId, null);
     }
 
-    
     @Override
     public void postProcess(RepositoryPath repositoryPath)
         throws IOException

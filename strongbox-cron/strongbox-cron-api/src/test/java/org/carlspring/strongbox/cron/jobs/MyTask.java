@@ -28,8 +28,9 @@ public class MyTask
         catch (SchedulerException e)
         {
             logger.error("Stop job error", e);
+
             e.printStackTrace();
         }
-
     }
+
 }

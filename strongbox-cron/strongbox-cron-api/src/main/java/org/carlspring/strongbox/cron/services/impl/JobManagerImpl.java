@@ -1,4 +1,7 @@
-package org.carlspring.strongbox.cron.config;
+package org.carlspring.strongbox.cron.services.impl;
+
+import org.carlspring.strongbox.cron.config.JobExecutionListener;
+import org.carlspring.strongbox.cron.services.JobManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,9 +43,13 @@ public class JobManagerImpl
     public void registerExecutionListener(String jobName,
                                           JobExecutionListener executionListener)
     {
-        if (jobName == null || executionListener == null)
+        if (jobName == null)
         {
-            throw new IllegalArgumentException("Unable to use null jobName or executionListener");
+            throw new IllegalArgumentException("Cannot define a null value for jobName!");
+        }
+        if (executionListener == null)
+        {
+            throw new IllegalArgumentException("Cannot define a null value for executionListener");
         }
 
         listenerRegistry.put(jobName, executionListener);

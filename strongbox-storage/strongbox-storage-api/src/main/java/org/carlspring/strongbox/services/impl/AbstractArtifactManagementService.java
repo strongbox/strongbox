@@ -166,7 +166,14 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
             aos.setCacheOutputStream(new ByteArrayOutputStream());
         }
 
-        artifactEventListenerRegistry.dispatchArtifactUploadingEvent(storageId, repositoryId, artifactPath);
+        if (repository.isHostedRepository())
+        {
+            artifactEventListenerRegistry.dispatchArtifactUploadingEvent(storageId, repositoryId, artifactPath);
+        }
+        else
+        {
+            artifactEventListenerRegistry.dispatchArtifactDownloadingEvent(storageId, repositoryId, artifactPath);
+        }
 
         int readLength;
         byte[] bytes = new byte[4096];

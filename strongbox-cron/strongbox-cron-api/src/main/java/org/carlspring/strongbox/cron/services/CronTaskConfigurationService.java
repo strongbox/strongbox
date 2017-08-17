@@ -3,7 +3,7 @@ package org.carlspring.strongbox.cron.services;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.exceptions.CronTaskException;
 import org.carlspring.strongbox.cron.exceptions.CronTaskNotFoundException;
-import org.carlspring.strongbox.cron.quartz.GroovyScriptNames;
+import org.carlspring.strongbox.cron.domain.GroovyScriptNames;
 
 import java.util.List;
 

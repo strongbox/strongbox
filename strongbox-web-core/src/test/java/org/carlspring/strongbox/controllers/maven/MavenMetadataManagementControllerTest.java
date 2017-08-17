@@ -3,7 +3,7 @@ package org.carlspring.strongbox.controllers.maven;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.controllers.context.IntegrationTest;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
@@ -37,7 +37,7 @@ import static org.junit.Assert.*;
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
 public class MavenMetadataManagementControllerTest
-        extends RestAssuredBaseTest
+        extends MavenRestAssuredBaseTest
 {
 
     private static final String REPOSITORY_RELEASES = "mmct-releases";
@@ -46,6 +46,7 @@ public class MavenMetadataManagementControllerTest
     
     private static final File REPOSITORY_BASEDIR_RELEASES = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                                      "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES);
+
     private static final File REPOSITORY_BASEDIR_SNAPSHOTS = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                                       "/storages/" + STORAGE0 + "/" + REPOSITORY_SNAPSHOTS);
 

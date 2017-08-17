@@ -8,14 +8,18 @@ import org.apache.maven.index.DefaultIndexer;
 import org.apache.maven.index.IndexerEngine;
 import org.apache.maven.index.QueryCreator;
 import org.apache.maven.index.SearchEngine;
-import org.apache.maven.index.context.ExistingLuceneIndexMismatchException;
 import org.apache.maven.index.context.IndexCreator;
 import org.apache.maven.index.context.IndexingContext;
 import org.apache.maven.index.util.IndexCreatorSorter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StrongboxIndexer
         extends DefaultIndexer
 {
+
+    private static final Logger logger = LoggerFactory.getLogger(StrongboxIndexer.class);
+
 
     public StrongboxIndexer(SearchEngine searcher,
                             IndexerEngine indexerEngine,
@@ -25,7 +29,7 @@ public class StrongboxIndexer
     }
 
     @Override
-    public IndexingContext createIndexingContext(String id,
+    public IndexingContext createIndexingContext(String contextId,
                                                  String repositoryId,
                                                  File repository,
                                                  File indexDirectory,
@@ -35,13 +39,20 @@ public class StrongboxIndexer
                                                  boolean reclaim,
                                                  List<? extends IndexCreator> indexers)
             throws IOException,
-                   ExistingLuceneIndexMismatchException,
                    IllegalArgumentException
     {
-        final IndexingContext context = new StrongboxIndexingContext(id, repositoryId, repository, indexDirectory,
-                                                                     repositoryUrl, indexUpdateUrl,
-                                                                     IndexCreatorSorter.sort(indexers), reclaim);
+        final IndexingContext context = new StrongboxIndexingContext(contextId,
+                                                                     repositoryId,
+                                                                     repository,
+                                                                     indexDirectory,
+                                                                     repositoryUrl,
+                                                                     indexUpdateUrl,
+                                                                     IndexCreatorSorter.sort(indexers),
+                                                                     reclaim);
         context.setSearchable(searchable);
+
+        logger.debug("Indexing context for " + contextId + " successfully created.");
+
         return context;
     }
 

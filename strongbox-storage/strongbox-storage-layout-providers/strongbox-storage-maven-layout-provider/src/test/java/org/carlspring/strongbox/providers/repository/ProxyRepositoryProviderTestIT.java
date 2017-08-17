@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.TestConfig;
+import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.TestHelper;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
@@ -36,7 +36,7 @@ import static org.junit.Assert.assertNotNull;
  * @author carlspring
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = TestConfig.class)
+@ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 public class ProxyRepositoryProviderTestIT
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -115,7 +115,6 @@ public class ProxyRepositoryProviderTestIT
                                     "+g:org.carlspring.maven +a:derby-maven-plugin +v:1.10");
     }
 
-
     private boolean isRemoteRepositoryAvailabilityDetermined(String storageId,
                                                              String repositoryId)
             throws InterruptedException
@@ -124,8 +123,10 @@ public class ProxyRepositoryProviderTestIT
         Repository repository = configurationManager.getRepository(storageId, repositoryId);
         RemoteRepository remoteRepository = repository.getRemoteRepository();
 
-        return TestHelper.isOperationSuccessed(rr -> remoteRepositoryAlivenessCacheManager.wasPut(rr), remoteRepository,
-                                               30000, 1000);
+        return TestHelper.isOperationSuccessed(rr -> remoteRepositoryAlivenessCacheManager.wasPut(rr),
+                                               remoteRepository,
+                                               30000,
+                                               1000);
     }
 
     private void assertStreamNotNull(String storageId,
