@@ -1,14 +1,20 @@
 package org.carlspring.strongbox.rest.common;
 
+import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
 import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
-import org.carlspring.strongbox.testing.TestCaseWithRepository;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGeneration;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.users.domain.Roles;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
+import org.apache.maven.artifact.Artifact;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
@@ -26,8 +32,8 @@ import static org.junit.Assert.assertTrue;
  *
  * @author Alex Oreshkevich
  */
-public abstract class RestAssuredBaseTest
-        extends TestCaseWithRepository
+public abstract class MavenRestAssuredBaseTest
+        extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     public final static int DEFAULT_PORT = 48080;
@@ -54,8 +60,10 @@ public abstract class RestAssuredBaseTest
 
     private String contextBaseUrl;
 
+    private TestCaseWithMavenArtifactGeneration generator = new TestCaseWithMavenArtifactGeneration();
 
-    public RestAssuredBaseTest()
+
+    public MavenRestAssuredBaseTest()
     {
         // initialize host
         host = System.getProperty("strongbox.host");
@@ -90,7 +98,8 @@ public abstract class RestAssuredBaseTest
         // Security settings for tests:
         // By default all operations incl. deletion, etc. are allowed (be careful)!
         // Override #provideAuthorities, if you want be more specific.
-        anonymousAuthenticationFilter.getAuthorities().addAll(provideAuthorities());
+        anonymousAuthenticationFilter.getAuthorities()
+                                     .addAll(provideAuthorities());
 
         setContextBaseUrl(contextBaseUrl);
     }
@@ -166,6 +175,38 @@ public abstract class RestAssuredBaseTest
     protected void assertPathExists(String url)
     {
         assertTrue("Path " + url + " doesn't exist.", pathExists(url));
+    }
+
+    protected MavenArtifactDeployer buildArtifactDeployer(File file)
+    {
+        MavenArtifactDeployer artifactDeployer = new MavenArtifactDeployer(file.getAbsolutePath());
+        artifactDeployer.setClient(client);
+
+        return artifactDeployer;
+    }
+
+    public String createSnapshotVersion(String baseSnapshotVersion,
+                                        int buildNumber)
+    {
+        return generator.createSnapshotVersion(baseSnapshotVersion, buildNumber);
+    }
+
+    public Artifact createTimestampedSnapshotArtifact(String repositoryBasedir,
+                                                      String groupId,
+                                                      String artifactId,
+                                                      String baseSnapshotVersion,
+                                                      String packaging,
+                                                      String[] classifiers,
+                                                      int numberOfBuilds)
+            throws NoSuchAlgorithmException, XmlPullParserException, IOException
+    {
+        return generator.createTimestampedSnapshotArtifact(repositoryBasedir,
+                                                           groupId,
+                                                           artifactId,
+                                                           baseSnapshotVersion,
+                                                           packaging,
+                                                           classifiers,
+                                                           numberOfBuilds);
     }
 
 }

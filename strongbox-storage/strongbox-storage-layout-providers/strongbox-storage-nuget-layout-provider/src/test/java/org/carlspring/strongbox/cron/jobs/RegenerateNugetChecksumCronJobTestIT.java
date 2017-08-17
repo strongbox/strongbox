@@ -9,7 +9,6 @@ import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -72,9 +71,6 @@ public class RegenerateNugetChecksumCronJobTestIT
 
     @Inject
     protected StorageManagementService storageManagementService;
-
-    @Inject
-    protected RepositoryIndexManager repositoryIndexManager;
 
     @Inject
     private JobManager jobManager;
@@ -435,11 +431,6 @@ public class RegenerateNugetChecksumCronJobTestIT
         {
             configurationManagementService.removeRepository(repository.getStorage()
                                                                       .getId(), repository.getId());
-            if (repository.isIndexingEnabled())
-            {
-                repositoryIndexManager.closeIndexersForRepository(repository.getStorage()
-                                                                            .getId(), repository.getId());
-            }
         }
     }
 

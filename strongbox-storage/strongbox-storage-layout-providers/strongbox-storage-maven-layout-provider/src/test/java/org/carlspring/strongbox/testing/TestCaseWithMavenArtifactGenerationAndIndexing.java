@@ -15,9 +15,9 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
-import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.RuleSet;
@@ -152,12 +152,10 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
             throws IOException,
                    JAXBException
     {
-        configurationManagementService.saveRepository(repository.getStorage()
-                                                                .getId(), repository);
+        configurationManagementService.saveRepository(repository.getStorage().getId(), repository);
 
         // Create the repository
-        repositoryManagementService.createRepository(repository.getStorage()
-                                                               .getId(), repository.getId());
+        repositoryManagementService.createRepository(repository.getStorage().getId(), repository.getId());
     }
 
     public void createStorage(String storageId)
