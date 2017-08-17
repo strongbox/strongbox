@@ -93,7 +93,7 @@ public class MavenArtifactController
     {
         try
         {
-            getArtifactManagementService().store(storageId, repositoryId, path, request.getInputStream());
+            getArtifactManagementService().validateAndStore(storageId, repositoryId, path, request.getInputStream());
 
             return ResponseEntity.ok("The artifact was deployed successfully.");
         }

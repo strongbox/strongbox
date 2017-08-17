@@ -88,9 +88,9 @@ public class ArtifactOperationsValidator
     public void checkAllowsDeployment(Repository repository)
             throws ArtifactStorageException
     {
-        if (!repository.allowsDeployment() &&
-            !RepositoryTypeEnum.GROUP.getType().equals(repository.getType()) &&
-            !RepositoryTypeEnum.PROXY.getType().equals(repository.getType()))
+        if (!repository.allowsDeployment() ||
+            RepositoryTypeEnum.GROUP.getType().equals(repository.getType()) ||
+            RepositoryTypeEnum.PROXY.getType().equals(repository.getType()))
         {
             // It should not be possible to write artifacts to:
             // - a repository that doesn't allow the deployment of artifacts

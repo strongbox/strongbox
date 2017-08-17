@@ -464,7 +464,7 @@ public class NugetPackageController extends BaseArtifactController
                                         nupkgFile.getId(),
                                         nupkgFile.getVersion());
 
-            getArtifactManagementService().store(storageId, repositoryId, path, nupkgFile.getStream());
+            getArtifactManagementService().validateAndStore(storageId, repositoryId, path, nupkgFile.getStream());
 
             File nuspecFile = File.createTempFile(nupkgFile.getId(), "nuspec");
             try (FileOutputStream fileOutputStream = new FileOutputStream(nuspecFile))
@@ -473,7 +473,7 @@ public class NugetPackageController extends BaseArtifactController
             }
             path = String.format("%s/%s/%s.nuspec", nupkgFile.getId(), nupkgFile.getVersion(), nupkgFile.getId());
 
-            getArtifactManagementService().store(storageId, repositoryId, path, new FileInputStream(nuspecFile));
+            getArtifactManagementService().validateAndStore(storageId, repositoryId, path, new FileInputStream(nuspecFile));
 
             File hashFile = File.createTempFile(String.format("%s.%s", nupkgFile.getId(), nupkgFile.getVersion()),
                                                 "nupkg.sha512");
@@ -485,7 +485,7 @@ public class NugetPackageController extends BaseArtifactController
                                  nupkgFile.getId(),
                                  nupkgFile.getVersion());
 
-            getArtifactManagementService().store(storageId, repositoryId, path, new FileInputStream(hashFile));
+            getArtifactManagementService().validateAndStore(storageId, repositoryId, path, new FileInputStream(hashFile));
         }
 
         return new URI("");

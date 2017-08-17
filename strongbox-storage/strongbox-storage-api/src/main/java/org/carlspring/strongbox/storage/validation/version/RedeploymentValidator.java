@@ -5,7 +5,6 @@ import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -33,7 +32,7 @@ public class RedeploymentValidator
     {
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
 
-        if (RepositoryPolicyEnum.RELEASE.getPolicy().equals(repository.getPolicy()) &&
+        if (repository.acceptsReleases() &&
             (!repository.allowsRedeployment() && layoutProvider.containsArtifact(repository, coordinates)))
         {
             throw new VersionValidationException("The " + repository.getStorage().getId() + ":" +

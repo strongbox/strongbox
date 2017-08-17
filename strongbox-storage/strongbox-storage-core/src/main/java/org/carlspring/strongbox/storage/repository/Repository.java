@@ -317,12 +317,12 @@ public class Repository
 
     public boolean acceptsSnapshots()
     {
-        return RepositoryPolicyEnum.SNAPSHOT.toString().equals(getPolicy());
+        return RepositoryPolicyEnum.ofPolicy(getPolicy()).acceptsSnapshots();
     }
 
     public boolean acceptsReleases()
     {
-        return RepositoryPolicyEnum.RELEASE.toString().equals(getPolicy());
+        return RepositoryPolicyEnum.ofPolicy(getPolicy()).acceptsReleases();
     }
 
     public Storage getStorage()
