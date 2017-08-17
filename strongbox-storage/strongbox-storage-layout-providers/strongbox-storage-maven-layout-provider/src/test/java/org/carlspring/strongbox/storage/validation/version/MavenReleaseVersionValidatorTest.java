@@ -10,17 +10,18 @@ import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
  * @author stodorov
  */
-public class ReleaseVersionValidatorTest
+public class MavenReleaseVersionValidatorTest
 {
 
     Repository repository = new Repository();
 
-    ReleaseVersionValidator validator = new ReleaseVersionValidator();
+    MavenReleaseVersionValidator validator = new MavenReleaseVersionValidator();
 
 
     @Before
@@ -28,6 +29,13 @@ public class ReleaseVersionValidatorTest
             throws Exception
     {
         repository.setPolicy(RepositoryPolicyEnum.RELEASE.toString());
+    }
+
+    @Test
+    public void shouldSupportRepository()
+            throws VersionValidationException
+    {
+        assertTrue(validator.supports(repository));
     }
 
     @Test

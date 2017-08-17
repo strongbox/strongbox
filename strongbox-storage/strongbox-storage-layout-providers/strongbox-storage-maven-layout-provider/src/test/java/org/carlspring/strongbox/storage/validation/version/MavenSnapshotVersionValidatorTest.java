@@ -10,18 +10,19 @@ import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 
 /**
  * @author stodorov
  */
-public class SnapshotVersionValidatorTest
+public class MavenSnapshotVersionValidatorTest
 {
 
     Repository repository = new Repository();
 
-    SnapshotVersionValidator validator = new SnapshotVersionValidator();
+    MavenSnapshotVersionValidator validator = new MavenSnapshotVersionValidator();
 
 
     @Before
@@ -29,6 +30,13 @@ public class SnapshotVersionValidatorTest
             throws Exception
     {
         repository.setPolicy(RepositoryPolicyEnum.SNAPSHOT.toString());
+    }
+
+    @Test
+    public void shouldSupportRepository()
+            throws VersionValidationException
+    {
+        assertTrue(validator.supports(repository));
     }
 
     @Test

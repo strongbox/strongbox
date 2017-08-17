@@ -341,7 +341,9 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
                 final Set<VersionValidator> validators = versionValidatorService.getVersionValidators();
                 for (VersionValidator validator : validators)
                 {
-                    validator.validate(repository, coordinates);
+                    if (validator.supports(repository)) {
+                        validator.validate(repository, coordinates);
+                    }
                 }
             }
             catch (VersionValidationException e)
