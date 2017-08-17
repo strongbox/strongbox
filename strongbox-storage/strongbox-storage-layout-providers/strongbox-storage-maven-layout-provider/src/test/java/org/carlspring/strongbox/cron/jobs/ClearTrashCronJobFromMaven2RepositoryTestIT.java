@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.cron.jobs;
 
+import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.cron.config.JobManager;
-import org.carlspring.strongbox.cron.context.CronTaskTest;
+import org.carlspring.strongbox.cron.services.JobManager;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.*;
@@ -34,13 +35,13 @@ import static org.junit.Assert.*;
 /**
  * @author Kate Novik.
  */
-@CronTaskTest
+@ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @RunWith(SpringJUnit4ClassRunner.class)
-public class ClearRepositoryTrashCronJobTestIT
+public class ClearTrashCronJobFromMaven2RepositoryTestIT
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
-    private final Logger logger = LoggerFactory.getLogger(ClearRepositoryTrashCronJobTestIT.class);
+    private final Logger logger = LoggerFactory.getLogger(ClearTrashCronJobFromMaven2RepositoryTestIT.class);
 
     private static final String STORAGE1 = "storage1";
 

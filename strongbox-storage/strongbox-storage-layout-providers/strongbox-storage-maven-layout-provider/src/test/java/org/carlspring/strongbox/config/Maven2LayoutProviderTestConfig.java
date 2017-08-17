@@ -1,6 +1,4 @@
-package org.carlspring.strongbox;
-
-import org.carlspring.strongbox.config.*;
+package org.carlspring.strongbox.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -18,7 +16,7 @@ import org.springframework.context.annotation.Import;
           DataServiceConfig.class,
           TestingCoreConfig.class
 })
-public class TestConfig
+public class Maven2LayoutProviderTestConfig
 {
 
 }

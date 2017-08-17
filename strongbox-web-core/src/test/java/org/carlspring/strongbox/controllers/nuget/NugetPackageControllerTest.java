@@ -1,8 +1,15 @@
 package org.carlspring.strongbox.controllers.nuget;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.hamcrest.CoreMatchers.equalTo;
+import org.carlspring.strongbox.artifact.generator.NugetPackageGenerator;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.controllers.context.IntegrationTest;
+import org.carlspring.strongbox.data.PropertyUtils;
+import org.carlspring.strongbox.rest.common.NugetRestAssuredBaseTest;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -14,26 +21,17 @@ import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import javax.xml.bind.JAXBException;
-
+import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
+import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.carlspring.strongbox.artifact.generator.NugetPackageGenerator;
-import org.carlspring.strongbox.controllers.context.IntegrationTest;
-import org.carlspring.strongbox.data.PropertyUtils;
-import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import com.google.common.base.Throwables;
-
-import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
-import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import ru.aristar.jnuget.files.NugetFormatException;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.hamcrest.CoreMatchers.equalTo;
 
 /**
  * @author Sergey Bespalov
@@ -41,7 +39,7 @@ import ru.aristar.jnuget.files.NugetFormatException;
  */
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
-public class NugetPackageControllerTest extends RestAssuredBaseTest
+public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
 {
 
     private static final String API_KEY = "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJTdHJvbmdib3giLCJqdGkiOiJ0SExSbWU4eFJOSnJjNXVXdTVkZDhRIiwic3ViIjoiYWRtaW4iLCJzZWN1cml0eS10b2tlbi1rZXkiOiJhZG1pbi1zZWNyZXQifQ.xRWxXt5yob5qcHjsvV1YsyfY3C-XFt9oKPABY0tYx88";
@@ -49,6 +47,10 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
     private final static String STORAGE_ID = "storage-nuget-test";
 
     private static final String REPOSITORY_RELEASES_1 = "nuget-releases-1";
+
+    @Inject
+    private ConfigurationManager configurationManager;
+
 
     @BeforeClass
     public static void cleanUp()
@@ -74,7 +76,7 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
         RestAssuredMockMvcConfig config = RestAssuredMockMvcConfig.config();
         config.getLogConfig().enableLoggingOfRequestAndResponseIfValidationFails();
         given().config(config);
-        
+
         createStorage(STORAGE_ID);
 
         Repository repository1 = new Repository(REPOSITORY_RELEASES_1);
@@ -89,15 +91,6 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
     @Override
     public void shutdown()
     {
-        try
-        {
-            getRepositoryIndexManager().closeIndexersForRepository(STORAGE_ID, REPOSITORY_RELEASES_1);
-        }
-        catch (IOException e)
-        {
-            throw Throwables.propagate(e);
-        }
-
         super.shutdown();
     }
 
@@ -151,7 +144,7 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
                .then()
                .statusCode(HttpStatus.CREATED.value());
 
-        
+
         // We need to mute `System.out` here manually because response body logging hardcoded in current version of
         // RestAssured, and we can not change it using configuration (@see `RestAssuredResponseOptionsGroovyImpl.peek(...)`).
         PrintStream originalSysOut = muteSystemOutput();
@@ -176,7 +169,7 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
 
     /**
      * Mute the system output to avoid malicious logging (binary content for example).
-     * 
+     *
      * @return
      */
     private PrintStream muteSystemOutput()
@@ -189,7 +182,7 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
                 //DO NOTHING
             }
         }));
-        
+
         return original;
     }
 
@@ -202,7 +195,7 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
         String packageId = "Org.Carlspring.Strongbox.Nuget.Test.Search";
         String packageVersion = "1.0.0";
         byte[] packageContent = readPackageContent(generatePackageFile(basedir, packageId, packageVersion));
-        
+
         // Push
         createPushRequest(packageContent).when()
                                          .put(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" +
@@ -245,15 +238,14 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
         ByteArrayOutputStream contentStream = new ByteArrayOutputStream();
 
         MultipartEntityBuilder.create()
-                              .addBinaryBody("package",
-                                             Files.newInputStream(packageFilePath))
+                              .addBinaryBody("package", Files.newInputStream(packageFilePath))
                               .setBoundary("---------------------------123qwe")
                               .build()
                               .writeTo(contentStream);
         contentStream.flush();
-        
+
         byte[] packageContent = contentStream.toByteArray();
-        
+
         return packageContent;
     }
 
@@ -273,7 +265,7 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
         Path packageFilePath = Paths.get(basedir).resolve(packageVersion).resolve(packageFileName);
         return packageFilePath;
     }
-    
+
     public MockMvcRequestSpecification createPushRequest(byte[] packageContent)
     {
         return given().header("User-Agent", "NuGet/*")
@@ -281,5 +273,5 @@ public class NugetPackageControllerTest extends RestAssuredBaseTest
                       .header("Content-Type", "multipart/form-data; boundary=---------------------------123qwe")
                       .body(packageContent);
     }
-    
+
 }

@@ -1,4 +1,6 @@
-package org.carlspring.strongbox.cron.config;
+package org.carlspring.strongbox.cron.services;
+
+import org.carlspring.strongbox.cron.config.JobExecutionListener;
 
 import java.util.Map;
 import java.util.Optional;

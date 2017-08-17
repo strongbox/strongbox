@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.cron.config.JobManager;
+import org.carlspring.strongbox.cron.services.JobManager;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
@@ -41,7 +41,7 @@ public class DownloadRemoteMavenIndexCronJob
     public void executeTask(JobExecutionContext jobExecutionContext)
             throws JobExecutionException
     {
-        logger.debug("Executed DownloadRemoteIndexCronJob.");
+        logger.debug("Executing DownloadRemoteIndexCronJob.");
 
         CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap().get("config");
 
@@ -64,6 +64,8 @@ public class DownloadRemoteMavenIndexCronJob
 
             manager.addExecutedJob(config.getName(), true);
         }
+
+        logger.debug("Executed DownloadRemoteIndexCronJob.");
 
         manager.addExecutedJob(config.getName(), true);
     }

@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.cron.quartz;
+package org.carlspring.strongbox.cron.domain;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;

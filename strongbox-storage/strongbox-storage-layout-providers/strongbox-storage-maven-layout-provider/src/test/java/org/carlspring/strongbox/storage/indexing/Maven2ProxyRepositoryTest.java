@@ -1,8 +1,7 @@
 package org.carlspring.strongbox.storage.indexing;
 
-import org.carlspring.strongbox.TestConfig;
+import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.config.MockedIndexResourceFetcherConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -27,7 +26,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author carlspring
  */
-@ContextConfiguration(classes = TestConfig.class)
+@ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 public class Maven2ProxyRepositoryTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
@@ -85,7 +84,7 @@ public class Maven2ProxyRepositoryTest
     {
         MavenRepositoryFeatures features = (MavenRepositoryFeatures) getFeatures(STORAGE0, REPOSITORY_RELEASES);
 
-        // Make sure the repositoryReleases that is being proxied has a packed index to serve:
+        // Make sure the repository that is being proxied has a packed index to serve:
         features.pack(STORAGE0, REPOSITORY_RELEASES);
 
         Repository repositoryReleases = configurationManager.getRepository(STORAGE0, REPOSITORY_RELEASES);
@@ -103,7 +102,7 @@ public class Maven2ProxyRepositoryTest
         File indexPropertiesUpdaterFile = new File(repositoryProxiedReleases.getBasedir(),
                                                    ".index/remote/nexus-maven-repository-index-updater.properties");
 
-        assertTrue("Failed to retrieve nexus-maven-repositoryReleases-index-updater.properties from the remote!",
+        assertTrue("Failed to retrieve nexus-maven-repository-index-updater.properties from the remote!",
                    indexPropertiesUpdaterFile.exists());
     }
 

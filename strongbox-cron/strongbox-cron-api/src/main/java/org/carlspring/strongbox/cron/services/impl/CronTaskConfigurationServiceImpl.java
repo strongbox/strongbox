@@ -4,10 +4,11 @@ import org.carlspring.strongbox.cron.jobs.AbstractCronJob;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.exceptions.CronTaskException;
 import org.carlspring.strongbox.cron.exceptions.CronTaskNotFoundException;
-import org.carlspring.strongbox.cron.quartz.CronJobSchedulerService;
-import org.carlspring.strongbox.cron.quartz.GroovyScriptNames;
+import org.carlspring.strongbox.cron.domain.GroovyScriptNames;
+import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.cron.services.CronTaskDataService;
+import org.carlspring.strongbox.event.cron.CronTaskEventListenerRegistry;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -27,6 +28,9 @@ class CronTaskConfigurationServiceImpl
 {
 
     private final Logger logger = LoggerFactory.getLogger(CronTaskConfigurationServiceImpl.class);
+
+    @Inject
+    protected CronTaskEventListenerRegistry cronTaskEventListenerRegistry;
 
     @Inject
     private CronTaskDataService cronTaskDataService;
@@ -65,6 +69,8 @@ class CronTaskConfigurationServiceImpl
 
             cronJobSchedulerService.scheduleJob(cronTaskConfiguration);
         }
+
+        cronTaskEventListenerRegistry.dispatchCronTaskCreatedEvent(cronTaskConfiguration.getName());
     }
 
     public void deleteConfiguration(CronTaskConfiguration cronTaskConfiguration)
@@ -76,6 +82,8 @@ class CronTaskConfigurationServiceImpl
 
         cronTaskDataService.delete(cronTaskConfiguration);
         cronJobSchedulerService.deleteJob(cronTaskConfiguration);
+
+        cronTaskEventListenerRegistry.dispatchCronTaskDeletedEvent(cronTaskConfiguration.getName());
     }
 
     public List<CronTaskConfiguration> getConfiguration(String name)

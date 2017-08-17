@@ -11,7 +11,7 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.controllers.context.IntegrationTest;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -56,14 +56,19 @@ import static org.junit.Assert.*;
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
 public class MavenArtifactControllerTest
-        extends RestAssuredBaseTest
+        extends MavenRestAssuredBaseTest
 {
 
     private static final String TEST_RESOURCES = "target/test-resources";
+
     private static final String REPOSITORY_RELEASES1 = "act-releases-1";
+
     private static final String REPOSITORY_RELEASES2 = "act-releases-2";
+
     private static final String REPOSITORY_SNAPSHOTS = "act-snapshots";
+
     private static File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/local");
+
     @Inject
     private ConfigurationManager configurationManager;
 

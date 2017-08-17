@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.List;
 
 import org.apache.maven.index.context.DefaultIndexingContext;
-import org.apache.maven.index.context.ExistingLuceneIndexMismatchException;
 import org.apache.maven.index.context.IndexCreator;
 
 public class StrongboxIndexingContext
@@ -20,9 +19,15 @@ public class StrongboxIndexingContext
                                     String indexUpdateUrl,
                                     List<? extends IndexCreator> indexCreators,
                                     boolean reclaimIndex)
-            throws IOException, ExistingLuceneIndexMismatchException
+            throws IOException
     {
-        super(id, repositoryId, repository, indexDirectoryFile, repositoryUrl, indexUpdateUrl, indexCreators,
+        super(id,
+              repositoryId,
+              repository,
+              indexDirectoryFile,
+              repositoryUrl,
+              indexUpdateUrl,
+              indexCreators,
               reclaimIndex);
     }
 
@@ -34,6 +39,7 @@ public class StrongboxIndexingContext
         {
             return;
         }
+
         super.setIndexDirectoryFile(dir);
     }
 

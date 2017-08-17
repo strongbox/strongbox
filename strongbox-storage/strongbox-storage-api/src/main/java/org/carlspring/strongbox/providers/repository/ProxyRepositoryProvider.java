@@ -87,7 +87,7 @@ public class ProxyRepositoryProvider
         RepositoryPath reposytoryPath = layoutProvider.resolve(repository);
         RepositoryPath artifactPath = reposytoryPath.resolve(path);
 
-        RepositoryFileSystemProvider fileSystemProvider = (RepositoryFileSystemProvider) artifactPath.getFileSystem()
+        RepositoryFileSystemProvider fileSystemProvider = artifactPath.getFileSystem()
                                                                                                      .provider();
 
         logger.debug(" -> Checking for " + artifactPath + "...");
@@ -108,7 +108,8 @@ public class ProxyRepositoryProvider
 
             if (!remoteRepositoryAlivenessCacheManager.isAlive(remoteRepository))
             {
-                logger.debug("RemoteRepository {} is not alive" + remoteRepository);
+                logger.debug("Remote repository '" + remoteRepository.getUrl() + "' is down.");
+
                 return null;
             }
 
@@ -117,8 +118,8 @@ public class ProxyRepositoryProvider
             client.setUsername(remoteRepository.getUsername());
             client.setPassword(remoteRepository.getPassword());
 
-            try (final CloseableProxyRepositoryResponse closeableProxyRepositoryResponse = new CloseableProxyRepositoryResponse(client.getResourceWithResponse(
-                    path)))
+            try (final CloseableProxyRepositoryResponse closeableProxyRepositoryResponse =
+                         new CloseableProxyRepositoryResponse(client.getResourceWithResponse(path)))
             {
                 final Response response = closeableProxyRepositoryResponse.response;
 
