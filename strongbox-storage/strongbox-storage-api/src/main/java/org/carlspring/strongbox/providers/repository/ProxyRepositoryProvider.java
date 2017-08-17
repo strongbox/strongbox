@@ -22,7 +22,6 @@ import javax.ws.rs.core.Response;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 
@@ -137,8 +136,7 @@ public class ProxyRepositoryProvider
 
                 RepositoryPath tempArtifact = fileSystemProvider.getTempPath(artifactPath);
                 try (// Wrap the InputStream, so we could have checksums to compare
-                     InputStream remoteIs = new MultipleDigestInputStream(is);
-                     OutputStream os = Files.newOutputStream(tempArtifact))
+                     InputStream remoteIs = new MultipleDigestInputStream(is))
                 {
                     layoutProvider.getArtifactManagementService().store(tempArtifact, remoteIs);
 
@@ -148,6 +146,7 @@ public class ProxyRepositoryProvider
 
                     // Serve the downloaded artifact
                     RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(path);
+
                     return (ArtifactInputStream) Files.newInputStream(repositoryPath);
                 }
             }

@@ -32,6 +32,7 @@ import com.google.common.base.Throwables;
 import io.restassured.response.ExtractableResponse;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.artifact.PluginArtifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -834,11 +835,26 @@ public class MavenArtifactControllerTest
     }
 
     @Test
-    public void testThatMavenProxyRepoDoesNotBlockTheConnectionPool()
+    public void shouldDownloadProxiedSnapshotArtifactFromGroup()
             throws Exception
     {
+        if (!isRemoteRepositoryAvailabilityDetermined("storage-common-proxies", "carlspring"))
+        {
+            logger.debug("Remote repository carlspring availability was not determined");
+            return;
+        }
+
+        ArtifactSnapshotVersion commonsHttpSnapshot = getCommonsHttpArtifactSnapshotVersionFromCarlspringRemote();
+
+        if (commonsHttpSnapshot == null)
+        {
+            logger.debug("commonsHttpSnapshot was not found");
+            return;
+        }
+
         String url = getContextBaseUrl() +
-                     "/storages/public/public-group/org/carlspring/commons/commons-http/1.0-SNAPSHOT/commons-http-1.0-20170517.232121-7.jar";
+                     "/storages/public/public-group/org/carlspring/commons/commons-http/" +
+                     commonsHttpSnapshot.version + "/commons-http-" + commonsHttpSnapshot.timestampedVersion + ".jar";
 
         given().header("user-agent", "Maven/*")
                .contentType(MediaType.TEXT_PLAIN_VALUE)
@@ -846,7 +862,32 @@ public class MavenArtifactControllerTest
                .get(url)
                .peek()
                .then()
-               .statusCode(HttpStatus.NOT_FOUND.value());
+               .statusCode(HttpStatus.OK.value());
+    }
+
+    @Test
+    public void shouldDownloadProxiedSnapshotArtifactFromRemote()
+            throws Exception
+    {
+
+        if (!isRemoteRepositoryAvailabilityDetermined("storage-common-proxies", "carlspring"))
+        {
+            logger.debug("Remote repository carlspring availability was not determined");
+            return;
+        }
+
+        ArtifactSnapshotVersion commonsHttpSnapshot = getCommonsHttpArtifactSnapshotVersionFromCarlspringRemote();
+
+        if (commonsHttpSnapshot == null)
+        {
+            logger.debug("commonsHttpSnapshot was not found");
+            return;
+        }
+
+        String url = getContextBaseUrl() +
+                     "/storages/storage-common-proxies/carlspring/org/carlspring/commons/commons-http/" +
+                     commonsHttpSnapshot.version +
+                     "/commons-http-" + commonsHttpSnapshot.timestampedVersion + ".jar";
 
         given().header("user-agent", "Maven/*")
                .contentType(MediaType.TEXT_PLAIN_VALUE)
@@ -854,7 +895,51 @@ public class MavenArtifactControllerTest
                .get(url)
                .peek()
                .then()
-               .statusCode(HttpStatus.NOT_FOUND.value());
+               .statusCode(HttpStatus.OK.value());
+    }
+
+    private ArtifactSnapshotVersion getCommonsHttpArtifactSnapshotVersionFromCarlspringRemote()
+            throws Exception
+    {
+
+        Metadata libraryMetadata = client.retrieveMetadata(
+                "/storages/storage-common-proxies/carlspring/org/carlspring/commons/commons-http/maven-metadata.xml");
+
+        if (libraryMetadata == null)
+        {
+            logger.debug("libraryMetadata not found");
+            return null;
+        }
+
+        String commonsHttpSnapshotVersion = libraryMetadata.getVersioning().getVersions().stream().filter(
+                v -> v.endsWith("SNAPSHOT")).findFirst().orElse(null);
+
+        if (commonsHttpSnapshotVersion == null)
+        {
+            logger.debug("commonsHttpSnapshotVersion not found");
+            return null;
+        }
+
+        Metadata artifactMetadata = client.retrieveMetadata(
+                "/storages/storage-common-proxies/carlspring/org/carlspring/commons/commons-http/" +
+                commonsHttpSnapshotVersion + "/maven-metadata.xml");
+
+        if (artifactMetadata == null)
+        {
+            logger.debug("artifactMetadata not found");
+            return null;
+        }
+
+        SnapshotVersion snapshotVersion = artifactMetadata.getVersioning().getSnapshotVersions().stream().findFirst().orElse(
+                null);
+
+        if (snapshotVersion == null)
+        {
+            logger.debug("snapshotVersion not found");
+            return null;
+        }
+
+        return new ArtifactSnapshotVersion(commonsHttpSnapshotVersion, snapshotVersion.getVersion());
     }
 
     private boolean isRemoteRepositoryAvailabilityDetermined(String storageId,
@@ -867,5 +952,21 @@ public class MavenArtifactControllerTest
 
         return TestHelper.isOperationSuccessed(rr -> remoteRepositoryAlivenessCacheManager.wasPut(rr), remoteRepository,
                                                30000, 1000);
+    }
+
+    private static class ArtifactSnapshotVersion
+    {
+
+        private final String version;
+
+        private final String timestampedVersion;
+
+
+        private ArtifactSnapshotVersion(String version,
+                                        String timestampedVersion)
+        {
+            this.version = version;
+            this.timestampedVersion = timestampedVersion;
+        }
     }
 }
