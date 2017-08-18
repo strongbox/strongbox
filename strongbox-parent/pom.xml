@@ -273,6 +273,11 @@
                         <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.codehaus.gmavenplus</groupId>
+                    <artifactId>gmavenplus-plugin</artifactId>
+                    <version>1.5</version>
+                </plugin>                
             </plugins>
         </pluginManagement>
         <plugins>
