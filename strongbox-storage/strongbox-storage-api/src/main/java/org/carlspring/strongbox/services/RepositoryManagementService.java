@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.services;
 
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.storage.Storage;
 
 import java.io.IOException;
@@ -13,7 +14,7 @@ public interface RepositoryManagementService
 
     void createRepository(String storageId,
                           String repositoryId)
-            throws IOException;
+            throws IOException, RepositoryManagementStrategyException;
 
     void removeRepository(String storageId,
                           String repositoryId)

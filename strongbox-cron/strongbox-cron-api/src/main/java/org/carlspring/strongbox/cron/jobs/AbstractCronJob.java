@@ -33,8 +33,6 @@ public abstract class AbstractCronJob
 
     private CronTask cronTask;
 
-    private boolean oneTimeExecution;
-
     private String status = CronJobStatusEnum.SLEEPING.getStatus();
 
 
@@ -53,7 +51,7 @@ public abstract class AbstractCronJob
         cronTaskEventListenerRegistry.dispatchCronTaskExecutedEvent(configuration.getName());
         setStatus(CronJobStatusEnum.SLEEPING.getStatus());
 
-        if (isOneTimeExecution())
+        if (configuration.isOneTimeExecution())
         {
             try
             {
@@ -100,16 +98,6 @@ public abstract class AbstractCronJob
     public void setCronTask(CronTask cronTask)
     {
         this.cronTask = cronTask;
-    }
-
-    public boolean isOneTimeExecution()
-    {
-        return oneTimeExecution;
-    }
-
-    public void setOneTimeExecution(boolean oneTimeExecution)
-    {
-        this.oneTimeExecution = oneTimeExecution;
     }
 
     public String getStatus()

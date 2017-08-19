@@ -68,6 +68,11 @@ class CronTaskConfigurationServiceImpl
             }
 
             cronJobSchedulerService.scheduleJob(cronTaskConfiguration);
+
+            if (cronTaskConfiguration.shouldExecuteImmediately())
+            {
+                cronJobSchedulerService.executeJob(cronTaskConfiguration);
+            }
         }
 
         cronTaskEventListenerRegistry.dispatchCronTaskCreatedEvent(cronTaskConfiguration.getName());

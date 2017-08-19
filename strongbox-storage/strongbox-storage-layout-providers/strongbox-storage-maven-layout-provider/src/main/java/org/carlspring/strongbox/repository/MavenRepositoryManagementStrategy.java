@@ -5,6 +5,7 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.exceptions.CronTaskException;
 import org.carlspring.strongbox.cron.jobs.DownloadRemoteMavenIndexCronJob;
+import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
@@ -49,6 +50,9 @@ public class MavenRepositoryManagementStrategy
     @Inject
     private CronTaskConfigurationService cronTaskConfigurationService;
 
+    @Inject
+    private CronJobSchedulerService cronJobSchedulerService;
+
 
     @Override
     public void createRepository(String storageId,
@@ -83,19 +87,19 @@ public class MavenRepositoryManagementStrategy
                                                      String repositoryId)
             throws RepositoryManagementStrategyException
     {
-        CronTaskConfiguration cronTaskConfiguration = new CronTaskConfiguration();
-        cronTaskConfiguration.setName("Remote index download for " + storageId + ":" + repositoryId);
-        cronTaskConfiguration.addProperty("jobClass", DownloadRemoteMavenIndexCronJob.class.getName());
-        cronTaskConfiguration.addProperty("cronExpression", "0 0 0 * * ?"); // Execute once daily at 00:00:00
-        cronTaskConfiguration.addProperty("storageId", storageId);
-        cronTaskConfiguration.addProperty("repositoryId", repositoryId);
+        CronTaskConfiguration configuration = new CronTaskConfiguration();
+        configuration.setName("Remote index download for " + storageId + ":" + repositoryId);
+        configuration.addProperty("jobClass", DownloadRemoteMavenIndexCronJob.class.getName());
+        configuration.addProperty("cronExpression", "0 0 0 * * ?"); // Execute once daily at 00:00:00
+        configuration.addProperty("storageId", storageId);
+        configuration.addProperty("repositoryId", repositoryId);
 
         try
         {
-            cronTaskConfigurationService.saveConfiguration(cronTaskConfiguration);
+            cronTaskConfigurationService.saveConfiguration(configuration);
 
             // Run the scheduled task once, immediately, so that the remote's index would become available
-            // TODO:
+            cronJobSchedulerService.executeJob(configuration);
         }
         catch (ClassNotFoundException |
                SchedulerException |
