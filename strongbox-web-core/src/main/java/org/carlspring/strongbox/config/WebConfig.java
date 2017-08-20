@@ -99,6 +99,7 @@ public class WebConfig
                                      "org.carlspring.strongbox.artifact.coordinates",
                                      "org.carlspring.strongbox.authentication.registry",
                                      "org.carlspring.strongbox.authentication.support",
+                                     "org.carlspring.strongbox.cron.domain",
                                      "org.carlspring.strongbox.configuration",
                                      "org.carlspring.strongbox.controllers",
                                      //TODO: resolve @XmlRootElement(name = "repository") conflict with  org.carlspring.strongbox.storage.repository.Repository
