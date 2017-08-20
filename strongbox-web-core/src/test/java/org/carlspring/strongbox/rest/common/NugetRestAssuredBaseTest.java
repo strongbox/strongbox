@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.rest.common;
 
+import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
@@ -199,8 +200,7 @@ public abstract class NugetRestAssuredBaseTest
     }
 
     public void createRepository(Repository repository)
-            throws IOException,
-                   JAXBException
+            throws IOException, JAXBException, RepositoryManagementStrategyException
     {
         configurationManagementService.saveRepository(repository.getStorage().getId(), repository);
 

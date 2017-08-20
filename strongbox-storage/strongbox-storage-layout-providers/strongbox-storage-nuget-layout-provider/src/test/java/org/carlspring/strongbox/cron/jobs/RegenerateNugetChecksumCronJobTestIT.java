@@ -4,6 +4,7 @@ import org.carlspring.strongbox.config.NugetLayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.cron.services.JobManager;
+import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
@@ -364,7 +365,9 @@ public class RegenerateNugetChecksumCronJobTestIT
                                   String repositoryId,
                                   String policy,
                                   boolean indexing)
-            throws IOException, JAXBException
+            throws IOException,
+                   JAXBException,
+                   RepositoryManagementStrategyException
     {
         Repository repository = new Repository(repositoryId);
         repository.setIndexingEnabled(indexing);
@@ -377,7 +380,8 @@ public class RegenerateNugetChecksumCronJobTestIT
 
     private void createRepository(Repository repository)
             throws IOException,
-                   JAXBException
+                   JAXBException,
+                   RepositoryManagementStrategyException
     {
         configurationManagementService.saveRepository(repository.getStorage().getId(), repository);
 

@@ -8,6 +8,7 @@ import org.carlspring.strongbox.event.repository.RepositoryEventTypeEnum;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
@@ -49,7 +50,7 @@ public class RepositoryManagementServiceImpl
     @Override
     public void createRepository(String storageId,
                                  String repositoryId)
-            throws IOException
+            throws IOException, RepositoryManagementStrategyException
     {
         LayoutProvider provider = getLayoutProvider(storageId, repositoryId);
         if (provider != null)

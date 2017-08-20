@@ -6,6 +6,7 @@ import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
+import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
@@ -88,7 +89,8 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
             throws IOException,
                    JAXBException,
                    NoSuchAlgorithmException,
-                   XmlPullParserException
+                   XmlPullParserException,
+                   RepositoryManagementStrategyException
     {
         createRepository(repository);
         generateArtifactsReIndexAndPack(repository.getStorage().getId(), repository.getId(), ga, versions);
@@ -102,7 +104,8 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
             throws IOException,
                    JAXBException,
                    NoSuchAlgorithmException,
-                   XmlPullParserException
+                   XmlPullParserException,
+                   RepositoryManagementStrategyException
     {
         createRepository(storageId, repositoryId, indexing);
         generateArtifactsReIndexAndPack(storageId, repositoryId, ga, versions);
@@ -111,7 +114,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
     protected void createRepository(String storageId,
                                     String repositoryId,
                                     boolean indexing)
-            throws IOException, JAXBException
+            throws IOException, JAXBException, RepositoryManagementStrategyException
     {
         createRepository(storageId, repositoryId, RepositoryPolicyEnum.RELEASE.getPolicy(), indexing);
     }
@@ -121,7 +124,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                                     String repositoryId,
                                     String policy,
                                     boolean indexing)
-            throws IOException, JAXBException
+            throws IOException, JAXBException, RepositoryManagementStrategyException
     {
         Repository repository = new Repository(repositoryId);
         repository.setIndexingEnabled(indexing);
@@ -134,7 +137,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
     protected void createProxyRepository(String storageId,
                                          String repositoryId,
                                          String remoteRepositoryUrl)
-            throws IOException, JAXBException
+            throws IOException, JAXBException, RepositoryManagementStrategyException
     {
         RemoteRepository remoteRepository = new RemoteRepository();
         remoteRepository.setUrl(remoteRepositoryUrl);
@@ -149,7 +152,8 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
 
     public void createRepository(Repository repository)
             throws IOException,
-                   JAXBException
+                   JAXBException,
+                   RepositoryManagementStrategyException
     {
         configurationManagementService.saveRepository(repository.getStorage().getId(), repository);
 

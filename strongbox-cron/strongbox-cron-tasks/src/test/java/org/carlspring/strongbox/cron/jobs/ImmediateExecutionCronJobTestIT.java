@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
  */
 @CronTaskTest
 @RunWith(SpringJUnit4ClassRunner.class)
-public class OneTimeExecutionCronJobTestIT
+public class ImmediateExecutionCronJobTestIT
         extends BaseCronTestCase
 {
 
@@ -47,29 +47,34 @@ public class OneTimeExecutionCronJobTestIT
         cronTaskEventListenerRegistry.removeListener(this);
     }
 
-    public void addOneTimeExecutionCronJobConfig(String name)
+    public void addImmediateExecutionCronJobConfig(String name)
             throws Exception
     {
         CronTaskConfiguration configuration = new CronTaskConfiguration();
         configuration.setName(name);
+        configuration.addProperty("jobClass", ImmediateExecutionCronJob.class.getName());
         configuration.addProperty("cronExpression", "0 0/1 * 1/1 * ? *");
-        configuration.addProperty("jobClass", OneTimeExecutionCronJob.class.getName());
-        configuration.setOneTimeExecution(true);
         configuration.setImmediateExecution(true);
 
         addCronJobConfig(configuration);
     }
 
     @Test
-    public void testOneTimeExecutionCronJob()
+    public void testImmediateExecutionCronJob()
             throws Exception
     {
-        String jobName = "OneTimeExecutionCronTest";
+        String jobName = "ImmediateExecution";
 
-        addOneTimeExecutionCronJobConfig(jobName);
+        // Checking if job was executed
+        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
+        {
+            assertTrue(jobName1.equals(jobName) && statusExecuted);
+        });
+
+        addImmediateExecutionCronJobConfig(jobName);
 
         assertTrue("Failed to execute task within a reasonable time!",
-                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType(), 10000, 500));
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
 }

@@ -146,6 +146,7 @@ public class ProxyRepositoryProvider
 
                     // Serve the downloaded artifact
                     RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(path);
+
                     return (ArtifactInputStream) Files.newInputStream(repositoryPath);
                 }
             }

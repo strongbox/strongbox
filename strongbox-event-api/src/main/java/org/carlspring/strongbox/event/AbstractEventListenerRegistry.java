@@ -25,6 +25,11 @@ public abstract class AbstractEventListenerRegistry<T extends Event>
         eventListeners.add(listener);
     }
 
+    public boolean removeListener(EventListener listener)
+    {
+        return eventListeners.remove(listener);
+    }
+
     public List<EventListener> getEventListeners()
     {
         return eventListeners;
