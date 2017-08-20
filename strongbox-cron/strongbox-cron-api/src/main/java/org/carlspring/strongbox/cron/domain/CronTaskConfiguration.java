@@ -13,7 +13,7 @@ import java.util.Map;
  * @author Yougeshwar
  */
 @XmlRootElement
-@XmlAccessorType(XmlAccessType.FIELD)
+@XmlAccessorType(XmlAccessType.NONE)
 public class CronTaskConfiguration
         extends GenericEntity
 {

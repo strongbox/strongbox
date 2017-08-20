@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 public class CustomObjectMapper
         extends ObjectMapper
 {
+
     @PostConstruct
     public void postConstruct()
     {
