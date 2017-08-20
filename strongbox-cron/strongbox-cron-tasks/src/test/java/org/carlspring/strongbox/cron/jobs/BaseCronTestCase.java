@@ -8,10 +8,10 @@ import org.carlspring.strongbox.event.cron.CronTaskEventListener;
 import org.carlspring.strongbox.event.cron.CronTaskEventListenerRegistry;
 
 import javax.inject.Inject;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
@@ -21,6 +21,8 @@ import static org.junit.Assert.assertNull;
 public class BaseCronTestCase
         implements CronTaskEventListener
 {
+
+    private final Logger logger = LoggerFactory.getLogger(BaseCronTestCase.class);
 
     public static final long CRON_TASK_MAX_WAIT = 15000L;
 
@@ -35,10 +37,7 @@ public class BaseCronTestCase
     @Inject
     protected CronTaskConfigurationService cronTaskConfigurationService;
 
-    /**
-     * A map containing the cron task configurations used by this test.
-     */
-    protected Map<String, CronTaskConfiguration> cronTaskConfigurations = new LinkedHashMap<>();
+    protected String expectedCronTaskName;
 
     protected int expectedEventType;
 
@@ -47,29 +46,16 @@ public class BaseCronTestCase
     protected boolean receivedExpectedEvent = false;
 
 
-    public CronTaskConfiguration addCronJobConfig(String name,
-                                                  String className,
-                                                  Map<String, String> properties)
+    public CronTaskConfiguration addCronJobConfig(CronTaskConfiguration cronTaskConfiguration)
             throws Exception
     {
-        CronTaskConfiguration cronTaskConfiguration = new CronTaskConfiguration();
-        cronTaskConfiguration.setName(name);
-        cronTaskConfiguration.addProperty("jobClass", className);
-
-        for (String propertyKey : properties.keySet())
-        {
-            cronTaskConfiguration.addProperty(propertyKey, properties.get(propertyKey));
-        }
-
         cronTaskConfigurationService.saveConfiguration(cronTaskConfiguration);
 
-        CronTaskConfiguration configuration = cronTaskConfigurationService.findOne(name);
+        CronTaskConfiguration configuration = cronTaskConfigurationService.findOne(cronTaskConfiguration.getName());
 
         assertNotNull("Failed to save cron configuration!", configuration);
 
-        addCronTaskConfiguration(name, configuration);
-
-        return cronTaskConfiguration;
+        return configuration;
     }
 
     public void deleteCronJobConfig(String name)
@@ -82,9 +68,7 @@ public class BaseCronTestCase
 
             cronTaskConfigurationService.deleteConfiguration(configuration);
 
-            removeCronTaskConfiguration(name);
-
-            System.out.println("Cron task '" + name + "' removed.");
+            logger.debug("Cron task '" + name + "' removed.");
         }
 
         assertNull(cronTaskConfigurationService.findOne(name));
@@ -93,19 +77,22 @@ public class BaseCronTestCase
     @Override
     public void handle(CronTaskEvent event)
     {
-        if (event.getType() == event.getType())
+        logger.debug("Received event type " + event.getType() + " for " + event.getName());
+
+        if (event.getType() == expectedEventType &&
+            (event.getName() != null && event.getName().equals(expectedCronTaskName)))
         {
             receivedExpectedEvent = true;
             receivedEvent = event;
 
-            System.out.println("Received expected event: " + expectedEventType);
+            logger.debug("Received expected event: " + expectedEventType);
         }
     }
 
-    public boolean expectEvent(int expectedEventType)
+    public boolean expectEvent(String cronTaskName, int expectedEventType)
             throws InterruptedException
     {
-        return expectEvent(expectedEventType, 0, CRON_TASK_CHECK_INTERVAL);
+        return expectEvent(cronTaskName, expectedEventType, 0, CRON_TASK_CHECK_INTERVAL);
     }
 
     /**
@@ -115,12 +102,16 @@ public class BaseCronTestCase
      * @param maxWaitTime       The maximum wait time (in milliseconds)
      * @param checkInterval     The interval (in milliseconds) at which to check for the occurrence of the event
      */
-    public boolean expectEvent(int expectedEventType,
+    public boolean expectEvent(String expectedCronTaskName,
+                               int expectedEventType,
                                long maxWaitTime,
                                long checkInterval)
             throws InterruptedException
     {
+        this.expectedCronTaskName = expectedCronTaskName;
         this.expectedEventType = expectedEventType;
+
+        logger.debug("Expecting event type " + expectedEventType + " for '" + expectedCronTaskName + "'...");
 
         int totalWait = 0;
         while (!receivedExpectedEvent &&
@@ -132,22 +123,6 @@ public class BaseCronTestCase
         }
 
         return receivedExpectedEvent;
-    }
-
-    public CronTaskConfiguration getCronTaskConfiguration(String key)
-    {
-        return cronTaskConfigurations.get(key);
-    }
-
-    public CronTaskConfiguration addCronTaskConfiguration(String key,
-                                                          CronTaskConfiguration value)
-    {
-        return cronTaskConfigurations.put(key, value);
-    }
-
-    public CronTaskConfiguration removeCronTaskConfiguration(String key)
-    {
-        return cronTaskConfigurations.remove(key);
     }
 
     public int getExpectedEventType()

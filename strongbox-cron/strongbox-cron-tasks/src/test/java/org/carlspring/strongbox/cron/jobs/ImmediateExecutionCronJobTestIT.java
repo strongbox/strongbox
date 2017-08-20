@@ -8,11 +8,12 @@ import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 
 import javax.inject.Inject;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author carlspring
@@ -38,19 +39,24 @@ public class ImmediateExecutionCronJobTestIT
         cronTaskEventListenerRegistry.addListener(this);
     }
 
+    @After
+    public void tearDown()
+            throws Exception
+    {
+        // Un-register to receive cron task-related events
+        cronTaskEventListenerRegistry.removeListener(this);
+    }
+
     public void addImmediateExecutionCronJobConfig(String name)
             throws Exception
     {
         CronTaskConfiguration configuration = new CronTaskConfiguration();
         configuration.setName(name);
         configuration.addProperty("jobClass", ImmediateExecutionCronJob.class.getName());
-        configuration.addProperty("cronExpression", "0 0 * * * ? *");
+        configuration.addProperty("cronExpression", "0 0/1 * 1/1 * ? *");
         configuration.setImmediateExecution(true);
 
-        cronTaskConfigurationService.saveConfiguration(configuration);
-        CronTaskConfiguration obj = cronTaskConfigurationService.findOne(name);
-
-        assertNotNull(obj);
+        addCronJobConfig(configuration);
     }
 
     @Test
@@ -63,18 +69,12 @@ public class ImmediateExecutionCronJobTestIT
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
             assertTrue(jobName1.equals(jobName) && statusExecuted);
-
-            assertNull("Immediate execution cron job failed to start within a reasonable time!",
-                       cronTaskConfigurationService.getConfiguration(jobName));
         });
 
         addImmediateExecutionCronJobConfig(jobName);
 
-        assertNotNull("Failed to create single run cron job!",
-                      cronTaskConfigurationService.getConfiguration(jobName));
-
         assertTrue("Failed to execute task within a reasonable time!",
-                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
 }

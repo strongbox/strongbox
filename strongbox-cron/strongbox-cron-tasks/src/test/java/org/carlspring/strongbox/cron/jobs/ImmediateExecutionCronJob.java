@@ -2,7 +2,6 @@ package org.carlspring.strongbox.cron.jobs;
 
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import static org.junit.Assert.assertFalse;
 
 /**
  * @author carlspring

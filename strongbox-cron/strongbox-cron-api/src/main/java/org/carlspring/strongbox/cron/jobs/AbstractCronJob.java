@@ -21,7 +21,7 @@ public abstract class AbstractCronJob
         implements InterruptableJob
 {
 
-    private CronTaskConfiguration configuration = new CronTaskConfiguration();
+    private CronTaskConfiguration configuration;
 
     private SchedulerFactoryBean schedulerFactoryBean;
 
@@ -43,6 +43,13 @@ public abstract class AbstractCronJob
     protected void executeInternal(JobExecutionContext jobExecutionContext)
             throws JobExecutionException
     {
+        if (configuration == null)
+        {
+            configuration = cronTaskConfigurationService.findOne(jobExecutionContext.getJobDetail()
+                                                                                    .getKey()
+                                                                                    .getName());
+        }
+
         setStatus(CronJobStatusEnum.EXECUTING.getStatus());
         cronTaskEventListenerRegistry.dispatchCronTaskExecutingEvent(configuration.getName());
 

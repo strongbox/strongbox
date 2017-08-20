@@ -17,7 +17,7 @@ public class OneTimeExecutionCronJob
     public void executeTask(JobExecutionContext jobExecutionContext)
             throws JobExecutionException
     {
-        System.out.println("The single run task has run " + runs + " times.");
+        System.out.println("The one-time task has run " + runs + " times.");
 
         assertFalse("Failed to execute in single run mode.", runs > 1);
 
