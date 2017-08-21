@@ -2,6 +2,11 @@ package org.carlspring.strongbox.repository;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
+import org.carlspring.strongbox.cron.exceptions.CronTaskException;
+import org.carlspring.strongbox.cron.jobs.DownloadRemoteMavenIndexCronJob;
+import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
+import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
@@ -9,13 +14,12 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexerFactory;
 import org.carlspring.strongbox.storage.indexing.downloader.IndexDownloader;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.maven.index.packer.IndexPacker;
+import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -35,9 +39,6 @@ public class MavenRepositoryManagementStrategy
     private IndexDownloader downloader;
 
     @Inject
-    private IndexPacker indexPacker;
-
-    @Inject
     private RepositoryIndexManager repositoryIndexManager;
 
     @Inject
@@ -46,11 +47,17 @@ public class MavenRepositoryManagementStrategy
     @Inject
     private ConfigurationManager configurationManager;
 
+    @Inject
+    private CronTaskConfigurationService cronTaskConfigurationService;
+
+    @Inject
+    private CronJobSchedulerService cronJobSchedulerService;
+
 
     @Override
     public void createRepository(String storageId,
                                  String repositoryId)
-            throws IOException
+            throws IOException, RepositoryManagementStrategyException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
@@ -68,13 +75,41 @@ public class MavenRepositoryManagementStrategy
                 createRepositoryIndexer(storageId, repositoryId, IndexTypeEnum.REMOTE.getType(), repositoryBasedir);
 
                 // Create a scheduled task for downloading the remote's index
-
-
-                // Run the scheduled task once, immediately, so that the remote's index would become available
+                createRemoteIndexDownloaderCronTask(storageId, repositoryId);
             }
 
             // Create a local index
             createRepositoryIndexer(storageId, repositoryId, IndexTypeEnum.LOCAL.getType(), repositoryBasedir);
+        }
+    }
+
+    private void createRemoteIndexDownloaderCronTask(String storageId,
+                                                     String repositoryId)
+            throws RepositoryManagementStrategyException
+    {
+        CronTaskConfiguration configuration = new CronTaskConfiguration();
+        configuration.setName("Remote index download for " + storageId + ":" + repositoryId);
+        configuration.addProperty("jobClass", DownloadRemoteMavenIndexCronJob.class.getName());
+        configuration.addProperty("cronExpression", "0 0 0 * * ?"); // Execute once daily at 00:00:00
+        configuration.addProperty("storageId", storageId);
+        configuration.addProperty("repositoryId", repositoryId);
+
+        try
+        {
+            cronTaskConfigurationService.saveConfiguration(configuration);
+
+            // Run the scheduled task once, immediately, so that the remote's index would become available
+            cronJobSchedulerService.executeJob(configuration);
+        }
+        catch (ClassNotFoundException |
+               SchedulerException |
+               CronTaskException |
+               InstantiationException |
+               IllegalAccessException e)
+        {
+            logger.error(e.getMessage(), e);
+
+            throw new RepositoryManagementStrategyException(e.getMessage(), e);
         }
     }
 

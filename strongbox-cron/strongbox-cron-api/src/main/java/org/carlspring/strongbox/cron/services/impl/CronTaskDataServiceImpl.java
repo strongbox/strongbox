@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * @author Yougeshwar
  */
-
 @Service
 @Transactional
 public class CronTaskDataServiceImpl

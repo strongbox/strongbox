@@ -13,6 +13,7 @@ import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
@@ -78,10 +79,10 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
 
     @Override
     @Transactional
-    public void store(String storageId,
-                      String repositoryId,
-                      String path,
-                      InputStream is)
+    public void validateAndStore(String storageId,
+                                 String repositoryId,
+                                 String path,
+                                 InputStream is)
             throws IOException,
                    ProviderImplementationException,
                    NoSuchAlgorithmException
@@ -104,12 +105,6 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
                    ProviderImplementationException,
                    NoSuchAlgorithmException
     {
-        Repository repository = repositoryPath.getFileSystem().getRepository();
-        Storage storage = repository.getStorage();
-        
-        String artifactPathRelative = repositoryPath.getRepositoryRelative().toString();
-        performRepositoryAcceptanceValidation(storage.getId(), repository.getId(), artifactPathRelative);
-
         try (final ArtifactOutputStream aos = (ArtifactOutputStream) Files.newOutputStream(repositoryPath))
         {
             storeArtifact(repositoryPath, is, aos);
@@ -165,7 +160,14 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
             aos.setCacheOutputStream(new ByteArrayOutputStream());
         }
 
-        artifactEventListenerRegistry.dispatchArtifactUploadingEvent(storageId, repositoryId, artifactPath);
+        if (repository.isHostedRepository())
+        {
+            artifactEventListenerRegistry.dispatchArtifactUploadingEvent(storageId, repositoryId, artifactPath);
+        }
+        else
+        {
+            artifactEventListenerRegistry.dispatchArtifactDownloadingEvent(storageId, repositoryId, artifactPath);
+        }
 
         int readLength;
         byte[] bytes = new byte[4096];
@@ -389,6 +391,31 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
         }
 
         return null;
+    }
+
+    @Override
+    public void delete(String storageId,
+                       String repositoryId,
+                       String artifactPath,
+                       boolean force)
+            throws IOException
+    {
+        artifactOperationsValidator.validate(storageId, repositoryId, artifactPath);
+
+        final Storage storage = getStorage(storageId);
+        final Repository repository = storage.getRepository(repositoryId);
+
+        artifactOperationsValidator.checkAllowsDeletion(repository);
+
+        try
+        {
+            LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
+            layoutProvider.delete(storageId, repositoryId, artifactPath, force);
+        }
+        catch (IOException | ProviderImplementationException | SearchException e)
+        {
+            throw new ArtifactStorageException(e.getMessage(), e);
+        }
     }
 
 }

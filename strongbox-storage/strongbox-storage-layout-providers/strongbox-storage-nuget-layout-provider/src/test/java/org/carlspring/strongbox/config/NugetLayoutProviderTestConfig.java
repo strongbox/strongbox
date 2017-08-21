@@ -1,16 +1,13 @@
-package org.carlspring.strongbox;
-
-import org.carlspring.strongbox.config.*;
+package org.carlspring.strongbox.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 /**
- * @author Przemyslaw Fusik
+ * @author Martin Todorov
  */
 @Configuration
-@Import({ Maven2LayoutProviderConfig.class,
-          MockedIndexResourceFetcherConfig.class,
+@Import({ NugetLayoutProviderConfig.class,
           StorageCoreConfig.class,
           StorageApiConfig.class,
           CommonConfig.class,
@@ -18,7 +15,7 @@ import org.springframework.context.annotation.Import;
           DataServiceConfig.class,
           TestingCoreConfig.class
 })
-public class TestConfig
+public class NugetLayoutProviderTestConfig
 {
 
 }

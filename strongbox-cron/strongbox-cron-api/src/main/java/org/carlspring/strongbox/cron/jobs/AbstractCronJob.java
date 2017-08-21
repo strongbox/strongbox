@@ -5,6 +5,7 @@ import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.exceptions.CronTaskNotFoundException;
 import org.carlspring.strongbox.cron.quartz.CronTask;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
+import org.carlspring.strongbox.event.cron.CronTaskEventListenerRegistry;
 
 import javax.inject.Inject;
 
@@ -20,16 +21,17 @@ public abstract class AbstractCronJob
         implements InterruptableJob
 {
 
-    private CronTaskConfiguration configuration = new CronTaskConfiguration();
+    private CronTaskConfiguration configuration;
 
     private SchedulerFactoryBean schedulerFactoryBean;
+
+    @Inject
+    private CronTaskEventListenerRegistry cronTaskEventListenerRegistry;
 
     @Inject
     private CronTaskConfigurationService cronTaskConfigurationService;
 
     private CronTask cronTask;
-
-    private boolean oneTimeExecution;
 
     private String status = CronJobStatusEnum.SLEEPING.getStatus();
 
@@ -41,13 +43,22 @@ public abstract class AbstractCronJob
     protected void executeInternal(JobExecutionContext jobExecutionContext)
             throws JobExecutionException
     {
+        if (configuration == null)
+        {
+            configuration = cronTaskConfigurationService.findOne(jobExecutionContext.getJobDetail()
+                                                                                    .getKey()
+                                                                                    .getName());
+        }
+
         setStatus(CronJobStatusEnum.EXECUTING.getStatus());
+        cronTaskEventListenerRegistry.dispatchCronTaskExecutingEvent(configuration.getName());
 
         executeTask(jobExecutionContext);
 
+        cronTaskEventListenerRegistry.dispatchCronTaskExecutedEvent(configuration.getName());
         setStatus(CronJobStatusEnum.SLEEPING.getStatus());
 
-        if (isOneTimeExecution())
+        if (configuration.isOneTimeExecution())
         {
             try
             {
@@ -94,16 +105,6 @@ public abstract class AbstractCronJob
     public void setCronTask(CronTask cronTask)
     {
         this.cronTask = cronTask;
-    }
-
-    public boolean isOneTimeExecution()
-    {
-        return oneTimeExecution;
-    }
-
-    public void setOneTimeExecution(boolean oneTimeExecution)
-    {
-        this.oneTimeExecution = oneTimeExecution;
     }
 
     public String getStatus()

@@ -1,11 +1,11 @@
-package org.carlspring.strongbox.controllers;
+package org.carlspring.strongbox.controllers.maven;
 
 import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
 import org.carlspring.strongbox.controllers.context.IntegrationTest;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.providers.search.OrientDbSearchProvider;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -31,8 +31,8 @@ import static org.junit.Assert.assertTrue;
  */
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
-public class SearchControllerTest
-        extends RestAssuredBaseTest
+public class MavenSearchControllerTest
+        extends MavenRestAssuredBaseTest
 {
 
     private static final String STORAGE_SC_TEST = "storage-sc-test";
@@ -42,7 +42,6 @@ public class SearchControllerTest
     private static final File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
                                                            "/local");
 
-    private Repository repository;
 
     public static void cleanUp()
             throws Exception

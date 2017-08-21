@@ -4,7 +4,7 @@ import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.cron.jobs.GroovyCronJob;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.exceptions.CronTaskException;
-import org.carlspring.strongbox.cron.quartz.GroovyScriptNames;
+import org.carlspring.strongbox.cron.domain.GroovyScriptNames;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.xml.parsers.GenericParser;

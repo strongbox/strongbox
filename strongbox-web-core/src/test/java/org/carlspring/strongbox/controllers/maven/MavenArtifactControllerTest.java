@@ -11,7 +11,7 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.controllers.context.IntegrationTest;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -32,12 +32,14 @@ import com.google.common.base.Throwables;
 import io.restassured.response.ExtractableResponse;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.artifact.PluginArtifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -54,14 +56,19 @@ import static org.junit.Assert.*;
 @IntegrationTest
 @RunWith(SpringJUnit4ClassRunner.class)
 public class MavenArtifactControllerTest
-        extends RestAssuredBaseTest
+        extends MavenRestAssuredBaseTest
 {
 
     private static final String TEST_RESOURCES = "target/test-resources";
+
     private static final String REPOSITORY_RELEASES1 = "act-releases-1";
+
     private static final String REPOSITORY_RELEASES2 = "act-releases-2";
+
     private static final String REPOSITORY_SNAPSHOTS = "act-snapshots";
+
     private static File GENERATOR_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() + "/local");
+
     @Inject
     private ConfigurationManager configurationManager;
 
@@ -827,6 +834,114 @@ public class MavenArtifactControllerTest
         assertEquals("Access was wrongly restricted for user with custom access model", 200, statusCode);
     }
 
+    @Test
+    public void shouldDownloadProxiedSnapshotArtifactFromGroup()
+            throws Exception
+    {
+        if (!isRemoteRepositoryAvailabilityDetermined("storage-common-proxies", "carlspring"))
+        {
+            logger.debug("Remote repository carlspring availability was not determined");
+            return;
+        }
+
+        ArtifactSnapshotVersion commonsHttpSnapshot = getCommonsHttpArtifactSnapshotVersionFromCarlspringRemote();
+
+        if (commonsHttpSnapshot == null)
+        {
+            logger.debug("commonsHttpSnapshot was not found");
+            return;
+        }
+
+        String url = getContextBaseUrl() +
+                     "/storages/public/public-group/org/carlspring/commons/commons-http/" +
+                     commonsHttpSnapshot.version + "/commons-http-" + commonsHttpSnapshot.timestampedVersion + ".jar";
+
+        given().header("user-agent", "Maven/*")
+               .contentType(MediaType.TEXT_PLAIN_VALUE)
+               .when()
+               .get(url)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value());
+    }
+
+    @Test
+    public void shouldDownloadProxiedSnapshotArtifactFromRemote()
+            throws Exception
+    {
+
+        if (!isRemoteRepositoryAvailabilityDetermined("storage-common-proxies", "carlspring"))
+        {
+            logger.debug("Remote repository carlspring availability was not determined");
+            return;
+        }
+
+        ArtifactSnapshotVersion commonsHttpSnapshot = getCommonsHttpArtifactSnapshotVersionFromCarlspringRemote();
+
+        if (commonsHttpSnapshot == null)
+        {
+            logger.debug("commonsHttpSnapshot was not found");
+            return;
+        }
+
+        String url = getContextBaseUrl() +
+                     "/storages/storage-common-proxies/carlspring/org/carlspring/commons/commons-http/" +
+                     commonsHttpSnapshot.version +
+                     "/commons-http-" + commonsHttpSnapshot.timestampedVersion + ".jar";
+
+        given().header("user-agent", "Maven/*")
+               .contentType(MediaType.TEXT_PLAIN_VALUE)
+               .when()
+               .get(url)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value());
+    }
+
+    private ArtifactSnapshotVersion getCommonsHttpArtifactSnapshotVersionFromCarlspringRemote()
+            throws Exception
+    {
+
+        Metadata libraryMetadata = client.retrieveMetadata(
+                "/storages/storage-common-proxies/carlspring/org/carlspring/commons/commons-http/maven-metadata.xml");
+
+        if (libraryMetadata == null)
+        {
+            logger.debug("libraryMetadata not found");
+            return null;
+        }
+
+        String commonsHttpSnapshotVersion = libraryMetadata.getVersioning().getVersions().stream().filter(
+                v -> v.endsWith("SNAPSHOT")).findFirst().orElse(null);
+
+        if (commonsHttpSnapshotVersion == null)
+        {
+            logger.debug("commonsHttpSnapshotVersion not found");
+            return null;
+        }
+
+        Metadata artifactMetadata = client.retrieveMetadata(
+                "/storages/storage-common-proxies/carlspring/org/carlspring/commons/commons-http/" +
+                commonsHttpSnapshotVersion + "/maven-metadata.xml");
+
+        if (artifactMetadata == null)
+        {
+            logger.debug("artifactMetadata not found");
+            return null;
+        }
+
+        SnapshotVersion snapshotVersion = artifactMetadata.getVersioning().getSnapshotVersions().stream().findFirst().orElse(
+                null);
+
+        if (snapshotVersion == null)
+        {
+            logger.debug("snapshotVersion not found");
+            return null;
+        }
+
+        return new ArtifactSnapshotVersion(commonsHttpSnapshotVersion, snapshotVersion.getVersion());
+    }
+
     private boolean isRemoteRepositoryAvailabilityDetermined(String storageId,
                                                              String repositoryId)
             throws InterruptedException
@@ -837,5 +952,21 @@ public class MavenArtifactControllerTest
 
         return TestHelper.isOperationSuccessed(rr -> remoteRepositoryAlivenessCacheManager.wasPut(rr), remoteRepository,
                                                30000, 1000);
+    }
+
+    private static class ArtifactSnapshotVersion
+    {
+
+        private final String version;
+
+        private final String timestampedVersion;
+
+
+        private ArtifactSnapshotVersion(String version,
+                                        String timestampedVersion)
+        {
+            this.version = version;
+            this.timestampedVersion = timestampedVersion;
+        }
     }
 }

@@ -202,10 +202,7 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
                               }
                               catch (NoSuchAlgorithmException t)
                               {
-                                  logger.error(
-                                               String.format("Digest algorithm not supported: alg-[%s]",
-                                                             e),
-                                               t);
+                                  logger.error(String.format("Digest algorithm not supported: alg-[%s]", e), t);
                               }
                           });
         return result;
@@ -251,8 +248,7 @@ public class RepositoryLayoutFileSystemProvider extends RepositoryFileSystemProv
             digestAlgorithmSet.stream()
                               .forEach(p ->
                                        {
-                                           String checksum = is.getHexDigests()
-                                                               .get(p);
+                                           String checksum = is.getHexDigests().get(p);
                                            RepositoryPath checksumPath = getChecksumPath(path, p);
                                            if (Files.exists(checksumPath) && !force)
                                            {

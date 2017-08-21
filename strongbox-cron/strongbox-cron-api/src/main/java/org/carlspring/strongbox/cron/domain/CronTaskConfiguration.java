@@ -13,7 +13,7 @@ import java.util.Map;
  * @author Yougeshwar
  */
 @XmlRootElement
-@XmlAccessorType(XmlAccessType.FIELD)
+@XmlAccessorType(XmlAccessType.NONE)
 public class CronTaskConfiguration
         extends GenericEntity
 {
@@ -23,6 +23,12 @@ public class CronTaskConfiguration
 
     @XmlElement(name = "properties")
     private Map<String, String> properties = new HashMap<>();
+
+    @XmlElement(name = "one-time-execution")
+    private boolean oneTimeExecution = false;
+
+    @XmlElement(name = "immediate-execution")
+    private boolean immediateExecution = false;
 
 
     public CronTaskConfiguration()
@@ -68,6 +74,26 @@ public class CronTaskConfiguration
     public boolean contains(String key)
     {
         return properties.containsKey(key);
+    }
+
+    public boolean isOneTimeExecution()
+    {
+        return oneTimeExecution;
+    }
+
+    public void setOneTimeExecution(boolean oneTimeExecution)
+    {
+        this.oneTimeExecution = oneTimeExecution;
+    }
+
+    public boolean shouldExecuteImmediately()
+    {
+        return immediateExecution;
+    }
+
+    public void setImmediateExecution(boolean immediateExecution)
+    {
+        this.immediateExecution = immediateExecution;
     }
 
 }

@@ -1,17 +1,19 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import org.carlspring.strongbox.cron.config.JobManager;
 import org.carlspring.strongbox.cron.context.CronTaskTest;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.cron.services.JobManager;
+import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 
 import javax.inject.Inject;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author carlspring
@@ -19,7 +21,7 @@ import static org.junit.Assert.*;
 @CronTaskTest
 @RunWith(SpringJUnit4ClassRunner.class)
 public class OneTimeExecutionCronJobTestIT
-        extends TestCaseWithMavenArtifactGenerationAndIndexing
+        extends BaseCronTestCase
 {
 
     @Inject
@@ -29,42 +31,45 @@ public class OneTimeExecutionCronJobTestIT
     private JobManager jobManager;
 
 
-    public void addSingleRunCronJobConfig(String name)
+    @Before
+    public void initialize()
             throws Exception
     {
-        CronTaskConfiguration cronTaskConfiguration = new CronTaskConfiguration();
-        cronTaskConfiguration.setName(name);
-        cronTaskConfiguration.addProperty("jobClass", SingleRunCronJob.class.getName());
-        cronTaskConfiguration.addProperty("cronExpression", "0 0/1 * 1/1 * ? *");
+        // Register to receive cron task-related events
+        cronTaskEventListenerRegistry.addListener(this);
+    }
 
-        cronTaskConfigurationService.saveConfiguration(cronTaskConfiguration);
-        CronTaskConfiguration obj = cronTaskConfigurationService.findOne(name);
+    @After
+    public void tearDown()
+            throws Exception
+    {
+        // Un-register to receive cron task-related events
+        cronTaskEventListenerRegistry.removeListener(this);
+    }
 
-        assertNotNull(obj);
+    public void addOneTimeExecutionCronJobConfig(String name)
+            throws Exception
+    {
+        CronTaskConfiguration configuration = new CronTaskConfiguration();
+        configuration.setName(name);
+        configuration.addProperty("cronExpression", "0 0/1 * 1/1 * ? *");
+        configuration.addProperty("jobClass", OneTimeExecutionCronJob.class.getName());
+        configuration.setOneTimeExecution(true);
+        configuration.setImmediateExecution(true);
+
+        addCronJobConfig(configuration);
     }
 
     @Test
-    public void testSingleRunCronJob()
+    public void testOneTimeExecutionCronJob()
             throws Exception
     {
-        String jobName = "SingleRunCronJob-01";
+        String jobName = "OneTimeExecutionCronTest";
 
-        // Checking if job was executed
-        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
-        {
-            assertTrue(jobName1.equals(jobName) && statusExecuted);
+        addOneTimeExecutionCronJobConfig(jobName);
 
-            assertNull("Single run cron job failed to remove itself after executing!",
-                       cronTaskConfigurationService.getConfiguration(jobName));
-        });
-
-        addSingleRunCronJobConfig(jobName);
-
-        assertNotNull("Failed to create single run cron job!",
-                      cronTaskConfigurationService.getConfiguration(jobName));
-
-        // Leaving this for manual double-checking, in case it's ever needed again
-        // Thread.sleep(65000);
+        assertTrue("Failed to execute task within a reasonable time!",
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType(), 10000, 500));
     }
 
 }

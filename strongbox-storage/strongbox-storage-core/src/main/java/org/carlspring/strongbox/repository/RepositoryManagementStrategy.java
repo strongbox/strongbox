@@ -10,7 +10,7 @@ public interface RepositoryManagementStrategy
 
     void createRepository(String storageId,
                           String repositoryId)
-            throws IOException;
+            throws IOException, RepositoryManagementStrategyException;
 
     void createRepositoryStructure(String storageBasedirPath,
                                    String repositoryId)

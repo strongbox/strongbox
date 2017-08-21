@@ -5,32 +5,55 @@ def SERVER_ID  = 'carlspring-oss-snapshots'
 def SERVER_URL = 'https://dev.carlspring.org/nexus/content/repositories/carlspring-oss-snapshots/'
 
 pipeline {
-    agent { label 'opensuse-slave' }
+    agent {
+        docker {
+            args '-v /mnt/ramdisk/3:/home/jenkins --cap-add SYS_ADMIN'
+            image 'hub.carlspring.org/jenkins/opensuse-slave:latest'
+        }
+    }
     options {
         timeout(time: 2, unit: 'HOURS')
+        disableConcurrentBuilds()
+        skipDefaultCheckout()
     }
     stages {
-        stage('Build') {
+        stage('Setup workspace')
+        {
             steps {
-                withMaven(maven: 'maven-3.3.9',
-                          mavenSettingsConfig: 'a5452263-40e5-4d71-a5aa-4fc94a0e6833',
-                          mavenLocalRepo: '/home/jenkins/.m2/repository')
+                script {
+                    env.HDDWS=env.WORKSPACE
+                    env.RAMWS="/home/jenkins/workspace/"+ sh(returnStdout: true, script: 'basename "${HDDWS}"').trim()
+                    env.RAMMOUNT=env.WORKSPACE+"/ram"
+
+                    cleanWs deleteDirs: true
+                    checkout scm
+
+                    echo "Preparing workspace..."
+                    sh "mkdir -p '$RAMWS'"
+                    sh "cp -R `ls -A '$HDDWS' | grep -v .git | grep -v ram` '$RAMWS'"
+                    sh "mkdir -p '$RAMMOUNT'"
+                    sh "sudo mount --bind  '$RAMWS' '$RAMMOUNT'"
+                }
+            }
+        }
+        stage('Building...')
+        {
+            steps {
+                withMaven(maven: 'maven-3.3.9', mavenSettingsConfig: 'a5452263-40e5-4d71-a5aa-4fc94a0e6833')
                 {
-                    sh 'mvn -U clean install -Dintegration.tests -Dprepare.revision'
+                    sh "cd '$RAMMOUNT' && mvn -U clean install -Dintegration.tests -Dprepare.revision -Dmaven.test.failure.ignore=true"
                 }
             }
         }
         stage('Code Analysis') {
             steps {
-                withMaven(maven: 'maven-3.3.9',
-                          mavenSettingsConfig: 'a5452263-40e5-4d71-a5aa-4fc94a0e6833',
-                          mavenLocalRepo: '/home/jenkins/.m2/repository')
+                withMaven(maven: 'maven-3.3.9', mavenSettingsConfig: 'a5452263-40e5-4d71-a5aa-4fc94a0e6833')
                 {
                     script {
                         if(BRANCH_NAME == 'master') {
                             withSonarQubeEnv('sonar') {
                                 // requires SonarQube Scanner for Maven 3.2+
-                                sh "mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.3.0.603:sonar " +
+                                sh "cd '$RAMMOUNT' && mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.3.0.603:sonar " +
                                    "-Dintegration.tests " +
                                    "-Dprepare.revision" +
                                    "-Ddownloader.quick.query.timestamp=false " +
@@ -45,7 +68,7 @@ pipeline {
                                 withSonarQubeEnv('sonar') {
                                     def PR_NUMBER = env.CHANGE_ID
                                     echo "Triggering sonar analysis in comment-only mode for PR: ${PR_NUMBER}."
-                                    sh "mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.3.0.603:sonar " +
+                                    sh "cd '$RAMMOUNT' && mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.3.0.603:sonar " +
                                        "-Dintegration.tests " +
                                        "-Dprepare.revision " +
                                        "-Dsonar.github.repository=${REPO_NAME} " +
@@ -72,11 +95,9 @@ pipeline {
             }
             steps {
                 script {
-                    withMaven(maven: 'maven-3.3.9',
-                              mavenSettingsConfig: 'a5452263-40e5-4d71-a5aa-4fc94a0e6833',
-                              mavenLocalRepo: '/home/jenkins/.m2/repository')
+                    withMaven(maven: 'maven-3.3.9', mavenSettingsConfig: 'a5452263-40e5-4d71-a5aa-4fc94a0e6833')
                     {
-                        sh "mvn package deploy:deploy" +
+                        sh "cd '$RAMMOUNT' && mvn package deploy:deploy" +
                            " -Dmaven.test.skip=true" +
                            " -DaltDeploymentRepository=${SERVER_ID}::default::${SERVER_URL}"
                     }
@@ -88,7 +109,7 @@ pipeline {
         success {
             script {
                 if(BRANCH_NAME == 'master') {
-                    build(job: "strongbox/strongbox-os-builds", wait: false)
+                    build job: "strongbox/strongbox-os-builds", wait: false, parameters: [[$class: 'StringParameterValue', name: 'REVISION', value: '*/master']]
                 }
             }
         }
@@ -101,8 +122,17 @@ pipeline {
             }
         }
         always {
-            deleteDir()
+            script {
+                // unmount and copy back to hdd
+                sh "sudo umount --force $RAMMOUNT"
+                sh "cp -R '$RAMWS/.' '$RAMMOUNT'"
+            }
+
+            // remove unnecessary directories.
+            sh "(cd '$HDDWS' && find . -maxdepth 1 ! -name 'ram' ! -name '.' ! -name '..' -exec rm -rf '{}' \\;)"
+
+            // clean up ram
+            sh "rm -rf '$RAMWS'"
         }
     }
 }
-

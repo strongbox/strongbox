@@ -6,7 +6,6 @@ import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MavenSnapshotManager;
@@ -16,8 +15,6 @@ import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -41,31 +38,6 @@ public class MavenArtifactManagementService
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
-
-    @Override
-    public void delete(String storageId,
-                       String repositoryId,
-                       String artifactPath,
-                       boolean force)
-            throws IOException
-    {
-        artifactOperationsValidator.validate(storageId, repositoryId, artifactPath);
-
-        final Storage storage = getStorage(storageId);
-        final Repository repository = storage.getRepository(repositoryId);
-
-        artifactOperationsValidator.checkAllowsDeletion(repository);
-
-        try
-        {
-            LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
-            layoutProvider.delete(storageId, repositoryId, artifactPath, force);
-        }
-        catch (IOException | ProviderImplementationException | SearchException e)
-        {
-            throw new ArtifactStorageException(e.getMessage(), e);
-        }
-    }
 
     @Override
     public boolean contains(String storageId, String repositoryId, String artifactPath)

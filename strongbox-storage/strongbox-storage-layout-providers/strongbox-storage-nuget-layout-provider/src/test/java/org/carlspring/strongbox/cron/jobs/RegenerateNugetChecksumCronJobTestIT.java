@@ -1,15 +1,15 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import org.carlspring.strongbox.cron.config.JobManager;
-import org.carlspring.strongbox.cron.context.CronTaskTest;
+import org.carlspring.strongbox.config.NugetLayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
+import org.carlspring.strongbox.cron.services.JobManager;
+import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -29,13 +29,14 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.*;
 
 /**
  * @author Kate Novik.
  */
-@CronTaskTest
+@ContextConfiguration(classes = NugetLayoutProviderCronTasksTestConfig.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 public class RegenerateNugetChecksumCronJobTestIT
         extends TestCaseWithNugetPackageGeneration
@@ -74,10 +75,8 @@ public class RegenerateNugetChecksumCronJobTestIT
     protected StorageManagementService storageManagementService;
 
     @Inject
-    protected RepositoryIndexManager repositoryIndexManager;
-
-    @Inject
     private JobManager jobManager;
+
 
     @BeforeClass
     public static void cleanUp()
@@ -210,7 +209,10 @@ public class RegenerateNugetChecksumCronJobTestIT
             }
         });
 
-        addRegenerateCronJobConfig(jobName, STORAGE1, REPOSITORY_RELEASES, "org.carlspring.strongbox.checksum-second",
+        addRegenerateCronJobConfig(jobName,
+                                   STORAGE1,
+                                   REPOSITORY_RELEASES,
+                                   "org.carlspring.strongbox.checksum-second",
                                    false);
     }
 
@@ -263,8 +265,6 @@ public class RegenerateNugetChecksumCronJobTestIT
         });
 
         addRegenerateCronJobConfig(jobName, STORAGE1, REPOSITORY_ALPHA, null, false);
-
-
     }
 
     @Test
@@ -275,9 +275,10 @@ public class RegenerateNugetChecksumCronJobTestIT
 
         String artifactPath = REPOSITORY_RELEASES_BASEDIR_1 + "/org.carlspring.strongbox.checksum-second";
 
-        FileUtils.deleteIfExists(
-                new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512"));
-        FileUtils.deleteIfExists(new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.nuspec.sha512"));
+        FileUtils.deleteIfExists(new File(artifactPath,
+                                          "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512"));
+        FileUtils.deleteIfExists(new File(artifactPath,
+                                          "/1.0/org.carlspring.strongbox.checksum-second.nuspec.sha512"));
 
         assertTrue("The checksum file for artifact exist!",
                    !new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512").exists());
@@ -293,8 +294,7 @@ public class RegenerateNugetChecksumCronJobTestIT
                                         "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512").exists());
                     assertTrue("The checksum file for artifact is empty!",
                                new File(artifactPath,
-                                        "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512").length() >
-                               0);
+                                        "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512").length() > 0);
 
                     assertTrue("The checksum file for metadata file doesn't exist!",
                                new File(artifactPath,
@@ -328,7 +328,6 @@ public class RegenerateNugetChecksumCronJobTestIT
 
         assertTrue("The checksum file for artifact exist!",
                    !new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-one.1.0.nupkg.sha512").exists());
-
 
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
@@ -366,7 +365,9 @@ public class RegenerateNugetChecksumCronJobTestIT
                                   String repositoryId,
                                   String policy,
                                   boolean indexing)
-            throws IOException, JAXBException
+            throws IOException,
+                   JAXBException,
+                   RepositoryManagementStrategyException
     {
         Repository repository = new Repository(repositoryId);
         repository.setIndexingEnabled(indexing);
@@ -379,14 +380,13 @@ public class RegenerateNugetChecksumCronJobTestIT
 
     private void createRepository(Repository repository)
             throws IOException,
-                   JAXBException
+                   JAXBException,
+                   RepositoryManagementStrategyException
     {
-        configurationManagementService.saveRepository(repository.getStorage()
-                                                                .getId(), repository);
+        configurationManagementService.saveRepository(repository.getStorage().getId(), repository);
 
         // Create the repository
-        repositoryManagementService.createRepository(repository.getStorage()
-                                                               .getId(), repository.getId());
+        repositoryManagementService.createRepository(repository.getStorage().getId(), repository.getId());
     }
 
     private void createStorage(String storageId)
@@ -409,8 +409,7 @@ public class RegenerateNugetChecksumCronJobTestIT
         {
             for (Repository repository : repositoriesToClean)
             {
-                removeRepositoryDirectory(repository.getStorage()
-                                                    .getId(), repository.getId());
+                removeRepositoryDirectory(repository.getStorage().getId(), repository.getId());
             }
         }
     }
@@ -435,11 +434,6 @@ public class RegenerateNugetChecksumCronJobTestIT
         {
             configurationManagementService.removeRepository(repository.getStorage()
                                                                       .getId(), repository.getId());
-            if (repository.isIndexingEnabled())
-            {
-                repositoryIndexManager.closeIndexersForRepository(repository.getStorage()
-                                                                            .getId(), repository.getId());
-            }
         }
     }
 

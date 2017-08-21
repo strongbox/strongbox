@@ -19,9 +19,9 @@ import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteReposi
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 
@@ -87,7 +87,7 @@ public class ProxyRepositoryProvider
         RepositoryPath reposytoryPath = layoutProvider.resolve(repository);
         RepositoryPath artifactPath = reposytoryPath.resolve(path);
 
-        RepositoryFileSystemProvider fileSystemProvider = (RepositoryFileSystemProvider) artifactPath.getFileSystem()
+        RepositoryFileSystemProvider fileSystemProvider = artifactPath.getFileSystem()
                                                                                                      .provider();
 
         logger.debug(" -> Checking for " + artifactPath + "...");
@@ -108,7 +108,8 @@ public class ProxyRepositoryProvider
 
             if (!remoteRepositoryAlivenessCacheManager.isAlive(remoteRepository))
             {
-                logger.debug("RemoteRepository {} is not alive" + remoteRepository);
+                logger.debug("Remote repository '" + remoteRepository.getUrl() + "' is down.");
+
                 return null;
             }
 
@@ -117,32 +118,37 @@ public class ProxyRepositoryProvider
             client.setUsername(remoteRepository.getUsername());
             client.setPassword(remoteRepository.getPassword());
 
-            Response response = client.getResourceWithResponse(path);
-            if (response.getStatus() != 200 || response.getEntity() == null)
+            try (final CloseableProxyRepositoryResponse closeableProxyRepositoryResponse =
+                         new CloseableProxyRepositoryResponse(client.getResourceWithResponse(path)))
             {
-                return null;
-            }
+                final Response response = closeableProxyRepositoryResponse.response;
 
-            InputStream is = response.readEntity(InputStream.class);
-            if (is == null)
-            {
-                return null;
-            }
+                if (response.getStatus() != 200 || response.getEntity() == null)
+                {
+                    return null;
+                }
 
-            RepositoryPath tempArtifact = fileSystemProvider.getTempPath(artifactPath);
-            try (InputStream remoteIs = new MultipleDigestInputStream(is);
-                 // Wrap the InputStream, so we could have checksums to compare
-                 OutputStream os = Files.newOutputStream(tempArtifact))
-            {
-                layoutProvider.getArtifactManagementService().store(tempArtifact, remoteIs);
+                InputStream is = response.readEntity(InputStream.class);
+                if (is == null)
+                {
+                    return null;
+                }
 
-                // TODO: Add a policy for validating the checksums of downloaded artifacts
-                // TODO: Validate the local checksum against the remote's checksums
-                fileSystemProvider.moveFromTemporaryDirectory(artifactPath);
+                RepositoryPath tempArtifact = fileSystemProvider.getTempPath(artifactPath);
+                try (// Wrap the InputStream, so we could have checksums to compare
+                     InputStream remoteIs = new MultipleDigestInputStream(is))
+                {
+                    layoutProvider.getArtifactManagementService().store(tempArtifact, remoteIs);
 
-                // Serve the downloaded artifact
-                RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(path);
-                return (ArtifactInputStream) Files.newInputStream(repositoryPath);
+                    // TODO: Add a policy for validating the checksums of downloaded artifacts
+                    // TODO: Validate the local checksum against the remote's checksums
+                    fileSystemProvider.moveFromTemporaryDirectory(artifactPath);
+
+                    // Serve the downloaded artifact
+                    RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(path);
+
+                    return (ArtifactInputStream) Files.newInputStream(repositoryPath);
+                }
             }
         }
     }
@@ -161,6 +167,25 @@ public class ProxyRepositoryProvider
         RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(artifactPath);
 
         return (ArtifactOutputStream) Files.newOutputStream(repositoryPath);
+    }
+
+    private class CloseableProxyRepositoryResponse
+            implements Closeable
+    {
+
+        private final Response response;
+
+        private CloseableProxyRepositoryResponse(Response response)
+        {
+            this.response = response;
+        }
+
+        @Override
+        public void close()
+                throws IOException
+        {
+            response.close();
+        }
     }
 
 }

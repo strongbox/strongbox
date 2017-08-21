@@ -4,10 +4,11 @@ import org.carlspring.strongbox.cron.jobs.AbstractCronJob;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.exceptions.CronTaskException;
 import org.carlspring.strongbox.cron.exceptions.CronTaskNotFoundException;
-import org.carlspring.strongbox.cron.quartz.CronJobSchedulerService;
-import org.carlspring.strongbox.cron.quartz.GroovyScriptNames;
+import org.carlspring.strongbox.cron.domain.GroovyScriptNames;
+import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.cron.services.CronTaskDataService;
+import org.carlspring.strongbox.event.cron.CronTaskEventListenerRegistry;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -29,13 +30,16 @@ class CronTaskConfigurationServiceImpl
     private final Logger logger = LoggerFactory.getLogger(CronTaskConfigurationServiceImpl.class);
 
     @Inject
+    protected CronTaskEventListenerRegistry cronTaskEventListenerRegistry;
+
+    @Inject
     private CronTaskDataService cronTaskDataService;
 
     @Inject
     private CronJobSchedulerService cronJobSchedulerService;
 
 
-    public void saveConfiguration(CronTaskConfiguration cronTaskConfiguration)
+    public void saveConfiguration(CronTaskConfiguration configuration)
             throws ClassNotFoundException,
                    SchedulerException,
                    CronTaskException,
@@ -44,16 +48,18 @@ class CronTaskConfigurationServiceImpl
     {
         logger.debug("CronTaskConfigurationService.saveConfiguration()");
 
-        if (!cronTaskConfiguration.contains("cronExpression"))
+        if (!configuration.contains("cronExpression"))
         {
             throw new CronTaskException("cronExpression property does not exists");
         }
 
-        cronTaskDataService.save(cronTaskConfiguration);
+        cronTaskDataService.save(configuration);
 
-        if (cronTaskConfiguration.contains("jobClass"))
+        cronTaskEventListenerRegistry.dispatchCronTaskCreatedEvent(configuration.getName());
+
+        if (configuration.contains("jobClass"))
         {
-            Class c = Class.forName(cronTaskConfiguration.getProperty("jobClass"));
+            Class c = Class.forName(configuration.getProperty("jobClass"));
             Object classInstance = c.newInstance();
 
             logger.debug("> " + c.getSuperclass().getCanonicalName());
@@ -63,19 +69,26 @@ class CronTaskConfigurationServiceImpl
                 throw new CronTaskException(c + " does not extend " + AbstractCronJob.class);
             }
 
-            cronJobSchedulerService.scheduleJob(cronTaskConfiguration);
+            cronJobSchedulerService.scheduleJob(configuration);
+
+            if (configuration.shouldExecuteImmediately())
+            {
+                cronJobSchedulerService.executeJob(configuration);
+            }
         }
     }
 
-    public void deleteConfiguration(CronTaskConfiguration cronTaskConfiguration)
+    public void deleteConfiguration(CronTaskConfiguration configuration)
             throws SchedulerException,
                    CronTaskNotFoundException,
                    ClassNotFoundException
     {
         logger.debug("CronTaskConfigurationService.deleteConfiguration()");
 
-        cronTaskDataService.delete(cronTaskConfiguration);
-        cronJobSchedulerService.deleteJob(cronTaskConfiguration);
+        cronTaskDataService.delete(configuration);
+        cronJobSchedulerService.deleteJob(configuration);
+
+        cronTaskEventListenerRegistry.dispatchCronTaskDeletedEvent(configuration.getName());
     }
 
     public List<CronTaskConfiguration> getConfiguration(String name)

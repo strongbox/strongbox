@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.storage.indexing;
 
-import org.carlspring.strongbox.TestConfig;
+import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -26,7 +26,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = TestConfig.class)
+@ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 public class RepositoryIndexerTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
