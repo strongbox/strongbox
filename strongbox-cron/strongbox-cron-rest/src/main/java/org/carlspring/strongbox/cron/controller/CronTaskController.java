@@ -86,7 +86,7 @@ public class CronTaskController
                                         try
                                         {
                                             cronTaskConfigurationService.deleteConfiguration(config);
-                                            if (config.contain("jobClass"))
+                                            if (config.contains("jobClass"))
                                             {
                                                 Class c = Class.forName(config.getProperty("jobClass"));
                                                 Object classInstance = c.newInstance();

@@ -44,14 +44,14 @@ class CronTaskConfigurationServiceImpl
     {
         logger.debug("CronTaskConfigurationService.saveConfiguration()");
 
-        if (!cronTaskConfiguration.contain("cronExpression"))
+        if (!cronTaskConfiguration.contains("cronExpression"))
         {
             throw new CronTaskException("cronExpression property does not exists");
         }
 
         cronTaskDataService.save(cronTaskConfiguration);
 
-        if (cronTaskConfiguration.contain("jobClass"))
+        if (cronTaskConfiguration.contains("jobClass"))
         {
             Class c = Class.forName(cronTaskConfiguration.getProperty("jobClass"));
             Object classInstance = c.newInstance();

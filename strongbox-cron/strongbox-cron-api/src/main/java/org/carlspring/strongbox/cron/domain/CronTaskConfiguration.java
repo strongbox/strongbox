@@ -65,7 +65,7 @@ public class CronTaskConfiguration
         properties.remove(key);
     }
 
-    public boolean contain(String key)
+    public boolean contains(String key)
     {
         return properties.containsKey(key);
     }
