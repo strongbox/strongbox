@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.config;
 
+import org.carlspring.strongbox.MockedRemoteRepositoriesHeartbeatConfig;
+
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
@@ -10,6 +12,7 @@ import org.springframework.context.annotation.Import;
 @Import({ NugetLayoutProviderConfig.class,
           StorageCoreConfig.class,
           StorageApiConfig.class,
+          MockedRemoteRepositoriesHeartbeatConfig.class,
           CommonConfig.class,
           ClientConfig.class,
           DataServiceConfig.class,

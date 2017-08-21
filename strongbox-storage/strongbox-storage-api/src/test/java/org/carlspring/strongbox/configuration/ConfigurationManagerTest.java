@@ -1,9 +1,6 @@
 package org.carlspring.strongbox.configuration;
 
-import org.carlspring.strongbox.config.ClientConfig;
-import org.carlspring.strongbox.config.CommonConfig;
-import org.carlspring.strongbox.config.DataServiceConfig;
-import org.carlspring.strongbox.config.StorageCoreConfig;
+import org.carlspring.strongbox.StorageApiTestConfig;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.Storage;
@@ -18,16 +15,11 @@ import javax.xml.bind.JAXBException;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.carlspring.strongbox.testing.TestCaseWithRepository.STORAGE0;
@@ -37,20 +29,9 @@ import static org.junit.Assert.*;
  * @author mtodorov
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration
+@ContextConfiguration(classes = StorageApiTestConfig.class)
 public class ConfigurationManagerTest
 {
-
-    @org.springframework.context.annotation.Configuration
-    @Import({ StorageCoreConfig.class,
-              CommonConfig.class,
-              ClientConfig.class,
-              DataServiceConfig.class
-            })
-    public static class SpringConfig
-    {
-
-    }
 
     public static final String TEST_CLASSES = "target/test-classes";
 
@@ -186,10 +167,10 @@ public class ConfigurationManagerTest
         assertEquals("Failed to read repository groups!",
                      2,
                      c.getStorages().get("storage0")
-                                    .getRepositories()
-                                    .get("grp-snapshots")
-                                    .getGroupRepositories()
-                                    .size());
+                      .getRepositories()
+                      .get("grp-snapshots")
+                      .getGroupRepositories()
+                      .size());
     }
 
     @Test

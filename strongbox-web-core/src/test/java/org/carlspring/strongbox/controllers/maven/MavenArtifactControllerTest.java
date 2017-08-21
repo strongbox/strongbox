@@ -3,7 +3,6 @@ package org.carlspring.strongbox.controllers.maven;
 import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.TestHelper;
 import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
@@ -15,7 +14,6 @@ import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessCacheManager;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.search.SearchResult;
@@ -210,12 +208,6 @@ public class MavenArtifactControllerTest
     public void testResolveViaProxyToMavenCentral()
             throws Exception
     {
-        if (!isRemoteRepositoryAvailabilityDetermined("storage-common-proxies", "maven-central"))
-        {
-            logger.debug("Remote repository maven-central availability was not determined");
-            return;
-        }
-
         String artifactPath = "storages/storage-common-proxies/maven-central/" +
                               "org/carlspring/maven/derby-maven-plugin/1.9/derby-maven-plugin-1.9.jar";
 
@@ -231,12 +223,6 @@ public class MavenArtifactControllerTest
     public void testResolveViaProxyToMavenCentralInGroup()
             throws Exception
     {
-        if (!isRemoteRepositoryAvailabilityDetermined("storage-common-proxies", "group-common-proxies"))
-        {
-            logger.debug("Remote repository group-common-proxies availability was not determined");
-            return;
-        }
-
         String artifactPath = "storages/storage-common-proxies/group-common-proxies/" +
                               "org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.jar";
 
@@ -838,12 +824,6 @@ public class MavenArtifactControllerTest
     public void shouldDownloadProxiedSnapshotArtifactFromGroup()
             throws Exception
     {
-        if (!isRemoteRepositoryAvailabilityDetermined("storage-common-proxies", "carlspring"))
-        {
-            logger.debug("Remote repository carlspring availability was not determined");
-            return;
-        }
-
         ArtifactSnapshotVersion commonsHttpSnapshot = getCommonsHttpArtifactSnapshotVersionFromCarlspringRemote();
 
         if (commonsHttpSnapshot == null)
@@ -869,13 +849,6 @@ public class MavenArtifactControllerTest
     public void shouldDownloadProxiedSnapshotArtifactFromRemote()
             throws Exception
     {
-
-        if (!isRemoteRepositoryAvailabilityDetermined("storage-common-proxies", "carlspring"))
-        {
-            logger.debug("Remote repository carlspring availability was not determined");
-            return;
-        }
-
         ArtifactSnapshotVersion commonsHttpSnapshot = getCommonsHttpArtifactSnapshotVersionFromCarlspringRemote();
 
         if (commonsHttpSnapshot == null)
@@ -940,18 +913,6 @@ public class MavenArtifactControllerTest
         }
 
         return new ArtifactSnapshotVersion(commonsHttpSnapshotVersion, snapshotVersion.getVersion());
-    }
-
-    private boolean isRemoteRepositoryAvailabilityDetermined(String storageId,
-                                                             String repositoryId)
-            throws InterruptedException
-    {
-
-        Repository repository = configurationManager.getRepository(storageId, repositoryId);
-        RemoteRepository remoteRepository = repository.getRemoteRepository();
-
-        return TestHelper.isOperationSuccessed(rr -> remoteRepositoryAlivenessCacheManager.wasPut(rr), remoteRepository,
-                                               30000, 1000);
     }
 
     private static class ArtifactSnapshotVersion

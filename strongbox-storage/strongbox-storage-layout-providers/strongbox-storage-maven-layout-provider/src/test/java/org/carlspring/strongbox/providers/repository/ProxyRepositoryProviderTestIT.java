@@ -1,16 +1,13 @@
 package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
-import org.carlspring.strongbox.TestHelper;
 import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessCacheManager;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
@@ -74,12 +71,6 @@ public class ProxyRepositoryProviderTestIT
                    SearchException,
                    InterruptedException
     {
-        if (!isRemoteRepositoryAvailabilityDetermined("storage-common-proxies", "maven-central"))
-        {
-            logger.debug("Remote repository maven-central availability was not determined");
-            return;
-        }
-
         assertStreamNotNull("storage-common-proxies",
                             "maven-central",
                             "org/carlspring/maven/derby-maven-plugin/maven-metadata.xml");
@@ -113,20 +104,6 @@ public class ProxyRepositoryProviderTestIT
         assertIndexContainsArtifact("storage-common-proxies",
                                     "maven-central",
                                     "+g:org.carlspring.maven +a:derby-maven-plugin +v:1.10");
-    }
-
-    private boolean isRemoteRepositoryAvailabilityDetermined(String storageId,
-                                                             String repositoryId)
-            throws InterruptedException
-    {
-
-        Repository repository = configurationManager.getRepository(storageId, repositoryId);
-        RemoteRepository remoteRepository = repository.getRemoteRepository();
-
-        return TestHelper.isOperationSuccessed(rr -> remoteRepositoryAlivenessCacheManager.wasPut(rr),
-                                               remoteRepository,
-                                               30000,
-                                               1000);
     }
 
     private void assertStreamNotNull(String storageId,

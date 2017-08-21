@@ -23,7 +23,7 @@ import org.springframework.util.Assert;
  * @author Przemyslaw Fusik
  */
 @Component
-class RemoteRepositoriesHeartbeatMonitorInitiator
+public class RemoteRepositoriesHeartbeatMonitorInitiator
         implements InitializingBean, DisposableBean
 {
 
