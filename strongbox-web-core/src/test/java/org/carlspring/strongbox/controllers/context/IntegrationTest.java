@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.controllers.context;
 
+import org.carlspring.strongbox.MockedRemoteRepositoriesHeartbeatConfig;
 import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
@@ -25,6 +26,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @ContextConfiguration(classes = { WebConfig.class,
+                                  MockedRemoteRepositoriesHeartbeatConfig.class,
                                   IntegrationTest.TestConfig.class })
 @WebAppConfiguration
 @WithUserDetails(value = "admin")

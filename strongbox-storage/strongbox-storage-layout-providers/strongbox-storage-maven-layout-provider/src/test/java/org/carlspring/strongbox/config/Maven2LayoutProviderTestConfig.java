@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.config;
 
+import org.carlspring.strongbox.MockedRemoteRepositoriesHeartbeatConfig;
 import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 
@@ -15,6 +16,7 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
           MockedIndexResourceFetcherConfig.class,
           StorageCoreConfig.class,
           StorageApiConfig.class,
+          MockedRemoteRepositoriesHeartbeatConfig.class,
           CommonConfig.class,
           ClientConfig.class,
           DataServiceConfig.class,
