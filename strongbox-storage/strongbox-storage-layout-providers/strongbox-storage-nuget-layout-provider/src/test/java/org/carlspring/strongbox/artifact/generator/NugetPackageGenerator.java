@@ -1,11 +1,5 @@
 package org.carlspring.strongbox.artifact.generator;
 
-import org.carlspring.commons.io.MultipleDigestInputStream;
-import org.carlspring.commons.io.RandomInputStream;
-import org.carlspring.strongbox.resource.ResourceCloser;
-import org.carlspring.strongbox.util.MessageDigestUtils;
-
-import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -17,8 +11,15 @@ import java.security.NoSuchAlgorithmException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import javax.xml.bind.JAXBException;
+
+import org.carlspring.commons.io.MultipleDigestInputStream;
+import org.carlspring.commons.io.RandomInputStream;
+import org.carlspring.strongbox.resource.ResourceCloser;
+import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import ru.aristar.jnuget.files.ClassicNupkg;
 import ru.aristar.jnuget.files.NugetFormatException;
 import ru.aristar.jnuget.files.Nupkg;
@@ -31,7 +32,22 @@ public class NugetPackageGenerator
 {
 
     private static final Logger logger = LoggerFactory.getLogger(NugetPackageGenerator.class);
+    
+    private static final String PSMDCP_CONTENT = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + 
+            "<coreProperties xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:dcterms=\"http://purl.org/dc/terms/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://schemas.openxmlformats.org/package/2006/m\r\netadata/core-properties\">\r\n  " +
+            "<dc:creator>Carlspring</dc:creator>\r\n  " +
+            "<dc:description>Strongbox Nuget generated package for tests</dc:description>\r\n  " +
+            "<dc:identifier>%s</dc:identifier>\r\n  " +
+            "<version>%s</version>\r\n  <keywords>mono strongbox nuget</keywords>\r\n  " +
+            "<lastModifiedBy>org.carlspring.strongbox.artifact.generator.NugetPackageGenerator</lastModifiedBy>\r\n" +
+            "</coreProperties>";
 
+    private static final String RELS_CONTENT = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" +
+            "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">\r\n  " +
+            "<Relationship Type=\"http://schemas.microsoft.com/packaging/2010/07/manifest\" Target=\"/%s.nuspec\" Id=\"Rc20b205c579d4f85\" />\r\n  " +
+            "<Relationship Type=\"http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties\" Target=\"/package/services/metadata/core-properties/metadata.psmdcp\" Id=\"R23f62\r\ne2778b3442e\" />\r\n"  +
+            "</Relationships>";
+    
     private String basedir;
 
     public NugetPackageGenerator()
@@ -97,6 +113,9 @@ public class NugetPackageGenerator
 
             addNugetNuspecFile(nupkgFile, zos);
             createRandomNupkgFile(zos);
+            createMetadata(nupkgFile.getId(), nupkgFile.getVersion().toString(), zos);
+            createContentType(zos);
+            createRels(nupkgFile.getId(), zos);
         }
         finally
         {
@@ -104,6 +123,63 @@ public class NugetPackageGenerator
 
             generateChecksum(packageFile);
         }
+    }
+
+    private void createRels(String id,
+                            ZipOutputStream zos)
+        throws IOException
+    {
+        ZipEntry ze = new ZipEntry("_rels/.rels");
+        zos.putNextEntry(ze);
+
+        ByteArrayInputStream is = new ByteArrayInputStream(String.format(RELS_CONTENT, id).getBytes());
+        byte[] buffer = new byte[4096];
+        int len;
+        while ((len = is.read(buffer)) > 0)
+        {
+            zos.write(buffer, 0, len);
+        }
+
+        is.close();
+        zos.closeEntry();
+    }
+
+    private void createContentType(ZipOutputStream zos) throws IOException
+    {
+        ZipEntry ze = new ZipEntry("[Content_Types].xml");
+        zos.putNextEntry(ze);
+
+        InputStream is = getClass().getResourceAsStream("[Content_Types].xml");
+        byte[] buffer = new byte[4096];
+        int len;
+        while ((len = is.read(buffer)) > 0)
+        {
+            zos.write(buffer, 0, len);
+        }
+
+        is.close();
+        zos.closeEntry();
+
+    }
+
+    private void createMetadata(String id,
+                                String version,
+                                ZipOutputStream zos)
+        throws IOException
+    {
+        ZipEntry ze = new ZipEntry("package/services/metadata/core-properties/metadata.psmdcp");
+        zos.putNextEntry(ze);
+
+        ByteArrayInputStream is = new ByteArrayInputStream(String.format(PSMDCP_CONTENT, id, version).getBytes());
+        byte[] buffer = new byte[4096];
+        int len;
+        while ((len = is.read(buffer)) > 0)
+        {
+            zos.write(buffer, 0, len);
+        }
+
+        is.close();
+        zos.closeEntry();
     }
 
     private void addNugetNuspecFile(ClassicNupkg nupkgFile,
@@ -142,7 +218,7 @@ public class NugetPackageGenerator
     private void createRandomNupkgFile(ZipOutputStream zos)
             throws IOException
     {
-        ZipEntry ze = new ZipEntry("random-size-file");
+        ZipEntry ze = new ZipEntry("lib/random-size-file");
         zos.putNextEntry(ze);
 
         RandomInputStream ris = new RandomInputStream(true, 1000000);
