@@ -71,14 +71,20 @@ public class MavenRepositoryFeatures
             remoteIndexDirectory.mkdirs();
         }
 
-        // Create a remote index
-        RepositoryIndexer repositoryIndexer = mavenRepositoryManagementStrategy.createRepositoryIndexer(storageId,
-                                                                                                        repositoryId,
-                                                                                                        IndexTypeEnum.REMOTE.getType(),
-                                                                                                        repositoryBasedir);
+        // Get or create a remote index
+        String contextId = getContextId(storageId, repositoryId, IndexTypeEnum.REMOTE.getType());
+        RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer(contextId);
+        if (repositoryIndexer == null)
+        {
+            repositoryIndexer = mavenRepositoryManagementStrategy.createRepositoryIndexer(storageId,
+                                                                                          repositoryId,
+                                                                                          IndexTypeEnum.REMOTE.getType(),
+                                                                                          repositoryBasedir);
+            repositoryIndexManager.addRepositoryIndexer(contextId, repositoryIndexer);
+        }
 
         IndexDownloadRequest request = new IndexDownloadRequest();
-        request.setIndexingContextId(storageId + ":" + repositoryId + ":" + IndexTypeEnum.REMOTE.getType());
+        request.setIndexingContextId(contextId);
         request.setStorageId(storageId);
         request.setRepositoryId(repositoryId);
         request.setRemoteRepositoryURL(repository.getRemoteRepository().getUrl());
@@ -93,7 +99,7 @@ public class MavenRepositoryFeatures
         catch (IOException | ComponentLookupException e)
         {
             throw new ArtifactTransportException("Failed to retrieve remote index for " +
-                                                 storageId + ":" + repositoryId + "!");
+                                                 storageId + ":" + repositoryId + "!", e);
         }
     }
 
