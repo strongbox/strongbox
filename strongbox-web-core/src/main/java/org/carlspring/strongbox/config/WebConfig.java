@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
+import org.carlspring.strongbox.cron.config.CronTasksConfig;
 import org.carlspring.strongbox.utils.CustomAntPathMatcher;
 import org.carlspring.strongbox.web.HeaderMappingFilter;
 
@@ -41,7 +42,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
           NugetLayoutProviderConfig.class,
           StorageCoreConfig.class,
           SecurityConfig.class,
-          ClientConfig.class })
+          ClientConfig.class,
+          CronTasksConfig.class})
 @EnableCaching(order = 105)
 @EnableWebMvc
 public class WebConfig
