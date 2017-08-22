@@ -71,20 +71,14 @@ public class MavenRepositoryFeatures
             remoteIndexDirectory.mkdirs();
         }
 
-        // Get or create a remote index
-        String contextId = getContextId(storageId, repositoryId, IndexTypeEnum.REMOTE.getType());
-        RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer(contextId);
-        if (repositoryIndexer == null)
-        {
-            repositoryIndexer = mavenRepositoryManagementStrategy.createRepositoryIndexer(storageId,
-                                                                                          repositoryId,
-                                                                                          IndexTypeEnum.REMOTE.getType(),
-                                                                                          repositoryBasedir);
-            repositoryIndexManager.addRepositoryIndexer(contextId, repositoryIndexer);
-        }
+        // Create a remote index
+        RepositoryIndexer repositoryIndexer = mavenRepositoryManagementStrategy.createRepositoryIndexer(storageId,
+                                                                                                        repositoryId,
+                                                                                                        IndexTypeEnum.REMOTE.getType(),
+                                                                                                        repositoryBasedir);
 
         IndexDownloadRequest request = new IndexDownloadRequest();
-        request.setIndexingContextId(contextId);
+        request.setIndexingContextId(storageId + ":" + repositoryId + ":" + IndexTypeEnum.REMOTE.getType());
         request.setStorageId(storageId);
         request.setRepositoryId(repositoryId);
         request.setRemoteRepositoryURL(repository.getRemoteRepository().getUrl());
