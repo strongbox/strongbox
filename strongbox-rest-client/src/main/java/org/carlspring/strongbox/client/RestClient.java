@@ -514,6 +514,25 @@ public class RestClient
         resource.request(MediaType.TEXT_PLAIN).post(Entity.entity("Copy", MediaType.TEXT_PLAIN));
     }
 
+    public String generateUserSecurityToken()
+    {
+        String url = String.format("%s/users/user/%s/generate-security-token", getContextBaseUrl(), getUsername());
+
+        WebTarget resource = getClientInstance().target(url);
+        setupAuthentication(resource);
+
+        Response response = resource.request(MediaType.TEXT_PLAIN).get();
+        if (response.getStatus() != 200)
+        {
+            displayResponseError(response);
+            throw new ServerErrorException(response.getEntity() + " | Unable to get Security Token", response.getStatus());
+        }
+        else
+        {
+            return response.readEntity(String.class);
+        }
+    }    
+    
     public String greet()
     {
         String url = getContextBaseUrl() + "/storages/greet";

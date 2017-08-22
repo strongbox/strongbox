@@ -93,7 +93,7 @@ public class MavenRepositoryFeatures
         catch (IOException | ComponentLookupException e)
         {
             throw new ArtifactTransportException("Failed to retrieve remote index for " +
-                                                 storageId + ":" + repositoryId + "!");
+                                                 storageId + ":" + repositoryId + "!", e);
         }
     }
 
