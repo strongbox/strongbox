@@ -153,7 +153,7 @@
                     <version>2.20</version>
                     <inherited>false</inherited>
                     <configuration>
-                        <argLine>-Xmx1024m -Xms512m</argLine>
+                        <argLine>-Xmx1024m -Xms512m -Dstrongbox.download.indexes.storage-common-proxies.*=false -Dstrongbox.download.indexes.storage-springsource-proxies.*=false -Dstrongbox.download.indexes.-Dstrongbox.download.indexes.storage-common-proxies.*=false -Dstrongbox.download.indexes.storage-sbt-proxies.*=false</argLine>
                         <includes>
                             <include>**/*Test</include>
                         </includes>
