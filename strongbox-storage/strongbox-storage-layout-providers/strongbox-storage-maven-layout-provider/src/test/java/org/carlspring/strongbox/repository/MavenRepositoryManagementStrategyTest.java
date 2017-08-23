@@ -45,7 +45,7 @@ public class MavenRepositoryManagementStrategyTest
         System.out.println("----------------------------------------------------------------------------------");
 
         assertTrue("Did not handle download repository index decision properly!",
-                   shouldDownloadRepositoryIndex(STORAGE0, REPOSITORY_RELEASES));
+                   shouldDownloadAllRemoteRepositoryIndexes() || shouldDownloadRepositoryIndex(STORAGE0, REPOSITORY_RELEASES));
     }
 
     @Test
@@ -65,8 +65,8 @@ public class MavenRepositoryManagementStrategyTest
                            shouldDownloadRepositoryIndex(STORAGE0, REPOSITORY_RELEASES));
         System.out.println("----------------------------------------------------------------------------------");
 
-        assertFalse("Did not handle download repository index decision properly!",
-                    shouldDownloadRepositoryIndex(STORAGE0, REPOSITORY_RELEASES));
+        assertTrue("Did not handle download repository index decision properly!",
+                    shouldDownloadAllRemoteRepositoryIndexes() || shouldDownloadRepositoryIndex(STORAGE0, REPOSITORY_RELEASES));
     }
 
     @Test
@@ -90,7 +90,77 @@ public class MavenRepositoryManagementStrategyTest
         System.out.println("----------------------------------------------------------------------------------");
 
         assertTrue("Did not handle download repository index decision properly!",
-                   shouldDownloadRepositoryIndex(STORAGE0, REPOSITORY_RELEASES));
+                   shouldDownloadAllRemoteRepositoryIndexes() || shouldDownloadRepositoryIndex(STORAGE0, REPOSITORY_RELEASES));
+    }
+
+    @Test
+    public void testShouldNotDownloadRepositoryIndexCaseWithStorageWildcard()
+    {
+        System.setProperty("strongbox.download.indexes", "false");
+        System.setProperty("strongbox.download.indexes." + STORAGE0 + ".*", "false");
+
+        System.out.println("----------------------------------------------------------------------------------");
+        System.out.println("strongbox.download.indexes = " + System.getProperty("strongbox.download.indexes"));
+        System.out.println("strongbox.download.indexes." + STORAGE0 + "." + REPOSITORY_RELEASES + " = " +
+                           System.getProperty("strongbox.download.indexes." + STORAGE0 + "." + REPOSITORY_RELEASES));
+        System.out.println("strongbox.download.indexes." + STORAGE0 + ".* = " +
+                           System.getProperty("strongbox.download.indexes." + STORAGE0 + ".*"));
+
+        System.out.println("shouldDownloadAllRemoteRepositoryIndexes ? " +
+                           shouldDownloadAllRemoteRepositoryIndexes());
+        System.out.println("shouldDownloadRepositoryIndex(storage0, releases) ? " +
+                           shouldDownloadRepositoryIndex(STORAGE0, REPOSITORY_RELEASES));
+        System.out.println("----------------------------------------------------------------------------------");
+
+        assertFalse("Did not handle download repository index decision properly!",
+                   shouldDownloadAllRemoteRepositoryIndexes() || shouldDownloadRepositoryIndex(STORAGE0, REPOSITORY_RELEASES));
+    }
+
+    @Test
+    public void testShouldNotDownloadRepositoryIndexCaseWithExplicitNegation()
+    {
+        System.setProperty("strongbox.download.indexes", "false");
+        System.setProperty("strongbox.download.indexes." + STORAGE0 + "." + REPOSITORY_RELEASES, "false");
+
+        System.out.println("----------------------------------------------------------------------------------");
+        System.out.println("strongbox.download.indexes = " + System.getProperty("strongbox.download.indexes"));
+        System.out.println("strongbox.download.indexes." + STORAGE0 + "." + REPOSITORY_RELEASES + " = " +
+                           System.getProperty("strongbox.download.indexes." + STORAGE0 + "." + REPOSITORY_RELEASES));
+        System.out.println("strongbox.download.indexes." + STORAGE0 + ".* = " +
+                           System.getProperty("strongbox.download.indexes." + STORAGE0 + ".*"));
+
+        System.out.println("shouldDownloadAllRemoteRepositoryIndexes ? " +
+                           shouldDownloadAllRemoteRepositoryIndexes());
+        System.out.println("shouldDownloadRepositoryIndex(storage0, releases) ? " +
+                           shouldDownloadRepositoryIndex(STORAGE0, REPOSITORY_RELEASES));
+        System.out.println("----------------------------------------------------------------------------------");
+
+        assertFalse("Did not handle download repository index decision properly!",
+                    shouldDownloadAllRemoteRepositoryIndexes() || shouldDownloadRepositoryIndex(STORAGE0, REPOSITORY_RELEASES));
+    }
+
+    @Test
+    public void testShouldNotDownloadRepositoryIndexCaseWithStorageWildcardPositiveAndExplicitNegation()
+    {
+        System.setProperty("strongbox.download.indexes", "false");
+        System.setProperty("strongbox.download.indexes." + STORAGE0 + "." + REPOSITORY_RELEASES, "false");
+        System.setProperty("strongbox.download.indexes." + STORAGE0 + ".*", "true");
+
+        System.out.println("----------------------------------------------------------------------------------");
+        System.out.println("strongbox.download.indexes = " + System.getProperty("strongbox.download.indexes"));
+        System.out.println("strongbox.download.indexes." + STORAGE0 + "." + REPOSITORY_RELEASES + " = " +
+                           System.getProperty("strongbox.download.indexes." + STORAGE0 + "." + REPOSITORY_RELEASES));
+        System.out.println("strongbox.download.indexes." + STORAGE0 + ".* = " +
+                           System.getProperty("strongbox.download.indexes." + STORAGE0 + ".*"));
+
+        System.out.println("shouldDownloadAllRemoteRepositoryIndexes ? " +
+                           shouldDownloadAllRemoteRepositoryIndexes());
+        System.out.println("shouldDownloadRepositoryIndex(storage0, releases) ? " +
+                           shouldDownloadRepositoryIndex(STORAGE0, REPOSITORY_RELEASES));
+        System.out.println("----------------------------------------------------------------------------------");
+
+        assertFalse("Did not handle download repository index decision properly!",
+                   shouldDownloadAllRemoteRepositoryIndexes() || shouldDownloadRepositoryIndex(STORAGE0, REPOSITORY_RELEASES));
     }
 
 }

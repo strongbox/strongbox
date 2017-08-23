@@ -100,8 +100,8 @@ public class MavenRepositoryManagementStrategy
 
     public static boolean shouldDownloadRepositoryIndex(String storageId, String repositoryId)
     {
-        return System.getProperty("strongbox.download.indexes." + storageId + "." + repositoryId) == null ||
-               Boolean.parseBoolean(System.getProperty("strongbox.download.indexes." + storageId + "." + repositoryId)) ||
+        return (System.getProperty("strongbox.download.indexes." + storageId + "." + repositoryId) == null ||
+               Boolean.parseBoolean(System.getProperty("strongbox.download.indexes." + storageId + "." + repositoryId))) &&
                isIncludedDespiteWildcard(storageId, repositoryId);
     }
 
