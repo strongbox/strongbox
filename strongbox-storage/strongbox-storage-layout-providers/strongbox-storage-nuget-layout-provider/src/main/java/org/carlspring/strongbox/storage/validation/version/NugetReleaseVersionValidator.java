@@ -39,7 +39,7 @@ public class NugetReleaseVersionValidator
 
     public boolean isRelease(String version)
     {
-        return StringUtils.isNotBlank(version) && !StringUtils.endsWithIgnoreCase(version, "SNAPSHOT");
+        return StringUtils.isNotBlank(version) && !StringUtils.endsWithIgnoreCase(version, "-SNAPSHOT");
     }
 
 }
