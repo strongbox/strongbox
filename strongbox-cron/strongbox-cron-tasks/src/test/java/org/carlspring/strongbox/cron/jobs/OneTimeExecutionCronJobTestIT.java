@@ -69,7 +69,7 @@ public class OneTimeExecutionCronJobTestIT
         addOneTimeExecutionCronJobConfig(jobName);
 
         assertTrue("Failed to execute task within a reasonable time!",
-                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType(), 10000, 500));
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType(), 20000, 500));
     }
 
 }
