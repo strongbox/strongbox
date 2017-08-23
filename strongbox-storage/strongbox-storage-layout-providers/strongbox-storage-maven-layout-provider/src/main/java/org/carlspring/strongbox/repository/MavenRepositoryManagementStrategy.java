@@ -74,13 +74,43 @@ public class MavenRepositoryManagementStrategy
                 // Create a remote index
                 createRepositoryIndexer(storageId, repositoryId, IndexTypeEnum.REMOTE.getType(), repositoryBasedir);
 
-                // Create a scheduled task for downloading the remote's index
-                createRemoteIndexDownloaderCronTask(storageId, repositoryId);
+                boolean shouldDownloadIndexes = shouldDownloadAllRemoteRepositoryIndexes();
+                boolean shouldDownloadRepositoryIndex = shouldDownloadRepositoryIndex(storageId, repositoryId);
+
+                if (shouldDownloadIndexes || shouldDownloadRepositoryIndex)
+                {
+                    // TODO: Add a check whether there is such a cron task already created for this repository
+                    // TODO: (no need to keep adding new cron tasks upon every boot)
+
+                    // Create a scheduled task for downloading the remote's index
+                    createRemoteIndexDownloaderCronTask(storageId, repositoryId);
+                }
             }
 
             // Create a local index
             createRepositoryIndexer(storageId, repositoryId, IndexTypeEnum.LOCAL.getType(), repositoryBasedir);
         }
+    }
+
+    public static boolean shouldDownloadAllRemoteRepositoryIndexes()
+    {
+        return System.getProperty("strongbox.download.indexes") == null ||
+               Boolean.parseBoolean(System.getProperty("strongbox.download.indexes"));
+    }
+
+    public static boolean shouldDownloadRepositoryIndex(String storageId, String repositoryId)
+    {
+        return (System.getProperty("strongbox.download.indexes." + storageId + "." + repositoryId) == null ||
+               Boolean.parseBoolean(System.getProperty("strongbox.download.indexes." + storageId + "." + repositoryId))) &&
+               isIncludedDespiteWildcard(storageId, repositoryId);
+    }
+
+    public static boolean isIncludedDespiteWildcard(String storageId, String repositoryId)
+    {
+        return // is excluded by wildcard
+               !Boolean.parseBoolean(System.getProperty("strongbox.download.indexes." + storageId + ".*")) &&
+               // and is explicitly included
+               Boolean.parseBoolean(System.getProperty("strongbox.download.indexes." + storageId + "." + repositoryId));
     }
 
     private void createRemoteIndexDownloaderCronTask(String storageId,
