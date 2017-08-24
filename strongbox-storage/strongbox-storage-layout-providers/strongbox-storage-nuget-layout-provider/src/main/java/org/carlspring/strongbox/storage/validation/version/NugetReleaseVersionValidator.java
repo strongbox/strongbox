@@ -12,13 +12,14 @@ import org.springframework.stereotype.Component;
  */
 @Component("NugetReleaseVersionValidator")
 public class NugetReleaseVersionValidator
-        implements VersionValidator
+        implements NugetVersionValidator
 {
 
     @Override
     public boolean supports(Repository repository)
     {
-        return repository.getVersionValidators().contains(VersionValidatorType.RELEASE);
+        return NugetVersionValidator.super.supports(repository) &&
+               repository.getVersionValidators().contains(VersionValidatorType.RELEASE);
     }
 
     @Override

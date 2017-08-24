@@ -186,7 +186,7 @@ public class RepositoryVersionValidatorsManagementControllerTest
                           .then()
                           .body(anyOf(
                                   equalTo("[ \"REDEPLOYMENT\", \"SNAPSHOT\" ]"),
-                                  equalTo("[ \"RELESNAPSHOTASE\", \"REDEPLOYMENT\" ]")
+                                  equalTo("[ \"SNAPSHOT\", \"REDEPLOYMENT\" ]")
                           ))
                           .statusCode(200);
     }

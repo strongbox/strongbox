@@ -12,13 +12,14 @@ import org.springframework.stereotype.Component;
  */
 @Component("MavenSnapshotVersionValidator")
 public class MavenSnapshotVersionValidator
-        implements VersionValidator
+        implements MavenVersionValidator
 {
 
     @Override
     public boolean supports(Repository repository)
     {
-        return repository.getVersionValidators().contains(VersionValidatorType.SNAPSHOT);
+        return MavenVersionValidator.super.supports(repository) &&
+               repository.getVersionValidators().contains(VersionValidatorType.SNAPSHOT);
     }
 
     /**

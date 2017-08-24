@@ -3,6 +3,7 @@ package org.carlspring.strongbox.storage.validation.version;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.NugetHierarchicalArtifactCoordinates;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -22,6 +23,7 @@ public class NugetReleaseVersionValidatorTest
             throws Exception
     {
         repository.setPolicy(RepositoryPolicyEnum.RELEASE.toString());
+        repository.setLayout(RepositoryLayoutEnum.NUGET_HIERACHLICAL.getLayout());
     }
 
     @Test
@@ -35,13 +37,25 @@ public class NugetReleaseVersionValidatorTest
         coordinates2.setVersion("1.0");
 
         ArtifactCoordinates coordinates3 = new NugetHierarchicalArtifactCoordinates();
-        coordinates3.setVersion("1.0-RELEASE");
+        coordinates3.setVersion("1.0-rc-1");
+
+        ArtifactCoordinates coordinates4 = new NugetHierarchicalArtifactCoordinates();
+        coordinates4.setVersion("1.0-milestone-1");
+
+        ArtifactCoordinates coordinates5 = new NugetHierarchicalArtifactCoordinates();
+        coordinates5.setVersion("1.0-alpha-1");
+
+        ArtifactCoordinates coordinates6 = new NugetHierarchicalArtifactCoordinates();
+        coordinates6.setVersion("1.0-beta-1");
 
         try
         {
             validator.validate(repository, coordinates1);
             validator.validate(repository, coordinates2);
             validator.validate(repository, coordinates3);
+            validator.validate(repository, coordinates4);
+            validator.validate(repository, coordinates5);
+            validator.validate(repository, coordinates6);
         }
         catch (Exception ex)
         {

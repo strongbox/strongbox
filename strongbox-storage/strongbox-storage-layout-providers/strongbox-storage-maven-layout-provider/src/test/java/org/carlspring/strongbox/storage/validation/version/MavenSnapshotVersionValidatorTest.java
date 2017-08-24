@@ -3,6 +3,7 @@ package org.carlspring.strongbox.storage.validation.version;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.MockedMavenArtifactCoordinates;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
 import org.apache.maven.artifact.Artifact;
@@ -30,6 +31,7 @@ public class MavenSnapshotVersionValidatorTest
             throws Exception
     {
         repository.setPolicy(RepositoryPolicyEnum.SNAPSHOT.toString());
+        repository.setLayout(RepositoryLayoutEnum.MAVEN_2.getLayout());
     }
 
     @Test

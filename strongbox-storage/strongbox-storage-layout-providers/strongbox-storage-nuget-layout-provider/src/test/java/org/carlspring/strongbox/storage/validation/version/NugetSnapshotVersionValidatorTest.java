@@ -3,6 +3,7 @@ package org.carlspring.strongbox.storage.validation.version;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.NugetHierarchicalArtifactCoordinates;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -23,6 +24,7 @@ public class NugetSnapshotVersionValidatorTest
             throws Exception
     {
         repository.setPolicy(RepositoryPolicyEnum.SNAPSHOT.toString());
+        repository.setLayout(RepositoryLayoutEnum.NUGET_HIERACHLICAL.getLayout());
     }
 
     @Test
