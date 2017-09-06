@@ -1,16 +1,6 @@
 package org.carlspring.strongbox.client;
 
-import org.apache.http.HttpStatus;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Invocation;
@@ -20,6 +10,19 @@ import javax.ws.rs.core.Response;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+
+import org.apache.http.HttpStatus;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.glassfish.jersey.apache.connector.ApacheClientProperties;
+import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author mtodorov
@@ -57,11 +60,6 @@ public class ArtifactResolver
         return resolver;
     }
 
-    public Client getClientInstance()
-    {
-        return client;
-    }
-
     private ClientConfig getClientConfig()
     {
         ClientConfig config = new ClientConfig();
@@ -94,8 +92,10 @@ public class ArtifactResolver
 
         logger.debug("Getting " + url + "...");
 
-        WebTarget resource = getClientInstance().target(url);
-        setupAuthentication(resource);
+        WebTarget resource = new WebTargetBuilder(url)
+                                     .withAuthentication()
+                                     .customRequestConfig()
+                                     .build();
 
         Invocation.Builder request = resource.request();
         Response response;
@@ -134,8 +134,10 @@ public class ArtifactResolver
 
         logger.debug("Getting " + url + "...");
 
-        WebTarget resource = getClientInstance().target(url);
-        setupAuthentication(resource);
+        WebTarget resource = new WebTargetBuilder(url)
+                                     .withAuthentication()
+                                     .customRequestConfig()
+                                     .build();
 
         return resource.request().get();
     }
@@ -177,8 +179,10 @@ public class ArtifactResolver
 
         logger.debug("Path to artifact: " + url);
 
-        WebTarget resource = getClientInstance().target(url);
-        setupAuthentication(resource);
+        WebTarget resource = new WebTargetBuilder(url)
+                                     .withAuthentication()
+                                     .customRequestConfig()
+                                     .build();
 
         return resource.request(MediaType.TEXT_PLAIN).header("user-agent", "Maven/*").get();
     }
@@ -189,8 +193,10 @@ public class ArtifactResolver
 
         logger.debug("Path to artifact: " + url);
 
-        WebTarget resource = getClientInstance().target(url);
-        setupAuthentication(resource);
+        WebTarget resource = new WebTargetBuilder(url)
+                                     .withAuthentication()
+                                     .customRequestConfig()
+                                     .build();
 
         Response response = resource.request(MediaType.TEXT_PLAIN).header("user-agent", "Maven/*").get();
         try
@@ -218,14 +224,6 @@ public class ArtifactResolver
         return getRepositoryBaseUrl() +
                "storages/" + storageId + "/" + repositoryId + "/" +
                ArtifactUtils.convertArtifactToPath(artifact);
-    }
-
-    public void setupAuthentication(WebTarget target)
-    {
-        if (username != null && password != null)
-        {
-            target.register(HttpAuthenticationFeature.basic(username, password));
-        }
     }
 
     public Metadata retrieveMetadata(String path)
@@ -284,6 +282,38 @@ public class ArtifactResolver
     public void setPassword(String password)
     {
         this.password = password;
+    }
+
+    private class WebTargetBuilder
+    {
+
+        private final WebTarget target;
+
+        private WebTargetBuilder(String uri)
+        {
+            this.target = client.target(uri);
+        }
+
+        private WebTargetBuilder withAuthentication()
+        {
+            if (username != null && password != null)
+            {
+                target.register(HttpAuthenticationFeature.basic(username, password));
+            }
+            return this;
+        }
+
+        private WebTargetBuilder customRequestConfig()
+        {
+            target.property(ApacheClientProperties.REQUEST_CONFIG,
+                            RequestConfig.custom().setCircularRedirectsAllowed(true).build());
+            return this;
+        }
+
+        public WebTarget build()
+        {
+            return target;
+        }
     }
 
 }
