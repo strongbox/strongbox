@@ -375,6 +375,9 @@ public class NugetPackageController extends BaseArtifactController
         {
             boundaryString = matcher.group(2);
         }
+        boundaryString = boundaryString.startsWith("\"") ? boundaryString.substring(1) : boundaryString;
+        boundaryString = boundaryString.endsWith("\"") ? boundaryString.substring(0, boundaryString.length() - 1)
+                : boundaryString;
         return boundaryString;
     }
 
