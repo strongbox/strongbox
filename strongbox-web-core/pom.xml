@@ -160,8 +160,6 @@
                         </systemProperty>
                     </systemProperties>
 
-                    <useTestScope>true</useTestScope>
-
                     <!-- Restore the following for SSL/HTTPSL when the time comes:
                     <jettyXml>${dir.jetty.etc}/jetty.xml,${dir.jetty.etc}/jetty-http.xml,${dir.jetty.etc}/jetty-ssl.xml,${dir.jetty.etc}/jetty-https.xml</jettyXml>
                     -->
@@ -350,14 +348,15 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-rest-client</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
             <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-testing-web</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -858,8 +857,6 @@
                                     <value>${dir.strongbox.home}/etc/logback.xml</value>
                                 </systemProperty>
                             </systemProperties>
-
-                            <useTestScope>true</useTestScope>
 
                             <!-- Restore the following for SSL/HTTPSL when the time comes:
                             <jettyXml>${dir.jetty.etc}/jetty.xml,${dir.jetty.etc}/jetty-http.xml,${dir.jetty.etc}/jetty-ssl.xml,${dir.jetty.etc}/jetty-https.xml</jettyXml>
