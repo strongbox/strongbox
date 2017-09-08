@@ -67,6 +67,8 @@ public class SecurityConfig
             .anonymous()
             .authenticationFilter(anonymousAuthenticationFilter())
             .and()
+            .cors()
+            .and()
             .csrf()
             .disable();
 
