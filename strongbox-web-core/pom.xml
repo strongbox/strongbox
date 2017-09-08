@@ -717,6 +717,16 @@
                                             <outputDirectory>${dir.strongbox.home}</outputDirectory>
                                             <includes>etc/**</includes>
                                         </artifactItem>
+                                        <artifactItem>
+                                            <groupId>${project.groupId}</groupId>
+                                            <artifactId>strongbox-storage-api-resources</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>jar</type>
+
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${dir.strongbox.home}</outputDirectory>
+                                            <includes>etc/conf/strongbox.xml</includes>
+                                        </artifactItem>
                                     </artifactItems>
                                 </configuration>
                             </execution>
