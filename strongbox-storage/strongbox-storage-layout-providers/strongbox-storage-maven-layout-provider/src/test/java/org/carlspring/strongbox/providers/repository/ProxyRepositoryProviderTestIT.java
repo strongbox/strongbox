@@ -3,12 +3,11 @@ package org.carlspring.strongbox.providers.repository;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
-import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessCacheManager;
+import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.inject.Inject;
@@ -43,12 +42,6 @@ public class ProxyRepositoryProviderTestIT
     @Inject
     private ArtifactResolutionService artifactResolutionService;
 
-    @Inject
-    private RemoteRepositoryAlivenessCacheManager remoteRepositoryAlivenessCacheManager;
-
-    @Inject
-    private ConfigurationManager configurationManager;
-
     @Before
     public void setUp()
             throws Exception
@@ -60,6 +53,47 @@ public class ProxyRepositoryProviderTestIT
         {
             FileUtils.deleteDirectory(derbyPluginBaseDir);
         }
+    }
+
+    @Test
+    public void shouldBeAbleToProvideFilesFromOracleMavenRepoWithHttpsAndAuthenticationAndRedirections()
+            throws ProviderImplementationException,
+                   NoSuchAlgorithmException,
+                   ArtifactTransportException,
+                   IOException
+    {
+
+        String providedTestOracleRepoUser = System.getProperty("strongbox.test.oracle.repo.user");
+        String providedTestOracleRepoPassword = System.getProperty("strongbox.test.oracle.repo.password");
+
+        if (providedTestOracleRepoUser == null || providedTestOracleRepoPassword == null)
+        {
+            logger.info(
+                    "System property strongbox.test.oracle.repo.user or strongbox.test.oracle.repo.password not found. Ignoring test.");
+            return;
+        }
+
+        RemoteRepository mavenOracleRepository = configurationManagementService.getConfiguration()
+                                                                               .getStorage("storage-common-proxies")
+                                                                               .getRepository("maven-oracle")
+                                                                               .getRemoteRepository();
+
+        String initialUsername = mavenOracleRepository.getUsername();
+        String initialPassword = mavenOracleRepository.getPassword();
+
+        mavenOracleRepository.setUsername(providedTestOracleRepoUser);
+        mavenOracleRepository.setPassword(providedTestOracleRepoPassword);
+
+        assertStreamNotNull("storage-common-proxies",
+                            "maven-oracle",
+                            "com/oracle/jdbc/ojdbc8/12.2.0.1/ojdbc8-12.2.0.1.jar");
+
+        assertStreamNotNull("storage-common-proxies",
+                            "maven-oracle",
+                            "com/oracle/jdbc/ojdbc8/12.2.0.1/ojdbc8-12.2.0.1.pom");
+
+        mavenOracleRepository.setUsername(initialUsername);
+        mavenOracleRepository.setPassword(initialPassword);
     }
 
     @Test
