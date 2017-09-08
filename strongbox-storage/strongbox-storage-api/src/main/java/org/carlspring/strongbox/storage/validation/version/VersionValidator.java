@@ -12,13 +12,19 @@ import java.io.IOException;
 public interface VersionValidator
 {
 
+    default boolean supports(Repository repository)
+    {
+        return true;
+    }
+
     /**
      * Checks if an artifact version is acceptable by the repository.
      *
-     * @param repository    The repository.
-     * @param coordinates   The artifact being deployed.
+     * @param repository  The repository.
+     * @param coordinates The artifact being deployed.
      */
-    void validate(Repository repository, ArtifactCoordinates coordinates)
+    void validate(Repository repository,
+                  ArtifactCoordinates coordinates)
             throws VersionValidationException,
                    ProviderImplementationException,
                    IOException;

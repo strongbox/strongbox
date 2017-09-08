@@ -5,6 +5,7 @@ import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.VersionValidatorType;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
 import org.carlspring.strongbox.storage.routing.RuleSet;
@@ -34,19 +35,13 @@ public class ConfigurationManagerTest
 {
 
     public static final String TEST_CLASSES = "target/test-classes";
-
     public static final String CONFIGURATION_BASEDIR = TEST_CLASSES + "/xml";
-
     public static final String CONFIGURATION_OUTPUT_FILE = CONFIGURATION_BASEDIR + "/strongbox-saved-cm.xml";
-
     private GenericParser<Configuration> parser = new GenericParser<>(Configuration.class);
-
     @Inject
     private ConfigurationManager configurationManager;
-
     @Inject
     private ArtifactResolutionService artifactResolutionService;
-
 
     @Before
     public void setUp()
@@ -91,6 +86,18 @@ public class ConfigurationManagerTest
                                 .get("storage0")
                                 .getRepositories()
                                 .get("releases").allowsDirectoryBrowsing());
+
+        Set<VersionValidatorType> versionValidators = configuration.getStorages()
+                                                                   .get("storage0")
+                                                                   .getRepositories()
+                                                                   .get("releases")
+                                                                   .getVersionValidators();
+
+        assertTrue(versionValidators.size() == 3);
+        assertTrue(versionValidators.remove(VersionValidatorType.REDEPLOYMENT));
+        assertTrue(versionValidators.remove(VersionValidatorType.RELEASE));
+        assertTrue(versionValidators.remove(VersionValidatorType.SNAPSHOT));
+        assertTrue(versionValidators.size() == 0);
     }
 
     @Test

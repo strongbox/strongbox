@@ -3,17 +3,24 @@ package org.carlspring.strongbox.storage.validation.version;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.VersionValidatorType;
 
 import org.springframework.stereotype.Component;
 
 /**
  * @author stodorov
  */
-@Component("releaseVersionValidator")
-public class ReleaseVersionValidator
-        implements VersionValidator
+@Component("MavenReleaseVersionValidator")
+public class MavenReleaseVersionValidator
+        implements MavenVersionValidator
 {
 
+    @Override
+    public boolean supports(Repository repository)
+    {
+        return MavenVersionValidator.super.supports(repository) &&
+               repository.getVersionValidators().contains(VersionValidatorType.RELEASE);
+    }
 
     /**
      * Matches versions:
