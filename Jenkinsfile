@@ -30,7 +30,7 @@ pipeline {
 
                     echo "Preparing workspace..."
                     sh "mkdir -p '$RAMWS'"
-                    sh "cp -R `ls -A '$HDDWS' | grep -v .git | grep -v ram` '$RAMWS'"
+                    sh "cp -R `ls -A '$HDDWS' | grep -v ram` '$RAMWS'"
                     sh "mkdir -p '$RAMMOUNT'"
                     sh "sudo mount --bind  '$RAMWS' '$RAMMOUNT'"
                 }
