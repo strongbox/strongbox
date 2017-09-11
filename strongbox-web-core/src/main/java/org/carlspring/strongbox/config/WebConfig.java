@@ -24,7 +24,10 @@ import org.springframework.http.converter.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.converter.xml.MarshallingHttpMessageConverter;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
-import org.springframework.web.servlet.config.annotation.*;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 @Configuration
 @ComponentScan({ "com.carlspring.strongbox.controllers",
@@ -40,7 +43,7 @@ import org.springframework.web.servlet.config.annotation.*;
           StorageCoreConfig.class,
           SecurityConfig.class,
           ClientConfig.class,
-          CronTasksConfig.class})
+          CronTasksConfig.class })
 @EnableCaching(order = 105)
 @EnableWebMvc
 public class WebConfig
@@ -141,13 +144,5 @@ public class WebConfig
                 .addResourceHandler("/docs/**")
                 .addResourceLocations("/docs/")
                 .setCachePeriod(3600);
-    }
-
-    @Override
-    public void addCorsMappings(CorsRegistry registry)
-    {
-        registry.addMapping("/**")
-                .allowedMethods("*")
-                .allowedOrigins("*");
     }
 }
