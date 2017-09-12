@@ -44,6 +44,9 @@ public class RemoteRepository
     @XmlAttribute(name = "allows-directory-browsing")
     private boolean allowsDirectoryBrowsing = true;
 
+    @XmlAttribute(name = "auto-import-remote-SSL-certificate")
+    private boolean autoImportRemoteSSLCertificate;
+
     public RemoteRepository()
     {
     }
@@ -136,5 +139,15 @@ public class RemoteRepository
     public void setAllowsDirectoryBrowsing(boolean allowsDirectoryBrowsing)
     {
         this.allowsDirectoryBrowsing = allowsDirectoryBrowsing;
+    }
+
+    public boolean isAutoImportRemoteSSLCertificate()
+    {
+        return autoImportRemoteSSLCertificate;
+    }
+
+    public void setAutoImportRemoteSSLCertificate(boolean autoImportRemoteSSLCertificate)
+    {
+        this.autoImportRemoteSSLCertificate = autoImportRemoteSSLCertificate;
     }
 }

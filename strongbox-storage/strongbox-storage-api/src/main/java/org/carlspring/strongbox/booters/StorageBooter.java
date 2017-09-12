@@ -7,9 +7,12 @@ import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.RepositoryManagementService;
+import org.carlspring.strongbox.services.TrustStoreService;
+import org.carlspring.strongbox.services.support.TrustStoreCertificationAdditionException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
+import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -44,6 +47,9 @@ public class StorageBooter
     @Inject
     private RepositoryManagementService repositoryManagementService;
 
+    @Inject
+    private TrustStoreService trustStoreService;
+
     private File lockFile = new File(ConfigurationResourceResolver.getVaultDirectory(), "storage-booter.lock");
 
 
@@ -74,7 +80,8 @@ public class StorageBooter
                 {
                     logger.error("Failed to initialize the repositories for storage '" + storageKey + "'.", e);
 
-                    throw new RuntimeException("Failed to initialize the repositories for storage '" + storageKey + "'.");
+                    throw new RuntimeException("Failed to initialize the repositories for storage '" + storageKey +
+                                               "'.");
                 }
             }
         }
@@ -221,6 +228,26 @@ public class StorageBooter
         if (RepositoryStatusEnum.IN_SERVICE.getStatus().equals(repository.getStatus()))
         {
             repositoryManagementService.putInService(storage.getId(), repositoryId);
+        }
+
+        if (repository.getRemoteRepository() != null)
+        {
+            initializeRemoteRepository(repository.getRemoteRepository());
+        }
+    }
+
+    private void initializeRemoteRepository(RemoteRepository remoteRepository)
+    {
+        if (remoteRepository.isAutoImportRemoteSSLCertificate())
+        {
+            try
+            {
+                trustStoreService.addSslCertificatesToTrustStore(remoteRepository.getUrl());
+            }
+            catch (IOException | TrustStoreCertificationAdditionException e)
+            {
+                logger.error("Could not import remote SSL certificate to trust store", e);
+            }
         }
     }
 
