@@ -7,6 +7,7 @@ import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -25,7 +26,15 @@ public class DefaultAuthenticator
     @Override
     public AuthenticationProvider getAuthenticationProvider()
     {
-        final DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+        final DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(){
+
+            @Override
+            public boolean supports(Class<?> authentication)
+            {
+                return UsernamePasswordAuthenticationToken.class == authentication;
+            }
+            
+        };
         authenticationProvider.setUserDetailsService(userDetailsService);
         return authenticationProvider;
     }

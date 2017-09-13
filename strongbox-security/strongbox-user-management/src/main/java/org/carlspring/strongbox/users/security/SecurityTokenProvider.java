@@ -121,7 +121,7 @@ public class SecurityTokenProvider
         return subject;
     }
 
-    private JwtClaims getClaims(String token)
+    public JwtClaims getClaims(String token)
     {
         JwtConsumer jwtConsumer = new JwtConsumerBuilder().setRequireSubject()
                                                           .setVerificationKey(key)

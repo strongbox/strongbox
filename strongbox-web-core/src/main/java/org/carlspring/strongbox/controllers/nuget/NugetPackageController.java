@@ -33,7 +33,6 @@ import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ReplacingInputStream;
-import org.carlspring.strongbox.security.exceptions.SecurityTokenException;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -107,13 +106,6 @@ public class NugetPackageController extends BaseArtifactController
                                         @PathParam("version") String version)
     {
         logger.info(String.format("Nuget delete request: storageId-[%s]; repositoryId-[%s]; packageId-[%s]", storageId, repositoryId, packageId));
-
-        String userName = getUserName();
-        if (!verify(userName, apiKey))
-        {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-        
         String path = String.format("%s/%s/%s.nuspec", packageId, version, packageId);
         
         try
@@ -260,13 +252,6 @@ public class NugetPackageController extends BaseArtifactController
                                      HttpServletRequest request)
     {
         logger.info(String.format("Nuget push request: storageId-[%s]; repositoryId-[%s]", storageId, repositoryId));
-
-        String userName = getUserName();
-        if (!verify(userName, apiKey))
-        {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
         String contentType = request.getHeader("content-type");
 
         URI resourceUri;
@@ -492,28 +477,6 @@ public class NugetPackageController extends BaseArtifactController
         }
 
         return new URI("");
-    }
-
-    private boolean verify(String userName,
-                           String apiKey)
-    {
-        if (StringUtils.isEmpty(userName) || StringUtils.isEmpty(apiKey))
-        {
-            return false;
-        }
-
-        try
-        {
-            userService.verifySecurityToken(userName, apiKey);
-        }
-        catch (SecurityTokenException e)
-        {
-            logger.info(String.format("Invalid security token: user-[%s]", userName), e);
-
-            return false;
-        }
-
-        return true;
     }
 
     private String getUserName()
