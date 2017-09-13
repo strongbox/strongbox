@@ -29,6 +29,8 @@ public class SpringSecurityUser
     private AccessModel accessModel;
 
     private String url;
+    
+    private String securityKey;
 
     SpringSecurityUser()
     {
@@ -126,6 +128,16 @@ public class SpringSecurityUser
         this.url = url;
     }
 
+    public String getSecurityKey()
+    {
+        return securityKey;
+    }
+
+    public void setSecurityKey(String securityKey)
+    {
+        this.securityKey = securityKey;
+    }
+
     @Override
     public boolean equals(Object o)
     {
@@ -138,7 +150,8 @@ public class SpringSecurityUser
                Objects.equal(salt, user.salt) &&
                Objects.equal(authorities, user.authorities) &&
                Objects.equal(accessModel, user.accessModel) &&
-               Objects.equal(url, user.url);
+               Objects.equal(url, user.url) &&
+               Objects.equal(securityKey, user.securityKey);
     }
 
     @Override

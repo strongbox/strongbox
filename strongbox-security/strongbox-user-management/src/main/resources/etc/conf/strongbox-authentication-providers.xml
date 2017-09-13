@@ -11,6 +11,7 @@
 
     <util:list id="authenticators">
         <bean class="org.carlspring.strongbox.authentication.api.impl.xml.DefaultAuthenticator" />
+        <bean class="org.carlspring.strongbox.authentication.api.impl.xml.SecurityTokenAuthenticator" />
     </util:list>
 
 </beans>
