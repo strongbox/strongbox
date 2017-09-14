@@ -98,7 +98,7 @@ pipeline {
                     withMaven(maven: 'maven-3.3.9', mavenSettingsConfig: 'a5452263-40e5-4d71-a5aa-4fc94a0e6833')
                     {
                         sh "cd '$RAMMOUNT' && mvn package deploy:deploy" +
-                           " -Dmaven.test.skip=true" +
+                           " -DskipTests" +
                            " -DaltDeploymentRepository=${SERVER_ID}::default::${SERVER_URL}"
                     }
                 }
