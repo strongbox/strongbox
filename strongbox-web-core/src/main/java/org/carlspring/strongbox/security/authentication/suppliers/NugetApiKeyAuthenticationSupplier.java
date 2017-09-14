@@ -44,8 +44,18 @@ public class NugetApiKeyAuthenticationSupplier implements AuthenticationSupplier
     @Override
     public boolean supports(HttpServletRequest request)
     {
-        String storageId = UrlUtils.getCurrentStorageId();
-        String repositoryId = UrlUtils.getCurrentRepositoryId();
+        String pathInfo = ((HttpServletRequest) request).getPathInfo();
+        if (!pathInfo.startsWith("/storages"))
+        {
+            return false;
+        }
+        String[] pathParts = pathInfo.split("/");
+        if (pathParts.length < 4)
+        {
+            return false;
+        }
+        String storageId = pathParts[2];
+        String repositoryId = pathParts[3];
         if (storageId == null || repositoryId == null)
         {
             return false;
