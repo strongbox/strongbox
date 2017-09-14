@@ -102,8 +102,8 @@ public class NugetPackageController extends BaseArtifactController
     public ResponseEntity deletePackage(@RequestHeader(name = "X-NuGet-ApiKey", required = false) String apiKey,
                                         @ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
                                         @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
-                                        @PathParam("packageId") String packageId,
-                                        @PathParam("version") String version)
+                                        @PathVariable("packageId") String packageId,
+                                        @PathVariable("version") String version)
     {
         logger.info(String.format("Nuget delete request: storageId-[%s]; repositoryId-[%s]; packageId-[%s]", storageId, repositoryId, packageId));
         String path = String.format("%s/%s/%s.nuspec", packageId, version, packageId);
