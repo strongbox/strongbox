@@ -56,7 +56,7 @@ public class CorsConfigurationControllerTest
                           .peek()
                           .then()
                           .statusCode(200)
-                          .body(CoreMatchers.equalTo("[ \"*\" ]"));
+                          .body(CoreMatchers.equalTo("[ ]"));
     }
 
     @Test
@@ -80,6 +80,29 @@ public class CorsConfigurationControllerTest
                           .then()
                           .statusCode(200)
                           .body(CoreMatchers.equalTo("[ \"http://example.com\" ]"));
+    }
+
+    @Test
+    public void shouldAllowAllOrigins()
+            throws Exception
+    {
+        RestAssuredMockMvc.given()
+                          .header("Content-Type", "application/json")
+                          .body(Arrays.asList("*"))
+                          .when()
+                          .put("/configuration/cors/")
+                          .peek()
+                          .then()
+                          .statusCode(200);
+
+        RestAssuredMockMvc.given()
+                          .header("Accept", "application/json")
+                          .when()
+                          .get("/configuration/cors/")
+                          .peek()
+                          .then()
+                          .statusCode(200)
+                          .body(CoreMatchers.equalTo("[ \"*\" ]"));
     }
 
     @Test

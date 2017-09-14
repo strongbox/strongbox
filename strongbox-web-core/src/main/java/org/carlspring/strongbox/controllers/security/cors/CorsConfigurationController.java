@@ -5,6 +5,7 @@ import org.carlspring.strongbox.controllers.BaseController;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -46,14 +47,16 @@ public class CorsConfigurationController
                 ((UrlBasedCorsConfigurationSource) corsConfigurationSource).getCorsConfigurations()
                                                                            .values()
                                                                            .stream()
-                                                                           .flatMap(c -> c.getAllowedOrigins()
-                                                                                          .stream())
+                                                                           .flatMap(c -> c.getAllowedOrigins() != null ?
+                                                                                         c.getAllowedOrigins().stream() :
+                                                                                         Stream.empty())
                                                                            .collect(Collectors.toList()));
     }
 
     @ApiOperation(value = "Sets CORS allowed origins", httpMethod = "PUT", consumes = MediaType.APPLICATION_JSON_VALUE,
             notes = "In the request body, put an array of all allowed origins like this example: " +
-                    "[{\"http://dev.carlspring.org/confluence\"},{\"http://dev.carlspring.org/jenkins\"}]")
+                    "[\"http://dev.carlspring.org/confluence\",\"http://dev.carlspring.org/jenkins\"]. " +
+                    "You can always provide [*] to allow all origins.")
     @ApiResponses(value = @ApiResponse(code = 200, message = "CORS allowed origins set succeeded"))
     @RequestMapping(value = "/", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity setAllowedOrigins(@RequestBody List<String> allowedOrigins)
