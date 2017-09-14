@@ -5,6 +5,7 @@ import org.carlspring.strongbox.security.certificates.KeyStoreManager;
 import org.carlspring.strongbox.services.TrustStoreService;
 
 import javax.inject.Inject;
+import java.lang.reflect.Field;
 import java.net.InetAddress;
 
 import org.junit.Assert;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.util.ReflectionUtils;
 
 /**
  * @author Przemyslaw Fusik
@@ -41,6 +43,10 @@ public class TrustStoreServiceImplTest
     {
         inetAddress = InetAddress.getByName("repository.apache.org");
         keyStoreManager.removeCertificates(trustStore.getFile(), "password".toCharArray(), inetAddress, 443);
+
+        Field trustStoreField = TrustStoreServiceImpl.class.getDeclaredField("trustStore");
+        ReflectionUtils.makeAccessible(trustStoreField);
+        ReflectionUtils.setField(trustStoreField, trustStoreService, trustStore);
     }
 
     @Test

@@ -27,7 +27,7 @@ public class TrustStoreServiceImpl
 
     private static final String PASSWORD = "password";
 
-    @Value("classpath:etc/ssl/truststore.jks")
+    @Value("${strongbox.home}/etc/ssl/truststore.jks")
     private Resource trustStore;
 
     @Inject
