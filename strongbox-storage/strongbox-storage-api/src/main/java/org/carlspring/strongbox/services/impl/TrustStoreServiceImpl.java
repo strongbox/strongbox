@@ -3,7 +3,7 @@ package org.carlspring.strongbox.services.impl;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.security.certificates.KeyStoreManager;
 import org.carlspring.strongbox.services.TrustStoreService;
-import org.carlspring.strongbox.services.support.TrustStoreCertificationAdditionException;
+import org.carlspring.strongbox.services.support.TrustStoreCertificateOperationException;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -37,13 +37,13 @@ public class TrustStoreServiceImpl
     public void init()
             throws IOException
     {
-        trustStore = getTruststoreResource();
+        trustStore = getTrustStoreResource();
     }
 
 
     @Override
     public void addSslCertificatesToTrustStore(String host)
-            throws IOException, TrustStoreCertificationAdditionException
+            throws IOException, TrustStoreCertificateOperationException
     {
         final URL url = new URL(host);
         final String urlHost = url.getHost();
@@ -56,11 +56,11 @@ public class TrustStoreServiceImpl
         }
         catch (IOException | CertificateException | NoSuchAlgorithmException | KeyStoreException | KeyManagementException ex)
         {
-            throw new TrustStoreCertificationAdditionException(ex);
+            throw new TrustStoreCertificateOperationException(ex);
         }
     }
 
-    private Resource getTruststoreResource()
+    private Resource getTrustStoreResource()
             throws IOException
     {
         return ConfigurationResourceResolver.getConfigurationResource("strongbox.truststore.jks",

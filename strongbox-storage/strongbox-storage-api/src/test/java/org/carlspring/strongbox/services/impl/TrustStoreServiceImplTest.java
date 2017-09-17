@@ -40,7 +40,7 @@ public class TrustStoreServiceImplTest
             throws Exception
     {
         inetAddress = InetAddress.getByName("repository.apache.org");
-        trustStore = getTruststoreResource();
+        trustStore = getTrustStoreResource();
         keyStoreManager.removeCertificates(trustStore.getFile(), "password".toCharArray(), inetAddress, 443);
     }
 
@@ -59,7 +59,7 @@ public class TrustStoreServiceImplTest
                 name -> name.contains("*.apache.org")).findAny().isPresent());
     }
 
-    private Resource getTruststoreResource()
+    private Resource getTrustStoreResource()
             throws IOException
     {
         return ConfigurationResourceResolver.getConfigurationResource("strongbox.truststore.jks",

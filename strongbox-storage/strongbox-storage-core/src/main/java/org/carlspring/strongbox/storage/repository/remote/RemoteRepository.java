@@ -44,7 +44,7 @@ public class RemoteRepository
     @XmlAttribute(name = "allows-directory-browsing")
     private boolean allowsDirectoryBrowsing = true;
 
-    @XmlAttribute(name = "auto-import-remote-SSL-certificate")
+    @XmlAttribute(name = "auto-import-remote-ssl-certificate")
     private boolean autoImportRemoteSSLCertificate;
 
     public RemoteRepository()

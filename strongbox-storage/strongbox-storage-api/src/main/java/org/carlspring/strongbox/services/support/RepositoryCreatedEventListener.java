@@ -57,7 +57,7 @@ public class RepositoryCreatedEventListener
             {
                 trustStoreService.addSslCertificatesToTrustStore(remoteRepository.getUrl());
             }
-            catch (IOException | TrustStoreCertificationAdditionException e)
+            catch (IOException | TrustStoreCertificateOperationException e)
             {
                 logger.error("Could not import remote SSL certificate to trust store", e);
             }

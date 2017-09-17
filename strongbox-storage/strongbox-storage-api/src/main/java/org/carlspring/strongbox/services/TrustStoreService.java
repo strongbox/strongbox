@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.services;
 
-import org.carlspring.strongbox.services.support.TrustStoreCertificationAdditionException;
+import org.carlspring.strongbox.services.support.TrustStoreCertificateOperationException;
 
 import java.io.IOException;
 
@@ -11,6 +11,6 @@ public interface TrustStoreService
 {
 
     void addSslCertificatesToTrustStore(String host)
-            throws IOException, TrustStoreCertificationAdditionException;
+            throws IOException, TrustStoreCertificateOperationException;
 
 }
