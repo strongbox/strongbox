@@ -84,9 +84,15 @@ public class SecurityConfig
     public CorsConfigurationSource corsConfigurationSource()
     {
         final CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedMethods(Arrays.asList("*"));
-        configuration.setAllowedHeaders(Arrays.asList("Accept", "Authorization", "Cache-Control", "Content-Type"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "PUT", "POST", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(
+                Arrays.asList("Accept", "Accepts", "Authorization", "Access-Control-Allow-Headers",
+                              "Access-Control-Request-Headers", "Access-Control-Request-Method", "DNT", "Keep-Alive",
+                              "User-Agent", "X-Requested-With", "If-Modified-Since", "Cache-Control", "Content-Type",
+                              "Content-Range,Range"));
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(600L);
+
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
