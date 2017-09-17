@@ -12,6 +12,7 @@ import org.carlspring.strongbox.security.vote.MethodAccessDecisionManager;
 import org.carlspring.strongbox.users.security.AuthoritiesProvider;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.context.annotation.Bean;
@@ -32,6 +33,9 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @ComponentScan({ "org.carlspring.strongbox.security" })
 @Import({ EventsConfig.class,
@@ -74,6 +78,24 @@ public class SecurityConfig
 
         http.addFilterBefore(strongboxAuthenticationFilter(),
                              BasicAuthenticationFilter.class);
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource()
+    {
+        final CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedMethods(Arrays.asList("GET", "PUT", "POST", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(
+                Arrays.asList("Accept", "Accepts", "Authorization", "Access-Control-Allow-Headers",
+                              "Access-Control-Request-Headers", "Access-Control-Request-Method", "DNT", "Keep-Alive",
+                              "User-Agent", "X-Requested-With", "If-Modified-Since", "Cache-Control", "Content-Type",
+                              "Content-Range,Range"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(600L);
+
+        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     @Bean
