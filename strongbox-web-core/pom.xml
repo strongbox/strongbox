@@ -866,6 +866,11 @@
                                     <name>logback.configurationFile</name>
                                     <value>${dir.strongbox.home}/etc/logback.xml</value>
                                 </systemProperty>
+                                <systemProperty>
+                                    <name>strongbox.truststore.jks</name>
+                                    <value>${dir.strongbox.home}/etc/ssl/truststore.jks</value>
+                                </systemProperty>
+
                             </systemProperties>
 
                             <!-- Restore the following for SSL/HTTPSL when the time comes:

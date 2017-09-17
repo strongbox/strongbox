@@ -1,22 +1,21 @@
 package org.carlspring.strongbox.services.impl;
 
 import org.carlspring.strongbox.StorageApiTestConfig;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.security.certificates.KeyStoreManager;
 import org.carlspring.strongbox.services.TrustStoreService;
 
 import javax.inject.Inject;
-import java.lang.reflect.Field;
+import java.io.IOException;
 import java.net.InetAddress;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.util.ReflectionUtils;
 
 /**
  * @author Przemyslaw Fusik
@@ -29,7 +28,6 @@ public class TrustStoreServiceImplTest
     @Inject
     private TrustStoreService trustStoreService;
 
-    @Value("classpath:etc/ssl/truststore.jks")
     private Resource trustStore;
 
     @Inject
@@ -42,11 +40,8 @@ public class TrustStoreServiceImplTest
             throws Exception
     {
         inetAddress = InetAddress.getByName("repository.apache.org");
+        trustStore = getTruststoreResource();
         keyStoreManager.removeCertificates(trustStore.getFile(), "password".toCharArray(), inetAddress, 443);
-
-        Field trustStoreField = TrustStoreServiceImpl.class.getDeclaredField("trustStore");
-        ReflectionUtils.makeAccessible(trustStoreField);
-        ReflectionUtils.setField(trustStoreField, trustStoreService, trustStore);
     }
 
     @Test
@@ -62,6 +57,13 @@ public class TrustStoreServiceImplTest
         Assert.assertTrue(keyStoreManager.listCertificates(trustStore.getFile(),
                                                            "password".toCharArray()).keySet().stream().filter(
                 name -> name.contains("*.apache.org")).findAny().isPresent());
+    }
+
+    private Resource getTruststoreResource()
+            throws IOException
+    {
+        return ConfigurationResourceResolver.getConfigurationResource("strongbox.truststore.jks",
+                                                                      "etc/ssl/truststore.jks");
     }
 
 }

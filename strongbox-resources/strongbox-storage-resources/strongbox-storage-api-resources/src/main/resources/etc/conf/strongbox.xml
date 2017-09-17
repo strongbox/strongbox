@@ -83,7 +83,6 @@
                                        auto-blocking="true"
                                        checksum-validation="true"
                                        allows-directory-browsing="false"
-                                       auto-import-remote-SSL-certificate="true"
                                        check-interval-seconds="10" />
                 </repository>
 
