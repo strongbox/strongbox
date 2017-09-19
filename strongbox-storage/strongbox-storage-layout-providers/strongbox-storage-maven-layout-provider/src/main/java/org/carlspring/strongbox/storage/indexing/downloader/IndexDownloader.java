@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.storage.indexing.downloader;
 
+import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 
 import javax.inject.Inject;
@@ -10,7 +11,6 @@ import org.apache.maven.index.context.IndexingContext;
 import org.apache.maven.index.updater.IndexUpdateRequest;
 import org.apache.maven.index.updater.IndexUpdateResult;
 import org.apache.maven.index.updater.IndexUpdater;
-import org.apache.maven.index.updater.ResourceFetcher;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,10 +29,13 @@ public class IndexDownloader
     private IndexUpdater indexUpdater;
 
     @Inject
-    private ResourceFetcher indexResourceFetcher;
+    private RepositoryIndexManager repositoryIndexManager;
 
     @Inject
-    private RepositoryIndexManager repositoryIndexManager;
+    private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
+
+    @Inject
+    private ResourceFetcherFactory resourceFetcherFactory;
 
 
     public IndexDownloader()
@@ -54,9 +57,14 @@ public class IndexDownloader
         logger.debug("Updating remote index for " + request.getRepositoryId() + "...");
         logger.debug("(This might take a while on first run, so please be patient)!");
 
-        Date contextCurrentTimestamp = indexingContext.getTimestamp();
-        IndexUpdateRequest updateRequest = new IndexUpdateRequest(indexingContext, indexResourceFetcher);
+        IndexUpdateRequest updateRequest = new IndexUpdateRequest(indexingContext,
+                                                                  resourceFetcherFactory.createIndexResourceFetcher(
+                                                                          request.getRemoteRepositoryURL(),
+                                                                          proxyRepositoryConnectionPoolConfigurationService.getHttpClient()));
+
         IndexUpdateResult updateResult = indexUpdater.fetchAndUpdateIndex(updateRequest);
+
+        Date contextCurrentTimestamp = indexingContext.getTimestamp();
         if (updateResult.isFullUpdate())
         {
             logger.debug("Performed a full index update for " + request.getStorageId() + ":" +
@@ -73,16 +81,6 @@ public class IndexDownloader
             logger.debug("Performed an incremental update, with changes covering the period between " +
                          contextCurrentTimestamp + " - " + updateResult.getTimestamp() + ".");
         }
-    }
-
-    public ResourceFetcher getIndexResourceFetcher()
-    {
-        return indexResourceFetcher;
-    }
-
-    public void setIndexResourceFetcher(ResourceFetcher indexResourceFetcher)
-    {
-        this.indexResourceFetcher = indexResourceFetcher;
     }
 
 }

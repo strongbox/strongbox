@@ -1,17 +1,6 @@
 package org.carlspring.strongbox.service.impl;
 
-import org.apache.http.HttpHost;
-import org.apache.http.conn.routing.HttpRoute;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.pool.PoolStats;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
-import org.glassfish.jersey.apache.connector.ApacheClientProperties;
-import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
-import org.glassfish.jersey.client.ClientConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -21,6 +10,20 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.http.HttpHost;
+import org.apache.http.conn.routing.HttpRoute;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.pool.PoolStats;
+import org.glassfish.jersey.apache.connector.ApacheClientProperties;
+import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
+import org.glassfish.jersey.client.ClientConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
 /**
  * @author korest
  */
@@ -29,8 +32,8 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
         implements ProxyRepositoryConnectionPoolConfigurationService
 {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(ProxyRepositoryConnectionPoolConfigurationServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+            ProxyRepositoryConnectionPoolConfigurationServiceImpl.class);
 
     private PoolingHttpClientConnectionManager poolingHttpClientConnectionManager;
     private IdleConnectionMonitorThread idleConnectionMonitorThread;
@@ -62,7 +65,8 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
         shutdown();
     }
 
-    public Client getClient()
+    @Override
+    public Client getRestClient()
     {
         ClientConfig config = new ClientConfig();
         config.connectorProvider(new ApacheConnectorProvider());
@@ -79,15 +83,17 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
     }
 
     @Override
-    public void setMaxTotal(int max)
+    public CloseableHttpClient getHttpClient()
     {
-        poolingHttpClientConnectionManager.setMaxTotal(max);
+        return HttpClients.custom()
+                          .setConnectionManager(poolingHttpClientConnectionManager)
+                          .build();
     }
 
     @Override
-    public void setDefaultMaxPerRepository(int defaultMax)
+    public void setMaxTotal(int max)
     {
-        poolingHttpClientConnectionManager.setDefaultMaxPerRoute(defaultMax);
+        poolingHttpClientConnectionManager.setMaxTotal(max);
     }
 
     @Override
@@ -97,7 +103,14 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
     }
 
     @Override
-    public void setMaxPerRepository(String repository, int max)
+    public void setDefaultMaxPerRepository(int defaultMax)
+    {
+        poolingHttpClientConnectionManager.setDefaultMaxPerRoute(defaultMax);
+    }
+
+    @Override
+    public void setMaxPerRepository(String repository,
+                                    int max)
     {
         HttpRoute httpRoute = getHttpRouteFromRepository(repository);
         poolingHttpClientConnectionManager.setMaxPerRoute(httpRoute, max);
@@ -161,7 +174,8 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
         return new HttpRoute(HttpHost.create(repository));
     }
 
-    private static final class IdleConnectionMonitorThread extends Thread
+    private static final class IdleConnectionMonitorThread
+            extends Thread
     {
 
         private PoolingHttpClientConnectionManager poolingHttpClientConnectionManager;
@@ -171,7 +185,7 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
         private int idleConnectionsTimeout;
 
         IdleConnectionMonitorThread(PoolingHttpClientConnectionManager poolingHttpClientConnectionManager,
-                int idleConnectionsTimeout)
+                                    int idleConnectionsTimeout)
         {
             super();
             this.poolingHttpClientConnectionManager = poolingHttpClientConnectionManager;
@@ -189,7 +203,8 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
                     {
                         wait(5000);
                         poolingHttpClientConnectionManager.closeExpiredConnections();
-                        poolingHttpClientConnectionManager.closeIdleConnections(idleConnectionsTimeout, TimeUnit.SECONDS);
+                        poolingHttpClientConnectionManager.closeIdleConnections(idleConnectionsTimeout,
+                                                                                TimeUnit.SECONDS);
                     }
                 }
             }

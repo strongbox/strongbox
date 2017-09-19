@@ -113,7 +113,7 @@ public class ProxyRepositoryProvider
                 return null;
             }
 
-            ArtifactResolver client = new ArtifactResolver(proxyRepositoryConnectionPoolConfigurationService.getClient());
+            ArtifactResolver client = new ArtifactResolver(proxyRepositoryConnectionPoolConfigurationService.getRestClient());
             client.setRepositoryBaseUrl(remoteRepository.getUrl());
             client.setUsername(remoteRepository.getUsername());
             client.setPassword(remoteRepository.getPassword());

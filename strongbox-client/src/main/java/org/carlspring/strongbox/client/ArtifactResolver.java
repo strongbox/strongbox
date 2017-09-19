@@ -18,8 +18,6 @@ import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.glassfish.jersey.apache.connector.ApacheClientProperties;
-import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
-import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,14 +56,6 @@ public class ArtifactResolver
         resolver.setRepositoryBaseUrl(repositoryBaseUrl);
 
         return resolver;
-    }
-
-    private ClientConfig getClientConfig()
-    {
-        ClientConfig config = new ClientConfig();
-        config.connectorProvider(new ApacheConnectorProvider());
-
-        return config;
     }
 
     @Override

@@ -1,33 +1,50 @@
 package org.carlspring.strongbox.storage.indexing.downloader;
 
-import org.carlspring.strongbox.client.ArtifactClient;
-import org.carlspring.strongbox.client.ArtifactTransportException;
-
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.MessageFormat;
 
+import com.google.common.io.Closeables;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.maven.index.updater.ResourceFetcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 /**
- * @author carlspring
+ * @author Przemyslaw Fusik
  */
-@Component("indexResourceFetcher")
 public class IndexResourceFetcher
-        extends ArtifactClient
-        implements ResourceFetcher
+        implements ResourceFetcher, Closeable
 {
+
+    private static final String INDEX_URI_PATTERN = "{0}/.index/{1}";
 
     private static final Logger logger = LoggerFactory.getLogger(IndexResourceFetcher.class);
 
+    private final String repositoryBaseUrl;
+
+    private final CloseableHttpClient client;
+
+    private CloseableHttpResponse response;
+
+    public IndexResourceFetcher(String repositoryBaseUrl,
+                                CloseableHttpClient client)
+    {
+        this.repositoryBaseUrl = StringUtils.removeEnd(repositoryBaseUrl, "/");
+        this.client = client;
+    }
 
     @Override
-    public void connect(String username, String password)
+    public void connect(String indexContextId,
+                        String indexUpdateUrl)
             throws IOException
     {
-        // It seems like we should be ignoring this.
+        // ignored
     }
 
     @Override
@@ -38,28 +55,30 @@ public class IndexResourceFetcher
     }
 
     @Override
-    public InputStream retrieve(String url)
+    public InputStream retrieve(String indexName)
             throws IOException
     {
-        logger.debug("Requesting index from " + url + "...");
+        final String uri = MessageFormat.format(INDEX_URI_PATTERN, repositoryBaseUrl, indexName);
 
-        InputStream is;
-        try
+        logger.debug("Getting " + uri + "...");
+
+        InputStream result = null;
+
+        response = client.execute(new HttpGet(uri));
+
+        HttpEntity httpEntity = response.getEntity();
+        if (httpEntity != null)
         {
-            is = getResource(url);
-
-            if (is != null)
-            {
-                logger.debug(" > Index download in progress for " + url + "...");
-            }
+            result = httpEntity.getContent();
         }
-        catch (ArtifactTransportException e)
-        {
-            logger.error(e.getMessage(), e);
-            throw new IOException(e.getMessage(), e);
-        }
-
-        return is;
+        return result;
     }
 
+    @Override
+    public void close()
+            throws IOException
+    {
+        Closeables.close(response, true);
+        Closeables.close(client, true);
+    }
 }

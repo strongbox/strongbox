@@ -10,7 +10,6 @@ import javax.ws.rs.core.Response;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
@@ -64,7 +63,7 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImplIntegrationTes
         String repositoryUrl = "http://repo.spring.io/snapshot";
         for (int i = 0; i < 3; i++)
         {
-            Client client = proxyRepositoryConnectionPoolConfigurationService.getClient();
+            Client client = proxyRepositoryConnectionPoolConfigurationService.getRestClient();
             Response response = client.target(repositoryUrl).request().get();
             response.close();
             client.close();
@@ -82,7 +81,7 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImplIntegrationTes
         proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(repositoryUrl, 3);
         for (int i = 0; i < 3; i++)
         {
-            proxyRepositoryConnectionPoolConfigurationService.getClient().target(repositoryUrl).request().get();
+            proxyRepositoryConnectionPoolConfigurationService.getRestClient().target(repositoryUrl).request().get();
         }
 
         // all connections should be leaked

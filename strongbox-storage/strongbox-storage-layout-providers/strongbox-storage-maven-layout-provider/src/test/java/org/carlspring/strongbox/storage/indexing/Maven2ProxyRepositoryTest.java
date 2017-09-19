@@ -1,9 +1,11 @@
 package org.carlspring.strongbox.storage.indexing;
 
-import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
+import org.carlspring.strongbox.storage.indexing.downloader.IndexDownloader;
+import org.carlspring.strongbox.storage.indexing.downloader.ResourceFetcherFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
@@ -14,11 +16,14 @@ import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.maven.index.updater.ResourceFetcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.*;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertTrue;
@@ -38,6 +43,16 @@ public class Maven2ProxyRepositoryTest
 
     @Inject
     private ConfigurationManager configurationManager;
+
+    @Mock
+    private ResourceFetcherFactory resourceFetcherFactory;
+
+    @Inject
+    private ResourceFetcher resourceFetcher;
+
+    @InjectMocks
+    @Inject
+    private IndexDownloader downloader;
 
 
     @BeforeClass
@@ -60,6 +75,8 @@ public class Maven2ProxyRepositoryTest
         createProxyRepository(STORAGE0,
                               REPOSITORY_PROXY,
                               "http://localhost:48080/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES + "/");
+
+        MockitoAnnotations.initMocks(this);
     }
 
     @After
@@ -82,6 +99,9 @@ public class Maven2ProxyRepositoryTest
     public void testRepositoryIndexFetching()
             throws ArtifactTransportException, IOException
     {
+        Mockito.when(resourceFetcherFactory.createIndexResourceFetcher(Matchers.anyString(), Matchers.any(
+                CloseableHttpClient.class))).thenReturn(resourceFetcher);
+
         MavenRepositoryFeatures features = (MavenRepositoryFeatures) getFeatures(STORAGE0, REPOSITORY_RELEASES);
 
         // Make sure the repository that is being proxied has a packed index to serve:

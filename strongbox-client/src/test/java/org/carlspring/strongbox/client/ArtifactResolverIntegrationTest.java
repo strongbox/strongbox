@@ -45,8 +45,8 @@ public class ArtifactResolverIntegrationTest
     public void setUp()
     {
         artifactResolver = ArtifactResolver
-                .getTestInstance(proxyRepositoryConnectionPoolConfigurationService.getClient(), repositoryUrl, null,
-                        null);
+                .getTestInstance(proxyRepositoryConnectionPoolConfigurationService.getRestClient(), repositoryUrl, null,
+                                 null);
     }
 
     @Test
