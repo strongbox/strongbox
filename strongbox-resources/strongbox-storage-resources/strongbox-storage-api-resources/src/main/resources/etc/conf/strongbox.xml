@@ -48,8 +48,6 @@
 
         <storage id="storage-common-proxies">
             <repositories>
-
-                <!--
                 <repository id="maven-central" policy="release" implementation="file-system" layout="Maven 2" type="proxy" indexing-enabled="true">
                     <remote-repository url="https://repo.maven.apache.org/maven2/"
                                        download-remote-indexes="true"
@@ -78,9 +76,8 @@
                                        auto-blocking="true"
                                        checksum-validation="true" />
                 </repository>
-                -->
 
-                <repository id="maven-oracle" policy="release" implementation="file-system" layout="Maven 2" type="proxy" indexing-enabled="true">
+                <repository id="maven-oracle" policy="release" implementation="file-system" layout="Maven 2" type="proxy">
                     <remote-repository url="https://maven.oracle.com"
                                        download-remote-indexes="true"
                                        auto-blocking="true"
@@ -88,7 +85,7 @@
                                        allows-directory-browsing="false"
                                        check-interval-seconds="10" />
                 </repository>
-                <!--
+
                 <repository id="group-common-proxies" policy="release" implementation="file-system" layout="Maven 2" type="group" secured="true">
                     <group>
                         <repository>carlspring</repository>
@@ -97,10 +94,8 @@
                         <repository>jboss-public-releases</repository>
                     </group>
                 </repository>
-                -->
             </repositories>
         </storage>
-        <!--
         <storage id="storage-springsource-proxies">
             <repositories>
                 <repository id="springsource-snapshots" policy="snapshot" implementation="file-system" layout="Maven 2" type="proxy">
@@ -190,7 +185,6 @@
                 </repository>
             </repositories>
         </storage>
-        -->
     </storages>
 
     <routing-rules>
