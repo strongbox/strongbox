@@ -87,12 +87,9 @@ public class MavenRepositoryFeatures
         }
 
         IndexDownloadRequest request = new IndexDownloadRequest();
-        request.setIndexingContextId(contextId);
         request.setStorageId(storageId);
         request.setRepositoryId(repositoryId);
         request.setRemoteRepositoryURL(repository.getRemoteRepository().getUrl());
-        request.setIndexLocalCacheDir(repositoryBasedir);
-        request.setIndexDir(remoteIndexDirectory.toString());
         request.setIndexer(repositoryIndexer.getIndexer());
 
         try

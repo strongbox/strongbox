@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.service;
 
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.pool.PoolStats;
 
 import javax.ws.rs.client.Client;
@@ -10,7 +11,9 @@ import javax.ws.rs.client.Client;
 public interface ProxyRepositoryConnectionPoolConfigurationService
 {
 
-    Client getClient();
+    Client getRestClient();
+
+    CloseableHttpClient getHttpClient();
 
     void setMaxTotal(int max);
 

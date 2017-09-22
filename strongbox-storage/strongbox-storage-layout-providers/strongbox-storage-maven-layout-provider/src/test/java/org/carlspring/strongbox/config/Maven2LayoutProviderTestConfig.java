@@ -13,7 +13,6 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
  */
 @Configuration
 @Import({ Maven2LayoutProviderConfig.class,
-          MockedIndexResourceFetcherConfig.class,
           StorageCoreConfig.class,
           StorageApiConfig.class,
           MockedRemoteRepositoriesHeartbeatConfig.class,
