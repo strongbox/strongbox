@@ -2,10 +2,7 @@
     <anonymous-access>
         <enabled>true</enabled>
         <username>anonymous</username>
-        <credentials>
-            <password>password</password>
-            <encryption-algorithm>plain</encryption-algorithm>
-        </credentials>
+        <password>$2a$10$WqtVx7Iio0cndyR1lEaKW.SWhUYmF/zHHG5hkAXvH5hUmklM7QfMO</password>
     </anonymous-access>
     <realms>
         <realm>org.carlspring.strongbox.jaas.xml.XMLUserRealm</realm>

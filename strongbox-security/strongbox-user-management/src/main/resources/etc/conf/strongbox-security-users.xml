@@ -2,10 +2,7 @@
 <users>
     <user>
         <username>admin</username>
-        <credentials>
-            <password>password</password>
-            <encryption-algorithm>plain</encryption-algorithm>
-        </credentials>
+        <password>$2a$10$WqtVx7Iio0cndyR1lEaKW.SWhUYmF/zHHG5hkAXvH5hUmklM7QfMO</password>
         <roles>
             <role>admin</role>
         </roles>
@@ -13,10 +10,7 @@
     </user>
     <user>
         <username>maven</username>
-        <credentials>
-            <password>password</password>
-            <encryption-algorithm>plain</encryption-algorithm>
-        </credentials>
+        <password>$2a$10$WqtVx7Iio0cndyR1lEaKW.SWhUYmF/zHHG5hkAXvH5hUmklM7QfMO</password>
         <roles>
             <role>admin</role>
         </roles>
@@ -24,10 +18,7 @@
     </user>
     <user>
         <username>user</username>
-        <credentials>
-            <password>password</password>
-            <encryption-algorithm>plain</encryption-algorithm>
-        </credentials>
+        <password>$2a$10$WqtVx7Iio0cndyR1lEaKW.SWhUYmF/zHHG5hkAXvH5hUmklM7QfMO</password>
         <roles>
             <role>ADMIN</role>
         </roles>
@@ -35,10 +26,7 @@
     </user>
     <user>
         <username>deployer</username>
-        <credentials>
-            <password>password</password>
-            <encryption-algorithm>plain</encryption-algorithm>
-        </credentials>
+        <password>$2a$10$WqtVx7Iio0cndyR1lEaKW.SWhUYmF/zHHG5hkAXvH5hUmklM7QfMO</password>
         <roles>
             <role>UI_MANAGER</role>
         </roles>
@@ -64,10 +52,7 @@
     </user>
     <user>
         <username>developer01</username>
-        <credentials>
-            <password>password</password>
-            <encryption-algorithm>plain</encryption-algorithm>
-        </credentials>
+        <password>$2a$10$WqtVx7Iio0cndyR1lEaKW.SWhUYmF/zHHG5hkAXvH5hUmklM7QfMO</password>
         <roles>
             <role>UI_MANAGER</role>
         </roles>

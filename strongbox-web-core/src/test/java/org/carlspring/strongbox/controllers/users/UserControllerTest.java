@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.controllers;
+package org.carlspring.strongbox.controllers.users;
 
 import org.carlspring.strongbox.controllers.context.IntegrationTest;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
@@ -13,15 +13,21 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Stream;
 
+import com.google.common.collect.ImmutableSet;
+import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
 import io.restassured.http.ContentType;
+import org.apache.commons.collections.SetUtils;
+import org.hamcrest.CoreMatchers;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 @IntegrationTest
@@ -33,6 +39,18 @@ public class UserControllerTest
 
     @Inject
     UserService userService;
+
+    @Inject
+    PasswordEncoder passwordEncoder;
+
+    @After
+    public void rollBackAdminUserPassword()
+            throws IOException
+    {
+        User adminUser = retrieveUserByName("admin");
+        adminUser.setPassword("password");
+        userService.save(adminUser);
+    }
 
     @Test
     public void greetTest()
@@ -67,7 +85,7 @@ public class UserControllerTest
     public void testCreateUser()
             throws Exception
     {
-        User test = buildUser("test", "password");
+        UserInput test = buildUser("test", "password");
 
         given().contentType("application/json")
                .body(test)
@@ -78,6 +96,32 @@ public class UserControllerTest
                .statusCode(200) // check http status code
                .extract()
                .asString();
+
+        displayAllUsers();
+    }
+
+    @Test
+    public void shouldNotBeAbleToCreateUserWithTheSameUsername()
+            throws Exception
+    {
+        UserInput test = buildUser("test-same-username", "password");
+
+        given().contentType("application/json")
+               .body(test)
+               .when()
+               .post("/users/user");
+
+        try
+        {
+            given().contentType("application/json")
+                   .body(test)
+                   .when()
+                   .post("/users/user");
+        }
+        catch (Exception ex)
+        {
+            assertThat(ex.getCause(), instanceOf(ORecordDuplicatedException.class));
+        }
 
         displayAllUsers();
     }
@@ -106,7 +150,7 @@ public class UserControllerTest
     {
         // create new user
         final String userName = "test-update";
-        User test = buildUser(userName, "password-update");
+        UserInput test = buildUser(userName, "password-update");
 
         given().contentType("application/json")
                .body(test)
@@ -130,19 +174,162 @@ public class UserControllerTest
         displayAllUsers();
 
         // send update request
-        User updatedUser = given().contentType("application/json")
-                                  .body(createdUser)
-                                  .when()
-                                  .put("/users/user")
-                                  .peek() // Use peek() to print the output
-                                  .as(User.class);
+        String response = given().contentType("application/json")
+                                 .body(UserInput.fromUser(createdUser))
+                                 .when()
+                                 .put("/users/user")
+                                 .peek()
+                                 .then()
+                                 .statusCode(200)
+                                 .extract()
+                                 .asString();
+
+        assertThat(response, equalTo("The user was updated successfully."));
 
         logger.info("Users after update: ->>>>>> ");
         displayAllUsers();
 
+        createdUser = retrieveUserByName("test-update");
+        assertEquals(true, createdUser.isEnabled());
+    }
+
+    @Test
+    public void userShouldBeAbleToChangeTheirOwnPassword()
+            throws Exception
+    {
+        final String userName = "admin";
+        final String newPassword = "newPassword";
+        UserInput admin = buildUser(userName, newPassword);
+
+        given().contentType("application/json")
+               .body(admin)
+               .when()
+               .put("/users/user")
+               .peek()
+               .then()
+               .statusCode(200)
+               .extract()
+               .asString();
+
+        User updatedUser = retrieveUserByName(admin.getUsername());
         assertEquals(userName, updatedUser.getUsername());
-        assertEquals(createdUser.isEnabled(), updatedUser.isEnabled());
-        assertEquals(createdUser.getPassword(), updatedUser.getPassword());
+        assertTrue(passwordEncoder.matches(newPassword, updatedUser.getPassword()));
+    }
+
+    @Test
+    public void userShouldNotBeAbleToChangeTheirOwnPasswordToNull()
+            throws Exception
+    {
+        final String userName = "admin";
+        final String newPassword = null;
+        UserInput admin = buildUser(userName, newPassword);
+
+        given().contentType("application/json")
+               .body(admin)
+               .when()
+               .put("/users/user")
+               .peek()
+               .then()
+               .statusCode(200)
+               .extract()
+               .asString();
+
+        User updatedUser = retrieveUserByName(admin.getUsername());
+        assertEquals(userName, updatedUser.getUsername());
+        assertNotNull(updatedUser.getPassword());
+    }
+
+    @Test
+    public void userShouldNotBeAbleToChangeSomeoneElsePasswordToNull()
+            throws Exception
+    {
+        User mavenUser = retrieveUserByName("maven");
+        UserInput input = UserInput.fromUser(mavenUser);
+        input.setPassword(null);
+
+        given().contentType("application/json")
+               .body(input)
+               .when()
+               .put("/users/user")
+               .peek()
+               .then()
+               .statusCode(200)
+               .extract()
+               .asString();
+
+        User updatedUser = retrieveUserByName("maven");
+        assertNotNull(updatedUser.getPassword());
+    }
+
+    @Test
+    public void userShouldNotBeAbleToChangeSomeoneElsePasswordToEmpty()
+            throws Exception
+    {
+        User mavenUser = retrieveUserByName("maven");
+        UserInput input = UserInput.fromUser(mavenUser);
+        input.setPassword("");
+
+        given().contentType("application/json")
+               .body(input)
+               .when()
+               .put("/users/user")
+               .peek()
+               .then()
+               .statusCode(200)
+               .extract()
+               .asString();
+
+        User updatedUser = retrieveUserByName("maven");
+        assertFalse(passwordEncoder.matches("", updatedUser.getPassword()));
+    }
+
+    @Test
+    public void userShouldNotBeAbleToChangeTheirOwnPasswordToEmpty()
+            throws Exception
+    {
+        final String userName = "admin";
+        final String newPassword = "";
+        UserInput admin = buildUser(userName, newPassword);
+
+        given().contentType("application/json")
+               .body(admin)
+               .when()
+               .put("/users/user")
+               .peek()
+               .then()
+               .statusCode(200)
+               .extract()
+               .asString();
+
+        User updatedUser = retrieveUserByName(admin.getUsername());
+        assertEquals(userName, updatedUser.getUsername());
+        assertFalse(passwordEncoder.matches(newPassword, updatedUser.getPassword()));
+    }
+
+    @Test
+    public void shouldBeAbleToUpdateRoles()
+            throws Exception
+    {
+        final String userName = "maven";
+        final String newPassword = "password";
+        UserInput admin = buildUser(userName, newPassword);
+
+        User updatedUser = retrieveUserByName(admin.getUsername());
+        assertTrue(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of("admin")));
+
+        admin.setRoles(ImmutableSet.of("UI_MANAGER"));
+        given().contentType("application/json")
+               .body(admin)
+               .when()
+               .put("/users/user")
+               .peek()
+               .then()
+               .statusCode(200)
+               .extract()
+               .asString();
+
+        updatedUser = retrieveUserByName(admin.getUsername());
+        assertTrue(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of("UI_MANAGER")));
     }
 
     private void displayAllUsers()
@@ -163,11 +350,11 @@ public class UserControllerTest
     public void testGenerateSecurityToken()
             throws Exception
     {
-        User user = buildUser("test-jwt", "password-update");
+        UserInput input = buildUser("test-jwt", "password-update");
 
         //1. Create user
         given().contentType("application/json")
-               .body(user)
+               .body(input)
                .when()
                .post("/users/user")
                .peek() // Use peek() to print the output
@@ -176,19 +363,20 @@ public class UserControllerTest
                .extract()
                .asString();
 
-        user = retrieveUserByName(user.getUsername());
+        User user = retrieveUserByName(input.getUsername());
         assertNotNull("Created user should have objectId", user.getObjectId());
 
         //2. Provide `securityTokenKey`
         user.setSecurityTokenKey("seecret");
-        user = given().contentType("application/json")
-                      .body(user)
-                      .when()
-                      .put("/users/user")
-                      .peek()
-                      .as(User.class);
+        given().contentType("application/json")
+               .body(UserInput.fromUser(user))
+               .when()
+               .put("/users/user")
+               .peek();
 
+        user = retrieveUserByName(input.getUsername());
         assertNotNull(user.getSecurityTokenKey());
+        assertThat(user.getSecurityTokenKey(), CoreMatchers.equalTo("seecret"));
 
         //3. Generate token
         String response = given().when()
@@ -207,7 +395,7 @@ public class UserControllerTest
             throws Exception
     {
         // create new user
-        User test = buildUser("test-delete", "password-update");
+        UserInput test = buildUser("test-delete", "password-update");
 
         given().contentType("application/json")
                .body(test)
@@ -293,10 +481,10 @@ public class UserControllerTest
         return userService.findByUserName(name);
     }
 
-    private User buildUser(String name,
-                           String password)
+    private UserInput buildUser(String name,
+                                String password)
     {
-        User test = new User();
+        UserInput test = new UserInput();
         test.setUsername(name);
         test.setPassword(password);
         test.setEnabled(false);
