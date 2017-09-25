@@ -52,7 +52,7 @@ public class OneTimeExecutionCronJobTestIT
     {
         CronTaskConfiguration configuration = new CronTaskConfiguration();
         configuration.setName(name);
-        configuration.addProperty("cronExpression", "0 0/1 * 1/1 * ? *");
+        configuration.addProperty("cronExpression", "0 11 11 11 11 ? 2100");
         configuration.addProperty("jobClass", OneTimeExecutionCronJob.class.getName());
         configuration.setOneTimeExecution(true);
         configuration.setImmediateExecution(true);

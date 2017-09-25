@@ -55,6 +55,8 @@ public class BaseCronJobWithMavenIndexingTestCase
             throws Exception
     {
         CronTaskConfiguration cronTaskConfiguration = new CronTaskConfiguration();
+        cronTaskConfiguration.setOneTimeExecution(true);
+        cronTaskConfiguration.setImmediateExecution(true);
         cronTaskConfiguration.setName(name);
         cronTaskConfiguration.addProperty("jobClass", className);
 
@@ -72,24 +74,6 @@ public class BaseCronJobWithMavenIndexingTestCase
         addCronTaskConfiguration(name, configuration);
 
         return cronTaskConfiguration;
-    }
-
-    public void deleteCronJobConfig(String name)
-            throws Exception
-    {
-        List<CronTaskConfiguration> cronTaskConfigurations = cronTaskConfigurationService.getConfiguration(name);
-        for (CronTaskConfiguration configuration : cronTaskConfigurations)
-        {
-            assertNotNull("Failed to look up the configuration for " + name + "!", configuration);
-
-            cronTaskConfigurationService.deleteConfiguration(configuration);
-
-            removeCronTaskConfiguration(name);
-
-            System.out.println("Cron task '" + name + "' removed.");
-        }
-
-        assertNull(cronTaskConfigurationService.findOne(name));
     }
 
     @Override

@@ -167,9 +167,11 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
             throws Exception
     {
         CronTaskConfiguration cronTaskConfiguration = new CronTaskConfiguration();
+        cronTaskConfiguration.setOneTimeExecution(true);
+        cronTaskConfiguration.setImmediateExecution(true);
         cronTaskConfiguration.setName(name);
         cronTaskConfiguration.addProperty("jobClass", RemoveTimestampedMavenSnapshotCronJob.class.getName());
-        cronTaskConfiguration.addProperty("cronExpression", "0 0/1 * 1/1 * ? *");
+        cronTaskConfiguration.addProperty("cronExpression", "0 11 11 11 11 ? 2100");
         cronTaskConfiguration.addProperty("storageId", storageId);
         cronTaskConfiguration.addProperty("repositoryId", repositoryId);
         cronTaskConfiguration.addProperty("basePath", basePath);
@@ -179,20 +181,6 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
         cronTaskConfigurationService.saveConfiguration(cronTaskConfiguration);
         CronTaskConfiguration obj = cronTaskConfigurationService.findOne(name);
         assertNotNull(obj);
-    }
-
-    public void deleteRemoveCronJobConfig(String name)
-            throws Exception
-    {
-        List<CronTaskConfiguration> confs = cronTaskConfigurationService.getConfiguration(name);
-
-        for (CronTaskConfiguration cnf : confs)
-        {
-            assertNotNull(cnf);
-            cronTaskConfigurationService.deleteConfiguration(cnf);
-        }
-
-        assertNull(cronTaskConfigurationService.findOne(name));
     }
 
     @Test
@@ -217,8 +205,6 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                     assertEquals("Amount of timestamped snapshots doesn't equal 1.", 1,
                                  file.listFiles(new JarFilenameFilter()).length);
                     assertTrue(getSnapshotArtifactVersion(file).endsWith("-3"));
-
-                    deleteRemoveCronJobConfig(jobName);
                 }
             }
             catch (Exception e)
@@ -258,8 +244,6 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                     assertEquals("Amount of timestamped snapshots doesn't equal 1.", 1,
                                  file.listFiles(new JarFilenameFilter()).length);
                     assertTrue(getSnapshotArtifactVersion(file).endsWith("-2"));
-
-                    deleteRemoveCronJobConfig(jobName);
                 }
             }
             catch (Exception e)
@@ -293,8 +277,6 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                     assertEquals("Amount of timestamped snapshots doesn't equal 1.", 1,
                                  file.listFiles(new JarFilenameFilter()).length);
                     assertTrue(getSnapshotArtifactVersion(file).endsWith("-5"));
-
-                    deleteRemoveCronJobConfig(jobName);
                 }
             }
             catch (Exception e)
@@ -328,8 +310,6 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                     assertEquals("Amount of timestamped snapshots doesn't equal 1.", 1,
                                  file.listFiles(new JarFilenameFilter()).length);
                     assertTrue(getSnapshotArtifactVersion(file).endsWith("-1"));
-
-                    deleteRemoveCronJobConfig(jobName);
                 }
             }
             catch (Exception e)

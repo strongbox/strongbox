@@ -15,7 +15,6 @@ import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
@@ -30,7 +29,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 /**
  * @author Kate Novik.
@@ -148,9 +146,11 @@ public class RebuildMavenMetadataCronJobTestIT
             throws Exception
     {
         CronTaskConfiguration cronTaskConfiguration = new CronTaskConfiguration();
+        cronTaskConfiguration.setOneTimeExecution(true);
+        cronTaskConfiguration.setImmediateExecution(true);
         cronTaskConfiguration.setName(name);
         cronTaskConfiguration.addProperty("jobClass", RebuildMavenMetadataCronJob.class.getName());
-        cronTaskConfiguration.addProperty("cronExpression", "0 0/1 * 1/1 * ? *");
+        cronTaskConfiguration.addProperty("cronExpression", "0 11 11 11 11 ? 2100");
         cronTaskConfiguration.addProperty("storageId", storageId);
         cronTaskConfiguration.addProperty("repositoryId", repositoryId);
         cronTaskConfiguration.addProperty("basePath", basePath);
@@ -158,20 +158,6 @@ public class RebuildMavenMetadataCronJobTestIT
         cronTaskConfigurationService.saveConfiguration(cronTaskConfiguration);
         CronTaskConfiguration obj = cronTaskConfigurationService.findOne(name);
         assertNotNull(obj);
-    }
-
-    public void deleteRebuildCronJobConfig(String name)
-            throws Exception
-    {
-        List<CronTaskConfiguration> confs = cronTaskConfigurationService.getConfiguration(name);
-
-        for (CronTaskConfiguration cnf : confs)
-        {
-            assertNotNull(cnf);
-            cronTaskConfigurationService.deleteConfiguration(cnf);
-        }
-
-        assertNull(cronTaskConfigurationService.findOne(name));
     }
 
     @Test
@@ -199,8 +185,6 @@ public class RebuildMavenMetadataCronJobTestIT
                                                                                                          .size());
                     assertEquals("Incorrect number of versions stored in metadata!", 1, versioning.getVersions()
                                                                                                   .size());
-
-                    deleteRebuildCronJobConfig(jobName);
                 }
                 catch (Exception e)
                 {
@@ -250,8 +234,6 @@ public class RebuildMavenMetadataCronJobTestIT
                                                                                                           .size());
                     assertEquals("Incorrect number of versions stored in metadata!", 1, versioning2.getVersions()
                                                                                                    .size());
-
-                    deleteRebuildCronJobConfig(jobName);
                 }
                 catch (Exception e)
                 {
@@ -300,8 +282,6 @@ public class RebuildMavenMetadataCronJobTestIT
                                                                                                           .size());
                     assertEquals("Incorrect number of versions stored in metadata!", 1, versioning2.getVersions()
                                                                                                    .size());
-
-                    deleteRebuildCronJobConfig(jobName);
                 }
                 catch (Exception e)
                 {
@@ -350,8 +330,6 @@ public class RebuildMavenMetadataCronJobTestIT
                                                                                                           .size());
                     assertEquals("Incorrect number of versions stored in metadata!", 1, versioning2.getVersions()
                                                                                                    .size());
-
-                    deleteRebuildCronJobConfig(jobName);
                 }
                 catch (Exception e)
                 {

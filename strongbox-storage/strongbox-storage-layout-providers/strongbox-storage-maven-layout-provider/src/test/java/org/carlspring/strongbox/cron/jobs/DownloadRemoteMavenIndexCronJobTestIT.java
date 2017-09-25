@@ -130,7 +130,7 @@ public class DownloadRemoteMavenIndexCronJobTestIT
             throws Exception
     {
         Map<String, String> properties = new LinkedHashMap<>();
-        properties.put("cronExpression", "0 0/1 * 1/1 * ? *");
+        properties.put("cronExpression", "0 11 11 11 11 ? 2100");
         properties.put("storageId", storageId);
         properties.put("repositoryId", repositoryId);
 
@@ -181,8 +181,6 @@ public class DownloadRemoteMavenIndexCronJobTestIT
                                artifactSearchService.contains(request4));
 
                     System.out.println(request4.getQuery() + " found matches!");
-
-                    deleteCronJobConfig(jobName);
                 }
                 catch (Exception e)
                 {

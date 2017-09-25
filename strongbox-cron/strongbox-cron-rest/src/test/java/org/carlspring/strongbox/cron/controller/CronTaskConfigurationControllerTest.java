@@ -76,6 +76,7 @@ public class CronTaskConfigurationControllerTest
         String url = "/cron";
 
         CronTaskConfiguration configuration = new CronTaskConfiguration();
+        configuration.setOneTimeExecution(true);
         configuration.setName(cronName1);
         configuration.addProperty("cronExpression", cronExpression);
         configuration.addProperty("jobClass", MyTask.class.getName());
@@ -111,6 +112,7 @@ public class CronTaskConfigurationControllerTest
         String url = client.getContextBaseUrl() + "/cron";
 
         CronTaskConfiguration configuration = new CronTaskConfiguration();
+        configuration.setOneTimeExecution(true);
         configuration.setName(name);
         configuration.addProperty("cronExpression", cronExpression);
 

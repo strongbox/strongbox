@@ -21,7 +21,6 @@ import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.junit.After;
@@ -137,9 +136,11 @@ public class RegenerateNugetChecksumCronJobTestIT
             throws Exception
     {
         CronTaskConfiguration cronTaskConfiguration = new CronTaskConfiguration();
+        cronTaskConfiguration.setOneTimeExecution(true);
+        cronTaskConfiguration.setImmediateExecution(true);
         cronTaskConfiguration.setName(name);
         cronTaskConfiguration.addProperty("jobClass", RegenerateChecksumCronJob.class.getName());
-        cronTaskConfiguration.addProperty("cronExpression", "0 0/1 * 1/1 * ? *");
+        cronTaskConfiguration.addProperty("cronExpression", "0 11 11 11 11 ? 2100");
         cronTaskConfiguration.addProperty("storageId", storageId);
         cronTaskConfiguration.addProperty("repositoryId", repositoryId);
         cronTaskConfiguration.addProperty("basePath", basePath);
@@ -148,20 +149,6 @@ public class RegenerateNugetChecksumCronJobTestIT
         cronTaskConfigurationService.saveConfiguration(cronTaskConfiguration);
         CronTaskConfiguration obj = cronTaskConfigurationService.findOne(name);
         assertNotNull(obj);
-    }
-
-    public void deleteRegenerateCronJobConfig(String name)
-            throws Exception
-    {
-        List<CronTaskConfiguration> confs = cronTaskConfigurationService.getConfiguration(name);
-
-        for (CronTaskConfiguration cnf : confs)
-        {
-            assertNotNull(cnf);
-            cronTaskConfigurationService.deleteConfiguration(cnf);
-        }
-
-        assertNull(cronTaskConfigurationService.findOne(name));
     }
 
     @Test
@@ -199,8 +186,6 @@ public class RegenerateNugetChecksumCronJobTestIT
                     assertTrue("The checksum file for metadata file is empty!",
                                new File(artifactPath,
                                         "/1.0/org.carlspring.strongbox.checksum-second.nuspec.sha512").length() > 0);
-
-                    deleteRegenerateCronJobConfig(jobName);
                 }
                 catch (Exception e)
                 {
@@ -254,8 +239,6 @@ public class RegenerateNugetChecksumCronJobTestIT
                                new File(artifactPath,
                                         "/1.0.1-alpha/org.carlspring.strongbox.checksum-one.nuspec.sha512").length() >
                                0);
-
-                    deleteRegenerateCronJobConfig(jobName);
                 }
                 catch (Exception e)
                 {
@@ -302,8 +285,6 @@ public class RegenerateNugetChecksumCronJobTestIT
                     assertTrue("The checksum file for metadata file is empty!",
                                new File(artifactPath,
                                         "/1.0/org.carlspring.strongbox.checksum-second.nuspec.sha512").length() > 0);
-
-                    deleteRegenerateCronJobConfig(jobName);
                 }
                 catch (Exception e)
                 {
@@ -348,8 +329,6 @@ public class RegenerateNugetChecksumCronJobTestIT
                     assertTrue("The checksum file for metadata file is empty!",
                                new File(artifactPath,
                                         "/1.0/org.carlspring.strongbox.checksum-one.nuspec.sha512").length() > 0);
-
-                    deleteRegenerateCronJobConfig(jobName);
                 }
                 catch (Exception e)
                 {

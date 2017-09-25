@@ -14,7 +14,6 @@ import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIn
 import javax.inject.Inject;
 import java.io.File;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.junit.Before;
@@ -107,9 +106,11 @@ public class RebuildMavenIndexesCronJobTestIT
             throws Exception
     {
         CronTaskConfiguration cronTaskConfiguration = new CronTaskConfiguration();
+        cronTaskConfiguration.setOneTimeExecution(true);
+        cronTaskConfiguration.setImmediateExecution(true);
         cronTaskConfiguration.setName(name);
         cronTaskConfiguration.addProperty("jobClass", RebuildMavenIndexesCronJob.class.getName());
-        cronTaskConfiguration.addProperty("cronExpression", "0 0/1 * 1/1 * ? *");
+        cronTaskConfiguration.addProperty("cronExpression", "0 11 11 11 11 ? 2100");
         cronTaskConfiguration.addProperty("storageId", storageId);
         cronTaskConfiguration.addProperty("repositoryId", repositoryId);
         cronTaskConfiguration.addProperty("basePath", basePath);
@@ -117,20 +118,6 @@ public class RebuildMavenIndexesCronJobTestIT
         cronTaskConfigurationService.saveConfiguration(cronTaskConfiguration);
         CronTaskConfiguration obj = cronTaskConfigurationService.findOne(name);
         assertNotNull(obj);
-    }
-
-    public void deleteRebuildCronJobConfig(String name)
-            throws Exception
-    {
-        List<CronTaskConfiguration> confs = cronTaskConfigurationService.getConfiguration(name);
-
-        for (CronTaskConfiguration cnf : confs)
-        {
-            assertNotNull(cnf);
-            cronTaskConfigurationService.deleteConfiguration(cnf);
-        }
-
-        assertNull(cronTaskConfigurationService.findOne(name));
     }
 
     @Test
@@ -153,7 +140,6 @@ public class RebuildMavenIndexesCronJobTestIT
                 try
                 {
                     assertTrue(artifactSearchService.contains(request));
-                    deleteRebuildCronJobConfig(jobName);
                 }
                 catch (Exception e)
                 {
@@ -193,8 +179,6 @@ public class RebuildMavenIndexesCronJobTestIT
                                                                "+p:jar");
 
                     assertTrue(artifactSearchService.contains(request2));
-
-                    deleteRebuildCronJobConfig(jobName);
                 }
                 catch (Exception e)
                 {
@@ -234,8 +218,6 @@ public class RebuildMavenIndexesCronJobTestIT
                                                                "+p:jar");
 
                     assertTrue(artifactSearchService.contains(request2));
-
-                    deleteRebuildCronJobConfig(jobName);
                 }
                 catch (Exception e)
                 {
@@ -275,8 +257,6 @@ public class RebuildMavenIndexesCronJobTestIT
                                                                "+p:jar");
 
                     assertTrue(artifactSearchService.contains(request2));
-
-                    deleteRebuildCronJobConfig(jobName);
                 }
                 catch (Exception e)
                 {
