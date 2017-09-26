@@ -1,14 +1,13 @@
 package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
-import org.carlspring.strongbox.cron.services.JobManager;
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
+import org.carlspring.strongbox.cron.services.JobManager;
+import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -29,6 +28,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Kate Novik.
@@ -36,7 +36,7 @@ import static org.junit.Assert.assertNotNull;
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 public class RebuildMavenMetadataCronJobTestIT
-        extends TestCaseWithMavenArtifactGenerationAndIndexing
+        extends BaseCronJobWithMavenIndexingTestCase
 {
 
     private static final String STORAGE1 = "storage1";
@@ -139,27 +139,6 @@ public class RebuildMavenMetadataCronJobTestIT
         return repositories;
     }
 
-    public void addRebuildCronJobConfig(String name,
-                                        String storageId,
-                                        String repositoryId,
-                                        String basePath)
-            throws Exception
-    {
-        CronTaskConfiguration cronTaskConfiguration = new CronTaskConfiguration();
-        cronTaskConfiguration.setOneTimeExecution(true);
-        cronTaskConfiguration.setImmediateExecution(true);
-        cronTaskConfiguration.setName(name);
-        cronTaskConfiguration.addProperty("jobClass", RebuildMavenMetadataCronJob.class.getName());
-        cronTaskConfiguration.addProperty("cronExpression", "0 11 11 11 11 ? 2100");
-        cronTaskConfiguration.addProperty("storageId", storageId);
-        cronTaskConfiguration.addProperty("repositoryId", repositoryId);
-        cronTaskConfiguration.addProperty("basePath", basePath);
-
-        cronTaskConfigurationService.saveConfiguration(cronTaskConfiguration);
-        CronTaskConfiguration obj = cronTaskConfigurationService.findOne(name);
-        assertNotNull(obj);
-    }
-
     @Test
     public void testRebuildArtifactsMetadata()
             throws Exception
@@ -193,8 +172,11 @@ public class RebuildMavenMetadataCronJobTestIT
             }
         });
 
+        addCronJobConfig(jobName, RebuildMavenMetadataCronJob.class, STORAGE0, REPOSITORY_SNAPSHOTS,
+                         properties -> properties.put("basePath", ARTIFACT_BASE_PATH_STRONGBOX_METADATA));
 
-        addRebuildCronJobConfig(jobName, STORAGE0, REPOSITORY_SNAPSHOTS, ARTIFACT_BASE_PATH_STRONGBOX_METADATA);
+        assertTrue("Failed to execute task!",
+                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -242,7 +224,10 @@ public class RebuildMavenMetadataCronJobTestIT
             }
         });
 
-        addRebuildCronJobConfig(jobName, STORAGE0, REPOSITORY_SNAPSHOTS, null);
+        addCronJobConfig(jobName, RebuildMavenMetadataCronJob.class, STORAGE0, REPOSITORY_SNAPSHOTS);
+
+        assertTrue("Failed to execute task!",
+                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -290,7 +275,10 @@ public class RebuildMavenMetadataCronJobTestIT
             }
         });
 
-        addRebuildCronJobConfig(jobName, STORAGE0, null, null);
+        addCronJobConfig(jobName, RebuildMavenMetadataCronJob.class, STORAGE0, null);
+
+        assertTrue("Failed to execute task!",
+                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -338,6 +326,9 @@ public class RebuildMavenMetadataCronJobTestIT
             }
         });
 
-        addRebuildCronJobConfig(jobName, null, null, null);
+        addCronJobConfig(jobName, RebuildMavenMetadataCronJob.class, null, null);
+
+        assertTrue("Failed to execute task!",
+                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 }

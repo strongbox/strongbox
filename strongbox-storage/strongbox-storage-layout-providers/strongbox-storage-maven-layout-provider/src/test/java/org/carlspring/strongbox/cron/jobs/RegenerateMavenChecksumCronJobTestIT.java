@@ -2,15 +2,14 @@ package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.cron.services.JobManager;
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
+import org.carlspring.strongbox.cron.services.JobManager;
+import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.util.FileUtils;
 
 import javax.inject.Inject;
@@ -28,7 +27,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Kate Novik.
@@ -36,7 +35,7 @@ import static org.junit.Assert.*;
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 public class RegenerateMavenChecksumCronJobTestIT
-        extends TestCaseWithMavenArtifactGenerationAndIndexing
+        extends BaseCronJobWithMavenIndexingTestCase
 {
 
     private static final String STORAGE1 = "storage1";
@@ -130,29 +129,6 @@ public class RegenerateMavenChecksumCronJobTestIT
         return repositories;
     }
 
-    public void addRegenerateCronJobConfig(String name,
-                                           String storageId,
-                                           String repositoryId,
-                                           String basePath,
-                                           boolean forceRegeneration)
-            throws Exception
-    {
-        CronTaskConfiguration cronTaskConfiguration = new CronTaskConfiguration();
-        cronTaskConfiguration.setOneTimeExecution(true);
-        cronTaskConfiguration.setImmediateExecution(true);
-        cronTaskConfiguration.setName(name);
-        cronTaskConfiguration.addProperty("jobClass", RegenerateChecksumCronJob.class.getName());
-        cronTaskConfiguration.addProperty("cronExpression", "0 11 11 11 11 ? 2100");
-        cronTaskConfiguration.addProperty("storageId", storageId);
-        cronTaskConfiguration.addProperty("repositoryId", repositoryId);
-        cronTaskConfiguration.addProperty("basePath", basePath);
-        cronTaskConfiguration.addProperty("forceRegeneration", String.valueOf(forceRegeneration));
-
-        cronTaskConfigurationService.saveConfiguration(cronTaskConfiguration);
-        CronTaskConfiguration obj = cronTaskConfigurationService.findOne(name);
-        assertNotNull(obj);
-    }
-
     @Test
     public void testRegenerateArtifactChecksum()
             throws Exception
@@ -223,8 +199,15 @@ public class RegenerateMavenChecksumCronJobTestIT
             }
         });
 
-        addRegenerateCronJobConfig(jobName, STORAGE0, REPOSITORY_SNAPSHOTS,
-                                   "org/carlspring/strongbox/strongbox-checksum-one", false);
+        addCronJobConfig(jobName, RegenerateChecksumCronJob.class, STORAGE0, REPOSITORY_SNAPSHOTS,
+                         properties ->
+                         {
+                             properties.put("basePath", "org/carlspring/strongbox/strongbox-checksum-one");
+                             properties.put("forceRegeneration", "false");
+                         });
+
+        assertTrue("Failed to execute task!",
+                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -296,7 +279,11 @@ public class RegenerateMavenChecksumCronJobTestIT
             }
         });
 
-        addRegenerateCronJobConfig(jobName, STORAGE0, REPOSITORY_SNAPSHOTS, null, false);
+        addCronJobConfig(jobName, RegenerateChecksumCronJob.class, STORAGE0, REPOSITORY_SNAPSHOTS,
+                         properties -> properties.put("forceRegeneration", "false"));
+
+        assertTrue("Failed to execute task!",
+                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -355,8 +342,11 @@ public class RegenerateMavenChecksumCronJobTestIT
             }
         });
 
-        addRegenerateCronJobConfig(jobName, STORAGE0, null, null, false);
+        addCronJobConfig(jobName, RegenerateChecksumCronJob.class, STORAGE0, null,
+                         properties -> properties.put("forceRegeneration", "false"));
 
+        assertTrue("Failed to execute task!",
+                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -414,7 +404,11 @@ public class RegenerateMavenChecksumCronJobTestIT
             }
         });
 
-        addRegenerateCronJobConfig(jobName, null, null, null, false);
+        addCronJobConfig(jobName, RegenerateChecksumCronJob.class, null, null,
+                         properties -> properties.put("forceRegeneration", "false"));
+
+        assertTrue("Failed to execute task!",
+                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     private LayoutProvider getLayoutProvider(String repositoryId)

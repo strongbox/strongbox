@@ -2,15 +2,14 @@ package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.cron.services.JobManager;
+import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -29,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static junit.framework.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -38,7 +36,7 @@ import static org.junit.Assert.assertTrue;
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ClearTrashCronJobFromMaven2RepositoryTestIT
-        extends TestCaseWithMavenArtifactGenerationAndIndexing
+        extends BaseCronJobWithMavenIndexingTestCase
 {
 
     private final Logger logger = LoggerFactory.getLogger(ClearTrashCronJobFromMaven2RepositoryTestIT.class);
@@ -149,27 +147,6 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         return repositories;
     }
 
-    public void addRebuildCronJobConfig(String name,
-                                        String storageId,
-                                        String repositoryId)
-            throws Exception
-    {
-        CronTaskConfiguration cronTaskConfiguration = new CronTaskConfiguration();
-        cronTaskConfiguration.setOneTimeExecution(true);
-        cronTaskConfiguration.setImmediateExecution(true);
-        cronTaskConfiguration.setName(name);
-        cronTaskConfiguration.addProperty("jobClass", ClearRepositoryTrashCronJob.class.getName());
-        cronTaskConfiguration.addProperty("cronExpression", "0 11 11 11 11 ? 2100");
-        cronTaskConfiguration.addProperty("storageId", storageId);
-        cronTaskConfiguration.addProperty("repositoryId", repositoryId);
-
-        cronTaskConfigurationService.saveConfiguration(cronTaskConfiguration);
-
-        CronTaskConfiguration obj = cronTaskConfigurationService.findOne(name);
-
-        assertNotNull(obj);
-    }
-
     @Test
     public void testRemoveTrashInRepository()
             throws Exception
@@ -203,7 +180,10 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
             }
         });
 
-        addRebuildCronJobConfig(jobName, STORAGE0, REPOSITORY_RELEASES_1);
+        addCronJobConfig(jobName, ClearRepositoryTrashCronJob.class, STORAGE0, REPOSITORY_RELEASES_1);
+
+        assertTrue("Failed to execute task!",
+                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     private File[] getDirs()
@@ -259,8 +239,10 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
             removeRepositories();
         });
 
-        // schedule the job
-        addRebuildCronJobConfig(jobName, null, null);
+        addCronJobConfig(jobName, ClearRepositoryTrashCronJob.class, null, null);
+
+        assertTrue("Failed to execute task!",
+                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
 }

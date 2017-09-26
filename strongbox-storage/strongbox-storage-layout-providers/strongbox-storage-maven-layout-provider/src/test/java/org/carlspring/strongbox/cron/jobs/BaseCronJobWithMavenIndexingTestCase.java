@@ -10,11 +10,12 @@ import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIn
 
 import javax.inject.Inject;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
+import org.junit.After;
+import org.junit.Before;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 /**
  * @author carlspring
@@ -48,17 +49,57 @@ public class BaseCronJobWithMavenIndexingTestCase
 
     protected boolean receivedExpectedEvent = false;
 
+    @Before
+    public void listenerSetup()
+            throws Exception
+    {
+        // Register to receive cron task-related events
+        cronTaskEventListenerRegistry.addListener(this);
+    }
 
-    public CronTaskConfiguration addCronJobConfig(String name,
-                                                  String className,
-                                                  Map<String, String> properties)
+    @After
+    public void listenerTearDown()
+            throws Exception
+    {
+        // Un-register to receive cron task-related events
+        cronTaskEventListenerRegistry.removeListener(this);
+    }
+
+    protected CronTaskConfiguration addCronJobConfig(String jobName,
+                                                     Class<? extends JavaCronJob> className,
+                                                     String storageId,
+                                                     String repositoryId)
+            throws Exception
+    {
+        return addCronJobConfig(jobName,className,storageId, repositoryId,null);
+    }
+
+    protected CronTaskConfiguration addCronJobConfig(String jobName,
+                                                     Class<? extends JavaCronJob> className,
+                                                     String storageId,
+                                                     String repositoryId,
+                                                     Consumer<Map<String, String>> additionalProperties)
+            throws Exception
+    {
+        Map<String, String> properties = new LinkedHashMap<>();
+        properties.put("cronExpression", "0 11 11 11 11 ? 2100");
+        properties.put("storageId", storageId);
+        properties.put("repositoryId", repositoryId);
+        if (additionalProperties != null)
+        {
+            additionalProperties.accept(properties);
+        }
+        return addCronJobConfig(jobName, className, properties);
+    }
+
+    protected CronTaskConfiguration addCronJobConfig(String jobName, Class<? extends JavaCronJob> className, Map<String, String> properties)
             throws Exception
     {
         CronTaskConfiguration cronTaskConfiguration = new CronTaskConfiguration();
         cronTaskConfiguration.setOneTimeExecution(true);
         cronTaskConfiguration.setImmediateExecution(true);
-        cronTaskConfiguration.setName(name);
-        cronTaskConfiguration.addProperty("jobClass", className);
+        cronTaskConfiguration.setName(jobName);
+        cronTaskConfiguration.addProperty("jobClass", className.getName());
 
         for (String propertyKey : properties.keySet())
         {
@@ -67,11 +108,11 @@ public class BaseCronJobWithMavenIndexingTestCase
 
         cronTaskConfigurationService.saveConfiguration(cronTaskConfiguration);
 
-        CronTaskConfiguration configuration = cronTaskConfigurationService.findOne(name);
+        CronTaskConfiguration configuration = cronTaskConfigurationService.findOne(jobName);
 
         assertNotNull("Failed to save cron configuration!", configuration);
 
-        addCronTaskConfiguration(name, configuration);
+        addCronTaskConfiguration(jobName, configuration);
 
         return cronTaskConfiguration;
     }

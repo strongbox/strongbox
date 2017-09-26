@@ -1,28 +1,28 @@
 package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
-import org.carlspring.strongbox.cron.services.JobManager;
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
+import org.carlspring.strongbox.cron.services.JobManager;
+import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Kate Novik.
@@ -30,7 +30,7 @@ import static org.junit.Assert.*;
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 public class RebuildMavenIndexesCronJobTestIT
-        extends TestCaseWithMavenArtifactGenerationAndIndexing
+        extends BaseCronJobWithMavenIndexingTestCase
 {
 
     private static final String STORAGE1 = "storage1";
@@ -76,6 +76,9 @@ public class RebuildMavenIndexesCronJobTestIT
     public void initialize()
             throws Exception
     {
+        createRepository(STORAGE0, REPOSITORY_RELEASES_1, true);
+        createRepository(STORAGE0, REPOSITORY_RELEASES_2, true);
+
         generateArtifact(REPOSITORY_RELEASES_BASEDIR_1.getAbsolutePath(),
                          "org.carlspring.strongbox.indexes:strongbox-test-one:1.0:jar");
 
@@ -89,35 +92,23 @@ public class RebuildMavenIndexesCronJobTestIT
                          "org.carlspring.strongbox.indexes:strongbox-test-one:1.0:jar");
     }
 
+    @After
+    public void removeRepositories()
+            throws Exception
+    {
+        getRepositoryIndexManager().closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_2);
+        getRepositoryIndexManager().closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_1);
+        removeRepositories(getRepositoriesToClean());
+    }
+
     public static Set<Repository> getRepositoriesToClean()
     {
         Set<Repository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2));
-        repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_RELEASES_1));
+       // repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_RELEASES_1));
 
         return repositories;
-    }
-
-    public void addRebuildCronJobConfig(String name,
-                                        String storageId,
-                                        String repositoryId,
-                                        String basePath)
-            throws Exception
-    {
-        CronTaskConfiguration cronTaskConfiguration = new CronTaskConfiguration();
-        cronTaskConfiguration.setOneTimeExecution(true);
-        cronTaskConfiguration.setImmediateExecution(true);
-        cronTaskConfiguration.setName(name);
-        cronTaskConfiguration.addProperty("jobClass", RebuildMavenIndexesCronJob.class.getName());
-        cronTaskConfiguration.addProperty("cronExpression", "0 11 11 11 11 ? 2100");
-        cronTaskConfiguration.addProperty("storageId", storageId);
-        cronTaskConfiguration.addProperty("repositoryId", repositoryId);
-        cronTaskConfiguration.addProperty("basePath", basePath);
-
-        cronTaskConfigurationService.saveConfiguration(cronTaskConfiguration);
-        CronTaskConfiguration obj = cronTaskConfigurationService.findOne(name);
-        assertNotNull(obj);
     }
 
     @Test
@@ -148,7 +139,11 @@ public class RebuildMavenIndexesCronJobTestIT
             }
         });
 
-        addRebuildCronJobConfig(jobName, STORAGE0, REPOSITORY_RELEASES_1, ARTIFACT_BASE_PATH_STRONGBOX_INDEXES);
+        addCronJobConfig(jobName, RebuildMavenIndexesCronJob.class, STORAGE0, REPOSITORY_RELEASES_1,
+                         properties -> properties.put("basePath", ARTIFACT_BASE_PATH_STRONGBOX_INDEXES));
+
+        assertTrue("Failed to execute task!",
+                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -187,7 +182,10 @@ public class RebuildMavenIndexesCronJobTestIT
             }
         });
 
-        addRebuildCronJobConfig(jobName, STORAGE0, REPOSITORY_RELEASES_1, null);
+        addCronJobConfig(jobName, RebuildMavenIndexesCronJob.class, STORAGE0, REPOSITORY_RELEASES_1);
+
+        assertTrue("Failed to execute task!",
+                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -226,7 +224,10 @@ public class RebuildMavenIndexesCronJobTestIT
             }
         });
 
-        addRebuildCronJobConfig(jobName, STORAGE0, null, null);
+        addCronJobConfig(jobName, RebuildMavenIndexesCronJob.class, STORAGE0, null);
+
+        assertTrue("Failed to execute task!",
+                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -265,7 +266,10 @@ public class RebuildMavenIndexesCronJobTestIT
             }
         });
 
-        addRebuildCronJobConfig(jobName, null, null, null);
+        addCronJobConfig(jobName, RebuildMavenIndexesCronJob.class, null, null);
+
+        assertTrue("Failed to execute task!",
+                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
 }
