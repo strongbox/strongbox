@@ -4,6 +4,7 @@ import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.cron.services.JobManager;
 import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
+import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.services.ArtifactSearchService;
@@ -76,8 +77,11 @@ public class RebuildMavenIndexesCronJobTestIT
     public void initialize()
             throws Exception
     {
+        createStorage(STORAGE1);
+
         createRepository(STORAGE0, REPOSITORY_RELEASES_1, true);
         createRepository(STORAGE0, REPOSITORY_RELEASES_2, true);
+        createRepository(STORAGE1, REPOSITORY_RELEASES_1, true);
 
         generateArtifact(REPOSITORY_RELEASES_BASEDIR_1.getAbsolutePath(),
                          "org.carlspring.strongbox.indexes:strongbox-test-one:1.0:jar");
@@ -96,6 +100,7 @@ public class RebuildMavenIndexesCronJobTestIT
     public void removeRepositories()
             throws Exception
     {
+        getRepositoryIndexManager().closeIndexersForRepository(STORAGE1, REPOSITORY_RELEASES_1);
         getRepositoryIndexManager().closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_2);
         getRepositoryIndexManager().closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_1);
         removeRepositories(getRepositoriesToClean());
@@ -106,7 +111,7 @@ public class RebuildMavenIndexesCronJobTestIT
         Set<Repository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2));
-       // repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_RELEASES_1));
+        repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_RELEASES_1));
 
         return repositories;
     }
@@ -126,7 +131,8 @@ public class RebuildMavenIndexesCronJobTestIT
                                                           "+g:org.carlspring.strongbox.indexes " +
                                                           "+a:strongbox-test-one " +
                                                           "+v:1.0 " +
-                                                          "+p:jar");
+                                                          "+p:jar",
+                                                          MavenIndexerSearchProvider.ALIAS);
 
                 try
                 {
@@ -143,7 +149,7 @@ public class RebuildMavenIndexesCronJobTestIT
                          properties -> properties.put("basePath", ARTIFACT_BASE_PATH_STRONGBOX_INDEXES));
 
         assertTrue("Failed to execute task!",
-                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -162,7 +168,8 @@ public class RebuildMavenIndexesCronJobTestIT
                                                                "+g:org.carlspring.strongbox.indexes " +
                                                                "+a:strongbox-test-one " +
                                                                "+v:1.0 " +
-                                                               "+p:jar");
+                                                               "+p:jar",
+                                                               MavenIndexerSearchProvider.ALIAS);
 
                     assertTrue(artifactSearchService.contains(request1));
 
@@ -171,7 +178,8 @@ public class RebuildMavenIndexesCronJobTestIT
                                                                "+g:org.carlspring.strongbox.indexes " +
                                                                "+a:strongbox-test-two " +
                                                                "+v:1.0 " +
-                                                               "+p:jar");
+                                                               "+p:jar",
+                                                               MavenIndexerSearchProvider.ALIAS);
 
                     assertTrue(artifactSearchService.contains(request2));
                 }
@@ -185,7 +193,7 @@ public class RebuildMavenIndexesCronJobTestIT
         addCronJobConfig(jobName, RebuildMavenIndexesCronJob.class, STORAGE0, REPOSITORY_RELEASES_1);
 
         assertTrue("Failed to execute task!",
-                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -204,7 +212,8 @@ public class RebuildMavenIndexesCronJobTestIT
                                                                "+g:org.carlspring.strongbox.indexes " +
                                                                "+a:strongbox-test-two " +
                                                                "+v:1.0 " +
-                                                               "+p:jar");
+                                                               "+p:jar",
+                                                               MavenIndexerSearchProvider.ALIAS);
 
                     assertTrue(artifactSearchService.contains(request1));
 
@@ -213,7 +222,8 @@ public class RebuildMavenIndexesCronJobTestIT
                                                                "+g:org.carlspring.strongbox.indexes " +
                                                                "+a:strongbox-test-one " +
                                                                "+v:1.0 " +
-                                                               "+p:jar");
+                                                               "+p:jar",
+                                                               MavenIndexerSearchProvider.ALIAS);
 
                     assertTrue(artifactSearchService.contains(request2));
                 }
@@ -227,7 +237,7 @@ public class RebuildMavenIndexesCronJobTestIT
         addCronJobConfig(jobName, RebuildMavenIndexesCronJob.class, STORAGE0, null);
 
         assertTrue("Failed to execute task!",
-                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -246,7 +256,8 @@ public class RebuildMavenIndexesCronJobTestIT
                                                                "+g:org.carlspring.strongbox.indexes " +
                                                                "+a:strongbox-test-one " +
                                                                "+v:1.0 " +
-                                                               "+p:jar");
+                                                               "+p:jar",
+                                                               MavenIndexerSearchProvider.ALIAS);
 
                     assertTrue(artifactSearchService.contains(request1));
 
@@ -255,7 +266,8 @@ public class RebuildMavenIndexesCronJobTestIT
                                                                "+g:org.carlspring.strongbox.indexes " +
                                                                "+a:strongbox-test-one " +
                                                                "+v:1.0 " +
-                                                               "+p:jar");
+                                                               "+p:jar",
+                                                               MavenIndexerSearchProvider.ALIAS);
 
                     assertTrue(artifactSearchService.contains(request2));
                 }
@@ -269,7 +281,7 @@ public class RebuildMavenIndexesCronJobTestIT
         addCronJobConfig(jobName, RebuildMavenIndexesCronJob.class, null, null);
 
         assertTrue("Failed to execute task!",
-                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
 }

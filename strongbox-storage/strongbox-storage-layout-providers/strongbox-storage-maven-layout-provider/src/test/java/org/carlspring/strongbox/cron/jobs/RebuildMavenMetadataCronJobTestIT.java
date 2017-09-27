@@ -176,7 +176,7 @@ public class RebuildMavenMetadataCronJobTestIT
                          properties -> properties.put("basePath", ARTIFACT_BASE_PATH_STRONGBOX_METADATA));
 
         assertTrue("Failed to execute task!",
-                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -227,7 +227,7 @@ public class RebuildMavenMetadataCronJobTestIT
         addCronJobConfig(jobName, RebuildMavenMetadataCronJob.class, STORAGE0, REPOSITORY_SNAPSHOTS);
 
         assertTrue("Failed to execute task!",
-                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -278,7 +278,7 @@ public class RebuildMavenMetadataCronJobTestIT
         addCronJobConfig(jobName, RebuildMavenMetadataCronJob.class, STORAGE0, null);
 
         assertTrue("Failed to execute task!",
-                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -329,6 +329,6 @@ public class RebuildMavenMetadataCronJobTestIT
         addCronJobConfig(jobName, RebuildMavenMetadataCronJob.class, null, null);
 
         assertTrue("Failed to execute task!",
-                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 }

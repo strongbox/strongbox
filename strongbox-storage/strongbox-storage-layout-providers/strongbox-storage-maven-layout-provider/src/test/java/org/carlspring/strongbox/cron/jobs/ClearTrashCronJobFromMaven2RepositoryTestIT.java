@@ -183,7 +183,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         addCronJobConfig(jobName, ClearRepositoryTrashCronJob.class, STORAGE0, REPOSITORY_RELEASES_1);
 
         assertTrue("Failed to execute task!",
-                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     private File[] getDirs()
@@ -242,7 +242,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         addCronJobConfig(jobName, ClearRepositoryTrashCronJob.class, null, null);
 
         assertTrue("Failed to execute task!",
-                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
 }

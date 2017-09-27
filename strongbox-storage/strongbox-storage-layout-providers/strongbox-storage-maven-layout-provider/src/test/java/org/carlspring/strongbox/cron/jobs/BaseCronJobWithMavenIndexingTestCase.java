@@ -24,9 +24,6 @@ public class BaseCronJobWithMavenIndexingTestCase
         extends TestCaseWithMavenArtifactGenerationAndIndexing
         implements CronTaskEventListener
 {
-
-    public static final long CRON_TASK_MAX_WAIT = 15000L;
-
     public static final long CRON_TASK_CHECK_INTERVAL = 500L;
 
     @Inject
@@ -48,6 +45,8 @@ public class BaseCronJobWithMavenIndexingTestCase
     protected CronTaskEvent receivedEvent;
 
     protected boolean receivedExpectedEvent = false;
+
+    protected String expectedJobName;
 
     @Before
     public void listenerSetup()
@@ -120,19 +119,17 @@ public class BaseCronJobWithMavenIndexingTestCase
     @Override
     public void handle(CronTaskEvent event)
     {
-        if (event.getType() == event.getType())
+        if (event.getType() == expectedEventType && expectedJobName.equals(event.getName()))
         {
             receivedExpectedEvent = true;
             receivedEvent = event;
-
-            System.out.println("Received expected event: " + expectedEventType);
         }
     }
 
-    public boolean expectEvent(int expectedEventType)
+    public boolean expectEvent(String jobName, int expectedEventType)
             throws InterruptedException
     {
-        return expectEvent(expectedEventType, 0, CRON_TASK_CHECK_INTERVAL);
+        return expectEvent(jobName, expectedEventType, 5000, CRON_TASK_CHECK_INTERVAL);
     }
 
     /**
@@ -142,11 +139,12 @@ public class BaseCronJobWithMavenIndexingTestCase
      * @param maxWaitTime           The maximum wait time (in milliseconds)
      * @param checkInterval         The interval (in milliseconds) at which to check for the occurrence of the event
      */
-    public boolean expectEvent(int expectedEventType, long maxWaitTime, long checkInterval)
+    public boolean expectEvent(String jobName, int expectedEventType, long maxWaitTime, long checkInterval)
             throws InterruptedException
     {
+        this.expectedJobName = jobName;
         this.expectedEventType = expectedEventType;
-
+ 
         int totalWait = 0;
         while (!receivedExpectedEvent &&
                (maxWaitTime > 0 && totalWait <= maxWaitTime || // If a maxWaitTime has been defined,

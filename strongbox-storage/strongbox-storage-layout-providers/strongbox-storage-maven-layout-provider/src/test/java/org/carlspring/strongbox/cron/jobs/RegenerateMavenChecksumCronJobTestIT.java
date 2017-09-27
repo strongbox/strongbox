@@ -207,7 +207,7 @@ public class RegenerateMavenChecksumCronJobTestIT
                          });
 
         assertTrue("Failed to execute task!",
-                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -283,7 +283,7 @@ public class RegenerateMavenChecksumCronJobTestIT
                          properties -> properties.put("forceRegeneration", "false"));
 
         assertTrue("Failed to execute task!",
-                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -346,7 +346,7 @@ public class RegenerateMavenChecksumCronJobTestIT
                          properties -> properties.put("forceRegeneration", "false"));
 
         assertTrue("Failed to execute task!",
-                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -408,7 +408,7 @@ public class RegenerateMavenChecksumCronJobTestIT
                          properties -> properties.put("forceRegeneration", "false"));
 
         assertTrue("Failed to execute task!",
-                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     private LayoutProvider getLayoutProvider(String repositoryId)

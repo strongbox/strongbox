@@ -1,9 +1,5 @@
 package org.carlspring.strongbox.services.impl;
 
-import java.io.IOException;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.artifact.locator.handlers.ArtifactLocationGenerateChecksumOperation;
 import org.carlspring.strongbox.configuration.Configuration;
@@ -14,6 +10,12 @@ import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.services.ChecksumService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+
+import javax.inject.Inject;
+import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
@@ -23,6 +25,7 @@ import org.springframework.stereotype.Component;
 public class ChecksumServiceImpl
         implements ChecksumService
 {
+    private final Logger logger = LoggerFactory.getLogger(ChecksumServiceImpl.class);
 
     @Inject
     private ConfigurationManager configurationManager;
@@ -38,8 +41,14 @@ public class ChecksumServiceImpl
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
-        
+
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        if (layoutProvider == null)
+        {
+            logger.warn("Trying to regenerate checksum for repository {} but layoutProvider was not found in registry {} ",
+                        repository.getId(), repository.getLayout());
+            return;
+        }
         RepositoryPath repositoryBasePath = layoutProvider.resolve(repository).resolve(basePath);
         
         ArtifactLocationGenerateChecksumOperation operation = new ArtifactLocationGenerateChecksumOperation();

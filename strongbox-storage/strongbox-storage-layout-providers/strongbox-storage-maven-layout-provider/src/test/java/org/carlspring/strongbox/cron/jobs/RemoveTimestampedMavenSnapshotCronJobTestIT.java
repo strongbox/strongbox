@@ -15,6 +15,7 @@ import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -22,6 +23,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -139,13 +141,16 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                                   null,
                                   2,
                                   timestamp);
+
+        rebuildArtifactsMetadata();
     }
 
     @After
     public void removeRepositories()
-            throws IOException, JAXBException
+            throws Exception
     {
         removeRepositories(getRepositoriesToClean());
+        cleanUp();
     }
 
     public static Set<Repository> getRepositoriesToClean()
@@ -157,6 +162,19 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
         return repositories;
     }
 
+    private void rebuildArtifactsMetadata()
+            throws Exception
+    {
+        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS_2,
+                                                "org/carlspring/strongbox/strongbox-timestamped-first");
+
+        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS_1,
+                                                "org/carlspring/strongbox/strongbox-timestamped-first");
+
+        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS_1,
+                                                "org/carlspring/strongbox/strongbox-timestamped-second");
+    }
+
     @Test
     public void testRemoveTimestampedSnapshot()
             throws Exception
@@ -166,9 +184,6 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
         String artifactPath = REPOSITORY_SNAPSHOTS_BASEDIR_1 + "/org/carlspring/strongbox/strongbox-timestamped-first";
 
         File file = new File(artifactPath, "2.0-SNAPSHOT");
-
-        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS_1,
-                                                ARTIFACT_BASE_PATH_STRONGBOX_TIMESTAMPED);
 
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
@@ -196,7 +211,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                          });
 
         assertTrue("Failed to execute task!",
-                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -208,6 +223,9 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
         String artifactPath = REPOSITORY_SNAPSHOTS_BASEDIR_1 + "/org/carlspring/strongbox/strongbox-timestamped-second";
 
         File file = new File(artifactPath, "2.0-SNAPSHOT");
+
+        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS_1,
+                                                "org/carlspring/strongbox/strongbox-timestamped-first");
 
         artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS_1,
                                                 "org/carlspring/strongbox/strongbox-timestamped-second");
@@ -238,7 +256,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                          });
 
         assertTrue("Failed to execute task!",
-                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -253,6 +271,12 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
 
         artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS_2,
                                                 "org/carlspring/strongbox/strongbox-timestamped-first");
+
+        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS_1,
+                                                "org/carlspring/strongbox/strongbox-timestamped-first");
+
+        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS_1,
+                                                "org/carlspring/strongbox/strongbox-timestamped-second");
 
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
@@ -280,7 +304,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                          });
 
         assertTrue("Failed to execute task!",
-                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -322,7 +346,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                          });
 
         assertTrue("Failed to execute task!",
-                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     private String getSnapshotArtifactVersion(File artifactFile)

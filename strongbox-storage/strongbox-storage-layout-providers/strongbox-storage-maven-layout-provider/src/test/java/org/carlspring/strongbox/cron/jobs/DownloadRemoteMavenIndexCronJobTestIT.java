@@ -169,7 +169,7 @@ public class DownloadRemoteMavenIndexCronJobTestIT
                          REPOSITORY_PROXIED_RELEASES);
 
         assertTrue("Failed to execute task!",
-                   expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
 }
