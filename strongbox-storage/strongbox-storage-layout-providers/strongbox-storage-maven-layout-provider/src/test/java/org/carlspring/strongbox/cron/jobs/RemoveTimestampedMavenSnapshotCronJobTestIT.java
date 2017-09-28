@@ -3,27 +3,27 @@ package org.carlspring.strongbox.cron.jobs;
 import org.carlspring.maven.commons.io.filters.JarFilenameFilter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
-import org.carlspring.strongbox.cron.services.JobManager;
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
+import org.carlspring.strongbox.cron.services.JobManager;
+import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -31,7 +31,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Kate Novik.
@@ -39,7 +40,7 @@ import static org.junit.Assert.*;
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 public class RemoveTimestampedMavenSnapshotCronJobTestIT
-        extends TestCaseWithMavenArtifactGenerationAndIndexing
+        extends BaseCronJobWithMavenIndexingTestCase
 {
 
     private static final String STORAGE1 = "storage1";
@@ -140,13 +141,16 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                                   null,
                                   2,
                                   timestamp);
+
+        rebuildArtifactsMetadata();
     }
 
     @After
     public void removeRepositories()
-            throws IOException, JAXBException
+            throws Exception
     {
         removeRepositories(getRepositoriesToClean());
+        cleanUp();
     }
 
     public static Set<Repository> getRepositoriesToClean()
@@ -158,41 +162,17 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
         return repositories;
     }
 
-    public void addRemoveCronJobConfig(String name,
-                                       String storageId,
-                                       String repositoryId,
-                                       String basePath,
-                                       int numberToKeep,
-                                       int keepPeriod)
+    private void rebuildArtifactsMetadata()
             throws Exception
     {
-        CronTaskConfiguration cronTaskConfiguration = new CronTaskConfiguration();
-        cronTaskConfiguration.setName(name);
-        cronTaskConfiguration.addProperty("jobClass", RemoveTimestampedMavenSnapshotCronJob.class.getName());
-        cronTaskConfiguration.addProperty("cronExpression", "0 0/1 * 1/1 * ? *");
-        cronTaskConfiguration.addProperty("storageId", storageId);
-        cronTaskConfiguration.addProperty("repositoryId", repositoryId);
-        cronTaskConfiguration.addProperty("basePath", basePath);
-        cronTaskConfiguration.addProperty("numberToKeep", String.valueOf(numberToKeep));
-        cronTaskConfiguration.addProperty("keepPeriod", String.valueOf(keepPeriod));
+        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS_2,
+                                                "org/carlspring/strongbox/strongbox-timestamped-first");
 
-        cronTaskConfigurationService.saveConfiguration(cronTaskConfiguration);
-        CronTaskConfiguration obj = cronTaskConfigurationService.findOne(name);
-        assertNotNull(obj);
-    }
+        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS_1,
+                                                "org/carlspring/strongbox/strongbox-timestamped-first");
 
-    public void deleteRemoveCronJobConfig(String name)
-            throws Exception
-    {
-        List<CronTaskConfiguration> confs = cronTaskConfigurationService.getConfiguration(name);
-
-        for (CronTaskConfiguration cnf : confs)
-        {
-            assertNotNull(cnf);
-            cronTaskConfigurationService.deleteConfiguration(cnf);
-        }
-
-        assertNull(cronTaskConfigurationService.findOne(name));
+        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS_1,
+                                                "org/carlspring/strongbox/strongbox-timestamped-second");
     }
 
     @Test
@@ -205,9 +185,6 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
 
         File file = new File(artifactPath, "2.0-SNAPSHOT");
 
-        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS_1,
-                                                ARTIFACT_BASE_PATH_STRONGBOX_TIMESTAMPED);
-
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
             try
@@ -217,8 +194,6 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                     assertEquals("Amount of timestamped snapshots doesn't equal 1.", 1,
                                  file.listFiles(new JarFilenameFilter()).length);
                     assertTrue(getSnapshotArtifactVersion(file).endsWith("-3"));
-
-                    deleteRemoveCronJobConfig(jobName);
                 }
             }
             catch (Exception e)
@@ -227,13 +202,16 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
             }
         });
 
-        addRemoveCronJobConfig(jobName,
-                               STORAGE0,
-                               REPOSITORY_SNAPSHOTS_1,
-                               ARTIFACT_BASE_PATH_STRONGBOX_TIMESTAMPED,
-                               1,
-                               0);
+        addCronJobConfig(jobName, RemoveTimestampedMavenSnapshotCronJob.class, STORAGE0, REPOSITORY_SNAPSHOTS_1,
+                         properties ->
+                         {
+                             properties.put("basePath", ARTIFACT_BASE_PATH_STRONGBOX_TIMESTAMPED);
+                             properties.put("numberToKeep", "1");
+                             properties.put("keepPeriod", "0");
+                         });
 
+        assertTrue("Failed to execute task!",
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -247,6 +225,9 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
         File file = new File(artifactPath, "2.0-SNAPSHOT");
 
         artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS_1,
+                                                "org/carlspring/strongbox/strongbox-timestamped-first");
+
+        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS_1,
                                                 "org/carlspring/strongbox/strongbox-timestamped-second");
 
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
@@ -258,8 +239,6 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                     assertEquals("Amount of timestamped snapshots doesn't equal 1.", 1,
                                  file.listFiles(new JarFilenameFilter()).length);
                     assertTrue(getSnapshotArtifactVersion(file).endsWith("-2"));
-
-                    deleteRemoveCronJobConfig(jobName);
                 }
             }
             catch (Exception e)
@@ -268,7 +247,16 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
             }
         });
 
-        addRemoveCronJobConfig(jobName, STORAGE0, REPOSITORY_SNAPSHOTS_1, null, 1, 0);
+        addCronJobConfig(jobName, RemoveTimestampedMavenSnapshotCronJob.class, STORAGE0, REPOSITORY_SNAPSHOTS_1,
+                         properties ->
+                         {
+                             properties.put("basePath", null);
+                             properties.put("numberToKeep", "1");
+                             properties.put("keepPeriod", "0");
+                         });
+
+        assertTrue("Failed to execute task!",
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -284,6 +272,12 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
         artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS_2,
                                                 "org/carlspring/strongbox/strongbox-timestamped-first");
 
+        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS_1,
+                                                "org/carlspring/strongbox/strongbox-timestamped-first");
+
+        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS_1,
+                                                "org/carlspring/strongbox/strongbox-timestamped-second");
+
         jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
         {
             try
@@ -293,8 +287,6 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                     assertEquals("Amount of timestamped snapshots doesn't equal 1.", 1,
                                  file.listFiles(new JarFilenameFilter()).length);
                     assertTrue(getSnapshotArtifactVersion(file).endsWith("-5"));
-
-                    deleteRemoveCronJobConfig(jobName);
                 }
             }
             catch (Exception e)
@@ -303,7 +295,16 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
             }
         });
 
-        addRemoveCronJobConfig(jobName, STORAGE0, null, null, 1, 0);
+        addCronJobConfig(jobName, RemoveTimestampedMavenSnapshotCronJob.class, STORAGE0, null,
+                         properties ->
+                         {
+                             properties.put("basePath", null);
+                             properties.put("numberToKeep", "1");
+                             properties.put("keepPeriod", "0");
+                         });
+
+        assertTrue("Failed to execute task!",
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -328,8 +329,6 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                     assertEquals("Amount of timestamped snapshots doesn't equal 1.", 1,
                                  file.listFiles(new JarFilenameFilter()).length);
                     assertTrue(getSnapshotArtifactVersion(file).endsWith("-1"));
-
-                    deleteRemoveCronJobConfig(jobName);
                 }
             }
             catch (Exception e)
@@ -338,7 +337,16 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
             }
         });
 
-        addRemoveCronJobConfig(jobName, null, null, null, 0, 3);
+        addCronJobConfig(jobName, RemoveTimestampedMavenSnapshotCronJob.class, null, null,
+                         properties ->
+                         {
+                             properties.put("basePath", null);
+                             properties.put("numberToKeep", "0");
+                             properties.put("keepPeriod", "3");
+                         });
+
+        assertTrue("Failed to execute task!",
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     private String getSnapshotArtifactVersion(File artifactFile)

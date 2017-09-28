@@ -1,8 +1,6 @@
 package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
-import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.JobManager;
 import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
@@ -14,9 +12,7 @@ import org.carlspring.strongbox.storage.search.SearchRequest;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.junit.Before;
@@ -50,10 +46,6 @@ public class DownloadRemoteMavenIndexCronJobTestIT
     @Inject
     private JobManager jobManager;
 
-    @Inject
-    private CronJobSchedulerService cronJobSchedulerService;
-
-
     @BeforeClass
     public static void cleanUp()
             throws Exception
@@ -65,9 +57,6 @@ public class DownloadRemoteMavenIndexCronJobTestIT
     public void initialize()
             throws Exception
     {
-        // Register to receive cron task-related events
-        cronTaskEventListenerRegistry.addListener(this);
-
         createRepository(STORAGE0, REPOSITORY_RELEASES, true);
 
         createProxyRepository(STORAGE0,
@@ -124,19 +113,6 @@ public class DownloadRemoteMavenIndexCronJobTestIT
         return repositories;
     }
 
-    public CronTaskConfiguration addCronJobConfig(String name,
-                                                  String storageId,
-                                                  String repositoryId)
-            throws Exception
-    {
-        Map<String, String> properties = new LinkedHashMap<>();
-        properties.put("cronExpression", "0 0/1 * 1/1 * ? *");
-        properties.put("storageId", storageId);
-        properties.put("repositoryId", repositoryId);
-
-        return addCronJobConfig(name, DownloadRemoteMavenIndexCronJob.class.getName(), properties);
-    }
-
     @Test
     public void testDownloadRemoteIndexAndExecuteSearch()
             throws Exception
@@ -181,8 +157,6 @@ public class DownloadRemoteMavenIndexCronJobTestIT
                                artifactSearchService.contains(request4));
 
                     System.out.println(request4.getQuery() + " found matches!");
-
-                    deleteCronJobConfig(jobName);
                 }
                 catch (Exception e)
                 {
@@ -191,11 +165,11 @@ public class DownloadRemoteMavenIndexCronJobTestIT
             }
         });
 
-        CronTaskConfiguration configuration = addCronJobConfig(jobName, STORAGE0, REPOSITORY_PROXIED_RELEASES);
+        addCronJobConfig(jobName, DownloadRemoteMavenIndexCronJob.class, STORAGE0,
+                         REPOSITORY_PROXIED_RELEASES);
 
-        cronJobSchedulerService.executeJob(configuration);
-
-        assertTrue("Failed to execute task!", expectEvent(CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
+        assertTrue("Failed to execute task!",
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
 }

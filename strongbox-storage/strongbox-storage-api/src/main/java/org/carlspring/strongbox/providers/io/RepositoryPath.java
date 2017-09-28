@@ -123,6 +123,11 @@ public class RepositoryPath
 
     public RepositoryPath resolve(String other)
     {
+        if (other == null)
+        {
+            return this;
+        }
+
         return wrap(getTarget().resolve(other));
     }
 

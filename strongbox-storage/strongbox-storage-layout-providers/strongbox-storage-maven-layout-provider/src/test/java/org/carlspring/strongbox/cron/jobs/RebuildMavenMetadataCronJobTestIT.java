@@ -1,21 +1,19 @@
 package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
-import org.carlspring.strongbox.cron.services.JobManager;
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
+import org.carlspring.strongbox.cron.services.JobManager;
+import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
@@ -30,7 +28,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Kate Novik.
@@ -38,7 +36,7 @@ import static org.junit.Assert.assertNull;
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 public class RebuildMavenMetadataCronJobTestIT
-        extends TestCaseWithMavenArtifactGenerationAndIndexing
+        extends BaseCronJobWithMavenIndexingTestCase
 {
 
     private static final String STORAGE1 = "storage1";
@@ -129,6 +127,7 @@ public class RebuildMavenMetadataCronJobTestIT
             throws IOException, JAXBException
     {
         removeRepositories(getRepositoriesToClean());
+
     }
 
     public static Set<Repository> getRepositoriesToClean()
@@ -139,39 +138,6 @@ public class RebuildMavenMetadataCronJobTestIT
         repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_RELEASES));
 
         return repositories;
-    }
-
-    public void addRebuildCronJobConfig(String name,
-                                        String storageId,
-                                        String repositoryId,
-                                        String basePath)
-            throws Exception
-    {
-        CronTaskConfiguration cronTaskConfiguration = new CronTaskConfiguration();
-        cronTaskConfiguration.setName(name);
-        cronTaskConfiguration.addProperty("jobClass", RebuildMavenMetadataCronJob.class.getName());
-        cronTaskConfiguration.addProperty("cronExpression", "0 0/1 * 1/1 * ? *");
-        cronTaskConfiguration.addProperty("storageId", storageId);
-        cronTaskConfiguration.addProperty("repositoryId", repositoryId);
-        cronTaskConfiguration.addProperty("basePath", basePath);
-
-        cronTaskConfigurationService.saveConfiguration(cronTaskConfiguration);
-        CronTaskConfiguration obj = cronTaskConfigurationService.findOne(name);
-        assertNotNull(obj);
-    }
-
-    public void deleteRebuildCronJobConfig(String name)
-            throws Exception
-    {
-        List<CronTaskConfiguration> confs = cronTaskConfigurationService.getConfiguration(name);
-
-        for (CronTaskConfiguration cnf : confs)
-        {
-            assertNotNull(cnf);
-            cronTaskConfigurationService.deleteConfiguration(cnf);
-        }
-
-        assertNull(cronTaskConfigurationService.findOne(name));
     }
 
     @Test
@@ -199,8 +165,6 @@ public class RebuildMavenMetadataCronJobTestIT
                                                                                                          .size());
                     assertEquals("Incorrect number of versions stored in metadata!", 1, versioning.getVersions()
                                                                                                   .size());
-
-                    deleteRebuildCronJobConfig(jobName);
                 }
                 catch (Exception e)
                 {
@@ -209,8 +173,11 @@ public class RebuildMavenMetadataCronJobTestIT
             }
         });
 
+        addCronJobConfig(jobName, RebuildMavenMetadataCronJob.class, STORAGE0, REPOSITORY_SNAPSHOTS,
+                         properties -> properties.put("basePath", ARTIFACT_BASE_PATH_STRONGBOX_METADATA));
 
-        addRebuildCronJobConfig(jobName, STORAGE0, REPOSITORY_SNAPSHOTS, ARTIFACT_BASE_PATH_STRONGBOX_METADATA);
+        assertTrue("Failed to execute task!",
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -250,8 +217,6 @@ public class RebuildMavenMetadataCronJobTestIT
                                                                                                           .size());
                     assertEquals("Incorrect number of versions stored in metadata!", 1, versioning2.getVersions()
                                                                                                    .size());
-
-                    deleteRebuildCronJobConfig(jobName);
                 }
                 catch (Exception e)
                 {
@@ -260,7 +225,10 @@ public class RebuildMavenMetadataCronJobTestIT
             }
         });
 
-        addRebuildCronJobConfig(jobName, STORAGE0, REPOSITORY_SNAPSHOTS, null);
+        addCronJobConfig(jobName, RebuildMavenMetadataCronJob.class, STORAGE0, REPOSITORY_SNAPSHOTS);
+
+        assertTrue("Failed to execute task!",
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -300,8 +268,6 @@ public class RebuildMavenMetadataCronJobTestIT
                                                                                                           .size());
                     assertEquals("Incorrect number of versions stored in metadata!", 1, versioning2.getVersions()
                                                                                                    .size());
-
-                    deleteRebuildCronJobConfig(jobName);
                 }
                 catch (Exception e)
                 {
@@ -310,7 +276,10 @@ public class RebuildMavenMetadataCronJobTestIT
             }
         });
 
-        addRebuildCronJobConfig(jobName, STORAGE0, null, null);
+        addCronJobConfig(jobName, RebuildMavenMetadataCronJob.class, STORAGE0, null);
+
+        assertTrue("Failed to execute task!",
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -350,8 +319,6 @@ public class RebuildMavenMetadataCronJobTestIT
                                                                                                           .size());
                     assertEquals("Incorrect number of versions stored in metadata!", 1, versioning2.getVersions()
                                                                                                    .size());
-
-                    deleteRebuildCronJobConfig(jobName);
                 }
                 catch (Exception e)
                 {
@@ -360,6 +327,9 @@ public class RebuildMavenMetadataCronJobTestIT
             }
         });
 
-        addRebuildCronJobConfig(jobName, null, null, null);
+        addCronJobConfig(jobName, RebuildMavenMetadataCronJob.class, null, null);
+
+        assertTrue("Failed to execute task!",
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 }

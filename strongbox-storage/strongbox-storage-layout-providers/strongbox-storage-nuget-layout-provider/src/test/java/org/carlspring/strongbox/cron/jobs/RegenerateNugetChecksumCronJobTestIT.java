@@ -4,6 +4,7 @@ import org.carlspring.strongbox.config.NugetLayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.cron.services.JobManager;
+import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
@@ -13,7 +14,6 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.testing.TestCaseWithNugetPackageGeneration;
 import org.carlspring.strongbox.util.FileUtils;
 
 import javax.inject.Inject;
@@ -21,7 +21,6 @@ import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.junit.After;
@@ -31,7 +30,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Kate Novik.
@@ -39,7 +39,7 @@ import static org.junit.Assert.*;
 @ContextConfiguration(classes = NugetLayoutProviderCronTasksTestConfig.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 public class RegenerateNugetChecksumCronJobTestIT
-        extends TestCaseWithNugetPackageGeneration
+        extends BaseCronJobWithNugetIndexingTestCase
 {
 
     private static final String STORAGE1 = "nuget-common-storage";
@@ -137,9 +137,11 @@ public class RegenerateNugetChecksumCronJobTestIT
             throws Exception
     {
         CronTaskConfiguration cronTaskConfiguration = new CronTaskConfiguration();
+        cronTaskConfiguration.setOneTimeExecution(true);
+        cronTaskConfiguration.setImmediateExecution(true);
         cronTaskConfiguration.setName(name);
         cronTaskConfiguration.addProperty("jobClass", RegenerateChecksumCronJob.class.getName());
-        cronTaskConfiguration.addProperty("cronExpression", "0 0/1 * 1/1 * ? *");
+        cronTaskConfiguration.addProperty("cronExpression", "0 11 11 11 11 ? 2100");
         cronTaskConfiguration.addProperty("storageId", storageId);
         cronTaskConfiguration.addProperty("repositoryId", repositoryId);
         cronTaskConfiguration.addProperty("basePath", basePath);
@@ -148,20 +150,6 @@ public class RegenerateNugetChecksumCronJobTestIT
         cronTaskConfigurationService.saveConfiguration(cronTaskConfiguration);
         CronTaskConfiguration obj = cronTaskConfigurationService.findOne(name);
         assertNotNull(obj);
-    }
-
-    public void deleteRegenerateCronJobConfig(String name)
-            throws Exception
-    {
-        List<CronTaskConfiguration> confs = cronTaskConfigurationService.getConfiguration(name);
-
-        for (CronTaskConfiguration cnf : confs)
-        {
-            assertNotNull(cnf);
-            cronTaskConfigurationService.deleteConfiguration(cnf);
-        }
-
-        assertNull(cronTaskConfigurationService.findOne(name));
     }
 
     @Test
@@ -199,8 +187,6 @@ public class RegenerateNugetChecksumCronJobTestIT
                     assertTrue("The checksum file for metadata file is empty!",
                                new File(artifactPath,
                                         "/1.0/org.carlspring.strongbox.checksum-second.nuspec.sha512").length() > 0);
-
-                    deleteRegenerateCronJobConfig(jobName);
                 }
                 catch (Exception e)
                 {
@@ -209,11 +195,15 @@ public class RegenerateNugetChecksumCronJobTestIT
             }
         });
 
-        addRegenerateCronJobConfig(jobName,
-                                   STORAGE1,
-                                   REPOSITORY_RELEASES,
-                                   "org.carlspring.strongbox.checksum-second",
-                                   false);
+        addCronJobConfig(jobName, RegenerateChecksumCronJob.class, STORAGE1, REPOSITORY_RELEASES,
+                         properties ->
+                         {
+                             properties.put("basePath", "org.carlspring.strongbox.checksum-second");
+                             properties.put("forceRegeneration","false");
+                         });
+
+        assertTrue("Failed to execute task!",
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -254,8 +244,6 @@ public class RegenerateNugetChecksumCronJobTestIT
                                new File(artifactPath,
                                         "/1.0.1-alpha/org.carlspring.strongbox.checksum-one.nuspec.sha512").length() >
                                0);
-
-                    deleteRegenerateCronJobConfig(jobName);
                 }
                 catch (Exception e)
                 {
@@ -264,7 +252,11 @@ public class RegenerateNugetChecksumCronJobTestIT
             }
         });
 
-        addRegenerateCronJobConfig(jobName, STORAGE1, REPOSITORY_ALPHA, null, false);
+        addCronJobConfig(jobName, RegenerateChecksumCronJob.class, STORAGE1, REPOSITORY_ALPHA,
+                         properties -> properties.put("forceRegeneration","false"));
+
+        assertTrue("Failed to execute task!",
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -302,8 +294,6 @@ public class RegenerateNugetChecksumCronJobTestIT
                     assertTrue("The checksum file for metadata file is empty!",
                                new File(artifactPath,
                                         "/1.0/org.carlspring.strongbox.checksum-second.nuspec.sha512").length() > 0);
-
-                    deleteRegenerateCronJobConfig(jobName);
                 }
                 catch (Exception e)
                 {
@@ -312,7 +302,11 @@ public class RegenerateNugetChecksumCronJobTestIT
             }
         });
 
-        addRegenerateCronJobConfig(jobName, STORAGE1, null, null, false);
+        addCronJobConfig(jobName, RegenerateChecksumCronJob.class, STORAGE1, null,
+                         properties -> properties.put("forceRegeneration","false"));
+
+        assertTrue("Failed to execute task!",
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -348,8 +342,6 @@ public class RegenerateNugetChecksumCronJobTestIT
                     assertTrue("The checksum file for metadata file is empty!",
                                new File(artifactPath,
                                         "/1.0/org.carlspring.strongbox.checksum-one.nuspec.sha512").length() > 0);
-
-                    deleteRegenerateCronJobConfig(jobName);
                 }
                 catch (Exception e)
                 {
@@ -358,7 +350,11 @@ public class RegenerateNugetChecksumCronJobTestIT
             }
         });
 
-        addRegenerateCronJobConfig(jobName, null, null, null, false);
+        addCronJobConfig(jobName, RegenerateChecksumCronJob.class, null, null,
+                         properties -> properties.put("forceRegeneration","false"));
+
+        assertTrue("Failed to execute task!",
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     private void createRepository(String storageId,

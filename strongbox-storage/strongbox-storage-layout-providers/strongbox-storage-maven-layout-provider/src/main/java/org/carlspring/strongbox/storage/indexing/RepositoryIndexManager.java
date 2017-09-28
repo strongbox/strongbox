@@ -114,7 +114,7 @@ public class RepositoryIndexManager
         {
             logger.debug("Closing indexer for " + contextId + "...");
 
-            repositoryIndexer.close();
+            repositoryIndexer.close(true);
 
             logger.debug("Closed indexer for " + contextId + ".");
         }

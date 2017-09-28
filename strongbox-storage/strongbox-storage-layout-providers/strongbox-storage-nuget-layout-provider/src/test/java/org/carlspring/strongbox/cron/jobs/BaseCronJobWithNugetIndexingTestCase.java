@@ -1,12 +1,11 @@
 package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
-import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.event.cron.CronTaskEvent;
 import org.carlspring.strongbox.event.cron.CronTaskEventListener;
 import org.carlspring.strongbox.event.cron.CronTaskEventListenerRegistry;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.testing.TestCaseWithNugetPackageGeneration;
 
 import javax.inject.Inject;
 import java.util.LinkedHashMap;
@@ -20,17 +19,14 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author carlspring
  */
-public class BaseCronJobWithMavenIndexingTestCase
-        extends TestCaseWithMavenArtifactGenerationAndIndexing
+public class BaseCronJobWithNugetIndexingTestCase
+        extends TestCaseWithNugetPackageGeneration
         implements CronTaskEventListener
 {
     public static final long CRON_TASK_CHECK_INTERVAL = 500L;
 
     @Inject
     protected CronTaskEventListenerRegistry cronTaskEventListenerRegistry;
-
-    @Inject
-    protected CronJobSchedulerService cronJobSchedulerService;
 
     @Inject
     protected CronTaskConfigurationService cronTaskConfigurationService;

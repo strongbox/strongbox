@@ -8,12 +8,10 @@ import org.carlspring.strongbox.event.cron.CronTaskEventListener;
 import org.carlspring.strongbox.event.cron.CronTaskEventListenerRegistry;
 
 import javax.inject.Inject;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 /**
  * @author carlspring
@@ -56,22 +54,6 @@ public class BaseCronTestCase
         assertNotNull("Failed to save cron configuration!", configuration);
 
         return configuration;
-    }
-
-    public void deleteCronJobConfig(String name)
-            throws Exception
-    {
-        List<CronTaskConfiguration> cronTaskConfigurations = cronTaskConfigurationService.getConfiguration(name);
-        for (CronTaskConfiguration configuration : cronTaskConfigurations)
-        {
-            assertNotNull("Failed to look up the configuration for " + name + "!", configuration);
-
-            cronTaskConfigurationService.deleteConfiguration(configuration);
-
-            logger.debug("Cron task '" + name + "' removed.");
-        }
-
-        assertNull(cronTaskConfigurationService.findOne(name));
     }
 
     @Override

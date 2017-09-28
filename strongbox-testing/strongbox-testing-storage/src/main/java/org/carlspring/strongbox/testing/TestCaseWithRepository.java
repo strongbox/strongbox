@@ -10,6 +10,8 @@ import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
@@ -22,6 +24,8 @@ public class TestCaseWithRepository
 {
 
     public static final String STORAGE0 = "storage0";
+
+    protected List<File> generatedArtifacts = new ArrayList<>();
 
     @Inject
     ConfigurationManagementService configurationManagementService;
@@ -86,6 +90,8 @@ public class TestCaseWithRepository
             throws IOException
     {
         File f = new File(artifactPath);
+
+        generatedArtifacts.add(f);
 
         if (!f.exists())
         {
