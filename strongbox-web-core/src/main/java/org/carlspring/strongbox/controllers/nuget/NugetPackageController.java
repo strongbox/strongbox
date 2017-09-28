@@ -16,6 +16,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,9 +33,11 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.lang.StringUtils;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
+import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ReplacingInputStream;
+import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -91,11 +96,13 @@ public class NugetPackageController extends BaseArtifactController
     private UserService userService;
 
     @Inject
-    protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
-
+    private ArtifactEventListenerRegistry artifactEventListenerRegistry;
 
     @Inject
     private NugetSearchPackageSource packageSource;
+    
+    @Inject
+    private ArtifactEntryService artifactEntryService;
     
     @RequestMapping(path = { "{storageId}/{repositoryId}/{packageId}/{version}" }, method = RequestMethod.DELETE)
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
@@ -172,6 +179,31 @@ public class NugetPackageController extends BaseArtifactController
 
         NuPkgToRssTransformer toRssTransformer = new NuPkgToRssTransformer(feedId);
         PackageFeed feed = toRssTransformer.transform(files, orderBy, skip, top);
+
+        ByteArrayOutputStream rssResultStream = new ByteArrayOutputStream();
+        feed.writeXml(rssResultStream);
+
+        return new ResponseEntity<>(new String(rssResultStream.toByteArray(), Charset.forName("UTF-8")), HttpStatus.OK);
+    }
+    
+    @RequestMapping(path = { "{storageId}/{repositoryId}/FindPackagesById()" }, method = RequestMethod.GET, produces = MediaType.APPLICATION_XML)
+    public ResponseEntity<?> searchPackageById(@PathVariable(name = "storageId") String storageId,
+                                               @PathVariable(name = "repositoryId") String repositoryId,
+                                               @RequestParam(name = "packageId", required = true) String packageId)
+        throws JAXBException
+    {
+        packageSource.setStorageId(storageId);
+        packageSource.setRepositoryId(repositoryId);
+        packageSource.setOrderBy("version");
+        
+        packageId = normaliseSearchTerm(packageId);
+        Collection<? extends Nupkg> files = packageSource.getPackages(packageId);
+        String feedId = getFeedUri(((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest(),
+                                   storageId,
+                                   repositoryId);
+
+        NuPkgToRssTransformer toRssTransformer = new NuPkgToRssTransformer(feedId);
+        PackageFeed feed = toRssTransformer.transform(files, "version", 0, -1);
 
         ByteArrayOutputStream rssResultStream = new ByteArrayOutputStream();
         feed.writeXml(rssResultStream);

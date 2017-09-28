@@ -146,6 +146,19 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
                .then()
                .statusCode(HttpStatus.CREATED.value());
 
+        //Find by ID
+        given().header("User-Agent", "NuGet/*")
+               .when()
+               .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
+                       "/FindPackagesById()?packageId='Org.Carlspring.Strongbox.Examples.Nuget.Mono'")
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .and()
+               .assertThat()
+               .body("feed.title", equalTo("Packages"))
+               .and()
+               .assertThat()
+               .body("feed.entry[0].title", equalTo("Org.Carlspring.Strongbox.Examples.Nuget.Mono"));
 
         // We need to mute `System.out` here manually because response body logging hardcoded in current version of
         // RestAssured, and we can not change it using configuration (@see `RestAssuredResponseOptionsGroovyImpl.peek(...)`).
