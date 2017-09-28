@@ -127,6 +127,7 @@ public class RebuildMavenMetadataCronJobTestIT
             throws IOException, JAXBException
     {
         removeRepositories(getRepositoriesToClean());
+
     }
 
     public static Set<Repository> getRepositoriesToClean()
