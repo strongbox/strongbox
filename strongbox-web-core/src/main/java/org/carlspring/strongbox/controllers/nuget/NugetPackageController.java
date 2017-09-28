@@ -323,6 +323,7 @@ public class NugetPackageController extends BaseArtifactController
                 logger.debug("Unable to find artifact by path " + path);
 
                 response.setStatus(NOT_FOUND.value());
+                return;
             }
 
             try (TempNupkgFile nupkgFile = new TempNupkgFile(is))

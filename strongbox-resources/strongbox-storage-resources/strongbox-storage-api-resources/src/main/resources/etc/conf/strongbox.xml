@@ -22,6 +22,10 @@
                             allows-force-deletion="true"
                             checksum-headers-enabled="true"
                             indexing-enabled="false"/>
+                            
+                <repository id="nuget.org" policy="release" implementation="file-system" layout="Nuget Hierarchical" type="proxy" indexing-enabled="false">
+                    <remote-repository url="https://www.nuget.org/api/v2/package"/>
+                </repository>
             </repositories>
         </storage>
 
