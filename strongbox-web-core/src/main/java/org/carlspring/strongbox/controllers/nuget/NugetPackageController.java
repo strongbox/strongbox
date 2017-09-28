@@ -293,12 +293,37 @@ public class NugetPackageController extends BaseArtifactController
                             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @RequestMapping(path = "{storageId}/{repositoryId}/download/{packageId}/{packageVersion}", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM)
+    public void downloadPackage(@ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
+                           @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
+                           @ApiParam(value = "The packageId", required = true) @PathVariable(name = "packageId") String packageId,
+                           @ApiParam(value = "The packageVersion", required = true) @PathVariable(name = "packageVersion") String packageVersion,
+                           HttpServletResponse response)
+            throws IOException
+    {
+        getPackageInternal(storageId, repositoryId, packageId, packageVersion, response);
+    }
+
+    @ApiOperation(value = "Used to download a package")
+    @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "The package was downloaded successfully."),
+                            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred.") })
+    @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
+    @RequestMapping(path = "{storageId}/{repositoryId}/{packageId}/{packageVersion}", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM)
     public void getPackage(@ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
                            @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
                            @ApiParam(value = "The packageId", required = true) @PathVariable(name = "packageId") String packageId,
                            @ApiParam(value = "The packageVersion", required = true) @PathVariable(name = "packageVersion") String packageVersion,
                            HttpServletResponse response)
             throws IOException
+    {
+        getPackageInternal(storageId, repositoryId, packageId, packageVersion, response);
+    }    
+    
+    private void getPackageInternal(String storageId,
+                                    String repositoryId,
+                                    String packageId,
+                                    String packageVersion,
+                                    HttpServletResponse response)
+        throws IOException
     {
         Storage storage = configurationManager.getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
@@ -309,6 +334,7 @@ public class NugetPackageController extends BaseArtifactController
 
             response.sendError(HttpStatus.SERVICE_UNAVAILABLE.value(),
                                "The " + storageId + ":" + repositoryId + " repository is currently out of service.");
+            return;
         }
 
         String path = String.format("%s/%s/%s.%s.nupkg", packageId, packageVersion, packageId, packageVersion);

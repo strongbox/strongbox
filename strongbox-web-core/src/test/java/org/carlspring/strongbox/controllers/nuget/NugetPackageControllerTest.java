@@ -152,10 +152,21 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
         PrintStream originalSysOut = muteSystemOutput();
         try
         {
-            // Get
+            // Get1
             given().header("User-Agent", "NuGet/*")
                    .when()
                    .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/download/" +
+                        packageId + "/" + packageVersion)
+                   .peek()
+                   .then()
+                   .statusCode(HttpStatus.OK.value())
+                   .assertThat()
+                   .header("Content-Length", equalTo(String.valueOf(packageSize)));
+            
+            // Get2
+            given().header("User-Agent", "NuGet/*")
+                   .when()
+                   .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/" +
                         packageId + "/" + packageVersion)
                    .peek()
                    .then()
