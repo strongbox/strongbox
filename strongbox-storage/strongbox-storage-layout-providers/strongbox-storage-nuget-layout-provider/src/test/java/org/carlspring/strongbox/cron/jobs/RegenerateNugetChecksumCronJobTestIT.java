@@ -4,6 +4,7 @@ import org.carlspring.strongbox.config.NugetLayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.cron.services.JobManager;
+import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
@@ -13,7 +14,6 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.testing.TestCaseWithNugetPackageGeneration;
 import org.carlspring.strongbox.util.FileUtils;
 
 import javax.inject.Inject;
@@ -30,7 +30,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Kate Novik.
@@ -38,7 +39,7 @@ import static org.junit.Assert.*;
 @ContextConfiguration(classes = NugetLayoutProviderCronTasksTestConfig.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 public class RegenerateNugetChecksumCronJobTestIT
-        extends TestCaseWithNugetPackageGeneration
+        extends BaseCronJobWithNugetIndexingTestCase
 {
 
     private static final String STORAGE1 = "nuget-common-storage";
@@ -194,11 +195,15 @@ public class RegenerateNugetChecksumCronJobTestIT
             }
         });
 
-        addRegenerateCronJobConfig(jobName,
-                                   STORAGE1,
-                                   REPOSITORY_RELEASES,
-                                   "org.carlspring.strongbox.checksum-second",
-                                   false);
+        addCronJobConfig(jobName, RegenerateChecksumCronJob.class, STORAGE1, REPOSITORY_RELEASES,
+                         properties ->
+                         {
+                             properties.put("basePath", "org.carlspring.strongbox.checksum-second");
+                             properties.put("forceRegeneration","false");
+                         });
+
+        assertTrue("Failed to execute task!",
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -247,7 +252,11 @@ public class RegenerateNugetChecksumCronJobTestIT
             }
         });
 
-        addRegenerateCronJobConfig(jobName, STORAGE1, REPOSITORY_ALPHA, null, false);
+        addCronJobConfig(jobName, RegenerateChecksumCronJob.class, STORAGE1, REPOSITORY_ALPHA,
+                         properties -> properties.put("forceRegeneration","false"));
+
+        assertTrue("Failed to execute task!",
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -293,7 +302,11 @@ public class RegenerateNugetChecksumCronJobTestIT
             }
         });
 
-        addRegenerateCronJobConfig(jobName, STORAGE1, null, null, false);
+        addCronJobConfig(jobName, RegenerateChecksumCronJob.class, STORAGE1, null,
+                         properties -> properties.put("forceRegeneration","false"));
+
+        assertTrue("Failed to execute task!",
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     @Test
@@ -337,7 +350,11 @@ public class RegenerateNugetChecksumCronJobTestIT
             }
         });
 
-        addRegenerateCronJobConfig(jobName, null, null, null, false);
+        addCronJobConfig(jobName, RegenerateChecksumCronJob.class, null, null,
+                         properties -> properties.put("forceRegeneration","false"));
+
+        assertTrue("Failed to execute task!",
+                   expectEvent(jobName, CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()));
     }
 
     private void createRepository(String storageId,
