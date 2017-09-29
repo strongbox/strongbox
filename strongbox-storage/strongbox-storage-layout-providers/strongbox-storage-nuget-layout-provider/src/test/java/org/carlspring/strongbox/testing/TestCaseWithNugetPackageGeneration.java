@@ -18,25 +18,23 @@ public class TestCaseWithNugetPackageGeneration
     public void generateNugetPackage(String repositoryDir,
                                      String id,
                                      String version,
-                                     String...dependencyList)
+                                     String... dependencyList)
             throws IOException,
                    NoSuchAlgorithmException,
                    NugetFormatException,
                    JAXBException
     {
-        NugetPackageGenerator generator = new NugetPackageGenerator(repositoryDir.concat("/")
-                                                                                 .concat(id));
+        NugetPackageGenerator generator = new NugetPackageGenerator(repositoryDir.concat("/").concat(id));
         generator.generateNugetPackage(id, version, dependencyList);
     }
 
     public void generateAlphaNugetPackage(String repositoryDir,
                                           String id,
                                           String version,
-                                          String...dependencyList)
+                                          String... dependencyList)
             throws IOException, NoSuchAlgorithmException, NugetFormatException, JAXBException
     {
-        NugetPackageGenerator generator = new NugetPackageGenerator(repositoryDir.concat("/")
-                                                                                 .concat(id));
+        NugetPackageGenerator generator = new NugetPackageGenerator(repositoryDir.concat("/").concat(id));
 
         generator.generateNugetPackage(id, getNugetSnapshotVersion(version), dependencyList);
     }
@@ -45,4 +43,5 @@ public class TestCaseWithNugetPackageGeneration
     {
         return version.concat("-alpha");
     }
+    
 }
