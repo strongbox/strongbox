@@ -328,10 +328,10 @@ public class NugetPackageController extends BaseArtifactController
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @RequestMapping(path = "{storageId}/{repositoryId}/download/{packageId}/{packageVersion}", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM)
     public void downloadPackage(@ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
-                           @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
-                           @ApiParam(value = "The packageId", required = true) @PathVariable(name = "packageId") String packageId,
-                           @ApiParam(value = "The packageVersion", required = true) @PathVariable(name = "packageVersion") String packageVersion,
-                           HttpServletResponse response)
+                                @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
+                                @ApiParam(value = "The packageId", required = true) @PathVariable(name = "packageId") String packageId,
+                                @ApiParam(value = "The packageVersion", required = true) @PathVariable(name = "packageVersion") String packageVersion,
+                                HttpServletResponse response)
             throws IOException
     {
         getPackageInternal(storageId, repositoryId, packageId, packageVersion, response);
