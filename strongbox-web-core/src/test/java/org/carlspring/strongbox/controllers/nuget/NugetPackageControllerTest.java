@@ -303,18 +303,25 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
     }
     
     @Test
-    @Ignore
     public void testRemoteProxyDownload()
             throws Exception
     {
-        given().header("User-Agent", "NuGet/*")
-               .when()
-               .get(getContextBaseUrl() + "/storages/nuget-common-storage/nuget.org/download/NHibernate/4.1.1.4000")
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value())
-               .assertThat()
-               .header("Content-Length", equalTo(String.valueOf(1490223)));
+        PrintStream originalSysOut = muteSystemOutput();
+        try
+        {
+            given().header("User-Agent", "NuGet/*")
+                   .when()
+                   .get(getContextBaseUrl() + "/storages/nuget-common-storage/nuget.org/download/NHibernate/4.1.1.4000")
+                   .peek()
+                   .then()
+                   .statusCode(HttpStatus.OK.value())
+                   .assertThat()
+                   .header("Content-Length", equalTo(String.valueOf(1490223)));
+        }
+        finally
+        {
+            System.setOut(originalSysOut);
+        }
     }
 
 }

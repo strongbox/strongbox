@@ -1,11 +1,13 @@
 package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.commons.io.MultipleDigestInputStream;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactResolver;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
@@ -86,6 +88,7 @@ public class ProxyRepositoryProvider
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         RepositoryPath reposytoryPath = layoutProvider.resolve(repository);
         RepositoryPath artifactPath = reposytoryPath.resolve(path);
+        ArtifactCoordinates artifactCoordinates = (ArtifactCoordinates) Files.getAttribute(artifactPath, RepositoryFileAttributes.COORDINATES);
 
         logger.debug(" -> Checking for " + artifactPath + "...");
         if (layoutProvider.containsPath(repository, path))
@@ -111,8 +114,10 @@ public class ProxyRepositoryProvider
         client.setUsername(remoteRepository.getUsername());
         client.setPassword(remoteRepository.getPassword());
 
+        String resourcePath = layoutProvider.resolveResourcePath(repository, artifactCoordinates);
+        
         try (final CloseableProxyRepositoryResponse closeableProxyRepositoryResponse =
-                     new CloseableProxyRepositoryResponse(client.getResourceWithResponse(path)))
+                     new CloseableProxyRepositoryResponse(client.getResourceWithResponse(resourcePath)))
         {
             final Response response = closeableProxyRepositoryResponse.response;
 

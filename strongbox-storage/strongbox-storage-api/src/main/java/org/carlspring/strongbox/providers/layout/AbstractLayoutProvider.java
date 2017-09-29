@@ -130,6 +130,15 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     {
         return (ArtifactOutputStream) Files.newOutputStream(path);
     }
+    
+    @Override
+    public String resolveResourcePath(Repository repository,
+                                      T coordinates)
+        throws IOException
+    {
+        RepositoryPath artifactPath = resolve(repository, coordinates);
+        return artifactPath.getRepositoryRelative().toString();
+    }
 
     @Override
     public RepositoryPath resolve(Repository repository,

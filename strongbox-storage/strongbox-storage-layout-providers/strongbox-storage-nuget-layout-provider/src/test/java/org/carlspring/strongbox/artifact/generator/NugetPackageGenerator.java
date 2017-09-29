@@ -69,7 +69,7 @@ public class NugetPackageGenerator
 
     public void generateNugetPackage(String id,
                                      String version,
-                                     String...dependencyList)
+                                     String... dependencyList)
             throws NugetFormatException, JAXBException, IOException, NoSuchAlgorithmException
     {
         File file = new File(getBasedir(), String.format("%s/%s.%s.nupkg", version, id, version));
@@ -82,7 +82,7 @@ public class NugetPackageGenerator
         generate(nupkgFile, dependencyList);
     }
 
-    public void generate(ClassicNupkg nupkgFile, String...dependencyList)
+    public void generate(ClassicNupkg nupkgFile, String... dependencyList)
             throws IOException,
                    JAXBException,
                    NugetFormatException,
@@ -92,7 +92,7 @@ public class NugetPackageGenerator
         generateNuspecFile(nupkgFile);
     }
 
-    public void createArchive(ClassicNupkg nupkgFile, String...dependencyList)
+    public void createArchive(ClassicNupkg nupkgFile, String... dependencyList)
             throws IOException,
                    JAXBException,
                    NoSuchAlgorithmException, NugetFormatException
@@ -185,7 +185,7 @@ public class NugetPackageGenerator
 
     private void addNugetNuspecFile(ClassicNupkg nupkgFile,
                                     ZipOutputStream zos,
-                                    String...dependencyList)
+                                    String... dependencyList)
             throws IOException, JAXBException, NugetFormatException
     {
         ZipEntry ze = new ZipEntry(nupkgFile.getId() + ".nuspec");
