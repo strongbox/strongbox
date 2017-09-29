@@ -1,11 +1,13 @@
 package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.commons.io.MultipleDigestInputStream;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactResolver;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
@@ -86,12 +88,9 @@ public class ProxyRepositoryProvider
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         RepositoryPath reposytoryPath = layoutProvider.resolve(repository);
         RepositoryPath artifactPath = reposytoryPath.resolve(path);
-
-        RepositoryFileSystemProvider fileSystemProvider = artifactPath.getFileSystem()
-                                                                                                     .provider();
+        ArtifactCoordinates artifactCoordinates = (ArtifactCoordinates) Files.getAttribute(artifactPath, RepositoryFileAttributes.COORDINATES);
 
         logger.debug(" -> Checking for " + artifactPath + "...");
-
         if (layoutProvider.containsPath(repository, path))
         {
             logger.debug("The artifact was found in the local cache.");
@@ -100,55 +99,54 @@ public class ProxyRepositoryProvider
             RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(path);
             return (ArtifactInputStream) Files.newInputStream(repositoryPath);
         }
-        else
+        
+        logger.debug("The artifact was not found in the local cache.");
+        RemoteRepository remoteRepository = repository.getRemoteRepository();
+        if (!remoteRepositoryAlivenessCacheManager.isAlive(remoteRepository))
         {
-            logger.debug("The artifact was not found in the local cache.");
+            logger.debug("Remote repository '" + remoteRepository.getUrl() + "' is down.");
 
-            RemoteRepository remoteRepository = repository.getRemoteRepository();
+            return null;
+        }
 
-            if (!remoteRepositoryAlivenessCacheManager.isAlive(remoteRepository))
+        ArtifactResolver client = new ArtifactResolver(proxyRepositoryConnectionPoolConfigurationService.getRestClient());
+        client.setRepositoryBaseUrl(remoteRepository.getUrl());
+        client.setUsername(remoteRepository.getUsername());
+        client.setPassword(remoteRepository.getPassword());
+
+        String resourcePath = layoutProvider.resolveResourcePath(repository, artifactCoordinates);
+        
+        try (final CloseableProxyRepositoryResponse closeableProxyRepositoryResponse =
+                     new CloseableProxyRepositoryResponse(client.getResourceWithResponse(resourcePath)))
+        {
+            final Response response = closeableProxyRepositoryResponse.response;
+
+            if (response.getStatus() != 200 || response.getEntity() == null)
             {
-                logger.debug("Remote repository '" + remoteRepository.getUrl() + "' is down.");
-
                 return null;
             }
 
-            ArtifactResolver client = new ArtifactResolver(proxyRepositoryConnectionPoolConfigurationService.getRestClient());
-            client.setRepositoryBaseUrl(remoteRepository.getUrl());
-            client.setUsername(remoteRepository.getUsername());
-            client.setPassword(remoteRepository.getPassword());
-
-            try (final CloseableProxyRepositoryResponse closeableProxyRepositoryResponse =
-                         new CloseableProxyRepositoryResponse(client.getResourceWithResponse(path)))
+            InputStream is = response.readEntity(InputStream.class);
+            if (is == null)
             {
-                final Response response = closeableProxyRepositoryResponse.response;
+                return null;
+            }
 
-                if (response.getStatus() != 200 || response.getEntity() == null)
-                {
-                    return null;
-                }
+            RepositoryFileSystemProvider fileSystemProvider = artifactPath.getFileSystem().provider();
+            RepositoryPath tempArtifact = fileSystemProvider.getTempPath(artifactPath);
+            try (// Wrap the InputStream, so we could have checksums to compare
+                 InputStream remoteIs = new MultipleDigestInputStream(is))
+            {
+                layoutProvider.getArtifactManagementService().store(tempArtifact, remoteIs);
 
-                InputStream is = response.readEntity(InputStream.class);
-                if (is == null)
-                {
-                    return null;
-                }
+                // TODO: Add a policy for validating the checksums of downloaded artifacts
+                // TODO: Validate the local checksum against the remote's checksums
+                fileSystemProvider.moveFromTemporaryDirectory(artifactPath);
 
-                RepositoryPath tempArtifact = fileSystemProvider.getTempPath(artifactPath);
-                try (// Wrap the InputStream, so we could have checksums to compare
-                     InputStream remoteIs = new MultipleDigestInputStream(is))
-                {
-                    layoutProvider.getArtifactManagementService().store(tempArtifact, remoteIs);
+                // Serve the downloaded artifact
+                RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(path);
 
-                    // TODO: Add a policy for validating the checksums of downloaded artifacts
-                    // TODO: Validate the local checksum against the remote's checksums
-                    fileSystemProvider.moveFromTemporaryDirectory(artifactPath);
-
-                    // Serve the downloaded artifact
-                    RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(path);
-
-                    return (ArtifactInputStream) Files.newInputStream(repositoryPath);
-                }
+                return (ArtifactInputStream) Files.newInputStream(repositoryPath);
             }
         }
     }

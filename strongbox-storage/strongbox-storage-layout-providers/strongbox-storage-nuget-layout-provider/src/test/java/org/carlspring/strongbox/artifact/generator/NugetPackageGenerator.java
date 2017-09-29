@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -23,6 +24,8 @@ import org.slf4j.LoggerFactory;
 import ru.aristar.jnuget.files.ClassicNupkg;
 import ru.aristar.jnuget.files.NugetFormatException;
 import ru.aristar.jnuget.files.Nupkg;
+import ru.aristar.jnuget.files.nuspec.Dependencies;
+import ru.aristar.jnuget.files.nuspec.Dependency;
 import ru.aristar.jnuget.files.nuspec.NuspecFile;
 
 /**
@@ -65,36 +68,34 @@ public class NugetPackageGenerator
     }
 
     public void generateNugetPackage(String id,
-                                     String... versions)
+                                     String version,
+                                     String... dependencyList)
             throws NugetFormatException, JAXBException, IOException, NoSuchAlgorithmException
     {
-        for (String version : versions)
-        {
-            File file = new File(getBasedir(), String.format("%s/%s.%s.nupkg", version, id, version));
-            file.getParentFile()
-                .mkdirs();
-            ClassicNupkg nupkgFile = new ClassicNupkg(file);
+        File file = new File(getBasedir(), String.format("%s/%s.%s.nupkg", version, id, version));
+        file.getParentFile()
+            .mkdirs();
+        ClassicNupkg nupkgFile = new ClassicNupkg(file);
 
-            logger.debug("Version of the nupkg package: ", nupkgFile.getVersion()
-                                                                    .toString());
-            generate(nupkgFile);
-        }
+        logger.debug("Version of the nupkg package: ", nupkgFile.getVersion()
+                                                                .toString());
+        generate(nupkgFile, dependencyList);
     }
 
-    public void generate(ClassicNupkg nupkgFile)
+    public void generate(ClassicNupkg nupkgFile, String... dependencyList)
             throws IOException,
                    JAXBException,
                    NugetFormatException,
                    NoSuchAlgorithmException
     {
-        createArchive(nupkgFile);
+        createArchive(nupkgFile, dependencyList);
         generateNuspecFile(nupkgFile);
     }
 
-    public void createArchive(ClassicNupkg nupkgFile)
+    public void createArchive(ClassicNupkg nupkgFile, String... dependencyList)
             throws IOException,
                    JAXBException,
-                   NoSuchAlgorithmException
+                   NoSuchAlgorithmException, NugetFormatException
     {
         ZipOutputStream zos = null;
 
@@ -111,7 +112,7 @@ public class NugetPackageGenerator
 
             zos = new ZipOutputStream(new FileOutputStream(packageFile));
 
-            addNugetNuspecFile(nupkgFile, zos);
+            addNugetNuspecFile(nupkgFile, zos, dependencyList);
             createRandomNupkgFile(zos);
             createMetadata(nupkgFile.getId(), nupkgFile.getVersion().toString(), zos);
             createContentType(zos);
@@ -183,8 +184,9 @@ public class NugetPackageGenerator
     }
 
     private void addNugetNuspecFile(ClassicNupkg nupkgFile,
-                                    ZipOutputStream zos)
-            throws IOException, JAXBException
+                                    ZipOutputStream zos,
+                                    String... dependencyList)
+            throws IOException, JAXBException, NugetFormatException
     {
         ZipEntry ze = new ZipEntry(nupkgFile.getId() + ".nuspec");
         zos.putNextEntry(ze);
@@ -198,6 +200,15 @@ public class NugetPackageGenerator
         metadata.licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0";
         metadata.description = "Strongbox Nuget package for tests";
 
+        if (dependencyList != null)
+        {
+            metadata.dependencies = new Dependencies();
+            metadata.dependencies.dependencies = new ArrayList<>();
+            for (int i = 0; i < dependencyList.length; i++)
+            {
+                metadata.dependencies.dependencies.add(Dependency.parseString(dependencyList[i]));
+            }
+        }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         nuspec.saveTo(baos);
 

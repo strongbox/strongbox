@@ -1,15 +1,8 @@
 package org.carlspring.strongbox.controllers.nuget;
 
-import org.carlspring.strongbox.artifact.generator.NugetPackageGenerator;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.controllers.context.IntegrationTest;
-import org.carlspring.strongbox.data.PropertyUtils;
-import org.carlspring.strongbox.rest.common.NugetRestAssuredBaseTest;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.hamcrest.CoreMatchers.equalTo;
 
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -21,17 +14,27 @@ import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
-import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.carlspring.strongbox.artifact.generator.NugetPackageGenerator;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.controllers.context.IntegrationTest;
+import org.carlspring.strongbox.data.PropertyUtils;
+import org.carlspring.strongbox.rest.common.NugetRestAssuredBaseTest;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
+import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import ru.aristar.jnuget.files.NugetFormatException;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.hamcrest.CoreMatchers.equalTo;
 
 /**
  * @author Sergey Bespalov
@@ -144,16 +147,40 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
                .then()
                .statusCode(HttpStatus.CREATED.value());
 
+        //Find by ID
+        given().header("User-Agent", "NuGet/*")
+               .when()
+               .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
+                       "/FindPackagesById()?id='Org.Carlspring.Strongbox.Examples.Nuget.Mono'")
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .and()
+               .assertThat()
+               .body("feed.title", equalTo("Packages"))
+               .and()
+               .assertThat()
+               .body("feed.entry[0].title", equalTo("Org.Carlspring.Strongbox.Examples.Nuget.Mono"));
 
         // We need to mute `System.out` here manually because response body logging hardcoded in current version of
         // RestAssured, and we can not change it using configuration (@see `RestAssuredResponseOptionsGroovyImpl.peek(...)`).
         PrintStream originalSysOut = muteSystemOutput();
         try
         {
-            // Get
+            // Get1
             given().header("User-Agent", "NuGet/*")
                    .when()
                    .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/download/" +
+                        packageId + "/" + packageVersion)
+                   .peek()
+                   .then()
+                   .statusCode(HttpStatus.OK.value())
+                   .assertThat()
+                   .header("Content-Length", equalTo(String.valueOf(packageSize)));
+            
+            // Get2
+            given().header("User-Agent", "NuGet/*")
+                   .when()
+                   .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/" +
                         packageId + "/" + packageVersion)
                    .peek()
                    .then()
@@ -251,7 +278,8 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
 
     public Path generatePackageFile(String basedir,
                                     String packageId,
-                                    String packageVersion)
+                                    String packageVersion,
+                                    String...dependencyList)
         throws NugetFormatException,
                JAXBException,
                IOException,
@@ -260,7 +288,7 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
         String packageFileName = packageId + "." + packageVersion + ".nupkg";
 
         NugetPackageGenerator nugetPackageGenerator = new NugetPackageGenerator(basedir);
-        nugetPackageGenerator.generateNugetPackage(packageId, packageVersion);
+        nugetPackageGenerator.generateNugetPackage(packageId, packageVersion, dependencyList);
 
         Path packageFilePath = Paths.get(basedir).resolve(packageVersion).resolve(packageFileName);
         return packageFilePath;
@@ -272,6 +300,28 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
                       .header("X-NuGet-ApiKey", API_KEY)
                       .header("Content-Type", "multipart/form-data; boundary=---------------------------123qwe")
                       .body(packageContent);
+    }
+    
+    @Test
+    public void testRemoteProxyDownload()
+            throws Exception
+    {
+        PrintStream originalSysOut = muteSystemOutput();
+        try
+        {
+            given().header("User-Agent", "NuGet/*")
+                   .when()
+                   .get(getContextBaseUrl() + "/storages/nuget-common-storage/nuget.org/download/NHibernate/4.1.1.4000")
+                   .peek()
+                   .then()
+                   .statusCode(HttpStatus.OK.value())
+                   .assertThat()
+                   .header("Content-Length", equalTo(String.valueOf(1490223)));
+        }
+        finally
+        {
+            System.setOut(originalSysOut);
+        }
     }
 
 }

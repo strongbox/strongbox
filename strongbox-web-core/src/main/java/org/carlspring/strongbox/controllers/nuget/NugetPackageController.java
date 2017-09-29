@@ -16,6 +16,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,9 +33,11 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.lang.StringUtils;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
+import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ReplacingInputStream;
+import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -91,11 +96,13 @@ public class NugetPackageController extends BaseArtifactController
     private UserService userService;
 
     @Inject
-    protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
-
+    private ArtifactEventListenerRegistry artifactEventListenerRegistry;
 
     @Inject
     private NugetSearchPackageSource packageSource;
+    
+    @Inject
+    private ArtifactEntryService artifactEntryService;
     
     @RequestMapping(path = { "{storageId}/{repositoryId}/{packageId}/{version}" }, method = RequestMethod.DELETE)
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
@@ -152,8 +159,9 @@ public class NugetPackageController extends BaseArtifactController
                                             @RequestParam(name = "$skip", required = false, defaultValue = "0") int skip,
                                             @RequestParam(name = "$top", required = false, defaultValue = "-1") int top,
                                             @RequestParam(name = "searchTerm", required = false) String searchTerm,
-                                            @RequestParam(name = "targetFramework", required = false) String targetFramework)
-        throws JAXBException
+                                            @RequestParam(name = "targetFramework", required = false) String targetFramework,
+                                            HttpServletResponse response)
+        throws JAXBException, IOException
     {
         Collection<? extends Nupkg> files;
         try
@@ -173,10 +181,36 @@ public class NugetPackageController extends BaseArtifactController
         NuPkgToRssTransformer toRssTransformer = new NuPkgToRssTransformer(feedId);
         PackageFeed feed = toRssTransformer.transform(files, orderBy, skip, top);
 
-        ByteArrayOutputStream rssResultStream = new ByteArrayOutputStream();
-        feed.writeXml(rssResultStream);
+        response.setHeader("content-type", MediaType.APPLICATION_XML);
+        feed.writeXml(response.getOutputStream());
 
-        return new ResponseEntity<>(new String(rssResultStream.toByteArray(), Charset.forName("UTF-8")), HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+    
+    @RequestMapping(path = { "{storageId}/{repositoryId}/FindPackagesById()" }, method = RequestMethod.GET, produces = MediaType.APPLICATION_XML)
+    public ResponseEntity<?> searchPackageById(@PathVariable(name = "storageId") String storageId,
+                                               @PathVariable(name = "repositoryId") String repositoryId,
+                                               @RequestParam(name = "id", required = true) String packageId,
+                                               HttpServletResponse response)
+        throws JAXBException, IOException
+    {
+        packageSource.setStorageId(storageId);
+        packageSource.setRepositoryId(repositoryId);
+        packageSource.setOrderBy("version");
+        
+        packageId = normaliseSearchTerm(packageId);
+        Collection<? extends Nupkg> files = packageSource.getPackages(packageId);
+        String feedId = getFeedUri(((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest(),
+                                   storageId,
+                                   repositoryId);
+
+        NuPkgToRssTransformer toRssTransformer = new NuPkgToRssTransformer(feedId);
+        PackageFeed feed = toRssTransformer.transform(files, "version", 0, -1);
+
+        response.setHeader("content-type", MediaType.APPLICATION_XML);
+        feed.writeXml(response.getOutputStream());
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     public Collection<? extends Nupkg> getPackages(String storageId,
@@ -293,12 +327,37 @@ public class NugetPackageController extends BaseArtifactController
                             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @RequestMapping(path = "{storageId}/{repositoryId}/download/{packageId}/{packageVersion}", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM)
+    public void downloadPackage(@ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
+                                @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
+                                @ApiParam(value = "The packageId", required = true) @PathVariable(name = "packageId") String packageId,
+                                @ApiParam(value = "The packageVersion", required = true) @PathVariable(name = "packageVersion") String packageVersion,
+                                HttpServletResponse response)
+            throws IOException
+    {
+        getPackageInternal(storageId, repositoryId, packageId, packageVersion, response);
+    }
+
+    @ApiOperation(value = "Used to download a package")
+    @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "The package was downloaded successfully."),
+                            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred.") })
+    @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
+    @RequestMapping(path = "{storageId}/{repositoryId}/{packageId}/{packageVersion}", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM)
     public void getPackage(@ApiParam(value = "The storageId", required = true) @PathVariable(name = "storageId") String storageId,
                            @ApiParam(value = "The repositoryId", required = true) @PathVariable(name = "repositoryId") String repositoryId,
                            @ApiParam(value = "The packageId", required = true) @PathVariable(name = "packageId") String packageId,
                            @ApiParam(value = "The packageVersion", required = true) @PathVariable(name = "packageVersion") String packageVersion,
                            HttpServletResponse response)
             throws IOException
+    {
+        getPackageInternal(storageId, repositoryId, packageId, packageVersion, response);
+    }    
+    
+    private void getPackageInternal(String storageId,
+                                    String repositoryId,
+                                    String packageId,
+                                    String packageVersion,
+                                    HttpServletResponse response)
+        throws IOException
     {
         Storage storage = configurationManager.getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
@@ -309,6 +368,7 @@ public class NugetPackageController extends BaseArtifactController
 
             response.sendError(HttpStatus.SERVICE_UNAVAILABLE.value(),
                                "The " + storageId + ":" + repositoryId + " repository is currently out of service.");
+            return;
         }
 
         String path = String.format("%s/%s/%s.%s.nupkg", packageId, packageVersion, packageId, packageVersion);
@@ -323,6 +383,7 @@ public class NugetPackageController extends BaseArtifactController
                 logger.debug("Unable to find artifact by path " + path);
 
                 response.setStatus(NOT_FOUND.value());
+                return;
             }
 
             try (TempNupkgFile nupkgFile = new TempNupkgFile(is))

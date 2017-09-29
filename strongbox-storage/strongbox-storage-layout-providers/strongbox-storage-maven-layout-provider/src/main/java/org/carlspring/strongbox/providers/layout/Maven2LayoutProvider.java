@@ -2,6 +2,7 @@ package org.carlspring.strongbox.providers.layout;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -16,6 +17,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.index.ArtifactInfo;
 import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryPath;

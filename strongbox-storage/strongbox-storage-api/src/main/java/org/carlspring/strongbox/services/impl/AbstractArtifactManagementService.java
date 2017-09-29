@@ -378,12 +378,9 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
                    ArtifactTransportException,
                    ProviderImplementationException
     {
-        InputStream is;
-
         try
         {
-            is = artifactResolutionService.getInputStream(storageId, repositoryId, path);
-            return is;
+            return artifactResolutionService.getInputStream(storageId, repositoryId, path);
         }
         catch (IOException | NoSuchAlgorithmException e)
         {

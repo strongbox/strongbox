@@ -2,6 +2,7 @@ package org.carlspring.strongbox.providers.layout;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URL;
 import java.nio.file.spi.FileSystemProvider;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -178,6 +179,14 @@ public class NugetHierarchicalLayoutProvider
     public ArtifactManagementService getArtifactManagementService()
     {
         return nugetArtifactManagementService;
+    }
+
+    @Override
+    public String resolveResourcePath(Repository repository,
+                                      NugetHierarchicalArtifactCoordinates coordinates)
+        throws IOException
+    {
+        return coordinates.getId() + "/" + coordinates.getVersion();
     }
 
 }
