@@ -200,12 +200,12 @@ public class NugetPackageGenerator
         metadata.licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0";
         metadata.description = "Strongbox Nuget package for tests";
 
-        if (dependencyList != null){
+        if (dependencyList != null)
+        {
             metadata.dependencies = new Dependencies();
             metadata.dependencies.dependencies = new ArrayList<>();
             for (int i = 0; i < dependencyList.length; i++)
             {
-                System.out.println("add dependency " + dependencyList[i]);
                 metadata.dependencies.dependencies.add(Dependency.parseString(dependencyList[i]));
             }
         }
