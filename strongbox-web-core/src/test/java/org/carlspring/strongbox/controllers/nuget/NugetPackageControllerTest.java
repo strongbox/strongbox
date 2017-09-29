@@ -26,6 +26,7 @@ import org.carlspring.strongbox.rest.common.NugetRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
@@ -150,7 +151,7 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
         given().header("User-Agent", "NuGet/*")
                .when()
                .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
-                       "/FindPackagesById()?packageId='Org.Carlspring.Strongbox.Examples.Nuget.Mono'")
+                       "/FindPackagesById()?id='Org.Carlspring.Strongbox.Examples.Nuget.Mono'")
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
@@ -277,7 +278,8 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
 
     public Path generatePackageFile(String basedir,
                                     String packageId,
-                                    String packageVersion)
+                                    String packageVersion,
+                                    String...dependencyList)
         throws NugetFormatException,
                JAXBException,
                IOException,
@@ -286,7 +288,7 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
         String packageFileName = packageId + "." + packageVersion + ".nupkg";
 
         NugetPackageGenerator nugetPackageGenerator = new NugetPackageGenerator(basedir);
-        nugetPackageGenerator.generateNugetPackage(packageId, packageVersion);
+        nugetPackageGenerator.generateNugetPackage(packageId, packageVersion, dependencyList);
 
         Path packageFilePath = Paths.get(basedir).resolve(packageVersion).resolve(packageFileName);
         return packageFilePath;
@@ -301,6 +303,7 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
     }
     
     @Test
+    @Ignore
     public void testRemoteProxyDownload()
             throws Exception
     {
