@@ -159,8 +159,9 @@ public class NugetPackageController extends BaseArtifactController
                                             @RequestParam(name = "$skip", required = false, defaultValue = "0") int skip,
                                             @RequestParam(name = "$top", required = false, defaultValue = "-1") int top,
                                             @RequestParam(name = "searchTerm", required = false) String searchTerm,
-                                            @RequestParam(name = "targetFramework", required = false) String targetFramework)
-        throws JAXBException
+                                            @RequestParam(name = "targetFramework", required = false) String targetFramework,
+                                            HttpServletResponse response)
+        throws JAXBException, IOException
     {
         Collection<? extends Nupkg> files;
         try
@@ -180,17 +181,18 @@ public class NugetPackageController extends BaseArtifactController
         NuPkgToRssTransformer toRssTransformer = new NuPkgToRssTransformer(feedId);
         PackageFeed feed = toRssTransformer.transform(files, orderBy, skip, top);
 
-        ByteArrayOutputStream rssResultStream = new ByteArrayOutputStream();
-        feed.writeXml(rssResultStream);
+        response.setHeader("content-type", MediaType.APPLICATION_XML);
+        feed.writeXml(response.getOutputStream());
 
-        return new ResponseEntity<>(new String(rssResultStream.toByteArray(), Charset.forName("UTF-8")), HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
     
     @RequestMapping(path = { "{storageId}/{repositoryId}/FindPackagesById()" }, method = RequestMethod.GET, produces = MediaType.APPLICATION_XML)
     public ResponseEntity<?> searchPackageById(@PathVariable(name = "storageId") String storageId,
                                                @PathVariable(name = "repositoryId") String repositoryId,
-                                               @RequestParam(name = "packageId", required = true) String packageId)
-        throws JAXBException
+                                               @RequestParam(name = "packageId", required = true) String packageId,
+                                               HttpServletResponse response)
+        throws JAXBException, IOException
     {
         packageSource.setStorageId(storageId);
         packageSource.setRepositoryId(repositoryId);
@@ -205,10 +207,10 @@ public class NugetPackageController extends BaseArtifactController
         NuPkgToRssTransformer toRssTransformer = new NuPkgToRssTransformer(feedId);
         PackageFeed feed = toRssTransformer.transform(files, "version", 0, -1);
 
-        ByteArrayOutputStream rssResultStream = new ByteArrayOutputStream();
-        feed.writeXml(rssResultStream);
+        response.setHeader("content-type", MediaType.APPLICATION_XML);
+        feed.writeXml(response.getOutputStream());
 
-        return new ResponseEntity<>(new String(rssResultStream.toByteArray(), Charset.forName("UTF-8")), HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     public Collection<? extends Nupkg> getPackages(String storageId,
