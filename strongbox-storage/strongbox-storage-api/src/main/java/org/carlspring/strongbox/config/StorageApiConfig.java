@@ -64,17 +64,17 @@ public class StorageApiConfig
         oEntityManager.registerEntityClasses(ArtifactEntry.class.getPackage().getName());
 
         // set unique constraints and index field 'username' if it isn't present yet
-        OClass oArtifactEntryClass = ((OObjectDatabaseTx) entityManager.getDelegate()).getMetadata()
-                                                                             .getSchema()
-                                                                             .getOrCreateClass(ArtifactEntry.class.getSimpleName());
+//        OClass oArtifactEntryClass = ((OObjectDatabaseTx) entityManager.getDelegate()).getMetadata()
+//                                                                             .getSchema()
+//                                                                             .getOrCreateClass(ArtifactEntry.class.getSimpleName());
         
-        if (oArtifactEntryClass.getIndexes()
-                      .stream()
-                      .noneMatch(oIndex -> oIndex.getName().equals("idx_path")))
-        {
-            oArtifactEntryClass.createProperty("username", OType.STRING);
-            oArtifactEntryClass.createIndex("idx_path", OClass.INDEX_TYPE.UNIQUE, "username");
-        }
+//        if (oArtifactEntryClass.getIndexes()
+//                      .stream()
+//                      .noneMatch(oIndex -> oIndex.getName().equals("idx_path")))
+//        {
+//            oArtifactEntryClass.createProperty("username", OType.STRING);
+//            oArtifactEntryClass.createIndex("idx_path", OClass.INDEX_TYPE.UNIQUE, "username");
+//        }
     }
 
     @Bean(name = "checksumCacheManager")

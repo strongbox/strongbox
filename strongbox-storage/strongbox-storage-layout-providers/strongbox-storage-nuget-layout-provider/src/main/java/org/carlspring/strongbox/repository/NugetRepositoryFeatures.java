@@ -56,9 +56,6 @@ public class NugetRepositoryFeatures
         try (NugetClient nugetClient = new NugetClient())
         {
             nugetClient.setUrl(remoteRepositoryUrl);
-            // public PackageFeed getPackages(String filter, String searchTerm,
-            // Integer top, String targetFramework, Integer skip)
-            // throws IOException, URISyntaxException {
             int packageCount;
             try
             {
@@ -79,15 +76,16 @@ public class NugetRepositoryFeatures
                 {
                     throw new ArtifactTransportException(e);
                 }
-                
+
                 Set<NugetHierarchicalArtifactCoordinates> artifactToSaveSet = new HashSet<>();
                 for (PackageEntry packageEntry : packageFeed.getEntries())
                 {
-                    String packageId = packageEntry.getId();
-                    String packageVersion = packageEntry.getProperties().getVersion().getMajor().toString();
+                    String packageId = packageEntry.getTitle();
+                    String packageVersion = packageEntry.getProperties().getVersion().toString();
 
                     NugetHierarchicalArtifactCoordinates c = new NugetHierarchicalArtifactCoordinates(packageId,
-                                                                                   packageVersion);
+                            packageVersion,
+                            "nupkg");
                     if (!artifactEntryService.existsByUuid(c.toPath()))
                     {
                         artifactToSaveSet.add(c);
@@ -101,7 +99,7 @@ public class NugetRepositoryFeatures
                     remoteArtifactEntry.setArtifactCoordinates(c);
                     artifactEntryService.save(remoteArtifactEntry);
                 }
-                
+
             }
         }
     }

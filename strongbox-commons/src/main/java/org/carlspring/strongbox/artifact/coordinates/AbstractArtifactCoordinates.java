@@ -23,12 +23,18 @@ public abstract class AbstractArtifactCoordinates
     public AbstractArtifactCoordinates(Map<String, String> coordinates)
     {
         this.coordinates = coordinates;
+        this.uuid = toPath();
     }
     
     @Override
     public String getUuid()
     {
         return toPath();
+    }
+    
+    @Override
+    public void setUuid(String uuid)
+    {
     }
 
     public void defineCoordinates(String... coordinates)
@@ -63,7 +69,9 @@ public abstract class AbstractArtifactCoordinates
     public String setCoordinate(String coordinate,
                                 String value)
     {
-        return coordinates.put(coordinate, value);
+        String result = coordinates.put(coordinate, value);
+        this.uuid = toPath();
+        return result;
     }
 
     public Map<String, String> getCoordinates()
@@ -74,6 +82,7 @@ public abstract class AbstractArtifactCoordinates
     public void setCoordinates(Map<String, String> coordinates)
     {
         this.coordinates = coordinates;
+        this.uuid = toPath();
     }
 
     @Override

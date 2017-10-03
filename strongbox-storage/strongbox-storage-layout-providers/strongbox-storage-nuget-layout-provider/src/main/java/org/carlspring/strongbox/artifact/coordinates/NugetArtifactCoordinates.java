@@ -19,11 +19,13 @@ public abstract class NugetArtifactCoordinates extends AbstractArtifactCoordinat
     }
 
     public NugetArtifactCoordinates(String id,
-                                    String version)
+                                    String version,
+                                    String type)
     {
         this();
         setId(id);
         setVersion(version);
+        setType(type);
     }
     
     @Override
