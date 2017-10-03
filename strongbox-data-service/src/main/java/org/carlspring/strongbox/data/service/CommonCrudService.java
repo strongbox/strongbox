@@ -69,6 +69,22 @@ public abstract class CommonCrudService<T extends GenericEntity>
     }
 
     @Override
+    public boolean existsByUuid(String uuid)
+    {
+        String sQuery = String.format("SELECT 1 FROM %s WHERE uuid = :uuid",
+                                      getEntityClass().getSimpleName());
+
+        OSQLSynchQuery<ODocument> oQuery = new OSQLSynchQuery<>(sQuery);
+        oQuery.setLimit(1);
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("uuid", uuid);
+
+        List<ODocument> resultList = getDelegate().command(oQuery).execute(params);
+        return !resultList.isEmpty();
+    }
+
+    @Override
     public boolean exists(String id)
     {
         return findOne(id) != null;

@@ -45,6 +45,12 @@ public class NugetHierarchicalArtifactCoordinates extends NugetArtifactCoordinat
         setVersion(version);
         setType(packageArtifactType);
     }
+    
+    public NugetHierarchicalArtifactCoordinates(String id,
+                                                String version)
+    {
+        super(id, version);
+    }
 
     @Override
     public String toPath()

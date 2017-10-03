@@ -31,6 +31,12 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
     private static final Logger logger = LoggerFactory.getLogger(ArtifactEntryService.class);
 
     @Override
+    public <S extends ArtifactEntry> S save(S entity)
+    {
+        return super.save(entity);
+    }
+
+    @Override
     public List<ArtifactEntry> findByCoordinates(Map<String, String> coordinates)
     {
         return findByCoordinates(coordinates, null, false);

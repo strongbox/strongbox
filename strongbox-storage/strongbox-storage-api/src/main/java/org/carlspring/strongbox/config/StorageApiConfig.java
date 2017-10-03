@@ -1,25 +1,27 @@
 package org.carlspring.strongbox.config;
 
-import org.carlspring.strongbox.booters.ResourcesBooter;
-import org.carlspring.strongbox.booters.StorageBooter;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.providers.search.OrientDbSearchProvider;
-import org.carlspring.strongbox.providers.search.SearchProviderRegistry;
-import org.carlspring.strongbox.services.impl.ArtifactResolutionServiceImpl;
-import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
-import org.carlspring.strongbox.storage.validation.version.VersionValidator;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import com.orientechnologies.orient.core.entity.OEntityManager;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
+import org.carlspring.strongbox.booters.ResourcesBooter;
+import org.carlspring.strongbox.booters.StorageBooter;
+import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
+import org.carlspring.strongbox.storage.validation.version.VersionValidator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import com.orientechnologies.orient.core.entity.OEntityManager;
+import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.artifact",
@@ -36,30 +38,43 @@ public class StorageApiConfig
     @Inject
     private List<VersionValidator> versionValidators;
 
-    @Inject
-    private ArtifactResolutionServiceImpl artifactResolutionService;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Inject
-    private ConfigurationManager configurationManager;
-
+    private OEntityManager oEntityManager;
+    
     @Inject
-    private OEntityManager entityManager;
+    private TransactionTemplate transactionTemplate;
 
-    @Inject
-    private LayoutProviderRegistry layoutProviderRegistry;
-
-    @Inject
-    private SearchProviderRegistry searchProviderRegistry;
-
-    @Inject
-    private OrientDbSearchProvider orientDbSearchProvider;
-
-
+    
     @PostConstruct
     public void init()
     {
+        transactionTemplate.execute((s) ->
+        {
+            doInit();
+            return null;
+        });
+    }
+
+    private void doInit()
+    {
         // register all domain entities
-        entityManager.registerEntityClasses(ArtifactEntry.class.getPackage().getName());
+        oEntityManager.registerEntityClasses(ArtifactEntry.class.getPackage().getName());
+
+        // set unique constraints and index field 'username' if it isn't present yet
+        OClass oArtifactEntryClass = ((OObjectDatabaseTx) entityManager.getDelegate()).getMetadata()
+                                                                             .getSchema()
+                                                                             .getOrCreateClass(ArtifactEntry.class.getSimpleName());
+        
+        if (oArtifactEntryClass.getIndexes()
+                      .stream()
+                      .noneMatch(oIndex -> oIndex.getName().equals("idx_path")))
+        {
+            oArtifactEntryClass.createProperty("username", OType.STRING);
+            oArtifactEntryClass.createIndex("idx_path", OClass.INDEX_TYPE.UNIQUE, "username");
+        }
     }
 
     @Bean(name = "checksumCacheManager")

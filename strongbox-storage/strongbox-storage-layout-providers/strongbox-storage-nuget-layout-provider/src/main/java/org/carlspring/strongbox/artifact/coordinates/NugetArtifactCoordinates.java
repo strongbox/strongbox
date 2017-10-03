@@ -18,6 +18,14 @@ public abstract class NugetArtifactCoordinates extends AbstractArtifactCoordinat
         defineCoordinates(ID, VERSION, EXTENSION);
     }
 
+    public NugetArtifactCoordinates(String id,
+                                    String version)
+    {
+        this();
+        setId(id);
+        setVersion(version);
+    }
+    
     @Override
     @XmlAttribute(name="id")
     public String getId()
