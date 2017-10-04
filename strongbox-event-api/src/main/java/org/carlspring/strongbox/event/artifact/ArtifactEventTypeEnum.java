@@ -91,7 +91,27 @@ public enum ArtifactEventTypeEnum
     /**
      * Occurs when an artifact file has been deleted.
      */
-    EVENT_ARTIFACT_PATH_DELETED(16);
+    EVENT_ARTIFACT_PATH_DELETED(16),
+
+    /**
+     * Occurs when an artifact metadata download operation has completed.
+     */
+    EVENT_ARTIFACT_METADATA_DOWNLOADED(17),
+
+    /**
+     * Occurs when an artifact metadata has commenced an download operation.
+     */
+    EVENT_ARTIFACT_METADATA_DOWNLOADING(18),
+
+    /**
+     * Occurs when an artifact checksum download operation has completed.
+     */
+    EVENT_ARTIFACT_CHECKSUM_DOWNLOADED(19),
+
+    /**
+     * Occurs when an artifact checksum has commenced an download operation.
+     */
+    EVENT_ARTIFACT_CHECKSUM_DOWNLOADING(20);
 
 
     private int type;

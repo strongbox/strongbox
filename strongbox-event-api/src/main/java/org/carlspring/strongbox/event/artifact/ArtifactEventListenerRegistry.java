@@ -1,9 +1,14 @@
 package org.carlspring.strongbox.event.artifact;
 
 import org.carlspring.strongbox.event.AbstractEventListenerRegistry;
+import org.carlspring.strongbox.event.repository.RepositoryEventListener;
+
+import javax.annotation.PostConstruct;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -13,6 +18,19 @@ import org.springframework.stereotype.Component;
 public class ArtifactEventListenerRegistry
         extends AbstractEventListenerRegistry<ArtifactEvent>
 {
+
+    @Autowired(required = false)
+    private List<ArtifactEventListener> artifactEventListeners;
+
+    @PostConstruct
+    public void init()
+    {
+        if (artifactEventListeners != null)
+        {
+            artifactEventListeners.forEach(this::addListener);
+        }
+    }
+
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactEventListenerRegistry.class);
 
@@ -51,6 +69,19 @@ public class ArtifactEventListenerRegistry
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_METADATA_UPLOADED.getType());
 
         logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_METADATA_UPLOADED event for " +
+                     storageId + ":" + repositoryId + "/" + path + "...");
+
+        dispatchEvent(event);
+    }
+
+    public void dispatchArtifactFileUpdatedEvent(String storageId, String repositoryId, String path)
+    {
+        ArtifactEvent event = new ArtifactEvent(storageId,
+                                                repositoryId,
+                                                path,
+                                                ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_UPDATED.getType());
+
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_UPDATED event for " +
                      storageId + ":" + repositoryId + "/" + path + "...");
 
         dispatchEvent(event);
@@ -239,6 +270,66 @@ public class ArtifactEventListenerRegistry
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_ARCHIVED.getType());
 
         logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_PATH_DELETED event for " +
+                     storageId + ":" + repositoryId + "/" + path + "...");
+
+        dispatchEvent(event);
+    }
+
+    public void dispatchArtifactMetadataDownloadedEvent(String storageId,
+                                              String repositoryId,
+                                              String path)
+    {
+        ArtifactEvent event = new ArtifactEvent(storageId,
+                                                repositoryId,
+                                                path,
+                                                ArtifactEventTypeEnum.EVENT_ARTIFACT_METADATA_DOWNLOADED.getType());
+
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_METADATA_DOWNLOADED event for " +
+                     storageId + ":" + repositoryId + "/" + path + "...");
+
+        dispatchEvent(event);
+    }
+
+    public void dispatchArtifactMetadataDownloadingEvent(String storageId,
+                                                        String repositoryId,
+                                                        String path)
+    {
+        ArtifactEvent event = new ArtifactEvent(storageId,
+                                                repositoryId,
+                                                path,
+                                                ArtifactEventTypeEnum.EVENT_ARTIFACT_METADATA_DOWNLOADING.getType());
+
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_METADATA_DOWNLOADING event for " +
+                     storageId + ":" + repositoryId + "/" + path + "...");
+
+        dispatchEvent(event);
+    }
+
+    public void dispatchArtifactChecksumDownloadedEvent(String storageId,
+                                                         String repositoryId,
+                                                         String path)
+    {
+        ArtifactEvent event = new ArtifactEvent(storageId,
+                                                repositoryId,
+                                                path,
+                                                ArtifactEventTypeEnum.EVENT_ARTIFACT_CHECKSUM_DOWNLOADED.getType());
+
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_CHECKSUM_DOWNLOADED event for " +
+                     storageId + ":" + repositoryId + "/" + path + "...");
+
+        dispatchEvent(event);
+    }
+
+    public void dispatchArtifactChecksumDownloadingEvent(String storageId,
+                                                        String repositoryId,
+                                                        String path)
+    {
+        ArtifactEvent event = new ArtifactEvent(storageId,
+                                                repositoryId,
+                                                path,
+                                                ArtifactEventTypeEnum.EVENT_ARTIFACT_CHECKSUM_DOWNLOADING.getType());
+
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_CHECKSUM_DOWNLOADING event for " +
                      storageId + ":" + repositoryId + "/" + path + "...");
 
         dispatchEvent(event);

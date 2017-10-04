@@ -1,18 +1,9 @@
 package org.carlspring.strongbox.providers.repository;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.security.NoSuchAlgorithmException;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
-
 import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.strongbox.client.ArtifactResolver;
 import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
@@ -25,6 +16,16 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessCacheManager;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.ws.rs.core.Response;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.security.NoSuchAlgorithmException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -52,6 +53,9 @@ public class ProxyRepositoryProvider
 
     @Inject
     private RemoteRepositoryAlivenessCacheManager remoteRepositoryAlivenessCacheManager;
+
+    @Inject
+    private ArtifactEventListenerRegistry artifactEventListenerRegistry;
 
     @PostConstruct
     @Override
@@ -142,6 +146,11 @@ public class ProxyRepositoryProvider
 
                 // Serve the downloaded artifact
                 RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(path);
+
+                if (!layoutProvider.isChecksum(repositoryPath) && !layoutProvider.isMetadata(path))
+                {
+                    artifactEventListenerRegistry.dispatchArtifactDownloadedEvent(storageId, repositoryId, path);
+                }
 
                 return (ArtifactInputStream) Files.newInputStream(repositoryPath);
             }

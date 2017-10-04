@@ -4,9 +4,12 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
@@ -27,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author carlspring
@@ -94,6 +98,29 @@ public class ProxyRepositoryProviderTestIT
 
         mavenOracleRepository.setUsername(initialUsername);
         mavenOracleRepository.setPassword(initialPassword);
+    }
+
+    @Test
+    public void whenDownloadingArtifactMetadaFileShouldAlsoBeResolved()
+            throws ProviderImplementationException,
+                   NoSuchAlgorithmException,
+                   ArtifactTransportException,
+                   IOException,
+                   SearchException,
+                   InterruptedException
+    {
+        String storageId = "storage-common-proxies";
+        String repositoryId = "maven-central";
+
+        assertStreamNotNull(storageId, repositoryId,
+                            "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar");
+
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+
+        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+
+        assertTrue(layoutProvider.containsPath(repository, "org/carlspring/properties-injector/maven-metadata.xml"));
     }
 
     @Test
