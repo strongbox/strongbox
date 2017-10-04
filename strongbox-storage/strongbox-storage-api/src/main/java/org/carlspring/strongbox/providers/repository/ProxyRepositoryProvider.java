@@ -114,7 +114,7 @@ public class ProxyRepositoryProvider
         client.setUsername(remoteRepository.getUsername());
         client.setPassword(remoteRepository.getPassword());
 
-        String resourcePath = layoutProvider.resolveResourcePath(repository, artifactCoordinates);
+        String resourcePath = layoutProvider.resolveResourcePath(repository, path);
         
         try (final CloseableProxyRepositoryResponse closeableProxyRepositoryResponse =
                      new CloseableProxyRepositoryResponse(client.getResourceWithResponse(resourcePath)))

@@ -133,11 +133,10 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates,
     
     @Override
     public String resolveResourcePath(Repository repository,
-                                      T coordinates)
+                                      String path)
         throws IOException
     {
-        RepositoryPath artifactPath = resolve(repository, coordinates);
-        return artifactPath.getRepositoryRelative().toString();
+        return path;
     }
 
     @Override
