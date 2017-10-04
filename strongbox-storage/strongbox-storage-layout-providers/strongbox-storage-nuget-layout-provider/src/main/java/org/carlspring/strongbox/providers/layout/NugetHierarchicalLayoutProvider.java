@@ -187,10 +187,6 @@ public class NugetHierarchicalLayoutProvider
         throws IOException
     {
         NugetHierarchicalArtifactCoordinates c = getArtifactCoordinates(path);
-        if (c == null)
-        {
-            return null;
-        }
         return c.getId() + "/" + c.getVersion();
     }
 
