@@ -6,10 +6,12 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManagerFactory;
 
+import org.carlspring.strongbox.data.domain.GenericEntity;
 import org.carlspring.strongbox.data.server.EmbeddedOrientDbServer;
 import org.carlspring.strongbox.data.tx.OEntityUnproxyAspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -24,11 +26,15 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.support.DefaultTransactionStatus;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.core.entity.OEntityManager;
+import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 /**
  * Spring configuration for data service project.
@@ -52,26 +58,57 @@ public class DataServiceConfig
     private static final Logger logger = LoggerFactory.getLogger("DataServiceConfig");
 
     @Value("${strongbox.orientdb.host:127.0.0.1}")
-    String host;
+    private String host;
 
     @Value("${strongbox.orientdb.port:2424}")
-    Integer port;
+    private Integer port;
 
     @Value("${strongbox.orientdb.database:strongbox}")
-    String database;
+    private String database;
 
     @Value("${strongbox.orientdb.username:admin}")
-    String username;
+    private String username;
 
     @Value("${strongbox.orientdb.password:password}")
-    String password;
+    private String password;
 
     private static EmbeddedOrientDbServer embeddableServer;
 
-    @Bean
-    public PlatformTransactionManager transactionManager(EntityManagerFactory emf)
+//    @Override
+//    public void afterPropertiesSet()
+//        throws Exception
+//    {
+//        logger.debug("Loading users...");
+//
+//        transactionTemplate().execute((s) ->
+//                                    {
+//                                        doInit(s);
+//                                        return null;
+//                                    });
+//    }
+
+    private void doInit(TransactionStatus s)
     {
-        return new JpaTransactionManager(emf);
+        
+        
+        oEntityManager().registerEntityClasses(GenericEntity.class.getPackage().getName());
+        OClass oGenericEntityClass = ((OObjectDatabaseTx) ((DefaultTransactionStatus)s).getTransaction()).getMetadata()
+                                                                             .getSchema()
+                                                                             .getOrCreateClass(GenericEntity.class.getSimpleName());
+
+        if (oGenericEntityClass.getIndexes()
+                      .stream()
+                      .noneMatch(oIndex -> oIndex.getName().equals("idx_uuid")))
+        {
+            //oGenericEntityClass.createProperty("uuid", OType.STRING);
+            oGenericEntityClass.createIndex("idx_uuid", OClass.INDEX_TYPE.UNIQUE, "uuid");
+        }
+    }    
+    
+    @Bean
+    public PlatformTransactionManager transactionManager()
+    {
+        return new JpaTransactionManager((EntityManagerFactory)entityManagerFactory().getObject());
     }
 
     @Bean
@@ -88,10 +125,10 @@ public class DataServiceConfig
     }
 
     @Bean
-    public TransactionTemplate transactionTemplate(PlatformTransactionManager transactionManager)
+    public TransactionTemplate transactionTemplate()
     {
         TransactionTemplate result = new TransactionTemplate();
-        result.setTransactionManager(transactionManager);
+        result.setTransactionManager(transactionManager());
         return result;
     }
 
