@@ -65,7 +65,8 @@ public class NugetRepositoryFeatures
             {
                 throw new ArtifactTransportException(e);
             }
-            for (int i = 0; i < packageCount / 100 + packageCount % 100; i++)
+            int pageCount = packageCount / 100 + packageCount % 100 == 0 ? 0 : 1;
+            for (int i = 0; i < pageCount; i++)
             {
                 PackageFeed packageFeed;
                 try
