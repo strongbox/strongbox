@@ -27,12 +27,6 @@ public abstract class AbstractArtifactCoordinates
     }
     
     @Override
-    public String getUuid()
-    {
-        return toPath();
-    }
-    
-    @Override
     public void setUuid(String uuid)
     {
     }
@@ -43,6 +37,7 @@ public abstract class AbstractArtifactCoordinates
         {
             this.coordinates.put(coordinate, null);
         }
+        this.uuid = toPath();
     }
 
     @Override
@@ -59,6 +54,7 @@ public abstract class AbstractArtifactCoordinates
     public void defineCoordinate(String coordinate)
     {
         coordinates.put(coordinate, null);
+        this.uuid = toPath();
     }
 
     public String getCoordinate(String coordinate)
