@@ -1,13 +1,21 @@
 package org.carlspring.strongbox.providers.repository;
 
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.security.NoSuchAlgorithmException;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.ws.rs.core.Response;
+
 import org.carlspring.commons.io.MultipleDigestInputStream;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactResolver;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
@@ -17,16 +25,6 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessCacheManager;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.security.NoSuchAlgorithmException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -88,7 +86,6 @@ public class ProxyRepositoryProvider
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         RepositoryPath reposytoryPath = layoutProvider.resolve(repository);
         RepositoryPath artifactPath = reposytoryPath.resolve(path);
-        ArtifactCoordinates artifactCoordinates = (ArtifactCoordinates) Files.getAttribute(artifactPath, RepositoryFileAttributes.COORDINATES);
 
         logger.debug(" -> Checking for " + artifactPath + "...");
         if (layoutProvider.containsPath(repository, path))
@@ -114,7 +111,7 @@ public class ProxyRepositoryProvider
         client.setUsername(remoteRepository.getUsername());
         client.setPassword(remoteRepository.getPassword());
 
-        String resourcePath = layoutProvider.resolveResourcePath(repository, artifactCoordinates);
+        String resourcePath = layoutProvider.resolveResourcePath(repository, path);
         
         try (final CloseableProxyRepositoryResponse closeableProxyRepositoryResponse =
                      new CloseableProxyRepositoryResponse(client.getResourceWithResponse(resourcePath)))

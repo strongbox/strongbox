@@ -183,10 +183,11 @@ public class NugetHierarchicalLayoutProvider
 
     @Override
     public String resolveResourcePath(Repository repository,
-                                      NugetHierarchicalArtifactCoordinates coordinates)
+                                      String path)
         throws IOException
     {
-        return coordinates.getId() + "/" + coordinates.getVersion();
+        NugetHierarchicalArtifactCoordinates c = getArtifactCoordinates(path);
+        return "package/" + c.getId() + "/" + c.getVersion();
     }
 
 }

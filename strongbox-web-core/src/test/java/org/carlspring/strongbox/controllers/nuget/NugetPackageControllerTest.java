@@ -311,7 +311,7 @@ public class NugetPackageControllerTest extends NugetRestAssuredBaseTest
         {
             given().header("User-Agent", "NuGet/*")
                    .when()
-                   .get(getContextBaseUrl() + "/storages/nuget-common-storage/nuget.org/download/NHibernate/4.1.1.4000")
+                   .get(getContextBaseUrl() + "/storages/nuget-common-storage/nuget.org/package/NHibernate/4.1.1.4000")
                    .peek()
                    .then()
                    .statusCode(HttpStatus.OK.value())

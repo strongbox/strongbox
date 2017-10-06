@@ -36,7 +36,7 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
     ArtifactOutputStream getOutputStream(RepositoryPath path) throws IOException;
     
     String resolveResourcePath(Repository repository,
-                               T coordinates)
+                               String path)
         throws IOException;
     
     RepositoryPath resolve(Repository repository,
