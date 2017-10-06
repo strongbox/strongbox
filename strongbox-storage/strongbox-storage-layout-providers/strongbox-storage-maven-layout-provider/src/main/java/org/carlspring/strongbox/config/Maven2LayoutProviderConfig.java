@@ -1,19 +1,11 @@
 package org.carlspring.strongbox.config;
 
-import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
-import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
-import org.carlspring.strongbox.repository.MavenRepositoryManagementStrategy;
-import org.carlspring.strongbox.storage.indexing.SafeArtifactContextProducer;
-import org.carlspring.strongbox.storage.indexing.StrongboxIndexer;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.orientechnologies.orient.core.entity.OEntityManager;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
 import org.apache.maven.index.ArtifactContextProducer;
 import org.apache.maven.index.DefaultIndexerEngine;
 import org.apache.maven.index.DefaultQueryCreator;
@@ -35,9 +27,19 @@ import org.apache.maven.index.packer.DefaultIndexPacker;
 import org.apache.maven.index.packer.IndexPacker;
 import org.apache.maven.index.updater.DefaultIndexUpdater;
 import org.apache.maven.index.updater.IndexUpdater;
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
+import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
+import org.carlspring.strongbox.repository.MavenRepositoryManagementStrategy;
+import org.carlspring.strongbox.storage.indexing.SafeArtifactContextProducer;
+import org.carlspring.strongbox.storage.indexing.StrongboxIndexer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import com.orientechnologies.orient.core.entity.OEntityManager;
 
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.repository",
@@ -49,6 +51,12 @@ import org.springframework.context.annotation.Configuration;
 public class Maven2LayoutProviderConfig
 {
 
+    @Inject
+    private TransactionTemplate transactionTemplate;
+    
+    @Inject
+    private OEntityManager oEntityManager;
+    
     @Bean(name = "indexer")
     Indexer indexer()
     {
@@ -106,17 +114,13 @@ public class Maven2LayoutProviderConfig
         return new MavenRepositoryFeatures();
     }
 
-    @Inject
-    OEntityManager entityManager;
-
-
     @PostConstruct
     public void init()
     {
-        // unable to replace with more generic one (ArtifactCoordinates) because of
-        // internal OrientDB exception: MavenArtifactCoordinates will not be serializable because
-        // it was not registered using registerEntityClass()
-        entityManager.registerEntityClass(MavenArtifactCoordinates.class);
+        transactionTemplate.execute((s) -> {
+            oEntityManager.registerEntityClass(MavenArtifactCoordinates.class);
+            return null;
+        });
     }
 
     @Bean(name = "mavenRepositoryManagementStrategy")

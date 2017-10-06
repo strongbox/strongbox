@@ -2,6 +2,9 @@ package org.carlspring.strongbox.domain;
 
 import java.io.Serializable;
 
+import javax.persistence.OneToOne;
+
+import org.carlspring.strongbox.artifact.coordinates.AbstractArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.domain.GenericEntity;
 
@@ -18,7 +21,8 @@ public class ArtifactEntry
     private String repositoryId;
 
     // if you have to rename this field please update ArtifactEntryServiceImpl.findByCoordinates() implementation
-    private ArtifactCoordinates artifactCoordinates;
+    @OneToOne(orphanRemoval = true)
+    private AbstractArtifactCoordinates artifactCoordinates;
 
     public ArtifactEntry()
     {
@@ -51,7 +55,7 @@ public class ArtifactEntry
 
     public void setArtifactCoordinates(ArtifactCoordinates artifactCoordinates)
     {
-        this.artifactCoordinates = artifactCoordinates;
+        this.artifactCoordinates = (AbstractArtifactCoordinates) artifactCoordinates;
     }
 
     @Override

@@ -11,6 +11,7 @@ import javax.persistence.PersistenceContext;
 import org.carlspring.strongbox.booters.ResourcesBooter;
 import org.carlspring.strongbox.booters.StorageBooter;
 import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.validation.version.VersionValidator;
 import org.springframework.context.annotation.Bean;
@@ -19,9 +20,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.orientechnologies.orient.core.entity.OEntityManager;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.artifact",
@@ -61,20 +59,8 @@ public class StorageApiConfig
     private void doInit()
     {
         // register all domain entities
-        oEntityManager.registerEntityClasses(ArtifactEntry.class.getPackage().getName());
-
-        // set unique constraints and index field 'username' if it isn't present yet
-//        OClass oArtifactEntryClass = ((OObjectDatabaseTx) entityManager.getDelegate()).getMetadata()
-//                                                                             .getSchema()
-//                                                                             .getOrCreateClass(ArtifactEntry.class.getSimpleName());
-        
-//        if (oArtifactEntryClass.getIndexes()
-//                      .stream()
-//                      .noneMatch(oIndex -> oIndex.getName().equals("idx_path")))
-//        {
-//            oArtifactEntryClass.createProperty("username", OType.STRING);
-//            oArtifactEntryClass.createIndex("idx_path", OClass.INDEX_TYPE.UNIQUE, "username");
-//        }
+        oEntityManager.registerEntityClass(ArtifactEntry.class);
+        oEntityManager.registerEntityClass(RemoteArtifactEntry.class);
     }
 
     @Bean(name = "checksumCacheManager")

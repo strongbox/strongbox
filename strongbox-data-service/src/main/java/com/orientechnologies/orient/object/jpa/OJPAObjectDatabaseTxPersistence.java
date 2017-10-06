@@ -24,6 +24,8 @@ public class OJPAObjectDatabaseTxPersistence
         implements PersistenceProvider
 {
 
+    public static final String PROPERTY_AUTOMATIC_SCHEMA_GENERATION = "com.orientechnologies.orient.object.jpa.automaticSchemaGeneration";
+    
     /** the log used by this class. */
     private static Logger logger = Logger.getLogger(OJPAObjectDatabaseTxPersistence.class.getName());
     private static OJPAProviderUtil providerUtil = new OJPAProviderUtil();

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
 import org.carlspring.strongbox.data.domain.GenericEntity;
@@ -11,7 +12,6 @@ import org.carlspring.strongbox.data.server.EmbeddedOrientDbServer;
 import org.carlspring.strongbox.data.tx.OEntityUnproxyAspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -23,12 +23,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.transaction.support.DefaultTransactionStatus;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.orientechnologies.orient.client.remote.OServerAdmin;
@@ -74,33 +74,29 @@ public class DataServiceConfig
 
     private static EmbeddedOrientDbServer embeddableServer;
 
-//    @Override
-//    public void afterPropertiesSet()
-//        throws Exception
-//    {
-//        logger.debug("Loading users...");
-//
-//        transactionTemplate().execute((s) ->
-//                                    {
-//                                        doInit(s);
-//                                        return null;
-//                                    });
-//    }
+    @PostConstruct
+    public void init()
+        throws Exception
+    {
+        transactionTemplate().execute((s) ->
+                                    {
+                                        doInit(s);
+                                        return null;
+                                    });
+    }
 
     private void doInit(TransactionStatus s)
     {
+        oEntityManager().registerEntityClass(GenericEntity.class);
+        EntityManager entityManager = EntityManagerFactoryUtils.getTransactionalEntityManager(entityManagerFactory());
+        OClass oGenericEntityClass = ((OObjectDatabaseTx) entityManager.getDelegate()).getMetadata()
+                                                                                      .getSchema()
+                                                                                      .getOrCreateClass(GenericEntity.class.getSimpleName());
         
-        
-        oEntityManager().registerEntityClasses(GenericEntity.class.getPackage().getName());
-        OClass oGenericEntityClass = ((OObjectDatabaseTx) ((DefaultTransactionStatus)s).getTransaction()).getMetadata()
-                                                                             .getSchema()
-                                                                             .getOrCreateClass(GenericEntity.class.getSimpleName());
-
         if (oGenericEntityClass.getIndexes()
                       .stream()
                       .noneMatch(oIndex -> oIndex.getName().equals("idx_uuid")))
         {
-            //oGenericEntityClass.createProperty("uuid", OType.STRING);
             oGenericEntityClass.createIndex("idx_uuid", OClass.INDEX_TYPE.UNIQUE, "uuid");
         }
     }    
@@ -108,11 +104,11 @@ public class DataServiceConfig
     @Bean
     public PlatformTransactionManager transactionManager()
     {
-        return new JpaTransactionManager((EntityManagerFactory)entityManagerFactory().getObject());
+        return new JpaTransactionManager((EntityManagerFactory)entityManagerFactory());
     }
 
     @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory()
+    public EntityManagerFactory entityManagerFactory()
     {
         Map<String, String> jpaProperties = new HashMap<>();
         jpaProperties.put("javax.persistence.jdbc.url", getConnectionUrl());
@@ -121,7 +117,8 @@ public class DataServiceConfig
 
         LocalContainerEntityManagerFactoryBean result = new LocalContainerEntityManagerFactoryBean();
         result.setJpaPropertyMap(jpaProperties);
-        return result;
+        result.afterPropertiesSet();
+        return result.getObject();
     }
 
     @Bean

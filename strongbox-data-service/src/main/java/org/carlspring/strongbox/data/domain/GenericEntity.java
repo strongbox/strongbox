@@ -16,7 +16,10 @@ import com.orientechnologies.orient.core.annotation.OVersion;
  * <b>Implementation notice</b>: don't declare variables with the same names as it's in this class ({@link #objectId},
  * {@link #detachAll} etc.) It will hide that variables and change behaviour of persistence subsystem to unpredictable.
  *
+ * @see {@link GenericEntityHook}
+ *
  * @author Alex Oreshkevich
+ * @author Sergey Bespalov
  */
 @MappedSuperclass
 @Inheritance
