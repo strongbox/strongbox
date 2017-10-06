@@ -38,7 +38,6 @@ public class NugetRepositoryFeatures
     @Inject
     private ArtifactEntryService artifactEntryService;
 
-    @Override
     public void downloadRemoteIndex(String storageId,
                                     String repositoryId)
         throws ArtifactTransportException,
