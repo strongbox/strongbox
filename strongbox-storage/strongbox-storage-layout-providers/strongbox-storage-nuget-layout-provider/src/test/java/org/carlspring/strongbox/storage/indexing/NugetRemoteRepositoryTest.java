@@ -1,8 +1,5 @@
 package org.carlspring.strongbox.storage.indexing;
 
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -11,9 +8,11 @@ import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 
 import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.config.NugetLayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
 import org.carlspring.strongbox.repository.RepositoryFeatures;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -85,7 +84,7 @@ public class NugetRemoteRepositoryTest
 
         RepositoryFeatures features = layoutProvider.getRepositoryFeatures();
         
-        features.downloadRemoteIndex(storage.getId(), repository.getId());
+        ((NugetRepositoryFeatures)features).downloadRemoteIndex(storage.getId(), repository.getId());
     }
 
 }
