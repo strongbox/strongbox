@@ -23,21 +23,14 @@ public abstract class AbstractArtifactCoordinates
     public AbstractArtifactCoordinates(Map<String, String> coordinates)
     {
         this.coordinates = coordinates;
-        this.uuid = toPath();
     }
     
-    @Override
-    public void setUuid(String uuid)
-    {
-    }
-
     public void defineCoordinates(String... coordinates)
     {
         for (String coordinate : coordinates)
         {
             this.coordinates.put(coordinate, null);
         }
-        this.uuid = toPath();
     }
 
     @Override
@@ -54,7 +47,6 @@ public abstract class AbstractArtifactCoordinates
     public void defineCoordinate(String coordinate)
     {
         coordinates.put(coordinate, null);
-        this.uuid = toPath();
     }
 
     public String getCoordinate(String coordinate)
@@ -65,9 +57,7 @@ public abstract class AbstractArtifactCoordinates
     public String setCoordinate(String coordinate,
                                 String value)
     {
-        String result = coordinates.put(coordinate, value);
-        this.uuid = toPath();
-        return result;
+        return coordinates.put(coordinate, value);
     }
 
     public Map<String, String> getCoordinates()
@@ -78,13 +68,29 @@ public abstract class AbstractArtifactCoordinates
     public void setCoordinates(Map<String, String> coordinates)
     {
         this.coordinates = coordinates;
-        this.uuid = toPath();
     }
 
     @Override
     public String toString()
     {
         return toPath();
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (obj == null || !(obj instanceof AbstractArtifactCoordinates))
+        {
+            return false;
+        }
+        AbstractArtifactCoordinates c = (AbstractArtifactCoordinates) obj;
+        return c.getCoordinates() == null ? getCoordinates() != null : c.getCoordinates().equals(getCoordinates());
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return getCoordinates() == null ? 0 : getCoordinates().hashCode();
     }
 
 }

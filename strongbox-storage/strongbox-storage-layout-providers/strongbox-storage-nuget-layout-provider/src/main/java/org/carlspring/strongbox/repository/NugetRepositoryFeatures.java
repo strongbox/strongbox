@@ -19,6 +19,7 @@ import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.springframework.stereotype.Component;
 
 import ru.aristar.jnuget.client.NugetClient;
+import ru.aristar.jnuget.query.Expression;
 import ru.aristar.jnuget.rss.PackageEntry;
 import ru.aristar.jnuget.rss.PackageFeed;
 
@@ -38,8 +39,19 @@ public class NugetRepositoryFeatures
     @Inject
     private ArtifactEntryService artifactEntryService;
 
-    public void downloadRemoteIndex(String storageId,
-                                    String repositoryId)
+    public void downloadRemoteFeed(String storageId,
+                                   String repositoryId)
+        throws RepositoryInitializationException,
+        ArtifactTransportException
+    {
+        downloadRemoteFeed(storageId, repositoryId, null, null, null);
+    }
+
+    public void downloadRemoteFeed(String storageId,
+                                   String repositoryId,
+                                   Expression filter,
+                                   String searchTerm,
+                                   String targetFramework)
         throws ArtifactTransportException,
         RepositoryInitializationException
     {
@@ -55,28 +67,22 @@ public class NugetRepositoryFeatures
         try (NugetClient nugetClient = new NugetClient())
         {
             nugetClient.setUrl(remoteRepositoryUrl);
-            int packageCount;
-            try
-            {
-                packageCount = nugetClient.getPackageCount(false);
-            }
-            catch (IOException | URISyntaxException e)
-            {
-                throw new ArtifactTransportException(e);
-            }
-            int pageCount = packageCount / 100 + (packageCount % 100 == 0 ? 0 : 1);
-            for (int i = 0; i < pageCount; i++)
+            for (int i = 0; true; i++)
             {
                 PackageFeed packageFeed;
                 try
                 {
-                    packageFeed = nugetClient.getPackages(null, null, 100, null, i * 100);
+                    packageFeed = nugetClient.getPackages(filter == null ? null : filter.toString(), searchTerm, 100,
+                                                          targetFramework, i * 100);
                 }
                 catch (IOException | URISyntaxException e)
                 {
                     throw new ArtifactTransportException(e);
                 }
-
+                if (packageFeed.getEntries().isEmpty())
+                {
+                    break;
+                }
                 Set<NugetHierarchicalArtifactCoordinates> artifactToSaveSet = new HashSet<>();
                 for (PackageEntry packageEntry : packageFeed.getEntries())
                 {

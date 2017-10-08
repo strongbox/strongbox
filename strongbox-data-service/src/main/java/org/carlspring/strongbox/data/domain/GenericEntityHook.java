@@ -39,7 +39,7 @@ public class GenericEntityHook extends ORecordHookAbstract
             return RESULT.RECORD_NOT_CHANGED;
         }
         uuid = UUID.randomUUID().toString();
-        Logger.warn(String.format("Found empty 'uuid', default unique value [%s] generated", uuid));
+        Logger.debug(String.format("Found empty 'uuid', default unique value [%s] generated", uuid));
         doc.field("uuid", uuid);
         
         return RESULT.RECORD_CHANGED;
