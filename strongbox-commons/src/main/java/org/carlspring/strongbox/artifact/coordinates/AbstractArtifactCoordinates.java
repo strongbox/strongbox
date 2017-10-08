@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.carlspring.strongbox.data.domain.GenericEntity;
 
+import edu.emory.mathcs.backport.java.util.Collections;
+
 /**
  * @author carlspring
  */
@@ -14,7 +16,7 @@ public abstract class AbstractArtifactCoordinates
 {
 
     private Map<String, String> coordinates = new LinkedHashMap<>();
-
+    private String path;
 
     public AbstractArtifactCoordinates()
     {
@@ -23,14 +25,16 @@ public abstract class AbstractArtifactCoordinates
     public AbstractArtifactCoordinates(Map<String, String> coordinates)
     {
         this.coordinates = coordinates;
+        this.path = toPath();
     }
     
-    public void defineCoordinates(String... coordinates)
+    public final void defineCoordinates(String... coordinates)
     {
         for (String coordinate : coordinates)
         {
             this.coordinates.put(coordinate, null);
         }
+        this.path = toPath();
     }
 
     @Override
@@ -44,9 +48,10 @@ public abstract class AbstractArtifactCoordinates
         }
     }
 
-    public void defineCoordinate(String coordinate)
+    public final void defineCoordinate(String coordinate)
     {
         coordinates.put(coordinate, null);
+        this.path = toPath();
     }
 
     public String getCoordinate(String coordinate)
@@ -54,20 +59,28 @@ public abstract class AbstractArtifactCoordinates
         return coordinates.get(coordinate);
     }
 
-    public String setCoordinate(String coordinate,
+    public final String setCoordinate(String coordinate,
                                 String value)
     {
-        return coordinates.put(coordinate, value);
+        String result = coordinates.put(coordinate, value);
+        this.path = toPath();
+        return result;
     }
 
     public Map<String, String> getCoordinates()
     {
-        return coordinates;
+        return Collections.unmodifiableMap(coordinates);
     }
 
-    public void setCoordinates(Map<String, String> coordinates)
+    public final void setCoordinates(Map<String, String> coordinates)
     {
         this.coordinates = coordinates;
+        this.path = toPath();
+    }
+    
+    public String getPath()
+    {
+        return path;
     }
 
     @Override
