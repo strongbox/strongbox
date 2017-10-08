@@ -92,7 +92,7 @@ public class NugetRepositoryFeatures
                     NugetHierarchicalArtifactCoordinates c = new NugetHierarchicalArtifactCoordinates(packageId,
                             packageVersion,
                             "nupkg");
-                    if (!artifactEntryService.exists(storageId, repositoryId, c.toPath()));
+                    if (!artifactEntryService.exists(storageId, repositoryId, c.toPath()))
                     {
                         artifactToSaveSet.add(c);
                     }
