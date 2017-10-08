@@ -23,6 +23,8 @@ public class ArtifactEntry
     // if you have to rename this field please update ArtifactEntryServiceImpl.findByCoordinates() implementation
     @OneToOne(orphanRemoval = true)
     private AbstractArtifactCoordinates artifactCoordinates;
+    
+    private String artifactPath;
 
     public ArtifactEntry()
     {
@@ -56,6 +58,12 @@ public class ArtifactEntry
     public void setArtifactCoordinates(ArtifactCoordinates artifactCoordinates)
     {
         this.artifactCoordinates = (AbstractArtifactCoordinates) artifactCoordinates;
+        getArtifactPath();
+    }
+
+    public final String getArtifactPath()
+    {
+        return artifactCoordinates == null ? (artifactPath = null) : (artifactPath = artifactCoordinates.toPath());
     }
 
     @Override

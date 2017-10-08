@@ -36,5 +36,5 @@ public interface ArtifactEntryService
     
     Optional<ArtifactEntry> findOne(ArtifactCoordinates artifactCoordinates);
     
-    boolean existsByCoordinates(String storageId, String repositoryId, ArtifactCoordinates c);
+    boolean exists(String storageId, String repositoryId, String path);
 }

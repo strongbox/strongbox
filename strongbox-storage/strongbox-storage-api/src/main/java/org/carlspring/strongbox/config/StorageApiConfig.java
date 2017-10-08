@@ -71,9 +71,9 @@ public class StorageApiConfig
 
         if (oClass.getIndexes()
                   .stream()
-                  .noneMatch(oIndex -> oIndex.getName().equals("idx_coordinates")))
+                  .noneMatch(oIndex -> oIndex.getName().equals("idx_artifact")))
         {
-            oClass.createIndex("idx_coordinates", OClass.INDEX_TYPE.UNIQUE, "storageId", "repositoryId", "artifactCoordinates.path");
+            oClass.createIndex("idx_artifact", OClass.INDEX_TYPE.UNIQUE, "storageId", "repositoryId", "artifactPath");
         }
     }
 

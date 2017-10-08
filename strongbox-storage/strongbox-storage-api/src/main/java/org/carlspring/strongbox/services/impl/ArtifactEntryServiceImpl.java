@@ -139,17 +139,17 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
     }
 
     @Override
-    public boolean existsByCoordinates(String storageId, String repositoryId, ArtifactCoordinates c)
+    public boolean exists(String storageId, String repositoryId, String path)
     {
-        String sQuery = String.format("SELECT FROM INDEX:idx_coordinates WHERE key = [:storageId, :repositoryId, :path]");
+        String sQuery = String.format("SELECT FROM INDEX:idx_artifact WHERE key = [:storageId, :repositoryId, :path]");
 
         OSQLSynchQuery<ODocument> oQuery = new OSQLSynchQuery<>(sQuery);
         oQuery.setLimit(1);
 
-        HashMap<String, String> params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<>();
         params.put("storageId", storageId);
         params.put("repositoryId", repositoryId);
-        params.put("path", c.toPath());
+        params.put("path", path);
 
         List<ODocument> resultList = getDelegate().command(oQuery).execute(params);
         return !resultList.isEmpty();
