@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.services.impl;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
 /**
@@ -136,4 +138,22 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
         return ArtifactEntry.class;
     }
 
+    @Override
+    public boolean existsByCoordinates(String storageId, String repositoryId, ArtifactCoordinates c)
+    {
+        String sQuery = String.format("SELECT FROM INDEX:idx_coordinates WHERE key = [:storageId, :repositoryId, :path]");
+
+        OSQLSynchQuery<ODocument> oQuery = new OSQLSynchQuery<>(sQuery);
+        oQuery.setLimit(1);
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("storageId", storageId);
+        params.put("repositoryId", repositoryId);
+        params.put("path", c.toPath());
+
+        List<ODocument> resultList = getDelegate().command(oQuery).execute(params);
+        return !resultList.isEmpty();
+    }
+
+    
 }

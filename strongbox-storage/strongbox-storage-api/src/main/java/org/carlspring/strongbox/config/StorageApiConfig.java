@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import org.carlspring.strongbox.artifact.coordinates.AbstractArtifactCoordinates;
 import org.carlspring.strongbox.booters.ResourcesBooter;
 import org.carlspring.strongbox.booters.StorageBooter;
 import org.carlspring.strongbox.domain.ArtifactEntry;
@@ -20,6 +21,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.orientechnologies.orient.core.entity.OEntityManager;
+import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.artifact",
@@ -61,6 +64,17 @@ public class StorageApiConfig
         // register all domain entities
         oEntityManager.registerEntityClass(ArtifactEntry.class);
         oEntityManager.registerEntityClass(RemoteArtifactEntry.class);
+
+        OClass oClass = ((OObjectDatabaseTx) entityManager.getDelegate()).getMetadata()
+                                                                         .getSchema()
+                                                                         .getClass(ArtifactEntry.class);
+
+        if (oClass.getIndexes()
+                  .stream()
+                  .noneMatch(oIndex -> oIndex.getName().equals("idx_coordinates")))
+        {
+            oClass.createIndex("idx_coordinates", OClass.INDEX_TYPE.UNIQUE, "storageId", "repositoryId", "artifactCoordinates.path");
+        }
     }
 
     @Bean(name = "checksumCacheManager")
