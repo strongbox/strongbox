@@ -16,6 +16,7 @@ public abstract class AbstractArtifactCoordinates
 {
 
     private Map<String, String> coordinates = new LinkedHashMap<>();
+    private String path;
 
     public AbstractArtifactCoordinates()
     {
@@ -24,6 +25,7 @@ public abstract class AbstractArtifactCoordinates
     public AbstractArtifactCoordinates(Map<String, String> coordinates)
     {
         this.coordinates = coordinates;
+        this.path = toPath();
     }
     
     public final void defineCoordinates(String... coordinates)
@@ -32,6 +34,7 @@ public abstract class AbstractArtifactCoordinates
         {
             this.coordinates.put(coordinate, null);
         }
+        this.path = toPath();
     }
 
     @Override
@@ -48,6 +51,7 @@ public abstract class AbstractArtifactCoordinates
     public final void defineCoordinate(String coordinate)
     {
         coordinates.put(coordinate, null);
+        this.path = toPath();
     }
 
     public String getCoordinate(String coordinate)
@@ -58,7 +62,9 @@ public abstract class AbstractArtifactCoordinates
     public final String setCoordinate(String coordinate,
                                 String value)
     {
-        return coordinates.put(coordinate, value);
+        String result = coordinates.put(coordinate, value);
+        this.path = toPath();
+        return result;
     }
 
     public Map<String, String> getCoordinates()
@@ -69,8 +75,14 @@ public abstract class AbstractArtifactCoordinates
     public final void setCoordinates(Map<String, String> coordinates)
     {
         this.coordinates = coordinates;
+        this.path = toPath();
     }
     
+    public String getPath()
+    {
+        return path;
+    }
+
     @Override
     public String toString()
     {

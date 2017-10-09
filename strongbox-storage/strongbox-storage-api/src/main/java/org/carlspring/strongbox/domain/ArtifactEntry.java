@@ -7,6 +7,7 @@ import javax.persistence.OneToOne;
 import org.carlspring.strongbox.artifact.coordinates.AbstractArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.domain.GenericEntity;
+import org.carlspring.strongbox.data.domain.GenericEntityHook;
 
 /**
  * @author carlspring
@@ -24,6 +25,10 @@ public class ArtifactEntry
     @OneToOne(orphanRemoval = true)
     private AbstractArtifactCoordinates artifactCoordinates;
     
+    /**
+     * This field is used as part of [storageId, repositoryId, artifactPath] unique index. The value of this field is
+     * populated within {@link GenericEntityHook}.
+     */
     private String artifactPath;
 
     public ArtifactEntry()

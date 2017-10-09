@@ -8,6 +8,7 @@ import javax.persistence.MappedSuperclass;
 import javax.xml.bind.annotation.XmlTransient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.orientechnologies.orient.core.annotation.OId;
 import com.orientechnologies.orient.core.annotation.OVersion;
 
 /**
@@ -32,6 +33,7 @@ public abstract class GenericEntity
      * will have different objectId.
      */
     @Id
+    @OId
     @JsonIgnore
     @XmlTransient
     protected String objectId;

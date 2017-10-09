@@ -24,7 +24,7 @@ public abstract class CommonCrudService<T extends GenericEntity>
     private static final Logger logger = LoggerFactory.getLogger(CommonCrudService.class);
 
     @PersistenceContext
-    private EntityManager entityManager;
+    protected EntityManager entityManager;
 
 
     @Override
@@ -71,7 +71,7 @@ public abstract class CommonCrudService<T extends GenericEntity>
     @Override
     public boolean existsByUuid(String uuid)
     {
-        String sQuery = String.format("SELECT FROM INDEX:idx_uuid WHERE key = :uuid");
+        String sQuery = String.format("SELECT @rid FROM INDEX:idx_uuid WHERE key = :uuid");
 
         OSQLSynchQuery<ODocument> oQuery = new OSQLSynchQuery<>(sQuery);
         oQuery.setLimit(1);

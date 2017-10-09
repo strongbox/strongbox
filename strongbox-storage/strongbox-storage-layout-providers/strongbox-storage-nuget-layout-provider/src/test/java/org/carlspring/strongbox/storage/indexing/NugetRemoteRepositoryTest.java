@@ -1,19 +1,28 @@
 package org.carlspring.strongbox.storage.indexing;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 
+import org.carlspring.strongbox.artifact.coordinates.NugetHierarchicalArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.NugetLayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.RemoteArtifactEntry;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
 import org.carlspring.strongbox.repository.RepositoryFeatures;
+import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -52,6 +61,9 @@ public class NugetRemoteRepositoryTest
     @Inject
     private RepositoryManagementService repositoryManagementService;
 
+    @Inject
+    private ArtifactEntryService artifactEntryService;
+    
     @BeforeClass
     public static void cleanUp()
         throws Exception
@@ -101,7 +113,7 @@ public class NugetRemoteRepositoryTest
     @Test
     public void testRepositoryIndexFetching()
         throws ArtifactTransportException,
-        IOException
+        IOException, ProviderImplementationException
     {
         Storage storage = configurationManager.getConfiguration().getStorage(NUGET_COMMON_STORAGE);
         Repository repository = storage.getRepository(REPOSITORY_PROXY);
@@ -110,8 +122,12 @@ public class NugetRemoteRepositoryTest
         RepositoryFeatures features = layoutProvider.getRepositoryFeatures();
 
         ((NugetRepositoryFeatures) features).downloadRemoteFeed(storage.getId(), repository.getId(),
-                                                                 new IdEqIgnoreCase("adplug"), null, null);
+                                                                 new IdEqIgnoreCase("NHibernate"), null, null);
 
+        NugetHierarchicalArtifactCoordinates c = new NugetHierarchicalArtifactCoordinates("NHibernate", "4.0.4.4000", "nupkg");
+        Optional<ArtifactEntry> artifactEntry = artifactEntryService.findOne(NUGET_COMMON_STORAGE, REPOSITORY_PROXY, c.toPath());
+        assertTrue(artifactEntry.isPresent());
+        assertFalse(((RemoteArtifactEntry)artifactEntry.get()).getIsCached());
     }
 
 }

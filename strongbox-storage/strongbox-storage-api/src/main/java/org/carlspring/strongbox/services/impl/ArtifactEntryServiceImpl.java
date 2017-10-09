@@ -16,8 +16,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 /**
  * DAO implementation for {@link ArtifactEntry} entities.
@@ -32,6 +34,8 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactEntryService.class);
 
+    
+    
     @Override
     public <S extends ArtifactEntry> S save(S entity)
     {
@@ -141,6 +145,21 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
     @Override
     public boolean exists(String storageId, String repositoryId, String path)
     {
+        return findArtifactEntryId(storageId, repositoryId, path) != null;
+    }
+
+    @Override
+    public Optional<ArtifactEntry> findOne(String storageId,
+                                           String repositoryId,
+                                           String path)
+    {
+        ORID artifactEntryIdId = findArtifactEntryId(storageId, repositoryId, path);
+        return artifactEntryIdId == null ? Optional.empty()
+                : Optional.of(entityManager.find(ArtifactEntry.class, artifactEntryIdId));
+    }
+
+    private ORID findArtifactEntryId(String storageId, String repositoryId, String path)
+    {
         String sQuery = String.format("SELECT FROM INDEX:idx_artifact WHERE key = [:storageId, :repositoryId, :path]");
 
         OSQLSynchQuery<ODocument> oQuery = new OSQLSynchQuery<>(sQuery);
@@ -152,8 +171,8 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
         params.put("path", path);
 
         List<ODocument> resultList = getDelegate().command(oQuery).execute(params);
-        return !resultList.isEmpty();
+        ODocument result = resultList.isEmpty() ? null : resultList.iterator().next();
+        return result == null ? null : ((ODocument)result.field("rid")).getIdentity();
     }
 
-    
 }

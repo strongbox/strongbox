@@ -37,4 +37,6 @@ public interface ArtifactEntryService
     Optional<ArtifactEntry> findOne(ArtifactCoordinates artifactCoordinates);
     
     boolean exists(String storageId, String repositoryId, String path);
+    
+    Optional<ArtifactEntry> findOne(String storageId, String repositoryId, String path);
 }

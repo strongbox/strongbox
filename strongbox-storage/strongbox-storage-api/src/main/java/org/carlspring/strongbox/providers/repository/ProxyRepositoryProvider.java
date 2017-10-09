@@ -5,22 +5,28 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
+import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
 import org.carlspring.commons.io.MultipleDigestInputStream;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactResolver;
 import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
+import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
@@ -53,6 +59,9 @@ public class ProxyRepositoryProvider
     @Inject
     private RemoteRepositoryAlivenessCacheManager remoteRepositoryAlivenessCacheManager;
 
+    @Inject
+    private ArtifactEntryService artifactEntryService;
+    
     @PostConstruct
     @Override
     public void register()
@@ -142,8 +151,24 @@ public class ProxyRepositoryProvider
 
                 // Serve the downloaded artifact
                 RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(path);
-
-                return (ArtifactInputStream) Files.newInputStream(repositoryPath);
+                ArtifactInputStream result = (ArtifactInputStream) Files.newInputStream(repositoryPath);
+                
+                ArtifactCoordinates artifactCoordinates = (ArtifactCoordinates) Files.getAttribute(repositoryPath,
+                                                                                                   RepositoryFileAttributes.COORDINATES);
+                if (artifactCoordinates != null)
+                {
+                    RemoteArtifactEntry artifactEntry = (RemoteArtifactEntry) artifactEntryService.findOne(storageId,
+                                                                                                           repositoryId,
+                                                                                                           artifactCoordinates.toPath())
+                                                                                                  .orElse(new RemoteArtifactEntry());
+                    artifactEntry.setArtifactCoordinates(artifactCoordinates);
+                    artifactEntry.setRepositoryId(storageId);
+                    artifactEntry.setRepositoryId(repositoryId);
+                    artifactEntry.setIsCached(Boolean.TRUE);
+                    artifactEntryService.save(artifactEntry);
+                }
+                
+                return result;
             }
         }
     }
