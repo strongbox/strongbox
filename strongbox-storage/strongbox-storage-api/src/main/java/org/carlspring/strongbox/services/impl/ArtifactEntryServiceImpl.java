@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 /**
  * DAO implementation for {@link ArtifactEntry} entities.
@@ -84,15 +83,6 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
             return findByCoordinates((Map<String, String>)null);
         }
         return findByCoordinates(coordinates.getCoordinates());
-    }
-
-    @Override
-    public Optional<ArtifactEntry> findOne(ArtifactCoordinates artifactCoordinates)
-    {
-        List<ArtifactEntry> artifactEntryList = findByCoordinates(artifactCoordinates);
-
-        return Optional.ofNullable(artifactEntryList == null || artifactEntryList.isEmpty() ?
-                                   null : artifactEntryList.iterator().next());
     }
 
     protected String buildCoordinatesQuery(Map<String, String> map, String orderBy, boolean strict)

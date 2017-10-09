@@ -227,18 +227,17 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
         }
     }
 
-    private void storeArtifactEntry(RepositoryPath path)
+    private void storeArtifactEntry(RepositoryPath path) throws IOException
     {
         Repository repository = path.getFileSystem().getRepository();
         Storage storage = repository.getStorage();
 
-        ArtifactCoordinates coordinates = artifactResolutionService.getArtifactCoordinates(storage.getId(),
-                                                                                           repository.getId(),
-                                                                                           path.getRepositoryRelative()
-                                                                                               .toString());
+        ArtifactCoordinates artifactCoordinates = (ArtifactCoordinates) Files.getAttribute(path,
+                                                                                           RepositoryFileAttributes.COORDINATES);
 
-        ArtifactEntry artifactEntry = artifactEntryService.findOne(coordinates)
-                                                          .orElse(createArtifactEntry(coordinates,
+        ArtifactEntry artifactEntry = artifactEntryService.findOne(storage.getId(), repository.getId(),
+                                                                   path.getRepositoryRelative().toString())
+                                                          .orElse(createArtifactEntry(artifactCoordinates,
                                                                                       storage.getId(),
                                                                                       repository.getId()));
         artifactEntryService.save(artifactEntry);

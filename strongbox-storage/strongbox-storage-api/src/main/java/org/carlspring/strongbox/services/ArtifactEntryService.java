@@ -34,8 +34,6 @@ public interface ArtifactEntryService
     
     List<ArtifactEntry> findByCoordinates(Map<String, String> coordinates, String orderBy, boolean strict);
     
-    Optional<ArtifactEntry> findOne(ArtifactCoordinates artifactCoordinates);
-    
     boolean exists(String storageId, String repositoryId, String path);
     
     Optional<ArtifactEntry> findOne(String storageId, String repositoryId, String path);
