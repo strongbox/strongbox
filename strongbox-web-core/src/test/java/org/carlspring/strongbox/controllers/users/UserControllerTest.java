@@ -359,14 +359,14 @@ public class UserControllerTest
     }
 
     @Test
-    @WithUserDetails("developer01")
+    @WithUserDetails("deployer")
     public void userWithoutUpdateUserRoleShouldBeAbleToUpdateHisPassword()
             throws Exception
     {
-        User updatedUser = retrieveUserByName("developer01");
+        User updatedUser = retrieveUserByName("deployer");
         String initialPassword = updatedUser.getPassword();
 
-        final String userName = "developer01";
+        final String userName = "deployer";
         final String newPassword = "newPassword";
         UserInput developer01 = buildUser(userName, newPassword);
 
@@ -406,10 +406,10 @@ public class UserControllerTest
     {
         final String userName = "admin";
         final String newPassword = "newPassword";
-        UserInput developer01 = buildUser(userName, newPassword);
+        UserInput admin = buildUser(userName, newPassword);
 
         given().contentType("application/json")
-               .body(developer01)
+               .body(admin)
                .when()
                .put("/users/user")
                .peek()
