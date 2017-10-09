@@ -76,7 +76,7 @@ public class UserController
     @ApiOperation(value = "Used to retrieve an user")
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 400, message = "An error occurred.") })
-    @PreAuthorize("hasAuthority('VIEW_USER')")
+    @PreAuthorize("hasAuthority('VIEW_USER') || #name == principal.username")
     @RequestMapping(value = "user/{name}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity getUser(@ApiParam(value = "The name of the user", required = true) @PathVariable String name)
@@ -113,7 +113,7 @@ public class UserController
     @ApiOperation(value = "Used to update user")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The user was updated successfully."),
                             @ApiResponse(code = 400, message = "Bad request was provided to update user") })
-    @PreAuthorize("hasAuthority('UPDATE_USER')")
+    @PreAuthorize("hasAuthority('UPDATE_USER') || #userToUpdate.username == principal.username")
     @RequestMapping(value = "user", method = RequestMethod.PUT)
     @ResponseBody
     public ResponseEntity update(@RequestBody UserInput userToUpdate,
@@ -152,9 +152,21 @@ public class UserController
     @PreAuthorize("hasAuthority('DELETE_USER')")
     @RequestMapping(value = "user/{name}", method = RequestMethod.DELETE)
     @ResponseBody
-    public ResponseEntity delete(@ApiParam(value = "The name of the user") @PathVariable String name)
+    public ResponseEntity delete(@ApiParam(value = "The name of the user") @PathVariable String name, Authentication authentication)
             throws Exception
     {
+        if (!(authentication.getPrincipal() instanceof SpringSecurityUser))
+        {
+            return toResponseEntityError(
+                    "Unsupported logged user principal type " + authentication.getPrincipal().getClass(),
+                    HttpStatus.BAD_REQUEST);
+        }
+        final SpringSecurityUser loggedUser = (SpringSecurityUser) authentication.getPrincipal();
+        if (StringUtils.equals(loggedUser.getUsername(), name))
+        {
+            return toResponseEntityError("Unable to delete yourself", HttpStatus.BAD_REQUEST);
+        }
+
         User user = userService.findByUserName(name);
         if (user == null || user.getObjectId() == null)
         {

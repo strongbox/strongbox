@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -342,6 +343,78 @@ public class UserControllerTest
                               {
                                   users.forEach(user -> logger.info(user.toString()));
                               });
+    }
+
+    @Test
+    @WithUserDetails("developer01")
+    public void userWithoutViewUserRoleShouldBeAbleToViewHisAccountData()
+            throws Exception
+    {
+        given().contentType(ContentType.JSON)
+               .when()
+               .get("/users/user/developer01")
+               .then()
+               .statusCode(200)
+               .body(containsString("developer01"));
+    }
+
+    @Test
+    @WithUserDetails("developer01")
+    public void userWithoutUpdateUserRoleShouldBeAbleToUpdateHisPassword()
+            throws Exception
+    {
+        User updatedUser = retrieveUserByName("developer01");
+        String initialPassword = updatedUser.getPassword();
+
+        final String userName = "developer01";
+        final String newPassword = "newPassword";
+        UserInput developer01 = buildUser(userName, newPassword);
+
+        given().contentType("application/json")
+               .body(developer01)
+               .when()
+               .put("/users/user")
+               .peek()
+               .then()
+               .statusCode(200)
+               .extract()
+               .asString();
+
+        updatedUser = retrieveUserByName(developer01.getUsername());
+        assertEquals(userName, updatedUser.getUsername());
+        assertTrue(passwordEncoder.matches(newPassword, updatedUser.getPassword()));
+
+        updatedUser.setPassword(initialPassword);
+    }
+
+    @Test
+    @WithUserDetails("developer01")
+    public void userWithoutViewUserRoleShouldNotBeAbleToViewOtherUserAccountData()
+            throws Exception
+    {
+        given().contentType(ContentType.JSON)
+               .when()
+               .get("/users/user/admin")
+               .then()
+               .statusCode(403);
+    }
+
+    @Test
+    @WithUserDetails("developer01")
+    public void userWithoutUpdateUserRoleShouldNotBeAbleToUpdateSomeoneElsePassword()
+            throws Exception
+    {
+        final String userName = "admin";
+        final String newPassword = "newPassword";
+        UserInput developer01 = buildUser(userName, newPassword);
+
+        given().contentType("application/json")
+               .body(developer01)
+               .when()
+               .put("/users/user")
+               .peek()
+               .then()
+               .statusCode(403);
     }
 
     @Test
