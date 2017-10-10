@@ -2,10 +2,10 @@ package org.carlspring.strongbox.artifact.coordinates;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Collections;
 
 import org.carlspring.strongbox.data.domain.GenericEntity;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * @author carlspring
