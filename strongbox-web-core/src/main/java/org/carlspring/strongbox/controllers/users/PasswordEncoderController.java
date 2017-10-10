@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @author Przemyslaw Fusik
  */
 @Controller
-@RequestMapping("/passwords")
-@Api(value = "/passwords")
+@RequestMapping("/users/password-encoder")
+@Api(value = "/users/password-encoder")
 public class PasswordEncoderController
 {
 

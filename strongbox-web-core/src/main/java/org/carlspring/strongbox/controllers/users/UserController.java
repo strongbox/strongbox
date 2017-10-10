@@ -35,21 +35,15 @@ public class UserController
     // ----------------------------------------------------------------------------------------------------------------
     // This method exists for testing purpose
 
-    @ApiOperation(value = "Used to retrieve an request param",
-            position = 1)
-    @ApiResponses(value = { @ApiResponse(code = 200,
-            message = ""),
-                            @ApiResponse(code = 400,
-                                    message = "An error occurred.") })
+    @ApiOperation(value = "Used to retrieve an request param", position = 1)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
+                            @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("authenticated")
-    @RequestMapping(value = "/{anyString}",
-            method = RequestMethod.GET) // maps to /greet or any other string
-    public
+    @RequestMapping(value = "/{anyString}", method = RequestMethod.GET) // maps to /greet or any other string
     @ResponseBody
-    ResponseEntity greet(@PathVariable String anyString,
-                         @ApiParam(value = "The param name",
-                                 required = true) @RequestParam(value = "name",
-                                 required = false) String param)
+    public ResponseEntity greet(@PathVariable String anyString,
+                                @ApiParam(value = "The param name", required = true)
+                                @RequestParam(value = "name", required = false) String param)
     {
         logger.debug("UserController -> Say hello to " + param + ". Path variable " + anyString);
         return ResponseEntity.ok("hello, " + param);
@@ -68,7 +62,6 @@ public class UserController
         userService.save(userInput.asUser());
         return ResponseEntity.ok("The user was created successfully.");
     }
-
 
     // ----------------------------------------------------------------------------------------------------------------
     //  Retrieve user
@@ -146,13 +139,15 @@ public class UserController
 
     // ----------------------------------------------------------------------------------------------------------------
     // Delete user by name
+
     @ApiOperation(value = "Deletes a user from a repository.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The user was deleted."),
                             @ApiResponse(code = 400, message = "Bad request.") })
     @PreAuthorize("hasAuthority('DELETE_USER')")
     @RequestMapping(value = "user/{name}", method = RequestMethod.DELETE)
     @ResponseBody
-    public ResponseEntity delete(@ApiParam(value = "The name of the user") @PathVariable String name, Authentication authentication)
+    public ResponseEntity delete(@ApiParam(value = "The name of the user") @PathVariable String name,
+                                 Authentication authentication)
             throws Exception
     {
         if (!(authentication.getPrincipal() instanceof SpringSecurityUser))
@@ -178,18 +173,13 @@ public class UserController
         return ResponseEntity.ok("The user was deleted.");
     }
 
-    @ApiOperation(value = "Generate new security token for specified user.",
-            position = 3)
-    @ApiResponses(value = { @ApiResponse(code = 200,
-            message = "The security token was generated."),
-                            @ApiResponse(code = 500,
-                                    message = "An error occurred.") })
+    @ApiOperation(value = "Generate new security token for specified user.", position = 3)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The security token was generated."),
+                            @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('UPDATE_USER')")
-    @RequestMapping(value = "user/{userName}/generate-security-token",
-            method = RequestMethod.GET)
+    @RequestMapping(value = "user/{userName}/generate-security-token", method = RequestMethod.GET)
     public ResponseEntity generateSecurityToken(@ApiParam(value = "The name of the user") @PathVariable String userName)
             throws JoseException
-
     {
         String result = userService.generateSecurityToken(userName);
 
@@ -203,19 +193,13 @@ public class UserController
         return ResponseEntity.ok(result);
     }
 
-    @ApiOperation(value = "Generate authentication token.",
-            position = 3)
-    @ApiResponses(value = { @ApiResponse(code = 200,
-            message = "The authentication token was generated."),
-                            @ApiResponse(code = 500,
-                                    message = "An error occurred.") })
+    @ApiOperation(value = "Generate authentication token.", position = 3)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The authentication token was generated."),
+                            @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("authenticated")
-    @RequestMapping(value = "user/authenticate",
-            method = RequestMethod.GET)
-    public ResponseEntity authenticate(@RequestParam(name = "expireSeconds",
-            required = false) Integer expireSeconds)
+    @RequestMapping(value = "user/authenticate", method = RequestMethod.GET)
+    public ResponseEntity authenticate(@RequestParam(name = "expireSeconds", required = false) Integer expireSeconds)
             throws JoseException
-
     {
         // We use Security Context from BasicAuth here
         String userName = SecurityContextHolder.getContext()
@@ -226,17 +210,12 @@ public class UserController
     }
 
 
-    @ApiOperation(value = "Update custom access model for the user.",
-            position = 3)
-    @ApiResponses(value = { @ApiResponse(code = 200,
-            message = "The custom access model was updated."),
-                            @ApiResponse(code = 403,
-                                    message = "Not enough access rights for this operation."),
-                            @ApiResponse(code = 500,
-                                    message = "An error occurred.") })
+    @ApiOperation(value = "Update custom access model for the user.", position = 3)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The custom access model was updated."),
+                            @ApiResponse(code = 403, message = "Not enough access rights for this operation."),
+                            @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('UPDATE_USER')")
-    @RequestMapping(value = "user/{userName}/access-model",
-            method = RequestMethod.PUT)
+    @RequestMapping(value = "user/{userName}/access-model", method = RequestMethod.PUT)
     public ResponseEntity<User> updateAccessModel(@ApiParam(value = "The name of the user") @PathVariable
                                                           String userName,
                                                   @RequestBody AccessModel accessModel)
