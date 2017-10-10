@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
+import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 
 /**
  * @author carlspring
@@ -12,8 +11,8 @@ public class ImmediateExecutionCronJob
 
 
     @Override
-    public void executeTask(JobExecutionContext jobExecutionContext)
-            throws JobExecutionException
+    public void executeTask(CronTaskConfiguration config)
+            throws Throwable
     {
         System.out.println("ImmediateExecutionCronJob executed!");
     }

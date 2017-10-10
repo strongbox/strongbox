@@ -1,13 +1,9 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import org.carlspring.strongbox.cron.services.JobManager;
-import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
-import org.carlspring.strongbox.services.RepositoryManagementService;
-
 import javax.inject.Inject;
 
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
+import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
+import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,41 +19,21 @@ public class ClearRepositoryTrashCronJob
     @Inject
     private RepositoryManagementService repositoryManagementService;
 
-    @Inject
-    private JobManager manager;
-
-
     @Override
-    public void executeTask(JobExecutionContext jobExecutionContext)
-            throws JobExecutionException
+    public void executeTask(CronTaskConfiguration config)
+            throws Throwable
     {
-        final String jobClassName = getClass().getName();
+        String storageId = config.getProperty("storageId");
+        String repositoryId = config.getProperty("repositoryId");
 
-        logger.debug("Execute " + jobClassName);
-
-        CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap().get("config");
-
-        try
+        if (storageId == null && repositoryId == null)
         {
-            String storageId = config.getProperty("storageId");
-            String repositoryId = config.getProperty("repositoryId");
-
-            if (storageId == null && repositoryId == null)
-            {
-                repositoryManagementService.deleteTrash();
-            }
-            else
-            {
-                repositoryManagementService.deleteTrash(storageId, repositoryId);
-            }
+            repositoryManagementService.deleteTrash();
         }
-        catch (Exception e)
+        else
         {
-            logger.error("Unable to execute " + jobClassName + ". " + e.getMessage(), e);
+            repositoryManagementService.deleteTrash(storageId, repositoryId);
         }
-
-        // notify about job execution in any case
-        manager.addExecutedJob(config.getName(), true);
     }
 
 }
