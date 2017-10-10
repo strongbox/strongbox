@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.services.impl;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -15,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
 /**
@@ -29,6 +32,14 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactEntryService.class);
+
+    
+    
+    @Override
+    public <S extends ArtifactEntry> S save(S entity)
+    {
+        return super.save(entity);
+    }
 
     @Override
     public List<ArtifactEntry> findByCoordinates(Map<String, String> coordinates)
@@ -72,15 +83,6 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
             return findByCoordinates((Map<String, String>)null);
         }
         return findByCoordinates(coordinates.getCoordinates());
-    }
-
-    @Override
-    public Optional<ArtifactEntry> findOne(ArtifactCoordinates artifactCoordinates)
-    {
-        List<ArtifactEntry> artifactEntryList = findByCoordinates(artifactCoordinates);
-
-        return Optional.ofNullable(artifactEntryList == null || artifactEntryList.isEmpty() ?
-                                   null : artifactEntryList.iterator().next());
     }
 
     protected String buildCoordinatesQuery(Map<String, String> map, String orderBy, boolean strict)
@@ -128,6 +130,39 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
     public Class<ArtifactEntry> getEntityClass()
     {
         return ArtifactEntry.class;
+    }
+
+    @Override
+    public boolean exists(String storageId, String repositoryId, String path)
+    {
+        return findArtifactEntryId(storageId, repositoryId, path) != null;
+    }
+
+    @Override
+    public Optional<ArtifactEntry> findOne(String storageId,
+                                           String repositoryId,
+                                           String path)
+    {
+        ORID artifactEntryIdId = findArtifactEntryId(storageId, repositoryId, path);
+        return artifactEntryIdId == null ? Optional.empty()
+                : Optional.of(entityManager.find(ArtifactEntry.class, artifactEntryIdId));
+    }
+
+    private ORID findArtifactEntryId(String storageId, String repositoryId, String path)
+    {
+        String sQuery = String.format("SELECT FROM INDEX:idx_artifact WHERE key = [:storageId, :repositoryId, :path]");
+
+        OSQLSynchQuery<ODocument> oQuery = new OSQLSynchQuery<>(sQuery);
+        oQuery.setLimit(1);
+
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("storageId", storageId);
+        params.put("repositoryId", repositoryId);
+        params.put("path", path);
+
+        List<ODocument> resultList = getDelegate().command(oQuery).execute(params);
+        ODocument result = resultList.isEmpty() ? null : resultList.iterator().next();
+        return result == null ? null : ((ODocument)result.field("rid")).getIdentity();
     }
 
 }

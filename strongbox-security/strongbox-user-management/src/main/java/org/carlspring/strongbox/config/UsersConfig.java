@@ -1,5 +1,14 @@
 package org.carlspring.strongbox.config;
 
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.security.Credentials;
 import org.carlspring.strongbox.security.UserAccessModel;
@@ -12,19 +21,6 @@ import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
-
-import com.orientechnologies.orient.core.entity.OEntityManager;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanInstantiationException;
@@ -35,6 +31,10 @@ import org.springframework.core.io.Resource;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
+
+import com.orientechnologies.orient.core.entity.OEntityManager;
+import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 /**
  * Spring configuration for all user-related code.
@@ -83,8 +83,8 @@ public class UsersConfig
     private void doInit()
     {
         // register all domain entities
-        oEntityManager.registerEntityClasses(User.class.getPackage()
-                                                       .getName());
+        oEntityManager.registerEntityClass(User.class);
+        oEntityManager.registerEntityClass(AccessModel.class);
 
         // set unique constraints and index field 'username' if it isn't present yet
         OClass oUserClass = ((OObjectDatabaseTx) entityManager.getDelegate()).getMetadata()
@@ -96,7 +96,6 @@ public class UsersConfig
                       .stream()
                       .noneMatch(oIndex -> oIndex.getName().equals("idx_username")))
         {
-            oUserClass.createProperty("username", OType.STRING);
             oUserClass.createIndex("idx_username", OClass.INDEX_TYPE.UNIQUE, "username");
         }
 

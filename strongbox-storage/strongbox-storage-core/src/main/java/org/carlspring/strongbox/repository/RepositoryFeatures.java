@@ -11,5 +11,5 @@ public interface RepositoryFeatures
     // Indexing implementation
 
     // List of supported checksums
-
+    
 }

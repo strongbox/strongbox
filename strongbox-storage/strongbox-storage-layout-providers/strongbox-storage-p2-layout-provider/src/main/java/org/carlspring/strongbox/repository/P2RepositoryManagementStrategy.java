@@ -1,9 +1,10 @@
 package org.carlspring.strongbox.repository;
 
-import org.carlspring.strongbox.storage.Storage;
-
 import java.io.File;
 import java.io.IOException;
+
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 /**
  * @author carlspring
@@ -13,14 +14,12 @@ public class P2RepositoryManagementStrategy
 {
 
     @Override
-    public void createRepository(String storageId,
-                                 String repositoryId)
-            throws IOException
+    protected void createRepositoryInternal(Storage storage,
+                                            Repository repository)
+        throws IOException,
+        RepositoryManagementStrategyException
     {
-        final Storage storage = getConfiguration().getStorage(storageId);
-        final String storageBasedirPath = storage.getBasedir();
-
-        createRepositoryStructure(storageBasedirPath, repositoryId);
+        //Do nothing
     }
 
     @Override

@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
+import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,8 +15,8 @@ public class MyTask
     private final Logger logger = LoggerFactory.getLogger(MyTask.class);
 
     @Override
-    public void executeTask(JobExecutionContext jobExecutionContext)
-            throws JobExecutionException
+    public void executeTask(CronTaskConfiguration config)
+            throws Throwable
     {
         logger.debug("Executed MyTask.");
 

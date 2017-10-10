@@ -1,14 +1,13 @@
 package org.carlspring.strongbox.services;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
+
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.Storage;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.security.NoSuchAlgorithmException;
 
 /**
  * @author mtodorov
@@ -63,5 +62,5 @@ public interface ArtifactManagementService extends ConfigurationService
             throws IOException;
 
     Storage getStorage(String storageId);
-
+    
 }

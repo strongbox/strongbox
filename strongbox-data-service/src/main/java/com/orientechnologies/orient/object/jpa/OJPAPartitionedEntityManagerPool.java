@@ -1,13 +1,14 @@
 package com.orientechnologies.orient.object.jpa;
 
+import java.util.Map;
+import java.util.logging.Logger;
+
 import javax.persistence.Cache;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnitUtil;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.metamodel.Metamodel;
-import java.util.Map;
-import java.util.logging.Logger;
 
 import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
@@ -49,6 +50,9 @@ public class OJPAPartitionedEntityManagerPool implements EntityManagerFactory
     private EntityManager createEntityManager(final OJPAProperties properties)
     {
         OObjectDatabaseTx db = new OObjectDatabaseTx(databasePool.acquire());
+        Boolean automaticSchemaGeneration = Boolean.valueOf(properties.get(OJPAObjectDatabaseTxPersistence.PROPERTY_AUTOMATIC_SCHEMA_GENERATION)
+                                                                      .toString());
+        db.setAutomaticSchemaGeneration(Boolean.TRUE.equals(automaticSchemaGeneration));
         return new OJPAObjectDatabaseTxEntityManager(db, this, properties);
     }
 

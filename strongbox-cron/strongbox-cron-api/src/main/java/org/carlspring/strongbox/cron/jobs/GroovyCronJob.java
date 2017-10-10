@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 import groovy.lang.GroovyClassLoader;
+
+import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
@@ -22,8 +24,8 @@ public class GroovyCronJob
 
 
     @Override
-    public void executeTask(JobExecutionContext jobExecutionContext)
-            throws JobExecutionException
+    public void executeTask(CronTaskConfiguration config)
+            throws Throwable
     {
         try
         {

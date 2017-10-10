@@ -38,43 +38,29 @@ public class RebuildMavenMetadataCronJob
 
 
     @Override
-    public void executeTask(JobExecutionContext jobExecutionContext)
-            throws JobExecutionException
+    public void executeTask(CronTaskConfiguration config)
+            throws Throwable
     {
-        logger.debug("Executed RebuildMavenMetadataCronJob.");
+        String storageId = config.getProperty("storageId");
+        String repositoryId = config.getProperty("repositoryId");
+        String basePath = config.getProperty("basePath");
 
-        CronTaskConfiguration config = (CronTaskConfiguration) jobExecutionContext.getMergedJobDataMap().get("config");
-        try
+        if (storageId == null)
         {
-            String storageId = config.getProperty("storageId");
-            String repositoryId = config.getProperty("repositoryId");
-            String basePath = config.getProperty("basePath");
-
-            if (storageId == null)
+            Map<String, Storage> storages = getStorages();
+            for (String storage : storages.keySet())
             {
-                Map<String, Storage> storages = getStorages();
-                for (String storage : storages.keySet())
-                {
-                    rebuildRepositories(storage);
-                }
-            }
-            else if (repositoryId == null)
-            {
-                rebuildRepositories(storageId);
-            }
-            else
-            {
-                artifactMetadataService.rebuildMetadata(storageId, repositoryId, basePath);
+                rebuildRepositories(storage);
             }
         }
-        catch (IOException | XmlPullParserException | NoSuchAlgorithmException e)
+        else if (repositoryId == null)
         {
-            logger.error(e.getMessage(), e);
-
-            manager.addExecutedJob(config.getName(), true);
+            rebuildRepositories(storageId);
         }
-
-        manager.addExecutedJob(config.getName(), true);
+        else
+        {
+            artifactMetadataService.rebuildMetadata(storageId, repositoryId, basePath);
+        }
     }
 
     /**
