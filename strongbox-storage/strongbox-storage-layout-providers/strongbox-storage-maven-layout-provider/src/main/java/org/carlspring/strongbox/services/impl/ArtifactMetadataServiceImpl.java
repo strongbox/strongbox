@@ -138,7 +138,7 @@ public class ArtifactMetadataServiceImpl
     }
 
     @Override
-    public void mergeMetadata(String storageId,
+    public synchronized void mergeMetadata(String storageId,
                               String repositoryId,
                               Artifact artifact,
                               Metadata mergeMetadata)

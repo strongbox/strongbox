@@ -87,11 +87,13 @@ public abstract class ProxyRepositoryArtifactResolver
                 return null;
             }
 
-            final InputStream is = response.readEntity(InputStream.class);
+            InputStream is = response.readEntity(InputStream.class);
             if (is == null)
             {
                 return null;
             }
+
+            is =  post(is, storageId, repositoryId, path);
 
             final RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
             if (!layoutProvider.isChecksum(artifactPath) && !layoutProvider.isMetadata(path))
@@ -99,7 +101,7 @@ public abstract class ProxyRepositoryArtifactResolver
                 artifactEventListenerRegistry.dispatchArtifactDownloadedEvent(storageId, repositoryId, path);
             }
 
-            return post(is, storageId, repositoryId, path);
+            return is;
 
 
         }
