@@ -128,7 +128,7 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
         String repositoryId = repository.getId();
         String storageId = storage.getId();
 
-        String artifactPathRelative = repositoryPath.getRepositoryRelative().toString();
+        String artifactPathRelative = repositoryPath.getResourceLocation();
         String artifactPath = storageId + "/" + repositoryId + "/" + artifactPathRelative;
 
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
@@ -235,7 +235,7 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
         ArtifactCoordinates artifactCoordinates = (ArtifactCoordinates) Files.getAttribute(path,
                                                                                            RepositoryFileAttributes.COORDINATES);
 
-        String artifactPath = path.getRepositoryRelative().toString();
+        String artifactPath = path.getResourceLocation();
         ArtifactEntry artifactEntry = artifactEntryService.findOne(storage.getId(), repository.getId(),
                                                                    artifactPath)
                                                           .orElse(createArtifactEntry(artifactCoordinates,

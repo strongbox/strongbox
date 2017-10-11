@@ -112,7 +112,7 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
             coordinates.put("id", searchTerm + "%");
         }
         
-        List<ArtifactEntry> searchResultList = artifactEntryService.findByCoordinates(coordinates, orderBy, false);
+        List<ArtifactEntry> searchResultList = artifactEntryService.findByCoordinates(storageId, repositoryId, coordinates, orderBy, false);
         
         return createPackageList(searchResultList);
     }
@@ -165,7 +165,7 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
         coordinates.put("extension", "nupkg");
         coordinates.put("id", id);
         
-        List<ArtifactEntry> searchResultList = artifactEntryService.findByCoordinates(coordinates, orderBy, true);
+        List<ArtifactEntry> searchResultList = artifactEntryService.findByCoordinates(storageId, repositoryId, coordinates, orderBy, true);
         
         return createPackageList(searchResultList);
     }
@@ -187,7 +187,7 @@ public class NugetSearchPackageSource extends AbstractPackageSource<Nupkg>
         coordinates.put("id", id);
         coordinates.put("version", version.toString());
         
-        List<ArtifactEntry> searchResultList = artifactEntryService.findByCoordinates(coordinates);
+        List<ArtifactEntry> searchResultList = artifactEntryService.findByCoordinates(storageId, repositoryId, coordinates);
         List<Nupkg> result = createPackageList(searchResultList);
         
         return result.isEmpty() ? null : result.iterator().next();

@@ -42,14 +42,20 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
     }
 
     @Override
-    public List<ArtifactEntry> findByCoordinates(Map<String, String> coordinates)
+    public List<ArtifactEntry> findByCoordinates(String storageId,
+                                                 String repositoryId,
+                                                 Map<String, String> coordinates)
     {
-        return findByCoordinates(coordinates, null, false);
+        return findByCoordinates(storageId , repositoryId, coordinates, null, false);
     }
 
     @Override
     @Transactional
-    public List<ArtifactEntry> findByCoordinates(Map<String, String> coordinates, String orderBy, boolean strict)
+    public List<ArtifactEntry> findByCoordinates(String storageId,
+                                                 String repositoryId,
+                                                 Map<String, String> coordinates,
+                                                 String orderBy,
+                                                 boolean strict)
     {
         if (coordinates == null || coordinates.keySet().isEmpty())
         {
@@ -65,10 +71,18 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
         
         // Prepare a custom query based on all non-null coordinates that were joined by logical AND.
         // Read more about fetching strategies here: http://orientdb.com/docs/2.2/Fetching-Strategies.html
-        String sQuery = buildCoordinatesQuery(coordinates, orderBy, strict);
+        String sQuery = buildCoordinatesQuery(storageId , repositoryId , coordinates, orderBy, strict);
         OSQLSynchQuery<ArtifactEntry> oQuery = new OSQLSynchQuery<>(sQuery);
 
-        List<ArtifactEntry> entries = getDelegate().command(oQuery).execute(coordinates);
+        Map<String, Object> parameterMap = new HashMap<>(coordinates);
+        if (storageId != null && !storageId.trim().isEmpty()){
+            parameterMap.put("storageId", storageId);
+        }
+        if (repositoryId != null && !repositoryId.trim().isEmpty()){
+            parameterMap.put("repositoryId", repositoryId);
+        }
+        
+        List<ArtifactEntry> entries = getDelegate().command(oQuery).execute(parameterMap);
 
         return entries;
     }
@@ -76,16 +90,22 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
     @Override
     @SuppressWarnings("unchecked")
     // don't try to use second level cache here until you make all coordinates properly serializable
-    public List<ArtifactEntry> findByCoordinates(ArtifactCoordinates coordinates)
+    public List<ArtifactEntry> findByCoordinates(String storageId,
+                                                 String repositoryId,
+                                                 ArtifactCoordinates coordinates)
     {
         if (coordinates == null)
         {
-            return findByCoordinates((Map<String, String>)null);
+            return findByCoordinates(storageId, repositoryId, (Map<String, String>)null);
         }
-        return findByCoordinates(coordinates.getCoordinates());
+        return findByCoordinates(storageId, repositoryId, coordinates.getCoordinates());
     }
 
-    protected String buildCoordinatesQuery(Map<String, String> map, String orderBy, boolean strict)
+    protected String buildCoordinatesQuery(String storageId,
+                                           String repositoryId,
+                                           Map<String, String> map,
+                                           String orderBy,
+                                           boolean strict)
     {
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT * FROM ").append(getEntityClass().getSimpleName());
@@ -106,7 +126,16 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
                                .append(strict ? " = " : " like ")
                                .append(String.format(":%s", entry.getKey()))
                                .append(" AND "));
-
+        
+        if (storageId != null && !storageId.trim().isEmpty())
+        {
+            sb.append("storageId = :storageId AND ");
+        }
+        
+        if (repositoryId != null && !repositoryId.trim().isEmpty())
+        {
+            sb.append("repositoryId = :repositoryId AND ");
+        }
         
         // remove last 'and' statement (that doesn't relate to any value)
         String query = sb.toString();
