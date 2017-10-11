@@ -245,15 +245,4 @@ public class RepositoryPath
         return getTarget().hashCode();
     }
 
-    public static void main(String args[]){
-        System.out.println("\\a\\b\\c\\d");
-        Path path = Paths.get("\\home\\sbespalov");
-        
-        //String separator = path.getFileSystem().getSeparator();
-        String separator = "/";
-        //String string = path.toString();
-        String string = "a/b/c/d";
-        System.out.println(string);
-        System.out.println(string.replaceAll(Pattern.quote(separator), Matcher.quoteReplacement("\\")));
-    }
 }
