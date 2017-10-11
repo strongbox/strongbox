@@ -37,7 +37,7 @@ public class NugetRepositoryManagementStrategy
         throws IOException,
         RepositoryManagementStrategyException
     {
-        String storageId = repository.getId();
+        String storageId = storage.getId();
         String repositoryId = repository.getId();
 
         if (repository.isProxyRepository())

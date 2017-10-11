@@ -153,7 +153,7 @@ public class ProxyRepositoryProvider
                 ArtifactInputStream result = (ArtifactInputStream) Files.newInputStream(artifactPath);
                 
                 ArtifactCoordinates c = (ArtifactCoordinates) Files.getAttribute(artifactPath,RepositoryFileAttributes.COORDINATES);
-                String p = artifactPath.getRepositoryRelative().toString();
+                String p = artifactPath.getResourceLocation();
                 
                 RemoteArtifactEntry artifactEntry = (RemoteArtifactEntry) artifactEntryService.findOne(storageId,
                                                                                                        repositoryId,
