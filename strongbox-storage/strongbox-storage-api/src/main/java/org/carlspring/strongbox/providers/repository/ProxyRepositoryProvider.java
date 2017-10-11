@@ -94,7 +94,7 @@ public class ProxyRepositoryProvider
 
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         RepositoryPath reposytoryPath = layoutProvider.resolve(repository);
-        RepositoryPath artifactPath = reposytoryPath.resolve(path);
+        RepositoryPath artifactPath = reposytoryPath.resolve(path).getRepositoryRelative();
 
         logger.debug(" -> Checking for " + artifactPath + "...");
         if (layoutProvider.containsPath(repository, path))
@@ -157,13 +157,13 @@ public class ProxyRepositoryProvider
                 
                 RemoteArtifactEntry artifactEntry = (RemoteArtifactEntry) artifactEntryService.findOne(storageId,
                                                                                                        repositoryId,
-                                                                                                       artifactCoordinates.toPath())
+                                                                                                       artifactPath.toString())
                                                                                               .orElse(new RemoteArtifactEntry());
                 artifactEntry.setArtifactCoordinates(artifactCoordinates);
                 artifactEntry.setRepositoryId(storageId);
                 artifactEntry.setRepositoryId(repositoryId);
                 artifactEntry.setIsCached(Boolean.TRUE);
-                artifactEntry.setArtifactPath(artifactPath.getRepositoryRelative().toString());
+                artifactEntry.setArtifactPath(artifactPath.toString());
                 artifactEntryService.save(artifactEntry);
                 
                 return result;
