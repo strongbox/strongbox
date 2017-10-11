@@ -78,6 +78,7 @@ public class DataServiceConfig
     public void init()
         throws Exception
     {
+        startDbServer();
         transactionTemplate().execute((s) ->
                                     {
                                         doInit(s);
@@ -152,17 +153,24 @@ public class DataServiceConfig
         return cmfb;
     }
 
-    @PostConstruct
-    public void registerEntities()
+    private void startDbServer()
         throws Exception
     {
+        logger.info(String.format("Start Embedded OrientDB server [%s].", getConnectionUrl()));
         if (embeddableServer == null)
         {
             embeddableServer = new EmbeddedOrientDbServer(this);
             embeddableServer.init();
         }
 
-        embeddableServer.start();
+        try
+        {
+            embeddableServer.start();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
 
         // create database if not initialized
         OServerAdmin serverAdmin = new OServerAdmin(getConnectionUrl()).connect(username, password);
