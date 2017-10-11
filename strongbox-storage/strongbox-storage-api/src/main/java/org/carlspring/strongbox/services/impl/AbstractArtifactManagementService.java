@@ -235,11 +235,13 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
         ArtifactCoordinates artifactCoordinates = (ArtifactCoordinates) Files.getAttribute(path,
                                                                                            RepositoryFileAttributes.COORDINATES);
 
+        String artifactPath = path.getRepositoryRelative().toString();
         ArtifactEntry artifactEntry = artifactEntryService.findOne(storage.getId(), repository.getId(),
-                                                                   path.getRepositoryRelative().toString())
+                                                                   artifactPath)
                                                           .orElse(createArtifactEntry(artifactCoordinates,
                                                                                       storage.getId(),
-                                                                                      repository.getId()));
+                                                                                      repository.getId(),
+                                                                                      artifactPath));
         artifactEntryService.save(artifactEntry);
     }
 
@@ -305,13 +307,14 @@ public abstract class AbstractArtifactManagementService implements ArtifactManag
     
     private ArtifactEntry createArtifactEntry(ArtifactCoordinates artifactCoordinates,
                                               String storageId,
-                                              String repositoryId)
+                                              String repositoryId,
+                                              String path)
     {
         ArtifactEntry artifactEntry = new ArtifactEntry();
         artifactEntry.setStorageId(storageId);
         artifactEntry.setRepositoryId(repositoryId);
         artifactEntry.setArtifactCoordinates(artifactCoordinates);
-
+        artifactEntry.setArtifactPath(path);
         return artifactEntry;
     }
     

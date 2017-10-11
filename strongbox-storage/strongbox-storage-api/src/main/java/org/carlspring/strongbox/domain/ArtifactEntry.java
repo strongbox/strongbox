@@ -68,7 +68,12 @@ public class ArtifactEntry
 
     public final String getArtifactPath()
     {
-        return artifactCoordinates == null ? (artifactPath = null) : (artifactPath = artifactCoordinates.toPath());
+        return artifactCoordinates == null ? artifactPath : (artifactPath = artifactCoordinates.toPath());
+    }
+    
+    public void setArtifactPath(String artifactPath)
+    {
+        this.artifactPath = artifactCoordinates != null ? artifactCoordinates.toPath() : artifactPath;
     }
 
     @Override
