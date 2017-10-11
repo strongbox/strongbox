@@ -94,7 +94,7 @@ public class ProxyRepositoryProvider
 
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         RepositoryPath reposytoryPath = layoutProvider.resolve(repository);
-        RepositoryPath artifactPath = reposytoryPath.resolve(path).getRepositoryRelative();
+        RepositoryPath artifactPath = reposytoryPath.resolve(path);
 
         logger.debug(" -> Checking for " + artifactPath + "...");
         if (layoutProvider.containsPath(repository, path))
@@ -152,18 +152,18 @@ public class ProxyRepositoryProvider
                 // Serve the downloaded artifact
                 ArtifactInputStream result = (ArtifactInputStream) Files.newInputStream(artifactPath);
                 
-                ArtifactCoordinates artifactCoordinates = (ArtifactCoordinates) Files.getAttribute(artifactPath,
-                                                                                                   RepositoryFileAttributes.COORDINATES);
+                ArtifactCoordinates c = (ArtifactCoordinates) Files.getAttribute(artifactPath,RepositoryFileAttributes.COORDINATES);
+                String p = artifactPath.getRepositoryRelative().toString();
                 
                 RemoteArtifactEntry artifactEntry = (RemoteArtifactEntry) artifactEntryService.findOne(storageId,
                                                                                                        repositoryId,
-                                                                                                       artifactPath.toString())
+                                                                                                       p)
                                                                                               .orElse(new RemoteArtifactEntry());
-                artifactEntry.setArtifactCoordinates(artifactCoordinates);
+                artifactEntry.setArtifactCoordinates(c);
                 artifactEntry.setRepositoryId(storageId);
                 artifactEntry.setRepositoryId(repositoryId);
                 artifactEntry.setIsCached(Boolean.TRUE);
-                artifactEntry.setArtifactPath(artifactPath.toString());
+                artifactEntry.setArtifactPath(p);
                 artifactEntryService.save(artifactEntry);
                 
                 return result;
