@@ -55,7 +55,7 @@ public class MavenRepositoryManagementStrategy
     protected void createRepositoryInternal(Storage storage, Repository repository)
             throws IOException, RepositoryManagementStrategyException
     {
-        String storageId = repository.getId();
+        String storageId = storage.getId();
         String repositoryId = repository.getId();
         
         final File repositoryBasedir = getRepositoryBaseDir(storageId, repositoryId);

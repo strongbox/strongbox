@@ -150,23 +150,21 @@ public class ProxyRepositoryProvider
                 fileSystemProvider.moveFromTemporaryDirectory(artifactPath);
 
                 // Serve the downloaded artifact
-                RepositoryPath repositoryPath = layoutProvider.resolve(repository).resolve(path);
-                ArtifactInputStream result = (ArtifactInputStream) Files.newInputStream(repositoryPath);
+                ArtifactInputStream result = (ArtifactInputStream) Files.newInputStream(artifactPath);
                 
-                ArtifactCoordinates artifactCoordinates = (ArtifactCoordinates) Files.getAttribute(repositoryPath,
+                ArtifactCoordinates artifactCoordinates = (ArtifactCoordinates) Files.getAttribute(artifactPath,
                                                                                                    RepositoryFileAttributes.COORDINATES);
-                if (artifactCoordinates != null)
-                {
-                    RemoteArtifactEntry artifactEntry = (RemoteArtifactEntry) artifactEntryService.findOne(storageId,
-                                                                                                           repositoryId,
-                                                                                                           artifactCoordinates.toPath())
-                                                                                                  .orElse(new RemoteArtifactEntry());
-                    artifactEntry.setArtifactCoordinates(artifactCoordinates);
-                    artifactEntry.setRepositoryId(storageId);
-                    artifactEntry.setRepositoryId(repositoryId);
-                    artifactEntry.setIsCached(Boolean.TRUE);
-                    artifactEntryService.save(artifactEntry);
-                }
+                
+                RemoteArtifactEntry artifactEntry = (RemoteArtifactEntry) artifactEntryService.findOne(storageId,
+                                                                                                       repositoryId,
+                                                                                                       artifactCoordinates.toPath())
+                                                                                              .orElse(new RemoteArtifactEntry());
+                artifactEntry.setArtifactCoordinates(artifactCoordinates);
+                artifactEntry.setRepositoryId(storageId);
+                artifactEntry.setRepositoryId(repositoryId);
+                artifactEntry.setIsCached(Boolean.TRUE);
+                artifactEntry.setArtifactPath(artifactPath.getRepositoryRelative().toString());
+                artifactEntryService.save(artifactEntry);
                 
                 return result;
             }
