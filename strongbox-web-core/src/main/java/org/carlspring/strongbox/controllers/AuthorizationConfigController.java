@@ -1,12 +1,12 @@
 package org.carlspring.strongbox.controllers;
 
+import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.security.Privilege;
 import org.carlspring.strongbox.security.Role;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.security.AuthorizationConfig;
 import org.carlspring.strongbox.users.security.AuthorizationConfigProvider;
 import org.carlspring.strongbox.users.service.UserService;
-import org.carlspring.strongbox.users.service.impl.UserServiceImpl;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -186,8 +186,11 @@ public class AuthorizationConfigController
                                                                if (user.getRoles().remove(name.toUpperCase()))
                                                                {
                                                                    // evict such kind of users from cache
-                                                                   cacheManager.getCache(UserServiceImpl.USERS_CACHE)
-                                                                               .evict(user);
+                                                                   cacheManager.getCache(CacheName.User.USERS).evict(
+                                                                           user.getUsername());
+                                                                   cacheManager.getCache(
+                                                                           CacheName.User.USER_DETAILS).evict(
+                                                                           user.getUsername());
                                                                }
                                                            });
                                  }

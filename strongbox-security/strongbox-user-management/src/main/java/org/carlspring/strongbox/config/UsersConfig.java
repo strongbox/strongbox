@@ -10,12 +10,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.security.Credentials;
 import org.carlspring.strongbox.security.UserAccessModel;
 import org.carlspring.strongbox.security.UserPathPermissions;
 import org.carlspring.strongbox.security.UserRepository;
 import org.carlspring.strongbox.security.Users;
-import org.carlspring.strongbox.security.encryption.EncryptionAlgorithms;
 import org.carlspring.strongbox.users.domain.AccessModel;
 import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.domain.User;
@@ -149,25 +147,9 @@ public class UsersConfig
     {
         User internalUser = new User();
         internalUser.setUsername(user.getUsername());
-
-        Credentials credentials = user.getCredentials();
-        EncryptionAlgorithms algorithms = EncryptionAlgorithms.valueOf(credentials.getEncryptionAlgorithm()
-                                                                                  .toUpperCase());
-
-        switch (algorithms)
-        {
-            case PLAIN:
-                internalUser.setPassword(credentials.getPassword());
-                break;
-
-            // TODO process other cases
-            default:
-                throw new UnsupportedOperationException(algorithms.toString());
-        }
-
+        internalUser.setPassword(user.getPassword());
         internalUser.setEnabled(true);
         internalUser.setRoles(user.getRoles());
-        internalUser.setSalt(user.getSeed() + "");
 
         // load userAccessModel
         UserAccessModel userAccessModel = user.getUserAccessModel();
@@ -189,7 +171,7 @@ public class UsersConfig
         {
             internalUser.setSecurityTokenKey(user.getSecurityTokenKey());
         }
-        
+
         return internalUser;
     }
 

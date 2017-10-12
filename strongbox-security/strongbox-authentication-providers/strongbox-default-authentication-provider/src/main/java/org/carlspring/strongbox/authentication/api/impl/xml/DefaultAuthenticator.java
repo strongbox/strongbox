@@ -10,6 +10,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * @author Przemyslaw Fusik
@@ -21,6 +22,9 @@ public class DefaultAuthenticator
     @Inject
     @StrongboxUserDetailService.StrongboxUserDetailServiceQualifier
     private UserDetailsService userDetailsService;
+
+    @Inject
+    private PasswordEncoder passwordEncoder;
 
     @Nonnull
     @Override
@@ -36,6 +40,7 @@ public class DefaultAuthenticator
             
         };
         authenticationProvider.setUserDetailsService(userDetailsService);
+        authenticationProvider.setPasswordEncoder(passwordEncoder);
         return authenticationProvider;
     }
 }

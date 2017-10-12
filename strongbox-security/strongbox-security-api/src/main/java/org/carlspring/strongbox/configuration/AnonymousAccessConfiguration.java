@@ -1,8 +1,5 @@
 package org.carlspring.strongbox.configuration;
 
-import org.carlspring.strongbox.security.encryption.EncryptionAlgorithms;
-import org.carlspring.strongbox.security.Credentials;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -10,7 +7,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * @author mtodorov
  */
-@XmlRootElement (name = "anonymous-access")
+@XmlRootElement(name = "anonymous-access")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class AnonymousAccessConfiguration
 {
@@ -19,8 +16,7 @@ public class AnonymousAccessConfiguration
 
     private String username = "anonymous";
 
-    private Credentials credentials = new Credentials("password", EncryptionAlgorithms.PLAIN.toString());
-
+    private String password = "password";
 
     public AnonymousAccessConfiguration()
     {
@@ -46,14 +42,13 @@ public class AnonymousAccessConfiguration
         this.username = username;
     }
 
-    public Credentials getCredentials()
+    public String getPassword()
     {
-        return credentials;
+        return password;
     }
 
-    public void setCredentials(Credentials credentials)
+    public void setPassword(String password)
     {
-        this.credentials = credentials;
+        this.password = password;
     }
-
 }

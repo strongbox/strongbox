@@ -1,11 +1,6 @@
 package org.carlspring.strongbox.security;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -23,7 +18,7 @@ public class User
     private String username;
 
     @XmlElement
-    private Credentials credentials = new Credentials();
+    private String password;
 
     @XmlElement(name = "role")
     @XmlElementWrapper(name = "roles")
@@ -35,24 +30,14 @@ public class User
     @XmlElement
     private String email;
 
-    @XmlTransient
-    private long seed;
-
     @XmlElement(name = "access-model")
     private UserAccessModel userAccessModel;
-    
+
     @XmlElement(name = "security-token-key")
     private String securityTokenKey;
 
     public User()
     {
-    }
-
-    public User(String username,
-                Credentials credentials)
-    {
-        this.username = username;
-        this.credentials = credentials;
     }
 
     public String getUsername()
@@ -67,22 +52,12 @@ public class User
 
     public String getPassword()
     {
-        return credentials.getPassword();
+        return password;
     }
 
     public void setPassword(String password)
     {
-        credentials.setPassword(password);
-    }
-
-    public Credentials getCredentials()
-    {
-        return credentials;
-    }
-
-    public void setCredentials(Credentials credentials)
-    {
-        this.credentials = credentials;
+        this.password = password;
     }
 
     public String getFullName()
@@ -103,16 +78,6 @@ public class User
     public void setEmail(String email)
     {
         this.email = email;
-    }
-
-    public long getSeed()
-    {
-        return seed;
-    }
-
-    public void setSeed(long seed)
-    {
-        this.seed = seed;
     }
 
     public Set<String> getRoles()
@@ -167,8 +132,6 @@ public class User
         sb.append("username='")
           .append(username)
           .append('\'');
-        sb.append(", credentials=")
-          .append(credentials);
         sb.append(", roles=")
           .append(roles);
         sb.append(", fullName='")
@@ -177,8 +140,6 @@ public class User
         sb.append(", email='")
           .append(email)
           .append('\'');
-        sb.append(", seed=")
-          .append(seed);
         sb.append(", userAccessModel=")
           .append(userAccessModel);
         sb.append('}');
