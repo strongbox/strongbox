@@ -4,6 +4,7 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryArtifactResolver;
@@ -15,10 +16,10 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryLayoutEnum;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.io.FilenameUtils;
@@ -67,14 +68,14 @@ public class MavenArtifactDownloadedEventListener
     @Override
     public void handle(ArtifactEvent event)
     {
-        if (event.getType() != ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_DOWNLOADED.getType())
+        Repository repository = getRepository(event);
+
+        if (!RepositoryLayoutEnum.MAVEN_2.getLayout().equals(repository.getLayout()))
         {
             return;
         }
 
-        Repository repository = getRepository(event);
-
-        if (!RepositoryLayoutEnum.MAVEN_2.getLayout().equals(repository.getLayout()))
+        if (event.getType() != ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_DOWNLOADED.getType())
         {
             return;
         }
@@ -87,20 +88,23 @@ public class MavenArtifactDownloadedEventListener
     {
         try
         {
-            final File metadataFile = metadataLocator.locate(new File(event.getPath()));
+            final Repository repository = getRepository(event);
+            final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+            final RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(event.getPath());
+            final Path metadataPath = artifactPath.getParent().getParent().resolve("maven-metadata.xml");
 
             try
             {
                 artifactMetadataService.getMetadata(event.getStorageId(), event.getRepositoryId(),
-                                                    metadataFile.getParent());
+                                                    metadataPath.getParent().toString());
             }
             catch (NoSuchFileException ex)
             {
-                downloadArtifactMetadataFromRemote(event, metadataFile);
+                downloadArtifactMetadataFromRemote(event, metadataPath);
                 return;
             }
 
-            downloadArtifactMetadataFromRemoteAndMergeWithLocal(event, metadataFile);
+            downloadArtifactMetadataFromRemoteAndMergeWithLocal(event, metadataPath);
         }
         catch (Exception e)
         {
@@ -110,18 +114,18 @@ public class MavenArtifactDownloadedEventListener
     }
 
     private void downloadArtifactMetadataFromRemote(ArtifactEvent event,
-                                                    File metadataFile)
+                                                    Path metadataPath)
             throws IOException, ArtifactTransportException, NoSuchAlgorithmException, ProviderImplementationException
     {
         final InputStream metadataIs = localStorageProxyRepositoryArtifactResolver.getInputStream(event.getStorageId(),
                                                                                                   event.getRepositoryId(),
                                                                                                   FilenameUtils.separatorsToUnix(
-                                                                                                          metadataFile.getPath()));
+                                                                                                          metadataPath.toString()));
         IOUtils.closeQuietly(metadataIs);
     }
 
     private void downloadArtifactMetadataFromRemoteAndMergeWithLocal(ArtifactEvent event,
-                                                                     File metadataFile)
+                                                                     Path metadataPath)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException, ProviderImplementationException, ArtifactTransportException
     {
         final Repository repository = getRepository(event);
@@ -131,7 +135,7 @@ public class MavenArtifactDownloadedEventListener
         localArtifact.setFile(layoutProvider.resolve(repository).resolve(event.getPath()).toFile());
 
         try (final InputStream remoteMetadataIs = simpleProxyRepositoryArtifactResolver.getInputStream(
-                event.getStorageId(), event.getRepositoryId(), FilenameUtils.separatorsToUnix(metadataFile.getPath())))
+                event.getStorageId(), event.getRepositoryId(), FilenameUtils.separatorsToUnix(metadataPath.toString())))
         {
             final Metadata metadata = artifactMetadataService.getMetadata(remoteMetadataIs);
             artifactMetadataService.mergeMetadata(event.getStorageId(), event.getRepositoryId(), localArtifact,
