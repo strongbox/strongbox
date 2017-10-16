@@ -28,10 +28,10 @@ public class SimpleProxyRepositoryArtifactResolver
     private static final Logger logger = LoggerFactory.getLogger(SimpleProxyRepositoryArtifactResolver.class);
 
     @Override
-    protected InputStream post(InputStream is,
-                               String storageId,
-                               String repositoryId,
-                               String path)
+    protected InputStream onSuccessfulProxyRepositoryResponse(InputStream is,
+                                                              String storageId,
+                                                              String repositoryId,
+                                                              String path)
             throws IOException, NoSuchAlgorithmException, ProviderImplementationException
     {
         final java.io.File file = java.io.File.createTempFile("strongbox", ".tmp");

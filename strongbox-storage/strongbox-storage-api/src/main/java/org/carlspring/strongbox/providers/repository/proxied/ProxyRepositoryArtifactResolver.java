@@ -55,7 +55,7 @@ public abstract class ProxyRepositoryArtifactResolver
 
         getLogger().debug("Checking in " + storage.getId() + ":" + repositoryId + "...");
 
-        final InputStream candidate = preRemoteRepositoryAttempt(repository, path);
+        final InputStream candidate = preProxyRepositoryAccessAttempt(repository, path);
         if (candidate != null)
         {
             return candidate;
@@ -93,7 +93,7 @@ public abstract class ProxyRepositoryArtifactResolver
                 return null;
             }
 
-            is =  post(is, storageId, repositoryId, path);
+            is = onSuccessfulProxyRepositoryResponse(is, storageId, repositoryId, path);
 
             final RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
             if (!layoutProvider.isChecksum(artifactPath) && !layoutProvider.isMetadata(path))
@@ -107,17 +107,17 @@ public abstract class ProxyRepositoryArtifactResolver
         }
     }
 
-    protected InputStream post(final InputStream is,
-                               final String storageId,
-                               final String repositoryId,
-                               final String path)
+    protected InputStream onSuccessfulProxyRepositoryResponse(final InputStream is,
+                                                              final String storageId,
+                                                              final String repositoryId,
+                                                              final String path)
             throws IOException, NoSuchAlgorithmException, ProviderImplementationException
     {
         return is;
     }
 
-    protected InputStream preRemoteRepositoryAttempt(Repository repository,
-                                                     String path)
+    protected InputStream preProxyRepositoryAccessAttempt(Repository repository,
+                                                          String path)
             throws IOException
     {
         return null;

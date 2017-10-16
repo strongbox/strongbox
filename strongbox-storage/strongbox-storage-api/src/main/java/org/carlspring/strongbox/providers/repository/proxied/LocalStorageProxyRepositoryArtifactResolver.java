@@ -33,8 +33,8 @@ public class LocalStorageProxyRepositoryArtifactResolver
     private static final Logger logger = LoggerFactory.getLogger(LocalStorageProxyRepositoryArtifactResolver.class);
 
     @Override
-    protected InputStream preRemoteRepositoryAttempt(final Repository repository,
-                                                     final String path)
+    protected InputStream preProxyRepositoryAccessAttempt(final Repository repository,
+                                                          final String path)
             throws IOException
     {
 
@@ -53,10 +53,10 @@ public class LocalStorageProxyRepositoryArtifactResolver
     }
 
     @Override
-    protected InputStream post(InputStream is,
-                               String storageId,
-                               String repositoryId,
-                               String path)
+    protected InputStream onSuccessfulProxyRepositoryResponse(InputStream is,
+                                                              String storageId,
+                                                              String repositoryId,
+                                                              String path)
             throws IOException, NoSuchAlgorithmException, ProviderImplementationException
     {
         final Storage storage = configurationManager.getConfiguration().getStorage(storageId);
