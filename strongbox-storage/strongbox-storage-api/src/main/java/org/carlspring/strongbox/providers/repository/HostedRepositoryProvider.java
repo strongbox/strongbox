@@ -105,7 +105,7 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
             }
             catch (IOException e)
             {
-                new RuntimeException(
+                throw new RuntimeException(
                         String.format("Failed to resolve RepositoryPath: repository-[%s]; coordinates-[%s]",
                                       repository.getId(), artifactCoordinates));
             }
