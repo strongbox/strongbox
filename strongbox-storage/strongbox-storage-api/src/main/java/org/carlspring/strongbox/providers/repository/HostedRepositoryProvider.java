@@ -2,7 +2,10 @@ package org.carlspring.strongbox.providers.repository;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
@@ -71,4 +74,14 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
         return (ArtifactOutputStream) Files.newOutputStream(repositoryPath);
     }
 
+    @Override
+    public Iterator<Path> search(Map<String, String> coordinates,
+                                 int skip,
+                                 int top,
+                                 String orderBy)
+    {
+        return null;
+    }
+
+    
 }

@@ -14,8 +14,11 @@ import org.carlspring.strongbox.storage.routing.RuleSet;
 import javax.annotation.PostConstruct;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -272,4 +275,13 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         return getConfiguration().getRoutingRules();
     }
 
+    @Override
+    public Iterator<Path> search(Map<String, String> coordinates,
+                                 int skip,
+                                 int top,
+                                 String orderBy)
+    {
+        return null;
+    }
+    
 }

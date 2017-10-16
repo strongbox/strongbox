@@ -1,5 +1,23 @@
 package org.carlspring.strongbox.providers.repository;
 
+
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.ws.rs.core.Response;
+
+import org.carlspring.commons.io.MultipleDigestInputStream;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.client.ArtifactResolver;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
@@ -81,4 +99,13 @@ public class ProxyRepositoryProvider
         return (ArtifactOutputStream) Files.newOutputStream(repositoryPath);
     }
 
+    @Override
+    public Iterator<Path> search(Map<String, String> coordinates,
+                                 int skip,
+                                 int top,
+                                 String orderBy)
+    {
+        return null;
+    }
+    
 }
