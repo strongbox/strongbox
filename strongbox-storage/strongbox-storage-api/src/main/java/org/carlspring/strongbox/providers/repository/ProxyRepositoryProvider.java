@@ -9,7 +9,8 @@ import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Optional;
+import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -19,6 +20,8 @@ import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactResolver;
 import org.carlspring.strongbox.client.ArtifactTransportException;
+
+import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.io.ArtifactOutputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
@@ -104,6 +107,17 @@ public class ProxyRepositoryProvider
                                  int skip,
                                  int top,
                                  String orderBy)
+    {
+        return null;
+    }
+    
+    @Override
+    public List<Path> search(String storageId,
+                             String repositoryId,
+                             Map<String, String> coordinates,
+                             int skip,
+                             int limit,
+                             String orderBy)
     {
         return null;
     }

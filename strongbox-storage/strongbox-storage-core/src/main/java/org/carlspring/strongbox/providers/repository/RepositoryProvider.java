@@ -3,7 +3,7 @@ package org.carlspring.strongbox.providers.repository;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.carlspring.strongbox.client.ArtifactTransportException;
@@ -32,9 +32,11 @@ public interface RepositoryProvider
                                          String path)
             throws IOException, NoSuchAlgorithmException;
     
-    Iterator<Path> search(Map<String, String> coordinates,
-                          int skip,
-                          int top,
-                          String orderBy);
+    List<Path> search(String storageId,
+                      String repositoryId,
+                      Map<String, String> coordinates,
+                      int skip,
+                      int limit,
+                      String orderBy);
 
 }

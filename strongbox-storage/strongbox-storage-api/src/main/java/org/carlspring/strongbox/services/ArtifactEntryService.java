@@ -39,6 +39,8 @@ public interface ArtifactEntryService
     List<ArtifactEntry> findByCoordinates(String storageId,
                                           String repositoryId,
                                           Map<String, String> coordinates,
+                                          int skip,
+                                          int limit,
                                           String orderBy,
                                           boolean strict);
     

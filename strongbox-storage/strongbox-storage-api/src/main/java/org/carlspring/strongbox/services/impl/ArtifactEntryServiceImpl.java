@@ -46,7 +46,7 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
                                                  String repositoryId,
                                                  Map<String, String> coordinates)
     {
-        return findByCoordinates(storageId , repositoryId, coordinates, null, false);
+        return findByCoordinates(storageId , repositoryId, coordinates, 0, -1, null, false);
     }
 
     @Override
@@ -54,6 +54,8 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
     public List<ArtifactEntry> findByCoordinates(String storageId,
                                                  String repositoryId,
                                                  Map<String, String> coordinates,
+                                                 int skip,
+                                                 int limit,
                                                  String orderBy,
                                                  boolean strict)
     {
@@ -71,9 +73,9 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
         
         // Prepare a custom query based on all non-null coordinates that were joined by logical AND.
         // Read more about fetching strategies here: http://orientdb.com/docs/2.2/Fetching-Strategies.html
-        String sQuery = buildCoordinatesQuery(storageId , repositoryId , coordinates, orderBy, strict);
+        String sQuery = buildCoordinatesQuery(storageId, repositoryId, coordinates, skip, limit, orderBy, strict);
         OSQLSynchQuery<ArtifactEntry> oQuery = new OSQLSynchQuery<>(sQuery);
-
+        
         Map<String, Object> parameterMap = new HashMap<>(coordinates);
         if (storageId != null && !storageId.trim().isEmpty()){
             parameterMap.put("storageId", storageId);
@@ -104,6 +106,8 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
     protected String buildCoordinatesQuery(String storageId,
                                            String repositoryId,
                                            Map<String, String> map,
+                                           int skip,
+                                           int limit,                                           
                                            String orderBy,
                                            boolean strict)
     {
@@ -144,6 +148,14 @@ class ArtifactEntryServiceImpl extends CommonCrudService<ArtifactEntry>
         if (orderBy != null && !orderBy.trim().isEmpty())
         {
             query += String.format(" ORDER BY artifactCoordinates.coordinates.%s", orderBy);
+        }
+        if (skip > 0)
+        {
+            query += String.format(" SKIP %s", skip);
+        }
+        if (limit > 0)
+        {
+            query += String.format(" LIMIT %s", limit);
         }
         
         // now query should looks like
