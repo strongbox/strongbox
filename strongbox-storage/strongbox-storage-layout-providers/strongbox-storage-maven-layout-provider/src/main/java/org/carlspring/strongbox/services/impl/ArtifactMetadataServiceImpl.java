@@ -107,7 +107,9 @@ public class ArtifactMetadataServiceImpl
     }
 
     @Override
-    public void rebuildMetadata(String storageId, String repositoryId, String basePath)
+    public void rebuildMetadata(String storageId,
+                                String repositoryId,
+                                String basePath)
             throws IOException,
                    XmlPullParserException,
                    NoSuchAlgorithmException
@@ -128,7 +130,7 @@ public class ArtifactMetadataServiceImpl
         {
             repositoryBasePath = repositoryBasePath.resolve(basePath);
         }
-        
+
         GenerateMavenMetadataOperation operation = new GenerateMavenMetadataOperation(mavenMetadataManager);
         operation.setBasePath(repositoryBasePath);
 
@@ -358,7 +360,7 @@ public class ArtifactMetadataServiceImpl
         {
             return;
         }
-        
+
         try
         {
             String version = repositoryPath.getFileName().toString();

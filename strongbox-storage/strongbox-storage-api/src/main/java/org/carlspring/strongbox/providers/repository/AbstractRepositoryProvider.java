@@ -14,16 +14,16 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider
 {
 
     @Inject
-    private RepositoryProviderRegistry repositoryProviderRegistry;
+    protected RepositoryProviderRegistry repositoryProviderRegistry;
 
     @Inject
-    private LayoutProviderRegistry layoutProviderRegistry;
+    protected LayoutProviderRegistry layoutProviderRegistry;
 
     @Inject
-    private StorageProviderRegistry storageProviderRegistry;
+    protected StorageProviderRegistry storageProviderRegistry;
 
     @Inject
-    private ConfigurationManager configurationManager;
+    protected ConfigurationManager configurationManager;
 
 
     public RepositoryProviderRegistry getRepositoryProviderRegistry()
