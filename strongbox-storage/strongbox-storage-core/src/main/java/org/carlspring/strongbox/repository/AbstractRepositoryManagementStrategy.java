@@ -1,14 +1,15 @@
 package org.carlspring.strongbox.repository;
 
-import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.storage.Storage;
-
-import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 
+import javax.inject.Inject;
+
 import org.apache.commons.io.FileUtils;
+import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.services.ConfigurationManagementService;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +27,36 @@ public abstract class AbstractRepositoryManagementStrategy
 
 
     @Override
+    public void createRepository(String storageId,
+                                 String repositoryId)
+            throws IOException, RepositoryManagementStrategyException
+    {
+        Storage storage = getStorage(storageId);
+        createRepositoryStructure(storage.getBasedir(), repositoryId);
+        createRepositoryInternal(storage, getRepository(storageId, repositoryId));
+    }
+
+    protected abstract void createRepositoryInternal(Storage storage, Repository repository)
+            throws IOException, RepositoryManagementStrategyException;
+
+    private Storage getStorage(String storageId)
+    {
+        Storage storage = getConfiguration().getStorage(storageId);
+        return storage;
+    }
+
+    protected Repository getRepository(String storageId, String repositoryId)
+    {
+        return getStorage(storageId).getRepository(repositoryId);
+    }
+
+    protected File getRepositoryBaseDir(String storageId,
+                                        String repositoryId)
+    {
+        return new File(getStorage(storageId).getBasedir(), repositoryId).getAbsoluteFile();
+    }
+    
+    @Override
     public void removeRepository(String storageId,
                                  String repositoryId)
             throws IOException
@@ -38,7 +69,7 @@ public abstract class AbstractRepositoryManagementStrategy
                                          String repositoryId)
             throws IOException
     {
-        Storage storage = getConfiguration().getStorage(storageId);
+        Storage storage = getStorage(storageId);
 
         final String storageBasedirPath = storage.getBasedir();
 

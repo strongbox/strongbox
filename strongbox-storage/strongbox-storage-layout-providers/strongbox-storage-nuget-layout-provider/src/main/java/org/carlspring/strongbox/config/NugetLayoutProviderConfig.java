@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.orientechnologies.orient.core.entity.OEntityManager;
 import org.springframework.context.annotation.Import;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.event",
@@ -26,13 +27,19 @@ public class NugetLayoutProviderConfig
 {
 
     @Inject
-    OEntityManager entityManager;
-
+    private OEntityManager oEntityManager;
+    
+    @Inject
+    private TransactionTemplate transactionTemplate;
+    
 
     @PostConstruct
     public void init()
     {
-        entityManager.registerEntityClass(NugetHierarchicalArtifactCoordinates.class);
+        transactionTemplate.execute((s) -> {
+            oEntityManager.registerEntityClass(NugetHierarchicalArtifactCoordinates.class);
+            return null;
+        });
     }
     
     @Bean(name = "nugetHierarchicalLayoutProvider")

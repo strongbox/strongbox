@@ -1,13 +1,19 @@
 package org.carlspring.strongbox.providers.repository.proxied;
 
 import org.carlspring.commons.io.MultipleDigestInputStream;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.domain.RemoteArtifactEntry;
+import org.carlspring.strongbox.io.ArtifactInputStream;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryFileSystemProvider;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
+import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
+import javax.inject.Inject;
 import javax.inject.Qualifier;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,6 +37,9 @@ public class LocalStorageProxyRepositoryArtifactResolver
 {
 
     private static final Logger logger = LoggerFactory.getLogger(LocalStorageProxyRepositoryArtifactResolver.class);
+
+    @Inject
+    private ArtifactEntryService artifactEntryService;
 
     @Override
     protected InputStream preProxyRepositoryAccessAttempt(final Repository repository,
@@ -77,7 +86,24 @@ public class LocalStorageProxyRepositoryArtifactResolver
             // TODO: Validate the local checksum against the remote's checksums
             fileSystemProvider.moveFromTemporaryDirectory(artifactPath);
 
-            return Files.newInputStream(artifactPath);
+            // Serve the downloaded artifact
+            ArtifactInputStream result = (ArtifactInputStream) Files.newInputStream(artifactPath);
+
+            ArtifactCoordinates c = (ArtifactCoordinates) Files.getAttribute(artifactPath, RepositoryFileAttributes.COORDINATES);
+            String p = artifactPath.getResourceLocation();
+
+            RemoteArtifactEntry artifactEntry = (RemoteArtifactEntry) artifactEntryService.findOne(storageId,
+                                                                                                   repositoryId,
+                                                                                                   p)
+                                                                                          .orElse(new RemoteArtifactEntry());
+            artifactEntry.setArtifactCoordinates(c);
+            artifactEntry.setRepositoryId(storageId);
+            artifactEntry.setRepositoryId(repositoryId);
+            artifactEntry.setIsCached(Boolean.TRUE);
+            artifactEntry.setArtifactPath(p);
+            artifactEntryService.save(artifactEntry);
+
+            return result;
         }
     }
 

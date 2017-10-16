@@ -6,6 +6,7 @@ import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import javax.transaction.TransactionManager;
 
 import com.orientechnologies.orient.core.entity.OEntityManager;
 import org.springframework.context.ApplicationContext;
@@ -16,6 +17,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.scheduling.quartz.SpringBeanJobFactory;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.cron" })
@@ -31,6 +33,8 @@ public class CronTasksConfig
     @Inject
     private ApplicationContext applicationContext;
 
+    @Inject
+    private TransactionTemplate transactionTemplate;
 
     @Bean
     public SchedulerFactoryBean schedulerFactoryBean()
@@ -51,11 +55,13 @@ public class CronTasksConfig
     }
 
     @PostConstruct
-    @Transactional
     public void init()
     {
-        // register all domain entities
-        oEntityManager.registerEntityClasses(CronTaskConfiguration.class.getPackage().getName());
+        transactionTemplate.execute((s) ->
+        {
+            oEntityManager.registerEntityClass(CronTaskConfiguration.class);
+            return null;
+        });
     }
 
 }

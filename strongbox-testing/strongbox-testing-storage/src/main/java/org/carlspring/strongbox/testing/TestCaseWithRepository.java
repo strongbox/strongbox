@@ -28,7 +28,7 @@ public class TestCaseWithRepository
     protected List<File> generatedArtifacts = new ArrayList<>();
 
     @Inject
-    ConfigurationManagementService configurationManagementService;
+    protected ConfigurationManagementService configurationManagementService;
 
     @ClassRule
     public static JUnitHelper jUnitHelper = new JUnitHelper();

@@ -3,13 +3,19 @@ package org.carlspring.strongbox.providers.io;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchEvent.Modifier;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.Iterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * This implementation wraps target {@link Path} implementation, which can be an "CloudPath" or common
@@ -162,6 +168,15 @@ public class RepositoryPath
         return getFileSystem().getRootDirectory().relativize(this); 
     }
 
+    public String getResourceLocation() {
+        String resourceLocation = getRepositoryRelative().toString();
+        String separator = getFileSystem().getSeparator();
+        if (separator.equals("/")){
+            return resourceLocation;
+        }
+        return resourceLocation.replaceAll(Pattern.quote(separator), Matcher.quoteReplacement("/"));
+    }
+    
     public URI toUri()
     {
         throw new UnsupportedOperationException();

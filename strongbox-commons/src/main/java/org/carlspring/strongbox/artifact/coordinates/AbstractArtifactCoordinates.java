@@ -2,8 +2,10 @@ package org.carlspring.strongbox.artifact.coordinates;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Collections;
 
 import org.carlspring.strongbox.data.domain.GenericEntity;
+
 
 /**
  * @author carlspring
@@ -14,7 +16,7 @@ public abstract class AbstractArtifactCoordinates
 {
 
     private Map<String, String> coordinates = new LinkedHashMap<>();
-
+    private String path;
 
     public AbstractArtifactCoordinates()
     {
@@ -23,20 +25,16 @@ public abstract class AbstractArtifactCoordinates
     public AbstractArtifactCoordinates(Map<String, String> coordinates)
     {
         this.coordinates = coordinates;
+        this.path = toPath();
     }
     
-    @Override
-    public String getUuid()
-    {
-        return toPath();
-    }
-
-    public void defineCoordinates(String... coordinates)
+    public final void defineCoordinates(String... coordinates)
     {
         for (String coordinate : coordinates)
         {
             this.coordinates.put(coordinate, null);
         }
+        this.path = toPath();
     }
 
     @Override
@@ -50,9 +48,10 @@ public abstract class AbstractArtifactCoordinates
         }
     }
 
-    public void defineCoordinate(String coordinate)
+    public final void defineCoordinate(String coordinate)
     {
         coordinates.put(coordinate, null);
+        this.path = toPath();
     }
 
     public String getCoordinate(String coordinate)
@@ -60,26 +59,51 @@ public abstract class AbstractArtifactCoordinates
         return coordinates.get(coordinate);
     }
 
-    public String setCoordinate(String coordinate,
+    public final String setCoordinate(String coordinate,
                                 String value)
     {
-        return coordinates.put(coordinate, value);
+        String result = coordinates.put(coordinate, value);
+        this.path = toPath();
+        return result;
     }
 
     public Map<String, String> getCoordinates()
     {
-        return coordinates;
+        return Collections.unmodifiableMap(coordinates);
     }
 
-    public void setCoordinates(Map<String, String> coordinates)
+    public final void setCoordinates(Map<String, String> coordinates)
     {
         this.coordinates = coordinates;
+        this.path = toPath();
+    }
+    
+    public String getPath()
+    {
+        return path;
     }
 
     @Override
     public String toString()
     {
         return toPath();
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (obj == null || !(obj instanceof AbstractArtifactCoordinates))
+        {
+            return false;
+        }
+        AbstractArtifactCoordinates c = (AbstractArtifactCoordinates) obj;
+        return c.getCoordinates() == null ? getCoordinates() != null : c.getCoordinates().equals(getCoordinates());
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return getCoordinates() == null ? 0 : getCoordinates().hashCode();
     }
 
 }

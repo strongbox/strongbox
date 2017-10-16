@@ -4,8 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
+import org.carlspring.strongbox.data.domain.GenericEntity;
 import org.carlspring.strongbox.data.server.EmbeddedOrientDbServer;
 import org.carlspring.strongbox.data.tx.OEntityUnproxyAspect;
 import org.slf4j.Logger;
@@ -21,14 +23,18 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.core.entity.OEntityManager;
+import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 /**
  * Spring configuration for data service project.
@@ -52,30 +58,58 @@ public class DataServiceConfig
     private static final Logger logger = LoggerFactory.getLogger("DataServiceConfig");
 
     @Value("${strongbox.orientdb.host:127.0.0.1}")
-    String host;
+    private String host;
 
     @Value("${strongbox.orientdb.port:2424}")
-    Integer port;
+    private Integer port;
 
     @Value("${strongbox.orientdb.database:strongbox}")
-    String database;
+    private String database;
 
     @Value("${strongbox.orientdb.username:admin}")
-    String username;
+    private String username;
 
     @Value("${strongbox.orientdb.password:password}")
-    String password;
+    private String password;
 
     private static EmbeddedOrientDbServer embeddableServer;
 
-    @Bean
-    public PlatformTransactionManager transactionManager(EntityManagerFactory emf)
+    @PostConstruct
+    public void init()
+        throws Exception
     {
-        return new JpaTransactionManager(emf);
+        startDbServer();
+        transactionTemplate().execute((s) ->
+                                    {
+                                        doInit(s);
+                                        return null;
+                                    });
+    }
+
+    private void doInit(TransactionStatus s)
+    {
+        oEntityManager().registerEntityClass(GenericEntity.class);
+        EntityManager entityManager = EntityManagerFactoryUtils.getTransactionalEntityManager(entityManagerFactory());
+        OClass oGenericEntityClass = ((OObjectDatabaseTx) entityManager.getDelegate()).getMetadata()
+                                                                                      .getSchema()
+                                                                                      .getOrCreateClass(GenericEntity.class.getSimpleName());
+        
+        if (oGenericEntityClass.getIndexes()
+                      .stream()
+                      .noneMatch(oIndex -> oIndex.getName().equals("idx_uuid")))
+        {
+            oGenericEntityClass.createIndex("idx_uuid", OClass.INDEX_TYPE.UNIQUE, "uuid");
+        }
+    }    
+    
+    @Bean
+    public PlatformTransactionManager transactionManager()
+    {
+        return new JpaTransactionManager((EntityManagerFactory)entityManagerFactory());
     }
 
     @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory()
+    public EntityManagerFactory entityManagerFactory()
     {
         Map<String, String> jpaProperties = new HashMap<>();
         jpaProperties.put("javax.persistence.jdbc.url", getConnectionUrl());
@@ -84,14 +118,15 @@ public class DataServiceConfig
 
         LocalContainerEntityManagerFactoryBean result = new LocalContainerEntityManagerFactoryBean();
         result.setJpaPropertyMap(jpaProperties);
-        return result;
+        result.afterPropertiesSet();
+        return result.getObject();
     }
 
     @Bean
-    public TransactionTemplate transactionTemplate(PlatformTransactionManager transactionManager)
+    public TransactionTemplate transactionTemplate()
     {
         TransactionTemplate result = new TransactionTemplate();
-        result.setTransactionManager(transactionManager);
+        result.setTransactionManager(transactionManager());
         return result;
     }
 
@@ -118,17 +153,24 @@ public class DataServiceConfig
         return cmfb;
     }
 
-    @PostConstruct
-    public void registerEntities()
+    private void startDbServer()
         throws Exception
     {
+        logger.info(String.format("Start Embedded OrientDB server [%s].", getConnectionUrl()));
         if (embeddableServer == null)
         {
             embeddableServer = new EmbeddedOrientDbServer(this);
             embeddableServer.init();
         }
 
-        embeddableServer.start();
+        try
+        {
+            embeddableServer.start();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
 
         // create database if not initialized
         OServerAdmin serverAdmin = new OServerAdmin(getConnectionUrl()).connect(username, password);

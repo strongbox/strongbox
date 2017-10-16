@@ -1,25 +1,22 @@
 package org.carlspring.strongbox.users.security;
 
-import org.carlspring.strongbox.configuration.ConfigurationException;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.security.Role;
-import org.carlspring.strongbox.users.domain.Roles;
-import org.carlspring.strongbox.users.service.AuthorizationConfigService;
-import org.carlspring.strongbox.xml.parsers.GenericParser;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
-import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import com.google.common.collect.Sets;
-import com.orientechnologies.orient.core.entity.OEntityManager;
-import com.orientechnologies.orient.core.exception.OSerializationException;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.xml.bind.JAXBException;
+
+import org.carlspring.strongbox.configuration.ConfigurationException;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.security.Role;
+import org.carlspring.strongbox.users.domain.Roles;
+import org.carlspring.strongbox.users.service.AuthorizationConfigService;
+import org.carlspring.strongbox.xml.parsers.GenericParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -27,6 +24,10 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
+
+import com.google.common.collect.Sets;
+import com.orientechnologies.orient.core.entity.OEntityManager;
+import com.orientechnologies.orient.core.exception.OSerializationException;
 
 /**
  * Responsible for load, validate and save to the persistent storage {@link AuthorizationConfig} from configuration
@@ -160,11 +161,12 @@ public class AuthorizationConfigProvider
 
     private synchronized void registerEntities()
     {
-        // full class names used for clarity and to avoid conflicts with domain package
-        // that contains the same class names
-        oEntityManager.registerEntityClass(AuthorizationConfig.class);
-        oEntityManager.registerEntityClass(org.carlspring.strongbox.security.Roles.class);
-        oEntityManager.registerEntityClass(Role.class);
+        transactionTemplate.execute((s) -> {
+            oEntityManager.registerEntityClass(AuthorizationConfig.class);
+            oEntityManager.registerEntityClass(org.carlspring.strongbox.security.Roles.class);
+            oEntityManager.registerEntityClass(Role.class);
+            return null;
+        });
     }
 
     private void validateConfig(@NotNull AuthorizationConfig config)

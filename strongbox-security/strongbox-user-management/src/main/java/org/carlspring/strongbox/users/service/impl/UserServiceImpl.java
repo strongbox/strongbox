@@ -1,29 +1,29 @@
 package org.carlspring.strongbox.users.service.impl;
 
+import org.carlspring.strongbox.data.CacheName;
+import org.carlspring.strongbox.data.service.CommonCrudService;
+import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.security.SecurityTokenProvider;
+import org.carlspring.strongbox.users.service.UserService;
+
+import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
+import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import org.apache.commons.lang.StringUtils;
-import org.carlspring.strongbox.data.service.CommonCrudService;
-import org.carlspring.strongbox.users.domain.User;
-import org.carlspring.strongbox.users.security.SecurityTokenProvider;
-import org.carlspring.strongbox.users.service.UserService;
 import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.BeanCreationException;
-import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationContext;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
 /**
  * DAO implementation for {@link User} entities.
@@ -32,13 +32,18 @@ import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
  */
 @Service
 @Transactional
-public class UserServiceImpl extends CommonCrudService<User>
+public class UserServiceImpl
+        extends CommonCrudService<User>
         implements UserService
 {
 
-    public static final Logger logger = LoggerFactory.getLogger(UserService.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    public static final String USERS_CACHE = "users";
+    @Inject
+    private ApplicationContext applicationContext;
+
+    @Inject
+    private PasswordEncoder passwordEncoder;
 
     @Inject
     private CacheManager cacheManager;
@@ -46,21 +51,8 @@ public class UserServiceImpl extends CommonCrudService<User>
     @Inject
     private SecurityTokenProvider tokenProvider;
 
-    private Cache usersCache;
-
-
-    @PostConstruct
-    public void init()
-    {
-        usersCache = cacheManager.getCache(USERS_CACHE);
-        if (usersCache == null)
-        {
-            throw new BeanCreationException("Unable to create the users' cache!");
-        }
-    }
-
     @Override
-    @Cacheable(value = USERS_CACHE, key = "#name", sync = true)
+    @Cacheable(value = CacheName.User.USERS, key = "#name")
     public User findByUserName(String name)
     {
         HashMap<String, String> params = new HashMap<>();
@@ -76,11 +68,11 @@ public class UserServiceImpl extends CommonCrudService<User>
     }
 
     @Override
+    @CacheEvict(value = { CacheName.User.USERS,
+                          CacheName.User.USER_DETAILS }, key = "#newUser.username")
     public <S extends User> S save(S newUser)
     {
-        S user = super.save(newUser);
-        usersCache.put(user.getUsername(), getDelegate().detachAll(user, true));
-        return user;
+        return super.save(newUser);
     }
 
     @Override
@@ -93,41 +85,37 @@ public class UserServiceImpl extends CommonCrudService<User>
 
         Optional<User> optionalUser = super.findOne(id);
 
-        return optionalUser.map(u ->
-                                {
-                                    usersCache.put(u.getUsername(), getDelegate().detachAll(u, true));
-                                    return Optional.ofNullable(u);
-                                })
-                           .orElse(optionalUser);
+        optionalUser.ifPresent(user -> cacheManager.getCache(CacheName.User.USERS).put(user.getUsername(), user));
+
+        return optionalUser;
     }
 
     @Override
     public void delete(String objectId)
     {
-        findOne(objectId).ifPresent(user ->
-                                    {
-                                        usersCache.evict(user.getUsername());
-                                    });
-        super.delete(objectId);
+        Optional<User> optionalUser = findOne(objectId);
+        optionalUser.ifPresent(user -> self().delete(optionalUser.get()));
     }
 
+    @CacheEvict(value = { CacheName.User.USERS,
+                          CacheName.User.USER_DETAILS }, key = "#user.username")
     @Override
     public void delete(User user)
     {
-        usersCache.evict(user.getUsername());
         super.delete(user);
     }
 
+    @CacheEvict(value = { CacheName.User.USERS,
+                          CacheName.User.USER_DETAILS }, allEntries = true)
     @Override
     public void deleteAll()
     {
-        usersCache.clear();
         super.deleteAll();
     }
 
     @Override
     public String generateSecurityToken(String userName)
-        throws JoseException
+            throws JoseException
     {
         User user = findByUserName(userName);
 
@@ -145,7 +133,7 @@ public class UserServiceImpl extends CommonCrudService<User>
     @Override
     public String generateAuthenticationToken(String userName,
                                               Integer expireMinutes)
-        throws JoseException
+            throws JoseException
     {
         User user = findByUserName(userName);
 
@@ -165,6 +153,42 @@ public class UserServiceImpl extends CommonCrudService<User>
         claimMap.put("security-token-key", user.getSecurityTokenKey());
 
         tokenProvider.verifyToken(apiKey, userName, claimMap);
+    }
+
+    @Override
+    public User updatePassword(User userToUpdate)
+    {
+        final UserService self = self();
+        User user = self.findByUserName(userToUpdate.getUsername());
+        updatePassword(user, userToUpdate.getPassword());
+        return self.save(user);
+    }
+
+    @Override
+    public User updateByUsername(User userToUpdate)
+    {
+        final UserService self = self();
+        User user = self.findByUserName(userToUpdate.getUsername());
+        updatePassword(user, userToUpdate.getPassword());
+        user.setEnabled(userToUpdate.isEnabled());
+        user.setRoles(userToUpdate.getRoles());
+        user.setSecurityTokenKey(userToUpdate.getSecurityTokenKey());
+        user.setAccessModel(userToUpdate.getAccessModel());
+        return self.save(user);
+    }
+
+    private UserService self()
+    {
+        return applicationContext.getBean(UserService.class);
+    }
+
+    private void updatePassword(User user,
+                                String rawPassword)
+    {
+        if (StringUtils.isNotEmpty(rawPassword))
+        {
+            user.setPassword(passwordEncoder.encode(rawPassword));
+        }
     }
 
     @Override

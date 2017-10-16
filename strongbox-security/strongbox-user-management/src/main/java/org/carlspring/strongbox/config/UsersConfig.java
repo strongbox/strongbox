@@ -1,30 +1,24 @@
 package org.carlspring.strongbox.config;
 
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.security.Credentials;
-import org.carlspring.strongbox.security.UserAccessModel;
-import org.carlspring.strongbox.security.UserPathPermissions;
-import org.carlspring.strongbox.security.UserRepository;
-import org.carlspring.strongbox.security.Users;
-import org.carlspring.strongbox.security.encryption.EncryptionAlgorithms;
-import org.carlspring.strongbox.users.domain.AccessModel;
-import org.carlspring.strongbox.users.domain.Privileges;
-import org.carlspring.strongbox.users.domain.User;
-import org.carlspring.strongbox.users.service.UserService;
-import org.carlspring.strongbox.xml.parsers.GenericParser;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 
-import com.orientechnologies.orient.core.entity.OEntityManager;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.security.UserAccessModel;
+import org.carlspring.strongbox.security.UserPathPermissions;
+import org.carlspring.strongbox.security.UserRepository;
+import org.carlspring.strongbox.security.Users;
+import org.carlspring.strongbox.users.domain.AccessModel;
+import org.carlspring.strongbox.users.domain.Privileges;
+import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.service.UserService;
+import org.carlspring.strongbox.xml.parsers.GenericParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanInstantiationException;
@@ -35,6 +29,10 @@ import org.springframework.core.io.Resource;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
+
+import com.orientechnologies.orient.core.entity.OEntityManager;
+import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 /**
  * Spring configuration for all user-related code.
@@ -83,8 +81,8 @@ public class UsersConfig
     private void doInit()
     {
         // register all domain entities
-        oEntityManager.registerEntityClasses(User.class.getPackage()
-                                                       .getName());
+        oEntityManager.registerEntityClass(User.class);
+        oEntityManager.registerEntityClass(AccessModel.class);
 
         // set unique constraints and index field 'username' if it isn't present yet
         OClass oUserClass = ((OObjectDatabaseTx) entityManager.getDelegate()).getMetadata()
@@ -96,7 +94,6 @@ public class UsersConfig
                       .stream()
                       .noneMatch(oIndex -> oIndex.getName().equals("idx_username")))
         {
-            oUserClass.createProperty("username", OType.STRING);
             oUserClass.createIndex("idx_username", OClass.INDEX_TYPE.UNIQUE, "username");
         }
 
@@ -150,25 +147,9 @@ public class UsersConfig
     {
         User internalUser = new User();
         internalUser.setUsername(user.getUsername());
-
-        Credentials credentials = user.getCredentials();
-        EncryptionAlgorithms algorithms = EncryptionAlgorithms.valueOf(credentials.getEncryptionAlgorithm()
-                                                                                  .toUpperCase());
-
-        switch (algorithms)
-        {
-            case PLAIN:
-                internalUser.setPassword(credentials.getPassword());
-                break;
-
-            // TODO process other cases
-            default:
-                throw new UnsupportedOperationException(algorithms.toString());
-        }
-
+        internalUser.setPassword(user.getPassword());
         internalUser.setEnabled(true);
         internalUser.setRoles(user.getRoles());
-        internalUser.setSalt(user.getSeed() + "");
 
         // load userAccessModel
         UserAccessModel userAccessModel = user.getUserAccessModel();
@@ -190,7 +171,7 @@ public class UsersConfig
         {
             internalUser.setSecurityTokenKey(user.getSecurityTokenKey());
         }
-        
+
         return internalUser;
     }
 

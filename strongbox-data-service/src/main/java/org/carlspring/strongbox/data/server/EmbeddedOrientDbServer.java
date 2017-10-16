@@ -1,7 +1,9 @@
 package org.carlspring.strongbox.data.server;
 
 import org.carlspring.strongbox.config.DataServiceConfig;
+import org.carlspring.strongbox.data.domain.GenericEntityHook;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -9,6 +11,7 @@ import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.OServerMain;
 import com.orientechnologies.orient.server.config.OServerConfiguration;
 import com.orientechnologies.orient.server.config.OServerEntryConfiguration;
+import com.orientechnologies.orient.server.config.OServerHookConfiguration;
 import com.orientechnologies.orient.server.config.OServerNetworkConfiguration;
 import com.orientechnologies.orient.server.config.OServerNetworkListenerConfiguration;
 import com.orientechnologies.orient.server.config.OServerNetworkProtocolConfiguration;
@@ -48,6 +51,10 @@ public class EmbeddedOrientDbServer
 
         server = OServerMain.create(false);
         serverConfiguration = new OServerConfiguration();
+        
+        OServerHookConfiguration hookConfiguration = new OServerHookConfiguration();
+        serverConfiguration.hooks = Arrays.asList(new OServerHookConfiguration[] { hookConfiguration });
+        hookConfiguration.clazz = GenericEntityHook.class.getName();
 
         OServerNetworkListenerConfiguration binaryListener = new OServerNetworkListenerConfiguration();
         binaryListener.ipAddress = "0.0.0.0";

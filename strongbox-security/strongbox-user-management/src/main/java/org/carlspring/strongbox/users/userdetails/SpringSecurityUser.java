@@ -22,8 +22,6 @@ public class SpringSecurityUser
 
     private boolean enabled;
 
-    private String salt;
-
     private Collection<? extends GrantedAuthority> authorities;
 
     private AccessModel accessModel;
@@ -87,16 +85,6 @@ public class SpringSecurityUser
         this.enabled = enabled;
     }
 
-    public String getSalt()
-    {
-        return salt;
-    }
-
-    public void setSalt(String salt)
-    {
-        this.salt = salt;
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities()
     {
@@ -147,7 +135,6 @@ public class SpringSecurityUser
         return enabled == user.enabled &&
                Objects.equal(username, user.username) &&
                Objects.equal(password, user.password) &&
-               Objects.equal(salt, user.salt) &&
                Objects.equal(authorities, user.authorities) &&
                Objects.equal(accessModel, user.accessModel) &&
                Objects.equal(url, user.url) &&
@@ -157,7 +144,7 @@ public class SpringSecurityUser
     @Override
     public int hashCode()
     {
-        return Objects.hashCode(username, password, enabled, salt, authorities, accessModel, url);
+        return Objects.hashCode(username, password, enabled, authorities, accessModel, url);
     }
 
     @Override
@@ -172,9 +159,6 @@ public class SpringSecurityUser
           .append('\'');
         sb.append(", enabled=")
           .append(enabled);
-        sb.append(", salt='")
-          .append(salt)
-          .append('\'');
         if (authorities != null)
         {
             sb.append(", authorities (count) = ")

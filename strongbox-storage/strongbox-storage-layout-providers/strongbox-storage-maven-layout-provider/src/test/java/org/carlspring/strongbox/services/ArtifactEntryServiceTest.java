@@ -59,7 +59,7 @@ public class ArtifactEntryServiceTest
         MavenArtifactCoordinates coordinates = new MavenArtifactCoordinates();
         coordinates.setGroupId(groupId);
 
-        List<ArtifactEntry> artifactEntries = artifactEntryService.findByCoordinates(coordinates);
+        List<ArtifactEntry> artifactEntries = artifactEntryService.findByCoordinates(storageId, repositoryId, coordinates);
 
         assertNotNull(artifactEntries);
         assertFalse(artifactEntries.isEmpty());
@@ -93,7 +93,7 @@ public class ArtifactEntryServiceTest
         query.setGroupId(groupId);
         query.setArtifactId(artifactId);
 
-        List<ArtifactEntry> result = artifactEntryService.findByCoordinates(query);
+        List<ArtifactEntry> result = artifactEntryService.findByCoordinates(storageId, repositoryId, query);
         assertNotNull(result);
         assertFalse(result.isEmpty());
 

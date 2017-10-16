@@ -4,6 +4,7 @@ import org.carlspring.strongbox.data.domain.GenericEntity;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.base.Objects;
@@ -22,8 +23,6 @@ public class User
 
     private boolean enabled;
 
-    private String salt;
-
     private Set<String> roles;
 
     private String securityTokenKey;
@@ -39,14 +38,12 @@ public class User
                 String username,
                 String password,
                 boolean enabled,
-                String salt,
                 Set<String> roles)
     {
         this.objectId = id;
         this.username = username;
         this.password = password;
         this.enabled = enabled;
-        this.salt = salt;
         this.roles = roles;
     }
 
@@ -59,7 +56,6 @@ public class User
         return enabled == user.enabled &&
                Objects.equal(username, user.username) &&
                Objects.equal(password, user.password) &&
-               Objects.equal(salt, user.salt) &&
                Objects.equal(roles, user.roles) &&
                Objects.equal(securityTokenKey, user.securityTokenKey) &&
                Objects.equal(accessModel, user.accessModel);
@@ -68,7 +64,7 @@ public class User
     @Override
     public int hashCode()
     {
-        return Objects.hashCode(username, password, enabled, salt, roles, securityTokenKey, accessModel);
+        return Objects.hashCode(username, password, enabled, roles, securityTokenKey, accessModel);
     }
 
     public String getUsername()
@@ -101,16 +97,6 @@ public class User
         this.enabled = enabled;
     }
 
-    public String getSalt()
-    {
-        return salt;
-    }
-
-    public void setSalt(final String salt)
-    {
-        this.salt = salt;
-    }
-
     public Set<String> getRoles()
     {
         return roles;
@@ -138,6 +124,14 @@ public class User
 
     public void setAccessModel(AccessModel accessModel)
     {
+        // ORecordDuplicatedException: Cannot index record AccessModel{....}:
+        // found duplicated key '....' in index 'idx_uuid' previously assigned to the record ...
+        if (this.accessModel != null && accessModel != null && accessModel.getUuid() != null &&
+            Objects.equal(this.accessModel.getUuid(), accessModel.getUuid()) &&
+            !Objects.equal(this.accessModel.getObjectId(), accessModel.getObjectId()))
+        {
+            accessModel.setUuid(UUID.randomUUID().toString());
+        }
         this.accessModel = accessModel;
     }
 
@@ -149,14 +143,8 @@ public class User
         sb.append("username='")
           .append(username)
           .append('\'');
-        sb.append(", password='")
-          .append(password)
-          .append('\'');
         sb.append(", enabled=")
           .append(enabled);
-        sb.append(", salt='")
-          .append(salt)
-          .append('\'');
         sb.append(", roles=")
           .append(roles);
         sb.append(", securityTokenKey='")

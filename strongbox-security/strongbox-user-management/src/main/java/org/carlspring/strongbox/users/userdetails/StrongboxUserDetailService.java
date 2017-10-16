@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.users.userdetails;
 
+import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.security.AuthoritiesProvider;
 import org.carlspring.strongbox.users.service.UserService;
@@ -39,8 +40,7 @@ public class StrongboxUserDetailService
     AuthoritiesProvider authoritiesProvider;
 
     @Override
-    @Cacheable(value = "userDetails",
-            key = "#name")
+    @Cacheable(value = CacheName.User.USER_DETAILS, key = "#name")
     public synchronized UserDetails loadUserByUsername(String name)
             throws UsernameNotFoundException
     {
@@ -67,7 +67,6 @@ public class StrongboxUserDetailService
         SpringSecurityUser springUser = new SpringSecurityUser();
         springUser.setEnabled(user.isEnabled());
         springUser.setPassword(user.getPassword());
-        springUser.setSalt(user.getSalt());
         springUser.setUsername(user.getUsername());
         springUser.setAuthorities(authorities);
         springUser.setAccessModel(user.getAccessModel());

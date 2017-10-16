@@ -28,11 +28,21 @@ public interface ArtifactEntryService
      * @param coordinates search query defined as a set of coordinates (id ,version, groupID etc.)
      * @return list of artifacts or empty list if nothing was found
      */
-    List<ArtifactEntry> findByCoordinates(ArtifactCoordinates coordinates);
+    List<ArtifactEntry> findByCoordinates(String storageId,
+                                          String repositoryId,
+                                          ArtifactCoordinates coordinates);
     
-    List<ArtifactEntry> findByCoordinates(Map<String, String> coordinates);
+    List<ArtifactEntry> findByCoordinates(String storageId,
+                                          String repositoryId,
+                                          Map<String, String> coordinates);
     
-    List<ArtifactEntry> findByCoordinates(Map<String, String> coordinates, String orderBy, boolean strict);
+    List<ArtifactEntry> findByCoordinates(String storageId,
+                                          String repositoryId,
+                                          Map<String, String> coordinates,
+                                          String orderBy,
+                                          boolean strict);
     
-    Optional<ArtifactEntry> findOne(ArtifactCoordinates artifactCoordinates);
+    boolean exists(String storageId, String repositoryId, String path);
+    
+    Optional<ArtifactEntry> findOne(String storageId, String repositoryId, String path);
 }

@@ -1,5 +1,12 @@
 package org.carlspring.strongbox.repository;
 
+import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
+
+import java.io.File;
+import java.io.IOException;
+
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
@@ -12,18 +19,11 @@ import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexerFactory;
-import org.carlspring.strongbox.storage.indexing.downloader.IndexDownloader;
 import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.inject.Inject;
-import java.io.File;
-import java.io.IOException;
-
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import static org.carlspring.strongbox.util.IndexContextHelper.getContextId;
 
 /**
  * @author carlspring
@@ -34,9 +34,6 @@ public class MavenRepositoryManagementStrategy
 {
 
     private static final Logger logger = LoggerFactory.getLogger(MavenRepositoryManagementStrategy.class);
-
-    @Inject
-    private IndexDownloader downloader;
 
     @Inject
     private RepositoryIndexManager repositoryIndexManager;
@@ -55,17 +52,13 @@ public class MavenRepositoryManagementStrategy
 
 
     @Override
-    public void createRepository(String storageId,
-                                 String repositoryId)
+    protected void createRepositoryInternal(Storage storage, Repository repository)
             throws IOException, RepositoryManagementStrategyException
     {
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
-
-        final String storageBasedirPath = storage.getBasedir();
-        final File repositoryBasedir = new File(storageBasedirPath, repositoryId).getAbsoluteFile();
-
-        createRepositoryStructure(storageBasedirPath, repositoryId);
+        String storageId = storage.getId();
+        String repositoryId = repository.getId();
+        
+        final File repositoryBasedir = getRepositoryBaseDir(storageId, repositoryId);
 
         if (repository.isIndexingEnabled())
         {
@@ -137,8 +130,6 @@ public class MavenRepositoryManagementStrategy
                InstantiationException |
                IllegalAccessException e)
         {
-            logger.error(e.getMessage(), e);
-
             throw new RepositoryManagementStrategyException(e.getMessage(), e);
         }
     }
