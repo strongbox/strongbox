@@ -6,6 +6,7 @@ import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
@@ -20,6 +21,8 @@ import javax.ws.rs.core.Response;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.security.NoSuchAlgorithmException;
 
 import org.slf4j.Logger;
@@ -96,14 +99,15 @@ public abstract class ProxyRepositoryArtifactResolver
             is = onSuccessfulProxyRepositoryResponse(is, storageId, repositoryId, path);
 
             final RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
-            if (!layoutProvider.isChecksum(artifactPath) && !layoutProvider.isMetadata(path))
+            final RepositoryFileAttributes artifactFileAttributes = (RepositoryFileAttributes) Files.readAttributes(
+                    artifactPath,
+                    BasicFileAttributes.class);
+            if (!artifactFileAttributes.isChecksum() && !artifactFileAttributes.isMetadata())
             {
-                artifactEventListenerRegistry.dispatchArtifactDownloadedEvent(storageId, repositoryId, path);
+                artifactEventListenerRegistry.dispatchArtifactFetchedFromRemoteEvent(storageId, repositoryId, path);
             }
 
             return is;
-
-
         }
     }
 

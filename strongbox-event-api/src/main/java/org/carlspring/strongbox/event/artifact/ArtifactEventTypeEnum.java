@@ -111,7 +111,12 @@ public enum ArtifactEventTypeEnum
     /**
      * Occurs when an artifact checksum has commenced an download operation.
      */
-    EVENT_ARTIFACT_CHECKSUM_DOWNLOADING(20);
+    EVENT_ARTIFACT_CHECKSUM_DOWNLOADING(20),
+
+    /**
+     * Occurs when an artifact has been fetched from the remote repository.
+     */
+    EVENT_ARTIFACT_FILE_FETCHED_FROM_REMOTE(21);
 
 
     private int type;
