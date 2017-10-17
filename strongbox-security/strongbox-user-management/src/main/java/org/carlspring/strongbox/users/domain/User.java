@@ -4,7 +4,6 @@ import org.carlspring.strongbox.data.domain.GenericEntity;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.base.Objects;
@@ -124,14 +123,6 @@ public class User
 
     public void setAccessModel(AccessModel accessModel)
     {
-        // ORecordDuplicatedException: Cannot index record AccessModel{....}:
-        // found duplicated key '....' in index 'idx_uuid' previously assigned to the record ...
-        if (this.accessModel != null && accessModel != null && accessModel.getUuid() != null &&
-            Objects.equal(this.accessModel.getUuid(), accessModel.getUuid()) &&
-            !Objects.equal(this.accessModel.getObjectId(), accessModel.getObjectId()))
-        {
-            accessModel.setUuid(UUID.randomUUID().toString());
-        }
         this.accessModel = accessModel;
     }
 
