@@ -14,6 +14,7 @@ import org.carlspring.strongbox.storage.metadata.versions.MetadataVersion;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
+import org.carlspring.strongbox.util.FileUtils;
 
 import javax.inject.Inject;
 import java.io.*;
@@ -24,7 +25,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
@@ -50,8 +50,6 @@ public class MavenMetadataManager
 {
 
     private static final Logger logger = LoggerFactory.getLogger(MavenMetadataManager.class);
-
-    private ReentrantLock lock = new ReentrantLock();
 
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
@@ -145,39 +143,40 @@ public class MavenMetadataManager
         return metadata;
     }
 
-    public void storeMetadata(Path metadataBasePath, String version, Metadata metadata, MetadataType metadataType)
+    public void storeMetadata(Path metadataBasePath,
+                              String version,
+                              Metadata metadata,
+                              MetadataType metadataType)
             throws IOException,
                    NoSuchAlgorithmException
     {
+
         File metadataFile = MetadataHelper.getMetadataFile(metadataBasePath, version, metadataType);
 
-        OutputStream os = null;
-        Writer writer = null;
+        storeSynchronized(metadataFile, metadata, metadataBasePath);
+    }
 
-        try
+    private void storeSynchronized(File metadataFile,
+                                   Metadata metadata,
+                                   Path artifactBasePath)
+            throws IOException, NoSuchAlgorithmException
+    {
+        final String artifactBasePathAsAbsolutePathString = artifactBasePath.toAbsolutePath().toString();
+        metadataSynchronizationContainer.putIfAbsent(artifactBasePathAsAbsolutePathString,
+                                                     artifactBasePathAsAbsolutePathString);
+        synchronized (metadataSynchronizationContainer.get(artifactBasePathAsAbsolutePathString))
         {
-            lock.lock();
+            FileUtils.deleteIfExists(metadataFile);
 
-            if (metadataFile.exists())
+            try (OutputStream os = new MultipleDigestOutputStream(metadataFile, new FileOutputStream(metadataFile));
+                 Writer writer = WriterFactory.newXmlWriter(os))
             {
-                //noinspection ResultOfMethodCallIgnored
-                metadataFile.delete();
+
+                MetadataXpp3Writer mappingWriter = new MetadataXpp3Writer();
+                mappingWriter.write(writer, metadata);
+
+                os.flush();
             }
-
-            os = new MultipleDigestOutputStream(metadataFile, new FileOutputStream(metadataFile));
-
-            writer = WriterFactory.newXmlWriter(os);
-            MetadataXpp3Writer mappingWriter = new MetadataXpp3Writer();
-            mappingWriter.write(writer, metadata);
-
-            os.flush();
-        }
-        finally
-        {
-            lock.unlock();
-
-            ResourceCloser.close(writer, logger);
-            ResourceCloser.close(os, logger);
         }
     }
 

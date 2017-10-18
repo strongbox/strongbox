@@ -66,11 +66,11 @@ public class MetadataHelper
      */
     public static void setLatest(Metadata metadata, String currentLatest)
     {
-        Versioning versioning = metadata.getVersioning() != null ? metadata.getVersioning() : new Versioning();
         if (metadata.getVersioning() == null)
         {
-            metadata.setVersioning(versioning);
+            metadata.setVersioning(new Versioning());
         }
+        Versioning versioning = metadata.getVersioning();
 
         List<String> versions = versioning.getVersions();
 
@@ -93,7 +93,8 @@ public class MetadataHelper
         else
         {
             // Regular mode
-            versioning.setLatest(versions.get(versions.size() - 1));
+            String newLatest = versions.isEmpty() ? null : versions.get(versions.size() - 1);
+            versioning.setLatest(newLatest);
         }
     }
 

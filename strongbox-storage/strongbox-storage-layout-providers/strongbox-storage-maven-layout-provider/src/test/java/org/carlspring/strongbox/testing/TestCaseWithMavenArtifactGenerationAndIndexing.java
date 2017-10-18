@@ -1,6 +1,9 @@
 package org.carlspring.strongbox.testing;
 
+import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.locator.handlers.GenerateMavenMetadataOperation;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
@@ -16,6 +19,7 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
+import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
@@ -28,11 +32,7 @@ import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
@@ -45,7 +45,6 @@ import org.apache.maven.index.context.IndexingContext;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -82,6 +81,8 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
     @Inject
     protected StorageManagementService storageManagementService;
 
+    @Inject
+    protected MavenMetadataManager mavenMetadataManager;
 
     protected void createRepositoryWithArtifacts(Repository repository,
                                                  String ga,
@@ -323,6 +324,21 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         {
             indexingContext.releaseIndexSearcher(searcher);
         }
+    }
+
+    protected void generateMavenMetadata(String storageId,
+                                         String repositoryId)
+            throws IOException
+    {
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        RepositoryPath repositoryPath = layoutProvider.resolve(repository);
+
+        ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
+        locator.setBasedir(repositoryPath);
+        locator.setOperation(new GenerateMavenMetadataOperation(mavenMetadataManager));
+        locator.locateArtifactDirectories();
     }
 
     public void assertIndexContainsArtifact(String storageId,
