@@ -275,12 +275,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     }
 
     @Override
-    public List<Path> search(String storageId,
-                             String repositoryId,
-                             Map<String, String> coordinates,
-                             int skip,
-                             int limit,
-                             String orderBy)
+    public List<Path> search(RepositorySearchRequest request)
     {
         return null;
     }

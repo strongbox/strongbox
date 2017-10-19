@@ -6,21 +6,17 @@ package org.carlspring.strongbox.event;
 public class Event
 {
 
-    private int type;
+    private final int type;
 
 
-    public Event()
+    public Event(int type)
     {
+        this.type = type;
     }
 
     public int getType()
     {
         return type;
-    }
-
-    public void setType(int type)
-    {
-        this.type = type;
     }
 
 }

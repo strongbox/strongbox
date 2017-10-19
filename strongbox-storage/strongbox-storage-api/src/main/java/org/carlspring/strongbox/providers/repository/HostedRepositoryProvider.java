@@ -58,15 +58,22 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
     public ArtifactInputStream getInputStream(String storageId,
                                               String repositoryId,
                                               String path)
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   ArtifactTransportException
+            throws IOException
     {
         Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
 
-        LayoutProvider layoutPtovider = getLayoutProviderRegistry().getProvider(repository.getLayout());
-        RepositoryPath repositoryPath = layoutPtovider.resolve(repository).resolve(path);
-        return (ArtifactInputStream) Files.newInputStream(repositoryPath);
+        final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        final RepositoryPath artifactPath = layoutProvider.resolve(repository).resolve(path);
+
+        logger.debug(" -> Checking local cache for {} ...", artifactPath);
+        if (layoutProvider.containsPath(repository, path))
+        {
+            logger.debug("The artifact {} was found in the local cache", artifactPath);
+            return (ArtifactInputStream) Files.newInputStream(artifactPath);
+        }
+
+        logger.debug("The artifact {} as not found in the local cache", artifactPath);
+        return null;
     }
 
     @Override
@@ -83,33 +90,37 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
     }
 
     @Override
-    public List<Path> search(String storageId,
-                             String repositoryId,
-                             Map<String, String> coordinates,
-                             int skip,
-                             int limit,
-                             String orderBy)
+    public List<Path> search(RepositorySearchRequest request)
     {
-        List<Path> result = new LinkedList<>();
-        for (ArtifactEntry artifactEntry : artifactEntryService.findByCoordinates(storageId, repositoryId,
-                                                                                  coordinates, skip, limit, orderBy,
-                                                                                  false))
+        List<Path> result = new LinkedList<Path>();
+        
+        Storage storage = configurationManager.getConfiguration().getStorage(request.getStorageId());
+        Repository repository = storage.getRepository(request.getRepositoryId());
+        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        
+        List<ArtifactEntry> artifactEntryList = artifactEntryService.findByCoordinates(request.getStorageId(),
+                                                                                       request.getRepositoryId(),
+                                                                                       request.getCoordinates(),
+                                                                                       request.getSkip(),
+                                                                                       request.getLimit(),
+                                                                                       request.getOrderBy(), false);
+        
+        for (ArtifactEntry artifactEntry : artifactEntryList)
         {
-            ArtifactCoordinates artifactCoordinates = artifactEntry.getArtifactCoordinates();
-            Storage storage = getLayoutProviderRegistry().getStorage(storageId);
-            Repository repository = storage.getRepository(repositoryId);
-            LayoutProvider provider = getLayoutProviderRegistry().getProvider(repository.getLayout());
+            RepositoryPath repositoryPath;
             try
             {
-                result.add(provider.resolve(repository, artifactCoordinates));
+                repositoryPath = layoutProvider.resolve(repository, artifactEntry.getArtifactCoordinates());
             }
             catch (IOException e)
             {
-                throw new RuntimeException(
-                        String.format("Failed to resolve RepositoryPath: repository-[%s]; coordinates-[%s]",
-                                      repository.getId(), artifactCoordinates));
+                logger.error(String.format("Failed to resolve Remote Artifact [%s]", artifactEntry.getArtifactPath()),
+                             e);
+                continue;
             }
+            result.add(repositoryPath);
         }
+        
         return result;
     }
 
