@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class CronTaskEventListenerRegistry
-        extends AbstractEventListenerRegistry<CronTaskEvent>
+        extends AbstractEventListenerRegistry
 {
 
     private static final Logger logger = LoggerFactory.getLogger(CronTaskEventListenerRegistry.class);
