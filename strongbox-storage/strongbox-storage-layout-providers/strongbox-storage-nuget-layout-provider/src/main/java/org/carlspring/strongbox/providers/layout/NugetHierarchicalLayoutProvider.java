@@ -2,7 +2,6 @@ package org.carlspring.strongbox.providers.layout;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URL;
 import java.nio.file.spi.FileSystemProvider;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -51,9 +50,6 @@ public class NugetHierarchicalLayoutProvider
     private static final Logger logger = LoggerFactory.getLogger(NugetHierarchicalLayoutProvider.class);
 
     public static final String ALIAS = "Nuget Hierarchical";
-
-    @Inject
-    private NugetRepositoryFeatures nugetRepositoryFeatures;
 
     @Inject
     private NugetRepositoryManagementStrategy nugetRepositoryManagementStrategy;
@@ -131,12 +127,6 @@ public class NugetHierarchicalLayoutProvider
             throws IOException
     {
         throw new UnsupportedOperationException("Not yet implemented!");
-    }
-
-    @Override
-    public NugetRepositoryFeatures getRepositoryFeatures()
-    {
-        return nugetRepositoryFeatures;
     }
 
     @Override

@@ -1,11 +1,30 @@
 package org.carlspring.strongbox.testing;
 
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+
+import org.apache.lucene.document.Document;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.MultiFields;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.util.Bits;
+import org.apache.maven.index.ArtifactInfo;
+import org.apache.maven.index.context.IndexUtils;
+import org.apache.maven.index.context.IndexingContext;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
-import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactSearchService;
@@ -42,8 +61,6 @@ import org.apache.maven.index.context.IndexingContext;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.junit.Assert.assertTrue;
-
 /**
  * @author carlspring
  */
@@ -190,19 +207,10 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
             generateArtifact(repositoryBaseDir, ga + ":" + version + ":jar");
         }
 
-        Repository repository = configurationManagementService.getConfiguration()
-                                                              .getStorage(storageId)
-                                                              .getRepository(repositoryId);
-
-        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        MavenRepositoryFeatures repositoryFeatures = (MavenRepositoryFeatures) layoutProvider.getRepositoryFeatures();
-
-        if (repositoryFeatures.isIndexingEnabled(repository))
+        if (features.isIndexingEnabled(repository))
         {
-            Storage storage = configurationManager.getConfiguration().getStorage(storageId);
-
-            repositoryFeatures.reIndex(storageId, repositoryId, ga.replaceAll("\\.", "/").replaceAll("\\:", "\\/"));
-            repositoryFeatures.pack(storageId, repositoryId);
+            features.reIndex(storageId, repositoryId, ga.replaceAll("\\.", "/").replaceAll("\\:", "\\/"));
+            features.pack(storageId, repositoryId);
         }
     }
 
@@ -211,16 +219,9 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                         String path)
             throws IOException
     {
-        Repository repository = configurationManagementService.getConfiguration()
-                                                              .getStorage(storageId)
-                                                              .getRepository(repositoryId);
-
-        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        MavenRepositoryFeatures repositoryFeatures = (MavenRepositoryFeatures) layoutProvider.getRepositoryFeatures();
-
-        if (repositoryFeatures.isIndexingEnabled(repository))
+        if (features.isIndexingEnabled(repository))
         {
-            repositoryFeatures.reIndex(storageId, repositoryId, path != null ? path : ".");
+            features.reIndex(storageId, repositoryId, path != null ? path : ".");
         }
     }
 
@@ -228,16 +229,9 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                           String repositoryId)
             throws IOException
     {
-        Repository repository = configurationManagementService.getConfiguration()
-                                                              .getStorage(storageId)
-                                                              .getRepository(repositoryId);
-
-        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        MavenRepositoryFeatures repositoryFeatures = (MavenRepositoryFeatures) layoutProvider.getRepositoryFeatures();
-
-        if (repositoryFeatures.isIndexingEnabled(repository))
+        if (features.isIndexingEnabled(repository))
         {
-            repositoryFeatures.pack(storageId, repositoryId);
+            features.pack(storageId, repositoryId);
         }
     }
 

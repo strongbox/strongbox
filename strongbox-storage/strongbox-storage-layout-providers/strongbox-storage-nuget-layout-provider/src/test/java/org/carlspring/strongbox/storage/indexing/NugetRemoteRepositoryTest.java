@@ -18,10 +18,7 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
-import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
-import org.carlspring.strongbox.repository.RepositoryFeatures;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.Storage;
@@ -56,13 +53,13 @@ public class NugetRemoteRepositoryTest
     private ConfigurationManager configurationManager;
 
     @Inject
-    private LayoutProviderRegistry layoutProviderRegistry;
-
-    @Inject
     private RepositoryManagementService repositoryManagementService;
 
     @Inject
     private ArtifactEntryService artifactEntryService;
+
+    @Inject
+    private NugetRepositoryFeatures features;
     
     @BeforeClass
     public static void cleanUp()
@@ -114,9 +111,6 @@ public class NugetRemoteRepositoryTest
     {
         Storage storage = configurationManager.getConfiguration().getStorage(NUGET_COMMON_STORAGE);
         Repository repository = storage.getRepository(REPOSITORY_PROXY);
-
-        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        RepositoryFeatures features = layoutProvider.getRepositoryFeatures();
 
         ((NugetRepositoryFeatures) features).downloadRemoteFeed(storage.getId(),
                                                                 repository.getId(),

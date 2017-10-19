@@ -1,5 +1,21 @@
 package org.carlspring.strongbox.providers.layout;
 
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
+import java.util.stream.Stream;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.index.ArtifactInfo;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
@@ -71,9 +87,6 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
 
     @Inject
     private ArtifactSearchService artifactSearchService;
-
-    @Inject
-    private MavenRepositoryFeatures mavenRepositoryFeatures;
 
     @Inject
     private MavenRepositoryManagementStrategy mavenRepositoryManagementStrategy;
@@ -452,12 +465,6 @@ public class Maven2LayoutProvider extends AbstractLayoutProvider<MavenArtifactCo
                                      repositoryRelativePath).getCanonicalFile();
 
         indexer.addArtifactToIndex(repository.getId(), artifactFile, artifact);
-    }
-
-    @Override
-    public MavenRepositoryFeatures getRepositoryFeatures()
-    {
-        return mavenRepositoryFeatures;
     }
 
     @Override
