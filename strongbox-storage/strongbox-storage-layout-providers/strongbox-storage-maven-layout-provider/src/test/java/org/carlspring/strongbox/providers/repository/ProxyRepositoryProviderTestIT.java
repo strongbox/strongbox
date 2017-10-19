@@ -217,15 +217,15 @@ public class ProxyRepositoryProviderTestIT
                    ArtifactTransportException,
                    ProviderImplementationException
     {
-        InputStream is = artifactResolutionService.getInputStream(storageId, repositoryId, path);
-
-        assertNotNull("Failed to resolve " + path + "!", is);
-
-        if (ArtifactUtils.isMetadata(path))
+        try (final InputStream is = artifactResolutionService.getInputStream(storageId, repositoryId, path))
         {
-            System.out.println(ByteStreams.toByteArray(is));
-        }
+            assertNotNull("Failed to resolve " + path + "!", is);
 
+            if (ArtifactUtils.isMetadata(path))
+            {
+                System.out.println(ByteStreams.toByteArray(is));
+            }
+        }
     }
 
     @Ignore // Broken while Docker is being worked on, as there is no running instance of the Strongbox service.
